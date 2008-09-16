@@ -192,7 +192,7 @@ public class ItemState implements Externalizable {
   
   public boolean isDescendant(QPath relPath) {
     return getAncestorToSave().equals(relPath)
-        || getAncestorToSave().isDescendantOf(relPath, false);
+        || getAncestorToSave().isDescendantOf(relPath);
   }
 
   public QPath getAncestorToSave() {

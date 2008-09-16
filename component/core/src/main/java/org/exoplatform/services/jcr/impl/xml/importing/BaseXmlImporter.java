@@ -339,7 +339,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     if (uuidBehavior == ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING
         && !newVersionHistory) {
       for (ItemState state : changes.getAllStates()) {
-        if (!state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false)) {
+        if (!state.getData().getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH)) {
           changesLog.add(state);
         }
       }
@@ -661,7 +661,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     QPath sameUuidPath = sameUuidItem.getQPath();
 
-    if (ancestorToSave.equals(sameUuidPath) || ancestorToSave.isDescendantOf(sameUuidPath, false)) {
+    if (ancestorToSave.equals(sameUuidPath) || ancestorToSave.isDescendantOf(sameUuidPath)) {
       throw new ConstraintViolationException("The imported document contains a element"
           + " with jcr:uuid attribute the same as the  parent of the import target.");
     }

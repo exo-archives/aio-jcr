@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,7 +39,6 @@ import org.apache.commons.logging.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -997,9 +997,13 @@ public class MultiIndex {
     checkVolatileCommit();
 
     List<NodeData> children = stateMgr.getChildNodesData(node);
+    //try {
     for (NodeData nodeData : children) {
       createIndex(nodeData, stateMgr);
     }
+//    } catch(ConcurrentModificationException e) {
+//      log.error(e);//e.printStackTrace()
+//    }
   }
 
   /**

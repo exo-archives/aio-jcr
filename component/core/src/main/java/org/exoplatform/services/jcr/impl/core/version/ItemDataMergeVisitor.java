@@ -323,7 +323,7 @@ public class ItemDataMergeVisitor extends ItemDataTraversingVisitor {
       }
     }
     
-    changes.add(new ItemState(mergedNode, ItemState.UPDATED, true, mergeNode.getQPath(), true));
+    changes.add(new ItemState(mergedNode, ItemState.UPDATED, true, mergeNode.getQPath(), true));// XXX UPDATE
     
     // replace set of properties of n with those of n'.
     DataManager corrDataManager = corrSession.getTransientNodesManager().getTransactManager();

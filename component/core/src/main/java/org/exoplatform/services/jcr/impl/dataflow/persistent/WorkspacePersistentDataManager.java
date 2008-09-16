@@ -176,7 +176,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
       for (int i = 0; i < allRefs.size(); i++) {
         PropertyData ref = allRefs.get(i);
         if (skipVersionStorage) {
-          if (!ref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false))
+          if (!ref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH))
             refProps.add(ref);
         } else
           refProps.add(ref);
@@ -386,7 +386,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
   }
   
   private boolean isSystemPath(QPath path) {
-    return path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false) || path.equals(Constants.JCR_SYSTEM_PATH);
+    return path.isDescendantOf(Constants.JCR_SYSTEM_PATH) || path.equals(Constants.JCR_SYSTEM_PATH);
   }
 
   public ItemData getItemData(final NodeData parentData, final QPathEntry name) throws RepositoryException {

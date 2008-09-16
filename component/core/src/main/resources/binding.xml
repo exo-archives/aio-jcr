@@ -34,7 +34,7 @@
     </structure>
     
     <structure name="initializer" field="initializer" usage="optional">
-      <value name="class" field="type" style="attribute" />
+      <value name="class" field="type" style="attribute" usage="optional" />
       <collection name="properties" field="parameters" usage="optional"
         item-type="org.exoplatform.services.jcr.config.SimpleParameterEntry"
         factory="org.jibx.runtime.Utility.arrayListFactory" />

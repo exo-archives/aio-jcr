@@ -69,7 +69,7 @@ public class QPath implements Comparable<QPath> {
    * @throws PathNotFoundException
    *           if path could not have parent - i.e. root path
    */
-  public QPath makeParentPath() throws IllegalPathException {
+  public QPath makeParentPath() {
     return makeAncestorPath(1);
   }
 
@@ -80,7 +80,7 @@ public class QPath implements Comparable<QPath> {
    * @param relativeDegree
    * @return
    */
-  public QPath makeAncestorPath(int relativeDegree) throws IllegalPathException {
+  public QPath makeAncestorPath(int relativeDegree) {
     // [PN] 16.01.2007
 //    if (relativeDegree > getLength() || getLength() <= 1) {
 //      throw new IllegalPathException("Relative degree " + relativeDegree
@@ -122,9 +122,26 @@ public class QPath implements Comparable<QPath> {
    *         root's depth=0 etc.
    */
   public int getDepth() {
-    return getLength() - 1;
+    return names.length - 1;
   }
 
+  /**
+   * @param ancestorPath
+   * @return if this path is descendant of given ancestor
+   */
+  public boolean isDescendantOf(final QPath ancestorPath) {
+    final InternalQName[] ancestorNames = ancestorPath.names;
+    
+    if (names.length - ancestorNames.length <= 0)
+      return false;
+    
+    for (int i = 0; i < ancestorNames.length; i++) {
+      if (!ancestorNames[i].equals(names[i]))
+        return false;
+    }
+    return true;
+  }
+  
   /**
    * @param anotherPath
    * @param childOnly
@@ -132,15 +149,17 @@ public class QPath implements Comparable<QPath> {
    *          account
    * @return if this path is descendant of another one
    */
-  public boolean isDescendantOf(QPath anotherPath, boolean childOnly) {
-    int depthDiff = getDepth() - anotherPath.getDepth();
+  public boolean isDescendantOf(final QPath anotherPath, final boolean childOnly) {
+    final InternalQName[] anotherNames = anotherPath.names;
+    
+    //int depthDiff = getDepth() - anotherPath.getDepth();
+    int depthDiff = names.length - anotherNames.length;
     if (depthDiff <= 0 || (childOnly && depthDiff != 1))
       return false;
 
-    InternalQName[] anotherNames = anotherPath.getEntries();
+    //InternalQName[] anotherNames = anotherPath.getEntries();
     for (int i = 0; i < anotherNames.length; i++) {
-      boolean result = anotherNames[i].equals(names[i]);
-      if (!result)
+      if (!anotherNames[i].equals(names[i]))
         return false;
     }
     return true;

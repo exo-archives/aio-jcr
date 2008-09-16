@@ -59,7 +59,6 @@ import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
@@ -1534,7 +1533,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     int sameNameIndex = 0;
-    // SessionChangesLog changes = new SessionChangesLog(session.getId());
     List<ItemState> changes = new ArrayList<ItemState>();
     ItemState deleteState = null;
     for (int j = 0; j < siblings.size(); j++) {

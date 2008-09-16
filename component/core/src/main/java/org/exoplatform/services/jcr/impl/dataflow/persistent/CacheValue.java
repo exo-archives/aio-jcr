@@ -34,9 +34,12 @@ public class CacheValue implements Serializable {
   
   private final long expiredTime;
   
+  private final long cacheTime;
+  
   CacheValue(ItemData item, long expiredTime) {
     this.item = item;
     this.expiredTime = expiredTime;
+    this.cacheTime = System.currentTimeMillis();
   }
 
   ItemData getItem() {
@@ -45,5 +48,9 @@ public class CacheValue implements Serializable {
 
   long getExpiredTime() {
     return expiredTime;
+  }
+
+  long getCacheTime() {
+    return cacheTime;
   }
 }

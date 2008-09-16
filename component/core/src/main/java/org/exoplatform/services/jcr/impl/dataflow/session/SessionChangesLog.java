@@ -59,9 +59,9 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
     
     for(ItemState item: items) {
       QPath qPath = item.getData().getQPath(); 
-      if(qPath.equals(rootPath) || qPath.isDescendantOf(rootPath, false) ||
+      if(qPath.equals(rootPath) || qPath.isDescendantOf(rootPath) ||
           // [PN] 13.12.06 getAncestorToSave use here
-          item.getAncestorToSave().equals(rootPath) || item.getAncestorToSave().isDescendantOf(rootPath, false)) {
+          item.getAncestorToSave().equals(rootPath) || item.getAncestorToSave().isDescendantOf(rootPath)) {
         removedList.add(item);
       }
     }
@@ -258,11 +258,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
   public ItemState[] findRenamed(QPath deletedPath) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     // search from the end for DELETED state.
-    // RENAMED comes after the DELETED in the log  immediately
+    // RENAMED comes after the DELETED in the log immediately (in back order)
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState state = allStates.get(i);  
       if (state.getState() == ItemState.DELETED && !state.isPersisted() &&
-          (deletedPath.isDescendantOf(state.getData().getQPath(), false) ||
+          (deletedPath.isDescendantOf(state.getData().getQPath()) ||
            deletedPath.equals(state.getData().getQPath()))) {
         // 1. if it's an item or ancestor of logged data
         try {
@@ -324,7 +324,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
         byState = true;
       if (byState && 
           (isPersisted != null ? istate.isPersisted() == isPersisted : true) &&
-          ((orAncestor != null && orAncestor ? rootPath.isDescendantOf(istate.getData().getQPath(), false) : true) ||
+          ((orAncestor != null && orAncestor ? rootPath.isDescendantOf(istate.getData().getQPath()) : true) ||
               rootPath.equals(istate.getData().getQPath()))) {
         return istate;
       }

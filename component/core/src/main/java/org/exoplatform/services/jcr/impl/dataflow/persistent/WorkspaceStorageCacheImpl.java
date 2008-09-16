@@ -846,7 +846,7 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       if (key instanceof CacheQPath) {
         // path
         CacheQPath path = (CacheQPath) key;
-        if (path.getQPath().isDescendantOf(parent.getQPath(), false))
+        if (path.getQPath().isDescendantOf(parent.getQPath()))
           return true;
       } else {
         // id

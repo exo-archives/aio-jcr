@@ -46,17 +46,17 @@ public class JCRPathMatcher {
     
     // descendants, e.g. /item/*
     if (forDescendants && knownPath != null) {
-      return path.isDescendantOf(knownPath, false);
+      return path.isDescendantOf(knownPath);
     }
     
     // ancestors, e.g. */item/
     if (forDescendants && knownPath != null) {
-      return knownPath.isDescendantOf(path, false);
+      return knownPath.isDescendantOf(path);
     }
 
     // descendants or ancestors, e.g. */item/*
     if (forDescendants && forAncestors && knownPath != null) {
-      return path.isDescendantOf(knownPath, false) && knownPath.isDescendantOf(path, false);
+      return path.isDescendantOf(knownPath) && knownPath.isDescendantOf(path);
     }
 
     return knownPath.equals(path);

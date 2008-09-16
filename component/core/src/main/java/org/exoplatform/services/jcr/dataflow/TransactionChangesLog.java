@@ -163,7 +163,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState state = allStates.get(i);  
       if (state.getState() == ItemState.DELETED && !state.isPersisted() &&
-          item.getQPath().isDescendantOf(state.getData().getQPath(), false)) {
+          item.getQPath().isDescendantOf(state.getData().getQPath())) {
         // 1. if it's a parent or the parent is descendant of logged data
         try {
           ItemState delete = state;

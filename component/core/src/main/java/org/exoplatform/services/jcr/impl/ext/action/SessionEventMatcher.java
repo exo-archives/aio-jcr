@@ -145,7 +145,7 @@ public class SessionEventMatcher implements ActionMatcher {
       return true;
 
     for (QPath p : paths) {
-      if (itemPath.equals(p) || itemPath.isDescendantOf(p, !isDeep))
+      if (itemPath.equals(p) || itemPath.isDescendantOf(p, !isDeep))// TODO is Child
         return true;
     }
 

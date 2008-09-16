@@ -194,7 +194,7 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
             if (citem.isNode()) {
               // Node... by ID and desc path
               if (!item.getIdentifier().equals(collisionID)
-                  && !item.getQPath().isDescendantOf(citem.getData().getQPath(), false))
+                  && !item.getQPath().isDescendantOf(citem.getData().getQPath()))
                 normalized.add(change);
             } else if (!item.getIdentifier().equals(collisionID)) {
               // Property... by ID

@@ -145,7 +145,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
 
       QPath itemPath = item.getQPath();
 
-      return itemPath.isDescendantOf(cLoc, !criteria.isDeep());
+      return itemPath.isDescendantOf(cLoc, !criteria.isDeep());// TODO is Child
     } catch (RepositoryException e) {
       return false;
     }

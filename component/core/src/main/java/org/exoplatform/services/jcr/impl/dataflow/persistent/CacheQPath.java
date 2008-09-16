@@ -121,6 +121,6 @@ class CacheQPath extends CacheKey {
 
   @Override
   boolean isDescendantOf(QPath path) {
-    return this.path.isDescendantOf(path, false);
+    return this.path.isDescendantOf(path);
   }
 }

@@ -356,11 +356,11 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   protected boolean isExcluded(ItemState event) {
 
     for (QPath excludedPath : excludedPaths) {
-      if (event.getData().getQPath().isDescendantOf(excludedPath, false) || event.getData().getQPath().equals(excludedPath))
+      if (event.getData().getQPath().isDescendantOf(excludedPath) || event.getData().getQPath().equals(excludedPath))
         return true;
     }
 
-    return !event.getData().getQPath().isDescendantOf(indexingRoot, false) && !event.getData().getQPath().equals(indexingRoot);
+    return !event.getData().getQPath().isDescendantOf(indexingRoot) && !event.getData().getQPath().equals(indexingRoot);
   }
 
   protected QueryHandlerContext createQueryHandlerContext(QueryHandler parentHandler) throws RepositoryConfigurationException {

@@ -182,7 +182,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
       List<ItemState> removed = new ArrayList<ItemState>();
       for (ItemState state : delegatedChanges.getAllStates()) {
         if (state.getData().getQPath().equals(path)
-            || state.getData().getQPath().isDescendantOf(path, false))
+            || state.getData().getQPath().isDescendantOf(path))
           removed.add(state);
       }
 
@@ -237,7 +237,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
             removeVisitor.visit(existing);
 
             changes.addAll(removeVisitor.getRemovedStates());
-          } else if (!sameIdentifierPath.isDescendantOf(nodePath, false)) {
+          } else if (!sameIdentifierPath.isDescendantOf(nodePath)) {
             if (removeExisting) {
               final QPath restorePath = nodePath;
               // remove same uuid node, with validation
@@ -251,8 +251,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
                 }
 
                 protected boolean isRemoveDescendant(ItemData item) throws RepositoryException {
-                  return item.getQPath().isDescendantOf(removedRoot.getQPath(), false)
-                      || item.getQPath().isDescendantOf(restorePath, false);
+                  return item.getQPath().isDescendantOf(removedRoot.getQPath())
+                      || item.getQPath().isDescendantOf(restorePath);
                 }
               }
               ;
@@ -509,7 +509,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
           }
         }
 
-        if (existing != null && !existing.getQPath().isDescendantOf(restored.getQPath(), false)) {
+        if (existing != null && !existing.getQPath().isDescendantOf(restored.getQPath())) {
           NodeData existingDelegared = (NodeData) findDelegated(existing.getQPath());
           if (existingDelegared != null) {
             // was restored by previous restore (Workspace.restore(...)), remove
@@ -663,7 +663,7 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
 
       NodeData existing = (NodeData) dataManager.getItemData(restored.getIdentifier());
       if (existing != null
-          && !existing.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false)) {
+          && !existing.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)) {
         // copy childs/properties with OnParentVersionAction.IGNORE to the
         // restored node
         ItemDataCopyIgnoredVisitor copyIgnoredVisitor = new ItemDataCopyIgnoredVisitor((NodeData) dataManager.getItemData(restored.getParentIdentifier()),

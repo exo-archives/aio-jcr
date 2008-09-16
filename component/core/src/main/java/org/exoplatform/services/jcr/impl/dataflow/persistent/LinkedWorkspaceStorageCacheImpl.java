@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,7 +46,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
-
 
 /**
  * Created by The eXo Platform SAS.
@@ -98,7 +98,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   private boolean                                       enabled;
 
   private final Timer                                         workerTimer;
-    
+  
   private CacheStatistic statistic;
   
   /**
@@ -144,8 +144,16 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       if (size() > maxSize) {
         // remove with subnodes
         final CacheValue v = eldest.getValue();
-        if (v != null)//this
-          removeEldest(v.getItem());
+        if (v != null) {
+          //removeEldest(v.getItem());
+          
+          final ItemData item = v.getItem();
+          if (item.isNode()) {
+            // removing childs of the node
+            nodesCache.remove(item.getIdentifier());
+            propertiesCache.remove(item.getIdentifier());
+          }
+        }
         
         return true;
       } else
@@ -159,6 +167,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
      * 
      * @param item
      */
+    @Deprecated
     private void removeEldest(final ItemData item) {
       if (item.isNode()) {
         // we have to remove all childs stored in CN, CP
@@ -411,6 +420,72 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           log.debug("Statistic task skipped. Previous one still runs. Will try next time.");
     }
   }
+    
+  /**
+   * EXPERIMENTAL. Remove of successors in C on postpone manner.
+   */
+  @Deprecated
+  class CRemover extends Thread {
+    
+    private final Map<QPath, Long>         removedPaths = new HashMap<QPath, Long>();
+    
+    private long maximumAge = 0;
+    
+    @Override
+    public void run() {
+      
+    }
+    
+    /**
+     * Remove successors by parent path from C. <br/>
+     * Used to remove successors which are not cached in CN, CP.<br/>
+     * 
+     * Outside must be sinchronyzed by cache(C).
+     */
+    void doRemoveSuccessors(QPath path) {
+      List<CacheId> toRemove = new ArrayList<CacheId>();
+      
+      // find and remove by path
+      for (Iterator<Map.Entry<CacheKey, CacheValue>> citer = cache.entrySet().iterator(); citer.hasNext();) {
+        Map.Entry<CacheKey, CacheValue> ce = citer.next();
+        CacheKey key = ce.getKey();
+        if (key.isDescendantOf(path)) {
+          CacheValue v = ce.getValue();
+          if (v != null)
+            // will remove by id too
+            toRemove.add(new CacheId(v.getItem().getIdentifier()));
+          
+          citer.remove(); // remove
+        }
+      }
+      
+      for (CacheId id: toRemove) 
+        cache.remove(id);
+      
+      toRemove.clear();
+    }
+    
+    void addOnRemove(QPath path) {
+      maximumAge = System.currentTimeMillis();
+      removedPaths.put(path, maximumAge);
+    }
+    
+    boolean isNotRemoved(QPath path, long age) {
+      if (age < maximumAge) { // if item was added before last time the map was changed...
+        //for (Map.Entry<QPath, Long> e: removedPaths.entrySet()) {
+        for (Iterator<Map.Entry<QPath, Long>> eiter=removedPaths.entrySet().iterator(); eiter.hasNext();) {
+          Map.Entry<QPath, Long> e = eiter.next();
+          // if item age older of on-remove entry and it's descendant of the entry - the item was deleted 
+          if (age < e.getValue() && path.isDescendantOf(e.getKey())) {
+            doRemoveSuccessors(path);
+            eiter.remove();
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+  }
   
   /**
    * For debug. 
@@ -536,10 +611,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       // full access cache
       log.info(this.name + " Create unblocking cache map.");
       return new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR);
-      
-      // TODO try to use synchro-map
-      //this.cache = Collections.synchronizedMap(new CacheMap<CacheKey, CacheValue>(maxSize, LOAD_FACTOR));
-      
     } else if (blockingUsers == 1) {
       // per user locked cache (get-lock)
       log.info(this.name + " Create per-user blocking cache map.");
@@ -642,28 +713,34 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null;
   }
 
+
+  protected void putItem(final ItemData data) {
+    cache.put(new CacheId(data.getIdentifier()), new CacheValue(data, System.currentTimeMillis() + liveTime));
+    cache.put(new CacheQPath(data.getParentIdentifier(), data.getQPath()), new CacheValue(data, System.currentTimeMillis() + liveTime));
+  }
+
   /**
    * Called by read operations
    * 
-   * @param data
+   * @param item
    */
-  public void put(final ItemData data) {
-    if (enabled && data != null) {
+  public void put(final ItemData item) {
+    if (enabled && item != null) {
       
       writeLock.lock();
       try {
         if (log.isDebugEnabled())
-          log.debug(name + ", put()    " + data.getQPath().getAsString() + "    " + data.getIdentifier() + "  --  " + data);
+          log.debug(name + ", put()    " + item.getQPath().getAsString() + "    " + item.getIdentifier() + "  --  " + item);
 
-        putItem(data);
+        putItem(item);
 
         // add child item data to list of childs of the parent
-        if (data.isNode()) {
+        if (item.isNode()) {
           // add child node
-          List<NodeData> cachedParentChilds = nodesCache.get(data.getParentIdentifier());
+          List<NodeData> cachedParentChilds = nodesCache.get(item.getParentIdentifier());
           if (cachedParentChilds != null) {
             // Playing for orderable work            
-            NodeData nodeData = (NodeData) data;
+            NodeData nodeData = (NodeData) item;
             int orderNumber = nodeData.getOrderNumber();
 
             synchronized (cachedParentChilds) {
@@ -680,7 +757,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
                       newChilds.add(cachedParentChilds.get(ci)); // copy
                   }
 
-                  nodesCache.put(data.getParentIdentifier(), newChilds); // cache new list
+                  nodesCache.put(item.getParentIdentifier(), newChilds); // cache new list
                   if (log.isDebugEnabled())
                     log.debug(name + ", put()    update child node  " + nodeData.getIdentifier() + "  order #" + orderNumber);
                 } else {
@@ -699,7 +776,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
                 newChilds.add(nodeData); // add
 
-                nodesCache.put(data.getParentIdentifier(), newChilds); // cache new list
+                nodesCache.put(item.getParentIdentifier(), newChilds); // cache new list
                 if (log.isDebugEnabled())
                   log.debug(name + ", put()    add child node  " + nodeData.getIdentifier());
               }
@@ -707,17 +784,17 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           }
         } else {
           // add child property
-          final List<PropertyData> cachedParentChilds = propertiesCache.get(data.getParentIdentifier());
+          final List<PropertyData> cachedParentChilds = propertiesCache.get(item.getParentIdentifier());
           if (cachedParentChilds != null) {
             if (cachedParentChilds.get(0).getValues().size() > 0) {
               synchronized (cachedParentChilds) {
-              // if it's a props list with values, update it
-                int index = cachedParentChilds.indexOf(data);
+                // if it's a props list with values, update it
+                int index = cachedParentChilds.indexOf(item);
                 if (index >= 0) {
                   // update already cached in list
-                  cachedParentChilds.set(index, (PropertyData) data); // replace at current position
+                  cachedParentChilds.set(index, (PropertyData) item); // replace at current position
                   if (log.isDebugEnabled())
-                    log.debug(name + ", put()    update child property  " + data.getIdentifier() + "  at index #" + index);
+                    log.debug(name + ", put()    update child property  " + item.getIdentifier() + "  at index #" + index);
                   
                 } else if (index == -1) {
                   // add new
@@ -725,19 +802,19 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
                   for (int ci = 0; ci < cachedParentChilds.size(); ci++)
                     newChilds.add(cachedParentChilds.get(ci));
   
-                  newChilds.add((PropertyData) data);
-                  propertiesCache.put(data.getParentIdentifier(), newChilds); // cache new list
+                  newChilds.add((PropertyData) item);
+                  propertiesCache.put(item.getParentIdentifier(), newChilds); // cache new list
                   if (log.isDebugEnabled())
-                    log.debug(name + ", put()    add child property  " + data.getIdentifier());
+                    log.debug(name + ", put()    add child property  " + item.getIdentifier());
                 }
               }
             } else
               // if it's a props list with empty values, remove cached list
-              propertiesCache.remove(data.getParentIdentifier());
+              propertiesCache.remove(item.getParentIdentifier());
           }
         }
       } catch (Exception e) {
-        log.error(name + ", Error put item data in cache: " + (data != null ? data.getQPath().getAsString() : "[null]"), e);
+        log.error(name + ", Error put item data in cache: " + (item != null ? item.getQPath().getAsString() : "[null]"), e);
       } finally {
         writeLock.unlock();
       }
@@ -754,32 +831,24 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         log.debug(name + ", addChildProperties() >>> " + logInfo);
       }
 
-      final String parentIdentifier = parentData.getIdentifier();
       String operName = ""; // for debug/trace only
       
       writeLock.lock();
       try {
         // remove parent (no childs)
         operName = "removing parent";
-        removeDeep(parentData, false);
+        removeItem(parentData);
 
         operName = "caching parent";
         putItem(parentData); // put parent in cache
 
-        // [PN] 17.01.07 need to sync as the list can be accessed concurrently till the end of addChildProperties()
-        List<PropertyData> cp = childItems;
-        synchronized (cp) {
-
-          // removing prev list of child properties from cache C
-          operName = "removing child properties";
-          removeChildProperties(parentIdentifier);
-
+        synchronized (childItems) {
           operName = "caching child properties list";
-          propertiesCache.put(parentIdentifier, cp); // put childs in cache CP
+          propertiesCache.put(parentData.getIdentifier(), childItems); // put childs in cache CP
 
           operName = "caching child properties";
           // put childs in cache C
-          for (ItemData p : cp) {
+          for (ItemData p : childItems) {
             if (log.isDebugEnabled())
               log.debug(name + ", addChildProperties()    " + p.getQPath().getAsString() + "    " + p.getIdentifier() + "  --  " + p);
 
@@ -808,23 +877,20 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         log.debug(name + ", addChildPropertiesList() >>> " + logInfo);
       }
 
-      final String parentIdentifier = parentData.getIdentifier();
       String operName = ""; // for debug/trace only
       
       writeLock.lock();
       try {
         // remove parent (no childs)
         operName = "removing parent";
-        removeDeep(parentData, false);
-
+        removeItem(parentData);
+        
         operName = "caching parent";
         putItem(parentData); // put parent in cache
 
-        // [PN] 17.01.07 need to sync as the list can be accessed concurrently till the end of addChildProperties()
-        List<PropertyData> cp = childItems;
-        synchronized (cp) {
+        synchronized (childItems) {
           operName = "caching child properties list";
-          propertiesCache.put(parentIdentifier, cp); // put childs in cache CP
+          propertiesCache.put(parentData.getIdentifier(), childItems); // put childs in cache CP
         }
       } catch (Exception e) {
         log.error(name + ", Error in addChildPropertiesList() " + operName + ": parent "
@@ -848,54 +914,24 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         log.debug(name + ", addChildNodes() >>> " + logInfo);
       }
 
-      final String parentIdentifier = parentData.getIdentifier();
       String operName = ""; // for debug/trace only
       
       writeLock.lock();
       try {
         // remove parent (no childs)
         operName = "removing parent";
-        removeDeep(parentData, false);
+        removeItem(parentData);
 
         operName = "caching parent";
         putItem(parentData); // put parent in cache
 
-        // [PN] 17.01.07 need to sync as the list can be accessed concurrently till the end of addChildNodes()
-        List<NodeData> cn = childItems;
-        synchronized (cn) {
-
-          // removing prev list of child nodes from cache C
-          operName = "removing child nodes";
-          final List<NodeData> removedChildNodes = removeChildNodes(parentIdentifier, false);
-
-          if (removedChildNodes != null && removedChildNodes.size() > 0) {
-            operName = "search for stale child nodes not contains in the new list of childs";
-            final List<NodeData> forRemove = new ArrayList<NodeData>();
-            for (NodeData removedChildNode : removedChildNodes) {
-              // used Object.equals(Object o), e.g. by UUID of nodes
-              if (!cn.contains(removedChildNode)) {
-                // this child node has been removed from the list
-                // we should remve it recursive in C, CN, CP
-                forRemove.add(removedChildNode);
-              }
-            }
-
-            if (forRemove.size() > 0) {
-              operName = "removing stale child nodes not contains in the new list of childs";
-              // do remove of removed child nodes recursive in C, CN, CP
-              // we need here locks on cache, nodesCache, propertiesCache 
-              for (NodeData removedChildNode : forRemove) {
-                removeDeep(removedChildNode, true);
-              }
-            }
-          }
-
+        synchronized (childItems) {
           operName = "caching child nodes list";
-          nodesCache.put(parentIdentifier, cn); // put childs in cache CN
+          nodesCache.put(parentData.getIdentifier(), childItems); // put childs in cache CN
 
           operName = "caching child nodes";
           // put childs in cache C
-          for (ItemData n : cn) {
+          for (ItemData n : childItems) {
             if (log.isDebugEnabled())
               log.debug(name + ", addChildNodes()    " + n.getQPath().getAsString() + "    " + n.getIdentifier() + "  --  " + n);
 
@@ -914,27 +950,80 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
 
-  protected void putItem(final ItemData data) {
-    cache.put(new CacheId(data.getIdentifier()), new CacheValue(data, System.currentTimeMillis() + liveTime));
-    cache.put(new CacheQPath(data.getParentIdentifier(), data.getQPath()), new CacheValue(data, System.currentTimeMillis() + liveTime));
+  /**
+   * Remove Item.
+   * 
+   * Remove Item from cache C,
+   * for Node removes lists in CN and CP (only lists).
+   * 
+   * Remove Item from parent's child lists (CN for Node, CP for Property).
+   * NOTE: if CN or CP of the Item parent are iterrating now ConcurrentModificationException will occurs there. 
+   * NOTE #2: used from onSaveItems().
+   * 
+   * @param item
+   */
+  public void remove(final ItemData item) {
+    if (enabled && item != null) {
+      if (log.isDebugEnabled())
+        log.debug(name + ", remove() " + item.getQPath().getAsString() + " " + item.getIdentifier());
+      
+      writeLock.lock();
+      try {
+        final String itemId = item.getIdentifier();
+        
+        removeItem(item);
+        
+        if (item.isNode()) {
+          // removing childs of the node
+          nodesCache.remove(itemId);
+          propertiesCache.remove(itemId);
+
+          // removing child from the node's parent child nodes list
+          removeChildNode(item.getParentIdentifier(), itemId);
+        } else
+          removeChildProperty(item.getParentIdentifier(), itemId);
+      } catch (Exception e) {
+        log.error(name + ", Error remove item data from cache: " + item.getQPath().getAsString(), e);
+      } finally {
+        writeLock.unlock();
+      }
+    }
   }
  
   protected ItemData getItem(final String identifier) {
     long start = System.currentTimeMillis();
     try {
-      final CacheValue v = cache.get(new CacheId(identifier));
+      final CacheId k = new CacheId(identifier);
+      final CacheValue v = cache.get(k);
       if (v != null) {
+        final ItemData c = v.getItem();
+        
         if (v.getExpiredTime() > System.currentTimeMillis()) {
-          final ItemData c = v.getItem();
-          
+          // check if wasn't removed
           if (log.isDebugEnabled())
             log.debug(name + ", getItem() " + identifier + " --> "
                 + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier() : "[null]"));
           
           hits++;
           return c;
-        } else 
-          removeExpired(v.getItem());
+        }
+        
+        // remove expired
+        writeLock.lock();
+        try {
+          cache.remove(k);
+          
+          // remove by parentId + path
+          cache.remove(new CacheQPath(c.getParentIdentifier(), c.getQPath()));
+          
+          // remove cached child lists
+          if (c.isNode()) {
+            nodesCache.remove(c.getIdentifier());
+            propertiesCache.remove(c.getIdentifier());
+          }
+        } finally {
+          writeLock.unlock();
+        }
       } 
   
       miss++;
@@ -950,19 +1039,36 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   protected ItemData getItem(final String parentUuid, final QPathEntry qname) {
     long start = System.currentTimeMillis();
     try {
-      final CacheValue v = cache.get(new CacheQPath(parentUuid, qname));
+      final CacheQPath k = new CacheQPath(parentUuid, qname);
+      final CacheValue v = cache.get(k);
       if (v != null) {
+        final ItemData c = v.getItem();
+        
         if (v.getExpiredTime() > System.currentTimeMillis()) {
-          final ItemData c = v.getItem();
-          
           if (log.isDebugEnabled())
             log.debug(name + ", getItem() " + (c != null ? c.getQPath().getAsString() : "[null]") + " --> "
                 + (c != null ? c.getIdentifier() + " parent:" + c.getParentIdentifier() : "[null]"));
           
           hits++;
           return c;
-        } else
-          removeExpired(v.getItem());
+        }
+          
+        // remove expired
+        writeLock.lock();
+        try {
+          cache.remove(k);
+          
+          // remove by Id
+          cache.remove(new CacheId(c.getIdentifier()));
+          
+          // remove cached child lists
+          if (c.isNode()) {
+            nodesCache.remove(c.getIdentifier());
+            propertiesCache.remove(c.getIdentifier());
+          }
+        } finally {
+          writeLock.unlock();
+        }
       }
   
       miss++;
@@ -1105,12 +1211,41 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       writeLock.unlock();
     }
     log.info(name + " : set liveTime=" + liveTime + "ms. New value will be applied to items cached from this moment.");    
-  }
+  } 
 
+  /**
+   * Unload (delete) given node (outdated) from cache to be cached again.<br/>
+   * For rename/update/remove usecase.<br/>
+   * 
+   * The work does remove of all descendants of the item parent. I.e. the node and its siblings (for SNS case).<br/> 
+   */
+  @Deprecated
+  private void unloadNode(final NodeData node) {
+    final ItemData parent = getItem(node.getParentIdentifier());
+    // NOTE. it's possible that we have to not use the fact of caching and remove anyway by data.getParentIdentifier()  
+    if (parent != null) {
+      // remove child nodes of the item parent recursive
+      writeLock.lock();
+      try {
+        if (removeChildNodes(parent.getIdentifier(), true) == null) {
+          // if no childs of the item (node) parent were cached - remove renamed node directly 
+          removeDeep(node, true);
+        }
+        
+        //removeSuccessors((NodeData) node);
+      } finally {
+        writeLock.unlock();
+      }
+    }
+    
+    //removeSuccessors((NodeData) node); // TODO  use here with writeLock
+  }  
+  
   /**
    * Unload (delete) given property (outdated) from cache to be cached again.<br/>
    * For add/update/remove mixins usecase.<br/>
    */
+  @Deprecated
   private void unloadProperty(PropertyData property) {
     writeLock.lock();
     try {
@@ -1129,111 +1264,143 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       writeLock.unlock();      
     }
   }
+  
+  /**
+   * Remove item from cache C.
+   *  
+   * @param item
+   */
+  protected void removeItem(final ItemData item) {
+    final String itemId = item.getIdentifier();
+    
+    cache.remove(new CacheId(itemId));
+    
+    final CacheValue v2 = cache.remove(new CacheQPath(item.getParentIdentifier(), item.getQPath()));
+    if (v2 != null && !v2.getItem().getIdentifier().equals(itemId))
+      // same path but diff identifier node... phantom
+      removeItem(v2.getItem());
+  }
+  
+  /**
+   * Remove item from cache C.
+   *  
+   * @param item
+   */
+  @Deprecated
+  protected void removeItem(final String parentId, final String itemId, final QPath path) {
+    cache.remove(new CacheId(itemId));
+    
+    final CacheValue v2 = cache.remove(new CacheQPath(parentId, path));
+    if (v2 != null && !v2.getItem().getIdentifier().equals(itemId)) {
+      // same path but diff identifier node... phantom
+      final ItemData i2 = v2.getItem();
+      removeItem(i2.getParentIdentifier(), i2.getIdentifier(), i2.getQPath());
+    }
+  }
+  
+  /**
+   * Remove sibling's subtrees from cache C, CN, CP<br/>
+   * For update (order-before) usecase.<br/>
+   * 
+   * The work does remove of all descendants of the item parent. 
+   * I.e. the node and its siblings (for SNS case).<br/> 
+   */
+  protected void removeSiblings(final NodeData node) {
+    if (node.getIdentifier().equals(Constants.ROOT_UUID))
+      return;
+    
+    // remove child nodes of the item parent recursive
+    writeLock.lock();
+    try {
+      // remove on-parent child nodes list
+      nodesCache.remove(node.getParentIdentifier());
+      
+      // go through the C and remove every descendant of the node parent
+      final QPath path = node.getQPath().makeParentPath();
+      final List<CacheId> toRemove = new ArrayList<CacheId>();
+      
+      // find and remove by path
+      for (Iterator<Map.Entry<CacheKey, CacheValue>> citer = cache.entrySet().iterator(); citer.hasNext();) {
+        Map.Entry<CacheKey, CacheValue> ce = citer.next();
+        CacheKey key = ce.getKey();
+        CacheValue v = ce.getValue();
+        if (v != null) {
+          if (key.isDescendantOf(path)) {
+            // will remove by id too
+            toRemove.add(new CacheId(v.getItem().getIdentifier()));
+            
+            citer.remove(); // remove
+            
+            nodesCache.remove(v.getItem().getIdentifier());
+            propertiesCache.remove(v.getItem().getIdentifier());
+          }
+        } else
+          citer.remove(); // remove empty C record
+      }
+      
+      for (CacheId id: toRemove) 
+        cache.remove(id);
+      
+      toRemove.clear();
+      
+    } finally {
+      writeLock.unlock();
+    }
+  }
 
   // --------------------- ItemsPersistenceListener --------------
 
+  @Deprecated
   private boolean needReload(ItemData data) {
-    // [PN] Add ORed property NAMEs here to unload a parent on the save action
     return data.getQPath().getName().equals(Constants.JCR_MIXINTYPES)
         || data.getQPath().getName().equals(Constants.EXO_PERMISSIONS) || data.getQPath().getName().equals(Constants.EXO_OWNER);
   }
 
-  public synchronized void onSaveItems(final ItemStateChangesLog changesLog) {
+  public void onSaveItems(final ItemStateChangesLog changesLog) {
 
     if (!enabled)
       return;
 
-    List<ItemState> itemStates = changesLog.getAllStates();
+    final List<ItemState> itemStates = changesLog.getAllStates();//log.info(changesLog.dump())    log.info(dump())
 
     for (int i = 0; i < itemStates.size(); i++) {
-      ItemState state = itemStates.get(i);
-      ItemData data = state.getData();
+      final ItemState state = itemStates.get(i);
+      final ItemData item = state.getData();
       if (log.isDebugEnabled())
-        log.debug(name + ", onSaveItems() " + ItemState.nameFromValue(state.getState()) + " " + data.getQPath().getAsString()
-            + " " + data.getIdentifier() + " parent:" + data.getParentIdentifier());
+        log.debug(name + ", onSaveItems() " + ItemState.nameFromValue(state.getState()) + " " + item.getQPath().getAsString()
+            + " " + item.getIdentifier() + " parent:" + item.getParentIdentifier());
 
       try {
         if (state.isAdded()) {
-          if (!data.isNode() && needReload(data))
-            unloadProperty((PropertyData) data);
-          put(data);
+          put(item);
         } else if (state.isDeleted()) {
-          if (!data.isNode() && needReload(data))
-            unloadProperty((PropertyData) data);  
-          else
-            remove(data);
-        } else if (state.isRenamed() || state.isUpdated()) {
-          if (data.isNode())
-            // nodes will be removed, to be loaded back from the persistence
-            unloadNode((NodeData) data);
-          else if (needReload(data))
-            unloadProperty((PropertyData) data); // remove mixins
-          put(data);
+          remove(item);
+        } else if (state.isRenamed()) {
+          // MOVE operation (DESTENATION changes, same as ADDED), states for whole subtree!
+          // RENAME goes before DELETE
+          put(item);
+        } else if (state.isUpdated()) {
+          // UPDATE occurs on reordered (no subtree!) and merged nodes (for each merged-updated)
+          if (item.isNode() && i > 0) {
+            // play only for orderBefore, UPDATE goes after DELETE(NP)
+            // we have to unload node and its parent child nodes to be loaded back from the persistence
+            ItemState prevState = itemStates.get(i - 1);
+            if (prevState.isDeleted() && !prevState.isPersisted())
+              removeSiblings((NodeData) item);
+          }
+          put(item);
+        } else if (state.isMixinChanged()) {
+          // MIXIN_CHANGED, on Node
+          put(item);
         }
       } catch (Exception e) {
         log.error(name + ", Error process onSaveItems action for item data: "
-            + (data != null ? data.getQPath().getAsString() : "[null]"), e);
-      }
-    }
-  }
-
-  /**
-   * Unload (delete) given node (outdated) from cache to be cached again.<br/>
-   * For rename/update/remove usecase.<br/>
-   * 
-   * The work does remove of all descendants of the item parent. I.e. the node and its siblings (for SNS case).<br/> 
-   */
-  private void unloadNode(final NodeData node) {
-    final ItemData parent = getItem(node.getParentIdentifier());
-    // NOTE. it's possible that we have to not use the fact of caching and remove anyway by data.getParentIdentifier()  
-    if (parent != null) {
-      // remove child nodes of the item parent recursive
-      writeLock.lock();
-      try {
-        if (removeChildNodes(parent.getIdentifier(), true) == null) {
-          // if no childs of the item (node) parent were cached - remove renamed node directly 
-          removeDeep(node, true);
-        }
-
-        // Traverse whole cache (C), select each descendant of the item and remove it from C.
-        removeSuccessors((NodeData) node);
-      } finally {
-        writeLock.unlock();
+            + (item != null ? item.getQPath().getAsString() : "[null]"), e);
       }
     }
   }
 
   // ---------------------------------------------------
-
-  /**
-   * Called by delete
-   * 
-   * @param data
-   */
-  public void remove(final ItemData data) {
-    if (enabled && data != null) {
-      writeLock.lock();
-      try {
-        if (log.isDebugEnabled())
-          log.debug(name + ", remove() " + data.getQPath().getAsString() + " " + data.getIdentifier());
-  
-        // do actual deep remove
-        if (data.isNode()) {
-          removeDeep(data, true);
-          
-          if (deepDelete)
-            removeSuccessors((NodeData) data);
-        } else {
-          // [PN] 03.12.06 Fixed to forceDeep=true and synchronized block
-          removeDeep(data, true);
-        }
-      } catch (Exception e) {
-        log.error(name + ", Error remove item data from cache: " + (data != null ? data.getQPath().getAsString() : "[null]"), e);
-      } finally {
-        writeLock.unlock();
-      }
-    }
-  }
 
   /**
    * Deep remove of an item in all caches (C, CN, CP). Outside must be sinchronyzed by cache(C). 
@@ -1243,6 +1410,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @param forceDeep - if true then childs will be removed too, item's parent childs (nodes or properties) will be removed also. if false - no actual deep
    *          remove will be done, the item only and theirs 'phantom by identifier' if exists.
    */
+  @Deprecated
   protected void removeDeep(final ItemData item, final boolean forceDeep) {
     if (log.isDebugEnabled())
       log.debug(name + ", removeDeep(" + forceDeep + ") >>> item " + item.getQPath().getAsString() + " " + item.getIdentifier());
@@ -1259,18 +1427,19 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     if (log.isDebugEnabled())
       log.debug(name + ", removeDeep(" + forceDeep + ") <<< item " + item.getQPath().getAsString() + " " + item.getIdentifier());
   }
-
+  
   /**
    * Remove item relations in the cache(C,CN,CP) by Identifier in case of item remove from cache. 
    * <br/>Relations for a node it's a child nodes, properties and item in node's parent childs list. 
    * <br/>Relations for a property it's a item in node's parent childs list.
    */
+  @Deprecated
   protected void removeRelations(final ItemData item) {
     // removing child item data from list of childs of the parent
     try {
       if (item.isNode()) {
         // removing childs of the node
-        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // XXX deepDelete, was true
+        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // XXX deepDelete, was true TODO use true!
           if (log.isDebugEnabled())
             log.debug(name + ", removeRelations() removeChildNodes() " + item.getIdentifier());
         }
@@ -1306,6 +1475,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @return
    * @throws Exception
    */
+  @Deprecated
   protected List<NodeData> removeChildNodes(final String parentIdentifier, final boolean forceDeep) {
     final List<NodeData> childNodes = nodesCache.remove(parentIdentifier);
     if (childNodes != null) {
@@ -1326,6 +1496,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * @return
    * @throws Exception
    */
+  @Deprecated
   protected List<PropertyData> removeChildProperties(final String parentIdentifier) {
     final List<PropertyData> childProperties = propertiesCache.remove(parentIdentifier);
     if (childProperties != null) {
@@ -1355,6 +1526,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           PropertyData cn = i.next();
           if (cn.getIdentifier().equals(childIdentifier)) {
             i.remove();
+            if (childProperties.size() <= 0)
+              propertiesCache.remove(parentIdentifier);
             return cn;
           }
         }
@@ -1393,6 +1566,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * 
    * Outside must be sinchronyzed by cache(C).
    */
+  @Deprecated
   protected void removeSuccessors(final NodeData parent) {
     final QPath path = parent.getQPath();
     final List<CacheId> toRemove = new ArrayList<CacheId>();
@@ -1426,15 +1600,16 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * 
    * @param item
    */
+  @Deprecated
   protected void removeExpired(final ItemData item) {
     writeLock.lock();
     try {
       if (log.isDebugEnabled())
         log.debug(name + ", removeExpired() " + item.getQPath().getAsString() + " " + item.getIdentifier());
 
-      // remove item only, remove its properties if node or its parent properties if property
-      //synchronized (propertiesCache) {//TODO
-        removeDeep(item, false);
+        // remove item only, remove its properties if node or its parent properties if property
+        //removeDeep(item, false);
+        remove(item);
         
         if (item.isNode()) {
           if (removeChildProperties(item.getIdentifier()) != null) {
@@ -1448,19 +1623,11 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
               log.debug(name + ", removeExpired() parent.removeChildProperties() " + item.getParentIdentifier());
           }
         }
-      //}
     } catch (Throwable e) {
       log.error(name + ", Error remove expired item data from cache: " + item.getQPath().getAsString(), e);
     } finally {
       writeLock.unlock();
     }  
-  }
-  
-  protected ItemData checkExpired(CacheValue value) {
-    if (value != null && value.getExpiredTime() > System.currentTimeMillis())
-      return value.getItem();
-    else
-      return null;  
   }
 
   /**
@@ -1470,5 +1637,25 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    */
   public CacheStatistic getStatistic() {
     return statistic;
+  }
+  
+  // -- for debug
+  
+  String dump() {
+    StringBuilder res = new StringBuilder();
+    for (Map.Entry<CacheKey, CacheValue> ce: cache.entrySet()) {
+      res.append(ce.getKey().hashCode());
+      res.append("\t\t");
+      res.append(ce.getValue().getItem().getIdentifier());
+      res.append(", ");
+      res.append(ce.getValue().getItem().getQPath().getAsString());
+      res.append(", ");
+      res.append(ce.getValue().getExpiredTime());
+      res.append(", ");
+      res.append(ce.getKey().getClass().getSimpleName());
+      res.append("\r\n");
+    }
+    
+    return res.toString();
   }
 }

@@ -186,7 +186,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
   }
 
   protected boolean isRemoveDescendant(ItemData item) throws RepositoryException {
-    return item.getQPath().isDescendantOf(removedRoot.getQPath(), false);
+    return item.getQPath().isDescendantOf(removedRoot.getQPath());
   }
 
   protected void validateConstraints(NodeData node) throws RepositoryException {

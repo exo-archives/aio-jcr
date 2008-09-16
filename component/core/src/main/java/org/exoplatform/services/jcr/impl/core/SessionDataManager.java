@@ -661,9 +661,9 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   void reloadPool(ItemData fromItem) throws RepositoryException {
-    Collection<ItemImpl> pooledItems = itemsPool.getAll(); // log.info(dump())
+    Collection<ItemImpl> pooledItems = itemsPool.getAll();
     for (ItemImpl item : pooledItems) {
-      if (item.getInternalPath().isDescendantOf(fromItem.getQPath(), false) || item.getInternalPath().equals(fromItem.getQPath())) {
+      if (item.getInternalPath().isDescendantOf(fromItem.getQPath()) || item.getInternalPath().equals(fromItem.getQPath())) {
         ItemData ri = getItemData(item.getInternalIdentifier());
         if (ri != null)
           itemsPool.reload(ri);
@@ -716,7 +716,7 @@ public class SessionDataManager implements ItemDataConsumer {
       checkRemoveChildVersionStorages = !ntManager.isNodeType(Constants.MIX_VERSIONABLE,
                                                               ((NodeData) itemData).getPrimaryTypeName(),
                                                               ((NodeData) itemData).getMixinTypeNames())
-          && !itemData.getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
+          && !itemData.getQPath().isDescendantOf(Constants.JCR_SYSTEM_PATH);
 
     }
     
@@ -817,9 +817,9 @@ public class SessionDataManager implements ItemDataConsumer {
           // Check if this VH isn't referenced from somewhere in workspace
           // or isn't contained in another one as a child history.
           // Ask ALL references incl. properties from version storage.
-          if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false)) {
-            if (!sref.getQPath().isDescendantOf(vhnode.getQPath(), false)
-                && (containingHistory != null ? !sref.getQPath().isDescendantOf(containingHistory, false) : true))
+          if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)) {
+            if (!sref.getQPath().isDescendantOf(vhnode.getQPath())
+                && (containingHistory != null ? !sref.getQPath().isDescendantOf(containingHistory) : true))
               // has a reference to the VH in version storage,
               // it's a REFERENCE property jcr:childVersionHistory of
               // nt:versionedChild
@@ -1007,7 +1007,7 @@ public class SessionDataManager implements ItemDataConsumer {
         validateMandatoryItem(itemState);
       }
       
-      if (path.isDescendantOf(itemState.getAncestorToSave(), false)) {
+      if (path.isDescendantOf(itemState.getAncestorToSave())) {
         throw new ConstraintViolationException(path.getAsString()
             + " is the same or descendant of either Session.move()'s destination or source node only " + path.getAsString());
       }
@@ -1507,7 +1507,7 @@ public class SessionDataManager implements ItemDataConsumer {
 
       Collection<ItemImpl> snapshort = items.values();
       for (ItemImpl pitem : snapshort) {
-        if (pitem.getData().getQPath().isDescendantOf(parentPath, false))
+        if (pitem.getData().getQPath().isDescendantOf(parentPath))
           desc.add(pitem);
       }
 

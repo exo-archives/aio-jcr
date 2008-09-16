@@ -175,10 +175,9 @@ public class VersionHistoryRemover {
           // Check if this VH isn't referenced from somewhere in workspace
           // or isn't contained in another one as a child history.
           // Ask ALL references incl. properties from version storage.
-          if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH, false)) {
-            if (!sref.getQPath().isDescendantOf(vhnode.getQPath(), false)
-                && (containingHistory != null ? !sref.getQPath().isDescendantOf(containingHistory,
-                                                                                false) : true))
+          if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)) {
+            if (!sref.getQPath().isDescendantOf(vhnode.getQPath())
+                && (containingHistory != null ? !sref.getQPath().isDescendantOf(containingHistory) : true))
               // has a reference to the VH in version storage,
               // it's a REFERENCE property jcr:childVersionHistory of
               // nt:versionedChild

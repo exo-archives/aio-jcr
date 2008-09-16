@@ -169,7 +169,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
   }
   
   private boolean isSystemDescendant(QPath path) {
-    return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH, false);
+    return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH);
   }
 
 }

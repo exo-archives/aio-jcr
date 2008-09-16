@@ -87,7 +87,7 @@ public final class ValuePluginFilter {
    */
   public boolean match(PropertyData prop, int valueOrderNumer) {
     if (propertyType == prop.getType()
-        && (ancestorPath == null || prop.getQPath().isDescendantOf(ancestorPath, false))
+        && (ancestorPath == null || prop.getQPath().isDescendantOf(ancestorPath))
         && (minValueSize == -1 || (prop.getValues().get(valueOrderNumer).getLength() > minValueSize && minValueSize > 0))
         && (propertyName == null || prop.getQPath().getName().equals(propertyName)))
       return true;
