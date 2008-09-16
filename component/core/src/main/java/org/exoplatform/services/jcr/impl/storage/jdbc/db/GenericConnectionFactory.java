@@ -25,7 +25,7 @@ import javax.jcr.RepositoryException;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
-
+import org.exoplatform.services.jcr.impl.storage.jdbc.monitor.ManagedConnection;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
@@ -56,6 +56,8 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
   protected final File swapDirectory;
   protected final FileCleaner swapCleaner;
   
+  protected int monitorInterest = 0;
+  
   protected GenericConnectionFactory( 
       DataSource dataSource,
       String dbDriver,
@@ -81,6 +83,8 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
     this.dbUrl = dbUrl;
     this.dbUserName = dbUserName;
     this.dbPassword = dbPassword;
+    
+    initMonitor();
   }
   
   public GenericConnectionFactory(DataSource dataSource, 
@@ -150,15 +154,39 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
   
   public Connection getJdbcConnection() throws RepositoryException {
     try {
-      return dbDataSource != null ? dbDataSource.getConnection() : 
+      final Connection conn = dbDataSource != null ? dbDataSource.getConnection() : 
         (dbUserName != null ? 
             DriverManager.getConnection(dbUrl, dbUserName, dbPassword) : 
               DriverManager.getConnection(dbUrl));
+      
+      return monitorInterest == 0 ? conn : new ManagedConnection(conn, monitorInterest);
     } catch (SQLException e) {
         String err = "Error of JDBC connection open. SQLException: " + e.getMessage() 
           + ", SQLState: " + e.getSQLState()
           + ", VendorError: " + e.getErrorCode();
         throw new RepositoryException(err, e);
+    }
+  }
+  
+  private void initMonitor() {
+    String monitor = System.getProperty(ManagedConnection.JCR_JDBC_CONNECTION_MONITOR);
+    if (monitor != null) {
+      // parse
+      int interest = 0;
+      String[] ints = monitor.split(",");
+      for (String s: ints) {
+        s = s.trim();
+        if (s.equalsIgnoreCase(ManagedConnection.EXECUTE_INTEREST_NAME))
+          interest |= ManagedConnection.EXECUTE_INTREST;
+        else if (s.equalsIgnoreCase(ManagedConnection.COMMIT_INTEREST_NAME))
+          interest |= ManagedConnection.COMMIT_INTREST;
+        else if (s.equalsIgnoreCase(ManagedConnection.CLOSE_INTEREST_NAME))
+          interest |= ManagedConnection.CLOSE_INTREST;
+        else if (s.equalsIgnoreCase(ManagedConnection.OPEN_INTEREST_NAME))
+          interest |= ManagedConnection.OPEN_INTREST;
+      }
+      
+      this.monitorInterest = interest;
     }
   }
   
