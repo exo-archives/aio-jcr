@@ -24,6 +24,9 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
@@ -477,7 +480,14 @@ public abstract class WorkspaceStorageCacheBaseCase extends JcrImplBaseTest {
     cache.addChildProperties(nodeData1, properties1);
     
     // remove
-    cache.remove(nodeData2); // remove node2 and its childs and properties (21, 22) 
+    PlainChangesLog chlog = new PlainChangesLogImpl();
+    chlog.add(ItemState.createDeletedState(propertyData21));
+    chlog.add(ItemState.createDeletedState(propertyData22));
+    chlog.add(ItemState.createDeletedState(nodeData21));
+    chlog.add(ItemState.createDeletedState(nodeData22));
+    chlog.add(ItemState.createDeletedState(nodeData2));
+    //cache.remove(nodeData2); // remove node2 and its childs and properties (21, 22)
+    cache.onSaveItems(chlog);
     
     // check
     assertNull("Node " + nodeData2.getQPath().getAsString() + " in the cache", cache.get(nodeUuid2));
