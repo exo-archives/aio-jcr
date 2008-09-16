@@ -18,6 +18,8 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -700,6 +702,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("PUT " + repoName + "/" + repoPath);
     
     try {
+      repoPath = URLEncoder.encode(repoPath, "UTF-8");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    
+    try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), tokens);
 
@@ -740,9 +749,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("REPORT " + repoName + "/" + repoPath);
     
     try {
-      Depth depth;
+      Depth depth = new Depth(depthHeader);
       Session session = session(repoName, workspaceName(repoPath), null);
-      depth = new Depth(depthHeader);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath); 
       return new ReportCommand().report(session, path(repoPath), body, depth, uri);      
     } catch (NoSuchWorkspaceException exc) {

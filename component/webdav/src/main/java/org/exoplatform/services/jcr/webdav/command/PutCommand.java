@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;

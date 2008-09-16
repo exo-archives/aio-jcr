@@ -18,11 +18,13 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import junit.framework.TestCase;
 
+import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.services.jcr.webdav.TestUtils;
+import org.exoplatform.services.jcr.webdav.ContainerStarter;
+import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
  * Created by The eXo Platform SAS
@@ -35,13 +37,18 @@ public class TestGet extends TestCase {
   private final String fileName = TestUtils.getFullWorkSpacePath() + "/" +TestUtils.getFileName();
   private final String fileContent = "TEST FILE CONTENT...";
   
-  private HTTPConnection connection = TestUtils.GetAuthConnection();
+  private InstalledLocalContainer container;
+  
+  private HTTPConnection connection;
   
   @Override
   protected void setUp() throws Exception {
+    
+    container = ContainerStarter.cargoContainerStart("8088", null);    
+    assertTrue(container.getState().isStarted());
    
     CookieModule.setCookiePolicyHandler(null);
-    
+   
     connection = TestUtils.GetAuthConnection();
     
     HTTPResponse response = connection.Put(fileName, fileContent);
@@ -56,7 +63,10 @@ public class TestGet extends TestCase {
 
     HTTPResponse response = connection.Delete(fileName);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-
+    
+    ContainerStarter.cargoContainerStop(container);
+    assertTrue(container.getState().isStopped());
+    
     super.tearDown();
   }
   

@@ -56,8 +56,26 @@
       <version>1.2.8</version>
       <scope>compile</scope>
     </dependency>
+    
+    <dependency>
+			<groupId>org.codehaus.cargo</groupId>
+			<artifactId>cargo-core-api-container</artifactId>
+			<version>0.9-SNAPSHOT</version>
+		</dependency>
 
-  </dependencies>
+		<dependency>
+			<groupId>org.codehaus.cargo</groupId>
+			<artifactId>cargo-core-api-generic</artifactId>
+			<version>0.9-SNAPSHOT</version>		
+		</dependency>
+
+ 		<dependency>
+  		<groupId>org.codehaus.cargo</groupId>
+		  <artifactId>cargo-core-container-tomcat</artifactId>
+		  <version>0.9-SNAPSHOT</version>
+		</dependency>
+
+ </dependencies>
 
   <build>
     <plugins>
@@ -82,24 +100,28 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <skip>true</skip>
+          <skip>false</skip>
           <!--skip>${exo.test.skip}</skip-->
           <useFile>${exo.test.use.file}</useFile>
           <forkMode>never</forkMode><!--once , pertest -->
           <includes>
             <!-- include>**/Test*.java</include -->
-       
-            <include>**/TestPropFind.java</include>
-            <include>**/TestMkCol.java</include>
-            <include>**/TestGet.java</include>
-            <include>**/TestHead.java</include>
-            <include>**/TestPost.java</include>
+<!--        <include>**/TestWebdavLauncher.java</include> -->
+            
+            <include>**/TestGet.java</include>          
+						<include>**/TestMkCol.java</include>
+						<include>**/TestHead.java</include>
+						<include>**/TestPut.java</include>
             <include>**/TestDelete.java</include>
-            <include>**/TestPut.java</include>
             <include>**/TestCopy.java</include>
             <include>**/TestMove.java</include>
+            
+<!--						
+ 						 
+            <include>**/TestPropFind.java</include>                     
             <include>**/TestLock.java</include>
 			  		<include>**/TestUnLock.java</include>
+ -->			  		
 
           </includes>
         </configuration>

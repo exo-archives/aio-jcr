@@ -16,11 +16,13 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
+import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.services.jcr.webdav.TestUtils;
+import org.exoplatform.services.jcr.webdav.ContainerStarter;
+import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 import junit.framework.TestCase;
 
@@ -40,12 +42,17 @@ public class TestMove extends TestCase {
   private final String destFileName = testFolder +"/" + TestUtils.getFileName();
   
   private final String fileContent = "TEST FILE CONTENT...";
+  
+  InstalledLocalContainer container;
     
-  private HTTPConnection connection = TestUtils.GetAuthConnection();
+  private HTTPConnection connection;
   
   @Override
   protected void setUp() throws Exception {
-   
+    
+    container = ContainerStarter.cargoContainerStart("8088", null);
+    assertTrue(container.getState().isStarted());
+      
     CookieModule.setCookiePolicyHandler(null);
     
     connection = TestUtils.GetAuthConnection();
@@ -69,7 +76,10 @@ public class TestMove extends TestCase {
   {
     HTTPResponse response = connection.Delete(testFolder);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-  
+    
+    container = ContainerStarter.cargoContainerStart("8088", null);
+    assertTrue(container.getState().isStarted());
+     
     super.tearDown();
   }
 

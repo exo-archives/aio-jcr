@@ -27,12 +27,15 @@ import org.exoplatform.common.http.client.HTTPConnection;
 public class TestUtils {
   
   public static final String HOST = "localhost";
-  public static final int PORT = 8080;
+  public static final int PORT = 8088;
+  
+  //http://localhost:8081/rest/jcr/repository/production
   
   public static final String SERVLET_PATH = "/rest/jcr/repository";
   public static final String WORKSPACE = "/production";
   public static final String INAVLID_WORKSPACE = "/invalid";  
   public static final String REALM = "eXo REST services";
+//  public static final String REALM = "exo-domain";
   
   public static final String ROOTID = "root";
   public static final String ROOTPASS = "exo";

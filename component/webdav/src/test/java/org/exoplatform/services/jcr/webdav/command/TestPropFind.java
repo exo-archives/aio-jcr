@@ -25,7 +25,8 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.services.jcr.webdav.TestUtils;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDavProp;
+import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
  * Created by The eXo Platform SAS
@@ -87,11 +88,27 @@ public class TestPropFind extends TestCase {
     
     String responseXML = response.getText();
     String name = destName.replace("/", "");
-    assertTrue(responseXML.contains("<D:displayname>" + name + "</D:displayname>"));
-    
+    assertTrue(responseXML.contains("<D:displayname>" + name + "</D:displayname>")); 
      
   }
   
+  public void testSimplePropFind() throws Exception {
+        
+    ArrayList<String> props = new ArrayList<String>();
+    
+    props.add("d:" + WebDavProp.DISPLAYNAME);
+    props.add("d:" + WebDavProp.RESOURCETYPE);        
+    props.add("d:" + WebDavProp.GETLASTMODIFIED);        
+    props.add("d:" + WebDavProp.GETCONTENTLENGTH);
+    props.add("d:" + WebDavProp.VERSIONNAME);
+    props.add("d:" + WebDavProp.COMMENT);      
+    
+    HTTPResponse response = connection.Propfind(TestUtils.getFullWorkSpacePath() + "/"
+        + destName, props);  
+    
+    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    
+  }
 
   public void testGettingPropertiesNames() throws Exception {
     
