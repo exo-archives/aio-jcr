@@ -173,7 +173,8 @@ public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
     items = new ArrayList<ItemState>();
     int listSize = in.readInt();
     for (int i = 0; i < listSize; i++) 
-      items.add((ItemState)in.readObject());
+      // items.add((ItemState)in.readObject());
+      add((ItemState)in.readObject());  // TODO check if it is ok
   }
   // ------------------ [ END ] ------------------
 }
