@@ -20,6 +20,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,9 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class AccessControlList implements Externalizable {
+  
+  private static final long serialVersionUID = 5848327750178729120L;
+
   private Log                            log       = ExoLogger.getLogger("jcr.AccessControlList");
 
   public static final String             DELIMITER = ";";

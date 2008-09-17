@@ -37,6 +37,9 @@ import java.util.List;
  */
 
 public class Packet implements Externalizable {
+  
+  private static final long serialVersionUID = -238898618077133064L;
+
   public class PacketType {
     public static final int ItemDataChangesLog                           = 1;
 

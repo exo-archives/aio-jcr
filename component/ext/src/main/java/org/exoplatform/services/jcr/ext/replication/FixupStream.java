@@ -29,8 +29,12 @@ import java.io.ObjectOutput;
  * @version $Id$
  */
 
-public class FixupStream implements Externalizable{
+public class FixupStream implements Externalizable {
+  
+  private static final long serialVersionUID = 6453641729031051616L;
+  
   int iItemStateId = -1;
+  
   int iValueDataId = -1;
   
   public FixupStream(){}

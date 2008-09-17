@@ -36,7 +36,9 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  */
 
 public class TransactionChangesLog implements CompositeChangesLog, Externalizable {
-  
+    
+  private static final long serialVersionUID = 4866736965040228027L;
+
   protected String systemId;
   
   protected List <PlainChangesLog> changesLogs;

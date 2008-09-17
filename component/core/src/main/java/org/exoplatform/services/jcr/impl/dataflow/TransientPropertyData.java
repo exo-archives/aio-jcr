@@ -42,6 +42,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TransientPropertyData extends TransientItemData implements MutablePropertyData, Externalizable {
   
+  private static final long serialVersionUID = -8224902483861330191L;
+  
   protected final static int NULL_VALUES = -1; 
   
   protected List<ValueData> values;

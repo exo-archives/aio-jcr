@@ -47,6 +47,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class TransientNodeData extends TransientItemData implements Comparable,
     MutableNodeData, Externalizable  {
+  
+  private static final long serialVersionUID = -8675118546441306180L;
 
   protected AccessControlList acl;
   

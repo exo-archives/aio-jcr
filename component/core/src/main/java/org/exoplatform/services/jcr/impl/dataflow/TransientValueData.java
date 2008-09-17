@@ -53,8 +53,9 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  * @author Gennady Azarenkov
  * @version $Id: TransientValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TransientValueData extends AbstractValueData implements
-    Externalizable {
+public class TransientValueData extends AbstractValueData implements Externalizable {
+
+  private static final long serialVersionUID = -5280857006905550884L;
 
   protected byte[] data;
 

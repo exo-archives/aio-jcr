@@ -22,7 +22,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.log.ExoLogger;
@@ -34,6 +33,9 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: ItemState.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class ItemState implements Externalizable {
+
+  private static final long serialVersionUID = 7967457831325761318L;
+
 
   private static Log          log               = ExoLogger.getLogger("jcr.ItemState");
 

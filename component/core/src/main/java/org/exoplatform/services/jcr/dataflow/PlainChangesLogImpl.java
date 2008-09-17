@@ -32,6 +32,8 @@ import java.util.List;
  */
 public class PlainChangesLogImpl implements Externalizable, PlainChangesLog {
 
+  private static final long serialVersionUID = 5624550860372364084L;
+
   protected List<ItemState> items;
 
   protected String sessionId;
