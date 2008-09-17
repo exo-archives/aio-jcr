@@ -138,7 +138,8 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
     if (cdata != null) 
       return super.getItemData(identifier);
     
-    if(!this.equals(versionDataManager)) {
+    if(!this.equals(versionDataManager) && !identifier.equals(Constants.ROOT_UUID)) {
+      // search in System cache for /jcr:system nodes only
       cdata = versionDataManager.persistentManager.getCachedItemData(identifier);
       if (cdata != null)
         if (isSystemDescendant(cdata.getQPath())) 
@@ -200,7 +201,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
   }
   
   private boolean isSystemDescendant(QPath path) {
-    return path.equals(Constants.JCR_SYSTEM_PATH) || path.isDescendantOf(Constants.JCR_SYSTEM_PATH);
+    return path.isDescendantOf(Constants.JCR_SYSTEM_PATH) || path.equals(Constants.JCR_SYSTEM_PATH);
   }
 
 }
