@@ -992,14 +992,16 @@ public class SessionDataManager implements ItemDataConsumer {
 
     List<ItemState> changes = changesLog.getAllStates();
     for (ItemState itemState : changes) {
-      boolean isDescendant = itemState.isDescendant(path);
-      
-      if(isDescendant){
-        validateAclSize(itemState);
-      }
-      
-      if (itemState.isInternallyCreated()) {
+      if (itemState.isInternallyCreated())
         continue;
+      
+      final boolean isDescendant = itemState.isDescendantOf(path);
+      
+      if (isDescendant && itemState.isMixinChanged()) {
+        if (((NodeData) itemState.getData()).getACL().getPermissionsSize() < 1) {
+          throw new RepositoryException("Node " + itemState.getData().getQPath().getAsString()
+              + " has wrong formed ACL.");
+        }
       }
       
       if (isDescendant) {
@@ -1018,6 +1020,7 @@ public class SessionDataManager implements ItemDataConsumer {
    * @param changedItem
    * @throws RepositoryException
    */
+  @Deprecated
   private void validateAclSize(ItemState changedItem) throws RepositoryException {
     NodeData node;
     if (changedItem.getData().isNode()) {
@@ -1120,12 +1123,12 @@ public class SessionDataManager implements ItemDataConsumer {
     SessionChangesLog changes = new SessionChangesLog(slog.getAllStates(), session.getId());
 
     String exceptions = "";
-
+    
     for (Iterator<ItemImpl> removedIter = invalidated.iterator(); removedIter.hasNext();) {
       ItemImpl removed = removedIter.next();
 
       QPath removedPath = removed.getLocation().getInternalPath();
-      ItemState rstate = changes.getItemState(removedPath); // changes.getItemStates(rstate.getData().getIdentifier());
+      ItemState rstate = changes.getItemState(removedPath);
 
       if (rstate == null) {
         exceptions += "Can't find removed item " + removed.getLocation().getAsString(false) + " in changes for rollback.\n";
