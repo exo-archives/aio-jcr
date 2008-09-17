@@ -39,7 +39,6 @@ public class ItemState implements Externalizable {
 
   private static Log          log               = ExoLogger.getLogger("jcr.ItemState");
 
-  
   public static final int     ADDED             = 1;
 
   public static final int     UPDATED           = 2;
@@ -57,12 +56,10 @@ public class ItemState implements Externalizable {
    */
   protected ItemData          data;
 
-  
-
   protected int               state;
 
-  private boolean             isPersisted       = true; 
-  
+  private boolean             isPersisted       = true;
+
   /**
    * Indicates that item is created internaly by system
    */
@@ -91,6 +88,7 @@ public class ItemState implements Externalizable {
   public ItemState(ItemData data, int state, boolean eventFire, QPath ancestorToSave) {
     this(data, state, eventFire, ancestorToSave, false, true);
   }
+
   /**
    * @param data underlying data
    * @param state
@@ -101,18 +99,19 @@ public class ItemState implements Externalizable {
    *          system
    */
   public ItemState(ItemData data,
-      int state,
-      boolean eventFire,
-      QPath ancestorToSave,
-      boolean isInternalCreated) {
+                   int state,
+                   boolean eventFire,
+                   QPath ancestorToSave,
+                   boolean isInternalCreated) {
     this(data, state, eventFire, ancestorToSave, isInternalCreated, true);
   }
+
   public ItemState(ItemData data,
-      int state,
-      boolean eventFire,
-      QPath ancestorToSave,
-      boolean isInternalCreated,
-      boolean isPersisted) {
+                   int state,
+                   boolean eventFire,
+                   QPath ancestorToSave,
+                   boolean isInternalCreated,
+                   boolean isPersisted) {
     this.data = data;
     this.state = state;
     this.eventFire = eventFire;
@@ -122,18 +121,16 @@ public class ItemState implements Externalizable {
       this.ancestorToSave = ancestorToSave;
     this.internallyCreated = isInternalCreated;
     this.isPersisted = isPersisted;
-    
-    
+
     if (log.isDebugEnabled())
       log.debug(nameFromValue(state) + " " + data.getQPath().getAsString() + ",  "
           + data.getIdentifier());
-    
-    
+
   }
+
   public boolean isPersisted() {
     return isPersisted;
   }
-
 
   /**
    * @return data.
@@ -152,7 +149,6 @@ public class ItemState implements Externalizable {
   public boolean isNode() {
     return data.isNode();
   }
-
 
   public boolean isAdded() {
     return state == ADDED;
@@ -178,23 +174,20 @@ public class ItemState implements Externalizable {
     return (state == RENAMED);
   }
 
-
-
   public boolean isEventFire() {
     return eventFire;
   }
-  
+
   public void eraseEventFire() {
     eventFire = false;
   }
-  
+
   public void makeLogical() {
     isPersisted = false;
   }
-  
-  public boolean isDescendant(QPath relPath) {
-    return getAncestorToSave().equals(relPath)
-        || getAncestorToSave().isDescendantOf(relPath);
+
+  public boolean isDescendantOf(QPath relPath) {
+    return ancestorToSave.isDescendantOf(relPath) || ancestorToSave.equals(relPath);
   }
 
   public QPath getAncestorToSave() {
@@ -211,7 +204,6 @@ public class ItemState implements Externalizable {
     }
 
     return false;
-
   }
 
   /**
@@ -240,15 +232,11 @@ public class ItemState implements Externalizable {
    */
   public static ItemState createUpdatedState(ItemData data) {
     return new ItemState(data, UPDATED, true, null);
-
   }
 
   public static ItemState createUpdatedState(ItemData data, boolean isInternalCreated) {
     return new ItemState(data, UPDATED, true, null, isInternalCreated);
   }
-  
-  
-  
 
   /**
    * creates RENAMED item state shortcut for new ItemState(data, RENAMED, true,
@@ -260,12 +248,12 @@ public class ItemState implements Externalizable {
    */
   public static ItemState createRenamedState(ItemData data) {
     return new ItemState(data, RENAMED, true, null);
-
   }
 
   public static ItemState createRenamedState(ItemData data, boolean isInternalCreated) {
     return new ItemState(data, RENAMED, true, null, isInternalCreated);
   }
+
   /**
    * creates DELETED item state shortcut for new ItemState(data, DELETED, true,
    * true, null)

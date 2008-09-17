@@ -661,7 +661,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     QPath sameUuidPath = sameUuidItem.getQPath();
 
-    if (ancestorToSave.equals(sameUuidPath) || ancestorToSave.isDescendantOf(sameUuidPath)) {
+    if (ancestorToSave.isDescendantOf(sameUuidPath) || ancestorToSave.equals(sameUuidPath)) {
       throw new ConstraintViolationException("The imported document contains a element"
           + " with jcr:uuid attribute the same as the  parent of the import target.");
     }

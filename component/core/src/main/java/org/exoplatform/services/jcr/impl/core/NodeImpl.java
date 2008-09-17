@@ -2519,7 +2519,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     permProp.setValues(permValues);
 
-    dataManager.update(new ItemState(getData(), ItemState.MIXIN_CHANGED, false, null, true), false);
+    dataManager.update(new ItemState(data, ItemState.MIXIN_CHANGED, false, null, true), false);
     dataManager.update(ItemState.createUpdatedState(permProp, true), false);
 
   }

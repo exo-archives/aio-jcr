@@ -89,7 +89,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
         TransientItemData data = (TransientItemData) itemState.getData();
 
         WorkspaceStorageConnection conn = null;
-        if (isSystemPath(data.getQPath())) {
+        if (isSystemDescendant(data.getQPath())) {
           conn = systemConnection == null ? 
               systemConnection = (
                   systemDataContainer != dataContainer ? // if same as instance
@@ -385,7 +385,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     }
   }
   
-  private boolean isSystemPath(QPath path) {
+  private boolean isSystemDescendant(QPath path) {
     return path.isDescendantOf(Constants.JCR_SYSTEM_PATH) || path.equals(Constants.JCR_SYSTEM_PATH);
   }
 
