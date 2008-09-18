@@ -23,11 +23,11 @@ import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.xml.XMLChar;
 
 /**
  * Created by The eXo Platform SAS.<br>
- * Helper for creating namespace mapping dependent entities like JCR path, name,
- * uuid
+ * Helper for creating namespace mapping dependent entities like JCR path, name, uuid
  * 
  * @author Gennady Azarenkov
  * @version $Id: LocationFactory.java 11907 2008-03-13 15:36:21Z ksm $
@@ -48,22 +48,19 @@ public class LocationFactory {
   /**
    * Creates JCRPath from parent path and relPath
    * 
-   * @param parentLoc
-   *          parent path
-   * @param relPath
-   *          related path
-   * @param setIndexIfNotDefined
-   *          if neccessary to set index = 1 if not defined (usable for node's
+   * @param parentLoc parent path
+   * @param relPath related path
+   * @param setIndexIfNotDefined if necessary to set index = 1 if not defined (usable for node's
    *          path only)
    * @return
    * @throws RepositoryException
    */
-  public JCRPath createJCRPath(JCRPath parentLoc, String relPath)
-      throws RepositoryException {
+  public JCRPath createJCRPath(JCRPath parentLoc, String relPath) throws RepositoryException {
 
     JCRPath path = new JCRPath();
-    for (int i = 0; i < parentLoc.getEntries().length; i++)
+    for (int i = 0; i < parentLoc.getEntries().length; i++) {
       path.addEntry(parentLoc.getEntries()[i]);
+    }
 
     JCRPath addPath = parseNames(relPath, false);
     for (int i = 0; i < addPath.getEntries().length; i++) {
@@ -82,25 +79,26 @@ public class LocationFactory {
   public JCRPath parseAbsPath(String absPath) throws RepositoryException {
     return parseNames(absPath, true);
   }
-  
-  
+
   public JCRPath parseRelPath(String relPath) throws RepositoryException {
     return parseNames(relPath, false);
   }
 
   /**
    * creates abs(if convertable to abs path) or rel(otherwice) JCRPath
+   * 
    * @param path
    * @return JCRPath
    * @throws RepositoryException
    */
   public JCRPath parseJCRPath(String path) throws RepositoryException {
-    if(isAbsPathParseable(path))
+    if (isAbsPathParseable(path)) {
       return parseAbsPath(path);
-    else
+    } else {
       return parseRelPath(path);
+    }
   }
-    
+
   /**
    * Creates JCRPath by internalQPath
    * 
@@ -114,8 +112,7 @@ public class LocationFactory {
     for (int i = 0; i < qPath.getEntries().length; i++) {
       QPathEntry entry = qPath.getEntries()[i];
       String prefix = namespaces.getNamespacePrefixByURI(entry.getNamespace());
-      path.addEntry(entry.getNamespace(), entry.getName(), prefix, entry
-          .getIndex());
+      path.addEntry(entry.getNamespace(), entry.getName(), prefix, entry.getIndex());
     }
 
     return path;
@@ -133,54 +130,67 @@ public class LocationFactory {
    * @return
    * @throws RepositoryException
    */
-  public JCRName parseJCRName(String name) throws PathNotFoundException,
-      RepositoryException {
+  public JCRName parseJCRName(String name) throws PathNotFoundException, RepositoryException {
     JCRPath.PathElement entry = parsePathEntry(new JCRPath(), name);
     return new JCRName(entry.getNamespace(), entry.getName(), entry.getPrefix());
   }
 
-  public JCRPath.PathElement[] createRelPath(QPathEntry[] relPath)
-      throws RepositoryException {
+  public JCRPath.PathElement[] createRelPath(QPathEntry[] relPath) throws RepositoryException {
     JCRPath path = new JCRPath();
-    //JCRPath.PathElement[] entries = new JCRPath.PathElement[relPath.length];
-    for (int i = 0; i < relPath.length; i++) {
-      String uri = namespaces
-          .getNamespaceURIByPrefix(relPath[i].getNamespace());
+    // JCRPath.PathElement[] entries = new JCRPath.PathElement[relPath.length];
+    for (QPathEntry element : relPath) {
+      String uri = namespaces.getNamespaceURIByPrefix(element.getNamespace());
       String prefix = namespaces.getNamespacePrefixByURI(uri);
-      path.addEntry(uri, relPath[i].getName(), prefix, relPath[i].getIndex());
+      path.addEntry(uri, element.getName(), prefix, element.getIndex());
     }
     return path.getEntries();
   }
 
-  private JCRPath.PathElement parsePathEntry(JCRPath path, String name)
-      throws PathNotFoundException, RepositoryException {
+  private JCRPath.PathElement parsePathEntry(JCRPath path, String name) throws PathNotFoundException,
+                                                                       RepositoryException {
 
-    // should be reset here (if there is explicit index) or 
+    // should be reset here (if there is explicit index) or
     // in JCRPath.Entry() (with index == 1)
     int index = -1;
 
-    if (name == null)
+    if (name == null) {
       throw new RepositoryException("Name can not be null");
+    }
+
     int delim = name.indexOf(":");
     int endOfName = name.length();
     int indexStart = name.indexOf("[");
     if (indexStart > 0) {
       int indexEnd = name.indexOf("]");
-      if (indexEnd <= indexStart)
+      if ((indexEnd <= indexStart + 1) || (indexEnd != name.length() - 1)) {
         throw new RepositoryException("Invalid path entry " + name);
+      }
       index = Integer.parseInt(name.substring(indexStart + 1, indexEnd));
+      if (index <= 0) {
+        throw new RepositoryException("Invalid path entry " + name);
+      }
       endOfName = indexStart;
     }
-    try {
 
+    try {
       String prefix;
       if (delim <= 0) {
         prefix = "";
       } else {
+        // prefix validation
         prefix = name.substring(0, delim);
+        if (!XMLChar.isValidName(prefix)) {
+          throw new RepositoryException("Illegal path entry " + name);
+        }
       }
 
-      path.addEntry(namespaces.getNamespaceURIByPrefix(prefix), name.substring(delim + 1, endOfName), prefix, index);
+      // name validation
+      String someName = name.substring(delim + 1, endOfName);
+      if (!isValidName(someName, !prefix.equals(""))) {
+        throw new RepositoryException("Illegal path entry " + name);
+      }
+
+      path.addEntry(namespaces.getNamespaceURIByPrefix(prefix), someName, prefix, index);
       return (JCRPath.PathElement) path.getName();
 
     } catch (Exception e) {
@@ -188,39 +198,110 @@ public class LocationFactory {
     }
   }
 
-  private JCRPath parseNames(String path, boolean absolute)
-      throws PathNotFoundException, RepositoryException {
-    
-    if (path == null)
+  private JCRPath parseNames(String path, boolean absolute) throws PathNotFoundException,
+                                                           RepositoryException {
+
+    if (path == null) {
       throw new RepositoryException("Illegal relPath " + path);
+    }
 
     JCRPath jcrPath = new JCRPath();
     int start = 0;
-    if (!absolute)
+    if (!absolute) {
       start = -1;
+    }
     if (isAbsPathParseable(path)) {
-      if (!absolute)
+      if (!absolute) {
         throw new RepositoryException("Illegal relPath " + path);
-      parsePathEntry(jcrPath, "");
+      }
+      jcrPath.addEntry(namespaces.getNamespaceURIByPrefix(""), "", "", -1);
     } else {
-      if (absolute)
+      if (absolute) {
         throw new RepositoryException("Illegal absPath " + path);
+      }
     }
 
     int end = 0;
     while (end >= 0) {
       end = path.indexOf('/', start + 1);
       String qname = path.substring(start + 1, end == -1 ? path.length() : end);
-      if (qname.length() == 0)
+
+      if (start + 1 != path.length()) {
+        parsePathEntry(jcrPath, qname);
+      } else {
+        // jcrPath.addEntry(namespaces.getNamespaceURIByPrefix(""), "", "", -1);
         return jcrPath;
-      parsePathEntry(jcrPath, qname);
+      }
+
       start = end;
     }
 
     return jcrPath;
   }
-  
-  private static boolean isAbsPathParseable(String str){
+
+  private static boolean isAbsPathParseable(String str) {
     return str.startsWith("/");
   }
+
+  // Some functions for JCRPath Validation
+  private boolean isNonspace(char ch) {
+    return !((ch == '\t') || (ch == '\n') || (ch == '\f') || (ch == '\r') || (ch == ' ')
+        || (ch == '/') || (ch == ':') || (ch == '[') || (ch == ']') || (ch == '\'') || (ch == '\"')
+        || (ch == '|') || (ch == '*'));
+  }
+
+  private boolean isSimpleString(String str) {
+    char ch;
+
+    for (int i = 0; i < str.length(); i++) {
+      ch = str.charAt(i);
+      if (!isNonspace(ch) && (ch != ' ')) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private boolean isLocalName(String str) {
+    int strLen = str.length();
+
+    switch (strLen) {
+    case 0:
+      return false;
+    case 1:
+      char ch = str.charAt(0);
+      return (isNonspace(ch) && (ch != '.'));
+    case 2:
+      char ch0 = str.charAt(0);
+      char ch1 = str.charAt(1);
+      return (((ch0 == '.') && (isNonspace(ch1) && (ch1 != '.')))
+          || ((isNonspace(ch0) && (ch0 != '.')) && (ch1 == '.')) || ((isNonspace(ch0) && (ch0 != '.')) && (isNonspace(ch1) && (ch1 != '.'))));
+    default:
+      return isNonspace(str.charAt(0)) && isSimpleString(str.substring(1, strLen - 1))
+          && isNonspace(str.charAt(strLen - 1));
+    }
+  }
+
+  private boolean isSimpleName(String str) {
+    int strLen = str.length();
+
+    switch (strLen) {
+    case 0:
+      return false;
+    case 1:
+      return isNonspace(str.charAt(0));
+    case 2:
+      return isNonspace(str.charAt(0)) && isNonspace(str.charAt(1));
+    default:
+      return isNonspace(str.charAt(0)) && isSimpleString(str.substring(1, strLen - 1))
+          && isNonspace(str.charAt(strLen - 1));
+    }
+  }
+
+  private boolean isValidName(String str, boolean prefixed) {
+    return (prefixed ? isLocalName(str) : isSimpleName(str) || str.equals(JCRPath.THIS_RELPATH)
+        || str.equals(JCRPath.PARENT_RELPATH) || str.equals("*"));
+  }
+
 }
