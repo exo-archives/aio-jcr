@@ -19,11 +19,14 @@ package org.exoplatform.services.jcr.impl.core;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.xml.XMLChar;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.<br>
@@ -33,8 +36,9 @@ import org.exoplatform.services.jcr.impl.xml.XMLChar;
  * @author Gennady Azarenkov
  * @version $Id: LocationFactory.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
 public class LocationFactory {
+
+  protected static Log      log = ExoLogger.getLogger("jcr.LocationFactory");
 
   private NamespaceAccessor namespaces;
 
@@ -246,7 +250,9 @@ public class LocationFactory {
 
   // Some functions for JCRPath Validation
   private boolean isNonspace(char ch) {
-    // || (ch == '|')
+    if (ch == '|') {
+      log.warn("Illegal char |");
+    }
     return !((ch == '\t') || (ch == '\n') || (ch == '\f') || (ch == '\r') || (ch == ' ')
         || (ch == '/') || (ch == ':') || (ch == '[') || (ch == ']') || (ch == '\'') || (ch == '\"') || (ch == '*'));
   }

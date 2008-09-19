@@ -37,7 +37,7 @@ public class TestLocationFactory extends TestCase {
       "\n", "ddr:df:", "", "xml:na*me", "[1]", " ", "ddd:..", "&io:lala" };
 
   private static String         testJCRPathValid[]          = { "..", "jcr:ig[2]/aaa", "v/d/...",
-      "/path", "/vv/fff", "ff", "/", ".."                  };
+      "/path", "/vv/fff", "ff", "/", "..", "|fff"          };
 
   private static String         testJCRPathInvalid[]        = { "/.:./uuu", "/ ", "/./xml:name[0]",
       "xxx//fff", "//", " sdfas/"                          };
