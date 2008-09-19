@@ -40,7 +40,7 @@ public class TestLocationFactory extends TestCase {
       "/path", "/vv/fff", "ff", "/", ".."                  };
 
   private static String         testJCRPathInvalid[]        = { "/.:./uuu", "/ ", "/./xml:name[0]",
-      "xxx//fff", "//", " sdfas/", "|fff"                  };
+      "xxx//fff", "//", " sdfas/"                          };
 
   private LocationFactory       factory;
 
@@ -57,7 +57,8 @@ public class TestLocationFactory extends TestCase {
 
   /**
    * Test method for
-   * {@link org.exoplatform.services.jcr.impl.core.LocationFactory#parseJCRPath(java.lang.String)} .
+   * {@link org.exoplatform.services.jcr.impl.core.LocationFactory#parseJCRPath(java.lang.String)}
+   * .
    */
   public void testParseValidJCRPath() {
     String testPath;
@@ -86,7 +87,8 @@ public class TestLocationFactory extends TestCase {
 
   /**
    * Test method for
-   * {@link org.exoplatform.services.jcr.impl.core.LocationFactory#parseJCRName(java.lang.String)} .
+   * {@link org.exoplatform.services.jcr.impl.core.LocationFactory#parseJCRName(java.lang.String)}
+   * .
    */
   public void testParseValidJCRName() {
     String testPathElement;

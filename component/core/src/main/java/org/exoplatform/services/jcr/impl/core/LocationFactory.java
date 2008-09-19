@@ -27,7 +27,8 @@ import org.exoplatform.services.jcr.impl.xml.XMLChar;
 
 /**
  * Created by The eXo Platform SAS.<br>
- * Helper for creating namespace mapping dependent entities like JCR path, name, uuid
+ * Helper for creating namespace mapping dependent entities like JCR path, name,
+ * uuid
  * 
  * @author Gennady Azarenkov
  * @version $Id: LocationFactory.java 11907 2008-03-13 15:36:21Z ksm $
@@ -50,8 +51,8 @@ public class LocationFactory {
    * 
    * @param parentLoc parent path
    * @param relPath related path
-   * @param setIndexIfNotDefined if necessary to set index = 1 if not defined (usable for node's
-   *          path only)
+   * @param setIndexIfNotDefined if necessary to set index = 1 if not defined
+   *          (usable for node's path only)
    * @return
    * @throws RepositoryException
    */
@@ -245,9 +246,9 @@ public class LocationFactory {
 
   // Some functions for JCRPath Validation
   private boolean isNonspace(char ch) {
+    // || (ch == '|')
     return !((ch == '\t') || (ch == '\n') || (ch == '\f') || (ch == '\r') || (ch == ' ')
-        || (ch == '/') || (ch == ':') || (ch == '[') || (ch == ']') || (ch == '\'') || (ch == '\"')
-        || (ch == '|') || (ch == '*'));
+        || (ch == '/') || (ch == ':') || (ch == '[') || (ch == ']') || (ch == '\'') || (ch == '\"') || (ch == '*'));
   }
 
   private boolean isSimpleString(String str) {
