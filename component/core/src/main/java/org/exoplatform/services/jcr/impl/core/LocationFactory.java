@@ -42,6 +42,10 @@ public class LocationFactory {
 
   private NamespaceAccessor namespaces;
 
+  private boolean           warnIllegalChar;
+
+  private char              illegalChar;
+
   public LocationFactory(NamespaceAccessor namespaces) {
     this.namespaces = namespaces;
   }
@@ -137,6 +141,7 @@ public class LocationFactory {
    */
   public JCRName parseJCRName(String name) throws PathNotFoundException, RepositoryException {
     JCRPath.PathElement entry = parsePathEntry(new JCRPath(), name);
+
     return new JCRName(entry.getNamespace(), entry.getName(), entry.getPrefix());
   }
 
@@ -191,8 +196,11 @@ public class LocationFactory {
 
       // name validation
       String someName = name.substring(delim + 1, endOfName);
-      if (!isValidName(someName, !prefix.equals(""))) {
+      int validName = isValidName(someName, !prefix.equals(""));
+      if (validName < 0) {
         throw new RepositoryException("Illegal path entry " + name);
+      } else if (validName == 0) {
+        log.warn("Path entry " + name + " contain illegal char " + illegalChar);
       }
 
       path.addEntry(namespaces.getNamespaceURIByPrefix(prefix), someName, prefix, index);
@@ -251,8 +259,10 @@ public class LocationFactory {
   // Some functions for JCRPath Validation
   private boolean isNonspace(char ch) {
     if (ch == '|') {
-      log.warn("Illegal char |");
+      illegalChar = ch;
+      warnIllegalChar = true;
     }
+
     return !((ch == '\t') || (ch == '\n') || (ch == '\f') || (ch == '\r') || (ch == ' ')
         || (ch == '/') || (ch == ':') || (ch == '[') || (ch == ']') || (ch == '\'') || (ch == '\"') || (ch == '*'));
   }
@@ -306,9 +316,19 @@ public class LocationFactory {
     }
   }
 
-  private boolean isValidName(String str, boolean prefixed) {
-    return (prefixed ? isLocalName(str) : isSimpleName(str) || str.equals(JCRPath.THIS_RELPATH)
-        || str.equals(JCRPath.PARENT_RELPATH) || str.equals("*"));
-  }
+  private int isValidName(String str, boolean prefixed) {
+    warnIllegalChar = false;
 
+    boolean result = (prefixed ? isLocalName(str) : isSimpleName(str)
+        || str.equals(JCRPath.THIS_RELPATH) || str.equals(JCRPath.PARENT_RELPATH)
+        || str.equals("*"));
+
+    if (!result) {
+      return -1;
+    } else if (warnIllegalChar) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
 }
