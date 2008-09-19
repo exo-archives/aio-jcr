@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication;
 
-import java.io.File;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 
@@ -32,10 +31,6 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
-import org.jgroups.Message;
-import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.MessageDispatcher;
-import org.jgroups.blocks.RequestHandler;
 
 /**
  * Created by The eXo Platform SAS

@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.backup.BackupConfig;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
+import org.exoplatform.services.jcr.ext.replication.test.bandwidth.BandwidthAllocationTestCase;
 import org.exoplatform.services.jcr.ext.replication.test.concurrent.ConcurrentModificationTestCase;
 import org.exoplatform.services.jcr.ext.replication.test.priority.BasePriorityTestCase;
 import org.exoplatform.services.log.ExoLogger;
@@ -96,6 +97,13 @@ public class ReplicationTestService implements ResourceContainer {
       
       public final static String START_THREAD_UPDATER          = "startThreadUpdater";
       
+      public final static String CREATE_BASE_NODE              = "createBaseNode";
+      
+      public final static String ADD_EMPTY_NODE                = "addEmptyNode";
+      
+      public final static String ADD_STRING_PROPETY_ONLY       = "addStringPropertyOnly";
+      
+      public final static String ADD_BINARY_PROPERTY_ONLY      = "addBinaryPropertyOnly";
     }
   }
 
@@ -540,6 +548,79 @@ public class ReplicationTestService implements ResourceContainer {
     ConcurrentModificationTestCase concurrentModificationTestCase = new ConcurrentModificationTestCase(repositoryService,
         repositoryName, workspaceName, userName, password);
     StringBuffer sb = concurrentModificationTestCase.startThreadUpdater(srcRepoPath, srcFileName, destRepoPath, destFileName, iterations);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=createBaseNode")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/")
+  public Response createBaseNode(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("nodeName")
+  String nodeName) {
+    BandwidthAllocationTestCase bandwidthAllocationTestCase = new BandwidthAllocationTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = bandwidthAllocationTestCase.createBaseNode(repoPath, nodeName);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=addEmptyNode")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/{iterations}/")
+  public Response addEmptyNode(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("nodeName")
+  String nodeName, @URIParam("iterations")
+  Long iterations) {
+    BandwidthAllocationTestCase bandwidthAllocationTestCase = new BandwidthAllocationTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = bandwidthAllocationTestCase.addEmptyNode(repoPath, nodeName, iterations);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=addStringPropertyOnly")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/{size}/{iterations}/")
+  public Response addStringPropertyOnly(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("nodeName")
+  String nodeName, @URIParam("size")
+  Long size, @URIParam("iterations")
+  Long iterations) {
+    BandwidthAllocationTestCase bandwidthAllocationTestCase = new BandwidthAllocationTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = bandwidthAllocationTestCase.addStringPropertyOnly(repoPath, nodeName, size, iterations);
+
+    return Response.Builder.ok(sb.toString(), "text/plain").build();
+  }
+  
+  @QueryTemplate("operation=addBinaryPropertyOnly")
+  @HTTPMethod("GET")
+  @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/{size}/{iterations}/")
+  public Response addBinaryPropertyOnly(@URIParam("repositoryName")
+  String repositoryName, @URIParam("workspaceName")
+  String workspaceName, @URIParam("userName")
+  String userName, @URIParam("password")
+  String password, @URIParam("repoPath")
+  String repoPath, @URIParam("nodeName")
+  String nodeName, @URIParam("size")
+  Long size, @URIParam("iterations")
+  Long iterations) {
+    BandwidthAllocationTestCase bandwidthAllocationTestCase = new BandwidthAllocationTestCase(repositoryService,
+        repositoryName, workspaceName, userName, password);
+    StringBuffer sb = bandwidthAllocationTestCase.addBinaryPropertyOnly(repoPath, nodeName, size, iterations);
 
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }

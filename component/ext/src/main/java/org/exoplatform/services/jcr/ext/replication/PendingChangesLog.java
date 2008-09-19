@@ -264,8 +264,6 @@ public class PendingChangesLog {
           
           getRandomAccessFile(fs);
         }
-        
-        
       }
     }
     return null;
@@ -296,6 +294,11 @@ public class PendingChangesLog {
       transientValueData.isByteArray();
     }
 
+    if (listRandomAccessFile != null )
+      for (int i = 0; i < listRandomAccessFile.size(); i++)
+        listRandomAccessFile.get(i).close();
+     
+    
     for (int i = 0; i < listFile.size(); i++)
       fileCleaner.addFile(listFile.get(i));
 
