@@ -433,7 +433,8 @@ public class NodeTypeDataPersister {
       do {
   
         long cycleStart = System.currentTimeMillis();
-        log.info(">>> Node types registration cycle " + registerCyclesCount + " started");
+        if (log.isDebugEnabled())
+          log.debug(">>> Node types registration cycle " + registerCyclesCount + " started");
   
         NodeDataReader ntReader = new NodeDataReader(ntRoot, dataManager, valueFactory);
         ntReader.forNodesByType(Constants.NT_NODETYPE); // for nt:nodeType
@@ -488,7 +489,8 @@ public class NodeTypeDataPersister {
                   throw new ConstraintViolationException("Supertype " + superTypeName
                       + " is not registered in repository (but need to be registered before nodetype " + type.getName()
                       + "). Node type registration aborted.");
-                log.info("Supertype " + superTypeName + " is not registered. " + type.getName()
+                if (log.isDebugEnabled())
+                  log.debug("Supertype " + superTypeName + " is not registered. " + type.getName()
                     + " node type will be registered in a next cycle.");
                 continue nextNodeType;
               }
@@ -592,7 +594,8 @@ public class NodeTypeDataPersister {
                     throw new ConstraintViolationException("Default primary node type of NodeDefinition " + nDef.getName()
                         + " is not registered in repository. Default primary node type " + defaultNodeTypeName
                         + " must be registered before " + type.getName() + ". Node types registration aborted.");
-                  log.info("Default primary node type of NodeDefinition " + nDef.getName() + " is not registered." + type.getName()
+                  if (log.isDebugEnabled())
+                    log.debug("Default primary node type of NodeDefinition " + nDef.getName() + " is not registered." + type.getName()
                       + " node type will be registered in a next cycle.");
                   continue nextNodeType;
                 }
@@ -612,7 +615,8 @@ public class NodeTypeDataPersister {
                         throw new ConstraintViolationException("Required node type of NodeDefinition " + nDef.getName()
                             + " is not registered in repository. Required node type " + requiredNodeTypeName
                             + " must be registered before " + type.getName() + ". Node type resistration aborted.");
-                      log.info("Required node type of NodeDefinition " + nDef.getName() + " is not registered." + type.getName()
+                      if (log.isDebugEnabled())
+                        log.debug("Required node type of NodeDefinition " + nDef.getName() + " is not registered." + type.getName()
                           + " node type will be registered in a next cycle.");
                       continue nextNodeType;
                     }
@@ -646,10 +650,12 @@ public class NodeTypeDataPersister {
           // -------- NodeType done --------
           ntList.add(type);
           loadedList.add(type);
-          log.info("NodeType " + type.getName() + " loaded. " + (System.currentTimeMillis() - ntStart) + " ms");
+          if (log.isDebugEnabled())
+            log.debug("NodeType " + type.getName() + " loaded. " + (System.currentTimeMillis() - ntStart) + " ms");
         }
         nextCycle = true;
-        log.info("<<< Node types registration cycle " + registerCyclesCount + " finished. "
+        if (log.isDebugEnabled())
+          log.debug("<<< Node types registration cycle " + registerCyclesCount + " finished. "
             + (System.currentTimeMillis() - cycleStart) + " ms");
         registerCyclesCount++; // for owerflow limitation
         if (registerCyclesCount >= 1000)
