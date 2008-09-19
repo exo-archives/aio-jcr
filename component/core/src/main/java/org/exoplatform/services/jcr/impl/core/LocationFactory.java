@@ -42,10 +42,6 @@ public class LocationFactory {
 
   private NamespaceAccessor namespaces;
 
-  private boolean           warnIllegalChar;
-
-  private char              illegalChar;
-
   public LocationFactory(NamespaceAccessor namespaces) {
     this.namespaces = namespaces;
   }
@@ -196,11 +192,8 @@ public class LocationFactory {
 
       // name validation
       String someName = name.substring(delim + 1, endOfName);
-      int validName = isValidName(someName, !prefix.equals(""));
-      if (validName < 0) {
+      if (!isValidName(someName, !prefix.equals(""))) {
         throw new RepositoryException("Illegal path entry " + name);
-      } else if (validName == 0) {
-        log.warn("Path entry " + name + " contain illegal char " + illegalChar);
       }
 
       path.addEntry(namespaces.getNamespaceURIByPrefix(prefix), someName, prefix, index);
@@ -257,10 +250,9 @@ public class LocationFactory {
   }
 
   // Some functions for JCRPath Validation
-  private boolean isNonspace(char ch) {
+  private boolean isNonspace(String str, char ch) {
     if (ch == '|') {
-      illegalChar = ch;
-      warnIllegalChar = true;
+      log.warn("Path entry " + str + " contain illegal char " + ch);
     }
 
     return !((ch == '\t') || (ch == '\n') || (ch == '\f') || (ch == '\r') || (ch == ' ')
@@ -272,7 +264,7 @@ public class LocationFactory {
 
     for (int i = 0; i < str.length(); i++) {
       ch = str.charAt(i);
-      if (!isNonspace(ch) && (ch != ' ')) {
+      if (!isNonspace(str, ch) && (ch != ' ')) {
         return false;
       }
     }
@@ -288,15 +280,16 @@ public class LocationFactory {
       return false;
     case 1:
       char ch = str.charAt(0);
-      return (isNonspace(ch) && (ch != '.'));
+      return (isNonspace(str, ch) && (ch != '.'));
     case 2:
       char ch0 = str.charAt(0);
       char ch1 = str.charAt(1);
-      return (((ch0 == '.') && (isNonspace(ch1) && (ch1 != '.')))
-          || ((isNonspace(ch0) && (ch0 != '.')) && (ch1 == '.')) || ((isNonspace(ch0) && (ch0 != '.')) && (isNonspace(ch1) && (ch1 != '.'))));
+      return (((ch0 == '.') && (isNonspace(str, ch1) && (ch1 != '.')))
+          || ((isNonspace(str, ch0) && (ch0 != '.')) && (ch1 == '.')) || ((isNonspace(str, ch0) && (ch0 != '.')) && (isNonspace(str,
+                                                                                                                                ch1) && (ch1 != '.'))));
     default:
-      return isNonspace(str.charAt(0)) && isSimpleString(str.substring(1, strLen - 1))
-          && isNonspace(str.charAt(strLen - 1));
+      return isNonspace(str, str.charAt(0)) && isSimpleString(str.substring(1, strLen - 1))
+          && isNonspace(str, str.charAt(strLen - 1));
     }
   }
 
@@ -307,28 +300,17 @@ public class LocationFactory {
     case 0:
       return false;
     case 1:
-      return isNonspace(str.charAt(0));
+      return isNonspace(str, str.charAt(0));
     case 2:
-      return isNonspace(str.charAt(0)) && isNonspace(str.charAt(1));
+      return isNonspace(str, str.charAt(0)) && isNonspace(str, str.charAt(1));
     default:
-      return isNonspace(str.charAt(0)) && isSimpleString(str.substring(1, strLen - 1))
-          && isNonspace(str.charAt(strLen - 1));
+      return isNonspace(str, str.charAt(0)) && isSimpleString(str.substring(1, strLen - 1))
+          && isNonspace(str, str.charAt(strLen - 1));
     }
   }
 
-  private int isValidName(String str, boolean prefixed) {
-    warnIllegalChar = false;
-
-    boolean result = (prefixed ? isLocalName(str) : isSimpleName(str)
-        || str.equals(JCRPath.THIS_RELPATH) || str.equals(JCRPath.PARENT_RELPATH)
-        || str.equals("*"));
-
-    if (!result) {
-      return -1;
-    } else if (warnIllegalChar) {
-      return 0;
-    } else {
-      return 1;
-    }
+  private boolean isValidName(String str, boolean prefixed) {
+    return (prefixed ? isLocalName(str) : isSimpleName(str) || str.equals(JCRPath.THIS_RELPATH)
+        || str.equals(JCRPath.PARENT_RELPATH) || str.equals("*"));
   }
 }
