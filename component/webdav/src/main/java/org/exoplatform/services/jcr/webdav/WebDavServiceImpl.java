@@ -703,13 +703,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     log.debug("PUT " + repoName + "/" + repoPath);
     
     try {
-      repoPath = URLEncoder.encode(repoPath, "UTF-8");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    
-    try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), tokens);
 
