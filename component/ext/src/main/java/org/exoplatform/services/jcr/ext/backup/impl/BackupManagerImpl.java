@@ -470,7 +470,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
             // targeted state
             if (citem.isNode()) {
               // Node... by ID and desc path
-              if (!item.getIdentifier().equals(collisionID) && !item.getQPath().isDescendantOf(citem.getData().getQPath(), false))
+              if (!item.getIdentifier().equals(collisionID) && !item.getQPath().isDescendantOf(citem.getData().getQPath()))
                 normalized.add(change);
             } else if (!item.getIdentifier().equals(collisionID)) {
               // Property... by ID
