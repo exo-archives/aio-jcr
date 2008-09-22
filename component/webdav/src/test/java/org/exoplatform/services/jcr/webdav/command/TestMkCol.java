@@ -16,14 +16,9 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-import junit.framework.TestCase;
-
-import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.common.http.client.CookieModule;
-import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.services.jcr.webdav.ContainerStarter;
+import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
@@ -32,57 +27,44 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
  *          work.visor.ck@gmail.com
  * Aug 13, 2008  
  */
-public class TestMkCol extends TestCase {
+public class TestMkCol extends BaseWebDavTest {
   
   private final String destName = TestUtils.getFolderName();
-  private HTTPConnection connection;
   
-  private InstalledLocalContainer container;
-
-  
-  @Override
-  protected void setUp() throws Exception {   
-    
-    container = ContainerStarter.cargoContainerStart("8088", null);
-    assertTrue(container.getState().isStarted());
-    
-    connection = TestUtils.GetAuthConnection();
-    
-    CookieModule.setCookiePolicyHandler(null);    
-    
-    super.setUp();
-  }
+//  @Override
+//  protected void setUp() throws Exception {   
+//    super.setUp();
+//  }
   
   @Override
   protected void tearDown() throws Exception {
     connection.Delete(TestUtils.getFullWorkSpacePath() + destName);
-    
-    ContainerStarter.cargoContainerStop(container);
-    assertTrue(container.getState().isStopped());
-      
+   
     super.tearDown();
   }
   
   public void testSucceed() throws Exception {
     
-    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + destName);
+    String str = TestUtils.getFullWorkSpacePath() + destName;
+    
+    HTTPResponse response = connection.MkCol(str);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
   }
   
-  public void testForbidden() throws Exception {
-
-    HTTPResponse response = connection.MkCol(TestUtils.SERVLET_PATH + TestUtils.INAVLID_WORKSPACE +
-        destName);
-    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
-    
-  }
-  
-  public void testConflict() throws Exception {
-    
-    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + "/path" +
-        destName);
-    assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
-    
-  }
+//  public void testForbidden() throws Exception {
+//
+//    HTTPResponse response = connection.MkCol(TestUtils.SERVLET_PATH + TestUtils.INAVLID_WORKSPACE +
+//        destName);
+//    assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
+//    
+//  }
+//  
+//  public void testConflict() throws Exception {
+//    
+//    HTTPResponse response = connection.MkCol(TestUtils.getFullWorkSpacePath() + "/path" +
+//        destName);
+//    assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
+//    
+//  }
 
 }

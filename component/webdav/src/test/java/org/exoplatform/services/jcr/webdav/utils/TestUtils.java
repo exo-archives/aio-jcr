@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.webdav.utils;
 
 import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDav;
 
 /**
  * Created by The eXo Platform SAS
@@ -27,19 +28,19 @@ import org.exoplatform.common.http.client.HTTPConnection;
 public class TestUtils {
   
   public static final String HOST = "localhost";
-  public static final int PORT = 8088;
+
   
   public static final String SERVLET_PATH = "/rest/jcr/repository";
   public static final String WORKSPACE = "/production";
   public static final String INAVLID_WORKSPACE = "/invalid";  
-//  public static final String REALM = "eXo REST services";
-  public static final String REALM = "exo-domain";
+  public static final String REALM = "eXo REST services";
+//  public static final String REALM = "exo-domain";
   
   public static final String ROOTID = "root";
   public static final String ROOTPASS = "exo";
   
   public static HTTPConnection GetAuthConnection() {
-    HTTPConnection connection = new HTTPConnection(HOST, PORT);
+    HTTPConnection connection = new HTTPConnection(HOST, WebDav.PORT_INT);
     connection.addBasicAuthorization(REALM, ROOTID, ROOTPASS);
     
     return connection;
@@ -50,7 +51,7 @@ public class TestUtils {
   }
   
   public static String getFullUri(){
-    return "http://" + HOST + ":" + PORT + getFullWorkSpacePath();
+    return "http://" + HOST + ":" + WebDav.PORT_INT + getFullWorkSpacePath();
   }
  
   public static String getFolderName() {

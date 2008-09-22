@@ -25,7 +25,9 @@ package org.exoplatform.services.jcr.webdav;
 public class WebDavConstants {
   
   public class WebDav{
-    public static final String REALM = "eXo REST services";    
+    public static final String REALM = "eXo REST services";
+    public static final String PORT_STRING = "8088";
+    public static final int PORT_INT = 8088;
   }
   
   public class WebDavProp {

@@ -702,11 +702,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       
     log.debug("PUT " + repoName + "/" + repoPath);
     
-    try {
-      repoPath = URLEncoder.encode(repoPath, "UTF-8");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+//    try {
+//      repoPath = URLEncoder.encode(repoPath, "UTF-8");
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//    }
 
     
     try {

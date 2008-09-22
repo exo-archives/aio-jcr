@@ -14,55 +14,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.webdav.command;
+package org.exoplatform.services.jcr.webdav;
 
-import org.exoplatform.common.http.HTTPStatus;
+import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.client.CookieModule;
-import org.exoplatform.common.http.client.HTTPResponse;
-import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
-import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDav;
+import org.exoplatform.services.log.ExoLogger;
+import org.apache.commons.logging.Log;
+
+import junit.framework.TestCase;
 
 /**
  * Created by The eXo Platform SAS
  * Author : Dmytro Katayev
  *          work.visor.ck@gmail.com
- * Aug 13, 2008  
+ * 22 Sep 2008  
  */
-public class TestPut extends BaseWebDavTest {
+public class BaseWebDavTest extends TestCase {
   
-  private final String fileName = TestUtils.getFullWorkSpacePath() + "/" +TestUtils.getFileName();
-  private final String fileSubName = TestUtils.getFullWorkSpacePath() + "/sub/" +TestUtils.getFileName();  
-  private final String fileContent = "TEST FILE CONTENT...";
+  protected static Log log = ExoLogger.getLogger("jcr.WebDavTest");
+  
+  protected InstalledLocalContainer container;
+  protected HTTPConnection connection;
   
   @Override
   protected void setUp() throws Exception {
     
-    super.setUp();
-   
+    container = ContainerStarter.cargoContainerStart(WebDav.PORT_STRING, null);
+    assertTrue(container.getState().isStarted());
+    
     CookieModule.setCookiePolicyHandler(null);    
     connection = TestUtils.GetAuthConnection();
 
+    super.setUp();
   }
   
   @Override
   protected void tearDown() throws Exception {
-  
+
+    // TODO Auto-generated method stub
+    
+    ContainerStarter.cargoContainerStop(container);
+    assertTrue(container.getState().isStopped());
+    
     super.tearDown();
-    
   }
-  
- 
-  public void testSimplePut() throws Exception {
-   
-    HTTPResponse response = connection.Put(fileName, fileContent);
-    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-        
-    response = connection.Delete(fileName);
-    assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-    
-    response = connection.Put(fileSubName, fileContent);
-    assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
-    
-  }
-  
+
 }

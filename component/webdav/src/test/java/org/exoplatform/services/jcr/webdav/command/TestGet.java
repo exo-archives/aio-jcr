@@ -44,8 +44,8 @@ public class TestGet extends TestCase {
   @Override
   protected void setUp() throws Exception {
     
-    container = ContainerStarter.cargoContainerStart("8088", null);    
-    assertTrue(container.getState().isStarted());
+//    container = ContainerStarter.cargoContainerStart("8081", null);    
+//    assertTrue(container.getState().isStarted());
    
     CookieModule.setCookiePolicyHandler(null);
    
@@ -64,8 +64,8 @@ public class TestGet extends TestCase {
     HTTPResponse response = connection.Delete(fileName);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
     
-    ContainerStarter.cargoContainerStop(container);
-    assertTrue(container.getState().isStopped());
+//    ContainerStarter.cargoContainerStop(container);
+//    assertTrue(container.getState().isStopped());
     
     super.tearDown();
   }

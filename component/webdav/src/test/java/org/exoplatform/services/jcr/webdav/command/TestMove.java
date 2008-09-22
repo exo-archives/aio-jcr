@@ -50,14 +50,11 @@ public class TestMove extends TestCase {
   @Override
   protected void setUp() throws Exception {
     
-    container = ContainerStarter.cargoContainerStart("8088", null);
-    assertTrue(container.getState().isStarted());
-      
     CookieModule.setCookiePolicyHandler(null);
     
     connection = TestUtils.GetAuthConnection();
     
-    {
+
       HTTPResponse response = connection.Put(srcFileName, fileContent);
       assertEquals(HTTPStatus.CREATED, response.getStatusCode());
     
@@ -66,7 +63,7 @@ public class TestMove extends TestCase {
     
       response = connection.Put(srcFileName, fileContent);
       assertEquals(HTTPStatus.CREATED, response.getStatusCode());    
-    }
+
   
     super.setUp();
   }
@@ -76,9 +73,6 @@ public class TestMove extends TestCase {
   {
     HTTPResponse response = connection.Delete(testFolder);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-    
-    container = ContainerStarter.cargoContainerStart("8088", null);
-    assertTrue(container.getState().isStarted());
      
     super.tearDown();
   }
