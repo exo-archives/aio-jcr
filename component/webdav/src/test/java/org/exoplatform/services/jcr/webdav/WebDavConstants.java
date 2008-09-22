@@ -28,7 +28,7 @@ public class WebDavConstants {
     public static final String REALM = "eXo REST services";    
   }
   
-  // jcr 1.9.3 branch only
+  // for ws 1.2.1 dependency ONLY
   public class WebDavStatuses{
     
     public static final int MULTISTATUS = 207;  
