@@ -161,6 +161,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
     
     /**
+     * TODO: remove in next reelase.
+     * 
      * Remove eldest item. <br/>
      * 
      * Assuming that lock on write to C was placed in remove() which internaly call removeEldestEntry(). Synchronized by CP.
@@ -422,73 +424,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
     
   /**
-   * EXPERIMENTAL. Remove of successors in C on postpone manner.
-   */
-  @Deprecated
-  class CRemover extends Thread {
-    
-    private final Map<QPath, Long>         removedPaths = new HashMap<QPath, Long>();
-    
-    private long maximumAge = 0;
-    
-    @Override
-    public void run() {
-      
-    }
-    
-    /**
-     * Remove successors by parent path from C. <br/>
-     * Used to remove successors which are not cached in CN, CP.<br/>
-     * 
-     * Outside must be sinchronyzed by cache(C).
-     */
-    void doRemoveSuccessors(QPath path) {
-      List<CacheId> toRemove = new ArrayList<CacheId>();
-      
-      // find and remove by path
-      for (Iterator<Map.Entry<CacheKey, CacheValue>> citer = cache.entrySet().iterator(); citer.hasNext();) {
-        Map.Entry<CacheKey, CacheValue> ce = citer.next();
-        CacheKey key = ce.getKey();
-        if (key.isDescendantOf(path)) {
-          CacheValue v = ce.getValue();
-          if (v != null)
-            // will remove by id too
-            toRemove.add(new CacheId(v.getItem().getIdentifier()));
-          
-          citer.remove(); // remove
-        }
-      }
-      
-      for (CacheId id: toRemove) 
-        cache.remove(id);
-      
-      toRemove.clear();
-    }
-    
-    void addOnRemove(QPath path) {
-      maximumAge = System.currentTimeMillis();
-      removedPaths.put(path, maximumAge);
-    }
-    
-    boolean isNotRemoved(QPath path, long age) {
-      if (age < maximumAge) { // if item was added before last time the map was changed...
-        //for (Map.Entry<QPath, Long> e: removedPaths.entrySet()) {
-        for (Iterator<Map.Entry<QPath, Long>> eiter=removedPaths.entrySet().iterator(); eiter.hasNext();) {
-          Map.Entry<QPath, Long> e = eiter.next();
-          // if item age older of on-remove entry and it's descendant of the entry - the item was deleted 
-          if (age < e.getValue() && path.isDescendantOf(e.getKey())) {
-            doRemoveSuccessors(path);
-            eiter.remove();
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-  }
-  
-  /**
-   * For debug. 
+   * For debug/testing. 
    * 
    * @param name
    * @param enabled
@@ -522,6 +458,12 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     scheduleTask(new StatisticTask(), 5, statisticPeriodMillis); // start after 5 sec
   }
   
+  /**
+   * Create cache using container configuration entry.
+   * 
+   * @param wsConfig
+   * @throws RepositoryConfigurationException
+   */
   public LinkedWorkspaceStorageCacheImpl(WorkspaceEntry wsConfig) throws RepositoryConfigurationException {
 
     this.name = "jcr." + wsConfig.getUniqueName();
@@ -673,16 +615,19 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
   
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getSize()
+   */
   public long getSize() {
     return cache.size();
   }
-  
+
   public String getName() {
     return name;
   }
 
-  /**
-   * @param identifier a Identifier of item cached
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#get(java.lang.String)
    */
   public ItemData get(final String identifier) {
     if (enabled && identifier != null) {
@@ -696,9 +641,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null;
   }
 
-  /**
-   * @return
-   * @throws Exception
+
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#get(java.lang.String, org.exoplatform.services.jcr.datamodel.QPathEntry)
    */
   public ItemData get(final String parentId, final QPathEntry name) {
     if (enabled && parentId != null && name != null) {
@@ -713,16 +658,18 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null;
   }
 
-
+  /**
+   * Put item in cache C.
+   * 
+   * @param data
+   */
   protected void putItem(final ItemData data) {
     cache.put(new CacheId(data.getIdentifier()), new CacheValue(data, System.currentTimeMillis() + liveTime));
     cache.put(new CacheQPath(data.getParentIdentifier(), data.getQPath()), new CacheValue(data, System.currentTimeMillis() + liveTime));
   }
 
-  /**
-   * Called by read operations
-   * 
-   * @param item
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#put(org.exoplatform.services.jcr.datamodel.ItemData)
    */
   public void put(final ItemData item) {
     if (enabled && item != null) {
@@ -821,6 +768,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildProperties(org.exoplatform.services.jcr.datamodel.NodeData, java.util.List)
+   */
   public void addChildProperties(final NodeData parentData, final List<PropertyData> childItems) {
     if (enabled && parentData != null && childItems != null) {
 
@@ -867,6 +817,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildPropertiesList(org.exoplatform.services.jcr.datamodel.NodeData, java.util.List)
+   */
   public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
     if (enabled && parentData != null && childItems != null) {
 
@@ -904,6 +857,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
   
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildNodes(org.exoplatform.services.jcr.datamodel.NodeData, java.util.List)
+   */
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
     if (enabled && parentData != null && childItems != null) {
 
@@ -951,10 +907,11 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Remove Item.
+   * Removes data and its children in cache.<br>
    * 
+   * Implementation details<br>
    * Remove Item from cache C,
-   * for Node removes lists in CN and CP (only lists).
+   * for Node removes lists in CN and CP (only lists).<br>
    * 
    * Remove Item from parent's child lists (CN for Node, CP for Property).
    * NOTE: if CN or CP of the Item parent are iterrating now ConcurrentModificationException will occurs there. 
@@ -990,6 +947,13 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
   }
  
+  /**
+   * Get item from cache C by item id.
+   * Checks is it expired, calcs statistics.
+   * 
+   * @param identifier
+   * @return
+   */
   protected ItemData getItem(final String identifier) {
     long start = System.currentTimeMillis();
     try {
@@ -1034,6 +998,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
+   * Get item from cache C by item parent and name.
+   * Checks is it expired, calcs statistics.
+   * 
    * @param key a InternalQPath path of item cached
    */
   protected ItemData getItem(final String parentUuid, final QPathEntry qname) {
@@ -1078,6 +1045,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }  
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getChildNodes(org.exoplatform.services.jcr.datamodel.NodeData)
+   */
   public List<NodeData> getChildNodes(final NodeData parentData) {
     if (enabled && parentData != null) {
       long start = System.currentTimeMillis();
@@ -1115,6 +1085,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null; // nothing cached
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getChildProperties(org.exoplatform.services.jcr.datamodel.NodeData)
+   */
   public List<PropertyData> getChildProperties(final NodeData parentData) {
     if (enabled && parentData != null) {
       long start = System.currentTimeMillis();
@@ -1153,7 +1126,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null; // nothing cached
   }
   
-  /* may return list with properties contains empty values list */
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#listChildProperties(org.exoplatform.services.jcr.datamodel.NodeData)
+   */
   public List<PropertyData> listChildProperties(final NodeData parentData) {
     if (enabled && parentData != null) {
       try {
@@ -1188,14 +1163,27 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     return null; // nothing cached
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#isEnabled()
+   */
   public boolean isEnabled() {
     return enabled;
   }
 
+  /**
+   * Enable cache.
+   * 
+   * @param enabled
+   */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
 
+  /**
+   * Not supported now.
+   * 
+   * @param maxSize
+   */
   public void setMaxSize(int maxSize) {
     // TODO not supported now, but it's possible as an option
     // e.g. we will create new cache instance with new size and fill it with current cache size.
@@ -1203,6 +1191,11 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     log.warn("setMaxSize not supported now");
   }
 
+  /**
+   * Set liveTime of newly cached items.
+   * 
+   * @param liveTime
+   */
   public void setLiveTime(long liveTime) {
     writeLock.lock();
     try {
@@ -1282,24 +1275,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
   
   /**
-   * Remove item from cache C.
-   *  
-   * @param item
-   */
-  @Deprecated
-  protected void removeItem(final String parentId, final String itemId, final QPath path) {
-    cache.remove(new CacheId(itemId));
-    
-    final CacheValue v2 = cache.remove(new CacheQPath(parentId, path));
-    if (v2 != null && !v2.getItem().getIdentifier().equals(itemId)) {
-      // same path but diff identifier node... phantom
-      final ItemData i2 = v2.getItem();
-      removeItem(i2.getParentIdentifier(), i2.getIdentifier(), i2.getQPath());
-    }
-  }
-  
-  /**
-   * Remove sibling's subtrees from cache C, CN, CP<br/>
+   * Remove sibling's subtrees from cache C, CN, CP.<br/>
    * For update (order-before) usecase.<br/>
    * 
    * The work does remove of all descendants of the item parent. 
@@ -1349,13 +1325,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   // --------------------- ItemsPersistenceListener --------------
-
-  @Deprecated
-  private boolean needReload(ItemData data) {
-    return data.getQPath().getName().equals(Constants.JCR_MIXINTYPES)
-        || data.getQPath().getName().equals(Constants.EXO_PERMISSIONS) || data.getQPath().getName().equals(Constants.EXO_OWNER);
-  }
-
+  
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener#onSaveItems(org.exoplatform.services.jcr.dataflow.ItemStateChangesLog)
+   */
   public void onSaveItems(final ItemStateChangesLog changesLog) {
 
     if (!enabled)
@@ -1401,6 +1374,12 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   // ---------------------------------------------------
+  
+  @Deprecated
+  private boolean needReload(ItemData data) {
+    return data.getQPath().getName().equals(Constants.JCR_MIXINTYPES)
+        || data.getQPath().getName().equals(Constants.EXO_PERMISSIONS) || data.getQPath().getName().equals(Constants.EXO_OWNER);
+  }
 
   /**
    * Deep remove of an item in all caches (C, CN, CP). Outside must be sinchronyzed by cache(C). 
@@ -1641,6 +1620,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   
   // -- for debug
   
+  /**
+   * For debug.
+   */
   String dump() {
     StringBuilder res = new StringBuilder();
     for (Map.Entry<CacheKey, CacheValue> ce: cache.entrySet()) {

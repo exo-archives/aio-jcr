@@ -23,7 +23,6 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -61,7 +60,9 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
     super(persistentManager);
   }
   
-  // called by WorkspaceContainer after repository initialization
+  /**
+   * Called by WorkspaceContainer after repository initialization.
+   */ 
   public void setSystemDataManager(DataManager systemDataManager) {
 
     this.versionDataManager = (ACLInheritanceSupportedWorkspaceDataManager) systemDataManager;
@@ -99,17 +100,6 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
   }
   
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
-//    ItemData data = super.getItemData(parentData,name);
-//    if(data != null)
-//      return data;
-//    else if(!this.equals(versionDataManager)) { 
-//      // try from version storage if not the same
-//      data = versionDataManager.getItemData(parentData,name);
-//      if(data != null && isSystemDescendant(data.getQPath()))
-//        return data;
-//    } 
-//    return null;
-    
     if (parentData != null) {
       final QPath ipath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[] {name});
       if(isSystemDescendant(ipath) && !this.equals(versionDataManager)) {
@@ -122,18 +112,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
-//    ItemData data = super.getItemData(identifier);
-//    if(data != null)
-//      return data;
-//    else if(!this.equals(versionDataManager)) { 
-//      // try from version storage if not the same
-//      data = versionDataManager.getItemData(identifier);
-//      if(data != null && isSystemDescendant(data.getQPath()))
-//        return data;
-//    } 
-//    return null;
-    
-    // from cache
+    // from cache at first
     ItemData cdata = persistentManager.getCachedItemData(identifier);
     if (cdata != null) 
       return super.getItemData(identifier);
@@ -148,7 +127,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
           return null;
     }
     
-    // from persistence
+    // then from persistence
     ItemData data = super.getItemData(identifier);
     if(data != null)
       return data;

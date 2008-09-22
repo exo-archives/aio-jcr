@@ -2476,16 +2476,21 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (!isNodeType(Constants.EXO_PRIVILEGEABLE))
       throw new AccessControlException("Node is not exo:privilegeable " + getPath());
 
-    if (permissions.size() == 0) {
-      throw new RepositoryException(" Permission size cannot be 0");
-    }
+    if (permissions.size() == 0)
+      throw new RepositoryException("Permission map size cannot be 0");
 
     checkPermission(PermissionType.CHANGE_PERMISSION);
 
     List<AccessControlEntry> aces = new ArrayList<AccessControlEntry>();
     for (Iterator<String> i = permissions.keySet().iterator(); i.hasNext();) {
       String identity = i.next();
+      if (identity == null)
+        throw new RepositoryException("Identity cannot be null");
+      
       String[] perm = (String[]) permissions.get(identity);
+      if (perm == null)
+        throw new RepositoryException("Permissions cannot be null");
+      
       for (int j = 0; j < perm.length; j++) {
         AccessControlEntry ace = new AccessControlEntry(identity, perm[j]);
         aces.add(ace);
@@ -2615,7 +2620,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     if (!isNodeType(Constants.EXO_PRIVILEGEABLE))
       throw new AccessControlException("Node is not exo:privilegeable " + getPath());
+    
+    if (identity == null)
+      throw new RepositoryException("Identity cannot be null");
 
+    if (permission == null)
+      throw new RepositoryException("Permission cannot be null");
+    
     // check if changing permission allowed
     checkPermission(PermissionType.CHANGE_PERMISSION);
     AccessControlList acl = new AccessControlList(getACL().getOwner(), getACL().getPermissionEntries());

@@ -42,12 +42,27 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
  */
 public final class SessionChangesLog extends PlainChangesLogImpl {
 
+  /**
+   * ItemState index storage.
+   * Used in getItemState() by id and path.
+   */
   protected Map<Object, ItemState> index = new HashMap<Object, ItemState>();
 
+  /**
+   * Create empty ChangesLog.
+   * 
+   * @param sessionId
+   */
   public SessionChangesLog(String sessionId) {
     super(sessionId);
   }
 
+  /**
+   * Create ChangesLog and populate with given items changes.
+   * 
+   * @param items
+   * @param sessionId
+   */
   public SessionChangesLog(List<ItemState> items, String sessionId) {
     super(items, sessionId);
 
@@ -57,6 +72,9 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.PlainChangesLog#add(org.exoplatform.services.jcr.dataflow.ItemState)
+   */
   @Override
   public PlainChangesLog add(ItemState change) {
     super.add(change);
@@ -65,6 +83,9 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
     return this;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.PlainChangesLog#addAll(java.util.List)
+   */
   @Override
   public PlainChangesLog addAll(List<ItemState> changes) {
     super.addAll(changes);
@@ -75,6 +96,9 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
     return this;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.dataflow.PlainChangesLog#clear()
+   */
   @Override
   public void clear() {
     super.clear();
@@ -175,8 +199,7 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
   }
 
   /**
-   * creates new changes log with rootPath and its descendants of this one and
-   * removes those entries
+   * Creates new changes log with rootPath and its descendants of this one and removes those entries.
    * 
    * @param rootPath
    * @return ItemDataChangesLog
@@ -188,6 +211,14 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
     return cLog;
   }
 
+  /**
+   * Get ItemState by parent and item name.
+   *  
+   * @param parentData
+   * @param name
+   * @return
+   * @throws IllegalPathException
+   */
   public ItemState getItemState(NodeData parentData, QPathEntry name) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
@@ -199,30 +230,37 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
     return null;
   }
 
+  /**
+   * Get ItemState by identifier.
+   * 
+   * NOTE: Uses index HashMap. 
+   * 
+   * @param itemIdentifier
+   * @return
+   */
   public ItemState getItemState(String itemIdentifier) {
-    // List<ItemState> allStates = getAllStates();
-    // for (int i = allStates.size() - 1; i>=0; i--) {
-    // ItemState state = allStates.get(i);
-    // if (state.getData().getIdentifier().equals(itemIdentifier))
-    // return state;
-    // }
-    // return null;
-
     return index.get(itemIdentifier);
   }
 
+  /**
+   * Get ItemState by absolute path.
+   * 
+   * NOTE: Uses index HashMap.
+   * 
+   * @param itemPath
+   * @return
+   */
   public ItemState getItemState(QPath itemPath) {
-    // List<ItemState> allStates = getAllStates();
-    // for (int i = allStates.size() - 1; i>=0; i--) {
-    // ItemState state = allStates.get(i);
-    // if (state.getData().getQPath().equals(itemPath))
-    // return state;
-    // }
-    // return null;
-
     return index.get(itemPath);
   }
 
+  /**
+   * Collect changes of all item direct childs (only).
+   * Including the item itself.
+   * 
+   * @param rootIdentifier
+   * @return
+   */
   public List<ItemState> getChildrenChanges(String rootIdentifier) {
     List<ItemState> list = new ArrayList<ItemState>();
     for (int i = 0; i < items.size(); i++) {
@@ -235,6 +273,8 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
   }
 
   /**
+   * Collect last in ChangesLog order item child changes.
+   * 
    * @param rootData - a item root of the changes scan
    * @param forNodes retrieves nodes' ItemStates is true, or properties'
    *          otherwice
@@ -254,6 +294,8 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
   }
 
   /**
+   * Collect last in ChangesLog order node (and direct childs) changes.
+   * 
    * @param rootData - a item root of the changes scan
    * @param forNodes retrieves nodes' ItemStates is true, or properties'
    *          otherwice
@@ -283,7 +325,7 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
   }
 
   /**
-   * EXPERIMENTAL. Find a rename operation pair of states by path of DELETED
+   * EXPERIMENTAL. NOT USED. Find a rename operation pair of states by path of DELETED
    * item. Search from the end of log for DELETED state first. Then repeat the
    * search for RENAMED state.
    * 
@@ -337,7 +379,7 @@ public final class SessionChangesLog extends PlainChangesLogImpl {
   }
 
   /**
-   * Search for an item state of item with given path (or its ancestor) and
+   * NOT USED. Search for an item state of item with given path (or its ancestor) and
    * filter parameters.
    * 
    * @param rootPath - item path (root path)
