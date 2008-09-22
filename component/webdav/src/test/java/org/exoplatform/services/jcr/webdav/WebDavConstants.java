@@ -28,6 +28,13 @@ public class WebDavConstants {
     public static final String REALM = "eXo REST services";    
   }
   
+  // jcr 1.9.3 branch only
+  public class WebDavStatuses{
+    
+    public static final int MULTISTATUS = 207;  
+    
+  }
+  
   public class WebDavProp {
     
     public static final String NAMESPACE = "DAV:";

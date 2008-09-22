@@ -25,7 +25,9 @@ import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.services.jcr.webdav.WebDavConstants;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDavProp;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDavStatuses;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
@@ -63,13 +65,13 @@ public class TestPropFind extends TestCase {
    
     HTTPResponse response = connection.PropfindPropname(TestUtils.getFullWorkSpacePath() + 
         destName, 0);
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    assertEquals(WebDavStatuses.MULTISTATUS, response.getStatusCode());
     
     response = connection.PropfindPropname(TestUtils.getFullWorkSpacePath() + destName, -1);
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    assertEquals(WebDavStatuses.MULTISTATUS, response.getStatusCode());
     
     response = connection.PropfindPropname(TestUtils.getFullWorkSpacePath() + destName, 1);
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    assertEquals(WebDavStatuses.MULTISTATUS, response.getStatusCode());
     
     response = connection.PropfindPropname(TestUtils.getFullWorkSpacePath() + destName, 2);
     assertEquals(HTTPStatus.BAD_REQUEST, response.getStatusCode());
@@ -84,7 +86,7 @@ public class TestPropFind extends TestCase {
     props.add("D:displayname");
     
     HTTPResponse response = connection.Propfind(TestUtils.getFullWorkSpacePath() + destName, props);
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    assertEquals(WebDavStatuses.MULTISTATUS, response.getStatusCode());
     
     String responseXML = response.getText();
     String name = destName.replace("/", "");
@@ -106,7 +108,7 @@ public class TestPropFind extends TestCase {
     HTTPResponse response = connection.Propfind(TestUtils.getFullWorkSpacePath() + "/"
         + destName, props);  
     
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    assertEquals(WebDavStatuses.MULTISTATUS, response.getStatusCode());
     
   }
 
@@ -114,7 +116,7 @@ public class TestPropFind extends TestCase {
     
     HTTPResponse response = connection.PropfindAllprop(TestUtils.getFullWorkSpacePath() + "/"
         + destName);
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    assertEquals(WebDavStatuses.MULTISTATUS, response.getStatusCode());
     
     String responseXML = response.getText();
     assertTrue(responseXML.contains("HTTP/1.1 200 OK"));
@@ -124,7 +126,7 @@ public class TestPropFind extends TestCase {
   public void testGettingAllProperties() throws Exception {
     
     HTTPResponse response = connection.PropfindAllprop(TestUtils.getFullWorkSpacePath() + destName);
-    assertEquals(HTTPStatus.MULTISTATUS, response.getStatusCode());
+    assertEquals(WebDavStatuses.MULTISTATUS, response.getStatusCode());
     
     String responseXML = response.getText();
     assertTrue(responseXML.contains("</D:displayname>"));
