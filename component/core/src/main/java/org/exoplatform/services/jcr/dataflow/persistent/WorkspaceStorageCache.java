@@ -106,7 +106,8 @@ public interface WorkspaceStorageCache extends ItemsPersistenceListener {
   void addChildPropertiesList(NodeData parent, List <PropertyData> childProperties);
   
   /**
-   * Removes data and its children from cache 
+   * Removes data and its children from cache.
+   * 
    * @param item
    */
   void remove(ItemData item);
