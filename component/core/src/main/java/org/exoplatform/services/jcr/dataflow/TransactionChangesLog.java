@@ -31,165 +31,176 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: TransactionChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class TransactionChangesLog implements CompositeChangesLog, Externalizable {
-    
-  private static final long serialVersionUID = 4866736965040228027L;
 
-  protected String systemId;
-  
-  protected List <PlainChangesLog> changesLogs;
-  
+  private static final long       serialVersionUID = 4866736965040228027L;
+
+  protected String                systemId;
+
+  protected List<PlainChangesLog> changesLogs;
+
   public TransactionChangesLog() {
-    changesLogs = new ArrayList <PlainChangesLog>();
-  }
-  
-  public TransactionChangesLog(PlainChangesLog changesLog) {
-    changesLogs = new ArrayList <PlainChangesLog>();
-    changesLogs.add(changesLog);
-    //this.systemId = changesLog.getSessionId();
+    changesLogs = new ArrayList<PlainChangesLog>();
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.CompositeChangesLog#addLog(org.exoplatform.services.jcr.dataflow.PlainChangesLog)
+  public TransactionChangesLog(PlainChangesLog changesLog) {
+    changesLogs = new ArrayList<PlainChangesLog>();
+    changesLogs.add(changesLog);
+    // this.systemId = changesLog.getSessionId();
+  }
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.CompositeChangesLog#addLog(org.exoplatform.services.jcr
+   * .dataflow.PlainChangesLog)
    */
   public void addLog(PlainChangesLog log) {
     changesLogs.add(log);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.CompositeChangesLog#getLogIterator()
    */
   public ChangesLogIterator getLogIterator() {
     return new ChangesLogIterator(changesLogs);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getAllStates()
    */
   public List<ItemState> getAllStates() {
-    // TODO [PN] use a wrapping List/Iterator for all changes logs instead of putting all logs content into one list
+    // TODO [PN] use a wrapping List/Iterator for all changes logs instead of putting all logs
+    // content into one list
     // will increase a performance of tx-related operations
     List<ItemState> states = new ArrayList<ItemState>();
-    for(PlainChangesLog changesLog: changesLogs) {
-      for(ItemState state: changesLog.getAllStates()) {
+    for (PlainChangesLog changesLog : changesLogs) {
+      for (ItemState state : changesLog.getAllStates()) {
         states.add(state);
       }
     }
     return states;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getSize()
    */
   public int getSize() {
     int size = 0;
-    for(PlainChangesLog changesLog: changesLogs) {
-      size+=changesLog.getSize();
+    for (PlainChangesLog changesLog : changesLogs) {
+      size += changesLog.getSize();
     }
     return size;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getSystemId()
    */
   public String getSystemId() {
     return systemId;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#setSystemId(java.lang.String)
    */
   public void setSystemId(String systemId) {
     this.systemId = systemId;
   }
-  
-  
+
   public ItemState getItemState(String itemIdentifier) {
     List<ItemState> allStates = getAllStates();
-    for (int i = allStates.size() - 1; i>=0; i--) {
-      ItemState state = allStates.get(i); 
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState state = allStates.get(i);
       if (state.getData().getIdentifier().equals(itemIdentifier))
         return state;
     }
     return null;
   }
-  
+
   public ItemState getItemState(NodeData parentData, QPathEntry name) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
-    for (int i = allStates.size() - 1; i>=0; i--) {
-      ItemState state = allStates.get(i); 
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState state = allStates.get(i);
       if (state.getData().getParentIdentifier().equals(parentData.getIdentifier())
-          && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1]
-              .isSame(name))
+          && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1].isSame(name))
         return state;
     }
     return null;
   }
-  
+
   public ItemState getItemState(QPath itemPath) {
     List<ItemState> allStates = getAllStates();
-    for (int i = allStates.size() - 1; i>=0; i--) {
-      ItemState state = allStates.get(i); 
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState state = allStates.get(i);
       if (state.getData().getQPath().equals(itemPath))
-        return  state;
+        return state;
     }
     return null;
   }
 
-  
-  public List <ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
-    List <ItemState> list = new ArrayList <ItemState> ();
-    for(ItemState state: getAllStates()) {
+  public List<ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
+    List<ItemState> list = new ArrayList<ItemState>();
+    for (ItemState state : getAllStates()) {
       ItemData item = state.getData();
-      if(item.getParentIdentifier().equals(rootIdentifier) && item.isNode() == forNodes) 
+      if (item.getParentIdentifier().equals(rootIdentifier) && item.isNode() == forNodes)
         list.add(state);
     }
     return list;
   }
-  
+
   /**
    * Find if the node ancestor was renamed in this changes log.
    * 
-   * @param item - target node
-   * @return - the pair of states of item ancestor, ItemState[] {DELETED, RENAMED} or null if renaming is not detected.
+   * @param item
+   *          - target node
+   * @return - the pair of states of item ancestor, ItemState[] {DELETED, RENAMED} or null if
+   *         renaming is not detected.
    * @throws IllegalPathException
    */
   public ItemState[] findRenamed(ItemData item) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     // search from the end for DELETED state.
-    // RENAMED comes after the DELETED in the log  immediately
+    // RENAMED comes after the DELETED in the log immediately
     for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState state = allStates.get(i);  
-      if (state.getState() == ItemState.DELETED && !state.isPersisted() &&
-          item.getQPath().isDescendantOf(state.getData().getQPath())) {
+      ItemState state = allStates.get(i);
+      if (state.getState() == ItemState.DELETED && !state.isPersisted()
+          && item.getQPath().isDescendantOf(state.getData().getQPath())) {
         // 1. if it's a parent or the parent is descendant of logged data
         try {
           ItemState delete = state;
           ItemState rename = allStates.get(i + 1);
-          
-          if (rename.getState() == ItemState.RENAMED && rename.isPersisted() &&
-              rename.getData().getIdentifier().equals(delete.getData().getIdentifier())) {
-            
-            // 2. search of most fresh state of rename for searched rename state (i.e. for ancestor state of the given node) 
+
+          if (rename.getState() == ItemState.RENAMED && rename.isPersisted()
+              && rename.getData().getIdentifier().equals(delete.getData().getIdentifier())) {
+
+            // 2. search of most fresh state of rename for searched rename state (i.e. for ancestor
+            // state of the given node)
             for (int bi = allStates.size() - 1; bi >= i + 2; bi--) {
               state = allStates.get(bi);
-              if (state.getState() == ItemState.RENAMED && state.isPersisted() &&
-                  state.getData().getIdentifier().equals(rename.getData().getIdentifier())) {
+              if (state.getState() == ItemState.RENAMED && state.isPersisted()
+                  && state.getData().getIdentifier().equals(rename.getData().getIdentifier())) {
                 // got much fresh
                 rename = state;
                 delete = allStates.get(i - 1); // try the fresh delete state
                 if (delete.getData().getIdentifier().equals(rename.getData().getIdentifier()))
-                  return new ItemState[] {delete, rename}; // 3. ok, got it
+                  return new ItemState[] { delete, rename }; // 3. ok, got it
               }
             }
-            
-            return new ItemState[] {delete, rename}; // 4. ok, there are no more fresh we have found before p.2
+
+            return new ItemState[] { delete, rename }; // 4. ok, there are no more fresh we have
+            // found before p.2
           } // else, it's not a rename, search deeper
-        } catch(IndexOutOfBoundsException e) {
+        } catch (IndexOutOfBoundsException e) {
           // the pair not found
           return null;
         }
@@ -197,7 +208,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     }
     return null;
   }
-  
+
   public String dump() {
     String str = "ChangesLog: size" + changesLogs.size() + "\n ";
     for (PlainChangesLog cLog : changesLogs) {
@@ -210,9 +221,9 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   // ------------------ [ BEGIN ] ------------------
 
   public void writeExternal(ObjectOutput out) throws IOException {
-    //write -1 if systemId == null 
-    //write 1 if systemId != null
-    
+    // write -1 if systemId == null
+    // write 1 if systemId != null
+
     if (systemId != null) {
       out.writeInt(1);
       out.writeInt(systemId.getBytes().length);
@@ -220,27 +231,26 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     } else {
       out.writeInt(-1);
     }
-    
-        
+
     int listSize = changesLogs.size();
     out.writeInt(listSize);
-    for (int i = 0; i < listSize; i++) 
-      out.writeObject(changesLogs.get(i));   
+    for (int i = 0; i < listSize; i++)
+      out.writeObject(changesLogs.get(i));
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    
-    if (in.readInt() == 1) {    
-      String DEFAULT_ENCODING = "UTF-8"; 
+
+    if (in.readInt() == 1) {
+      String DEFAULT_ENCODING = "UTF-8";
       byte[] buf = new byte[in.readInt()];
       in.read(buf);
-      
+
       systemId = new String(buf, DEFAULT_ENCODING);
     }
-    
+
     int listSize = in.readInt();
-    for (int i = 0; i < listSize; i++) 
-      changesLogs.add((PlainChangesLogImpl)in.readObject());
+    for (int i = 0; i < listSize; i++)
+      changesLogs.add((PlainChangesLogImpl) in.readObject());
   }
   // ------------------ [ END ] ------------------
 }

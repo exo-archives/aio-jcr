@@ -27,15 +27,15 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class VersionedNodeRemoveTest extends ItemRemoveTest{
+public class VersionedNodeRemoveTest extends ItemRemoveTest {
   /**
    * Class logger.
    */
   private final Log log = ExoLogger.getLogger("jcr.VersionedNodeRemoveTest");
-  
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {

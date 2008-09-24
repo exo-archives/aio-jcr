@@ -22,15 +22,16 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 
 /**
- * Created y the eXo platform team
- * User: Benjamin Mestrallet
- * Date: 18 ao�t 2004
+ * Created y the eXo platform team User: Benjamin Mestrallet Date: 18 ao�t 2004
  */
 public class MockContentHandler implements ContentHandler {
   public boolean reached;
-  public int nodes;
-  public int properties;
-  public int docElement;
+
+  public int     nodes;
+
+  public int     properties;
+
+  public int     docElement;
 
   public void endDocument() throws SAXException {
   }
@@ -63,8 +64,7 @@ public class MockContentHandler implements ContentHandler {
   public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
   }
 
-  public void startElement(String namespaceURI, String localName,
-                           String qName, Attributes atts) throws SAXException {
+  public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
     if ("sv:node".equals(qName))
       nodes++;
     else if ("sv:property".equals(qName))
@@ -72,7 +72,5 @@ public class MockContentHandler implements ContentHandler {
     else
       docElement++;
 
-
   }
 }
-

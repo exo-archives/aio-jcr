@@ -43,8 +43,9 @@ public abstract class HandlingContentExporter extends BaseXmlExporter {
                                  boolean skipBinary,
                                  boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse, noRecurse ? 1
-                                                                                              : -1);
+    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse, noRecurse
+        ? 1
+        : -1);
     this.contentHandler = handler;
   }
 

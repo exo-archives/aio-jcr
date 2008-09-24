@@ -30,9 +30,11 @@ import org.apache.commons.chain.Context;
 
 public class GetNodeAsXMLCommand implements Command {
 
-  private String pathKey = DefaultKeys.PATH;
+  private String pathKey         = DefaultKeys.PATH;
+
   private String incomingNodeKey = DefaultKeys.RESULT;
-  private String resultKey = DefaultKeys.RESULT;
+
+  private String resultKey       = DefaultKeys.RESULT;
 
   public boolean execute(Context context) throws Exception {
     Object obj = context.get(incomingNodeKey);

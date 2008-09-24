@@ -27,55 +27,53 @@ import org.exoplatform.services.jcr.webdav.ContainerStarter;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 13, 2008  
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
  */
 public class TestGet extends TestCase {
-   
-  private final String fileName = TestUtils.getFullWorkSpacePath() + "/" +TestUtils.getFileName();
-  private final String fileContent = "TEST FILE CONTENT...";
-  
+
+  private final String            fileName    = TestUtils.getFullWorkSpacePath() + "/"
+                                                  + TestUtils.getFileName();
+
+  private final String            fileContent = "TEST FILE CONTENT...";
+
   private InstalledLocalContainer container;
-  
-  private HTTPConnection connection;
-  
+
+  private HTTPConnection          connection;
+
   @Override
   protected void setUp() throws Exception {
-    
-//    container = ContainerStarter.cargoContainerStart("8081", null);    
-//    assertTrue(container.getState().isStarted());
-   
+
+    // container = ContainerStarter.cargoContainerStart("8081", null);
+    // assertTrue(container.getState().isStarted());
+
     CookieModule.setCookiePolicyHandler(null);
-   
+
     connection = TestUtils.GetAuthConnection();
-    
+
     HTTPResponse response = connection.Put(fileName, fileContent);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
 
-    
     super.setUp();
   }
-  
+
   @Override
   protected void tearDown() throws Exception {
 
     HTTPResponse response = connection.Delete(fileName);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-    
-//    ContainerStarter.cargoContainerStop(container);
-//    assertTrue(container.getState().isStopped());
-    
+
+    // ContainerStarter.cargoContainerStop(container);
+    // assertTrue(container.getState().isStopped());
+
     super.tearDown();
   }
-  
+
   public void testSimpleGet() throws Exception {
-    
-   HTTPResponse response = connection.Get(fileName);
-   assertEquals(HTTPStatus.OK, response.getStatusCode());
-   assertEquals(new String(fileContent.getBytes()), new String(response.getData()));   
-    
+
+    HTTPResponse response = connection.Get(fileName);
+    assertEquals(HTTPStatus.OK, response.getStatusCode());
+    assertEquals(new String(fileContent.getBytes()), new String(response.getData()));
+
   }
 
 }

@@ -29,18 +29,18 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
  * @version $Id$
  */
 public class TreeFileValueStorage extends FileValueStorage {
-  
+
   protected class TreeFileCleaner extends FileCleaner {
     @Override
     public synchronized void addFile(File file) {
       super.addFile(new TreeFile(file.getAbsolutePath(), cleaner, rootDir));
     }
   }
-  
+
   public TreeFileValueStorage() {
     this.cleaner = new TreeFileCleaner();
   }
-  
+
   @Override
   public ValueIOChannel openIOChannel() throws IOException {
     return new TreeFileIOChannel(rootDir, cleaner, getId());

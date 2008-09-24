@@ -22,5 +22,4 @@ public class VersionHistoryHasVersionLabelTest extends AbstractGetVersionTest {
     vhistory.hasVersionLabel("v.1");
   }
 
-
 }

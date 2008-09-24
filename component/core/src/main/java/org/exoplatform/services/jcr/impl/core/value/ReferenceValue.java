@@ -28,15 +28,14 @@ import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
- * a <code>REFERENCE</code> value impl
- * (a Identifier of an existing node).
+ * a <code>REFERENCE</code> value impl (a Identifier of an existing node).
  * 
- * @author Gennady Azarenkov 
+ * @author Gennady Azarenkov
  */
 public class ReferenceValue extends BaseValue {
 
-  public static final int TYPE = PropertyType.REFERENCE;
-  
+  public static final int  TYPE = PropertyType.REFERENCE;
+
   private final Identifier identifier;
 
   public ReferenceValue(Identifier identifier) throws IOException {
@@ -52,50 +51,45 @@ public class ReferenceValue extends BaseValue {
   /**
    * @see Value#getDate
    */
-  public Calendar getDate() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
 
-    throw new ValueFormatException(
-        "conversion to date failed: inconvertible types");
+    throw new ValueFormatException("conversion to date failed: inconvertible types");
   }
 
   /**
    * @see Value#getLong
    */
-  public long getLong() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
 
-    throw new ValueFormatException(
-        "conversion to long failed: inconvertible types");
+    throw new ValueFormatException("conversion to long failed: inconvertible types");
   }
 
   /**
    * @see Value#getBoolean
    */
   public boolean getBoolean() throws ValueFormatException,
-      IllegalStateException, RepositoryException {
+                             IllegalStateException,
+                             RepositoryException {
 
-    throw new ValueFormatException(
-        "conversion to boolean failed: inconvertible types");
+    throw new ValueFormatException("conversion to boolean failed: inconvertible types");
   }
 
   /**
    * @see Value#getDouble
    */
-  public double getDouble() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public double getDouble() throws ValueFormatException, IllegalStateException, RepositoryException {
 
-    throw new ValueFormatException(
-        "conversion to double failed: inconvertible types");
+    throw new ValueFormatException("conversion to double failed: inconvertible types");
   }
-  
+
   public String getReference() throws ValueFormatException,
-      IllegalStateException, RepositoryException {
+                              IllegalStateException,
+                              RepositoryException {
     return getInternalString();
   }
 
   public Identifier getIdentifier() {
     return identifier;
   }
-  
+
 }

@@ -25,24 +25,23 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 15.08.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class TestWorspaceReadOnly extends JcrImplBaseTest {
 
   private WorkspaceContainerFacade wsFacade;
-  
-  private WorkspaceDataContainer dataContainer;
-  
+
+  private WorkspaceDataContainer   dataContainer;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    
+
     wsFacade = repository.getWorkspaceContainer(session.getWorkspace().getName());
     dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
   }
-
 
   @Override
   protected void tearDown() throws Exception {
@@ -50,28 +49,25 @@ public class TestWorspaceReadOnly extends JcrImplBaseTest {
     super.tearDown();
   }
 
-
   public void testWorkspaceDataContainerStatus() {
-    
+
     dataContainer.setReadOnly(true);
-    
-    assertTrue(dataContainer.isReadOnly());    
+
+    assertTrue(dataContainer.isReadOnly());
   }
-  
-  
+
   public void testWorkspaceDataManager() throws Exception {
-    
+
     dataContainer.setReadOnly(true);
-    
+
     WorkspacePersistentDataManager dm = (WorkspacePersistentDataManager) wsFacade.getComponent(WorkspacePersistentDataManager.class);
-    
+
     try {
       dm.save(new PlainChangesLogImpl());
       fail("Read-only container should throw an ReadOnlyWorkspaceException");
-    } catch(ReadOnlyWorkspaceException e) {
+    } catch (ReadOnlyWorkspaceException e) {
       // ok
     }
   }
-  
-  
+
 }

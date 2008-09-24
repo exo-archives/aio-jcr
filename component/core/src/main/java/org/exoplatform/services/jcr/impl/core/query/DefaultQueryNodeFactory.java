@@ -45,8 +45,7 @@ public class DefaultQueryNodeFactory implements QueryNodeFactory {
   }
 
   /**
-   * Creates a DefaultQueryNodeFactory with the given node types under
-   * /jcr:system .
+   * Creates a DefaultQueryNodeFactory with the given node types under /jcr:system .
    */
   public DefaultQueryNodeFactory(List<InternalQName> validJcrSystemNodeTypeNames) {
     super();

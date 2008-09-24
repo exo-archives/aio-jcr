@@ -23,9 +23,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 24.10.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
@@ -33,13 +31,13 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public abstract class UserThread extends Thread {
-  
+
   protected final Session threadSession;
-  
-  protected final Log threadLog;
-  
-  protected boolean process = false;    
-  
+
+  protected final Log     threadLog;
+
+  protected boolean       process = false;
+
   public UserThread(Session threadSession) {
     super();
     int inx = getName().indexOf("-");
@@ -52,20 +50,20 @@ public abstract class UserThread extends Thread {
   public void testStop() {
     process = false;
   }
-  
+
   public void run() {
     testAction();
   }
-  
+
   public abstract void testAction();
 
   @Override
   protected void finalize() throws Throwable {
     try {
       threadSession.logout();
-    } catch(Throwable e) {}
+    } catch (Throwable e) {
+    }
     super.finalize();
-  } 
-  
-  
+  }
+
 }

@@ -24,14 +24,15 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Gennady Azarenkov
  * @version $Id$
  */
 
 public class SimpleFileIOChannel extends FileIOChannel {
-  
+
   protected class PropertyIDFilter implements FileFilter {
-    
+
     private String propertyId;
 
     public PropertyIDFilter(String propertyId) {
@@ -41,12 +42,12 @@ public class SimpleFileIOChannel extends FileIOChannel {
     public boolean accept(File file) {
       return file.getName().startsWith(propertyId);
     }
-  }  
-  
+  }
+
   public SimpleFileIOChannel(File rootDir, FileCleaner cleaner, String storageId) {
     super(rootDir, cleaner, storageId);
   }
-  
+
   @Override
   protected String makeFilePath(String propertyId, int orderNumber) {
     return propertyId + orderNumber;

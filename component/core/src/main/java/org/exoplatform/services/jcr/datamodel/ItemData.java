@@ -20,48 +20,47 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ItemData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface ItemData {
-	
-	/**
-	 * @return QPath of this item
-	 */
-	
-	QPath getQPath();
 
-	/**
-	 * @return identifier
-	 */
-	String getIdentifier();
+  /**
+   * @return QPath of this item
+   */
 
-	/**
-	 * @return number of item version retrieved from container. 
-	 * If item is not persisted returns -1;  
-	 */
-	int getPersistedVersion();
-	
-	/**
-	 * @return parent NodeData. Parent is initialized on demand. It is possible that
-	 * the method return null for root node only (but not neccessary)
-	 * @throws IllegalStateException if parent can not be initialized 
-	 * (for example was deleted by other session)
-	 */
-	String getParentIdentifier();
+  QPath getQPath();
 
-	
-	/**
-	 * @return if item data is node data
-	 */
-	boolean isNode();
-  
+  /**
+   * @return identifier
+   */
+  String getIdentifier();
+
+  /**
+   * @return number of item version retrieved from container. If item is not persisted returns -1;
+   */
+  int getPersistedVersion();
+
+  /**
+   * @return parent NodeData. Parent is initialized on demand. It is possible that the method return
+   *         null for root node only (but not neccessary)
+   * @throws IllegalStateException
+   *           if parent can not be initialized (for example was deleted by other session)
+   */
+  String getParentIdentifier();
+
+  /**
+   * @return if item data is node data
+   */
+  boolean isNode();
+
   /**
    * Accept visitor
+   * 
    * @param visitor
    * @throws RepositoryException
    */

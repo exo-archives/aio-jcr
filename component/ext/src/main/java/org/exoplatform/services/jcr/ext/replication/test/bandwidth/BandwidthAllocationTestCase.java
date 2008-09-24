@@ -30,15 +30,17 @@ import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: BandwidthAllocationTestCase.java 111 2008-11-11 11:11:11Z
- *          rainf0x $
+ * @version $Id: BandwidthAllocationTestCase.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
 
   private final String alphabet = "qwertyuiop[]asdfghjkl;'zxcvbnm,./1234567890-=!@#$%^&*()_+|:?><";
 
-  public BandwidthAllocationTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+  public BandwidthAllocationTestCase(RepositoryService repositoryService,
+                                     String reposytoryName,
+                                     String workspaceName,
+                                     String userName,
+                                     String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
   }
 
@@ -66,7 +68,7 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
         String normalizePath = getNormalizePath(repoPath);
         Node baseNode = (Node) session.getItem(normalizePath);
 
-        Node emptyNode = baseNode.addNode(nodeName+"_"+i, "nt:unstructured");
+        Node emptyNode = baseNode.addNode(nodeName + "_" + i, "nt:unstructured");
         session.save();
       }
 
@@ -79,8 +81,10 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
-  public StringBuffer addStringPropertyOnly(String repoPath, String nodeName, Long size,
-      long iterations) {
+  public StringBuffer addStringPropertyOnly(String repoPath,
+                                            String nodeName,
+                                            Long size,
+                                            long iterations) {
     StringBuffer sb = new StringBuffer();
 
     try {
@@ -95,7 +99,7 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
         String normalizePath = getNormalizePath(repoPath);
         Node baseNode = ((Node) session.getItem(normalizePath)).getNode(nodeName);
         baseNode.setProperty("d", sValue);
-//        log.info("ADD propety + " + sValue.length() + " B");
+        // log.info("ADD propety + " + sValue.length() + " B");
         session.save();
       }
 
@@ -108,8 +112,10 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
-  public StringBuffer addBinaryPropertyOnly(String repoPath, String nodeName, Long size,
-      long iterations) {
+  public StringBuffer addBinaryPropertyOnly(String repoPath,
+                                            String nodeName,
+                                            Long size,
+                                            long iterations) {
     StringBuffer sb = new StringBuffer();
 
     long start, end;
@@ -133,14 +139,14 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
         String normalizePath = getNormalizePath(repoPath);
         Node baseNode = ((Node) session.getItem(normalizePath)).getNode(nodeName);
         baseNode.setProperty("d", new FileInputStream(tempFile));
-        
+
         session.save();
       }
-      
+
       end = System.currentTimeMillis();
-      
-      log.info("The time of the adding of nt:file + " + iterations + "( " + tempFile.length() + " B ) : "
-          + ((end - start) / 1000) + " sec");
+
+      log.info("The time of the adding of nt:file + " + iterations + "( " + tempFile.length()
+          + " B ) : " + ((end - start) / 1000) + " sec");
 
       sb.append("ok");
     } catch (Exception e) {

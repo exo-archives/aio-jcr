@@ -23,7 +23,8 @@ import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.access.AccessManager;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -31,10 +32,9 @@ import org.exoplatform.services.jcr.access.AccessManager;
 public class SetAccessControlContextAction implements Action {
 
   public boolean execute(Context ctx) throws Exception {
-    AccessManager accessManager = (AccessManager) ((ExoContainer) ctx.get("exocontainer"))
-    .getComponentInstanceOfType(AccessManager.class);
-    
-    accessManager.setContext((InvocationContext)ctx);
+    AccessManager accessManager = (AccessManager) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(AccessManager.class);
+
+    accessManager.setContext((InvocationContext) ctx);
 
     return false;
   }

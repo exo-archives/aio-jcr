@@ -27,41 +27,41 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdRest;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class RESTTest extends TestCase {
-  
+
   private static Log log = new Log("RESTTest");
-  
+
   public void testREST() throws Exception {
     log.info("Test...");
 
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
-    
+
     {
       CmdRest cmdRest = new CmdRest(-1);
       assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdRest));
     }
-    
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-  
+
     {
       CmdRest cmdRest = new CmdRest(null);
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdRest));
     }
-    
+
     {
       CmdRest cmdRest = new CmdRest("notoffset");
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdRest));
@@ -69,16 +69,16 @@ public class RESTTest extends TestCase {
 
     {
       CmdRest cmdRest = new CmdRest("100");
-      assertEquals(FtpConst.Replyes.REPLY_350, client.executeCommand(cmdRest));      
+      assertEquals(FtpConst.Replyes.REPLY_350, client.executeCommand(cmdRest));
     }
 
     {
       CmdRest cmdRest = new CmdRest(200);
-      assertEquals(FtpConst.Replyes.REPLY_350, client.executeCommand(cmdRest));      
-    }    
-    
+      assertEquals(FtpConst.Replyes.REPLY_350, client.executeCommand(cmdRest));
+    }
+
     client.close();
     log.info("Complete.\r\n");
-  }    
+  }
 
 }

@@ -58,10 +58,10 @@ public class LockImpl implements ExtendedLock {
     lockData.refresh();
   }
 
-
   public Node getNode() {
     try {
-      return (Node) session.getTransientNodesManager().getItemByIdentifier(lockData.getNodeIdentifier(), true);
+      return (Node) session.getTransientNodesManager()
+                           .getItemByIdentifier(lockData.getNodeIdentifier(), true);
     } catch (RepositoryException e) {
       e.printStackTrace();
     }

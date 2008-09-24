@@ -54,8 +54,10 @@ class Recovery {
   /**
    * Creates a new Recovery instance.
    * 
-   * @param index the MultiIndex to recover.
-   * @param redoLog the redo redoLog.
+   * @param index
+   *          the MultiIndex to recover.
+   * @param redoLog
+   *          the redo redoLog.
    */
   private Recovery(MultiIndex index, RedoLog redoLog) {
     this.index = index;
@@ -63,16 +65,18 @@ class Recovery {
   }
 
   /**
-   * Runs a recovery on <code>index</code> if <code>redoLog</code> contains
-   * log entries. <p/> If recovery succeeds the <code>index</code> is flushed
-   * and the redo log is cleared. That is, the <code>index</code> is stable.<br/>
-   * If recovery fails an IOException is thrown, and the redo log will not be
-   * modified. The recovery process can then be executed again, after fixing the
-   * cause of the IOException (e.g. disk full).
+   * Runs a recovery on <code>index</code> if <code>redoLog</code> contains log entries. <p/> If
+   * recovery succeeds the <code>index</code> is flushed and the redo log is cleared. That is, the
+   * <code>index</code> is stable.<br/> If recovery fails an IOException is thrown, and the redo log
+   * will not be modified. The recovery process can then be executed again, after fixing the cause
+   * of the IOException (e.g. disk full).
    * 
-   * @param index the index to recover.
-   * @param redoLog the redo log.
-   * @throws IOException if the recovery fails.
+   * @param index
+   *          the index to recover.
+   * @param redoLog
+   *          the redo log.
+   * @throws IOException
+   *           if the recovery fails.
    */
   static void run(MultiIndex index, RedoLog redoLog) throws IOException {
     if (!redoLog.hasEntries()) {
@@ -88,7 +92,8 @@ class Recovery {
   /**
    * Runs the recovery process.
    * 
-   * @throws IOException if the recovery fails.
+   * @throws IOException
+   *           if the recovery fails.
    */
   private void run() throws IOException {
     List actions = redoLog.getActions();

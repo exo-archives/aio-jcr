@@ -24,14 +24,13 @@ import javax.jcr.Node;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 20.07.2006
+ * 
  * @version $Id: TestBulkItemsAdd.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestBulkItemsAdd extends JcrAPIBaseTest {
-  
+
   public void testNodeAdd() throws Exception {
     Node testRoot = session.getRootNode().addNode("testRoot");
     session.save();
@@ -42,7 +41,7 @@ public class TestBulkItemsAdd extends JcrAPIBaseTest {
       String nodeName = "_" + i + "_node";
       Node n = testRoot.addNode(nodeName);
       long finishTime = System.currentTimeMillis();
-      log.info("add node " + nodeName + ", " + (System.currentTimeMillis() - addTime) + "ms, " 
+      log.info("add node " + nodeName + ", " + (System.currentTimeMillis() - addTime) + "ms, "
           + (finishTime - startTime) + "ms");
     }
     log.info("Nodes added " + nodesCount + ", " + (System.currentTimeMillis() - startTime) + "ms");
@@ -60,7 +59,7 @@ public class TestBulkItemsAdd extends JcrAPIBaseTest {
     for (int i = 0; i < nodesCount; i++) {
       long addTime = System.currentTimeMillis();
       String nodeName = "_" + i + "_ntfile";
-      
+
       Node n = testRoot.addNode(nodeName, "nt:file");
       Node nContent = n.addNode("jcr:content", "nt:unstructured");
       nContent.setProperty("currenTime", Calendar.getInstance());
@@ -68,16 +67,19 @@ public class TestBulkItemsAdd extends JcrAPIBaseTest {
       Node resource = nContent.addNode("fileData", "nt:resource");
       resource.setProperty("jcr:mimeType", "text/plain");
       resource.setProperty("jcr:lastModified", Calendar.getInstance());
-      resource.setProperty("jcr:data", new ByteArrayInputStream("Some bin data;asdasdasdasdeqecvsdfvdf".getBytes()));
-      
-      log.info("add node " + nodeName + ", " + (System.currentTimeMillis() - addTime) + "ms, " 
+      resource.setProperty("jcr:data",
+                           new ByteArrayInputStream("Some bin data;asdasdasdasdeqecvsdfvdf".getBytes()));
+
+      log.info("add node " + nodeName + ", " + (System.currentTimeMillis() - addTime) + "ms, "
           + (System.currentTimeMillis() - startTime) + "ms");
     }
-    log.info("Nodes (nt:file) added " + nodesCount + ", " + (System.currentTimeMillis() - startTime) + "ms");
+    log.info("Nodes (nt:file) added " + nodesCount + ", "
+        + (System.currentTimeMillis() - startTime) + "ms");
     startTime = System.currentTimeMillis();
     log.info("Nodes (nt:file) will be saved, wait few minutes...");
     testRoot.save();
-    log.info("Nodes (nt:file) saved " + nodesCount + ", " + (System.currentTimeMillis() - startTime) + "ms");
+    log.info("Nodes (nt:file) saved " + nodesCount + ", "
+        + (System.currentTimeMillis() - startTime) + "ms");
   }
 
 }

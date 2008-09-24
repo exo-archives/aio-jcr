@@ -39,21 +39,22 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class AddNtFileWithMetadataTest extends JCRTestBase {
   /*
-   * This test calculates the time (ms or tps) of adding of one nodes of type
-   * nt:file (including addNode(), setProperty(), addMixin(), save() methods).
+   * This test calculates the time (ms or tps) of adding of one nodes of type nt:file (including
+   * addNode(), setProperty(), addMixin(), save() methods).
    */
 
-  private Node                             rootNode                   = null;
+  private Node rootNode = null;
 
   @Override
-  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {    
+  public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
-        "nt:unstructured");
+                                                          "nt:unstructured");
     context.getSession().save();
   }
 
@@ -61,7 +62,8 @@ public class AddNtFileWithMetadataTest extends JCRTestBase {
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     Node nodeToAdd = rootNode.addNode(context.generateUniqueName("node"), "nt:file");
     Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
-    contentNodeOfNodeToAdd.setProperty("jcr:data", new FileInputStream("../resources/benchmark.pdf"));
+    contentNodeOfNodeToAdd.setProperty("jcr:data",
+                                       new FileInputStream("../resources/benchmark.pdf"));
     contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "application/pdf");
     contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
     // dc:elementset property will be setted automatically

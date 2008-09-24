@@ -19,48 +19,48 @@ package org.exoplatform.services.jcr.ext.backup;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.com.ua
- * 09.01.2008  
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 09.01.2008
  */
 public interface BackupChain {
-  public static final int             FULL_WORKING        = 1;
+  public static final int FULL_WORKING        = 1;
 
-  public static final int             INCREMENTAL_WORKING = 2;
+  public static final int INCREMENTAL_WORKING = 2;
 
-  public static final int             FINISHED            = 4;
+  public static final int FINISHED            = 4;
 
-  public static final int             INITIALIZED         = 0;
+  public static final int INITIALIZED         = 0;
 
-  public long                         TIMEOUT             = 10000;
-  
+  public long             TIMEOUT             = 10000;
+
   List<BackupJob> getBackupJobs();
-  
+
   void startBackup();
-  
+
   void stopBackup();
-  
+
   BackupConfig getBackupConfig();
-  
+
   int getFullBackupState();
-  
+
   int getState();
-  
+
   boolean isFinished();
 
   String getLogFilePath();
-  
+
   /**
    * Add listener to all existing and will be created in future jobs
+   * 
    * @param listener
    */
   void addListener(BackupJobListener listener);
-  
+
   /**
    * Remove listener from all existing and don't add it to a created in future jobs
+   * 
    * @param listener
    */
   void removeListener(BackupJobListener listener);
-  
+
 }

@@ -31,205 +31,212 @@ import org.apache.lucene.search.SortComparator;
 
 /**
  * Implements a variant of the lucene class <code>org.apache.lucene.search.FieldCacheImpl</code>.
- * The lucene FieldCache class has some sort of support for custom comparators
- * but it only works on the basis of a field name. There is no further control
- * over the terms to iterate, that's why we use our own implementation.
+ * The lucene FieldCache class has some sort of support for custom comparators but it only works on
+ * the basis of a field name. There is no further control over the terms to iterate, that's why we
+ * use our own implementation.
  */
 class SharedFieldCache {
 
+  /**
+   * Expert: Stores term text values and document ordering data.
+   */
+  public static class StringIndex {
+
     /**
-     * Expert: Stores term text values and document ordering data.
+     * All the term values, in natural order.
      */
-    public static class StringIndex {
+    public final String[] lookup;
 
-        /**
-         * All the term values, in natural order.
-         */
-        public final String[] lookup;
+    /**
+     * Terms indexed by document id.
+     */
+    public final String[] terms;
 
-        /**
-         * Terms indexed by document id.
-         */
-        public final String[] terms;
+    /**
+     * Creates one of these objects
+     */
+    public StringIndex(String[] terms, String[] lookup) {
+      this.terms = terms;
+      this.lookup = lookup;
+    }
+  }
 
-        /**
-         * Creates one of these objects
-         */
-        public StringIndex(String[] terms, String[] lookup) {
-            this.terms = terms;
-            this.lookup = lookup;
-        }
+  /**
+   * Reference to the single instance of <code>SharedFieldCache</code>.
+   */
+  public static final SharedFieldCache INSTANCE = new SharedFieldCache();
+
+  /**
+   * The internal cache. Maps Entry to array of interpreted term values.
+   */
+  private final Map                    cache    = new WeakHashMap();
+
+  /**
+   * Private constructor.
+   */
+  private SharedFieldCache() {
+  }
+
+  /**
+   * Creates a <code>StringIndex</code> for a <code>field</code> and a term <code>prefix</code>. The
+   * term prefix acts as the property name for the shared <code>field</code>. <p/> This method is an
+   * adapted version of: <code>FieldCacheImpl.getStringIndex()</code> The returned string index will
+   * <b>not</b> have a term lookup array! See {@link SharedFieldSortComparator} for more info.
+   * 
+   * @param reader
+   *          the <code>IndexReader</code>.
+   * @param field
+   *          name of the shared field.
+   * @param prefix
+   *          the property name, will be used as term prefix.
+   * @param comparator
+   *          the sort comparator instance.
+   * @param includeLookup
+   *          if <code>true</code> provides term lookup in StringIndex.
+   * @return a StringIndex that contains the field values and order information.
+   * @throws IOException
+   *           if an error occurs while reading from the index.
+   */
+  public SharedFieldCache.StringIndex getStringIndex(IndexReader reader,
+                                                     String field,
+                                                     String prefix,
+                                                     SortComparator comparator,
+                                                     boolean includeLookup) throws IOException {
+
+    if (reader instanceof ReadOnlyIndexReader) {
+      reader = ((ReadOnlyIndexReader) reader).getBase();
     }
 
-    /**
-     * Reference to the single instance of <code>SharedFieldCache</code>.
-     */
-    public static final SharedFieldCache INSTANCE = new SharedFieldCache();
-
-    /**
-     * The internal cache. Maps Entry to array of interpreted term values.
-     */
-    private final Map cache = new WeakHashMap();
-
-    /**
-     * Private constructor.
-     */
-    private SharedFieldCache() {
-    }
-
-    /**
-     * Creates a <code>StringIndex</code> for a <code>field</code> and a term
-     * <code>prefix</code>. The term prefix acts as the property name for the
-     * shared <code>field</code>.
-     * <p/>
-     * This method is an adapted version of: <code>FieldCacheImpl.getStringIndex()</code>
-     * The returned string index will <b>not</b> have a term lookup array!
-     * See {@link SharedFieldSortComparator} for more info.
-     *
-     * @param reader     the <code>IndexReader</code>.
-     * @param field      name of the shared field.
-     * @param prefix     the property name, will be used as term prefix.
-     * @param comparator the sort comparator instance.
-     * @param includeLookup if <code>true</code> provides term lookup in StringIndex.
-     * @return a StringIndex that contains the field values and order
-     *         information.
-     * @throws IOException if an error occurs while reading from the index.
-     */
-    public SharedFieldCache.StringIndex getStringIndex(IndexReader reader,
-                                                 String field,
-                                                 String prefix,
-                                                 SortComparator comparator,
-                                                 boolean includeLookup)
-            throws IOException {
-        
-        if (reader instanceof ReadOnlyIndexReader) {
-            reader = ((ReadOnlyIndexReader) reader).getBase();
+    field = field.intern();
+    SharedFieldCache.StringIndex ret = lookup(reader, field, prefix, comparator);
+    if (ret == null) {
+      final String[] retArray = new String[reader.maxDoc()];
+      List mterms = null;
+      if (includeLookup) {
+        mterms = new ArrayList();
+      }
+      if (retArray.length > 0) {
+        TermDocs termDocs = reader.termDocs();
+        TermEnum termEnum = reader.terms(new Term(field, prefix));
+        // documents without a term will have a term number = 0
+        // thus will be at the top, this needs to be in sync with
+        // the implementation of FieldDocSortedHitQueue
+        if (includeLookup) {
+          mterms.add(null); // for documents with term number 0
         }
-        
-        field = field.intern();
-        SharedFieldCache.StringIndex ret = lookup(reader, field, prefix, comparator);
-        if (ret == null) {
-            final String[] retArray = new String[reader.maxDoc()];
-            List mterms = null;
+
+        try {
+          if (termEnum.term() == null) {
+            throw new RuntimeException("no terms in field " + field);
+          }
+          do {
+            Term term = termEnum.term();
+            if (term.field() != field || !term.text().startsWith(prefix)) {
+              break;
+            }
+
+            // store term text
             if (includeLookup) {
-                mterms = new ArrayList();
+              mterms.add(term.text().substring(prefix.length()));
             }
-            if (retArray.length > 0) {
-                TermDocs termDocs = reader.termDocs();
-                TermEnum termEnum = reader.terms(new Term(field, prefix));
-                // documents without a term will have a term number = 0
-                // thus will be at the top, this needs to be in sync with
-                // the implementation of FieldDocSortedHitQueue
-                if (includeLookup) {
-                    mterms.add(null); // for documents with term number 0
-                }
 
-                try {
-                    if (termEnum.term() == null) {
-                        throw new RuntimeException("no terms in field " + field);
-                    }
-                    do {
-                        Term term = termEnum.term();
-                        if (term.field() != field || !term.text().startsWith(prefix)) {
-                            break;
-                        }
-
-                        // store term text
-                        if (includeLookup) {
-                            mterms.add(term.text().substring(prefix.length()));
-                        }
-
-                        termDocs.seek(termEnum);
-                        while (termDocs.next()) {
-                            retArray[termDocs.doc()] = term.text().substring(prefix.length());
-                        }
-                    } while (termEnum.next());
-                } finally {
-                    termDocs.close();
-                    termEnum.close();
-                }
+            termDocs.seek(termEnum);
+            while (termDocs.next()) {
+              retArray[termDocs.doc()] = term.text().substring(prefix.length());
             }
-            String[] lookup = null;
-            if (includeLookup) {
-                lookup = (String[]) mterms.toArray(new String[mterms.size()]);
-            }
-            SharedFieldCache.StringIndex value = new SharedFieldCache.StringIndex(retArray, lookup);
-            store(reader, field, prefix, comparator, value);
-            return value;
+          } while (termEnum.next());
+        } finally {
+          termDocs.close();
+          termEnum.close();
         }
-        return ret;
+      }
+      String[] lookup = null;
+      if (includeLookup) {
+        lookup = (String[]) mterms.toArray(new String[mterms.size()]);
+      }
+      SharedFieldCache.StringIndex value = new SharedFieldCache.StringIndex(retArray, lookup);
+      store(reader, field, prefix, comparator, value);
+      return value;
+    }
+    return ret;
+  }
+
+  /**
+   * See if a <code>StringIndex</code> object is in the cache.
+   */
+  SharedFieldCache.StringIndex lookup(IndexReader reader,
+                                      String field,
+                                      String prefix,
+                                      SortComparator comparer) {
+    Key key = new Key(field, prefix, comparer);
+    synchronized (this) {
+      HashMap readerCache = (HashMap) cache.get(reader);
+      if (readerCache == null) {
+        return null;
+      }
+      return (SharedFieldCache.StringIndex) readerCache.get(key);
+    }
+  }
+
+  /**
+   * Put a <code>StringIndex</code> <code>value</code> to cache.
+   */
+  Object store(IndexReader reader,
+               String field,
+               String prefix,
+               SortComparator comparer,
+               SharedFieldCache.StringIndex value) {
+    Key key = new Key(field, prefix, comparer);
+    synchronized (this) {
+      HashMap readerCache = (HashMap) cache.get(reader);
+      if (readerCache == null) {
+        readerCache = new HashMap();
+        cache.put(reader, readerCache);
+      }
+      return readerCache.put(key, value);
+    }
+  }
+
+  /**
+   * A compound <code>Key</code> that consist of <code>field</code> <code>prefix</code> and
+   * <code>comparator</code>.
+   */
+  static class Key {
+
+    private final String         field;
+
+    private final String         prefix;
+
+    private final SortComparator comparator;
+
+    /**
+     * Creates <code>Key</code> for StringIndex lookup.
+     */
+    Key(String field, String prefix, SortComparator comparator) {
+      this.field = field.intern();
+      this.prefix = prefix.intern();
+      this.comparator = comparator;
     }
 
     /**
-     * See if a <code>StringIndex</code> object is in the cache.
+     * Returns <code>true</code> if <code>o</code> is a <code>Key</code> instance and refers to the
+     * same field, prefix and comparator object.
      */
-    SharedFieldCache.StringIndex lookup(IndexReader reader, String field,
-                                  String prefix, SortComparator comparer) {
-        Key key = new Key(field, prefix, comparer);
-        synchronized (this) {
-            HashMap readerCache = (HashMap) cache.get(reader);
-            if (readerCache == null) {
-                return null;
-            }
-            return (SharedFieldCache.StringIndex) readerCache.get(key);
-        }
+    public boolean equals(Object o) {
+      if (o instanceof Key) {
+        Key other = (Key) o;
+        return other.field == field && other.prefix == prefix
+            && other.comparator.equals(comparator);
+      }
+      return false;
     }
 
     /**
-     * Put a <code>StringIndex</code> <code>value</code> to cache.
+     * Composes a hashcode based on the field, prefix and comparator.
      */
-    Object store(IndexReader reader, String field, String prefix,
-                 SortComparator comparer, SharedFieldCache.StringIndex value) {
-        Key key = new Key(field, prefix, comparer);
-        synchronized (this) {
-            HashMap readerCache = (HashMap) cache.get(reader);
-            if (readerCache == null) {
-                readerCache = new HashMap();
-                cache.put(reader, readerCache);
-            }
-            return readerCache.put(key, value);
-        }
+    public int hashCode() {
+      return field.hashCode() ^ prefix.hashCode() ^ comparator.hashCode();
     }
-
-    /**
-     * A compound <code>Key</code> that consist of <code>field</code>
-     * <code>prefix</code> and <code>comparator</code>.
-     */
-    static class Key {
-
-        private final String field;
-        private final String prefix;
-        private final SortComparator comparator;
-
-        /**
-         * Creates <code>Key</code> for StringIndex lookup.
-         */
-        Key(String field, String prefix, SortComparator comparator) {
-            this.field = field.intern();
-            this.prefix = prefix.intern();
-            this.comparator = comparator;
-        }
-
-        /**
-         * Returns <code>true</code> if <code>o</code> is a <code>Key</code>
-         * instance and refers to the same field, prefix and comparator object.
-         */
-        public boolean equals(Object o) {
-            if (o instanceof Key) {
-                Key other = (Key) o;
-                return other.field == field
-                        && other.prefix == prefix
-                        && other.comparator.equals(comparator);
-            }
-            return false;
-        }
-
-        /**
-         * Composes a hashcode based on the field, prefix and comparator.
-         */
-        public int hashCode() {
-            return field.hashCode() ^ prefix.hashCode() ^ comparator.hashCode();
-        }
-    }
+  }
 
 }

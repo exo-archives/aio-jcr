@@ -22,10 +22,11 @@ package org.exoplatform.services.jcr.webdav;
  * @version $Id: $
  */
 public class Range {
-  
+
   private long start_;
+
   private long end_;
-  
+
   public long getStart() {
     return start_;
   }
@@ -33,14 +34,13 @@ public class Range {
   public void setStart(long start) {
     start_ = start;
   }
-  
+
   public long getEnd() {
     return end_;
   }
-  
+
   public void setEnd(long end) {
     end_ = end;
   }
 
 }
-

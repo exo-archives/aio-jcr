@@ -77,9 +77,13 @@ public class RecoverySynchronizer {
 
   private List<String>                       successfulSynchronizedList;
 
-  public RecoverySynchronizer(File recoveryDir, FileNameFactory fileNameFactory,
-      FileCleaner fileCleaner, ChannelManager channelManager, String ownName,
-      RecoveryWriter recoveryWriter, String systemId) {
+  public RecoverySynchronizer(File recoveryDir,
+                              FileNameFactory fileNameFactory,
+                              FileCleaner fileCleaner,
+                              ChannelManager channelManager,
+                              String ownName,
+                              RecoveryWriter recoveryWriter,
+                              String systemId) {
     this.recoveryDir = recoveryDir;
     this.fileNameFactory = fileNameFactory;
     this.fileCleaner = fileCleaner;
@@ -97,8 +101,10 @@ public class RecoverySynchronizer {
 
   public void synchronizRepository() {
     try {
-      Packet packet = new Packet(Packet.PacketType.GET_ChangesLog_up_to_DATE, IdGenerator
-          .generate(), ownName, Calendar.getInstance());
+      Packet packet = new Packet(Packet.PacketType.GET_ChangesLog_up_to_DATE,
+                                 IdGenerator.generate(),
+                                 ownName,
+                                 Calendar.getInstance());
       channelManager.sendPacket(packet);
     } catch (Exception e) {
       log.error("Synchronization error", e);
@@ -129,7 +135,7 @@ public class RecoverySynchronizer {
         mapPendingBinaryFile.put(packet.getIdentifier(), new PendingBinaryFile());
 
       container = mapPendingBinaryFile.get(packet.getIdentifier());
-      
+
       synchronized (container) {
         container.addBinaryFile(packet.getOwnerName(), packet.getFileName(), packet.getSystemId());
       }
@@ -140,7 +146,7 @@ public class RecoverySynchronizer {
         container = mapPendingBinaryFile.get(packet.getIdentifier());
 
         RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getOwnerName(),
-            packet.getFileName());
+                                                                          packet.getFileName());
 
         if (randomAccessFile != null) {
           if (log.isDebugEnabled())
@@ -159,7 +165,7 @@ public class RecoverySynchronizer {
         container = mapPendingBinaryFile.get(packet.getIdentifier());
 
         RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getOwnerName(),
-            packet.getFileName());
+                                                                          packet.getFileName());
 
         if (randomAccessFile != null) {
           if (log.isDebugEnabled())
@@ -196,13 +202,13 @@ public class RecoverySynchronizer {
           if (fileDescriptorList.size() == pbf.getNeedTransferCounter()) {
             for (FileDescriptor fileDescriptor : fileDescriptorList) {
               try {
-                TransactionChangesLog transactionChangesLog = recoveryReader
-                    .getChangesLog(fileDescriptor.getFile().getAbsolutePath());
+                TransactionChangesLog transactionChangesLog = recoveryReader.getChangesLog(fileDescriptor.getFile()
+                                                                                                         .getAbsolutePath());
 
                 transactionChangesLog.setSystemId(fileDescriptor.getSystemId());
 
                 Calendar cLogTime = fileNameFactory.getDateFromFileName(fileDescriptor.getFile()
-                    .getName());
+                                                                                      .getName());
 
                 if (log.isDebugEnabled()) {
                   log.debug("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
@@ -234,10 +240,12 @@ public class RecoverySynchronizer {
 
             // Send file name list
             List<String> fileNameList = mapPendingBinaryFile.get(packet.getIdentifier())
-                .getFileNameList();
+                                                            .getFileNameList();
 
             Packet packetFileNameList = new Packet(Packet.PacketType.ALL_ChangesLog_saved_OK,
-                packet.getIdentifier(), ownName, fileNameList);
+                                                   packet.getIdentifier(),
+                                                   ownName,
+                                                   fileNameList);
             send(packetFileNameList);
 
             log.info("The " + fileDescriptorList.size() + " changeslogs were received and saved");
@@ -251,14 +259,15 @@ public class RecoverySynchronizer {
       break;
 
     case Packet.PacketType.ALL_ChangesLog_saved_OK:
-      long removeCounter = recoveryWriter.removeChangesLog(packet.getFileNameList(), packet
-          .getOwnerName());
+      long removeCounter = recoveryWriter.removeChangesLog(packet.getFileNameList(),
+                                                           packet.getOwnerName());
 
       if (log.isDebugEnabled())
         log.debug("Remove from file system : " + removeCounter);
 
-      Packet removedOldChangesLogPacket = new Packet(
-          Packet.PacketType.REMOVED_OLD_CHANGESLOG_COUNTER, packet.getIdentifier(), ownName);
+      Packet removedOldChangesLogPacket = new Packet(Packet.PacketType.REMOVED_OLD_CHANGESLOG_COUNTER,
+                                                     packet.getIdentifier(),
+                                                     ownName);
       removedOldChangesLogPacket.setSize(removeCounter);
       channelManager.sendPacket(removedOldChangesLogPacket);
 
@@ -320,8 +329,9 @@ public class RecoverySynchronizer {
 
       List<String> filePathList = recoveryReader.getFilePathList(timeStamp, ownerName);
 
-      Packet needTransferCounter = new Packet(Packet.PacketType.NEED_TRANSFER_COUNTER, identifier,
-          ownName);
+      Packet needTransferCounter = new Packet(Packet.PacketType.NEED_TRANSFER_COUNTER,
+                                              identifier,
+                                              ownName);
       needTransferCounter.setSize(filePathList.size());
       channelManager.sendPacket(needTransferCounter);
 
@@ -336,8 +346,9 @@ public class RecoverySynchronizer {
         channelManager.sendPacket(endPocket);
 
       } else {
-        Packet synchronizedOKPacket = new Packet(Packet.PacketType.SYNCHRONIZED_OK, IdGenerator
-            .generate(), ownerName);
+        Packet synchronizedOKPacket = new Packet(Packet.PacketType.SYNCHRONIZED_OK,
+                                                 IdGenerator.generate(),
+                                                 ownerName);
         channelManager.sendPacket(synchronizedOKPacket);
       }
 
@@ -354,14 +365,16 @@ public class RecoverySynchronizer {
     initedParticipantsClusterList = new ArrayList<String>(list);
   }
 
-  private void saveChangesLog(ItemDataKeeper dataManager, TransactionChangesLog changesLog,
-      Calendar cLogTime) throws ReplicationException {
+  private void saveChangesLog(ItemDataKeeper dataManager,
+                              TransactionChangesLog changesLog,
+                              Calendar cLogTime) throws ReplicationException {
     try {
       try {
         dataManager.save(changesLog);
       } catch (JCRInvalidItemStateException e) {
-        TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(), e
-            .getState(), changesLog);
+        TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(),
+                                                                            e.getState(),
+                                                                            changesLog);
         if (normalizeChangesLog != null)
           saveChangesLog(dataManager, normalizeChangesLog, cLogTime);
       }
@@ -370,8 +383,9 @@ public class RecoverySynchronizer {
     }
   }
 
-  private TransactionChangesLog getNormalizedChangesLog(String collisionID, int state,
-      TransactionChangesLog changesLog) {
+  private TransactionChangesLog getNormalizedChangesLog(String collisionID,
+                                                        int state,
+                                                        TransactionChangesLog changesLog) {
     ItemState citem = changesLog.getItemState(collisionID);
 
     if (citem != null) {
@@ -401,8 +415,9 @@ public class RecoverySynchronizer {
             normalized.add(change);
         }
 
-        PlainChangesLog plog = new PlainChangesLogImpl(normalized, next.getSessionId(), next
-            .getEventType());
+        PlainChangesLog plog = new PlainChangesLogImpl(normalized,
+                                                       next.getSessionId(),
+                                                       next.getEventType());
         result.addLog(plog);
       }
 
@@ -414,8 +429,7 @@ public class RecoverySynchronizer {
 }
 
 class PendingBinaryFile {
-  private static Log                                       log = ExoLogger
-                                                                   .getLogger("ext.PendingBinaryFile");
+  private static Log                                       log = ExoLogger.getLogger("ext.PendingBinaryFile");
 
   private HashMap<String, HashMap<String, FileDescriptor>> mapFilePerOwner;
 

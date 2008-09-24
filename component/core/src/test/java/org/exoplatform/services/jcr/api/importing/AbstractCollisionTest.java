@@ -187,14 +187,18 @@ public class AbstractCollisionTest extends AbstractImportTest {
   }
 
   /**
-   * Checks correctness of an arrangement of members of family in a family tree 
-   * beginning from the <code>checkRoot</code> node.
+   * Checks correctness of an arrangement of members of family in a family tree beginning from the
+   * <code>checkRoot</code> node.
    * 
    * 
-   * @param checkRoot - parent node of family tree.
-   * @param family - family name.
-   * @param referenceableUuid - uuid of famali parent node.
-   * @throws RepositoryException - RepositoryException.
+   * @param checkRoot
+   *          - parent node of family tree.
+   * @param family
+   *          - family name.
+   * @param referenceableUuid
+   *          - uuid of famali parent node.
+   * @throws RepositoryException
+   *           - RepositoryException.
    */
   private void checkFamilyTree(final Node checkRoot,
                                final Family family,
@@ -346,7 +350,8 @@ public class AbstractCollisionTest extends AbstractImportTest {
   /**
    * Prepare repository for uuid collisions tests.
    * 
-   * @param exportSession - working session.
+   * @param exportSession
+   *          - working session.
    * @return - prepared root node.
    * @throws RepositoryException
    */
@@ -383,9 +388,9 @@ public class AbstractCollisionTest extends AbstractImportTest {
   /**
    * Prepare repository for import content for uuid collisions tests.
    * <ol>
-   * <li> Remove FIRST_CHILD_NODE_NAME and all subnodes</li>
-   * <li> Add to MIX_REFERENCEABLE_NODE_NAME node SECOND_CHILD_NODE_NAME</li>
-   * <li> Add to testRoot new node IMPORT_ROOT_NODE_NAME </li>
+   * <li>Remove FIRST_CHILD_NODE_NAME and all subnodes</li>
+   * <li>Add to MIX_REFERENCEABLE_NODE_NAME node SECOND_CHILD_NODE_NAME</li>
+   * <li>Add to testRoot new node IMPORT_ROOT_NODE_NAME</li>
    * </ol>
    * 
    * @param testRootNode

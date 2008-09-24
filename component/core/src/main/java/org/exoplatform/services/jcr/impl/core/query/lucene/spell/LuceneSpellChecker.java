@@ -43,8 +43,8 @@ import org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * <code>LuceneSpellChecker</code> implements a spell checker based on the
- * terms present in a lucene index.
+ * <code>LuceneSpellChecker</code> implements a spell checker based on the terms present in a lucene
+ * index.
  */
 public class LuceneSpellChecker implements
     org.exoplatform.services.jcr.impl.core.query.lucene.SpellChecker {
@@ -126,9 +126,10 @@ public class LuceneSpellChecker implements
   /**
    * Initializes this spell checker.
    * 
-   * @param handler the query handler that created this spell checker.
-   * @throws IOException if <code>handler</code> is not of type {@link
-   *           SearchIndex}.
+   * @param handler
+   *          the query handler that created this spell checker.
+   * @throws IOException
+   *           if <code>handler</code> is not of type {@link SearchIndex}.
    */
   public void init(QueryHandler handler) throws IOException {
     if (handler instanceof SearchIndex) {
@@ -157,10 +158,11 @@ public class LuceneSpellChecker implements
   // ------------------------------< internal >--------------------------------
 
   /**
-   * Returns the fulltext statement of a spellcheck relation query node or
-   * <code>null</code> if none exists in the abstract query tree.
+   * Returns the fulltext statement of a spellcheck relation query node or <code>null</code> if none
+   * exists in the abstract query tree.
    * 
-   * @param aqt the abstract query tree.
+   * @param aqt
+   *          the abstract query tree.
    * @return the fulltext statement or <code>null</code>.
    */
   private String getFulltextStatement(QueryRootNode aqt) {
@@ -206,7 +208,8 @@ public class LuceneSpellChecker implements
     /**
      * Creates a new internal spell checker.
      * 
-     * @param handler the associated query handler.
+     * @param handler
+     *          the associated query handler.
      */
     InternalSpellChecker(SearchIndex handler) throws IOException {
       this.handler = handler;
@@ -220,11 +223,11 @@ public class LuceneSpellChecker implements
     }
 
     /**
-     * Checks a fulltext query statement and suggests a spell checked version of
-     * the statement. If the spell checker thinks the spelling is correct
-     * <code>null</code> is returned.
+     * Checks a fulltext query statement and suggests a spell checked version of the statement. If
+     * the spell checker thinks the spelling is correct <code>null</code> is returned.
      * 
-     * @param statement the fulltext query statement.
+     * @param statement
+     *          the fulltext query statement.
      * @return a suggestion or <code>null</code>.
      */
     String suggest(String statement) throws IOException {
@@ -265,12 +268,14 @@ public class LuceneSpellChecker implements
     /**
      * Tokenizes the statement into words and tokens.
      * 
-     * @param statement the fulltext query statement.
-     * @param words this list will be filled with the original words extracted
-     *          from the statement.
-     * @param tokens this list will be filled with the tokens parsed from the
-     *          statement.
-     * @throws IOException if an error occurs while parsing the statement.
+     * @param statement
+     *          the fulltext query statement.
+     * @param words
+     *          this list will be filled with the original words extracted from the statement.
+     * @param tokens
+     *          this list will be filled with the tokens parsed from the statement.
+     * @throws IOException
+     *           if an error occurs while parsing the statement.
      */
     private void tokenize(String statement, List<String> words, List<Token> tokens) throws IOException {
       TokenStream ts = handler.getTextAnalyzer().tokenStream(FieldNames.FULLTEXT,
@@ -300,14 +305,14 @@ public class LuceneSpellChecker implements
     }
 
     /**
-     * Checks the spelling of the passed <code>words</code> and returns a
-     * suggestion.
+     * Checks the spelling of the passed <code>words</code> and returns a suggestion.
      * 
-     * @param words the words to check.
-     * @return a suggestion of correctly spelled <code>words</code> or
-     *         <code>null</code> if this spell checker thinks
-     *         <code>words</code> are spelled correctly.
-     * @throws IOException if an error occurs while spell checking.
+     * @param words
+     *          the words to check.
+     * @return a suggestion of correctly spelled <code>words</code> or <code>null</code> if this
+     *         spell checker thinks <code>words</code> are spelled correctly.
+     * @throws IOException
+     *           if an error occurs while spell checking.
      */
     private String[] check(String words[]) throws IOException {
       refreshSpellChecker();
@@ -351,10 +356,9 @@ public class LuceneSpellChecker implements
     }
 
     /**
-     * Refreshes the underlying spell checker in a background thread.
-     * Synchronization is done on this <code>LuceneSpellChecker</code>
-     * instance. While the refresh takes place {@link #refreshing} is set to
-     * <code>true</code>.
+     * Refreshes the underlying spell checker in a background thread. Synchronization is done on
+     * this <code>LuceneSpellChecker</code> instance. While the refresh takes place
+     * {@link #refreshing} is set to <code>true</code>.
      */
     private void refreshSpellChecker() {
       if (lastRefresh + refreshInterval < System.currentTimeMillis()) {

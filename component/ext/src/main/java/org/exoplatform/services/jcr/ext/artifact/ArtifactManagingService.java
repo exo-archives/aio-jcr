@@ -35,73 +35,88 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 public interface ArtifactManagingService {
   /**
-   * @param sp the session provider
-   * @param parentFolder the folder which children we need to get
+   * @param sp
+   *          the session provider
+   * @param parentFolder
+   *          the folder which children we need to get
    * @return list of child descriptors
    * @throws RepositoryException
    */
-  List<Descriptor> getDescriptors(SessionProvider sp, FolderDescriptor parentFolder)
-      throws RepositoryException;
+  List<Descriptor> getDescriptors(SessionProvider sp, FolderDescriptor parentFolder) throws RepositoryException;
 
   /**
-   * adds (deploys) artifact including creating necessary group folders, pom and
-   * checksum files
+   * adds (deploys) artifact including creating necessary group folders, pom and checksum files
    * 
-   * @param sp the session provider
-   * @param artifact descriptor
+   * @param sp
+   *          the session provider
+   * @param artifact
+   *          descriptor
    * @param jarFile
    * @throws RepositoryException
    */
 
-  void addArtifact(SessionProvider sp, ArtifactDescriptor artifact, InputStream jarIStream,
-      InputStream pomIStream) throws RepositoryException;
+  void addArtifact(SessionProvider sp,
+                   ArtifactDescriptor artifact,
+                   InputStream jarIStream,
+                   InputStream pomIStream) throws RepositoryException;
 
   /**
    * removes artifact
    * 
-   * @param sp the session provider
-   * @param artifact descriptor
+   * @param sp
+   *          the session provider
+   * @param artifact
+   *          descriptor
    * @throws RepositoryException
    */
   void removeArtifact(SessionProvider sp, Descriptor artifact) throws RepositoryException;
-  
+
   /**
-   * @param sp the session provider
-   * @param criteria for search
+   * @param sp
+   *          the session provider
+   * @param criteria
+   *          for search
    * @return list of descriptors
    * @throws RepositoryException
    */
-  List<Descriptor> searchArtifacts(SessionProvider sp, SearchCriteria criteria)
-      throws RepositoryException;
+  List<Descriptor> searchArtifacts(SessionProvider sp, SearchCriteria criteria) throws RepositoryException;
 
   /**
    * imports list of artifacts into maven repo
    * 
-   * @param sp the session provider
-   * @param in input stream which contains artifact related files
+   * @param sp
+   *          the session provider
+   * @param in
+   *          input stream which contains artifact related files
    * @throws RepositoryException
    */
   void importArtifacts(SessionProvider sp, InputStream zipInputStream) throws RepositoryException,
-      FileNotFoundException;
+                                                                      FileNotFoundException;
 
   /**
-   * @param sp - Session provider
+   * @param sp
+   *          - Session provider
    * @param folder
    * @throws RepositoryException
    */
   void importArtifacts(SessionProvider sp, File folder) throws RepositoryException,
-      FileNotFoundException;
+                                                       FileNotFoundException;
 
   /**
    * exports list of artifacts from maven repo into output stream
    * 
-   * @param sp the session provider
-   * @param parentFolder the folder which children we need to get
-   * @param out output stream to export to
+   * @param sp
+   *          the session provider
+   * @param parentFolder
+   *          the folder which children we need to get
+   * @param out
+   *          output stream to export to
    * @throws RepositoryException
    */
-  void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder,
-      OutputStream zipOutputStream) throws RepositoryException, FileNotFoundException;
+  void exportArtifacts(SessionProvider sp,
+                       FolderDescriptor parentFolder,
+                       OutputStream zipOutputStream) throws RepositoryException,
+                                                    FileNotFoundException;
 
   /**
    * @param sp
@@ -109,7 +124,7 @@ public interface ArtifactManagingService {
    * @param folder
    * @throws RepositoryException
    */
-  void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, File folder)
-      throws RepositoryException, FileNotFoundException;
+  void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, File folder) throws RepositoryException,
+                                                                                      FileNotFoundException;
 
 }

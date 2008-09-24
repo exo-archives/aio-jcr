@@ -53,13 +53,12 @@ import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelp
  */
 
 public class VersionImpl extends VersionStorageDescendantNode implements Version {
-  
-  
-  public VersionImpl(NodeData data, SessionImpl session)
-      throws PathNotFoundException, RepositoryException {
+
+  public VersionImpl(NodeData data, SessionImpl session) throws PathNotFoundException,
+      RepositoryException {
 
     super(data, session);
-    
+
     if (!this.isNodeType(Constants.NT_VERSION))
       throw new RepositoryException("Node " + getLocation().getAsString(true)
           + " is not nt:version type");
@@ -68,104 +67,118 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   @Override
   protected void invalidate() {
     super.invalidate();
-  }  
-  
-  /* (non-Javadoc)
+  }
+
+  /*
+   * (non-Javadoc)
    * @see javax.jcr.version.Version#getCreated()
    */
   public Calendar getCreated() throws RepositoryException {
-    
+
     checkValid();
-    
-    PropertyData pdata = (PropertyData) dataManager.getItemData(nodeData(),new QPathEntry( Constants.JCR_CREATED,0));
-    
-    
+
+    PropertyData pdata = (PropertyData) dataManager.getItemData(nodeData(),
+                                                                new QPathEntry(Constants.JCR_CREATED,
+                                                                               0));
+
     if (pdata == null)
       throw new VersionException("jcr:created property is not found for version " + getPath());
-    
-    Value created = session.getValueFactory().loadValue((TransientValueData) pdata.getValues().get(0), pdata.getType());
-    
+
+    Value created = session.getValueFactory().loadValue((TransientValueData) pdata.getValues()
+                                                                                  .get(0),
+                                                        pdata.getType());
+
     return created.getDate();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.jcr.version.Version#getSuccessors()
    */
   public Version[] getSuccessors() throws RepositoryException {
-    
+
     checkValid();
-    
+
     PropertyData successorsData = (PropertyData) dataManager.getItemData(nodeData(),
-        new QPathEntry(Constants.JCR_SUCCESSORS, 0));
-    
+                                                                         new QPathEntry(Constants.JCR_SUCCESSORS,
+                                                                                        0));
+
     if (successorsData == null)
       return new Version[0];
-    
+
     List<ValueData> successorsValues = successorsData.getValues();
     Version[] successors = new Version[successorsValues.size()];
-    
+
     try {
-      for (int i=0; i<successorsValues.size(); i++) {
+      for (int i = 0; i < successorsValues.size(); i++) {
         String videntifier = new String(successorsValues.get(i).getAsByteArray());
         VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(videntifier, true);
         if (version != null)
           successors[i] = version;
         else
-          throw new RepositoryException("Successor version is not found " + videntifier + ", this version " + getPath());
+          throw new RepositoryException("Successor version is not found " + videntifier
+              + ", this version " + getPath());
       }
     } catch (IOException e) {
       throw new RepositoryException("Successor value read error " + e, e);
     }
-    
+
     return successors;
-    
+
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.jcr.version.Version#getPredecessors()
    */
   public Version[] getPredecessors() throws RepositoryException {
-    
-    checkValid();
-    
-    PropertyData predecessorsData = (PropertyData) dataManager.getItemData(nodeData(),
-        new QPathEntry(Constants.JCR_PREDECESSORS, 0));
 
-    
+    checkValid();
+
+    PropertyData predecessorsData = (PropertyData) dataManager.getItemData(nodeData(),
+                                                                           new QPathEntry(Constants.JCR_PREDECESSORS,
+                                                                                          0));
+
     if (predecessorsData == null)
       return new Version[0];
-    
+
     List<ValueData> predecessorsValues = predecessorsData.getValues();
     Version[] predecessors = new Version[predecessorsValues.size()];
-    
+
     try {
-      for (int i=0; i<predecessorsValues.size(); i++) {
+      for (int i = 0; i < predecessorsValues.size(); i++) {
         String videntifier = new String(predecessorsValues.get(i).getAsByteArray());
         VersionImpl version = (VersionImpl) dataManager.getItemByIdentifier(videntifier, false);
         if (version != null)
           predecessors[i] = version;
         else
-          throw new RepositoryException("Predecessor version is not found " + videntifier + ", this version " + getPath());
+          throw new RepositoryException("Predecessor version is not found " + videntifier
+              + ", this version " + getPath());
       }
     } catch (IOException e) {
       throw new RepositoryException("Predecessor value read error " + e, e);
     }
-    
+
     return predecessors;
-    
+
   }
 
   public void addSuccessor(String successorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
     ValueData successorRef = new TransientValueData(new Identifier(successorIdentifier));
-    
-    TransientPropertyData successorsProp = (TransientPropertyData) dataManager
-    .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
-    
+
+    TransientPropertyData successorsProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
+                                                                                           new QPathEntry(Constants.JCR_SUCCESSORS,
+                                                                                                          0));
+
     if (successorsProp == null) {
       // create a property now
-      List<ValueData> successors = new ArrayList<ValueData>(); 
+      List<ValueData> successors = new ArrayList<ValueData>();
       successors.add(successorRef);
-      successorsProp = TransientPropertyData.createPropertyData(nodeData(), Constants.JCR_SUCCESSORS, PropertyType.REFERENCE, true, successors);
+      successorsProp = TransientPropertyData.createPropertyData(nodeData(),
+                                                                Constants.JCR_SUCCESSORS,
+                                                                PropertyType.REFERENCE,
+                                                                true,
+                                                                successors);
       changesLog.add(ItemState.createAddedState(successorsProp));
     } else {
       // add successor in existed one
@@ -176,18 +189,21 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
   }
 
   public void addPredecessor(String predeccessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
-    
-    ValueData predeccessorRef = new TransientValueData(new Identifier(predeccessorIdentifier));
-    
-    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
-        .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
 
-    
+    ValueData predeccessorRef = new TransientValueData(new Identifier(predeccessorIdentifier));
+
+    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
+                                                                                              new QPathEntry(Constants.JCR_PREDECESSORS,
+                                                                                                             0));
+
     if (predeccessorsProp == null) {
-      List<ValueData> predeccessors = new ArrayList<ValueData>(); 
+      List<ValueData> predeccessors = new ArrayList<ValueData>();
       predeccessors.add(predeccessorRef);
-      predeccessorsProp = TransientPropertyData.createPropertyData(
-          nodeData(), Constants.JCR_PREDECESSORS, PropertyType.REFERENCE, true, predeccessors);
+      predeccessorsProp = TransientPropertyData.createPropertyData(nodeData(),
+                                                                   Constants.JCR_PREDECESSORS,
+                                                                   PropertyType.REFERENCE,
+                                                                   true,
+                                                                   predeccessors);
       changesLog.add(ItemState.createAddedState(predeccessorsProp));
     } else {
       // add successor in existed one
@@ -196,46 +212,52 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       changesLog.add(ItemState.createUpdatedState(newPredeccessorsProp));
     }
   }
-  
+
   void removeSuccessor(String successorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
-    TransientPropertyData successorsProp = (TransientPropertyData) dataManager
-        .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
+    TransientPropertyData successorsProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
+                                                                                           new QPathEntry(Constants.JCR_SUCCESSORS,
+                                                                                                          0));
     if (successorsProp != null) {
       List<ValueData> newSuccessors = new ArrayList<ValueData>();
-      
+
       try {
-        for (ValueData sdata: successorsProp.getValues()) {
+        for (ValueData sdata : successorsProp.getValues()) {
           if (!successorIdentifier.equals(new String(sdata.getAsByteArray())))
             newSuccessors.add(sdata);
         }
       } catch (IOException e) {
         throw new RepositoryException("A jcr:successors property read error " + e, e);
       }
-      
-      TransientPropertyData newSuccessorsProp = new TransientPropertyData(
-          QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_SUCCESSORS, successorsProp.getQPath().getIndex()),
-          successorsProp.getIdentifier(),
-          successorsProp.getPersistedVersion(), 
-          PropertyType.REFERENCE,
-          nodeData().getIdentifier(), 
-          true);
+
+      TransientPropertyData newSuccessorsProp = new TransientPropertyData(QPath.makeChildPath(nodeData().getQPath(),
+                                                                                              Constants.JCR_SUCCESSORS,
+                                                                                              successorsProp.getQPath()
+                                                                                                            .getIndex()),
+                                                                          successorsProp.getIdentifier(),
+                                                                          successorsProp.getPersistedVersion(),
+                                                                          PropertyType.REFERENCE,
+                                                                          nodeData().getIdentifier(),
+                                                                          true);
       newSuccessorsProp.setValues(newSuccessors);
       changesLog.add(ItemState.createUpdatedState(newSuccessorsProp));
     } else {
       throw new RepositoryException("A jcr:successors property is not found, version " + getPath());
     }
   }
-  
-  void removeAddSuccessor(String removedSuccessorIdentifier, String addedSuccessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
-    
-    TransientPropertyData successorsProp = (TransientPropertyData) dataManager
-    .getItemData(nodeData(), new QPathEntry(Constants.JCR_SUCCESSORS, 0));
-    
+
+  void removeAddSuccessor(String removedSuccessorIdentifier,
+                          String addedSuccessorIdentifier,
+                          PlainChangesLog changesLog) throws RepositoryException {
+
+    TransientPropertyData successorsProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
+                                                                                           new QPathEntry(Constants.JCR_SUCCESSORS,
+                                                                                                          0));
+
     if (successorsProp != null) {
       List<ValueData> newSuccessors = new ArrayList<ValueData>();
-      
+
       try {
-        for (ValueData sdata: successorsProp.getValues()) {
+        for (ValueData sdata : successorsProp.getValues()) {
           if (!removedSuccessorIdentifier.equals(new String(sdata.getAsByteArray())))
             newSuccessors.add(sdata);
         }
@@ -244,142 +266,169 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
       }
 
       newSuccessors.add(new TransientValueData(new Identifier(addedSuccessorIdentifier)));
-      
-      TransientPropertyData newSuccessorsProp = new TransientPropertyData(
-          QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_SUCCESSORS, successorsProp.getQPath().getIndex()),
-          successorsProp.getIdentifier(),
-          successorsProp.getPersistedVersion(), 
-          PropertyType.REFERENCE,
-          nodeData().getIdentifier(), 
-          true);
+
+      TransientPropertyData newSuccessorsProp = new TransientPropertyData(QPath.makeChildPath(nodeData().getQPath(),
+                                                                                              Constants.JCR_SUCCESSORS,
+                                                                                              successorsProp.getQPath()
+                                                                                                            .getIndex()),
+                                                                          successorsProp.getIdentifier(),
+                                                                          successorsProp.getPersistedVersion(),
+                                                                          PropertyType.REFERENCE,
+                                                                          nodeData().getIdentifier(),
+                                                                          true);
       newSuccessorsProp.setValues(newSuccessors);
       changesLog.add(ItemState.createUpdatedState(newSuccessorsProp));
     } else {
       throw new RepositoryException("A jcr:successors property is not found, version " + getPath());
     }
   }
-  
+
   void removePredecessor(String predecessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
-    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
-    .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
-    
+    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
+                                                                                              new QPathEntry(Constants.JCR_PREDECESSORS,
+                                                                                                             0));
+
     if (predeccessorsProp != null) {
       List<ValueData> newPredeccessors = new ArrayList<ValueData>();
-      
+
       try {
-        for (ValueData sdata: predeccessorsProp.getValues()) {
+        for (ValueData sdata : predeccessorsProp.getValues()) {
           if (!predecessorIdentifier.equals(new String(sdata.getAsByteArray())))
             newPredeccessors.add(sdata);
         }
       } catch (IOException e) {
         throw new RepositoryException("A jcr:predecessors property read error " + e, e);
       }
-      
-      TransientPropertyData newPredecessorsProp = new TransientPropertyData(
-          QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_PREDECESSORS, predeccessorsProp.getQPath().getIndex()),
-          predeccessorsProp.getIdentifier(),
-          predeccessorsProp.getPersistedVersion(), 
-          PropertyType.REFERENCE,
-          nodeData().getIdentifier(), 
-          true);
+
+      TransientPropertyData newPredecessorsProp = new TransientPropertyData(QPath.makeChildPath(nodeData().getQPath(),
+                                                                                                Constants.JCR_PREDECESSORS,
+                                                                                                predeccessorsProp.getQPath()
+                                                                                                                 .getIndex()),
+                                                                            predeccessorsProp.getIdentifier(),
+                                                                            predeccessorsProp.getPersistedVersion(),
+                                                                            PropertyType.REFERENCE,
+                                                                            nodeData().getIdentifier(),
+                                                                            true);
       newPredecessorsProp.setValues(newPredeccessors);
       changesLog.add(ItemState.createUpdatedState(newPredecessorsProp));
     } else {
-      throw new RepositoryException("A jcr:predecessors property is not found, version " + getPath());
+      throw new RepositoryException("A jcr:predecessors property is not found, version "
+          + getPath());
     }
   }
-  
-  void removeAddPredecessor(String removedPredecessorIdentifier, String addedPredecessorIdentifier, PlainChangesLog changesLog) throws RepositoryException {
 
-    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager
-    .getItemData(nodeData(), new QPathEntry(Constants.JCR_PREDECESSORS, 0));
-    
+  void removeAddPredecessor(String removedPredecessorIdentifier,
+                            String addedPredecessorIdentifier,
+                            PlainChangesLog changesLog) throws RepositoryException {
+
+    TransientPropertyData predeccessorsProp = (TransientPropertyData) dataManager.getItemData(nodeData(),
+                                                                                              new QPathEntry(Constants.JCR_PREDECESSORS,
+                                                                                                             0));
+
     if (predeccessorsProp != null) {
       List<ValueData> newPredeccessors = new ArrayList<ValueData>();
-      
+
       try {
-        for (ValueData sdata: predeccessorsProp.getValues()) {
+        for (ValueData sdata : predeccessorsProp.getValues()) {
           if (!removedPredecessorIdentifier.equals(new String(sdata.getAsByteArray())))
             newPredeccessors.add(sdata);
         }
       } catch (IOException e) {
         throw new RepositoryException("A jcr:predecessors property read error " + e, e);
       }
-      
+
       newPredeccessors.add(new TransientValueData(new Identifier(addedPredecessorIdentifier)));
-      
-      TransientPropertyData newPredecessorsProp = new TransientPropertyData(
-          QPath.makeChildPath(nodeData().getQPath(), Constants.JCR_PREDECESSORS, predeccessorsProp.getQPath().getIndex()),
-          predeccessorsProp.getIdentifier(),
-          predeccessorsProp.getPersistedVersion(), 
-          PropertyType.REFERENCE,
-          nodeData().getIdentifier(), 
-          true);
+
+      TransientPropertyData newPredecessorsProp = new TransientPropertyData(QPath.makeChildPath(nodeData().getQPath(),
+                                                                                                Constants.JCR_PREDECESSORS,
+                                                                                                predeccessorsProp.getQPath()
+                                                                                                                 .getIndex()),
+                                                                            predeccessorsProp.getIdentifier(),
+                                                                            predeccessorsProp.getPersistedVersion(),
+                                                                            PropertyType.REFERENCE,
+                                                                            nodeData().getIdentifier(),
+                                                                            true);
       newPredecessorsProp.setValues(newPredeccessors);
       changesLog.add(ItemState.createUpdatedState(newPredecessorsProp));
     } else {
-      throw new RepositoryException("A jcr:predecessors property is not found, version " + getPath());
+      throw new RepositoryException("A jcr:predecessors property is not found, version "
+          + getPath());
     }
   }
 
   public VersionHistoryImpl getContainingHistory() throws RepositoryException {
-    
+
     checkValid();
-    
-    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByIdentifier(nodeData().getParentIdentifier(), true);
-     
+
+    VersionHistoryImpl vhistory = (VersionHistoryImpl) dataManager.getItemByIdentifier(nodeData().getParentIdentifier(),
+                                                                                       true);
+
     if (vhistory == null)
       throw new VersionException("Version history item is not found for version " + getPath());
-    
+
     return vhistory;
   }
 
-
-  public SessionChangesLog restoreLog(NodeData destParent, InternalQName name, VersionHistoryDataHelper historyData, 
-      SessionImpl restoreSession, boolean removeExisting, SessionChangesLog delegatedLog) throws RepositoryException {
+  public SessionChangesLog restoreLog(NodeData destParent,
+                                      InternalQName name,
+                                      VersionHistoryDataHelper historyData,
+                                      SessionImpl restoreSession,
+                                      boolean removeExisting,
+                                      SessionChangesLog delegatedLog) throws RepositoryException {
 
     if (log.isDebugEnabled())
-      log.debug("Restore on parent " + destParent.getQPath().getAsString() + " as " + name.getAsString() +
-          ", removeExisting=" + removeExisting);
-    
-    DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();
-    
-    NodeData frozenData = (NodeData) dmanager.getItemData(nodeData(), new QPathEntry(Constants.JCR_FROZENNODE, 1));
-    
-    ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(
-        destParent, 
-        name,
-        historyData, 
-        restoreSession, 
-        removeExisting,
-        delegatedLog);
-    
-    frozenData.accept(restoreVisitor);
-    
-    return restoreVisitor.getRestoreChanges();
-  }
-  
-  public void restore(SessionImpl restoreSession, NodeData destParent, InternalQName name, boolean removeExisting) throws RepositoryException {
+      log.debug("Restore on parent " + destParent.getQPath().getAsString() + " as "
+          + name.getAsString() + ", removeExisting=" + removeExisting);
 
     DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();
-    
-    NodeData vh = (NodeData) dmanager.getItemData(nodeData().getParentIdentifier()); // version parent it's a VH
-    VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh, dmanager,
-        session.getWorkspace().getNodeTypeManager());
-  
-    SessionChangesLog changesLog = restoreLog(destParent, name, historyHelper, restoreSession, removeExisting, null);
+
+    NodeData frozenData = (NodeData) dmanager.getItemData(nodeData(),
+                                                          new QPathEntry(Constants.JCR_FROZENNODE,
+                                                                         1));
+
+    ItemDataRestoreVisitor restoreVisitor = new ItemDataRestoreVisitor(destParent,
+                                                                       name,
+                                                                       historyData,
+                                                                       restoreSession,
+                                                                       removeExisting,
+                                                                       delegatedLog);
+
+    frozenData.accept(restoreVisitor);
+
+    return restoreVisitor.getRestoreChanges();
+  }
+
+  public void restore(SessionImpl restoreSession,
+                      NodeData destParent,
+                      InternalQName name,
+                      boolean removeExisting) throws RepositoryException {
+
+    DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();
+
+    NodeData vh = (NodeData) dmanager.getItemData(nodeData().getParentIdentifier()); // version
+    // parent it's a VH
+    VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
+                                                                          dmanager,
+                                                                          session.getWorkspace()
+                                                                                 .getNodeTypeManager());
+
+    SessionChangesLog changesLog = restoreLog(destParent,
+                                              name,
+                                              historyHelper,
+                                              restoreSession,
+                                              removeExisting,
+                                              null);
     dmanager.save(changesLog);
   }
-  
-  public boolean isSuccessorOrSameOf(VersionImpl anotherVersion) 
-  throws RepositoryException {
+
+  public boolean isSuccessorOrSameOf(VersionImpl anotherVersion) throws RepositoryException {
     Version[] prds = getPredecessors();
-    for(int i=0; i<prds.length; i++) {
-      if(prds[i].getUUID().equals(anotherVersion.getUUID()) ||
-         ((VersionImpl)prds[i]).isSuccessorOrSameOf(anotherVersion))
+    for (int i = 0; i < prds.length; i++) {
+      if (prds[i].getUUID().equals(anotherVersion.getUUID())
+          || ((VersionImpl) prds[i]).isSuccessorOrSameOf(anotherVersion))
         return true;
     }
     return false;
   }
- 
+
 }

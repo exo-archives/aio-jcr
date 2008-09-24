@@ -25,8 +25,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 
 /**
- * Created by The eXo Platform SAS. ItemDataKeeper for SessionDataManager. Used
- * by XML import.
+ * Created by The eXo Platform SAS. ItemDataKeeper for SessionDataManager. Used by XML import.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
@@ -40,18 +39,18 @@ public class ItemDataKeeperAdapter implements ItemDataKeeper {
   /**
    * Adapter from SessionDataManager to ItemDataKeeper.
    * 
-   * @param sessionDataManager - Data manager.
+   * @param sessionDataManager
+   *          - Data manager.
    */
   public ItemDataKeeperAdapter(SessionDataManager sessionDataManager) {
     super();
     this.sessionDataManager = sessionDataManager;
   }
 
-
   /**
    * {@inheritDoc}
    */
-  
+
   public void save(ItemStateChangesLog changes) throws InvalidItemStateException,
                                                UnsupportedOperationException,
                                                RepositoryException {

@@ -19,11 +19,9 @@ package org.exoplatform.services.jcr.ext.backup.impl;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
- * 06.12.2007  
- *
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 06.12.2007
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupSchedulerException.java 610 2008-01-11 17:01:49Z pnedonosko $
  */
@@ -32,13 +30,12 @@ public class BackupSchedulerException extends BackupOperationException {
   public BackupSchedulerException(String message) {
     super(message);
   }
-  
+
   public BackupSchedulerException(String message, Throwable e) {
     super(message, e);
   }
-  
+
   public BackupSchedulerException(Throwable e) {
     super(e.getMessage(), e);
   }
 }
- 

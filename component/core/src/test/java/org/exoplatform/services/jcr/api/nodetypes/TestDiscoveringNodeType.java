@@ -1,6 +1,5 @@
 package org.exoplatform.services.jcr.api.nodetypes;
 
-
 import javax.jcr.Node;
 import javax.jcr.nodetype.NodeType;
 
@@ -8,7 +7,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestDiscoveringNodeType.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -16,7 +15,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 public class TestDiscoveringNodeType extends JcrAPIBaseTest {
 
   public void testGetPrimaryNodeType() throws Exception {
-  
+
     Node node = root.addNode("node1", "nt:unstructured");
 
     NodeType type = node.getPrimaryNodeType();
@@ -25,7 +24,7 @@ public class TestDiscoveringNodeType extends JcrAPIBaseTest {
   }
 
   public void testGetMixinNodeTypes() throws Exception {
-  
+
     Node node = root.addNode("node1", "nt:unstructured");
     assertEquals(0, node.getMixinNodeTypes().length);
 
@@ -38,7 +37,7 @@ public class TestDiscoveringNodeType extends JcrAPIBaseTest {
   }
 
   public void testIsNodeType() throws Exception {
-  
+
     Node node = root.addNode("node1", "nt:unstructured");
     assertFalse(node.isNodeType("mix:referenceable"));
     node.addMixin("mix:referenceable");

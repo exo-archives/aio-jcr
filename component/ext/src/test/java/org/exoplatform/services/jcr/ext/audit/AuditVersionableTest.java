@@ -69,8 +69,7 @@ public class AuditVersionableTest extends BaseStandaloneTest {
   }
 
   /**
-   * Test if adding of mix:versionable to node doesn't add version information
-   * to the history.
+   * Test if adding of mix:versionable to node doesn't add version information to the history.
    * 
    * @throws AccessDeniedException
    * @throws ItemExistsException
@@ -106,10 +105,9 @@ public class AuditVersionableTest extends BaseStandaloneTest {
   }
 
   /**
-   * Test if mix:versionable nodes history records has version related
-   * information. We assume that AuditAction has configured for events
-   * addProperty,changeProperty,removeProperty,addMixin on node
-   * /AuditServiceTest.
+   * Test if mix:versionable nodes history records has version related information. We assume that
+   * AuditAction has configured for events addProperty,changeProperty,removeProperty,addMixin on
+   * node /AuditServiceTest.
    * 
    * @throws AccessDeniedException
    * @throws ItemExistsException
@@ -150,9 +148,7 @@ public class AuditVersionableTest extends BaseStandaloneTest {
     // ver.2
     node.checkin();
     final String v2UUID = node.getBaseVersion().getUUID();
-    node.getVersionHistory().addVersionLabel(node.getBaseVersion().getName(),
-                                                 "ver.1.1",
-                                                 false);
+    node.getVersionHistory().addVersionLabel(node.getBaseVersion().getName(), "ver.1.1", false);
     node.checkout();
 
     node.setProperty(propName, "prop #1.1");
@@ -176,9 +172,9 @@ public class AuditVersionableTest extends BaseStandaloneTest {
       }
     }
   }
-  
+
   /**
-   * Test if versionable node's descendant nodes will have version records in audit history. 
+   * Test if versionable node's descendant nodes will have version records in audit history.
    * 
    * @throws Exception
    */
@@ -187,68 +183,74 @@ public class AuditVersionableTest extends BaseStandaloneTest {
     session.save();
     node.addMixin("mix:versionable");
     root.save();
-    
+
     final String propName = "prop1";
     final InternalQName propQName = new InternalQName("", propName);
-    
+
     // ver.1
     node.checkin();
     final String v1UUID = node.getBaseVersion().getUUID();
     node.checkout();
-    
+
     // child node, non versionable but under the version control within their parent
     Node node1 = node.addNode("node1");
-    //node1.addMixin("exo:auditable");
+    // node1.addMixin("exo:auditable");
     node.save();
     node1.setProperty(propName, "prop #1"); // add property
     node1.save();
-    
+
     // ver.2
     node.checkin();
     final String v2UUID = node.getBaseVersion().getUUID();
     node.checkout();
-    
+
     // check node1 and v.1
     AuditHistory ah = service.getHistory(node1);
-    for (AuditRecord ar: ah.getAuditRecords()) {
+    for (AuditRecord ar : ah.getAuditRecords()) {
       String vuuid = ar.getVersion();
-      //Version av = (Version) session.getNodeByUUID(vuuid);
+      // Version av = (Version) session.getNodeByUUID(vuuid);
       String vname = ar.getVersionName();
-      log.info("Audit " + node1.getPath() + " " + ar.getEventTypeName() + ", version " + vuuid + " " + vname);
-      if (ar.getEventType() == ExtendedEvent.PROPERTY_ADDED && ar.getPropertyName().equals(propQName)) {
+      log.info("Audit " + node1.getPath() + " " + ar.getEventTypeName() + ", version " + vuuid
+          + " " + vname);
+      if (ar.getEventType() == ExtendedEvent.PROPERTY_ADDED
+          && ar.getPropertyName().equals(propQName)) {
         assertEquals("Version UUIDs should be equals", v1UUID, vuuid);
       }
     }
-    
+
     // subnode, non versionable but under the version control within versionable ancestor
     Node node2 = node1.addNode("node2");
-    //node2.addMixin("exo:auditable");
+    // node2.addMixin("exo:auditable");
     node1.save();
     node2.setProperty(propName, "prop #2"); // add property
     node2.save();
-    
+
     // ver.3
     node.checkin();
     node.checkout();
-    
+
     // check node2 and v.2
     ah = service.getHistory(node2);
-    for (AuditRecord ar: ah.getAuditRecords()) {
+    for (AuditRecord ar : ah.getAuditRecords()) {
       String vuuid = ar.getVersion();
       String vname = ar.getVersionName();
-      log.info("Audit " + node2.getPath() + " " + ar.getEventTypeName() + ", version " + vuuid + " " + vname);
-      if (ar.getEventType() == ExtendedEvent.PROPERTY_ADDED && ar.getPropertyName().equals(propQName)) {
+      log.info("Audit " + node2.getPath() + " " + ar.getEventTypeName() + ", version " + vuuid
+          + " " + vname);
+      if (ar.getEventType() == ExtendedEvent.PROPERTY_ADDED
+          && ar.getPropertyName().equals(propQName)) {
         assertEquals("Version UUIDs should be equals", v2UUID, vuuid);
       }
     }
-    
+
     // check if node1 still has v.1 in history
     ah = service.getHistory(node1);
-    for (AuditRecord ar: ah.getAuditRecords()) {
+    for (AuditRecord ar : ah.getAuditRecords()) {
       String vuuid = ar.getVersion();
       String vname = ar.getVersionName();
-      log.info("Audit " + node1.getPath() + " " + ar.getEventTypeName() + ", version " + vuuid + " " + vname);
-      if (ar.getEventType() == ExtendedEvent.PROPERTY_ADDED && ar.getPropertyName().equals(propQName)) {
+      log.info("Audit " + node1.getPath() + " " + ar.getEventTypeName() + ", version " + vuuid
+          + " " + vname);
+      if (ar.getEventType() == ExtendedEvent.PROPERTY_ADDED
+          && ar.getPropertyName().equals(propQName)) {
         assertEquals("Version UUIDs should be equals", v1UUID, vuuid);
       }
     }

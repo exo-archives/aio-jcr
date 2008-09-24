@@ -36,13 +36,14 @@ public class RepositoryConfigurationException extends Exception {
 
   /**
    * Constructs an Exception with a detailed message.
-   *
-   * @param Message The message associated with the exception.
+   * 
+   * @param Message
+   *          The message associated with the exception.
    */
   public RepositoryConfigurationException(String message) {
     super(message);
   }
-  
+
   public RepositoryConfigurationException(String message, Throwable cause) {
     super(message, cause);
   }

@@ -22,14 +22,15 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: LocalWorkspaceDataManagerStub.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class LocalWorkspaceDataManagerStub extends VersionableWorkspaceDataManager {
-  
+
   private static Log log = ExoLogger.getLogger("jcr.LocalWorkspaceDataManagerStub");
-  
+
   public LocalWorkspaceDataManagerStub(CacheableWorkspaceDataManager persistentManager) {
     super(persistentManager);
   }

@@ -28,179 +28,132 @@ import org.apache.lucene.search.TermQuery;
 import org.exoplatform.services.jcr.impl.core.query.BaseQueryTest;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * 
  * @version $Id: TestIndexRules.java 11908 2008-03-13 16:00:12Z ksm $
  */
 
 public class TestIndexRules extends BaseQueryTest {
 
-  public final String fName ="FileName"; 
-  
-  private Node rootNode ; 
-  
-  public void setUp() throws Exception{
+  public final String fName = "FileName";
+
+  private Node        rootNode;
+
+  public void setUp() throws Exception {
     super.setUp();
-    rootNode  = root.addNode("indrootparent");
+    rootNode = root.addNode("indrootparent");
     rootNode.setProperty("priority", "low");
     root.save();
   }
-  
-  
-  
-  /**
-   * <index-rule nodeType="nt:unstructured">
-   *   <property>DifText</property>
-   * </index-rule>
-   */
- /*public void testPropAddConfiguration() throws Exception{
-    
-    //create Node
-    NodeImpl n = (NodeImpl)root.addNode(fName);
-    n.setProperty("DifText","blabla");
-    n.setProperty("OtherProp","gig");
-    root.save();
-    
-    //check
-    
-    IndexReader reader = defaultSearchIndex.getIndexReader(false);
-    IndexSearcher is = new IndexSearcher(reader);
-    TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla")); //_PREFIX+fName
-    Hits result = is.search(query);
-    assertEquals(1,result.length());
 
-    query = new TermQuery(new Term(FieldNames.FULLTEXT, "gig")); //_PREFIX+fName
-
-    result = is.search(query);
-    assertEquals(0,result.length());
-        
-  }*/
-  
   /**
-   *   <index-rule nodeType="nt:unstructured"
-   *                 boost="2.0"
-   *     condition="@priority = 'high'">
-   *     <property>Text</property>
-   *   </index-rule>
-   *   <index-rule nodeType="nt:unstructured">
-   *     <property>DifText</property>
-   *   </index-rule>
+   * <index-rule nodeType="nt:unstructured"> <property>DifText</property> </index-rule>
    */
-  /*public void testConditionConfiguration() throws Exception{
-    
+  /*
+   * public void testPropAddConfiguration() throws Exception{ //create Node NodeImpl n =
+   * (NodeImpl)root.addNode(fName); n.setProperty("DifText","blabla");
+   * n.setProperty("OtherProp","gig"); root.save(); //check IndexReader reader =
+   * defaultSearchIndex.getIndexReader(false); IndexSearcher is = new IndexSearcher(reader);
+   * TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla")); //_PREFIX+fName Hits
+   * result = is.search(query); assertEquals(1,result.length()); query = new TermQuery(new
+   * Term(FieldNames.FULLTEXT, "gig")); //_PREFIX+fName result = is.search(query);
+   * assertEquals(0,result.length()); }
+   */
+
+  /**
+   * <index-rule nodeType="nt:unstructured" boost="2.0" condition="@priority = 'high'">
+   * <property>Text</property> </index-rule> <index-rule nodeType="nt:unstructured">
+   * <property>DifText</property> </index-rule>
+   */
+  /*
+   * public void testConditionConfiguration() throws Exception{ // create Node NodeImpl n =
+   * (NodeImpl)root.addNode(fName); n.setProperty("Text","blabla");
+   * n.setProperty("priority","high"); n.setProperty("DifText","second"); root.save(); // check
+   * IndexReader reader = defaultSearchIndex.getIndexReader(false); IndexSearcher is = new
+   * IndexSearcher(reader); TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT,
+   * "blabla")); Hits result = is.search(query); assertEquals(1,result.length()); query = new
+   * TermQuery(new Term(FieldNames.FULLTEXT, "second")); result = is.search(query);
+   * assertEquals(0,result.length()); }
+   */
+
+  /**
+   * <index-rule nodeType="nt:unstructured" boost="2.0" condition="@priority = 'high'">
+   * <property>Text</property> </index-rule> <index-rule nodeType="nt:unstructured">
+   * <property>DifText</property> </index-rule>
+   */
+  /*
+   * public void testConditionConfigurationWrongConditionValue() throws Exception{ Node n =
+   * (NodeImpl)root.addNode(fName); n.setProperty("Text","blabla"); n.setProperty("priority","low");
+   * n.setProperty("DifText","second"); root.save(); // check IndexReader reader =
+   * defaultSearchIndex.getIndexReader(false); IndexSearcher is = new IndexSearcher(reader);
+   * TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla")); Hits result =
+   * is.search(query); assertEquals(0,result.length()); query = new TermQuery(new
+   * Term(FieldNames.FULLTEXT, "second")); result = is.search(query);
+   * assertEquals(1,result.length()); }
+   */
+
+  public void testParentCondition() throws Exception {
+
     // create Node
-    NodeImpl n = (NodeImpl)root.addNode(fName);
-    n.setProperty("Text","blabla");
-    n.setProperty("priority","high");
-    n.setProperty("DifText","second");
-    root.save();
-    
-    // check
-    IndexReader reader = defaultSearchIndex.getIndexReader(false);
-    IndexSearcher is = new IndexSearcher(reader);
-    TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla"));
-    Hits result = is.search(query);
-    assertEquals(1,result.length());
-    
-    query = new TermQuery(new Term(FieldNames.FULLTEXT, "second"));
-    result = is.search(query);
-    assertEquals(0,result.length());
-  }*/
-  
-  /**
-   *   <index-rule nodeType="nt:unstructured"
-   *                 boost="2.0"
-   *     condition="@priority = 'high'">
-   *     <property>Text</property>
-   *   </index-rule>
-   *   <index-rule nodeType="nt:unstructured">
-   *     <property>DifText</property>
-   *   </index-rule>
-   */
-  /*public void testConditionConfigurationWrongConditionValue() throws Exception{
-  
-    Node n = (NodeImpl)root.addNode(fName);
-    n.setProperty("Text","blabla");
-    n.setProperty("priority","low");
-    n.setProperty("DifText","second");
-    root.save();
-    
-    // check
-    IndexReader reader = defaultSearchIndex.getIndexReader(false);
-    IndexSearcher is = new IndexSearcher(reader);
-    TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla"));
-    Hits result = is.search(query);
-    assertEquals(0,result.length());
-    
-    query = new TermQuery(new Term(FieldNames.FULLTEXT, "second"));
-    result = is.search(query);
-    assertEquals(1,result.length());
-
-  }*/
-  
-  
-  public void testParentCondition() throws Exception{
-    
-    // create Node
-   // assertNotNull(rootNode);
+    // assertNotNull(rootNode);
     Node n = rootNode.addNode(fName);
-    n.setProperty("Text","blabla");
-    n.setProperty("DifText","second");
+    n.setProperty("Text", "blabla");
+    n.setProperty("DifText", "second");
     root.save();
-    
+
     // check
     IndexReader reader = defaultSearchIndex.getIndexReader(false);
     IndexSearcher is = new IndexSearcher(reader);
     TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla"));
     Hits result = is.search(query);
-    assertEquals(1,result.length());
-    
+    assertEquals(1, result.length());
+
     query = new TermQuery(new Term(FieldNames.FULLTEXT, "second"));
     result = is.search(query);
-    assertEquals(0,result.length());
+    assertEquals(0, result.length());
   }
-  
-  public void testAncestorCondition() throws Exception{
-    
+
+  public void testAncestorCondition() throws Exception {
+
     // create Node
     Node rn = rootNode.addNode("hippo");
     Node n = rn.addNode(fName);
-    n.setProperty("Text","blabla");
-    n.setProperty("DifText","second");
+    n.setProperty("Text", "blabla");
+    n.setProperty("DifText", "second");
     root.save();
-    
+
     // check
     IndexReader reader = defaultSearchIndex.getIndexReader(false);
     IndexSearcher is = new IndexSearcher(reader);
     TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla"));
     Hits result = is.search(query);
-    assertEquals(1,result.length());
-    
+    assertEquals(1, result.length());
+
     query = new TermQuery(new Term(FieldNames.FULLTEXT, "second"));
     result = is.search(query);
-    assertEquals(0,result.length());
+    assertEquals(0, result.length());
   }
-  
- public void testChildCondition() throws Exception{
-    
+
+  public void testChildCondition() throws Exception {
+
     // create Node
     Node n = root.addNode(fName);
-    n.setProperty("Text","blabla");
-    n.setProperty("DifText","second");
+    n.setProperty("Text", "blabla");
+    n.setProperty("DifText", "second");
     Node cn = n.addNode("indrootchild");
     cn.setProperty("priority", "gg");
     root.save();
-    
+
     // check
     IndexReader reader = defaultSearchIndex.getIndexReader(false);
     IndexSearcher is = new IndexSearcher(reader);
     TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "blabla"));
     Hits result = is.search(query);
-    assertEquals(1,result.length());
-    
+    assertEquals(1, result.length());
+
     query = new TermQuery(new Term(FieldNames.FULLTEXT, "second"));
     result = is.search(query);
-    assertEquals(0,result.length());
+    assertEquals(0, result.length());
   }
 
 }

@@ -20,19 +20,20 @@ package org.exoplatform.services.jcr.ext.tagging;
 import java.net.URI;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author eXo Platform
  * @version $Id: $
  */
 
 public final class Tag {
-  
+
   private final String name;
-  
-  private final URI uri;
-  
+
+  private final URI    uri;
+
   private final String owner;
-  
+
   private final String desription;
 
   public Tag(String name, URI uri, String owner, String desription) {
@@ -57,8 +58,5 @@ public final class Tag {
   public String getDesription() {
     return desription;
   }
-  
-  
 
 }
-

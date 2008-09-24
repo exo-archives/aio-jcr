@@ -25,27 +25,27 @@ import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 24.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: UserProfileHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserProfileHandlerImpl implements UserProfileHandler {
 
-  protected final JCROrganizationServiceImpl service;
-  
-  protected final List<UserProfileEventListener> listeners  = new ArrayList<UserProfileEventListener>();
-  
+  protected final JCROrganizationServiceImpl     service;
+
+  protected final List<UserProfileEventListener> listeners = new ArrayList<UserProfileEventListener>();
+
   UserProfileHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
-  
+
   public void addUserProfileEventListener(UserProfileEventListener listener) {
     listeners.add(listener);
   }
-  
+
   public void removeUserProfileEventListener(UserProfileEventListener listener) {
     listeners.remove(listener);
   }

@@ -35,7 +35,8 @@ import org.exoplatform.frameworks.jcr.command.JCRCommandHelper;
 import org.exoplatform.frameworks.jcr.command.web.GenericWebAppContext;
 
 /**
- * Created by The eXo Platform SAS .<br/> connector?Command=FileUpload&Type=ResourceType&CurrentFolder=FolderPath
+ * Created by The eXo Platform SAS .<br/>
+ * connector?Command=FileUpload&Type=ResourceType&CurrentFolder=FolderPath
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id$
@@ -51,32 +52,34 @@ public class UploadFileCommand extends AbstractFCKConnector implements Command {
     PrintWriter out = response.getWriter();
     response.setContentType("text/html; charset=UTF-8");
     response.setHeader("Cache-Control", "no-cache");
-    
+
     String type = (String) context.get("Type");
     if (type == null)
       type = "";
 
-    ////  To limit browsing set Servlet init param "digitalAssetsPath"
-    //    // with desired JCR path
-    //    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    // // To limit browsing set Servlet init param "digitalAssetsPath"
+    // // with desired JCR path
+    // String rootFolderStr =
+    // (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath"
+    // );
     //    
-    //    if(rootFolderStr == null)
-    //      rootFolderStr = "/";
+    // if(rootFolderStr == null)
+    // rootFolderStr = "/";
     //
-    //    // set current folder
-    //    String currentFolderStr = (String)context.get("CurrentFolder");
-    //    if(currentFolderStr == null)
-    //      currentFolderStr = "";
-    //    else if(currentFolderStr.length() < rootFolderStr.length())
-    //      currentFolderStr = rootFolderStr;
+    // // set current folder
+    // String currentFolderStr = (String)context.get("CurrentFolder");
+    // if(currentFolderStr == null)
+    // currentFolderStr = "";
+    // else if(currentFolderStr.length() < rootFolderStr.length())
+    // currentFolderStr = rootFolderStr;
     //    
-    //    String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
-    //    if(jcrMapping == null)
-    //      jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
+    // String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
+    // if(jcrMapping == null)
+    // jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
     //    
-    //    String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
-    //    if(digitalWS == null)
-    //      digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
+    // String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
+    // if(digitalWS == null)
+    // digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
 
     String workspace = (String) webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
     if (workspace == null)
@@ -106,11 +109,10 @@ public class UploadFileCommand extends AbstractFCKConnector implements Command {
     // On IE, the file name is specified as an absolute path.
     String fileName = new File(uplFile.getName()).getName();
 
-    Node file =
-        JCRCommandHelper.createResourceFile(parentFolder,
-                                            fileName,
-                                            uplFile.getInputStream(),
-                                            uplFile.getContentType());
+    Node file = JCRCommandHelper.createResourceFile(parentFolder,
+                                                    fileName,
+                                                    uplFile.getInputStream(),
+                                                    uplFile.getContentType());
 
     parentFolder.save();
 

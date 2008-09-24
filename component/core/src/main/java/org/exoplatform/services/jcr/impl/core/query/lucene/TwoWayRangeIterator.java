@@ -19,8 +19,8 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import javax.jcr.RangeIterator;
 
 /**
- * Created by The eXo Platform SAS. Extends <code>ScoreNodeIterator</code>
- * with the <code>skipBack</code> methods.
+ * Created by The eXo Platform SAS. Extends <code>ScoreNodeIterator</code> with the
+ * <code>skipBack</code> methods.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
@@ -29,9 +29,10 @@ public interface TwoWayRangeIterator extends RangeIterator {
   /**
    * Skip a number of elements in the iterator.
    * 
-   * @param skipNum the non-negative number of elements to skip
-   * @throws java.util.NoSuchElementException if skipped past the first element
-   *           in the iterator.
+   * @param skipNum
+   *          the non-negative number of elements to skip
+   * @throws java.util.NoSuchElementException
+   *           if skipped past the first element in the iterator.
    */
   public void skipBack(long skipNum);
 

@@ -30,18 +30,17 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class TraverseInnerFoldersTest extends JCRTestBase {
   /*
-   * This test calculates the time (ms or tps) of random reading of node of type nt:folder 
-   * (using getItem() method), the nodes have structure like tree.
-   * Required parameters:
+   * This test calculates the time (ms or tps) of random reading of node of type nt:folder (using
+   * getItem() method), the nodes have structure like tree. Required parameters:
    * jcr.amountOfInnerFolders - the count of folders to create (for further getting it)
-   * jcr.depthOfStructure - the count of levels of tree structure 
-   *     
-  */
+   * jcr.depthOfStructure - the count of levels of tree structure
+   */
   private int          amountOfInnerFolders = 0;
 
   private int          depthOfStructure     = 0;
@@ -59,8 +58,8 @@ public class TraverseInnerFoldersTest extends JCRTestBase {
     depthOfStructure = tc.getIntParam("jcr.depthOfStructure");
     int depth = depthOfStructure;
     int count = amountOfInnerFolders;
-    rootNode = context.getSession().getRootNode().addNode(
-        context.generateUniqueName("rootNode"), "nt:unstructured");
+    rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
+                                                          "nt:unstructured");
     createFoldersRecursively(context, rootNode, depth, count);
     context.getSession().save();
   }
@@ -77,8 +76,7 @@ public class TraverseInnerFoldersTest extends JCRTestBase {
     context.getSession().save();
   }
 
-  private void createFoldersRecursively(JCRTestContext context, Node rootNode, int depth, int count)
-      throws Exception {
+  private void createFoldersRecursively(JCRTestContext context, Node rootNode, int depth, int count) throws Exception {
     if (depth < 1) {
       return;
     }

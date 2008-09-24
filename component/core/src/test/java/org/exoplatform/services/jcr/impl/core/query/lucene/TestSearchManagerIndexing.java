@@ -40,8 +40,7 @@ import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: TestSearchManagerIndexing.java 13111 2008-04-11 08:22:13Z serg $
  */
@@ -61,10 +60,9 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     Node node = root.addNode("test");
     node.setProperty("prop", "string value");
     root.save();
-    
 
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+1, ir.numDocs());
+    assertEquals(docnum + 1, ir.numDocs());
 
     for (int i = 0; i < ir.numDocs(); i++) {
       if (!ir.isDeleted(i)) {
@@ -115,7 +113,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
 
     SearchIndex si = (SearchIndex) manager.getHandler();
     IndexReader ir = si.getIndex().getIndexReader();
-    
+
     int docnum = ir.numDocs();
     ir.close();
 
@@ -124,7 +122,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     root.save();
 
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+1, ir.numDocs());
+    assertEquals(docnum + 1, ir.numDocs());
     ir.close();
 
     node.remove();
@@ -146,13 +144,13 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     IndexReader ir = si.getIndex().getIndexReader();
     int docnum = ir.numDocs();
     ir.close();
-  
+
     Node mid = root.addNode("mid");
     Node node = mid.addNode("test");
     root.save();
-    
+
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+2, ir.numDocs());
+    assertEquals(docnum + 2, ir.numDocs());
 
     IndexSearcher is = new IndexSearcher(ir);
     NodeData data = (NodeData) ((NodeImpl) node).getData();
@@ -174,7 +172,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     session.save();
 
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+2, ir.numDocs());
+    assertEquals(docnum + 2, ir.numDocs());
 
     is = new IndexSearcher(ir);
     hits = is.search(query);
@@ -203,7 +201,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     root.save();
 
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+1, ir.numDocs());
+    assertEquals(docnum + 1, ir.numDocs());
 
     IndexSearcher is = new IndexSearcher(ir);
     TermQuery query = new TermQuery(new Term(FieldNames.LABEL, getIndexPrefix(si, "") + nodeName));
@@ -218,7 +216,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     session.save();
 
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+1, ir.numDocs());
+    assertEquals(docnum + 1, ir.numDocs());
 
     is = new IndexSearcher(ir);
     query = new TermQuery(new Term(FieldNames.LABEL, getIndexPrefix(si, "") + newNodeName));
@@ -235,7 +233,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     IndexReader ir = si.getIndex().getIndexReader();
     int docnum = ir.numDocs();
     ir.close();
-    
+
     final String nodeName = "test";
 
     root.addNode(nodeName);
@@ -244,7 +242,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
 
     ir = si.getIndex().getIndexReader();
 
-    assertEquals(docnum+2, ir.numDocs());
+    assertEquals(docnum + 2, ir.numDocs());
 
     IndexSearcher is = new IndexSearcher(ir);
     TermQuery query = new TermQuery(new Term(FieldNames.LABEL, getIndexPrefix(si, "") + nodeName));
@@ -264,7 +262,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     root.save();
 
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+1, ir.numDocs());
+    assertEquals(docnum + 1, ir.numDocs());
 
     TermQuery name = new TermQuery(new Term(FieldNames.LABEL, getIndexPrefix(si, "") + nodeName));
 
@@ -283,7 +281,7 @@ public class TestSearchManagerIndexing extends JcrImplBaseTest {
     root.save();
 
     ir = si.getIndex().getIndexReader();
-    assertEquals(docnum+1, ir.numDocs());
+    assertEquals(docnum + 1, ir.numDocs());
 
     TermQuery prop2 = new TermQuery(new Term(FieldNames.PROPERTIES, getIndexPrefix(si, "jcr")
         + "uuid" + '\uFFFF' + node.getUUID()));

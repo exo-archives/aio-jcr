@@ -31,14 +31,14 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class QueryNodeLoader {
   /*
-   * This test calculates the time (ms or tps) of adding of one nodes of type
-   * nt:file (including addNode(), setProperty(), addMixin(), save() methods).
-   * Make sure that resources are exists.
+   * This test calculates the time (ms or tps) of adding of one nodes of type nt:file (including
+   * addNode(), setProperty(), addMixin(), save() methods). Make sure that resources are exists.
    */
 
   private static final int NUMBER_OF_NODES = 10;
@@ -50,20 +50,26 @@ public class QueryNodeLoader {
       StandaloneContainer container = StandaloneContainer.getInstance();
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
-            .getContextClassLoader().getResource("login.conf").toString());
-      RepositoryService repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+                                                                    .getContextClassLoader()
+                                                                    .getResource("login.conf")
+                                                                    .toString());
+      RepositoryService repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getCurrentRepository();
       Credentials credentials = new SimpleCredentials("admin", "admin".toCharArray());
       Session session = (SessionImpl) repository.login(credentials, "collaboration");
-      Node rootNode = session.getRootNode().getNode("download").getNode("node0").getNode("node1").getNode("node2");
+      Node rootNode = session.getRootNode()
+                             .getNode("download")
+                             .getNode("node0")
+                             .getNode("node1")
+                             .getNode("node2");
       for (int i = 0; i < NUMBER_OF_NODES; i++) {
         Node nodeToAdd = rootNode.addNode("query-0-1-2-" + i + ".html", "nt:file");
         nodeToAdd.addMixin("dc:elementSet");
-        nodeToAdd.setProperty("dc:title", new String[] {"Exoplatform"});
+        nodeToAdd.setProperty("dc:title", new String[] { "Exoplatform" });
         Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
-        contentNodeOfNodeToAdd.setProperty("jcr:data", new FileInputStream(
-            "../resources/query-0-1-2-" + i + ".html"));
+        contentNodeOfNodeToAdd.setProperty("jcr:data",
+                                           new FileInputStream("../resources/query-0-1-2-" + i
+                                               + ".html"));
         contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "text/html");
         contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
         session.save();

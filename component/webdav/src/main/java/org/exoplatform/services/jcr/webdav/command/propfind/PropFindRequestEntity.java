@@ -22,40 +22,41 @@ import javax.xml.namespace.QName;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class PropFindRequestEntity {
-	
-	protected HierarchicalProperty input;
 
-	public PropFindRequestEntity(HierarchicalProperty input) {
-		this.input = input;
-	}
+  protected HierarchicalProperty input;
 
-	public String getType() {
-	  
-	  if (input == null) {
-	    return "allprop";
-	  }
-	  
-		QName name = input.getChild(0).getName();
-		if(name.getNamespaceURI().equals("DAV:"))
-		  return name.getLocalPart();
-		else
-			return null;
-	}
-	
-//	public List<QName> getPropNames() {
-//		List<QName> props = new ArrayList<QName>();
-//		if(getType() != null && getType().equals("prop")) {
-//			for(XMLProperty prop : input.getChild(0).getChildren()) {
-//				props.add(prop.getName());
-//			}
-//		}
-//		return props;
-//	}
+  public PropFindRequestEntity(HierarchicalProperty input) {
+    this.input = input;
+  }
+
+  public String getType() {
+
+    if (input == null) {
+      return "allprop";
+    }
+
+    QName name = input.getChild(0).getName();
+    if (name.getNamespaceURI().equals("DAV:"))
+      return name.getLocalPart();
+    else
+      return null;
+  }
+
+  // public List<QName> getPropNames() {
+  // List<QName> props = new ArrayList<QName>();
+  // if(getType() != null && getType().equals("prop")) {
+  // for(XMLProperty prop : input.getChild(0).getChildren()) {
+  // props.add(prop.getName());
+  // }
+  // }
+  // return props;
+  // }
 
 }

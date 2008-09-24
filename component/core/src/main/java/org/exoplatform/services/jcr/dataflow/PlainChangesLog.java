@@ -22,18 +22,19 @@ import org.exoplatform.services.jcr.observation.ExtendedEventType;
 import org.exoplatform.services.jcr.impl.core.observation.EventImpl;
 
 /**
- * Created by The eXo Platform SAS.<br/>
- * Plain changes log implementation (i.e. no nested logs inside)
+ * Created by The eXo Platform SAS.<br/> Plain changes log implementation (i.e. no nested logs
+ * inside)
+ * 
  * @author Gennady Azarenkov
  * @version $Id: PlainChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public interface PlainChangesLog extends ItemStateChangesLog {
-  
+
   /**
    * @return sessionId of a session produced this changes log
    */
   String getSessionId();
-  
+
   /**
    * @return event type produced this log
    * @see ExtendedEventType
@@ -42,17 +43,18 @@ public interface PlainChangesLog extends ItemStateChangesLog {
 
   /**
    * adds an item state object to the bottom of this log
+   * 
    * @param state
    */
   PlainChangesLog add(ItemState state);
- 
+
   /**
    * adds list of states object to the bottom of this log
+   * 
    * @param states
    */
-  PlainChangesLog addAll(List <ItemState> states);
+  PlainChangesLog addAll(List<ItemState> states);
 
-  
   /**
    * @deprecated
    */

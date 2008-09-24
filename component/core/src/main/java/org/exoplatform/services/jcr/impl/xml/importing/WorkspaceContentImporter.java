@@ -43,8 +43,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceContentImporter.java 14100 2008-05-12 10:53:47Z
- *          gazarenkov $
+ * @version $Id: WorkspaceContentImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 public class WorkspaceContentImporter extends SystemViewImporter {
   /**
@@ -58,14 +57,13 @@ public class WorkspaceContentImporter extends SystemViewImporter {
   protected boolean   isFirstElementChecked = false;
 
   /**
-   * Class used to import content of workspace, using "System View XML Mapping",
-   * e.g. for restore data during backup. <br/> Assumes that root node of the
-   * workspace was already created, initialized and given as parent. <br/> If
-   * <b>system</b> workspace initialized from a scratch it will already
-   * contains root (/) and /jcr:system nodes, namespaces and nodetypes were
-   * registered.
+   * Class used to import content of workspace, using "System View XML Mapping", e.g. for restore
+   * data during backup. <br/> Assumes that root node of the workspace was already created,
+   * initialized and given as parent. <br/> If <b>system</b> workspace initialized from a scratch it
+   * will already contains root (/) and /jcr:system nodes, namespaces and nodetypes were registered.
    * 
-   * @param parent, should not be null
+   * @param parent
+   *          , should not be null
    * @param uuidBehavior
    * @param saveType
    * @param context
@@ -100,9 +98,9 @@ public class WorkspaceContentImporter extends SystemViewImporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.SystemViewImporter#startElement(java.lang.String,
-   *      java.lang.String, java.lang.String, java.util.Map)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.SystemViewImporter#startElement(java.lang.String
+   * , java.lang.String, java.lang.String, java.util.Map)
    */
   @Override
   public void startElement(String namespaceURI,

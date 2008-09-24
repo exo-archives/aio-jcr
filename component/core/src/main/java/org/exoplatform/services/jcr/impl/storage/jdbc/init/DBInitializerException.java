@@ -16,12 +16,11 @@
  */
 package org.exoplatform.services.jcr.impl.storage.jdbc.init;
 
-
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 12.03.2007
- *
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: DBInitializerException.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -30,5 +29,5 @@ public class DBInitializerException extends Exception {
   public DBInitializerException(String message, Throwable e) {
     super(message, e);
   }
-  
+
 }

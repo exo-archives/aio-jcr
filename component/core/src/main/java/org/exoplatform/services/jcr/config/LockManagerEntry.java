@@ -34,13 +34,12 @@ public class LockManagerEntry {
     this.timeout = timeout;
   }
 
-  public LockPersisterEntry getPersister() {  
+  public LockPersisterEntry getPersister() {
     return persister;
   }
 
   public void setPersister(LockPersisterEntry persister) {
     this.persister = persister;
   }
-
 
 }

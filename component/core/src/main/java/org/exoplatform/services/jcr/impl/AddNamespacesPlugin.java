@@ -25,17 +25,17 @@ import org.exoplatform.container.xml.PropertiesParam;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: AddNamespacesPlugin.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class AddNamespacesPlugin extends BaseComponentPlugin {
 
-  private Map<String,String> namespaces = new HashMap<String, String>();
+  private Map<String, String> namespaces = new HashMap<String, String>();
 
   public AddNamespacesPlugin(InitParams params) {
     PropertiesParam param = params.getPropertiesParam("namespaces");
-    
+
     if (param != null) {
       namespaces = param.getProperties();
     }
@@ -44,5 +44,5 @@ public class AddNamespacesPlugin extends BaseComponentPlugin {
   public Map<String, String> getNamespaces() {
     return namespaces;
   }
-  
+
 }

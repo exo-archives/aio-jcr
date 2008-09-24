@@ -36,49 +36,48 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * 
  * @version $Id: $
  */
 
 public class TestDateSearch extends BaseQueryTest {
-  
+
   public static String fileName = "testDateSearch";
- 
-  public void testSearchDate()throws Exception {
+
+  public void testSearchDate() throws Exception {
     File file = new File("src/test/resources/test.xls");
-    assertTrue("/test/resources/test.xls not found",file.exists());
-    
+    assertTrue("/test/resources/test.xls not found", file.exists());
+
     FileInputStream fis = new FileInputStream(file);
-    
-    NodeImpl node = (NodeImpl)root.addNode(fileName,"nt:file");
-    NodeImpl cont = (NodeImpl)node.addNode("jcr:content","nt:resource");
+
+    NodeImpl node = (NodeImpl) root.addNode(fileName, "nt:file");
+    NodeImpl cont = (NodeImpl) node.addNode("jcr:content", "nt:resource");
     cont.setProperty("jcr:mimeType", "application/excel");
     cont.setProperty("jcr:lastModified", Calendar.getInstance());
-    
+
     cont.setProperty("jcr:data", fis);
     root.save();
-    
-    String word = "2005-10-02".toLowerCase();//"ronaldo";//-10-06T00:00:00.000+0300
-    
-    //Check is node indexed
+
+    String word = "2005-10-02".toLowerCase();// "ronaldo";//-10-06T00:00:00.000+0300
+
+    // Check is node indexed
     Document doc = getDocument(cont.getInternalIdentifier(), false);
-    assertNotNull("Node is not indexed",doc);
-    System.out.println("its doc "+ doc);
-    
-    
+    assertNotNull("Node is not indexed", doc);
+    System.out.println("its doc " + doc);
+
     IndexReader reader = defaultSearchIndex.getIndexReader(false);
     IndexSearcher is = new IndexSearcher(reader);
-    TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, word )); 
+    TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, word));
     Hits result = is.search(query);
-    assertEquals(1,result.length());
-    
+    assertEquals(1, result.length());
+
     QueryManager qman = this.workspace.getQueryManager();
-    
-    Query q = qman.createQuery("SELECT * FROM nt:resource "
-        + " WHERE  CONTAINS(., '" + word + "')", Query.SQL); 
+
+    Query q = qman.createQuery("SELECT * FROM nt:resource " + " WHERE  CONTAINS(., '" + word + "')",
+                               Query.SQL);
     QueryResult res = q.execute();
-    assertEquals(1,res.getNodes().getSize());
+    assertEquals(1, res.getNodes().getSize());
   }
 
 }

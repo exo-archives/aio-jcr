@@ -21,13 +21,14 @@ import java.net.URI;
 import java.util.Calendar;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author eXo Platform
  * @version $Id: $
  */
 
-public class TagURICrossrate extends TagRate{
-  
+public class TagURICrossrate extends TagRate {
+
   private final URI uri;
 
   public TagURICrossrate(String tagName, int count, int rate, Calendar updated, URI uri) {
@@ -38,9 +39,5 @@ public class TagURICrossrate extends TagRate{
   public URI getUri() {
     return uri;
   }
-  
-  
-  
 
 }
-

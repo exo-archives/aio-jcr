@@ -39,14 +39,14 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class BinaryValue extends BaseValue implements EditableBinaryValue {
 
-  public static final int TYPE = PropertyType.BINARY;
+  public static final int     TYPE        = PropertyType.BINARY;
 
   protected EditableValueData changedData = null;
-  
-  protected boolean changed = false;
-  
-  protected static Log log = ExoLogger.getLogger("jcr.BinaryValue");
-  
+
+  protected boolean           changed     = false;
+
+  protected static Log        log         = ExoLogger.getLogger("jcr.BinaryValue");
+
   /**
    * @param text
    * @throws IOException
@@ -55,7 +55,6 @@ public class BinaryValue extends BaseValue implements EditableBinaryValue {
     super(TYPE, new TransientValueData(text));
   }
 
-  
   /**
    * @param stream
    * @param fileCleaner
@@ -63,18 +62,22 @@ public class BinaryValue extends BaseValue implements EditableBinaryValue {
    * @param maxFufferSize
    * @throws IOException
    */
-  public BinaryValue(InputStream stream, FileCleaner fileCleaner,
-      File tempDirectory, int maxFufferSize) throws IOException {
+  public BinaryValue(InputStream stream,
+                     FileCleaner fileCleaner,
+                     File tempDirectory,
+                     int maxFufferSize) throws IOException {
     this(new TransientValueData(stream), fileCleaner, tempDirectory, maxFufferSize);
   }
-  
+
   BinaryValue(TransientValueData data) throws IOException {
     super(TYPE, data);
   }
-  
+
   /** used in ValueFactory.loadValue */
-  BinaryValue(TransientValueData data, FileCleaner fileCleaner,
-      File tempDirectory, int maxFufferSize) throws IOException {
+  BinaryValue(TransientValueData data,
+              FileCleaner fileCleaner,
+              File tempDirectory,
+              int maxFufferSize) throws IOException {
     super(TYPE, data);
     internalData.setFileCleaner(fileCleaner);
     internalData.setTempDirectory(tempDirectory);
@@ -85,45 +88,50 @@ public class BinaryValue extends BaseValue implements EditableBinaryValue {
   public TransientValueData getInternalData() {
     if (changedData != null)
       return changedData;
-    
+
     return super.getInternalData();
   }
 
   @Override
   protected LocalTransientValueData getLocalData(boolean asStream) throws IOException {
-    
+
     if (this.changed) {
       // reset to be recreated with new stream/bytes
       this.data = null;
       this.changed = false;
     }
-    
+
     return super.getLocalData(asStream);
   }
 
   public String getReference() throws ValueFormatException,
-      IllegalStateException, RepositoryException {
+                              IllegalStateException,
+                              RepositoryException {
     return getInternalString();
   }
 
   /**
-   * Update with <code>length</code> bytes from the specified InputStream
-   * <code>stream</code> to this binary value at <code>position</code>
+   * Update with <code>length</code> bytes from the specified InputStream <code>stream</code> to
+   * this binary value at <code>position</code>
    * 
-   * @param   stream     the data.
-   * @param   length   the number of bytes from buffer to write.
-   * @param   position position in file to write data  
+   * @param stream
+   *          the data.
+   * @param length
+   *          the number of bytes from buffer to write.
+   * @param position
+   *          position in file to write data
    * */
-  public void update(InputStream stream, long length, long position) throws IOException, RepositoryException {
+  public void update(InputStream stream, long length, long position) throws IOException,
+                                                                    RepositoryException {
     if (changedData == null) {
       changedData = this.getInternalData().createEditableCopy();
     }
-    
+
     this.changedData.update(stream, length, position);
-    
+
     this.changed = true;
   }
-  
+
   /**
    * Truncates binary value to <code> size </code>
    * 
@@ -134,11 +142,10 @@ public class BinaryValue extends BaseValue implements EditableBinaryValue {
     if (changedData == null) {
       changedData = this.getInternalData().createEditableCopy();
     }
-    
+
     this.changedData.setLength(size);
-    
+
     this.changed = true;
   }
-  
-  
+
 }

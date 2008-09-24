@@ -27,8 +27,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * Created by The eXo Platform SAS.<br/> The repository service
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @author <a href="mailto:benjamin.mestrallet@exoplatform.com">Benjamin
- *         Mestrallet</a>
+ * @author <a href="mailto:benjamin.mestrallet@exoplatform.com">Benjamin Mestrallet</a>
  * @version $Id: RepositoryService.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public interface RepositoryService {
@@ -41,7 +40,7 @@ public interface RepositoryService {
    * @throws RepositoryConfigurationException
    */
   ManageableRepository getDefaultRepository() throws RepositoryException,
-      RepositoryConfigurationException;
+                                             RepositoryConfigurationException;
 
   /**
    * Get default repository.
@@ -54,13 +53,14 @@ public interface RepositoryService {
   /**
    * Get repository by name.
    * 
-   * @param name repository name
+   * @param name
+   *          repository name
    * @return repository by name
    * @throws RepositoryException
    * @throws RepositoryConfigurationException
    */
   ManageableRepository getRepository(String name) throws RepositoryException,
-      RepositoryConfigurationException;
+                                                 RepositoryConfigurationException;
 
   /**
    * Get current repository.
@@ -74,7 +74,8 @@ public interface RepositoryService {
   /**
    * Set current repository name.
    * 
-   * @param repositoryName repository name
+   * @param repositoryName
+   *          repository name
    * @throws RepositoryConfigurationException
    */
   void setCurrentRepositoryName(String repositoryName) throws RepositoryConfigurationException;
@@ -89,17 +90,19 @@ public interface RepositoryService {
   /**
    * Create new repository .
    * 
-   * @param repositoryEntry repository entry
+   * @param repositoryEntry
+   *          repository entry
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
   void createRepository(RepositoryEntry repositoryEntry) throws RepositoryConfigurationException,
-      RepositoryException;
+                                                        RepositoryException;
 
   /**
    * Remove repository with name repositoryName.
    * 
-   * @param repositoryName repository name
+   * @param repositoryName
+   *          repository name
    * @throws RepositoryException
    */
   void removeRepository(String repositoryName) throws RepositoryException;
@@ -107,7 +110,8 @@ public interface RepositoryService {
   /**
    * Indicates if repository with name repositoryName can be removed.
    * 
-   * @param repositoryName repository name
+   * @param repositoryName
+   *          repository name
    * @return boolean
    * @throws RepositoryException
    */

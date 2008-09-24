@@ -35,25 +35,25 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class CheckinCheckoutOwnNodeCleanDBOracleTest extends JCRTestBase {
   /*
-   * Each thread makes a lot of versions of his own node using chekin-checkout
-   * methods (between them should be some node operations like adding) many
-   * times.
+   * Each thread makes a lot of versions of his own node using chekin-checkout methods (between them
+   * should be some node operations like adding) many times.
    */
 
-  public static Log log      = ExoLogger.getLogger("jcr.benchmark");
-  
+  public static Log                        log                        = ExoLogger.getLogger("jcr.benchmark");
+
   public static WorkspaceStorageConnection workspaceStorageConnection = null;
 
   public static boolean                    dataBaseDropped            = false;
 
-  private Node      rootNode = null;
+  private Node                             rootNode                   = null;
 
-  private String    name     = "";
+  private String                           name                       = "";
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
@@ -75,23 +75,21 @@ public class CheckinCheckoutOwnNodeCleanDBOracleTest extends JCRTestBase {
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    //rootNode.remove();context.getSession().save();
+    // rootNode.remove();context.getSession().save();
     cleanDB(context);
   }
-  
+
   private synchronized void cleanDB(JCRTestContext context) {
     try {
       if (!dataBaseDropped) {
         Connection dbConnection;
         JDBCStorageConnection storageConnection;
-        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context
-            .getSession()).getContainer().getComponentInstanceOfType(
-            JDBCWorkspaceDataContainer.class);
+        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context.getSession()).getContainer()
+                                                                                                                             .getComponentInstanceOfType(JDBCWorkspaceDataContainer.class);
         if (workspaceStorageConnection == null) {
           workspaceStorageConnection = workspaceDataContainer.openConnection();
         } else {
-          workspaceStorageConnection = workspaceDataContainer
-              .reuseConnection(workspaceStorageConnection);
+          workspaceStorageConnection = workspaceDataContainer.reuseConnection(workspaceStorageConnection);
         }
         storageConnection = (JDBCStorageConnection) workspaceStorageConnection;
         dbConnection = storageConnection.getJdbcConnection();

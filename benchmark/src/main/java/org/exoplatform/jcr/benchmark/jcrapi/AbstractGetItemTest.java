@@ -35,11 +35,11 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractGetItemTest extends AbstractItemsTest {
 
-  private List<Node>   nodes     = new ArrayList<Node>();
-  
-  private List<Property>   properties     = new ArrayList<Property>();
+  private List<Node>     nodes      = new ArrayList<Node>();
 
-  private volatile int iteration = 0;
+  private List<Property> properties = new ArrayList<Property>();
+
+  private volatile int   iteration  = 0;
 
   /**
    * Should be used before nextNode() call.
@@ -49,7 +49,7 @@ public abstract class AbstractGetItemTest extends AbstractItemsTest {
   protected int getCurrentIteration() {
     return iteration;
   }
-  
+
   protected Node nextNode() {
     return nodes.get(iteration++);
   }
@@ -57,7 +57,7 @@ public abstract class AbstractGetItemTest extends AbstractItemsTest {
   protected void addNode(Node node) {
     nodes.add(node);
   }
-  
+
   protected Property nextProperty() {
     return properties.get(iteration++);
   }

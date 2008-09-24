@@ -43,8 +43,10 @@ public class JCRCommandHelper {
    * @return
    * @throws Exception
    */
-  public static Node createResourceFile(Node parentNode, String relPath,
-      Object data, String mimeType) throws Exception {
+  public static Node createResourceFile(Node parentNode,
+                                        String relPath,
+                                        Object data,
+                                        String mimeType) throws Exception {
 
     Node file = parentNode.addNode(relPath, "nt:file");
     Node contentNode = file.addNode("jcr:content", "nt:resource");
@@ -73,8 +75,8 @@ public class JCRCommandHelper {
    *           if no such node found
    * @throws RepositoryException
    */
-  public static Node getNtResourceRecursively(Node node)
-      throws ItemNotFoundException, RepositoryException {
+  public static Node getNtResourceRecursively(Node node) throws ItemNotFoundException,
+                                                        RepositoryException {
 
     if (node.isNodeType("nt:resource"))
       return node;
@@ -83,7 +85,6 @@ public class JCRCommandHelper {
     if (pi.isNode()) {
       return getNtResourceRecursively((Node) pi);
     }
-    throw new ItemNotFoundException("No nt:resource node found for "
-        + node.getPath());
+    throw new ItemNotFoundException("No nt:resource node found for " + node.getPath());
   }
 }

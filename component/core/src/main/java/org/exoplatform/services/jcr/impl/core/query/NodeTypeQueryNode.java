@@ -24,45 +24,47 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class NodeTypeQueryNode extends ExactQueryNode {
 
-    /**
-     * Creates a new <code>NodeTypeQueryNode</code>.
-     *
-     * @param parent   the parent node for this query node.
-     * @param nodeType the name of the node type.
-     */
-    protected NodeTypeQueryNode(QueryNode parent, InternalQName nodeType) {
-        // we only use the jcr primary type as a dummy value
-        // the property name is actually replaced in the query builder
-        // when the runtime query is created to search the index.
-        super(parent, Constants.JCR_PRIMARYTYPE, nodeType);
-    }
+  /**
+   * Creates a new <code>NodeTypeQueryNode</code>.
+   * 
+   * @param parent
+   *          the parent node for this query node.
+   * @param nodeType
+   *          the name of the node type.
+   */
+  protected NodeTypeQueryNode(QueryNode parent, InternalQName nodeType) {
+    // we only use the jcr primary type as a dummy value
+    // the property name is actually replaced in the query builder
+    // when the runtime query is created to search the index.
+    super(parent, Constants.JCR_PRIMARYTYPE, nodeType);
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object accept(QueryNodeVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Object accept(QueryNodeVisitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
 
-    /**
-     * Returns the type of this node.
-     *
-     * @return the type of this node.
-     */
-    @Override
-    public int getType() {
-        return QueryNode.TYPE_NODETYPE;
-    }
+  /**
+   * Returns the type of this node.
+   * 
+   * @return the type of this node.
+   */
+  @Override
+  public int getType() {
+    return QueryNode.TYPE_NODETYPE;
+  }
 
-    /**
-     * @inheritDoc
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof NodeTypeQueryNode) {
-            return super.equals(obj);
-        }
-        return false;
+  /**
+   * @inheritDoc
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof NodeTypeQueryNode) {
+      return super.equals(obj);
     }
+    return false;
+  }
 }

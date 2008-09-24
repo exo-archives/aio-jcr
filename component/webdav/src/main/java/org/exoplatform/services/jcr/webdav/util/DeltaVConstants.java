@@ -20,25 +20,25 @@ package org.exoplatform.services.jcr.webdav.util;
 import javax.xml.namespace.QName;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public interface DeltaVConstants extends PropertyConstants {
-  
-  public static final QName CHECKEDIN = new QName("DAV:", "checked-in");
-  
-  public static final QName CHECKEDOUT = new QName("DAV:", "checked-out");
-  
-  public static final QName LABELNAMESET = new QName("DAV:", "label-name-set");
-  
+
+  public static final QName CHECKEDIN      = new QName("DAV:", "checked-in");
+
+  public static final QName CHECKEDOUT     = new QName("DAV:", "checked-out");
+
+  public static final QName LABELNAMESET   = new QName("DAV:", "label-name-set");
+
   public static final QName PREDECESSORSET = new QName("DAV:", "predecessor-set");
-  
-  public static final QName SUCCESSORSET = new QName("DAV:", "successor-set");
-  
+
+  public static final QName SUCCESSORSET   = new QName("DAV:", "successor-set");
+
   public static final QName VERSIONHISTORY = new QName("DAV:", "version-history");
-  
-  public static final QName VERSIONNAME = new QName("DAV:", "version-name");
-  
+
+  public static final QName VERSIONNAME    = new QName("DAV:", "version-name");
+
 }

@@ -29,9 +29,8 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS 
- * Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 25.12.2007
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 25.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestSearch.java 11907 2008-03-13 15:36:21Z ksm $
@@ -39,11 +38,11 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 public class TestSearch extends JcrAPIBaseTest {
 
   private Node testNode;
-  
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    
+
     testNode = session.getRootNode().addNode("searchTestNode");
     session.save();
   }
@@ -52,7 +51,7 @@ public class TestSearch extends JcrAPIBaseTest {
   protected void tearDown() throws Exception {
     testNode.remove();
     session.save();
-    
+
     super.tearDown();
   }
 
@@ -62,22 +61,23 @@ public class TestSearch extends JcrAPIBaseTest {
     ntFile.setProperty("jcr:lastModified", Calendar.getInstance());
     ntFile.setProperty("jcr:mimeType", "text/plain");
     ntFile.setProperty("jcr:data", content);
-    
+
     return ntFile;
   }
-  
+
   public void testAllofNodeType() throws Exception {
-    
-    for (int i=1; i<=100; i++) {
+
+    for (int i = 1; i <= 100; i++) {
       Node queryNode = testNode.addNode("node-" + 1, "exojcrtest:type1");
       Node file = addNtFile(queryNode, new ByteArrayInputStream("ACDC EEEE".getBytes()));
     }
     session.save();
 
-    String sqlQuery = "SELECT * FROM exojcrtest:type1 WHERE jcr:path LIKE '" + testNode.getPath() + "/%'";
+    String sqlQuery = "SELECT * FROM exojcrtest:type1 WHERE jcr:path LIKE '" + testNode.getPath()
+        + "/%'";
     QueryManager manager = session.getWorkspace().getQueryManager();
-    Query query = manager.createQuery(sqlQuery, Query.SQL);    
-    
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+
     QueryResult queryResult = query.execute();
     NodeIterator iter = queryResult.getNodes();
 
@@ -86,19 +86,20 @@ public class TestSearch extends JcrAPIBaseTest {
       assertNotNull(iter.nextNode());
     }
   }
-  
+
   public void testAllofNodeTypeWithOrder() throws Exception {
-    
-    for (int i=1; i<=100; i++) {
+
+    for (int i = 1; i <= 100; i++) {
       Node queryNode = testNode.addNode("node-" + 1, "exojcrtest:type1");
       Node file = addNtFile(queryNode, new ByteArrayInputStream("ACDC EEEE".getBytes()));
     }
     session.save();
 
-    String sqlQuery = "SELECT * FROM exojcrtest:type1 WHERE jcr:path LIKE '" + testNode.getPath() + "/%' order by jcr:primaryType";
+    String sqlQuery = "SELECT * FROM exojcrtest:type1 WHERE jcr:path LIKE '" + testNode.getPath()
+        + "/%' order by jcr:primaryType";
     QueryManager manager = session.getWorkspace().getQueryManager();
-    Query query = manager.createQuery(sqlQuery, Query.SQL);    
-    
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+
     QueryResult queryResult = query.execute();
     NodeIterator iter = queryResult.getNodes();
 

@@ -50,94 +50,99 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  */
 
 public class PropFindResponseEntity implements SerializableEntity {
-  
-	protected XMLStreamWriter xmlStreamWriter;
 
-	protected OutputStream outputStream;
+  protected XMLStreamWriter              xmlStreamWriter;
 
-	protected final WebDavNamespaceContext namespaceContext;
+  protected OutputStream                 outputStream;
 
-	protected final Resource rootResource;
+  protected final WebDavNamespaceContext namespaceContext;
 
-	protected Set<QName> propertyNames;
+  protected final Resource               rootResource;
 
-	protected final int depth;
+  protected Set<QName>                   propertyNames;
 
-	protected final boolean propertyNamesOnly;
+  protected final int                    depth;
 
-	public PropFindResponseEntity(int depth, Resource rootResource,
-			Set<QName> propertyNames, boolean propertyNamesOnly) {
-		this.rootResource = rootResource;
-		this.namespaceContext = rootResource.getNamespaceContext();
-		this.propertyNames = propertyNames;
-		this.depth = depth;
-		this.propertyNamesOnly = propertyNamesOnly;
-	}
+  protected final boolean                propertyNamesOnly;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
-	 */
-	public void writeObject(OutputStream stream) throws IOException {
-		this.outputStream = stream;
-		try {
-			this.xmlStreamWriter = XMLOutputFactory.newInstance()
-					.createXMLStreamWriter(outputStream, Constants.DEFAULT_ENCODING);
-			xmlStreamWriter.setNamespaceContext(namespaceContext);
-			xmlStreamWriter.setDefaultNamespace("DAV:");
+  public PropFindResponseEntity(int depth,
+                                Resource rootResource,
+                                Set<QName> propertyNames,
+                                boolean propertyNamesOnly) {
+    this.rootResource = rootResource;
+    this.namespaceContext = rootResource.getNamespaceContext();
+    this.propertyNames = propertyNames;
+    this.depth = depth;
+    this.propertyNamesOnly = propertyNamesOnly;
+  }
 
-			xmlStreamWriter.writeStartDocument();
-			xmlStreamWriter.writeStartElement("D", "multistatus", "DAV:");
-			xmlStreamWriter.writeNamespace("D", "DAV:");
-			
-			xmlStreamWriter.writeAttribute("xmlns:b", "urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/");
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
+   */
+  public void writeObject(OutputStream stream) throws IOException {
+    this.outputStream = stream;
+    try {
+      this.xmlStreamWriter = XMLOutputFactory.newInstance()
+                                             .createXMLStreamWriter(outputStream,
+                                                                    Constants.DEFAULT_ENCODING);
+      xmlStreamWriter.setNamespaceContext(namespaceContext);
+      xmlStreamWriter.setDefaultNamespace("DAV:");
 
-			traverseResources(rootResource, 0);
+      xmlStreamWriter.writeStartDocument();
+      xmlStreamWriter.writeStartElement("D", "multistatus", "DAV:");
+      xmlStreamWriter.writeNamespace("D", "DAV:");
 
-			// D:multistatus
-			xmlStreamWriter.writeEndElement();
-			xmlStreamWriter.writeEndDocument();
+      xmlStreamWriter.writeAttribute("xmlns:b", "urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/");
 
-			// rootNode.accept(this);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
-		} 
-	}
+      traverseResources(rootResource, 0);
 
-	private void traverseResources(Resource resource, int counter)
-			throws XMLStreamException, RepositoryException, 
-			IllegalResourceTypeException, URISyntaxException {
+      // D:multistatus
+      xmlStreamWriter.writeEndElement();
+      xmlStreamWriter.writeEndDocument();
 
-		xmlStreamWriter.writeStartElement("DAV:", "response");
+      // rootNode.accept(this);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new IOException(e.getMessage());
+    }
+  }
 
-		xmlStreamWriter.writeStartElement("DAV:", "href");		
-		xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
-		xmlStreamWriter.writeEndElement();
+  private void traverseResources(Resource resource, int counter) throws XMLStreamException,
+                                                                RepositoryException,
+                                                                IllegalResourceTypeException,
+                                                                URISyntaxException {
 
-		PropstatGroupedRepresentation propstat = 
-			new PropstatGroupedRepresentation(resource, propertyNames, propertyNamesOnly);
+    xmlStreamWriter.writeStartElement("DAV:", "response");
 
-		PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
+    xmlStreamWriter.writeStartElement("DAV:", "href");
+    xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
+    xmlStreamWriter.writeEndElement();
 
-		xmlStreamWriter.writeEndElement();
-		
-		int d = depth;
-		
-		if (depth == -1){
+    PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
+                                                                               propertyNames,
+                                                                               propertyNamesOnly);
 
-		}
+    PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
 
-    if(resource.isCollection()) {
+    xmlStreamWriter.writeEndElement();
+
+    int d = depth;
+
+    if (depth == -1) {
+
+    }
+
+    if (resource.isCollection()) {
       if (counter < d) {
-        CollectionResource collection = (CollectionResource)resource;
-        for(Resource child : collection.getResources()) {
+        CollectionResource collection = (CollectionResource) resource;
+        for (Resource child : collection.getResources()) {
           traverseResources(child, counter + 1);
-        }        
+        }
       }
     }
 
-	}		
+  }
 
 }

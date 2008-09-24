@@ -21,46 +21,46 @@ import java.io.InputStream;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface ValueData {
-  
+
   /**
    * set number of this value (values should be ordered)
    */
   void setOrderNumber(int orderNum);
-  
+
   /**
    * @return number of this value (values should be ordered)
    */
   int getOrderNumber();
-  
+
   /**
    * @return true if data rendered as byte array, false otherwise
    */
   boolean isByteArray();
-  
+
   /**
    * @return this value data as array of bytes
-   * @throws IllegalStateException 
+   * @throws IllegalStateException
    */
   byte[] getAsByteArray() throws IllegalStateException, IOException;
-  
+
   /**
-   * renders this value data as stream of bytes
-   * NOTE: client is responsible for closing this stream, else IllegalStateException occurs in close()! 
+   * renders this value data as stream of bytes NOTE: client is responsible for closing this stream,
+   * else IllegalStateException occurs in close()!
+   * 
    * @return this value data as stream of bytes
    * @throws IOException
    */
   InputStream getAsStream() throws IOException;
-  
-  
+
   /**
    * Return this data length in bytes
    */
   long getLength();
-  
 
 }

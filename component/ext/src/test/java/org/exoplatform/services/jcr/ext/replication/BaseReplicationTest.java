@@ -30,9 +30,8 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 20.02.2007
- * 17:10:01
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 20.02.2007 17:10:01
  * 
  * @version $Id: BaseReplicationTest.java 20.02.2007 17:10:01 rainfox
  */
@@ -49,9 +48,12 @@ public class BaseReplicationTest extends BaseStandaloneTest {
   protected ValueFactory   valueFactory2;
 
   public void setUp() throws Exception {
-  
+
     String containerConf = "src/test/java/conf/standalone/test-configuration-replication.xml";
-    String loginConf = Thread.currentThread().getContextClassLoader().getResource("login.conf").toString();  
+    String loginConf = Thread.currentThread()
+                             .getContextClassLoader()
+                             .getResource("login.conf")
+                             .toString();
 
     if (!new File(containerConf).exists()) {
       containerConf = "component/ext/" + containerConf;
@@ -66,14 +68,13 @@ public class BaseReplicationTest extends BaseStandaloneTest {
 
     credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
-    repositoryService = (RepositoryService) container
-        .getComponentInstanceOfType(RepositoryService.class);
+    repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
     repository = (RepositoryImpl) repositoryService.getRepository("db1");
     repository2 = (RepositoryImpl) repositoryService.getRepository("db2");
 
-    session = (SessionImpl)repository.login(credentials, "ws");
-    session2 = (SessionImpl)repository2.login(credentials, "ws");
+    session = (SessionImpl) repository.login(credentials, "ws");
+    session2 = (SessionImpl) repository2.login(credentials, "ws");
 
     workspace = session.getWorkspace();
     workspace2 = session2.getWorkspace();

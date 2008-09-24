@@ -39,34 +39,34 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SARL .
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id: BaseStandaloneTest.java 20657 2007-10-11 07:05:27Z vetal_ok $
  */
 public abstract class BaseStandaloneWebDavTest extends TestCase {
 
-  protected static Log log = ExoLogger.getLogger("jcr.WebDavTest");
+  protected static Log          log = ExoLogger.getLogger("jcr.WebDavTest");
 
-  protected SessionImpl session;
+  protected SessionImpl         session;
 
-  protected RepositoryImpl repository;
+  protected RepositoryImpl      repository;
 
-  protected CredentialsImpl adminCredentials;
+  protected CredentialsImpl     adminCredentials;
 
-  protected RepositoryService repositoryService;
+  protected RepositoryService   repositoryService;
 
   protected StandaloneContainer container;
-  
-  protected WebDavService webdavService;
-  
-  protected Node readNode;
-  
-  protected Node writeNode;
-  
-  protected Node webdavNode;
+
+  protected WebDavService       webdavService;
+
+  protected Node                readNode;
+
+  protected Node                writeNode;
+
+  protected Node                webdavNode;
 
   public void setUp() throws Exception {
-  	StandaloneContainer.addConfigurationPath("src/test/resources/configuration.xml");
+    StandaloneContainer.addConfigurationPath("src/test/resources/configuration.xml");
     container = StandaloneContainer.getInstance();
 
     if (System.getProperty("java.security.auth.login.config") == null)
@@ -74,75 +74,76 @@ public abstract class BaseStandaloneWebDavTest extends TestCase {
 
     adminCredentials = new CredentialsImpl("admin", "admin".toCharArray());
 
-    webdavService = (WebDavService)container.getComponentInstanceOfType(WebDavService.class); 
-    
+    webdavService = (WebDavService) container.getComponentInstanceOfType(WebDavService.class);
+
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     repository = (RepositoryImpl) repositoryService.getDefaultRepository();
-    
+
     session = (SessionImpl) repository.login(adminCredentials);
-    
+
     SessionProviderService spService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
     spService.setSessionProvider(null, new SessionProvider(session.getUserState()));
-    
+
     addNodes();
 
   }
-  
+
   private void addNodes() throws Exception {
     Node root = session.getRootNode();
 
     if (!root.hasNode("webdav-test")) {
-			webdavNode = root.addNode("webdav-test", "nt:unstructured");
-			webdavNode.addNode("write", "nt:unstructured");
-			readNode = webdavNode.addNode("read", "nt:unstructured");
-			writeNode = webdavNode.addNode("write", "nt:unstructured");
+      webdavNode = root.addNode("webdav-test", "nt:unstructured");
+      webdavNode.addNode("write", "nt:unstructured");
+      readNode = webdavNode.addNode("read", "nt:unstructured");
+      writeNode = webdavNode.addNode("write", "nt:unstructured");
 
-			session.save();
-		} else {    
-		  webdavNode = root.getNode("webdav-test");
-		  readNode = webdavNode.getNode("read");
-		  writeNode = webdavNode.getNode("write");
-		}
+      session.save();
+    } else {
+      webdavNode = root.getNode("webdav-test");
+      readNode = webdavNode.getNode("read");
+      writeNode = webdavNode.getNode("write");
+    }
 
   }
 
   protected void tearDown() throws Exception {
-//
-//    if (session != null) {
-//      try {
-//        session.refresh(false);
-//        Node rootNode = session.getRootNode();
-//        if (rootNode.hasNodes()) {
-//          // clean test root
-//          for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
-//            Node node = children.nextNode();
-//            if (!node.getPath().startsWith("/jcr:system")) {
-//              //log.info("DELETing ------------- "+node.getPath());
-//              node.remove();
-//            }
-//          }
-//          session.save();
-//        }
-//      } catch (Exception e) {
-//        log.error("tearDown() ERROR " + getClass().getName() + "." + getName() + " " + e, e);
-//      } finally {
-//        session.logout();
-//      }
-//    }
-//    super.tearDown();
+    //
+    // if (session != null) {
+    // try {
+    // session.refresh(false);
+    // Node rootNode = session.getRootNode();
+    // if (rootNode.hasNodes()) {
+    // // clean test root
+    // for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
+    // Node node = children.nextNode();
+    // if (!node.getPath().startsWith("/jcr:system")) {
+    // //log.info("DELETing ------------- "+node.getPath());
+    // node.remove();
+    // }
+    // }
+    // session.save();
+    // }
+    // } catch (Exception e) {
+    // log.error("tearDown() ERROR " + getClass().getName() + "." + getName() + " " + e, e);
+    // } finally {
+    // session.logout();
+    // }
+    // }
+    // super.tearDown();
 
-    //log.info("tearDown() END " + getClass().getName() + "." + getName());
+    // log.info("tearDown() END " + getClass().getName() + "." + getName());
   }
 
   protected final Session webdavSession() throws Exception {
-  	WebDavServiceImpl serv = (WebDavServiceImpl)webdavService;
-  	return serv.session(repository.getConfiguration().getName(),
- 			 session.getWorkspace().getName(), serv.lockTokens(null, null));
+    WebDavServiceImpl serv = (WebDavServiceImpl) webdavService;
+    return serv.session(repository.getConfiguration().getName(),
+                        session.getWorkspace().getName(),
+                        serv.lockTokens(null, null));
   }
-  
+
   public HierarchicalProperty body(String xml) throws IOException {
     XMLInputTransformer transformer = new XMLInputTransformer();
-    return (HierarchicalProperty)transformer.readFrom(new ByteArrayInputStream(xml.getBytes()));
+    return (HierarchicalProperty) transformer.readFrom(new ByteArrayInputStream(xml.getBytes()));
   }
-  
+
 }

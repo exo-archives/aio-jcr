@@ -17,28 +17,34 @@
 package org.exoplatform.frameworks.ftpclient.data;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public interface FtpFileInfo {
 
   public void setName(String name);
+
   public String getName();
-  
+
   public void setSize(long size);
+
   public long getSize();
-  
+
   public void setType(boolean collection);
+
   public boolean isCollection();
-  
+
   public void setDate(String date);
+
   public String getDate();
-  
+
   public void setTime(String time);
+
   public String getTime();
-  
+
   public boolean parseDir(String fileLine, String systemType);
-  
+
 }

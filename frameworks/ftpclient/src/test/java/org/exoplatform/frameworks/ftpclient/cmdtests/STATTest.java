@@ -27,8 +27,8 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdStat;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
@@ -46,25 +46,24 @@ public class STATTest extends TestCase {
       CmdStat cmdStat = new CmdStat();
       assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdStat));
     }
-    
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-    
+
     {
       CmdStat cmdStat = new CmdStat();
       assertEquals(FtpConst.Replyes.REPLY_211, client.executeCommand(cmdStat));
     }
-    
-    client.close();
-    log.info("Complete.\r\n");            
-  }  
-  
-}
 
+    client.close();
+    log.info("Complete.\r\n");
+  }
+
+}

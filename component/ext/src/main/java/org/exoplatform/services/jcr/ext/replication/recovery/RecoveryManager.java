@@ -45,8 +45,7 @@ import org.jgroups.blocks.MessageDispatcher;
  */
 public class RecoveryManager {
 
-  protected static Log                                            log = ExoLogger
-                                                                          .getLogger("ext.RecoveryManager");
+  protected static Log                                            log = ExoLogger.getLogger("ext.RecoveryManager");
 
   private FileNameFactory                                         fileNameFactory;
 
@@ -80,9 +79,14 @@ public class RecoveryManager {
 
   private boolean                                                 isAllInited;
 
-  public RecoveryManager(File recoveryDir, String ownName, String systemId,
-      List<String> participantsClusterList, long waitConformation, String repoName, String wsName,
-      ChannelManager channelManager) throws IOException {
+  public RecoveryManager(File recoveryDir,
+                         String ownName,
+                         String systemId,
+                         List<String> participantsClusterList,
+                         long waitConformation,
+                         String repoName,
+                         String wsName,
+                         ChannelManager channelManager) throws IOException {
     this.recoveryDir = recoveryDir;
     this.fileCleaner = new FileCleaner();
 
@@ -99,8 +103,13 @@ public class RecoveryManager {
     recoveryWriter = new RecoveryWriter(recoveryDir, fileNameFactory, fileCleaner, ownName);
     mapPendingConfirmation = new HashMap<String, PendingConfirmationChengesLog>();
     this.waitConformationTimeout = waitConformation;
-    recoverySynchronizer = new RecoverySynchronizer(recoveryDir, fileNameFactory, fileCleaner,
-        channelManager, ownName, recoveryWriter, systemId);
+    recoverySynchronizer = new RecoverySynchronizer(recoveryDir,
+                                                    fileNameFactory,
+                                                    fileCleaner,
+                                                    channelManager,
+                                                    ownName,
+                                                    recoveryWriter,
+                                                    systemId);
 
     initedParticipantsClusterList = new ArrayList<String>();
 
@@ -108,22 +117,23 @@ public class RecoveryManager {
   }
 
   public void save(ItemStateChangesLog log, String identifier) throws FileNotFoundException,
-      IOException {
+                                                              IOException {
     timeStamp = Calendar.getInstance();
 
     PendingConfirmationChengesLog confirmationChengesLog = new PendingConfirmationChengesLog(log,
-        timeStamp, identifier);
+                                                                                             timeStamp,
+                                                                                             identifier);
 
     mapPendingConfirmation.put(identifier, confirmationChengesLog);
 
-    WaitConfirmation waitConfirmationThread = new WaitConfirmation(waitConformationTimeout, this,
-        identifier);
+    WaitConfirmation waitConfirmationThread = new WaitConfirmation(waitConformationTimeout,
+                                                                   this,
+                                                                   identifier);
     waitConfirmationThread.start();
   }
 
   public void confirmationChengesLogSave(Packet packet) {
-    PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(packet
-        .getIdentifier());
+    PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(packet.getIdentifier());
 
     if (confirmationChengesLog != null) {
       if (confirmationChengesLog.getConfirmationList().contains(packet.getOwnerName()) != true) {
@@ -169,8 +179,7 @@ public class RecoveryManager {
     mapPendingConfirmation.remove(identifier);
   }
 
-  public PendingConfirmationChengesLog getPendingConfirmationChengesLogById(String identifier)
-      throws Exception {
+  public PendingConfirmationChengesLog getPendingConfirmationChengesLogById(String identifier) throws Exception {
     if (mapPendingConfirmation.containsKey(identifier) == true)
       return mapPendingConfirmation.get(identifier);
 
@@ -234,14 +243,16 @@ public class RecoveryManager {
 
           recoverySynchronizer.updateInitedParticipantsClusterList(initedParticipantsClusterList);
 
-          Packet initedPacket = new Packet(Packet.PacketType.INITED_IN_CLUSTER, IdGenerator
-              .generate(), ownName);
+          Packet initedPacket = new Packet(Packet.PacketType.INITED_IN_CLUSTER,
+                                           IdGenerator.generate(),
+                                           ownName);
           channelManager.sendPacket(initedPacket);
         }
 
         if (initedParticipantsClusterList.size() == participantsClusterList.size()) {
-          Packet allInitedPacket = new Packet(Packet.PacketType.ALL_INITED, IdGenerator.generate(),
-              ownName);
+          Packet allInitedPacket = new Packet(Packet.PacketType.ALL_INITED,
+                                              IdGenerator.generate(),
+                                              ownName);
           channelManager.sendPacket(allInitedPacket);
         }
       }

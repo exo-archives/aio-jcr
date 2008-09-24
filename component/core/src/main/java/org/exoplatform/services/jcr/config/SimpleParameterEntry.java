@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.config;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: SimpleParameterEntry.java 15047 2008-06-02 10:22:56Z pnedonosko $
  */
@@ -25,16 +26,16 @@ package org.exoplatform.services.jcr.config;
 public class SimpleParameterEntry {
 
   private String name;
+
   private String value;
 
   public SimpleParameterEntry() {
   }
-	
+
   public SimpleParameterEntry(String name, String value) {
     this.name = name;
     this.value = value;
   }
-
 
   /**
    * Returns name.
@@ -48,12 +49,13 @@ public class SimpleParameterEntry {
   /**
    * Sets name.
    * 
-   * @param name The name to set.
+   * @param name
+   *          The name to set.
    */
   public void setName(String name) {
     this.name = name;
   }
-  
+
   /**
    * Returns value.
    * 
@@ -62,11 +64,12 @@ public class SimpleParameterEntry {
   public String getValue() {
     return value;
   }
-  
+
   /**
    * Sets value.
    * 
-   * @param value The value to set.
+   * @param value
+   *          The value to set.
    */
   public void setValue(String value) {
     this.value = value;

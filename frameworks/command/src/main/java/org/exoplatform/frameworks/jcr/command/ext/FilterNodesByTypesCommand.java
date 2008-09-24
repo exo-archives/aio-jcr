@@ -35,10 +35,13 @@ import org.exoplatform.frameworks.jcr.command.DefaultKeys;
 
 public class FilterNodesByTypesCommand implements Command {
 
-  private String pathKey = DefaultKeys.PATH;
+  private String pathKey          = DefaultKeys.PATH;
+
   private String incomingNodesKey = DefaultKeys.RESULT;
-  private String typesKey = "nodeTypes";
-  private String resultKey = DefaultKeys.RESULT;
+
+  private String typesKey         = "nodeTypes";
+
+  private String resultKey        = DefaultKeys.RESULT;
 
   public boolean execute(Context context) throws Exception {
     Object obj = context.get(incomingNodesKey);

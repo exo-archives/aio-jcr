@@ -33,65 +33,69 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class OrderPatchResponseEntity implements SerializableEntity {
-  
+
   protected final WebDavNamespaceContext nsContext;
-  
-  protected final URI uri;
-  
-  protected Node node;
-  
-  protected List<OrderMember> members;
-  
-  public OrderPatchResponseEntity(WebDavNamespaceContext nsContext, URI uri, Node node, List<OrderMember> members) {
+
+  protected final URI                    uri;
+
+  protected Node                         node;
+
+  protected List<OrderMember>            members;
+
+  public OrderPatchResponseEntity(WebDavNamespaceContext nsContext,
+                                  URI uri,
+                                  Node node,
+                                  List<OrderMember> members) {
     this.nsContext = nsContext;
     this.uri = uri;
     this.node = node;
-    this.members = members;    
+    this.members = members;
   }
 
   public void writeObject(OutputStream outputStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
-        .createXMLStreamWriter(outputStream, Constants.DEFAULT_ENCODING);
+                                                        .createXMLStreamWriter(outputStream,
+                                                                               Constants.DEFAULT_ENCODING);
       xmlStreamWriter.setNamespaceContext(nsContext);
       xmlStreamWriter.setDefaultNamespace("DAV:");
 
       xmlStreamWriter.writeStartDocument();
       xmlStreamWriter.writeStartElement("D", "multistatus", "DAV:");
       xmlStreamWriter.writeNamespace("D", "DAV:");
-      
+
       xmlStreamWriter.writeAttribute("xmlns:b", "urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/");
-      
+
       for (int i = 0; i < members.size(); i++) {
         OrderMember member = members.get(i);
-        
+
         xmlStreamWriter.writeStartElement("DAV:", "response");
-        
+
         xmlStreamWriter.writeStartElement("DAV:", "href");
         String href = uri.toASCIIString() + "/" + TextUtil.escape(member.getSegment(), '%', true);
         xmlStreamWriter.writeCharacters(href);
         xmlStreamWriter.writeEndElement();
-        
+
         xmlStreamWriter.writeStartElement("DAV:", "status");
         xmlStreamWriter.writeCharacters(WebDavStatus.getStatusDescription(member.getStatus()));
         xmlStreamWriter.writeEndElement();
-        
+
         xmlStreamWriter.writeEndElement();
       }
 
       xmlStreamWriter.writeEndElement();
       xmlStreamWriter.writeEndDocument();
-      
+
     } catch (Exception exc) {
       throw new IOException();
     }
-    
-  }  
+
+  }
 
 }

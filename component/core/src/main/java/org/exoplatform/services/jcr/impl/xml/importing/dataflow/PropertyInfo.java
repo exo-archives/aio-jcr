@@ -84,6 +84,7 @@ public class PropertyInfo {
   public List<DecodedValue> getValues() {
     return values;
   }
+
   /**
    * 
    * @return - values count.
@@ -95,28 +96,32 @@ public class PropertyInfo {
   }
 
   /**
-   * @param indentifer the indentifer to set
+   * @param indentifer
+   *          the indentifer to set
    */
   public void setIndentifer(String indentifer) {
     this.indentifer = indentifer;
   }
 
   /**
-   * @param name the name to set
+   * @param name
+   *          the name to set
    */
   public void setName(InternalQName name) {
     this.name = name;
   }
 
   /**
-   * @param type the type to set
+   * @param type
+   *          the type to set
    */
   public void setType(int type) {
     this.type = type;
   }
 
   /**
-   * @param values the values to set
+   * @param values
+   *          the values to set
    */
   public void setValues(List<DecodedValue> values) {
     this.values = values;

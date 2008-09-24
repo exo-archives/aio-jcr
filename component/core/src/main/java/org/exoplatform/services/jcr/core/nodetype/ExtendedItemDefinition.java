@@ -17,8 +17,10 @@
 package org.exoplatform.services.jcr.core.nodetype;
 
 import javax.jcr.nodetype.ItemDefinition;
+
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ExtendedItemDefinition.java 11907 2008-03-13 15:36:21Z ksm $
  */

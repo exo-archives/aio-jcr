@@ -25,37 +25,37 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.load.blob.TestConcurrentItems;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 24.10.2006
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 24.10.2006
  * 
  * @version $Id: DeleteThread.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class DeleteThread extends UserThread {
-  
+
   public DeleteThread(Session threadSession) {
     super(threadSession);
   }
-  
+
   public void testAction() {
-    while (process || TestConcurrentItems.consumedNodes.size()>0) {
+    while (process || TestConcurrentItems.consumedNodes.size() > 0) {
       deleteAction();
       try {
         sleep(2500);
-      } catch(InterruptedException e) {
+      } catch (InterruptedException e) {
         threadLog.error("Sleep error: " + e.getMessage(), e);
       }
     }
   }
-  
+
   public void deleteAction() {
-    
+
     final String[] nodes = TestConcurrentItems.consumedNodes.toArray(new String[TestConcurrentItems.consumedNodes.size()]);
     try {
       threadSession.refresh(false);
-    } catch(RepositoryException th) {
+    } catch (RepositoryException th) {
       threadLog.error("Refresh before delete error: " + th.getMessage(), th);
     }
-    for (String nodePath: nodes) {
+    for (String nodePath : nodes) {
       String nodeInfo = "";
       try {
         Node node = (Node) threadSession.getItem(nodePath);
@@ -65,19 +65,20 @@ public class DeleteThread extends UserThread {
         threadSession.save();
         if (threadLog.isDebugEnabled())
           threadLog.debug("Delete " + nodeInfo);
-      } catch(PathNotFoundException e) {
+      } catch (PathNotFoundException e) {
         threadLog.warn(e.getMessage());
-      } catch(RepositoryException e) {
+      } catch (RepositoryException e) {
         try {
           threadSession.refresh(false);
-        } catch(RepositoryException e1) {
-          threadLog.error("Rollback repository error: " + e1.getMessage() + ". Root exception " + e, e);
+        } catch (RepositoryException e1) {
+          threadLog.error("Rollback repository error: " + e1.getMessage() + ". Root exception " + e,
+                          e);
         }
-      } catch(Throwable th) {
+      } catch (Throwable th) {
         threadLog.error("Delete error: " + th.getMessage() + ". " + nodeInfo, th);
       } finally {
         TestConcurrentItems.consumedNodes.remove(nodePath);
       }
     }
   }
-}  
+}

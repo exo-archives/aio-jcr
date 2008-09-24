@@ -28,17 +28,17 @@ import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class CopyCommand {
-  
-  public Response copy(Session destSession, String sourcePath, String destPath) {    
+
+  public Response copy(Session destSession, String sourcePath, String destPath) {
     try {
       destSession.getWorkspace().copy(sourcePath, destPath);
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();      
+      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
     } catch (ItemExistsException e) {
       e.printStackTrace();
       return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
@@ -56,11 +56,14 @@ public class CopyCommand {
       return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
-  
-  public Response copy(Session destSession, String sourceWorkspace, String sourcePath, String destPath) {    
+
+  public Response copy(Session destSession,
+                       String sourceWorkspace,
+                       String sourcePath,
+                       String destPath) {
     try {
       destSession.getWorkspace().copy(sourceWorkspace, sourcePath, destPath);
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();      
+      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
     } catch (ItemExistsException e) {
       e.printStackTrace();
       return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();

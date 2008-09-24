@@ -13,7 +13,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestInitializingVersionHistory.java 11908 2008-03-13 16:00:12Z ksm $
  */
@@ -59,8 +59,7 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     assertTrue(node.isNodeType("mix:versionable"));
 
     VersionHistory vh = node.getVersionHistory();
-    System.out.println(" node " + node.getUUID() + " "
-        + vh.getProperties().getSize());
+    System.out.println(" node " + node.getUUID() + " " + vh.getProperties().getSize());
     assertEquals(vh.getUUID(), vhRef);
     assertNotNull(vh.getVersionableUUID());
     assertNotNull(vh.getNode("jcr:rootVersion"));
@@ -76,12 +75,13 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     Node node;
 
     node = root.addNode("node-v1", "nt:unstructured");
-    
+
     root.save();
-    
-    // another  session
-    SessionImpl session1 = (SessionImpl)repository.login(new CredentialsImpl("exo", "exo".toCharArray()));
-    
+
+    // another session
+    SessionImpl session1 = (SessionImpl) repository.login(new CredentialsImpl("exo",
+                                                                              "exo".toCharArray()));
+
     Node root1 = session1.getRootNode();
     node = root1.getNode("node-v1");
     node.addMixin("mix:versionable");
@@ -89,17 +89,17 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     assertNotNull(node.getProperty("jcr:versionHistory"));
 
     assertTrue(node.isNodeType("mix:versionable"));
-    
-    //NodeDumpVisitor v = new NodeDumpVisitor();
-    //node.accept(v);
-    //log.debug("X "+node.getProperty("jcr:baseVersion"));
-    //log.debug("XYYY >>> "+v.getDump());
-    //log.debug("XYYYYYYYYYYYYYYYY "+session1.getTransientNodesManager().dump());
-    
+
+    // NodeDumpVisitor v = new NodeDumpVisitor();
+    // node.accept(v);
+    // log.debug("X "+node.getProperty("jcr:baseVersion"));
+    // log.debug("XYYY >>> "+v.getDump());
+    // log.debug("XYYYYYYYYYYYYYYYY "+session1.getTransientNodesManager().dump());
+
     root1.save();
-    
+
     node = root1.getNode("node-v1");
-    
+
     assertNotNull(node.getVersionHistory());
 
   }
@@ -128,7 +128,7 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     assertTrue(node1.isCheckedOut());
 
   }
-  
+
   public void testBaseVersionAccessible() throws Exception {
 
     Node node;
@@ -138,16 +138,18 @@ public class TestInitializingVersionHistory extends JcrAPIBaseTest {
     node.addMixin("mix:versionable");
     session.save();
     node.checkin();
-    
-    // another  session
-    SessionImpl session1 = (SessionImpl)repository.login(new CredentialsImpl("__anonim", "exo".toCharArray()));
-    node = (Node)session1.getItem("/testBaseVersionAccessible");
+
+    // another session
+    SessionImpl session1 = (SessionImpl) repository.login(new CredentialsImpl("__anonim",
+                                                                              "exo".toCharArray()));
+    node = (Node) session1.getItem("/testBaseVersionAccessible");
     assertEquals("1", node.getBaseVersion().getName());
     try {
       // [PN] 02.08.06
       // versionStorage's children should have READ permission for all
-      node = (Node)session1.getItem("/jcr:system/jcr:versionStorage/" + node.getVersionHistory().getUUID() + "/1");
-      //fail("AccessDeniedException should have been thrown");
+      node = (Node) session1.getItem("/jcr:system/jcr:versionStorage/"
+          + node.getVersionHistory().getUUID() + "/1");
+      // fail("AccessDeniedException should have been thrown");
     } catch (AccessDeniedException e) {
       fail("versionStorage's children should have READ permission for all");
     }

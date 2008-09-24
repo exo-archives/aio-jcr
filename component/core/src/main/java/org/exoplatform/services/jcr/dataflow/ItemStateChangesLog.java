@@ -20,6 +20,7 @@ import java.util.List;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ItemStateChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -40,5 +41,5 @@ public interface ItemStateChangesLog {
    * @return info about this log
    */
   String dump();
-  
+
 }

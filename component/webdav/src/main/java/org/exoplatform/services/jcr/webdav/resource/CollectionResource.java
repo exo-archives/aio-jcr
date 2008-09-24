@@ -49,35 +49,33 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/> Other than
- * nt:file/jcr:content(nt:resource)
+ * Created by The eXo Platform SARL .<br/> Other than nt:file/jcr:content(nt:resource)
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class CollectionResource extends GenericResource {
-  
-  final String PREFIX       = "sv:";
 
-  final String XML_NODE     = PREFIX + "node";
+  final String                       PREFIX          = "sv:";
 
-  final String XML_NAME     = PREFIX + "name";
+  final String                       XML_NODE        = PREFIX + "node";
 
-  final String XML_PROPERTY = PREFIX + "property";
+  final String                       XML_NAME        = PREFIX + "name";
 
-  final String XML_HREF     = "xlink:href";
+  final String                       XML_PROPERTY    = PREFIX + "property";
 
-  final String PREFIX_XMLNS = "xmlns:sv";
+  final String                       XML_HREF        = "xlink:href";
 
-  final String PREFIX_LINK  = "http://www.jcp.org/jcr/sv/1.0";
+  final String                       PREFIX_XMLNS    = "xmlns:sv";
 
-  final String XLINK_XMLNS  = "xmlns:xlink";
+  final String                       PREFIX_LINK     = "http://www.jcp.org/jcr/sv/1.0";
 
-  final String XLINK_LINK   = "http://www.w3.org/1999/xlink";
-  
-  private final static Log           LOGGER          = ExoLogger
-                                                         .getLogger(CollectionResource.class);
+  final String                       XLINK_XMLNS     = "xmlns:xlink";
+
+  final String                       XLINK_LINK      = "http://www.w3.org/1999/xlink";
+
+  private final static Log           LOGGER          = ExoLogger.getLogger(CollectionResource.class);
 
   protected final static Set<String> COLLECTION_SKIP = new HashSet<String>();
   static {
@@ -87,14 +85,17 @@ public class CollectionResource extends GenericResource {
 
   protected final Node               node;
 
-  public CollectionResource(final URI identifier, Node node,
-      final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
+  public CollectionResource(final URI identifier,
+                            Node node,
+                            final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
       RepositoryException {
     this(COLLECTION, identifier, node, new WebDavNamespaceContext(node.getSession()));
   }
 
-  protected CollectionResource(final int type, final URI identifier, Node node,
-      final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
+  protected CollectionResource(final int type,
+                               final URI identifier,
+                               Node node,
+                               final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
       RepositoryException {
     super(type, identifier, new WebDavNamespaceContext(node.getSession()));
     if (ResourceUtil.isFile(node))
@@ -104,7 +105,8 @@ public class CollectionResource extends GenericResource {
   }
 
   public Set<HierarchicalProperty> getProperties(boolean namesOnly) throws PathNotFoundException,
-      AccessDeniedException, RepositoryException {
+                                                                   AccessDeniedException,
+                                                                   RepositoryException {
     Set<HierarchicalProperty> props = super.getProperties(namesOnly);
 
     PropertyIterator jcrProps = node.getProperties();
@@ -126,7 +128,8 @@ public class CollectionResource extends GenericResource {
   }
 
   public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
-      AccessDeniedException, RepositoryException {
+                                                     AccessDeniedException,
+                                                     RepositoryException {
     if (name.equals(DISPLAYNAME)) {
       return new HierarchicalProperty(name, node.getName());
 
@@ -136,8 +139,9 @@ public class CollectionResource extends GenericResource {
     } else if (name.equals(CREATIONDATE)) {
       if (node.isNodeType("nt:hierarchyNode")) {
         Calendar created = node.getProperty("jcr:created").getDate();
-        HierarchicalProperty creationDate = new HierarchicalProperty(name, created,
-            CREATION_PATTERN);
+        HierarchicalProperty creationDate = new HierarchicalProperty(name,
+                                                                     created,
+                                                                     CREATION_PATTERN);
         creationDate.setAttribute("b:dt", "dateTime.tz");
         return creationDate;
 
@@ -168,8 +172,7 @@ public class CollectionResource extends GenericResource {
       return new HierarchicalProperty(name, node.getParent().getName());
 
     } else if (name.equals(RESOURCETYPE)) {
-      HierarchicalProperty collectionProp = new HierarchicalProperty(
-          new QName("DAV:", "collection"));
+      HierarchicalProperty collectionProp = new HierarchicalProperty(new QName("DAV:", "collection"));
       HierarchicalProperty resourceType = new HierarchicalProperty(name);
       resourceType.addChild(collectionProp);
       return resourceType;
@@ -201,8 +204,8 @@ public class CollectionResource extends GenericResource {
 
         // <D:href>DAV:custom</D:href>
 
-        HierarchicalProperty orderHref = orderingType.addChild(new HierarchicalProperty(new QName(
-            "DAV:", "href")));
+        HierarchicalProperty orderHref = orderingType.addChild(new HierarchicalProperty(new QName("DAV:",
+                                                                                                  "href")));
         orderHref.setValue("DAV:custom");
 
         return orderingType;
@@ -239,11 +242,11 @@ public class CollectionResource extends GenericResource {
 
       if (ResourceUtil.isVersioned(node)) {
         if (ResourceUtil.isFile(node)) {
-          resources
-              .add(new VersionedFileResource(childURI(node.getName()), node, namespaceContext));
+          resources.add(new VersionedFileResource(childURI(node.getName()), node, namespaceContext));
         } else {
-          resources.add(new VersionedCollectionResource(childURI(node.getName()), node,
-              namespaceContext));
+          resources.add(new VersionedCollectionResource(childURI(node.getName()),
+                                                        node,
+                                                        namespaceContext));
         }
       } else {
         if (ResourceUtil.isFile(node)) {

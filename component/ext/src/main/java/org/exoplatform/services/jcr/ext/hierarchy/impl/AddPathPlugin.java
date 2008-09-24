@@ -20,29 +20,39 @@ import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dang Van Minh
- *          minh.dang@exoplatform.com
- * Nov 15, 2007 2:49:30 PM
+ * Created by The eXo Platform SAS Author : Dang Van Minh minh.dang@exoplatform.com Nov 15, 2007
+ * 2:49:30 PM
  */
 public class AddPathPlugin extends BaseComponentPlugin {
 
   private HierarchyConfig paths;
-  private String description;
-  private String name;
+
+  private String          description;
+
+  private String          name;
 
   public AddPathPlugin(InitParams params) {
     paths = (HierarchyConfig) params.getObjectParamValues(HierarchyConfig.class).get(0);
   }
-  
+
   public HierarchyConfig getPaths() {
     return paths;
   }
 
-  public String getName() {   return name; }
-  public void setName(String s) { name = s ; }
+  public String getName() {
+    return name;
+  }
 
-  public String getDescription() {   return description ; }
-  public void setDescription(String s) { description = s ;  }
+  public void setName(String s) {
+    name = s;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String s) {
+    description = s;
+  }
 
 }

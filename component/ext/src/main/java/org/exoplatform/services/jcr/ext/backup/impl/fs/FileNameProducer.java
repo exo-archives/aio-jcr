@@ -21,25 +21,35 @@ import java.io.IOException;
 import java.util.Calendar;
 
 /**
- * Created by The eXo Platform SARL Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua Nov 20, 2007
+ * Created by The eXo Platform SARL Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua Nov
+ * 20, 2007
  */
 public class FileNameProducer {
-  private String  serviceDir;
-  private String  backupSetName;
-  private File    backupSetDir;
-  private boolean isFullBackup;
-  private Calendar timeStamp;  
+  private String   serviceDir;
 
-  public FileNameProducer(String backupSetName, String serviceDir, Calendar timeStamp, boolean isFullBackup) {
+  private String   backupSetName;
+
+  private File     backupSetDir;
+
+  private boolean  isFullBackup;
+
+  private Calendar timeStamp;
+
+  public FileNameProducer(String backupSetName,
+                          String serviceDir,
+                          Calendar timeStamp,
+                          boolean isFullBackup) {
     this.backupSetName = backupSetName;
     this.serviceDir = serviceDir;
     this.isFullBackup = isFullBackup;
     this.timeStamp = timeStamp;
   }
 
-  public FileNameProducer(String repositoryName, String workspaceName, String serviceDir, Calendar timeStamp, 
-      boolean isFullBackup) {
+  public FileNameProducer(String repositoryName,
+                          String workspaceName,
+                          String serviceDir,
+                          Calendar timeStamp,
+                          boolean isFullBackup) {
     this.backupSetName = repositoryName + "_" + workspaceName;
     this.serviceDir = serviceDir;
     this.isFullBackup = isFullBackup;
@@ -53,7 +63,7 @@ public class FileNameProducer {
       // TODO use SimpleDateFormat
       // String sTime = "-" + new SimpleDateFormat("yyyyMMdd_hhmmss").fprmat(timeStamp);
       String sTime = "-" + getStrDate(timeStamp) + "_" + getStrTime(timeStamp);
-      
+
       backupSetDir = new File(serviceDir + File.separator + backupSetName + sTime);
 
       if (!backupSetDir.exists())
@@ -73,11 +83,11 @@ public class FileNameProducer {
   private String generateName() {
 
     Calendar date = Calendar.getInstance();
-    
+
     String sDate = getStrDate(date);
     String sTime = getStrTime(date);
 
-    String fileName = backupSetName + "-"+ sDate +"_" + sTime + ".";
+    String fileName = backupSetName + "-" + sDate + "_" + sTime + ".";
 
     if (isFullBackup)
       fileName += "0";
@@ -112,7 +122,7 @@ public class FileNameProducer {
     int d = c.get(Calendar.DATE);
     return "" + c.get(Calendar.YEAR) + (m < 10 ? "0" + m : m) + (d < 10 ? "0" + d : d);
   }
-  
+
   public static String getStrTime(Calendar c) {
     // Returns as a String (YYYYMMDD) a Calendar date
     int h = c.get(Calendar.HOUR);

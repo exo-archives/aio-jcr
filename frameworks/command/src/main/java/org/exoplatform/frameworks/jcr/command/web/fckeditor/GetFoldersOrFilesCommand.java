@@ -50,37 +50,40 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
       type = "";
 
     // To limit browsing set Servlet init param "digitalAssetsPath" with desired JCR path
-    //    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    // String rootFolderStr =
+    // (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath"
+    // );
     //    
-    //    if(rootFolderStr == null)
-    //      rootFolderStr = "/";
+    // if(rootFolderStr == null)
+    // rootFolderStr = "/";
     //
-    //    // set current folder
-    //    String currentFolderStr = get;
-    //    if(currentFolderStr == null)
-    //      currentFolderStr = "";
-    //    else if(currentFolderStr.length() < rootFolderStr.length())
-    //      currentFolderStr = rootFolderStr;
+    // // set current folder
+    // String currentFolderStr = get;
+    // if(currentFolderStr == null)
+    // currentFolderStr = "";
+    // else if(currentFolderStr.length() < rootFolderStr.length())
+    // currentFolderStr = rootFolderStr;
     //
-    //    String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
-    //    if(jcrMapping == null)
-    //      jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
+    // String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
+    // if(jcrMapping == null)
+    // jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
     //
-    //    String workspace = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
-    //    if(workspace == null)
-    //      workspace = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
+    // String workspace = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
+    // if(workspace == null)
+    // workspace = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
     //
-    //    webCtx.setCurrentWorkspace(workspace);
+    // webCtx.setCurrentWorkspace(workspace);
     //
-    //    Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
+    // Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
     //
-    //initRootElement(filter, type, currentPath, request.getContextPath()+currentPath);
-    //    String url = request.getContextPath()+jcrMapping+"?"+
-    //    "workspace="+digitalWS+
-    //    "&path="+currentFolderStr;
+    // initRootElement(filter, type, currentPath, request.getContextPath()+currentPath);
+    // String url = request.getContextPath()+jcrMapping+"?"+
+    // "workspace="+digitalWS+
+    // "&path="+currentFolderStr;
 
-    // /portal/jcr?workspace=collaboration&path=/Digital Assets/Pictures/my images/39515971.u1D8dTVD.wilersee_5924.jpg
-    
+    // /portal/jcr?workspace=collaboration&path=/Digital Assets/Pictures/my
+    // images/39515971.u1D8dTVD.wilersee_5924.jpg
+
     String workspace = (String) webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
     if (workspace == null)
       workspace = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
@@ -90,8 +93,9 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
     webCtx.setCurrentWorkspace(workspace);
     Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
 
-    String repoName = ((ManageableRepository) webCtx.getSession().getRepository()).getConfiguration().getName();
-    
+    String repoName = ((ManageableRepository) webCtx.getSession().getRepository()).getConfiguration()
+                                                                                  .getName();
+
     String url = request.getContextPath() + makeRESTPath(repoName, workspace, currentFolderStr);
 
     initRootElement(filter, type, currentFolderStr, url);
@@ -118,8 +122,8 @@ public class GetFoldersOrFilesCommand extends FCKConnectorXMLOutput implements C
       NodeIterator nodeList = currentFolder.getNodes();
       while (nodeList.hasNext()) {
         Node n = nodeList.nextNode();
-        //System.out.println(" >>> " + n.getPath() + " "
-        //    + n.isNodeType("nt:file") + " " + n.getPrimaryNodeType().getName());
+        // System.out.println(" >>> " + n.getPath() + " "
+        // + n.isNodeType("nt:file") + " " + n.getPrimaryNodeType().getName());
         if (n.isNodeType("nt:file")) {
           Element fileElement = doc.createElement("File");
           long size = n.getNode("jcr:content").getProperty("jcr:data").getLength();

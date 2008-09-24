@@ -21,22 +21,22 @@ import java.io.IOException;
 import org.exoplatform.services.ftp.FtpConst;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdHelp extends FtpCommandImpl {
 
   public CmdHelp() {
-    commandName = FtpConst.Commands.CMD_HELP; 
+    commandName = FtpConst.Commands.CMD_HELP;
     isNeedLogin = false;
   }
-  
-  public void run(String []params) throws IOException {    
+
+  public void run(String[] params) throws IOException {
     for (int i = 0; i < FtpConst.eXoHelpInfo.length; i++) {
       reply(FtpConst.eXoHelpInfo[i]);
     }
   }
-  
+
 }

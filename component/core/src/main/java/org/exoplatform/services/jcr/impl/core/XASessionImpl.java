@@ -49,24 +49,23 @@ import org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl
 public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     ResourceManagerEvent {
 
-  private final Log log = ExoLogger.getLogger("jcr.XASessionImpl");
-  
+  private final Log                            log        = ExoLogger.getLogger("jcr.XASessionImpl");
+
   private final TransactionService             tService;
 
-  private int                            txTimeout;
+  private int                                  txTimeout;
 
   private final TransactionableResourceManager txResourceManager;
 
-  private int                            startFlags        = TMNOFLAGS;
+  private int                                  startFlags = TMNOFLAGS;
 
-  private List                           jotmResourceList;
-
+  private List                                 jotmResourceList;
 
   XASessionImpl(String workspaceName,
-      ConversationState userState,
-      ExoContainer container,
-      TransactionService tService,
-      TransactionableResourceManager txResourceManager) throws RepositoryException {
+                ConversationState userState,
+                ExoContainer container,
+                TransactionService tService,
+                TransactionableResourceManager txResourceManager) throws RepositoryException {
     super(workspaceName, userState, container);
     this.txTimeout = tService.getDefaultTimeout();
     this.tService = tService;
@@ -77,7 +76,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.XASession#getXAResource()
    */
   public XAResource getXAResource() {
@@ -86,7 +84,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.XASession#delistResource()
    */
   public void delistResource() throws XAException {
@@ -105,7 +102,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.XASession#reenlistResource()
    */
   public void enlistResource() throws XAException {
@@ -126,9 +122,7 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
-   * @see javax.transaction.xa.XAResource#commit(javax.transaction.xa.Xid,
-   *      boolean)
+   * @see javax.transaction.xa.XAResource#commit(javax.transaction.xa.Xid, boolean)
    */
   public void commit(Xid xid, boolean onePhase) throws XAException {
     try {
@@ -143,7 +137,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#end(javax.transaction.xa.Xid, int)
    */
   public void end(Xid xid, int flags) throws XAException {
@@ -154,7 +147,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#forget(javax.transaction.xa.Xid)
    */
   public void forget(Xid xid) throws XAException {
@@ -162,7 +154,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#getTransactionTimeout()
    */
   public int getTransactionTimeout() throws XAException {
@@ -171,7 +162,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#isSameRM(javax.transaction.xa.XAResource)
    */
   public boolean isSameRM(XAResource resource) throws XAException {
@@ -188,7 +178,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#prepare(javax.transaction.xa.Xid)
    */
   public int prepare(Xid xid) throws XAException {
@@ -199,7 +188,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#recover(int)
    */
   public Xid[] recover(int xid) throws XAException {
@@ -208,7 +196,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#rollback(javax.transaction.xa.Xid)
    */
   public void rollback(Xid xid) throws XAException {
@@ -219,7 +206,6 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#setTransactionTimeout(int)
    */
   public boolean setTransactionTimeout(int seconds) throws XAException {
@@ -234,16 +220,13 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.transaction.xa.XAResource#start(javax.transaction.xa.Xid, int)
    */
   public void start(Xid xid, int flags) throws XAException {
     txResourceManager.start(this);
     startFlags = flags;
     if (log.isDebugEnabled())
-      log
-          .debug("Start. Xid:" + xid + ", " + flags + ", session: " + getSessionInfo() + ", "
-              + this);
+      log.debug("Start. Xid:" + xid + ", " + flags + ", session: " + getSessionInfo() + ", " + this);
   }
 
   @Override
@@ -251,7 +234,7 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     if (log.isDebugEnabled())
       log.debug("Logout. Session: " + getSessionInfo() + ", " + this);
 
-    //Rolling back this session only
+    // Rolling back this session only
     getTransientNodesManager().getTransactManager().rollback();
 
     super.logout();
@@ -272,11 +255,11 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     } catch (IllegalStateException e) {
       throw new SystemException(e.getMessage());
     } catch (XAException e) {
-      //e.printStackTrace();
+      // e.printStackTrace();
       throw new SystemException(e.getMessage());
     }
   }
-  
+
   private String getSessionInfo() {
     return getUserID() + "@" + workspaceName;
   }

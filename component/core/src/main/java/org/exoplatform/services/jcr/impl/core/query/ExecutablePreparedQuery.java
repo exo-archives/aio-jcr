@@ -22,21 +22,23 @@ import javax.jcr.Value;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * <code>ExecutablePreparedQuery</code> extends {@link ExecutableQuery} with
- * a method to bind a value to a variable.
+ * <code>ExecutablePreparedQuery</code> extends {@link ExecutableQuery} with a method to bind a
+ * value to a variable.
  */
 public interface ExecutablePreparedQuery extends ExecutableQuery {
 
-    /**
-     * Binds the given <code>value</code> to the variable named
-     * <code>varName</code>.
-     *
-     * @param varName name of variable in query
-     * @param value   value to bind
-     * @throws IllegalArgumentException      if <code>varName</code> is not a
-     *                                       valid variable in this query.
-     * @throws javax.jcr.RepositoryException if an error occurs.
-     */
-    public void bindValue(InternalQName varName, Value value)
-            throws IllegalArgumentException, RepositoryException;
+  /**
+   * Binds the given <code>value</code> to the variable named <code>varName</code>.
+   * 
+   * @param varName
+   *          name of variable in query
+   * @param value
+   *          value to bind
+   * @throws IllegalArgumentException
+   *           if <code>varName</code> is not a valid variable in this query.
+   * @throws javax.jcr.RepositoryException
+   *           if an error occurs.
+   */
+  public void bindValue(InternalQName varName, Value value) throws IllegalArgumentException,
+                                                           RepositoryException;
 }

@@ -21,8 +21,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 
 /**
- * Created by The eXo Platform SAS
- * 15.05.2006
+ * Created by The eXo Platform SAS 15.05.2006
  * 
  * ItemData bulk reader (base class).
  * 
@@ -31,10 +30,12 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
  */
 public abstract class ItemDataReader {
 
-  protected DataManager dataManager;
+  protected DataManager      dataManager;
+
   protected ValueFactoryImpl valueFactory = null;
-  protected NodeData parent;
-  
+
+  protected NodeData         parent;
+
   public ItemDataReader(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
     this.dataManager = dataManager;
     this.parent = parent;

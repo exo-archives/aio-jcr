@@ -26,10 +26,10 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
   private Log log = ExoLogger.getLogger("jcr.ItemDataCopyVisitor");
 
   public ItemDataCopyVisitor(NodeData parent,
-      InternalQName destNodeName,
-      NodeTypeManagerImpl nodeTypeManager,
-      SessionDataManager dataManager,
-      boolean keepIdentifiers) {
+                             InternalQName destNodeName,
+                             NodeTypeManagerImpl nodeTypeManager,
+                             SessionDataManager dataManager,
+                             boolean keepIdentifiers) {
     super(parent, destNodeName, nodeTypeManager, dataManager, keepIdentifiers);
   }
 
@@ -45,8 +45,8 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
     List<ValueData> values;
 
     if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
-        curParent().getPrimaryTypeName(),
-        curParent().getMixinTypeNames())) {
+                             curParent().getPrimaryTypeName(),
+                             curParent().getMixinTypeNames())) {
       // versionable node copy
       // [mix:versionable] > mix:referenceable
       // mixin
@@ -71,9 +71,9 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
         // need create a new VH
         PlainChangesLogImpl changes = new PlainChangesLogImpl();
         VersionHistoryDataHelper vh = new VersionHistoryDataHelper(curParent(),
-            changes,
-            dataManager,
-            ntManager);
+                                                                   changes,
+                                                                   dataManager,
+                                                                   ntManager);
         itemAddStates.addAll(changes.getAllStates());
       }
 
@@ -94,21 +94,21 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
         return; // skip it
       } else if (qname.equals(Constants.JCR_UUID)) {
         values.add(new TransientValueData(curParent().getIdentifier())); // uuid
-                                                                          // of
-                                                                          // the
-                                                                          // parent
+        // of
+        // the
+        // parent
       } else {
         values = property.getValues(); // copy the property
       }
     } else if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
-        curParent().getPrimaryTypeName(),
-        curParent().getMixinTypeNames())
+                                    curParent().getPrimaryTypeName(),
+                                    curParent().getMixinTypeNames())
         && qname.equals(Constants.JCR_UUID)) {
 
       values = new ArrayList<ValueData>(1);
       values.add(new TransientValueData(curParent().getIdentifier()));
     } else {
-      //http://jira.exoplatform.org/browse/JCR-294
+      // http://jira.exoplatform.org/browse/JCR-294
       if (qname.equals(Constants.JCR_LOCKISDEEP)) {
         return;
       } else if (qname.equals(Constants.JCR_LOCKOWNER)) {
@@ -117,13 +117,15 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
       values = property.getValues();
     }
 
-    TransientPropertyData newProperty = new TransientPropertyData(QPath.makeChildPath(curParent()
-        .getQPath(), qname),
-        keepIdentifiers ? property.getIdentifier() : IdGenerator.generate(),
-        -1,
-        property.getType(),
-        curParent().getIdentifier(),
-        property.isMultiValued());
+    TransientPropertyData newProperty = new TransientPropertyData(QPath.makeChildPath(curParent().getQPath(),
+                                                                                      qname),
+                                                                  keepIdentifiers
+                                                                      ? property.getIdentifier()
+                                                                      : IdGenerator.generate(),
+                                                                  -1,
+                                                                  property.getType(),
+                                                                  curParent().getIdentifier(),
+                                                                  property.isMultiValued());
 
     newProperty.setValues(values);
 
@@ -131,7 +133,6 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
       log.debug("entering COPY " + newProperty.getQPath().getAsString() + "; pidentifier: "
           + newProperty.getParentIdentifier() + "; identifier: " + newProperty.getIdentifier());
 
-    itemAddStates
-        .add(new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
+    itemAddStates.add(new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
   }
 }

@@ -81,7 +81,7 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
       }
     }
   }
-  
+
   /**
    * 1. startTime only - run once forever
    */
@@ -158,7 +158,7 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
 
     // wait till backup will be started
     waitTime(startTime);
-    
+
     Thread.sleep(100); // to know the full is started
     BackupChain bch = backup.getCurrentBackups().iterator().next();
 
@@ -223,10 +223,10 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
 
     // wait till backup will be stopped
     waitTime(stopTime);
-    
-    // wait a bit more 
+
+    // wait a bit more
     Thread.sleep(5000);
-    
+
     log.info("-----------------[ restore ]-------------------------");
     // restore
     restoreAndCheck("ws1back.incr4", "jdbcjcr8", bch.getLogFilePath(), backDir, 1, 20);
@@ -260,11 +260,12 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
 
     BackupScheduler scheduler = backup.getScheduler();
 
-    scheduler.schedule(config, startTime, stopTime, 0, 0); // incrementalPeriod = 20sec* (see before)
+    scheduler.schedule(config, startTime, stopTime, 0, 0); // incrementalPeriod = 20sec* (see
+    // before)
 
     // wait till backup will be started
     waitTime(startTime);
-    
+
     BackupChain bch = backup.getCurrentBackups().iterator().next();
 
     // wait till full backup will be stopped
@@ -278,10 +279,10 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
 
     // wait till backup will be stopped
     waitTime(stopTime);
-    
-    // wait a bit more 
+
+    // wait a bit more
     Thread.sleep(5000);
-    
+
     log.info("-----------------[ restore ]-------------------------");
     // restore
     restoreAndCheck("ws1back.incr3", "jdbcjcr9", bch.getLogFilePath(), backDir, 1, 50);
@@ -310,7 +311,8 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     BackupConfig config = new BackupConfig();
     config.setRepository(repository.getName());
     config.setWorkspace("ws1");
-    config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);;
+    config.setBuckupType(BackupManager.FULL_BACKUP_ONLY);
+    ;
     config.setBackupDir(backDir);
 
     BackupScheduler scheduler = backup.getScheduler();
@@ -319,7 +321,9 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     scheduler.schedule(config, startTime, stopTime, 20, 0, waiter); // 20 sec chain period
 
     // wait till backup #1 will be started
-    assertTrue("Full backup #1 start expired", waiter.await(0, BackupJob.STARTING, 20500)); // 20.5sec to start
+    assertTrue("Full backup #1 start expired", waiter.await(0, BackupJob.STARTING, 20500)); //20.5sec
+    // to
+    // start
 
     BackupChain bch1 = backup.getCurrentBackups().iterator().next();
     log.info("full #1 " + bch1.getLogFilePath());
@@ -329,7 +333,9 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     addContent(ws1TestRoot, 11, 10 + nodesCount, nodeTimeout);
 
     // wait till full backup #2 will be started
-    assertTrue("Full backup #2 start expired", waiter.await(0, BackupJob.STARTING, 20500)); // 20.5sec for next
+    assertTrue("Full backup #2 start expired", waiter.await(0, BackupJob.STARTING, 20500)); //20.5sec
+    // for
+    // next
 
     BackupChain bch2 = backup.getCurrentBackups().iterator().next();
     log.info("full #2 " + bch2.getLogFilePath());
@@ -337,7 +343,9 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     addContent(ws1TestRoot, 31, 30 + nodesCount, nodeTimeout);
 
     // wait till full backup #3 will be started
-    assertTrue("Full backup #3 start expired", waiter.await(0, BackupJob.STARTING, 20500)); // 20.5sec for next
+    assertTrue("Full backup #3 start expired", waiter.await(0, BackupJob.STARTING, 20500)); //20.5sec
+    // for
+    // next
 
     BackupChain bch3 = backup.getCurrentBackups().iterator().next();
     log.info("full #3 " + bch3.getLogFilePath());
@@ -346,7 +354,7 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     waitTime(stopTime);
 
     Thread.sleep(20000); // wait 20 sec if next chain was started before the stop
-    
+
     log.info("-----------------[ restore #1 ]-------------------------");
     restoreAndCheck("ws1back.incr7", "jdbcjcr10", bch1.getLogFilePath(), backDir, 1, 10);
 
@@ -357,7 +365,8 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     restoreAndCheck("ws1back.incr9", "jdbcjcr12", bch3.getLogFilePath(), backDir, 31, 50);
   }
 
-  // 6. startTime, endTime, chainPeriod + incrementalPeriod - run periodic at // given period (with incremental backup) 
+  // 6. startTime, endTime, chainPeriod + incrementalPeriod - run periodic at // given period (with
+  // incremental backup)
   public void testScheduler_p6() throws Exception {
 
     Date startTime;
@@ -384,7 +393,7 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
 
     scheduler.schedule(config, startTime, stopTime, 25, 10);
 
-    // wait till backup will be started 
+    // wait till backup will be started
     waitTime(startTime);
 
     BackupChain bch = backup.getCurrentBackups().iterator().next();
@@ -397,25 +406,25 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
 
     BackupChain bch1 = backup.getCurrentBackups().iterator().next();
     log.info(" #1 " + bch1.getLogFilePath());
-    //BackupChain bch1 = backup.findBackup(config.getRepository(), config.getWorkspace());
+    // BackupChain bch1 = backup.findBackup(config.getRepository(), config.getWorkspace());
 
     // incr works, 15sec+
     addContent(ws1TestRoot, 1, 20, 750);
-    
-    // wait till next backup chain will be started 
+
+    // wait till next backup chain will be started
     Thread.sleep(10000);
 
     BackupChain bch2 = backup.getCurrentBackups().iterator().next();
     log.info(" #2 " + bch2.getLogFilePath());
-    //BackupChain bch2 = backup.findBackup(config.getRepository(), config.getWorkspace());
+    // BackupChain bch2 = backup.findBackup(config.getRepository(), config.getWorkspace());
 
     addContent(ws1TestRoot, 21, 40, 750);
-    
-    // wait till backup will be stopped 
+
+    // wait till backup will be stopped
     waitTime(stopTime);
-    
+
     Thread.sleep(25000); // wait 25 sec if next chain was started before the stop
-    
+
     log.info(" restore #1 " + bch1.getLogFilePath());
     restoreAndCheck("ws1back.incr10", "jdbcjcr13", bch1.getLogFilePath(), backDir, 1, 20);
 
@@ -424,8 +433,8 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
   }
 
   /**
-   *  7. startTime, chainPeriod - run periodic forever
-   */ 
+   * 7. startTime, chainPeriod - run periodic forever
+   */
   public void testScheduler_p7() throws Exception {
     Date startTime;
 
@@ -447,19 +456,19 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     BackupScheduler scheduler = backup.getScheduler();
 
     scheduler.schedule(config, startTime, null, 10, 0);
-    
-    // wait till backup will be started 
+
+    // wait till backup will be started
     waitTime(startTime);
-    
+
     BackupChain bch1 = backup.getCurrentBackups().iterator().next();
-    //BackupChain bch1 = backup.findBackup(config.getRepository(), config.getWorkspace());
+    // BackupChain bch1 = backup.findBackup(config.getRepository(), config.getWorkspace());
 
     addContent(ws1TestRoot, 1, 20, 10);
-    // wait till next backup will be started 
+    // wait till next backup will be started
     Thread.sleep(11000);
 
     BackupChain bch2 = backup.getCurrentBackups().iterator().next();
-    //BackupChain bch2 = backup.findBackup(config.getRepository(), config.getWorkspace());
+    // BackupChain bch2 = backup.findBackup(config.getRepository(), config.getWorkspace());
 
     addContent(ws1TestRoot, 21, 40, 1);
 
@@ -496,24 +505,24 @@ public class TestBackupScheduler extends AbstractBackupTestCase {
     BackupScheduler scheduler = backup.getScheduler();
 
     scheduler.schedule(config, startTime, null, 10, 6);
-    
-    // wait till backup will be started 
+
+    // wait till backup will be started
     waitTime(startTime);
-    
+
     BackupChain bch1 = backup.getCurrentBackups().iterator().next();
-    //BackupChain bch1 = backup.findBackup(config.getRepository(), config.getWorkspace());
+    // BackupChain bch1 = backup.findBackup(config.getRepository(), config.getWorkspace());
 
     addContent(ws1TestRoot, 1, 20, 15);
-    // wait till next backup will be started 
+    // wait till next backup will be started
     Thread.sleep(11000);
 
     BackupChain bch2 = backup.getCurrentBackups().iterator().next();
-    //BackupChain bch2 = backup.findBackup(config.getRepository(), config.getWorkspace());
+    // BackupChain bch2 = backup.findBackup(config.getRepository(), config.getWorkspace());
 
     addContent(ws1TestRoot, 21, 40, 15);
 
-    // Stop backup 
-    Thread.sleep(10000); // for last started chain 
+    // Stop backup
+    Thread.sleep(10000); // for last started chain
     scheduler.unschedule(config);
 
     log.info("-----------------[ restore #1 ]-------------------------");

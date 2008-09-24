@@ -57,17 +57,21 @@ import org.exoplatform.services.naming.InitialContextInitializer;
  * @version $Id:GenericWorkspaceDataContainer.java 13433 2007-03-15 16:07:23Z peterit $
  */
 public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase implements Startable {
-  
+
   /**
    * Describe which type of RDBMS will be used (DB creation metadata etc.)
    */
-  public final static String DB_DIALECT = "dialect";
-  public final static String DB_DRIVER = "driverClassName";
-  public final static String DB_URL = "url";
-  public final static String DB_USERNAME = "username";
-  public final static String DB_PASSWORD = "password";
+  public final static String                 DB_DIALECT  = "dialect";
 
-  protected static Log                       log = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
+  public final static String                 DB_DRIVER   = "driverClassName";
+
+  public final static String                 DB_URL      = "url";
+
+  public final static String                 DB_USERNAME = "username";
+
+  public final static String                 DB_PASSWORD = "password";
+
+  protected static Log                       log         = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
 
   protected final String                     containerName;
 
@@ -102,24 +106,24 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     final private Connection connection;
 
     SharedConnectionFactory(Connection connection,
-        String containerName,
-        boolean multiDb,
-        ValueStoragePluginProvider valueStorageProvider,
-        int maxBufferSize,
-        File swapDirectory,
-        FileCleaner swapCleaner) {
+                            String containerName,
+                            boolean multiDb,
+                            ValueStoragePluginProvider valueStorageProvider,
+                            int maxBufferSize,
+                            File swapDirectory,
+                            FileCleaner swapCleaner) {
 
       super(null,
-          null,
-          null,
-          null,
-          null,
-          containerName,
-          multiDb,
-          valueStorageProvider,
-          maxBufferSize,
-          swapDirectory,
-          swapCleaner);
+            null,
+            null,
+            null,
+            null,
+            containerName,
+            multiDb,
+            valueStorageProvider,
+            maxBufferSize,
+            swapDirectory,
+            swapCleaner);
 
       this.connection = connection;
     }
@@ -131,21 +135,22 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
   /**
    * Constructor with value storage plugins
+   * 
    * @param wsConfig
    * @param valueStrorageProvider
    * @throws RepositoryConfigurationException
    * @throws NamingException
    */
   public JDBCWorkspaceDataContainer(WorkspaceEntry wsConfig,
-      RepositoryEntry repConfig,
-      InitialContextInitializer contextInit,
-      ValueStoragePluginProvider valueStorageProvider) throws RepositoryConfigurationException,
+                                    RepositoryEntry repConfig,
+                                    InitialContextInitializer contextInit,
+                                    ValueStoragePluginProvider valueStorageProvider) throws RepositoryConfigurationException,
       NamingException,
       RepositoryException,
       IOException {
-    
+
     checkIntegrity(wsConfig, repConfig);
-    
+
     this.containerName = wsConfig.getName();
     this.multiDb = Boolean.parseBoolean(wsConfig.getContainer().getParameterValue(MULTIDB));
     this.valueStorageProvider = valueStorageProvider;
@@ -168,7 +173,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     try {
       pDbDriver = wsConfig.getContainer().getParameterValue(DB_DRIVER);
 
-      // username/passwd may not pesent 
+      // username/passwd may not pesent
       try {
         pDbUserName = wsConfig.getContainer().getParameterValue(DB_USERNAME);
         pDbPassword = wsConfig.getContainer().getParameterValue(DB_PASSWORD);
@@ -192,12 +197,13 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       this.dbUrl = null;
       this.dbUserName = null;
       this.dbPassword = null;
-      
+
       String sn;
       try {
         sn = wsConfig.getContainer().getParameterValue(SOURCE_NAME);
-      } catch(RepositoryConfigurationException e) {
-        sn = wsConfig.getContainer().getParameterValue("sourceName"); // TODO for backward comp, remove in rel.2.0
+      } catch (RepositoryConfigurationException e) {
+        sn = wsConfig.getContainer().getParameterValue("sourceName"); // TODO for backward comp,
+        // remove in rel.2.0
       }
       this.dbSourceName = sn;
     }
@@ -219,7 +225,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       swapDirectory.mkdirs();
 
     this.swapCleaner = new FileCleaner(false);
-    
+
     initDatabase();
 
     String suParam = null;
@@ -231,57 +237,59 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       log.debug("update-storage parameter is not set " + dbSourceName);
     }
 
-    this.storageVersion = StorageUpdateManager.checkVersion(dbSourceName, this.connFactory
-        .getJdbcConnection(), multiDb, enableStorageUpdate);
+    this.storageVersion = StorageUpdateManager.checkVersion(dbSourceName,
+                                                            this.connFactory.getJdbcConnection(),
+                                                            multiDb,
+                                                            enableStorageUpdate);
 
     // check for FileValueStorage
-//    if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
-//      WorkspaceStorageConnection conn = null;
-//      try {
-//        conn = openConnection();
-//        ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
-//      } finally {
-//        if (conn != null)
-//          conn.rollback();
-//      }
-//    }
+    // if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
+    // WorkspaceStorageConnection conn = null;
+    // try {
+    // conn = openConnection();
+    // ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
+    // } finally {
+    // if (conn != null)
+    // conn.rollback();
+    // }
+    // }
 
     log.info(getInfo());
   }
 
   protected GenericConnectionFactory defaultConnectionFactory() throws NamingException,
-      RepositoryException {
+                                                               RepositoryException {
     // by default
     if (dbSourceName != null) {
       DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
       if (ds != null)
         return new GenericConnectionFactory(ds,
-            containerName,
-            multiDb,
-            valueStorageProvider,
-            maxBufferSize,
-            swapDirectory,
-            swapCleaner);
+                                            containerName,
+                                            multiDb,
+                                            valueStorageProvider,
+                                            maxBufferSize,
+                                            swapDirectory,
+                                            swapCleaner);
 
       throw new RepositoryException("Datasource '" + dbSourceName
           + "' is not bound in this context.");
     }
 
     return new GenericConnectionFactory(dbDriver,
-        dbUrl,
-        dbUserName,
-        dbPassword,
-        containerName,
-        multiDb,
-        valueStorageProvider,
-        maxBufferSize,
-        swapDirectory,
-        swapCleaner);
+                                        dbUrl,
+                                        dbUserName,
+                                        dbPassword,
+                                        containerName,
+                                        multiDb,
+                                        valueStorageProvider,
+                                        maxBufferSize,
+                                        swapDirectory,
+                                        swapCleaner);
   }
 
   protected DBInitializer defaultDBInitializer(String sqlPath) throws NamingException,
-      RepositoryException,
-      IOException {
+                                                              RepositoryException,
+                                                              IOException {
     return new DBInitializer(containerName, this.connFactory.getJdbcConnection(), sqlPath, multiDb);
   }
 
@@ -292,18 +300,15 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
           || !wsEntry.getContainer().getType().equals(wsConfig.getContainer().getType())
           || !wsEntry.getContainer().getType().equals(this.getClass().getName()))
         continue;
-      
+
       // MULTIDB
-      if (!wsEntry.getContainer().getParameterValue(MULTIDB).equals(wsConfig.getContainer()
-          .getParameterValue(MULTIDB))) {
-        throw new RepositoryConfigurationException("All workspaces must be "+MULTIDB+" or "+SINGLEDB+". But "
-            + wsEntry.getName()
-            + "- multi-db="
-            + wsEntry.getContainer().getParameterValue(MULTIDB)
-            + " and "
-            + wsConfig.getName()
-            + "- multi-db="
-            + wsConfig.getContainer().getParameterValue(MULTIDB));
+      if (!wsEntry.getContainer()
+                  .getParameterValue(MULTIDB)
+                  .equals(wsConfig.getContainer().getParameterValue(MULTIDB))) {
+        throw new RepositoryConfigurationException("All workspaces must be " + MULTIDB + " or "
+            + SINGLEDB + ". But " + wsEntry.getName() + "- multi-db="
+            + wsEntry.getContainer().getParameterValue(MULTIDB) + " and " + wsConfig.getName()
+            + "- multi-db=" + wsConfig.getContainer().getParameterValue(MULTIDB));
       }
 
       isMulti = Boolean.parseBoolean(wsConfig.getContainer().getParameterValue(MULTIDB));
@@ -321,19 +326,19 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
         if (isMulti) {
           if (wsSourceName.equals(newWsSourceName)) {
             throw new RepositoryConfigurationException("SourceName " + wsSourceName
-                + " alredy in use in " + wsEntry.getName()
-                + ". SourceName must be different in "+MULTIDB+". Check configuration for "
-                + wsConfig.getName());
+                + " alredy in use in " + wsEntry.getName() + ". SourceName must be different in "
+                + MULTIDB + ". Check configuration for " + wsConfig.getName());
           }
         } else {
           if (!wsSourceName.equals(newWsSourceName)) {
-            throw new RepositoryConfigurationException("SourceName must be equals in "+SINGLEDB+" "
-                + "repository." + " Check " + wsEntry.getName() + " and " + wsConfig.getName());
+            throw new RepositoryConfigurationException("SourceName must be equals in " + SINGLEDB
+                + " " + "repository." + " Check " + wsEntry.getName() + " and "
+                + wsConfig.getName());
           }
         }
         continue;
       }
-      
+
       // db-url
       String wsUri = null;
       String newWsUri = null;
@@ -342,19 +347,18 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
         newWsUri = wsConfig.getContainer().getParameterValue("db-url");
       } catch (RepositoryConfigurationException e) {
       }
-      
+
       if (wsUri != null && newWsUri != null) {
         if (isMulti) {
           if (wsUri.equals(newWsUri)) {
             throw new RepositoryConfigurationException("db-url  " + wsUri + " alredy in use in "
-                + wsEntry.getName()
-                + ". db-url must be different in "+MULTIDB+". Check configuration for "
-                + wsConfig.getName());
+                + wsEntry.getName() + ". db-url must be different in " + MULTIDB
+                + ". Check configuration for " + wsConfig.getName());
 
           }
         } else {
           if (!wsUri.equals(newWsUri)) {
-            throw new RepositoryConfigurationException("db-url must be equals in "+SINGLEDB+" "
+            throw new RepositoryConfigurationException("db-url must be equals in " + SINGLEDB + " "
                 + "repository." + " Check " + wsEntry.getName() + " and " + wsConfig.getName());
           }
         }
@@ -373,64 +377,64 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
         this.connFactory = defaultConnectionFactory();
       else
         this.connFactory = new OracleConnectionFactory(dbDriver,
-            dbUrl,
-            dbUserName,
-            dbPassword,
-            containerName,
-            multiDb,
-            valueStorageProvider,
-            maxBufferSize,
-            swapDirectory,
-            swapCleaner);
+                                                       dbUrl,
+                                                       dbUserName,
+                                                       dbPassword,
+                                                       containerName,
+                                                       multiDb,
+                                                       valueStorageProvider,
+                                                       maxBufferSize,
+                                                       swapDirectory,
+                                                       swapCleaner);
 
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
 
       // a particular db initializer may be configured here too
       dbInitilizer = new OracleDBInitializer(containerName,
-          this.connFactory.getJdbcConnection(),
-          sqlPath,
-          multiDb);
+                                             this.connFactory.getJdbcConnection(),
+                                             sqlPath,
+                                             multiDb);
     } else if (dbDialect == DBConstants.DB_DIALECT_ORACLE) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.ora.sql";
       dbInitilizer = new OracleDBInitializer(containerName,
-          this.connFactory.getJdbcConnection(),
-          sqlPath,
-          multiDb);
+                                             this.connFactory.getJdbcConnection(),
+                                             sqlPath,
+                                             multiDb);
     } else if (dbDialect == DBConstants.DB_DIALECT_PGSQL) {
       this.connFactory = defaultConnectionFactory();
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.pgsql.sql";
       dbInitilizer = new PgSQLDBInitializer(containerName,
-          this.connFactory.getJdbcConnection(),
-          sqlPath,
-          multiDb);
+                                            this.connFactory.getJdbcConnection(),
+                                            sqlPath,
+                                            multiDb);
     } else if (dbDialect == DBConstants.DB_DIALECT_MYSQL) {
       // [PN] 28.06.07
       if (dbSourceName != null) {
         DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
         if (ds != null)
           this.connFactory = new MySQLConnectionFactory(ds,
-              containerName,
-              multiDb,
-              valueStorageProvider,
-              maxBufferSize,
-              swapDirectory,
-              swapCleaner);
+                                                        containerName,
+                                                        multiDb,
+                                                        valueStorageProvider,
+                                                        maxBufferSize,
+                                                        swapDirectory,
+                                                        swapCleaner);
         else
           throw new RepositoryException("Datasource '" + dbSourceName
               + "' is not bound in this context.");
       } else
         this.connFactory = new MySQLConnectionFactory(dbDriver,
-            dbUrl,
-            dbUserName,
-            dbPassword,
-            containerName,
-            multiDb,
-            valueStorageProvider,
-            maxBufferSize,
-            swapDirectory,
-            swapCleaner);
-      
+                                                      dbUrl,
+                                                      dbUserName,
+                                                      dbPassword,
+                                                      containerName,
+                                                      multiDb,
+                                                      valueStorageProvider,
+                                                      maxBufferSize,
+                                                      swapDirectory,
+                                                      swapCleaner);
+
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
     } else if (dbDialect == DBConstants.DB_DIALECT_MYSQL_UTF8) {
@@ -439,27 +443,27 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
         DataSource ds = (DataSource) new InitialContext().lookup(dbSourceName);
         if (ds != null)
           this.connFactory = new MySQLConnectionFactory(ds,
-              containerName,
-              multiDb,
-              valueStorageProvider,
-              maxBufferSize,
-              swapDirectory,
-              swapCleaner);
+                                                        containerName,
+                                                        multiDb,
+                                                        valueStorageProvider,
+                                                        maxBufferSize,
+                                                        swapDirectory,
+                                                        swapCleaner);
         else
           throw new RepositoryException("Datasource '" + dbSourceName
               + "' is not bound in this context.");
       } else
         this.connFactory = new MySQLConnectionFactory(dbDriver,
-            dbUrl,
-            dbUserName,
-            dbPassword,
-            containerName,
-            multiDb,
-            valueStorageProvider,
-            maxBufferSize,
-            swapDirectory,
-            swapCleaner);
-      
+                                                      dbUrl,
+                                                      dbUserName,
+                                                      dbPassword,
+                                                      containerName,
+                                                      multiDb,
+                                                      valueStorageProvider,
+                                                      maxBufferSize,
+                                                      swapDirectory,
+                                                      swapCleaner);
+
       sqlPath = "/conf/storage/jcr-" + (multiDb ? "m" : "s") + "jdbc.mysql-utf8.sql";
       dbInitilizer = defaultDBInitializer(sqlPath);
     } else if (dbDialect == DBConstants.DB_DIALECT_MSSQL) {
@@ -510,7 +514,8 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     return DBConstants.DB_DIALECT_GENERIC; // by default
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#openConnection()
    */
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
@@ -521,14 +526,13 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
 
     if (original instanceof JDBCStorageConnection) {
-      WorkspaceStorageConnectionFactory cFactory = new SharedConnectionFactory(((JDBCStorageConnection) original)
-          .getJdbcConnection(),
-          containerName,
-          multiDb,
-          valueStorageProvider,
-          maxBufferSize,
-          swapDirectory,
-          swapCleaner);
+      WorkspaceStorageConnectionFactory cFactory = new SharedConnectionFactory(((JDBCStorageConnection) original).getJdbcConnection(),
+                                                                               containerName,
+                                                                               multiDb,
+                                                                               valueStorageProvider,
+                                                                               maxBufferSize,
+                                                                               swapDirectory,
+                                                                               swapCleaner);
 
       return cFactory.openConnection();
     } else {
@@ -536,14 +540,16 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getName()
    */
   public String getName() {
     return containerName;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getInfo()
    */
   public String getInfo() {
@@ -555,28 +561,31 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     return str;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.DataContainer#getStorageVersion()
    */
   public String getStorageVersion() {
     return storageVersion;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
-    this.swapCleaner.start(); 
+    this.swapCleaner.start();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.picocontainer.Startable#stop()
    */
   public void stop() {
     this.swapCleaner.halt();
     this.swapCleaner.interrupt();
 
-    //TODO HSQLDB Stop (debug)
+    // TODO HSQLDB Stop (debug)
     // if (dbDialect.equals(DB_DIALECT_GENERIC) ||
     // dbDialect.equals(DB_DIALECT_HSQLDB)) {
     // // shutdown in-process HSQLDB database

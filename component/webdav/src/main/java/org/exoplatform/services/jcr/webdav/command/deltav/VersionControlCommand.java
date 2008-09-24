@@ -26,32 +26,32 @@ import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class VersionControlCommand {
-  
+
   public Response versionControl(Session session, String path) {
-    try {      
-      Node node = (Node)session.getItem(path);
-      
+    try {
+      Node node = (Node) session.getItem(path);
+
       if (!node.isNodeType("mix:versionable")) {
         node.addMixin("mix:versionable");
         session.save();
       }
       return Response.Builder.ok().build();
-      
+
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
-      
+
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
-    
+
     } catch (Exception exc) {
-      return Response.Builder.serverError().build(); 
-    }    
+      return Response.Builder.serverError().build();
+    }
   }
 
 }

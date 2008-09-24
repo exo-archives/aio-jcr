@@ -23,15 +23,14 @@ import java.util.Date;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 27.02.2008
- *
- * TODO Test should be run twice to check restored task
- * 1. testPeriodicSchedulerPrepare() and stop
+ * 
+ * TODO Test should be run twice to check restored task 1. testPeriodicSchedulerPrepare() and stop
  * 2. restart and run testPeriodicSchedulerRestore()
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestBackupRestart.java 11395 2008-02-27 16:19:37Z pnedonosko $
  */
 public class TestBackupRestart extends AbstractBackupTestCase {
@@ -71,7 +70,7 @@ public class TestBackupRestart extends AbstractBackupTestCase {
 
     // wait till backup will be started
     waitTime(startTime);
-    
+
     BackupChain bch = backup.getCurrentBackups().iterator().next();
 
     // wait till full backup will be stopped
@@ -84,9 +83,9 @@ public class TestBackupRestart extends AbstractBackupTestCase {
     addContent(ws1TestRoot, 1, 50, 1000);
 
     // stop to be restarted
-    Thread.sleep(1000);    
+    Thread.sleep(1000);
   }
-  
+
   public void _testPeriodicSchedulerRestore() throws Exception {
     BackupChain bch = backup.getCurrentBackups().iterator().next();
     File backDir = bch.getBackupConfig().getBackupDir();
@@ -96,9 +95,9 @@ public class TestBackupRestart extends AbstractBackupTestCase {
       Thread.yield();
       Thread.sleep(100);
     }
-    
+
     // restore
     restoreAndCheck("ws1back.restored", "jdbcjcr9", bch.getLogFilePath(), backDir, 1, 50);
   }
-  
+
 }

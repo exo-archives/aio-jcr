@@ -29,8 +29,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
@@ -55,7 +54,7 @@ public class TestRewriteNode extends BaseQueryTest {
     TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, "fox"));
     Hits result = is.search(query);
     assertEquals(1, result.length());
-    
+
     cont.setProperty("jcr:data", "Bahama mama");
     root.save();
 
@@ -64,13 +63,13 @@ public class TestRewriteNode extends BaseQueryTest {
     query = new TermQuery(new Term(FieldNames.FULLTEXT, "mama"));
     result = is.search(query);
     assertEquals(1, result.length());
-    
+
     reader = defaultSearchIndex.getIndexReader(false);
     is = new IndexSearcher(reader);
     query = new TermQuery(new Term(FieldNames.FULLTEXT, "fox"));
     result = is.search(query);
     assertEquals(0, result.length());
-    
+
   }
 
 }

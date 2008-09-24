@@ -30,31 +30,30 @@ import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.load.blob.TestConcurrentItems;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 24.10.2006
+ * 
  * @version $Id: ReadThread.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class ReadThread extends UserThread {
-  
+
   public ReadThread(Session threadSession) {
     super(threadSession);
   }
-  
+
   public void testAction() {
     while (process) {
       readAction();
       try {
         sleep(200);
-      } catch(InterruptedException e) {
+      } catch (InterruptedException e) {
         threadLog.error("Sleep error: " + e.getMessage(), e);
       }
     }
   }
-  
+
   public void readAction() {
-    
+
     final List<String> readedNodes = new ArrayList<String>();
     int dataSizeInfo = 0;
     try {
@@ -69,21 +68,24 @@ public class ReadThread extends UserThread {
         try {
           PropertyImpl data = (PropertyImpl) content.getProperty("jcr:data");
           dataStream = data.getStream();
-          //threadLog.info("Read property " + data.getPath() + ", " + data.getInternalUUID());
+          // threadLog.info("Read property " + data.getPath() + ", " + data.getInternalUUID());
           byte[] buff = new byte[1024 * 4];
           int read = 0;
           dataSize = 0;
-          while ((read = dataStream.read(buff))>=0) {  
+          while ((read = dataStream.read(buff)) >= 0) {
             dataSize += read;
           }
           if (dataSize != TestConcurrentItems.TEST_FILE_SIZE)
-            threadLog.error("Wrong data size. " + dataSize + " but expected " + TestConcurrentItems.TEST_FILE_SIZE 
-                + ". " + dataStream + ". " + data.getPath() + " " + data.getInternalIdentifier());
+            threadLog.error("Wrong data size. " + dataSize + " but expected "
+                + TestConcurrentItems.TEST_FILE_SIZE + ". " + dataStream + ". " + data.getPath()
+                + " " + data.getInternalIdentifier());
           else if (threadLog.isDebugEnabled())
-            threadLog.debug("Read node: " + dataStream + ", " + node.getPath() + ", data: " + data.getInternalIdentifier());
-        } catch(RepositoryException e) {
-          threadLog.error("Repository error: " + e.getMessage() + ", " + dataSize + " bytes from " + TestConcurrentItems.TEST_FILE_SIZE, e);
-        } catch(FileNotFoundException e) {
+            threadLog.debug("Read node: " + dataStream + ", " + node.getPath() + ", data: "
+                + data.getInternalIdentifier());
+        } catch (RepositoryException e) {
+          threadLog.error("Repository error: " + e.getMessage() + ", " + dataSize + " bytes from "
+              + TestConcurrentItems.TEST_FILE_SIZE, e);
+        } catch (FileNotFoundException e) {
           threadLog.error("File not found, stream: " + dataStream + ", " + e.getMessage(), e);
         } finally {
           if (dataStream != null)
@@ -91,10 +93,11 @@ public class ReadThread extends UserThread {
           dataSizeInfo = dataSize;
         }
         readedNodes.add(node.getPath());
-        //threadLog.info("Read node " + node.getPath());
+        // threadLog.info("Read node " + node.getPath());
       }
-    } catch(Throwable th) {
-      threadLog.error("Read error: " + th.getMessage() + ", " + dataSizeInfo + " bytes from " + TestConcurrentItems.TEST_FILE_SIZE, th);
+    } catch (Throwable th) {
+      threadLog.error("Read error: " + th.getMessage() + ", " + dataSizeInfo + " bytes from "
+          + TestConcurrentItems.TEST_FILE_SIZE, th);
     } finally {
       TestConcurrentItems.consumedNodes.addAll(readedNodes);
     }

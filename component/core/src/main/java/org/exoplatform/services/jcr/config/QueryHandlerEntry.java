@@ -68,8 +68,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   public static final int      DEFAULT_EXTRACTOR_POOLSIZE         = 0;
 
   /**
-   * The default timeout in milliseconds which is granted to the text extraction
-   * process until fulltext indexing is deferred to a background thread.
+   * The default timeout in milliseconds which is granted to the text extraction process until
+   * fulltext indexing is deferred to a background thread.
    */
   public static final long     DEFAULT_EXTRACTOR_TIMEOUT          = 100;
 
@@ -128,8 +128,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   private static final String  DEFAULT_QUERY_IMPL_CLASS           = QueryImpl.class.getName();
 
   /**
-   * The number of documents that are pre fetched when a query is executed. <p/>
-   * Default value is: {@link Integer#MAX_VALUE}.
+   * The number of documents that are pre fetched when a query is executed. <p/> Default value is:
+   * {@link Integer#MAX_VALUE}.
    */
   private final static int     DEFAULT_RESULTFETCHSIZE            = Integer.MAX_VALUE;
 
@@ -166,13 +166,12 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   private final static String  PARAM_FORCE_CONSISTENCYCHECK       = "force-consistencycheck";
 
   /**
-   *  ErrorLog file size in Kb.
+   * ErrorLog file size in Kb.
    */
   private final static String  PARAM_ERRORLOG_SIZE                = "errorlog-size";
 
   /**
-   * The location of the search index. <p/> Note: This is a <b>mandatory</b>
-   * parameter!
+   * The location of the search index. <p/> Note: This is a <b>mandatory</b> parameter!
    */
   private final static String  PARAM_INDEX_DIR                    = "index-dir";
 
@@ -232,9 +231,11 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Creates an excerpt provider for the given <code>query</code>.
    * 
-   * @param query the query.
+   * @param query
+   *          the query.
    * @return an excerpt provider for the given <code>query</code>.
-   * @throws IOException if the provider cannot be created.
+   * @throws IOException
+   *           if the provider cannot be created.
    */
   public ExcerptProvider createExcerptProvider(Query query) throws IOException {
     ExcerptProvider ep;
@@ -253,9 +254,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * @param namespaceMappings The namespace mappings
-   * @return the fulltext indexing configuration or <code>null</code> if there
-   *         is no configuration.
+   * @param namespaceMappings
+   *          The namespace mappings
+   * @return the fulltext indexing configuration or <code>null</code> if there is no configuration.
    */
   public IndexingConfiguration createIndexingConfiguration(NamespaceMappings namespaceMappings,
                                                            QueryHandlerContext context) throws IOException,
@@ -293,8 +294,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Creates a spell checker for this query handler.
    * 
-   * @return the spell checker or <code>null</code> if none is configured or
-   *         an error occurs.
+   * @return the spell checker or <code>null</code> if none is configured or an error occurs.
    */
   public SpellChecker createSpellChecker(QueryHandler handler) {
     SpellChecker spCheck = null;
@@ -312,8 +312,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * @return the configured synonym provider or <code>null</code> if none is
-   *         configured or an error occurs.
+   * @return the configured synonym provider or <code>null</code> if none is configured or an error
+   *         occurs.
    */
   public SynonymProvider createSynonymProvider() {
     SynonymProvider sp = null;
@@ -337,9 +337,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * If set <code>true</code> errors detected by the consistency check are
-   * repaired. If <code>false</code> the errors are only reported in the log.
-   * <p/> Default value is: <code>true</code>.
+   * If set <code>true</code> errors detected by the consistency check are repaired. If
+   * <code>false</code> the errors are only reported in the log. <p/> Default value is:
+   * <code>true</code>.
    */
   public boolean getAutoRepair() {
     return getParameterBoolean(PARAM_AUTO_REPAIR, DEFAULT_AUTOREPAIR);
@@ -383,8 +383,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * @return the size of the thread pool which is used to run the text
-   *         extractors when binary content is indexed.
+   * @return the size of the thread pool which is used to run the text extractors when binary
+   *         content is indexed.
    */
   public int getExtractorPoolSize() {
     return getParameterInteger(PARAM_EXTRACTOR_POOLSIZE, DEFAULT_EXTRACTOR_POOLSIZE);
@@ -399,8 +399,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * Returns the location of the search index. Returns <code>null</code> if
-   * not set.
+   * Returns the location of the search index. Returns <code>null</code> if not set.
    * 
    * @return the location of the search index.
    * @throws RepositoryConfigurationException
@@ -473,8 +472,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * @return the number of results the query handler will fetch initially when a
-   *         query is executed.
+   * @return the number of results the query handler will fetch initially when a query is executed.
    */
   public int getResultFetchSize() {
     return getParameterInteger(PARAM_RESULT_FETCH_SIZE, DEFAULT_RESULTFETCHSIZE);
@@ -487,8 +485,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Get spell checker class.
    * 
-   * @return the class name of the spell checker implementation or
-   *         <code>null</code> if none is set.
+   * @return the class name of the spell checker implementation or <code>null</code> if none is set.
    */
   public String getSpellCheckerClass() {
     return getParameterValue(PARAM_SPELLCHECKER_CLASS, null);
@@ -506,8 +503,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Get synonym provider class.
    * 
-   * @return the class name of the synonym provider implementation or
-   *         <code>null</code> if none is set.
+   * @return the class name of the synonym provider implementation or <code>null</code> if none is
+   *         set.
    */
   public String getSynonymProviderClass() {
     return getParameterValue(PARAM_SYNONYMPROVIDER_CLASS, null);
@@ -516,8 +513,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Get synonym provider configuration path.
    * 
-   * @return the configuration path for the synonym provider. If none is set
-   *         this method returns <code>null</code>.
+   * @return the configuration path for the synonym provider. If none is set this method returns
+   *         <code>null</code>.
    */
   public String getSynonymProviderConfigPath() {
     return getParameterValue(PARAM_SYNONYMPROVIDER_CONFIG_PATH, null);
@@ -545,10 +542,10 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * If set <code>true</code> the index is checked for consistency depending
-   * on the {@link #forceConsistencyCheck} parameter. If set to
-   * <code>false</code>, no consistency check is performed, even if the redo
-   * log had been applied on startup. <p/> Default value is: <code>false</code>.
+   * If set <code>true</code> the index is checked for consistency depending on the
+   * {@link #forceConsistencyCheck} parameter. If set to <code>false</code>, no consistency check is
+   * performed, even if the redo log had been applied on startup. <p/> Default value is:
+   * <code>false</code>.
    * 
    * @return boolean
    */
@@ -563,8 +560,7 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Creates a file system resource to the synonym provider configuration.
    * 
-   * @return a file system resource or <code>null</code> if no path was
-   *         configured.
+   * @return a file system resource or <code>null</code> if no path was configured.
    */
   protected InputStream createSynonymProviderConfigResource() {
     if (getSynonymProviderConfigPath() != null) {
@@ -574,8 +570,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * Returns the document element of the indexing configuration or
-   * <code>null</code> if there is no indexing configuration.
+   * Returns the document element of the indexing configuration or <code>null</code> if there is no
+   * indexing configuration.
    * 
    * @return the indexing configuration or <code>null</code> if there is none.
    * @throws IOException

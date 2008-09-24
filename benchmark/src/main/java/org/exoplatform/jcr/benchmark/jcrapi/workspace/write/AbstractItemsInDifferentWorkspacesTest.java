@@ -75,11 +75,9 @@ public abstract class AbstractItemsInDifferentWorkspacesTest extends JCRTestBase
     ws2Session.save();
   }
 
-  protected abstract void ws1CreateContent(Node parent, TestCase tc, JCRTestContext context)
-      throws Exception;
+  protected abstract void ws1CreateContent(Node parent, TestCase tc, JCRTestContext context) throws Exception;
 
-  protected abstract void ws2CreateContent(Node parent, TestCase tc, JCRTestContext context)
-      throws Exception;
+  protected abstract void ws2CreateContent(Node parent, TestCase tc, JCRTestContext context) throws Exception;
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {

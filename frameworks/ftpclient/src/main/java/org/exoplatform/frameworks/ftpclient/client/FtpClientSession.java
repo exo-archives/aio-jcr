@@ -22,26 +22,32 @@ import org.exoplatform.frameworks.ftpclient.commands.FtpCommand;
 import org.exoplatform.frameworks.ftpclient.data.FtpDataTransiver;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public interface FtpClientSession {
 
   Socket getClientSocket();
-  
+
   boolean connect() throws Exception;
+
   boolean connect(int attemptsCount) throws Exception;
-  
+
   void close();
+
   int executeCommand(FtpCommand command) throws Exception;
+
   int executeCommand(FtpCommand command, int expectReply, int attemptsCount) throws Exception;
-  
+
   void setSystemType(String systemType);
+
   String getSystemType();
-  
+
   void setDataTransiver(FtpDataTransiver dataTransiver);
+
   FtpDataTransiver getDataTransiver();
-  
+
 }

@@ -29,7 +29,6 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
  */
 public class LockActionInfo extends ActionInfo {
 
-
   @Override
   public int getEventType() {
     return ExtendedEvent.LOCK;
@@ -41,12 +40,13 @@ public class LockActionInfo extends ActionInfo {
     if (node.canAddMixin("mix:lockable"))
       node.addMixin("mix:lockable");
     node.getSession().save();
-    node.lock(true,true);
-    //node.getSession().save();
+    node.lock(true, true);
+    // node.getSession().save();
   }
-  public void tearDown(Context ctx) throws RepositoryException{
+
+  public void tearDown(Context ctx) throws RepositoryException {
     Node node = (Node) ctx.get("node");
-    if(node.isLocked())
+    if (node.isLocked())
       node.unlock();
   }
 }

@@ -24,13 +24,16 @@ import javax.jcr.lock.LockException;
 import org.exoplatform.services.jcr.RepositoryService;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 27.06.2008
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 27.06.2008
  */
 public class LockTestCase extends BaseReplicationTestCase {
 
-  public LockTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+  public LockTestCase(RepositoryService repositoryService,
+                      String reposytoryName,
+                      String workspaceName,
+                      String userName,
+                      String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
     log.info("LockTestCase inited");
   }
@@ -62,7 +65,7 @@ public class LockTestCase extends BaseReplicationTestCase {
     String normalizePath = getNormalizePath(repoPath);
 
     try {
-      Node destNodeLocked = (Node)session.getItem(normalizePath);
+      Node destNodeLocked = (Node) session.getItem(normalizePath);
       destNodeLocked.setProperty("jcr:data", "dd");
       session.save();
 

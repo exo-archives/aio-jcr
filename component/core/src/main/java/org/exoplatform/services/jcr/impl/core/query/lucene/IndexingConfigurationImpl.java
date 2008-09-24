@@ -53,8 +53,7 @@ import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * <code>IndexingConfigurationImpl</code> implements a concrete indexing
- * configuration.
+ * <code>IndexingConfigurationImpl</code> implements a concrete indexing configuration.
  */
 public class IndexingConfigurationImpl implements IndexingConfiguration {
 
@@ -131,8 +130,7 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   }
 
   /**
-   * Returns the configured indexing aggregate rules or <code>null</code> if
-   * none exist.
+   * Returns the configured indexing aggregate rules or <code>null</code> if none exist.
    * 
    * @return the configured rules or <code>null</code> if none exist.
    */
@@ -143,7 +141,8 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   /**
    * Returns the boost for the node scope fulltext index field.
    * 
-   * @param state the node state.
+   * @param state
+   *          the node state.
    * @return the boost for the node scope fulltext index field.
    */
   public float getNodeBoost(NodeData state) {
@@ -155,16 +154,15 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   }
 
   /**
-   * Returns the analyzer configured for the property with this fieldName (the
-   * string representation ,JCR-style name, of the given <code>Name</code>
-   * prefixed with <code>FieldNames.FULLTEXT_PREFIX</code>)), and
-   * <code>null</code> if none is configured, or the configured analyzer
-   * cannot be found. If <code>null</code> is returned, the default Analyzer
-   * is used.
+   * Returns the analyzer configured for the property with this fieldName (the string representation
+   * ,JCR-style name, of the given <code>Name</code> prefixed with
+   * <code>FieldNames.FULLTEXT_PREFIX</code>)), and <code>null</code> if none is configured, or the
+   * configured analyzer cannot be found. If <code>null</code> is returned, the default Analyzer is
+   * used.
    * 
-   * @param fieldName the string representation ,JCR-style name, of the given
-   *          <code>Name</code> prefixed with
-   *          <code>FieldNames.FULLTEXT_PREFIX</code>))
+   * @param fieldName
+   *          the string representation ,JCR-style name, of the given <code>Name</code> prefixed
+   *          with <code>FieldNames.FULLTEXT_PREFIX</code>))
    * @return the <code>analyzer</code> to use for indexing this property
    */
   public Analyzer getPropertyAnalyzer(String fieldName) {
@@ -177,12 +175,13 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   // ---------------------------------< internal >-----------------------------
 
   /**
-   * Returns the boost value for the given property name. If there is no
-   * configuration entry for the property name the {@link #DEFAULT_BOOST} is
-   * returned.
+   * Returns the boost value for the given property name. If there is no configuration entry for the
+   * property name the {@link #DEFAULT_BOOST} is returned.
    * 
-   * @param state the node state.
-   * @param propertyName the name of a property.
+   * @param state
+   *          the node state.
+   * @param propertyName
+   *          the name of a property.
    * @return the boost value for the property.
    */
   public float getPropertyBoost(NodeData state, InternalQName propertyName) {
@@ -293,14 +292,15 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   }
 
   /**
-   * Returns <code>true</code> if the property with the given name should be
-   * included in the node scope fulltext index. If there is not configuration
-   * entry for that propery <code>false</code> is returned.
+   * Returns <code>true</code> if the property with the given name should be included in the node
+   * scope fulltext index. If there is not configuration entry for that propery <code>false</code>
+   * is returned.
    * 
-   * @param state the node state.
-   * @param propertyName the name of a property.
-   * @return <code>true</code> if the property should be included in the node
-   *         scope fulltext index.
+   * @param state
+   *          the node state.
+   * @param propertyName
+   *          the name of a property.
+   * @return <code>true</code> if the property should be included in the node scope fulltext index.
    */
   public boolean isIncludedInNodeScopeIndex(NodeData state, InternalQName propertyName) {
     IndexingRule rule = getApplicableIndexingRule(state);
@@ -312,13 +312,14 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   }
 
   /**
-   * Returns <code>true</code> if the property with the given name is fulltext
-   * indexed according to this configuration.
+   * Returns <code>true</code> if the property with the given name is fulltext indexed according to
+   * this configuration.
    * 
-   * @param state the node state.
-   * @param propertyName the name of a property.
-   * @return <code>true</code> if the property is fulltext indexed;
-   *         <code>false</code> otherwise.
+   * @param state
+   *          the node state.
+   * @param propertyName
+   *          the name of a property.
+   * @return <code>true</code> if the property is fulltext indexed; <code>false</code> otherwise.
    */
   public boolean isIndexed(NodeData state, InternalQName propertyName) {
     IndexingRule rule = getApplicableIndexingRule(state);
@@ -330,10 +331,10 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   }
 
   /**
-   * Returns the first indexing rule that applies to the given node
-   * <code>state</code>.
+   * Returns the first indexing rule that applies to the given node <code>state</code>.
    * 
-   * @param state a node state.
+   * @param state
+   *          a node state.
    * @return the indexing rule or <code>null</code> if none applies.
    */
   private IndexingRule getApplicableIndexingRule(NodeData state) {
@@ -370,13 +371,16 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   /**
    * Gets the condition expression from the configuration.
    * 
-   * @param config the config node.
-   * @return the condition expression or <code>null</code> if there is no
-   *         condition set on the <code>config</code>.
+   * @param config
+   *          the config node.
+   * @return the condition expression or <code>null</code> if there is no condition set on the
+   *         <code>config</code>.
    * @throws RepositoryException
    * @throws PathNotFoundException
-   * @throws MalformedPathException if the condition string is malformed.
-   * @throws IllegalNameException if a name contains illegal characters.
+   * @throws MalformedPathException
+   *           if the condition string is malformed.
+   * @throws IllegalNameException
+   *           if a name contains illegal characters.
    */
   private PathExpression getCondition(Node config) throws PathNotFoundException,
                                                   RepositoryException {
@@ -448,12 +452,13 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   /**
    * Creates property configurations defined in the <code>config</code>.
    * 
-   * @param config the fulltext indexing configuration.
+   * @param config
+   *          the fulltext indexing configuration.
    * @return the property configurations defined in the <code>config</code>.
    * @throws RepositoryException
    * @throws PathNotFoundException
-   * @throws IllegalNameException if the node type name contains illegal
-   *           characters.
+   * @throws IllegalNameException
+   *           if the node type name contains illegal characters.
    */
   private Map<InternalQName, PropertyConfig> getPropertyConfigs(Node config) throws PathNotFoundException,
                                                                             RepositoryException {
@@ -513,11 +518,14 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     private final float                              boost;
 
     /**
-     * @param config the configuration for this rule.
+     * @param config
+     *          the configuration for this rule.
      * @throws RepositoryException
      * @throws PathNotFoundException
-     * @throws MalformedPathException if the condition expression is malformed.
-     * @throws IllegalNameException if a name contains illegal characters.
+     * @throws MalformedPathException
+     *           if the condition expression is malformed.
+     * @throws IllegalNameException
+     *           if a name contains illegal characters.
      */
     IndexingRule(Node config) throws PathNotFoundException, RepositoryException {
       this.nodeTypeName = getNodeTypeName(config);
@@ -527,12 +535,11 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     }
 
     /**
-     * Returns <code>true</code> if this rule applies to the given node
-     * <code>state</code>.
+     * Returns <code>true</code> if this rule applies to the given node <code>state</code>.
      * 
-     * @param state the state to check.
-     * @return <code>true</code> the rule applies to the given node;
-     *         <code>false</code> otherwise.
+     * @param state
+     *          the state to check.
+     * @return <code>true</code> the rule applies to the given node; <code>false</code> otherwise.
      */
     public boolean appliesTo(NodeData state) {
       if (!nodeTypeName.equals(state.getPrimaryTypeName())) {
@@ -546,11 +553,11 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     }
 
     /**
-     * Returns the boost value for the given property name. If there is no
-     * configuration entry for the property name the default boost value is
-     * returned.
+     * Returns the boost value for the given property name. If there is no configuration entry for
+     * the property name the default boost value is returned.
      * 
-     * @param propertyName the name of a property.
+     * @param propertyName
+     *          the name of a property.
      * @return the boost value for the property.
      */
     public float getBoost(InternalQName propertyName) {
@@ -579,13 +586,14 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     }
 
     /**
-     * Returns <code>true</code> if the property with the given name should be
-     * included in the node scope fulltext index. If there is not configuration
-     * entry for that propery <code>false</code> is returned.
+     * Returns <code>true</code> if the property with the given name should be included in the node
+     * scope fulltext index. If there is not configuration entry for that propery <code>false</code>
+     * is returned.
      * 
-     * @param propertyName the name of a property.
-     * @return <code>true</code> if the property should be included in the
-     *         node scope fulltext index.
+     * @param propertyName
+     *          the name of a property.
+     * @return <code>true</code> if the property should be included in the node scope fulltext
+     *         index.
      */
     public boolean isIncludedInNodeScopeIndex(InternalQName propertyName) {
       PropertyConfig config = propConfigs.get(propertyName);
@@ -597,12 +605,12 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     }
 
     /**
-     * Returns <code>true</code> if the property with the given name is
-     * indexed according to this rule.
+     * Returns <code>true</code> if the property with the given name is indexed according to this
+     * rule.
      * 
-     * @param propertyName the name of a property.
-     * @return <code>true</code> if the property is indexed;
-     *         <code>false</code> otherwise.
+     * @param propertyName
+     *          the name of a property.
+     * @return <code>true</code> if the property is indexed; <code>false</code> otherwise.
      */
     public boolean isIndexed(InternalQName propertyName) {
       return propConfigs.containsKey(propertyName);
@@ -613,9 +621,9 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     /**
      * Returns the node boost from the <code>config</code>.
      * 
-     * @param config the configuration.
-     * @return the configured node boost or the default boost if none is
-     *         configured.
+     * @param config
+     *          the configuration.
+     * @return the configured node boost or the default boost if none is configured.
      */
     private float getNodeBoost(Node config) {
       Node boost = config.getAttributes().getNamedItem("boost");
@@ -632,12 +640,13 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     /**
      * Reads the node type of the root node of the indexing rule.
      * 
-     * @param config the configuration.
+     * @param config
+     *          the configuration.
      * @return the name of the node type.
      * @throws RepositoryException
      * @throws PathNotFoundException
-     * @throws IllegalNameException if the node type name contains illegal
-     *           characters.
+     * @throws IllegalNameException
+     *           if the node type name contains illegal characters.
      */
     private InternalQName getNodeTypeName(Node config) throws PathNotFoundException,
                                                       RepositoryException {
@@ -679,10 +688,11 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     }
 
     /**
-     * Evaluates this expression and returns <code>true</code> if the
-     * condition matches using <code>state</code> as the context node state.
+     * Evaluates this expression and returns <code>true</code> if the condition matches using
+     * <code>state</code> as the context node state.
      * 
-     * @param context the context from where the expression should be evaluated.
+     * @param context
+     *          the context from where the expression should be evaluated.
      * @return expression result.
      */
     boolean evaluate(final NodeData context) {
@@ -813,8 +823,8 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
     final float   boost;
 
     /**
-     * Flag that indicates whether a property is included in the node scope
-     * fulltext index of its parent.
+     * Flag that indicates whether a property is included in the node scope fulltext index of its
+     * parent.
      */
     final boolean nodeScopeIndex;
 
@@ -825,7 +835,8 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
   }
 
   /**
-   * @param node a node.
+   * @param node
+   *          a node.
    * @return the text content of the <code>node</code>.
    */
   private static String getTextContent(Node node) {

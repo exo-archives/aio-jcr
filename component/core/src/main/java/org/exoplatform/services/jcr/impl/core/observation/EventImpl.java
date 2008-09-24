@@ -20,14 +20,14 @@ import javax.jcr.observation.Event;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: EventImpl.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class EventImpl implements Event {
 
-  private int type;
+  private int    type;
 
   private String path;
 
@@ -39,7 +39,7 @@ public class EventImpl implements Event {
     this.userId = userId;
     this.path = path;
   }
-  
+
   /**
    * @see javax.jcr.observation.Event#getType
    */

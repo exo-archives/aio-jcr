@@ -30,13 +30,13 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class RestoreOwnNodeTest extends JCRTestBase {
   /*
-   * Each thread restores own node to some of few versions which has been 
-   * created before
+   * Each thread restores own node to some of few versions which has been created before
    */
 
   public static Log log      = ExoLogger.getLogger("jcr.benchmark");

@@ -24,30 +24,30 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 15.01.2008
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 15.01.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupMessagesLog.java 760 2008-02-07 15:08:07Z pnedonosko $
  */
 public class BackupMessagesLog {
 
-  public static final int MESSAGES_MAXSIZE = 250;
-  
-  protected Log                     log    = ExoLogger.getLogger("ext.BackupMessagesLog");
+  public static final int           MESSAGES_MAXSIZE = 250;
 
-  private final List<BackupMessage> messages = new ArrayList<BackupMessage>();
+  protected Log                     log              = ExoLogger.getLogger("ext.BackupMessagesLog");
 
-  private final int messagesMaxSize;
-  
+  private final List<BackupMessage> messages         = new ArrayList<BackupMessage>();
+
+  private final int                 messagesMaxSize;
+
   public BackupMessagesLog() {
     this.messagesMaxSize = MESSAGES_MAXSIZE;
   }
-  
+
   public BackupMessagesLog(int messagesMaxSize) {
     this.messagesMaxSize = messagesMaxSize;
   }
-  
+
   public void addError(String message, Throwable e) {
     synchronized (messages) {
       messages.add(new BackupError(message, e));
@@ -66,8 +66,9 @@ public class BackupMessagesLog {
     if (messages.size() > messagesMaxSize) {
       // remove eldest
       int curentSize = messages.size();
-      for (Iterator<BackupMessage> i = messages.iterator(); i.hasNext() && (curentSize > messagesMaxSize);) {
-        i.next(); 
+      for (Iterator<BackupMessage> i = messages.iterator(); i.hasNext()
+          && (curentSize > messagesMaxSize);) {
+        i.next();
         i.remove();
         curentSize--;
       }
@@ -79,13 +80,14 @@ public class BackupMessagesLog {
       BackupMessage[] copy = new BackupMessage[messages.size()];
       for (int i = 0; i < messages.size(); i++) {
         BackupMessage m = messages.get(i);
-        copy[i] = m instanceof BackupError ? 
-            new BackupError(((BackupError) m).getMessage(), ((BackupError) m).stackTraces) : new BackupMessage(m.getMessage());
+        copy[i] = m instanceof BackupError
+            ? new BackupError(((BackupError) m).getMessage(), ((BackupError) m).stackTraces)
+            : new BackupMessage(m.getMessage());
       }
       return copy;
     }
   }
-  
+
   public void clear() {
     messages.clear();
   }

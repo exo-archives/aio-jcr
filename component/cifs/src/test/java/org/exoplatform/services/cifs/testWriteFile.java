@@ -34,40 +34,36 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
 
 public class testWriteFile extends BaseStandaloneTest {
 
-  protected static Log logger = ExoLogger
-      .getLogger("jcr.JCRTest.testWriteFile");
+  protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testWriteFile");
 
-  protected String servername;
+  protected String     servername;
 
-  private File testFileBig;
+  private File         testFileBig;
 
-  private File testFileSmall;
+  private File         testFileSmall;
 
   public void setUp() throws Exception {
     super.setUp();
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName() : serv.getConfiguration()
-        .getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
 
     if (testFileBig == null) {
-      testFileBig = createBLOBTempFile(this.getClass().getSimpleName() + "_",
-          50 * 1024); // 100 Mb
+      testFileBig = createBLOBTempFile(this.getClass().getSimpleName() + "_", 50 * 1024); // 100 Mb
       testFileBig.deleteOnExit();
     }
 
     if (testFileSmall == null) {
-      testFileSmall = createBLOBTempFile(this.getClass().getSimpleName() + "_",
-          1); // 1 Kb
+      testFileSmall = createBLOBTempFile(this.getClass().getSimpleName() + "_", 1); // 1 Kb
       testFileSmall.deleteOnExit();
     }
   }
@@ -85,7 +81,7 @@ public class testWriteFile extends BaseStandaloneTest {
 
     String filename = file.getName();
 
-    SmbFile smbfile = new SmbFile("smb://"+user + servername + "/ws/" + filename);
+    SmbFile smbfile = new SmbFile("smb://" + user + servername + "/ws/" + filename);
 
     OutputStream os = smbfile.getOutputStream();
 
@@ -106,18 +102,17 @@ public class testWriteFile extends BaseStandaloneTest {
     // check changes in jcr;
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
 
     s.refresh(false);
 
     Node root = s.getRootNode();
 
     // create nt:file node
-    Property createdNodeProp = root.getNode(filename).getNode("jcr:content")
-        .getProperty("jcr:data");
+    Property createdNodeProp = root.getNode(filename)
+                                   .getNode("jcr:content")
+                                   .getProperty("jcr:data");
 
     fis = new FileInputStream(file);
 
@@ -145,15 +140,14 @@ public class testWriteFile extends BaseStandaloneTest {
   /**
    * Writes large file
    * <p>
-   * I have a problems with commiting files over 100 Mb? so this test is
-   * optional.
+   * I have a problems with commiting files over 100 Mb? so this test is optional.
    * <p>
    * 
    * @throws Exception
    */
- /* public void testWriteLargeFile() throws Exception {
-    processFile(testFileBig);
-  }*/
+  /*
+   * public void testWriteLargeFile() throws Exception { processFile(testFileBig); }
+   */
 
   /**
    * Process sequential write test
@@ -161,67 +155,22 @@ public class testWriteFile extends BaseStandaloneTest {
    * @param file
    * @throws Exception
    */
-  /*public void testHugeFile() throws Exception {
-
-    File file = createBLOBTempFile(this.getClass().getSimpleName() + "_", 1400*1024);
-    file.deleteOnExit();
-
-    assertTrue(file.exists());
-    FileInputStream fis = new FileInputStream(file);
-
-    String filename = file.getName();
-
-    SmbFile smbfile = new SmbFile("smb://"+user + servername + "/ws/" + filename);
-
-    OutputStream os = smbfile.getOutputStream();
-
-    byte[] b = new byte[0x4000];
-
-    int i = 40;
-
-    while (i > 0) {
-      i = fis.read(b);
-      if (i != -1)
-        os.write(b, 0, i);
-    }
-
-    os.close();
-
-    fis.close();
-
-    // check changes in jcr;
-
-    Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
-
-    s.refresh(false);
-
-    Node root = s.getRootNode();
-
-    // create nt:file node
-    Property createdNodeProp = root.getNode(filename).getNode("jcr:content")
-        .getProperty("jcr:data");
-
-    fis = new FileInputStream(file);
-
-    InputStream jcris = createdNodeProp.getStream();
-
-    long filesize = file.length();
-
-    long jcrpropsize = createdNodeProp.getLength();
-
-    assertEquals(filesize, jcrpropsize);
-
-    compareStream(new FileInputStream(file), jcris, 0, 0, filesize);
-
-    // delete test objects
-    root.getNode(filename).remove();
-    s.save();
-
-     
-  }*/
+  /*
+   * public void testHugeFile() throws Exception { File file =
+   * createBLOBTempFile(this.getClass().getSimpleName() + "_", 14001024); file.deleteOnExit();
+   * assertTrue(file.exists()); FileInputStream fis = new FileInputStream(file); String filename =
+   * file.getName(); SmbFile smbfile = new SmbFile("smb://"+user + servername + "/ws/" + filename);
+   * OutputStream os = smbfile.getOutputStream(); byte[] b = new byte[0x4000]; int i = 40; while (i
+   * > 0) { i = fis.read(b); if (i != -1) os.write(b, 0, i); } os.close(); fis.close(); // check
+   * changes in jcr; Session s = null; Credentials credentials = new CredentialsImpl("admin",
+   * "admin" .toCharArray()); s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
+   * credentials, "ws"); s.refresh(false); Node root = s.getRootNode(); // create nt:file node
+   * Property createdNodeProp = root.getNode(filename).getNode("jcr:content")
+   * .getProperty("jcr:data"); fis = new FileInputStream(file); InputStream jcris =
+   * createdNodeProp.getStream(); long filesize = file.length(); long jcrpropsize =
+   * createdNodeProp.getLength(); assertEquals(filesize, jcrpropsize); compareStream(new
+   * FileInputStream(file), jcris, 0, 0, filesize); // delete test objects
+   * root.getNode(filename).remove(); s.save(); }
+   */
 
 }

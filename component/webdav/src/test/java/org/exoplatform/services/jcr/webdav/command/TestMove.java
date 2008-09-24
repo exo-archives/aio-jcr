@@ -27,79 +27,72 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 13, 2008  
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
  */
 public class TestMove extends TestCase {
-  
-  private final String fileName = TestUtils.getFileName(); 
-  private final String srcFileName = TestUtils.getFullWorkSpacePath() + "/" + fileName;
-  
-  private final String testFolder = TestUtils.getFullUri() + "/test";
-  
-  private final String destFileName = testFolder +"/" + TestUtils.getFileName();
-  
-  private final String fileContent = "TEST FILE CONTENT...";
-  
+
+  private final String    fileName     = TestUtils.getFileName();
+
+  private final String    srcFileName  = TestUtils.getFullWorkSpacePath() + "/" + fileName;
+
+  private final String    testFolder   = TestUtils.getFullUri() + "/test";
+
+  private final String    destFileName = testFolder + "/" + TestUtils.getFileName();
+
+  private final String    fileContent  = "TEST FILE CONTENT...";
+
   InstalledLocalContainer container;
-    
-  private HTTPConnection connection;
-  
+
+  private HTTPConnection  connection;
+
   @Override
   protected void setUp() throws Exception {
-    
+
     CookieModule.setCookiePolicyHandler(null);
-    
+
     connection = TestUtils.GetAuthConnection();
-    
 
-      HTTPResponse response = connection.Put(srcFileName, fileContent);
-      assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-    
-      response = connection.MkCol(testFolder);
-      assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-    
-      response = connection.Put(srcFileName, fileContent);
-      assertEquals(HTTPStatus.CREATED, response.getStatusCode());    
+    HTTPResponse response = connection.Put(srcFileName, fileContent);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
 
-  
+    response = connection.MkCol(testFolder);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+
+    response = connection.Put(srcFileName, fileContent);
+    assertEquals(HTTPStatus.CREATED, response.getStatusCode());
+
     super.setUp();
   }
-  
+
   @Override
-  protected void tearDown() throws Exception 
-  {
+  protected void tearDown() throws Exception {
     HTTPResponse response = connection.Delete(testFolder);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-     
+
     super.tearDown();
   }
 
   public void testMoveForNonCollection() throws Exception {
-    
+
     HTTPResponse response = connection.Move(srcFileName, destFileName);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
     response = connection.Get(srcFileName);
     assertEquals(HTTPStatus.NOT_FOUND, response.getStatusCode());
     response = connection.Get(destFileName);
     assertEquals(HTTPStatus.OK, response.getStatusCode());
-    
-    
+
   }
 
   public void testOverwriteMove() throws Exception {
-  
+
     HTTPResponse response = connection.Put(destFileName, fileContent);
-    
+
     response = connection.Move(srcFileName, destFileName, false);
     assertEquals(HTTPStatus.PRECON_FAILED, response.getStatusCode());
-    
+
     response = connection.Move(srcFileName, destFileName, true);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-  
+
   }
- 
 
 }

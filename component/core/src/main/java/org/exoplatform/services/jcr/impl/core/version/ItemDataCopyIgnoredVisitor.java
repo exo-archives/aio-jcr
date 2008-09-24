@@ -101,7 +101,7 @@ public class ItemDataCopyIgnoredVisitor extends DefaultItemDataCopyVisitor {
 
     if (level == 0) {
       parents.pop(); // remove context parent (redo superclass constructor
-                      // work)
+      // work)
     } else if (level > 0) {
       if (curParent() == null) {
         NodeData existedParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());

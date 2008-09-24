@@ -32,30 +32,27 @@ public class SearchManagerEntry {
   /**
    * Class logger.
    */
-  private final Log         log = ExoLogger.getLogger("jcr.SearchManagerEntry");
-  
-  
-  /**
-   * Name of the default query implementation class.
-   */
-  private static final String                  DEFAULT_QUERY_IMPL_CLASS          = QueryImpl.class.getName();
-
+  private final Log           log                         = ExoLogger.getLogger("jcr.SearchManagerEntry");
 
   /**
    * Name of the default query implementation class.
    */
-  private static final String                  DEFAULT_QUERY_HANDLER_CLASS          = SearchIndex.class.getName();
+  private static final String DEFAULT_QUERY_IMPL_CLASS    = QueryImpl.class.getName();
 
+  /**
+   * Name of the default query implementation class.
+   */
+  private static final String DEFAULT_QUERY_HANDLER_CLASS = SearchIndex.class.getName();
 
-  public QueryHandlerEntry  queryHandler;
+  public QueryHandlerEntry    queryHandler;
 
-  private String            queryClass = DEFAULT_QUERY_IMPL_CLASS;
-  
-  private String            queryHandlerClass = DEFAULT_QUERY_HANDLER_CLASS;
+  private String              queryClass                  = DEFAULT_QUERY_IMPL_CLASS;
 
-  private String            rootNodeId;
+  private String              queryHandlerClass           = DEFAULT_QUERY_HANDLER_CLASS;
 
-  private String            excludeNodeId;
+  private String              rootNodeId;
+
+  private String              excludeNodeId;
 
   public String getQueryClass() {
     return queryClass;
@@ -89,13 +86,14 @@ public class SearchManagerEntry {
     this.excludeNodeId = excludeNodeId;
   }
 
- /* public String getPreparedQueryClass() {
-    return preparedQueryClass;
-  }*/
+  /*
+   * public String getPreparedQueryClass() { return preparedQueryClass; }
+   */
 
- /* public void setPreparedQueryClass(String preparedQueryClass) {
-    this.preparedQueryClass = preparedQueryClass;
-  }*/
+  /*
+   * public void setPreparedQueryClass(String preparedQueryClass) { this.preparedQueryClass =
+   * preparedQueryClass; }
+   */
 
   /**
    * Returns name of default query handler class.

@@ -35,56 +35,57 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * 
  * @version $Id: $
  */
 
-public class TestExcelFileSearch  extends BaseQueryTest {
+public class TestExcelFileSearch extends BaseQueryTest {
 
-  
-  public void testFindFileContent() throws Exception{
+  public void testFindFileContent() throws Exception {
     File file = new File("src/test/resources/test.xls");
-    assertTrue("/test/resources/book.xls not found",file.exists());
-    
+    assertTrue("/test/resources/book.xls not found", file.exists());
+
     FileInputStream fis = new FileInputStream(file);
-    
-    NodeImpl node = (NodeImpl)root.addNode("excelFile","nt:file");
-    NodeImpl cont = (NodeImpl)node.addNode("jcr:content","nt:resource");
+
+    NodeImpl node = (NodeImpl) root.addNode("excelFile", "nt:file");
+    NodeImpl cont = (NodeImpl) node.addNode("jcr:content", "nt:resource");
     cont.setProperty("jcr:mimeType", "application/excel");
     cont.setProperty("jcr:lastModified", Calendar.getInstance());
-    //cont.setProperty("jcr:encoding","UTF-8");
-    
+    // cont.setProperty("jcr:encoding","UTF-8");
+
     cont.setProperty("jcr:data", fis);
     root.save();
-    
+
     fis.close();
     fis = new FileInputStream(file);
-    DocumentReaderService extr = (DocumentReaderService) session.getContainer().getComponentInstanceOfType(DocumentReaderService.class);
-    
+    DocumentReaderService extr = (DocumentReaderService) session.getContainer()
+                                                                .getComponentInstanceOfType(DocumentReaderService.class);
+
     DocumentReader dreader = extr.getDocumentReader("application/excel");
     assertNotNull(dreader);
-    
+
     System.out.println(dreader);
-    
+
     assertTrue(dreader instanceof MSExcelDocumentReader);
-    
-   // String text = dreader.getContentAsText(fis);
-    
-   // System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n"+text + "\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-    
+
+    // String text = dreader.getContentAsText(fis);
+
+    // System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n"+text +
+    // "\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
     // Arabic word
     String word = "eric";
-    
-    //Check is node indexed
+
+    // Check is node indexed
     Document doc = getDocument(cont.getInternalIdentifier(), false);
-    assertNotNull("Node is not indexed",doc);
-    
+    assertNotNull("Node is not indexed", doc);
+
     IndexReader reader = defaultSearchIndex.getIndexReader(false);
     IndexSearcher is = new IndexSearcher(reader);
-    TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, word )); 
+    TermQuery query = new TermQuery(new Term(FieldNames.FULLTEXT, word));
     Hits result = is.search(query);
-    assertEquals(1,result.length());
+    assertEquals(1, result.length());
   }
-  
+
 }

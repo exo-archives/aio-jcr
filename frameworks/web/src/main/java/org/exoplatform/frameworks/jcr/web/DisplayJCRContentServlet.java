@@ -47,7 +47,8 @@ public class DisplayJCRContentServlet extends HttpServlet {
   ServletConfig config;
 
   @Override
-  protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+                                                                                  IOException {
 
     ExoContainer container = (ExoContainer) getServletContext().getAttribute(WebConstants.EXO_CONTAINER);
     if (container == null) {
@@ -55,18 +56,18 @@ public class DisplayJCRContentServlet extends HttpServlet {
       container = RootContainer.getInstance().getPortalContainer(portalName);
     }
 
-    SessionProviderService sessionProviderService =
-        (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
+    SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
 
     RepositoryService repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     CommandService commandService = (CommandService) container.getComponentInstanceOfType(CommandService.class);
 
     GenericWebAppContext ctx;
     try {
-      ctx = new GenericWebAppContext(getServletContext(), 
-                                     request, 
-                                     response, 
-                                     sessionProviderService.getSessionProvider(null), // null for ThreadLocalSessionProvider
+      ctx = new GenericWebAppContext(getServletContext(),
+                                     request,
+                                     response,
+                                     sessionProviderService.getSessionProvider(null), // null for
+                                     // ThreadLocalSessionProvider
                                      repositoryService.getDefaultRepository());
     } catch (final RepositoryException e) {
       throw new IOException() {
@@ -93,7 +94,8 @@ public class DisplayJCRContentServlet extends HttpServlet {
     String currentPath = (String) ctx.get("path");
 
     if (currentPath == null)
-      throw new ServletException("Path undefined " + request.getParameter("path") + " Request: " + request.getRequestURI());
+      throw new ServletException("Path undefined " + request.getParameter("path") + " Request: "
+          + request.getRequestURI());
 
     try {
       Command cmd;

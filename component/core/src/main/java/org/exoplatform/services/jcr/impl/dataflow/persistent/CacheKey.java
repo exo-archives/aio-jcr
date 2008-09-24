@@ -26,17 +26,18 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * Base class for WorkspaceCache keys.<br/>
  * 
  * Date: 10.06.2008<br/>
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public abstract class CacheKey implements Serializable {
 
   /**
-   * Tell if this key is descendant of given path.
-   * I.e. is ItemData cached with this key belong to ItemData hierarchy cached with the path. 
-   *  
-   * @param path of possible descentand
+   * Tell if this key is descendant of given path. I.e. is ItemData cached with this key belong to
+   * ItemData hierarchy cached with the path.
+   * 
+   * @param path
+   *          of possible descentand
    * @return true if yes
    */
   abstract boolean isDescendantOf(QPath path);

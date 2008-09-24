@@ -19,34 +19,35 @@ package org.exoplatform.services.jcr.ext.app;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
- * Created by The eXo Platform SAS        .
- * Session providers holder component 
+ * Created by The eXo Platform SAS . Session providers holder component
+ * 
  * @author Gennady Azarenkov
  * @version $Id: SessionProviderService.java 13869 2008-05-05 08:40:10Z pnedonosko $
  */
 
 public interface SessionProviderService {
-  
+
   /**
    * @param key
    * @param sessionProvider
    */
   void setSessionProvider(Object key, SessionProvider sessionProvider);
-  
+
   /**
    * @param key
    * @return session provider
    */
   SessionProvider getSessionProvider(Object key);
-  
+
   /**
    * @param key
    * @return system session provider
    */
-  SessionProvider getSystemSessionProvider(Object key);  
-  
+  SessionProvider getSystemSessionProvider(Object key);
+
   /**
    * Removes the session provider
+   * 
    * @param key
    */
   void removeSessionProvider(Object key);

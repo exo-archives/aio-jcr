@@ -44,10 +44,9 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   public static final Map<String, String> DEF_PREFIXES         = new HashMap<String, String>();
 
-  private final static Set<String>                      PROTECTED_NAMESPACES = new HashSet<String>();
+  private final static Set<String>        PROTECTED_NAMESPACES = new HashSet<String>();
 
-  protected final static Log                            log                  = ExoLogger
-                                                                                 .getLogger("jcr.NamespaceRegistryImpl");
+  protected final static Log              log                  = ExoLogger.getLogger("jcr.NamespaceRegistryImpl");
 
   static {
 
@@ -62,7 +61,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     DEF_NAMESPACES.put("fn", "http://www.w3.org/2005/xpath-functions");
     DEF_NAMESPACES.put("fn_old", "http://www.w3.org/2004/10/xpath-functions");
     DEF_NAMESPACES.put("rep", "internal");
-    
 
     DEF_PREFIXES.put("", "");
     DEF_PREFIXES.put("http://www.jcp.org/jcr/1.0", "jcr");
@@ -75,7 +73,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     DEF_PREFIXES.put("http://www.w3.org/2005/xpath-functions", "fn");
     DEF_PREFIXES.put("http://www.w3.org/2004/10/xpath-functions", "fn_old");
     DEF_PREFIXES.put("internal", "rep");
-    
 
     PROTECTED_NAMESPACES.add("jcr");
     PROTECTED_NAMESPACES.add("nt");
@@ -88,7 +85,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   private Map<String, String>             namespaces;
 
-  private NamespaceDataPersister                        persister;
+  private NamespaceDataPersister          persister;
 
   private Map<String, String>             prefixes;
 
@@ -109,7 +106,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getAllNamespacePrefixes()
    */
   public String[] getAllNamespacePrefixes() {
@@ -118,8 +114,8 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespacePrefixByURI(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespacePrefixByURI(java.lang.String)
    */
   public String getNamespacePrefixByURI(String uri) throws NamespaceException, RepositoryException {
     return getPrefix(uri);
@@ -127,8 +123,8 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespaceURIByPrefix(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespaceURIByPrefix(java.lang.String)
    */
   public String getNamespaceURIByPrefix(String prefix) throws NamespaceException {
     return getURI(prefix);
@@ -136,7 +132,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.NamespaceRegistry#getPrefix(java.lang.String)
    */
   public String getPrefix(String uri) throws NamespaceException {
@@ -149,7 +144,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.NamespaceRegistry#getPrefixes()
    */
   public String[] getPrefixes() {
@@ -158,7 +152,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.NamespaceRegistry#getURI(java.lang.String)
    */
   public String getURI(String prefix) throws NamespaceException {
@@ -171,20 +164,20 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.NamespaceRegistry#getURIs()
    */
   public String[] getURIs() {
     return namespaces.values().toArray(new String[namespaces.size()]);
   }
 
-  public boolean isDefaultNamespace(String uri){
+  public boolean isDefaultNamespace(String uri) {
     return DEF_PREFIXES.containsKey(uri);
   }
-  public boolean isDefaultPrefix(String prefix){
+
+  public boolean isDefaultPrefix(String prefix) {
     return DEF_NAMESPACES.containsKey(prefix);
   }
-  
+
   public boolean isPrefixMaped(String prefix) {
     return namespaces.containsKey(prefix);
   }
@@ -209,12 +202,10 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
-   * @see javax.jcr.NamespaceRegistry#registerNamespace(java.lang.String,
-   *      java.lang.String)
+   * @see javax.jcr.NamespaceRegistry#registerNamespace(java.lang.String, java.lang.String)
    */
   public synchronized void registerNamespace(String prefix, String uri) throws NamespaceException,
-      RepositoryException {
+                                                                       RepositoryException {
 
     validateNamespace(prefix, uri);
 
@@ -235,7 +226,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.NamespaceRegistry#unregisterNamespace(java.lang.String)
    */
   public void unregisterNamespace(String prefix) throws NamespaceException, RepositoryException {
@@ -253,7 +243,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
   }
 
   public void validateNamespace(String prefix, String uri) throws NamespaceException,
-      RepositoryException {
+                                                          RepositoryException {
 
     if (prefix.indexOf(":") > 0) {
       throw new RepositoryException("Namespace prefix should not contain ':' " + prefix);

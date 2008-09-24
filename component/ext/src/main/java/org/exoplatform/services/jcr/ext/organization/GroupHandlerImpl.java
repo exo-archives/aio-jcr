@@ -25,23 +25,23 @@ import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupHandler;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 24.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: GroupHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class GroupHandlerImpl implements GroupHandler {
 
   protected final JCROrganizationServiceImpl service;
-  
-  protected final List<GroupEventListener> listeners  = new ArrayList<GroupEventListener>();
-  
+
+  protected final List<GroupEventListener>   listeners = new ArrayList<GroupEventListener>();
+
   GroupHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
-  
+
   public void addChild(Group parent, Group child, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
 
@@ -50,7 +50,7 @@ public class GroupHandlerImpl implements GroupHandler {
   public void addGroupEventListener(GroupEventListener listener) {
     listeners.add(listener);
   }
-  
+
   public void removeGroupEventListener(GroupEventListener listener) {
     listeners.remove(listener);
   }

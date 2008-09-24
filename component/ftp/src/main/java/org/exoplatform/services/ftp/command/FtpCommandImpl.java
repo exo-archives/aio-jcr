@@ -38,27 +38,29 @@ import org.exoplatform.services.ftp.listcode.FtpSystemCoderManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public abstract class FtpCommandImpl implements FtpCommand {
-  
-  private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpCommandImpl");
-  
-  protected boolean isNeedLogin = true;
-  protected String commandName = "";
-  
+
+  private static Log                   log                = ExoLogger.getLogger(FtpConst.FTP_PREFIX
+                                                              + "FtpCommandImpl");
+
+  protected boolean                    isNeedLogin        = true;
+
+  protected String                     commandName        = "";
+
   public ThreadLocal<FtpClientSession> localClientSession = new ThreadLocal<FtpClientSession>();
-  
+
   public void reply(String replyString) throws IOException {
     clientSession().reply(replyString);
   }
 
   public boolean execute(Context context) throws Exception {
-    localClientSession.set(((FtpContext)context).getFtpClientSession());    
-    
+    localClientSession.set(((FtpContext) context).getFtpClientSession());
+
     if (isNeedLogin) {
       if (!clientSession().isLogged()) {
         reply(FtpConst.Replyes.REPLY_530);
@@ -66,39 +68,39 @@ public abstract class FtpCommandImpl implements FtpCommand {
       }
     }
 
-    String []params = ((FtpContext)context).getParams();
-    run(params); 
-    
+    String[] params = ((FtpContext) context).getParams();
+    run(params);
+
     String cmdParams = null;
     if (params.length > 1) {
       cmdParams = params[1];
-    }    
+    }
     clientSession().setPrevCommand(commandName);
     clientSession().setPrevParams(cmdParams);
-    return true; 
+    return true;
   }
-  
-  public abstract void run(String []params) throws Exception;
-  
+
+  public abstract void run(String[] params) throws Exception;
+
   public FtpClientSession clientSession() {
     return localClientSession.get();
   }
-  
+
   public ArrayList<FtpFileInfo> getFileList(String resPath) {
     ArrayList<FtpFileInfo> files = new ArrayList<FtpFileInfo>();
-    
+
     FtpFileInfo fi = new FtpFileInfoImpl();
     fi.setName(".");
     files.add(fi);
     fi = new FtpFileInfoImpl();
     fi.setName("..");
     files.add(fi);
-    
+
     ArrayList<String> newPath = clientSession().getFullPath(resPath);
-    
+
     try {
-      if (newPath.size() == 0) {        
-        String []workspaces = clientSession().getFtpServer().getRepository().getWorkspaceNames();
+      if (newPath.size() == 0) {
+        String[] workspaces = clientSession().getFtpServer().getRepository().getWorkspaceNames();
         for (int i = 0; i < workspaces.length; i++) {
           FtpFileInfo fileInfo = new FtpFileInfoImpl();
           fileInfo.setName(workspaces[i]);
@@ -107,7 +109,7 @@ public abstract class FtpCommandImpl implements FtpCommand {
       } else {
         String repoPath = clientSession().getRepoPath(newPath);
         Session curSession = clientSession().getSession(newPath.get(0));
-        Node parentNode = (Node)curSession.getItem(repoPath);
+        Node parentNode = (Node) curSession.getItem(repoPath);
         if (parentNode.isNodeType(FtpConst.NodeTypes.NT_FILE)) {
           files.clear();
           FtpFileInfoImpl fileInfo = new FtpFileInfoImpl();
@@ -120,7 +122,7 @@ public abstract class FtpCommandImpl implements FtpCommand {
             FtpFileInfoImpl fileInfo = new FtpFileInfoImpl();
             fileInfo.initFromNode(curNode);
             files.add(fileInfo);
-          }          
+          }
         }
       }
     } catch (RepositoryException rexc) {
@@ -130,16 +132,16 @@ public abstract class FtpCommandImpl implements FtpCommand {
       return null;
     }
     return files;
-  }  
-  
+  }
+
   public void removeResource(String resName) throws IOException {
     try {
       ArrayList<String> newPath = clientSession().getFullPath(resName);
       Session curSession = clientSession().getSession(newPath.get(0));
-      
+
       String repoPath = clientSession().getRepoPath(newPath);
-      Node parentNode = (Node)curSession.getItem(repoPath);
-      
+      Node parentNode = (Node) curSession.getItem(repoPath);
+
       parentNode.remove();
       curSession.save();
 
@@ -151,73 +153,74 @@ public abstract class FtpCommandImpl implements FtpCommand {
       log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
     reply(String.format(FtpConst.Replyes.REPLY_550, resName));
-  }  
-  
-  public void SendFileList(String []params) throws IOException {    
+  }
+
+  public void SendFileList(String[] params) throws IOException {
     String path = "";
     if (params.length > 1) {
       path = params[1];
-      
+
       if (path.startsWith("-la")) {
         path = path.substring(3);
       }
-      
+
       while (path.startsWith(" ")) {
         path = path.substring(1);
-      }      
+      }
     }
-    
+
     ArrayList<FtpFileInfo> items = getFileList(path);
     if (items == null) {
       reply(String.format(FtpConst.Replyes.REPLY_450, path));
       return;
     }
-    
+
     if (clientSession().getDataTransiver() == null) {
       reply(FtpConst.Replyes.REPLY_425);
       return;
     }
 
     try {
-      while (!clientSession().getDataTransiver().isConnected()) {        
+      while (!clientSession().getDataTransiver().isConnected()) {
         Thread.sleep(100);
       }
     } catch (Exception exc) {
       log.info("Unhandled exception. " + exc.getMessage(), exc);
     }
-    
-    FtpSystemCoder systemCoder = FtpSystemCoderManager.getSystemCoder(clientSession().getFtpServer().getConfiguration());
+
+    FtpSystemCoder systemCoder = FtpSystemCoderManager.getSystemCoder(clientSession().getFtpServer()
+                                                                                     .getConfiguration());
 
     reply(FtpConst.Replyes.REPLY_125);
-    
-    boolean isNeedExtendedInfo = (commandName.equals(FtpConst.Commands.CMD_LIST)) ? true : false; 
-    
+
+    boolean isNeedExtendedInfo = (commandName.equals(FtpConst.Commands.CMD_LIST)) ? true : false;
+
     try {
       String encoding = clientSession().getFtpServer().getConfiguration().getClientSideEncoding();
 
       for (int i = 0; i < items.size(); i++) {
         FtpFileInfo curFileInfo = items.get(i);
-        
-        String curSerialized = "";        
+
+        String curSerialized = "";
         if (isNeedExtendedInfo) {
           curSerialized = systemCoder.serializeFileInfo(curFileInfo);
         } else {
-          curSerialized = curFileInfo.getName(); 
+          curSerialized = curFileInfo.getName();
         }
-        
-        byte []data = curSerialized.getBytes(encoding);
-        
+
+        byte[] data = curSerialized.getBytes(encoding);
+
         clientSession().getDataTransiver().getOutputStream().write(data);
         clientSession().getDataTransiver().getOutputStream().write("\r\n".getBytes());
       }
-      
-      clientSession().closeDataTransiver();      
+
+      clientSession().closeDataTransiver();
     } catch (Exception exc) {
       log.info("Unhandled exception. " + exc.getMessage());
       log.info("Data transmit failed.");
     }
     reply(FtpConst.Replyes.REPLY_226);
-    
+
   }
-  
+
 }

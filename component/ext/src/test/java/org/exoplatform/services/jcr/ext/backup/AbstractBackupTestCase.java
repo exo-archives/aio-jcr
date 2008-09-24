@@ -44,8 +44,8 @@ import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 04.02.2008
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 04.02.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AbstractBackupTestCase.java 760 2008-02-07 15:08:07Z pnedonosko $
@@ -100,8 +100,8 @@ public class AbstractBackupTestCase extends BaseStandaloneTest {
   }
 
   protected WorkspaceEntry makeWorkspaceEntry(String name, String sourceName) {
-    WorkspaceEntry ws1e = (WorkspaceEntry) ws1Session.getContainer().getComponentInstanceOfType(
-        WorkspaceEntry.class);
+    WorkspaceEntry ws1e = (WorkspaceEntry) ws1Session.getContainer()
+                                                     .getComponentInstanceOfType(WorkspaceEntry.class);
 
     WorkspaceEntry ws1back = new WorkspaceEntry();
     ws1back.setName(name);
@@ -121,10 +121,11 @@ public class AbstractBackupTestCase extends BaseStandaloneTest {
 
     // Indexer
     ArrayList qParams = new ArrayList();
-    //qParams.add(new SimpleParameterEntry("indexDir", "target" + File.separator+ "temp" + File.separator +"index" + name));
+    // qParams.add(new SimpleParameterEntry("indexDir", "target" + File.separator+ "temp" +
+    // File.separator +"index" + name));
     qParams.add(new SimpleParameterEntry("indexDir", "target" + File.separator + name));
-    QueryHandlerEntry qEntry = new QueryHandlerEntry(
-        "org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex", qParams);
+    QueryHandlerEntry qEntry = new QueryHandlerEntry("org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex",
+                                                     qParams);
 
     ws1back.setQueryHandler(qEntry); // EXOMAN
 
@@ -141,20 +142,25 @@ public class AbstractBackupTestCase extends BaseStandaloneTest {
       params.add(newp);
     }
 
-    ContainerEntry ce = new ContainerEntry(
-        "org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer", params);
+    ContainerEntry ce = new ContainerEntry("org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer",
+                                           params);
     ws1back.setContainer(ce);
 
     return ws1back;
   }
 
-  protected void restoreAndCheck(String workspaceName, String datasourceName,
-      String backupLogFilePath, File backDir, int startIndex, int stopIndex)
-      throws RepositoryConfigurationException, RepositoryException, BackupOperationException,
-      BackupConfigurationException {
+  protected void restoreAndCheck(String workspaceName,
+                                 String datasourceName,
+                                 String backupLogFilePath,
+                                 File backDir,
+                                 int startIndex,
+                                 int stopIndex) throws RepositoryConfigurationException,
+                                               RepositoryException,
+                                               BackupOperationException,
+                                               BackupConfigurationException {
     // restore
-    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer().getComponentInstanceOfType(
-        RepositoryEntry.class);
+    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
+                                                     .getComponentInstanceOfType(RepositoryEntry.class);
     WorkspaceEntry ws1back = makeWorkspaceEntry(workspaceName, datasourceName);
 
     repository.configWorkspace(ws1back);
@@ -170,8 +176,9 @@ public class AbstractBackupTestCase extends BaseStandaloneTest {
         back1 = (SessionImpl) repository.login(credentials, ws1back.getName());
         Node ws1backTestRoot = back1.getRootNode().getNode("backupTest");
         for (int i = startIndex; i < stopIndex; i++) {
-          assertEquals("Restored content should be same", "property-" + i, ws1backTestRoot.getNode(
-              "node_" + i).getProperty("exo:data").getString());
+          assertEquals("Restored content should be same",
+                       "property-" + i,
+                       ws1backTestRoot.getNode("node_" + i).getProperty("exo:data").getString());
         }
       } catch (Exception e) {
         e.printStackTrace();
@@ -184,9 +191,14 @@ public class AbstractBackupTestCase extends BaseStandaloneTest {
       fail("There are no backup files in " + backDir.getAbsolutePath());
   }
 
-  protected void addContent(Node node, int startIndex, int stopIndex, long sleepTime)
-      throws ValueFormatException, VersionException, LockException, ConstraintViolationException,
-      ItemExistsException, PathNotFoundException, RepositoryException, InterruptedException {
+  protected void addContent(Node node, int startIndex, int stopIndex, long sleepTime) throws ValueFormatException,
+                                                                                     VersionException,
+                                                                                     LockException,
+                                                                                     ConstraintViolationException,
+                                                                                     ItemExistsException,
+                                                                                     PathNotFoundException,
+                                                                                     RepositoryException,
+                                                                                     InterruptedException {
     for (int i = startIndex; i <= stopIndex; i++) {
       node.addNode("node_" + i).setProperty("exo:data", "property-" + i);
       Thread.sleep(sleepTime);

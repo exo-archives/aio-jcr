@@ -152,8 +152,9 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     this.dataManager = dataManager;
     this.persister = persister;
     if (config.getLockManager() != null)
-      lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
-                                                            : DEFAULT_LOCK_TIMEOUT;
+      lockTimeOut = config.getLockManager().getTimeout() > 0
+          ? config.getLockManager().getTimeout()
+          : DEFAULT_LOCK_TIMEOUT;
 
     locks = new HashMap<String, LockData>();
     pendingLocks = new HashMap<String, LockData>();

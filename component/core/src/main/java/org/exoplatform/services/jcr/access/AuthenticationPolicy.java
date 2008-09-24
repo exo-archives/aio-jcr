@@ -22,8 +22,7 @@ import javax.jcr.LoginException;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS.<br/>
- * Authentication policy for 
+ * Created by The eXo Platform SAS.<br/> Authentication policy for
  * 
  * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
@@ -31,20 +30,23 @@ import org.exoplatform.services.security.ConversationState;
  */
 
 public interface AuthenticationPolicy {
-  
+
   /**
-   * Authenticates getting credentials. 
-   * @param credentials credentials
+   * Authenticates getting credentials.
+   * 
+   * @param credentials
+   *          credentials
    * @return credentials took part in authentication (could be not the same a incoming one)
    * @throws LoginException
    */
   ConversationState authenticate(Credentials credentials) throws LoginException;
-  
+
   /**
-   * Authenticates using some external mechanism. 
+   * Authenticates using some external mechanism.
+   * 
    * @return credentials took part in authentication
    * @throws LoginException
    */
   ConversationState authenticate() throws LoginException;
-  
+
 }

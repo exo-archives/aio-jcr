@@ -40,8 +40,8 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
- * Created by The eXo Platform SAS.<br/> Bindable implementation of
- * Repository - ready to bind to Naming Context
+ * Created by The eXo Platform SAS.<br/> Bindable implementation of Repository - ready to bind to
+ * Naming Context
  * 
  * @see BindableRepositoryFactory
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
@@ -53,7 +53,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   private transient ManageableRepository delegatee = null;
 
   /**
-   * @param rep real repository impl
+   * @param rep
+   *          real repository impl
    */
   public BindableRepositoryImpl(ManageableRepository rep) {
     this.delegatee = rep;
@@ -61,7 +62,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#getDescriptorKeys()
    */
   public String[] getDescriptorKeys() {
@@ -70,7 +70,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#getDescriptor(java.lang.String)
    */
   public String getDescriptor(String key) {
@@ -79,29 +78,26 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login(javax.jcr.Credentials)
    */
   public Session login(Credentials credentials) throws LoginException,
-      NoSuchWorkspaceException,
-      RepositoryException {
+                                               NoSuchWorkspaceException,
+                                               RepositoryException {
     return delegatee.login(credentials);
   }
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login(java.lang.String)
    */
   public Session login(String workspaceName) throws LoginException,
-      NoSuchWorkspaceException,
-      RepositoryException {
+                                            NoSuchWorkspaceException,
+                                            RepositoryException {
     return delegatee.login(workspaceName);
   }
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login()
    */
   public Session login() throws LoginException, NoSuchWorkspaceException, RepositoryException {
@@ -110,18 +106,16 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login(javax.jcr.Credentials, java.lang.String)
    */
   public Session login(Credentials credentials, String workspaceName) throws LoginException,
-      NoSuchWorkspaceException,
-      RepositoryException {
+                                                                     NoSuchWorkspaceException,
+                                                                     RepositoryException {
     return delegatee.login(credentials, workspaceName);
   }
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession(java.lang.String)
    */
   public Session getSystemSession(String workspaceName) throws RepositoryException {
@@ -130,7 +124,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
    */
   public String[] getWorkspaceNames() {
@@ -139,7 +132,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getNodeTypeManager()
    */
   public ExtendedNodeTypeManager getNodeTypeManager() {
@@ -148,7 +140,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getNamespaceRegistry()
    */
   public NamespaceRegistry getNamespaceRegistry() {
@@ -157,8 +148,8 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
    */
   public boolean isWorkspaceInitialized(String workspaceName) throws RepositoryException {
     return delegatee.isWorkspaceInitialized(workspaceName);
@@ -166,7 +157,6 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getConfiguration()
    */
   public RepositoryEntry getConfiguration() {
@@ -175,15 +165,14 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.naming.Referenceable#getReference()
    */
   public Reference getReference() throws NamingException {
     Reference ref = new Reference(BindableRepositoryImpl.class.getName(),
-        BindableRepositoryFactory.class.getName(),
-        null);
-    ref.add(new StringRefAddr(BindableRepositoryFactory.REPOSITORYNAME_ADDRTYPE, delegatee
-        .getConfiguration().getName()));
+                                  BindableRepositoryFactory.class.getName(),
+                                  null);
+    ref.add(new StringRefAddr(BindableRepositoryFactory.REPOSITORYNAME_ADDRTYPE,
+                              delegatee.getConfiguration().getName()));
     return ref;
   }
 
@@ -197,9 +186,9 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   }
 
   public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryConfigurationException,
-      RepositoryException {
+                                                      RepositoryException {
     delegatee.configWorkspace(wsConfig);
-   
+
   }
 
   public boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException {
@@ -208,13 +197,13 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
 
   public void removeWorkspace(String workspaceName) throws RepositoryException {
     delegatee.removeWorkspace(workspaceName);
-    
+
   }
-  
+
   public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
     delegatee.addItemPersistenceListener(workspaceName, listener);
   }
-  
+
   public WorkspaceContainerFacade getWorkspaceContainer(String workspaceName) {
     return delegatee.getWorkspaceContainer(workspaceName);
   }

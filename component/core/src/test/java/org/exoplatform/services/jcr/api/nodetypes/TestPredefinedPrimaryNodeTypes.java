@@ -1,5 +1,4 @@
 package org.exoplatform.services.jcr.api.nodetypes;
- 
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -14,7 +13,7 @@ import org.exoplatform.services.jcr.impl.util.EntityCollection;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestPredefinedPrimaryNodeTypes.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -28,19 +27,20 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
 
     assertTrue("have child ", ((EntityCollection) node.getNodes()).size() == 0);
     assertTrue("prop num !=1 ", ((EntityCollection) node.getProperties()).size() == 1);
-    assertEquals("Prop not default ", "nt:unstructured", node.getProperty("jcr:primaryType").getString());
+    assertEquals("Prop not default ", "nt:unstructured", node.getProperty("jcr:primaryType")
+                                                             .getString());
 
     assertEquals("Type!= nt:unstructured", type.getName(), "nt:unstructured");
 
     assertTrue("typeNodeDefs != 1", type.getChildNodeDefinitions().length == 1);
     assertTrue("typePropDefs != 4", type.getPropertyDefinitions().length == 4);
 
-    //assertEquals("prop!=jcr:primaryType", "jcr:primaryType", type.getPropertyDefinitions()[1].getName());
+    // assertEquals("prop!=jcr:primaryType", "jcr:primaryType",
+    // type.getPropertyDefinitions()[1].getName());
     assertEquals(ExtendedItemDefinition.RESIDUAL_SET, type.getPropertyDefinitions()[0].getName());
     assertEquals(ExtendedItemDefinition.RESIDUAL_SET, type.getChildNodeDefinitions()[0].getName());
 
   }
-
 
   public void testHierarchyNode() throws Exception {
 
@@ -49,19 +49,24 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     NodeType type = node.getPrimaryNodeType();
 
     assertTrue("have child ", ((EntityCollection) node.getNodes()).size() == 0);
-    assertTrue("prop num !=2 ==" + ((EntityCollection) node.getProperties()).size(), ((EntityCollection) node.getProperties()).size() == 2);
+    assertTrue("prop num !=2 ==" + ((EntityCollection) node.getProperties()).size(),
+               ((EntityCollection) node.getProperties()).size() == 2);
 
     assertTrue("typePropDefs != 3", type.getPropertyDefinitions().length == 3);
     // NodeDefs = null
     assertTrue("nodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
     // Property names: [0]=jcr:created, [1]=jcr:lastModified, [2]=jcr:primaryType
-    assertEquals("prop2 name !=jcr:primaryType", "jcr:primaryType", type.getPropertyDefinitions()[1].getName()); 
-    assertEquals("prop0 name != jcr:created", "jcr:created", type.getPropertyDefinitions()[0].getName());
+    assertEquals("prop2 name !=jcr:primaryType",
+                 "jcr:primaryType",
+                 type.getPropertyDefinitions()[1].getName());
+    assertEquals("prop0 name != jcr:created",
+                 "jcr:created",
+                 type.getPropertyDefinitions()[0].getName());
 
     node = root.getNode("node-hi");
     assertNotNull("Prop null ", node.getProperty("jcr:created").toString());
-//    assertNull("Prop modified SAVED not null ", node.getProperty("jcr:lastModified").getValue());
+    // assertNull("Prop modified SAVED not null ", node.getProperty("jcr:lastModified").getValue());
   }
 
   public void testFile() throws Exception {
@@ -73,8 +78,10 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("typePropDefs != 3", type.getPropertyDefinitions().length == 3);
     assertTrue("typeNodeDefs != 1", type.getChildNodeDefinitions().length == 1);
 
-    // Property names:  [0]=jcr:created, [2]=jcr:primaryType
-    assertEquals("node0 name != jcr:content", "jcr:content", type.getChildNodeDefinitions()[0].getName());
+    // Property names: [0]=jcr:created, [2]=jcr:primaryType
+    assertEquals("node0 name != jcr:content",
+                 "jcr:content",
+                 type.getChildNodeDefinitions()[0].getName());
 
     try {
       node.addNode("not-allowed");
@@ -83,8 +90,8 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     }
 
     try {
-        node.setProperty("not-allowed", "val");
-        node.save();
+      node.setProperty("not-allowed", "val");
+      node.save();
       fail("SetProp ConstraintViolationException should be thrown!");
     } catch (RepositoryException e) {
     }
@@ -101,7 +108,6 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("typeNodeDefs != 1", type.getChildNodeDefinitions().length == 1);
 
     assertEquals(ExtendedItemDefinition.RESIDUAL_SET, type.getChildNodeDefinitions()[0].getName());
-
 
     try {
       node.setProperty("not-allowed", "val");
@@ -121,7 +127,8 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     PropertyDefinition[] propDefs = type.getPropertyDefinitions();
 
     // 4 + primaryType, mixinType, uuid
-    assertTrue("typePropDefs = "+type.getPropertyDefinitions().length, type.getPropertyDefinitions().length == 7);
+    assertTrue("typePropDefs = " + type.getPropertyDefinitions().length,
+               type.getPropertyDefinitions().length == 7);
     assertTrue("typeNodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
   }
@@ -135,7 +142,9 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("typePropDefs != 4", type.getPropertyDefinitions().length == 4);
     assertTrue("typeNodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
-    assertEquals("node0 name != jcr:content", "jcr:content", type.getPropertyDefinitions()[0].getName());
+    assertEquals("node0 name != jcr:content",
+                 "jcr:content",
+                 type.getPropertyDefinitions()[0].getName());
 
   }
 

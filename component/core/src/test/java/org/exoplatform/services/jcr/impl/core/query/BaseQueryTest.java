@@ -43,17 +43,16 @@ public class BaseQueryTest extends JcrImplBaseTest {
   /**
    * Class logger.
    */
-  private final Log                 log = ExoLogger.getLogger("jcr.BaseQueryTest");
+  private final Log             log = ExoLogger.getLogger("jcr.BaseQueryTest");
 
-  protected  SearchManager       defaultSearchManager;
+  protected SearchManager       defaultSearchManager;
 
   protected SystemSearchManager systemSearchManager;
 
   protected SearchIndex         defaultSearchIndex;
 
-
-
-  protected Document getDocument(String nodeIdentifer, boolean includeSystemIndex) throws IOException, RepositoryException {
+  protected Document getDocument(String nodeIdentifer, boolean includeSystemIndex) throws IOException,
+                                                                                  RepositoryException {
     IndexReader reader = defaultSearchIndex.getIndexReader(includeSystemIndex);
     IndexSearcher is = new IndexSearcher(reader);
     TermQuery query = new TermQuery(new Term(FieldNames.UUID, nodeIdentifer));
@@ -62,17 +61,19 @@ public class BaseQueryTest extends JcrImplBaseTest {
 
     if (result.length() == 1)
       return result.doc(0);
-    else if(result.length()>1)
+    else if (result.length() > 1)
       throw new RepositoryException("Results more then one");
-    
+
     return null;
   }
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    this.defaultSearchManager = (SearchManager) session.getContainer().getComponentInstanceOfType(SearchManager.class);
-    this.systemSearchManager = (SystemSearchManager) session.getContainer().getComponentInstanceOfType(SystemSearchManager.class);
+    this.defaultSearchManager = (SearchManager) session.getContainer()
+                                                       .getComponentInstanceOfType(SearchManager.class);
+    this.systemSearchManager = (SystemSearchManager) session.getContainer()
+                                                            .getComponentInstanceOfType(SystemSearchManager.class);
     this.defaultSearchIndex = (SearchIndex) defaultSearchManager.getHandler();
   }
 }

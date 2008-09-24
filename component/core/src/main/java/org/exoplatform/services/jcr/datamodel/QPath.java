@@ -28,39 +28,43 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author Gennady Azarenkov
  * @version $Id: QPath.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class QPath implements Comparable<QPath> {
 
-  protected static Log log = ExoLogger.getLogger("jcr.SessionDataManager");
+  protected static Log       log              = ExoLogger.getLogger("jcr.SessionDataManager");
 
   public static final String PREFIX_DELIMITER = ":";
 
   private final QPathEntry[] names;
-  private final int hashCode;
-  private String stringName; // compile on demand
+
+  private final int          hashCode;
+
+  private String             stringName;                                                      // compile
+
+  // on
+  // demand
 
   public QPath(QPathEntry[] names) {
     this.names = names;
 
     final int prime = 31;
     int hash = names.length > 0 ? 1 : super.hashCode();
-    for (QPathEntry entry: names) {
+    for (QPathEntry entry : names) {
       hash = prime * hash + entry.hashCode();
       hash = prime * hash + entry.getIndex();
     }
-    this.hashCode = hash; 
+    this.hashCode = hash;
   }
 
   public boolean isAbsolute() {
-    if( names[0].getIndex() == 1
-        && names[0].getName().length() == 0
+    if (names[0].getIndex() == 1 && names[0].getName().length() == 0
         && names[0].getNamespace().length() == 0)
       return true;
-    else 
+    else
       return false;
   }
 
@@ -74,18 +78,17 @@ public class QPath implements Comparable<QPath> {
   }
 
   /**
-   * Makes ancestor path by relative degree (For ex relativeDegree == 1 means
-   * parent path etc)
-   *
+   * Makes ancestor path by relative degree (For ex relativeDegree == 1 means parent path etc)
+   * 
    * @param relativeDegree
    * @return
    */
   public QPath makeAncestorPath(int relativeDegree) {
     // [PN] 16.01.2007
-//    if (relativeDegree > getLength() || getLength() <= 1) {
-//      throw new IllegalPathException("Relative degree " + relativeDegree
-//          + " is more than depth for " + getAsString());
-//    }
+    // if (relativeDegree > getLength() || getLength() <= 1) {
+    // throw new IllegalPathException("Relative degree " + relativeDegree
+    // + " is more than depth for " + getAsString());
+    // }
 
     int entryCount = getLength() - relativeDegree;
     QPathEntry[] ancestorEntries = new QPathEntry[entryCount];
@@ -104,9 +107,9 @@ public class QPath implements Comparable<QPath> {
       throw new IllegalPathException("Relative degree " + relativeDegree
           + " is more than depth for " + getAsString());
 
-    QPathEntry[] relPath = new QPathEntry[relativeDegree]; 
+    QPathEntry[] relPath = new QPathEntry[relativeDegree];
     System.arraycopy(names, len, relPath, 0, relPath.length);
-    
+
     return relPath;
   }
 
@@ -118,8 +121,7 @@ public class QPath implements Comparable<QPath> {
   }
 
   /**
-   * @return depth of this path calculates as size of names array - 1. For ex
-   *         root's depth=0 etc.
+   * @return depth of this path calculates as size of names array - 1. For ex root's depth=0 etc.
    */
   public int getDepth() {
     return names.length - 1;
@@ -131,49 +133,47 @@ public class QPath implements Comparable<QPath> {
    */
   public boolean isDescendantOf(final QPath ancestorPath) {
     final InternalQName[] ancestorNames = ancestorPath.names;
-    
+
     if (names.length - ancestorNames.length <= 0)
       return false;
-    
+
     for (int i = 0; i < ancestorNames.length; i++) {
       if (!ancestorNames[i].equals(names[i]))
         return false;
     }
     return true;
   }
-  
+
   /**
    * @param anotherPath
    * @param childOnly
-   *          if == true only direct children of the path will be taking in
-   *          account
+   *          if == true only direct children of the path will be taking in account
    * @return if this path is descendant of another one
    */
   public boolean isDescendantOf(final QPath anotherPath, final boolean childOnly) {
     final InternalQName[] anotherNames = anotherPath.names;
-    
-    //int depthDiff = getDepth() - anotherPath.getDepth();
+
+    // int depthDiff = getDepth() - anotherPath.getDepth();
     int depthDiff = names.length - anotherNames.length;
     if (depthDiff <= 0 || (childOnly && depthDiff != 1))
       return false;
 
-    //InternalQName[] anotherNames = anotherPath.getEntries();
+    // InternalQName[] anotherNames = anotherPath.getEntries();
     for (int i = 0; i < anotherNames.length; i++) {
       if (!anotherNames[i].equals(names[i]))
         return false;
     }
     return true;
   }
-  
+
   /**
-   *
+   * 
    * @param firstPath
    * @param secondPath
    * @return The common ancestor of two paths.
    * @throws PathNotFoundException
    */
-  public static QPath getCommonAncestorPath(QPath firstPath, QPath secondPath)
-      throws PathNotFoundException {
+  public static QPath getCommonAncestorPath(QPath firstPath, QPath secondPath) throws PathNotFoundException {
 
     if (!firstPath.getEntries()[0].equals(secondPath.getEntries()[0])) {
       throw new PathNotFoundException("For the given ways there is no common ancestor.");
@@ -181,7 +181,7 @@ public class QPath implements Comparable<QPath> {
 
     List<QPathEntry> caEntries = new ArrayList<QPathEntry>();
     for (int i = 0; i < firstPath.getEntries().length; i++) {
-      if (firstPath.getEntries()[i].equals(secondPath.getEntries()[i])){
+      if (firstPath.getEntries()[i].equals(secondPath.getEntries()[i])) {
         caEntries.add(firstPath.getEntries()[i]);
       } else {
         break;
@@ -190,7 +190,7 @@ public class QPath implements Comparable<QPath> {
 
     return new QPath(caEntries.toArray(new QPathEntry[caEntries.size()]));
   }
-  
+
   /**
    * @return last name of this path
    */
@@ -248,17 +248,17 @@ public class QPath implements Comparable<QPath> {
 
     QPathEntry[] e1 = names;
     QPathEntry[] e2 = compare.getEntries();
-    
+
     int len1 = e1.length;
     int len2 = e2.length;
 
     int k = 0;
-    int lim = Math.min(len1, len2) ;
+    int lim = Math.min(len1, len2);
     while (k < lim) {
-      
+
       QPathEntry c1 = e1[k];
       QPathEntry c2 = e2[k];
-      
+
       if (!c1.isSame(c2)) {
         return c1.compareTo(c2);
       }
@@ -266,7 +266,7 @@ public class QPath implements Comparable<QPath> {
     }
     return len1 - len2;
   }
-  
+
   @Override
   public int hashCode() {
     return hashCode;
@@ -276,11 +276,11 @@ public class QPath implements Comparable<QPath> {
 
   /**
    * Parses string and make internal path from it
-   *
+   * 
    * @param qPath
    * @return
-   * @throws RepositoryException -
-   *           if string is invalid
+   * @throws RepositoryException
+   *           - if string is invalid
    */
   public static QPath parse(String qPath) throws IllegalPathException {
     if (qPath == null)
@@ -323,24 +323,23 @@ public class QPath implements Comparable<QPath> {
   }
 
   /**
-   * Makes child path from existed path and child name. Assumed that parent path
-   * belongs to node so it should have some index. If not sets index=1
-   * automatically
-   *
+   * Makes child path from existed path and child name. Assumed that parent path belongs to node so
+   * it should have some index. If not sets index=1 automatically
+   * 
    * @param parent
    *          path
    * @param name
    *          child name
    * @return new InternalQPath
    */
-  @Deprecated // [PN] 05.02.07
-  public static QPath makeChildPath(QPath parent, String name)
-      throws IllegalPathException {
+  @Deprecated
+  // [PN] 05.02.07
+  public static QPath makeChildPath(QPath parent, String name) throws IllegalPathException {
 
     QPathEntry[] parentEntries = parent.getEntries();
     QPathEntry[] names = new QPathEntry[parentEntries.length + 1];
     int index = 0;
-    for (QPathEntry pname: parentEntries) {
+    for (QPathEntry pname : parentEntries) {
       names[index++] = pname;
     }
 
@@ -353,13 +352,12 @@ public class QPath implements Comparable<QPath> {
     return makeChildPath(parent, name, 1);
   }
 
-  public static QPath makeChildPath(final QPath parent,
-      final QName name, final int itemIndex) {
+  public static QPath makeChildPath(final QPath parent, final QName name, final int itemIndex) {
 
     QPathEntry[] parentEntries = parent.getEntries();
     QPathEntry[] names = new QPathEntry[parentEntries.length + 1];
     int index = 0;
-    for (QPathEntry pname: parentEntries) {
+    for (QPathEntry pname : parentEntries) {
       names[index++] = pname;
     }
     names[index] = new QPathEntry(name.getNamespace(), name.getName(), itemIndex);
@@ -373,10 +371,10 @@ public class QPath implements Comparable<QPath> {
     final QPathEntry[] parentEntries = parent.getEntries();
     final QPathEntry[] names = new QPathEntry[parentEntries.length + relEntries.length];
     int index = 0;
-    for (QPathEntry name: parentEntries) {
+    for (QPathEntry name : parentEntries) {
       names[index++] = name;
     }
-    for (QPathEntry name: relEntries) {
+    for (QPathEntry name : relEntries) {
       names[index++] = name;
     }
 
@@ -387,13 +385,11 @@ public class QPath implements Comparable<QPath> {
   private static QPathEntry parseEntry(final String entry) throws IllegalPathException {
 
     if (!entry.startsWith("["))
-      throw new IllegalPathException("Invalid QPath Entry '" + entry
-          + "' Should start of '['");
+      throw new IllegalPathException("Invalid QPath Entry '" + entry + "' Should start of '['");
     final int uriStart = 0;
     final int uriFinish = entry.indexOf("]", uriStart);
     if (uriFinish == -1)
-      throw new IllegalPathException("Invalid QPath Entry '" + entry
-          + "' No closed ']'");
+      throw new IllegalPathException("Invalid QPath Entry '" + entry + "' No closed ']'");
     final String uri = entry.substring(uriStart + 1, uriFinish);
 
     final String localName = entry.substring(uriFinish + 1, entry.length());
@@ -401,8 +397,8 @@ public class QPath implements Comparable<QPath> {
     final int ind = localName.indexOf(PREFIX_DELIMITER);
     if (ind > 1) {
       return new QPathEntry(uri,
-          localName.substring(0, ind),
-          Integer.parseInt(localName.substring(ind + 1)));
+                            localName.substring(0, ind),
+                            Integer.parseInt(localName.substring(ind + 1)));
     }
 
     return new QPathEntry(uri, localName, 1);

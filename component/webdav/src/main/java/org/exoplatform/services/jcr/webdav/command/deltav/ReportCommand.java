@@ -40,38 +40,45 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class ReportCommand {
-  
-  public Response report(Session session, String path, HierarchicalProperty body, Depth depth, String baseURI) {
+
+  public Response report(Session session,
+                         String path,
+                         HierarchicalProperty body,
+                         Depth depth,
+                         String baseURI) {
     try {
-      Node node = (Node)session.getItem(path);
+      Node node = (Node) session.getItem(path);
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
-      String strUri = baseURI + node.getPath();       
+      String strUri = baseURI + node.getPath();
       URI uri = new URI(TextUtil.escape(strUri, '%', true));
-      
+
       if (!ResourceUtil.isVersioned(node)) {
         return Response.Builder.serverError().build();
       }
-      
+
       VersionedResource resource;
       if (ResourceUtil.isFile(node)) {
         resource = new VersionedFileResource(uri, node, nsContext);
       } else {
         resource = new VersionedCollectionResource(uri, node, nsContext);
       }
-      
+
       Set<QName> properties = getProperties(body);
-      
-      VersionTreeResponseEntity response = new VersionTreeResponseEntity(nsContext, resource, properties);
-      
-      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(
-          response, "text/xml").build();
-      
+
+      VersionTreeResponseEntity response = new VersionTreeResponseEntity(nsContext,
+                                                                         resource,
+                                                                         properties);
+
+      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS)
+                             .entity(response, "text/xml")
+                             .build();
+
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
     } catch (RepositoryException exc) {
@@ -80,7 +87,7 @@ public class ReportCommand {
       return Response.Builder.serverError().build();
     }
   }
-  
+
   protected Set<QName> getProperties(HierarchicalProperty body) {
     HashSet<QName> properties = new HashSet<QName>();
 
@@ -88,12 +95,12 @@ public class ReportCommand {
     if (prop == null) {
       return properties;
     }
-    
+
     for (int i = 0; i < prop.getChildren().size(); i++) {
       HierarchicalProperty property = prop.getChild(i);
       properties.add(property.getName());
     }
-    
+
     return properties;
   }
 

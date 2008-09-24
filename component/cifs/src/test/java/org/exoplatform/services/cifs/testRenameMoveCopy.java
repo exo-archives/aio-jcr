@@ -29,8 +29,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
@@ -43,9 +42,9 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     super.setUp();
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName() : serv.getConfiguration()
-        .getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
   }
 
   /**
@@ -56,13 +55,11 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
   public void testRenameFile() throws Exception {
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
 
     s.refresh(false);
-    
+
     Node root = s.getRootNode();
 
     String filename = "testnode.txt";
@@ -83,12 +80,12 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile file = new SmbFile("smb://"+user + servername + "/ws/" + filename);
+    SmbFile file = new SmbFile("smb://" + user + servername + "/ws/" + filename);
 
     assertTrue(file.exists());
 
     String newname = "renfile.txt";
-    SmbFile renfile = new SmbFile("smb://"+user + servername + "/ws/" + newname);
+    SmbFile renfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     assertFalse(renfile.exists());
     file.renameTo(renfile);
@@ -115,11 +112,9 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
   public void testRenameFolder() throws Exception {
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
-    
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
+
     s.refresh(false);
 
     Node root = s.getRootNode();
@@ -132,12 +127,12 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile folder = new SmbFile("smb://"+user + servername + "/ws/" + oldname);
+    SmbFile folder = new SmbFile("smb://" + user + servername + "/ws/" + oldname);
 
     assertTrue(folder.exists());
 
     String newname = "newfolder";
-    SmbFile renfolder = new SmbFile("smb://"+user + servername + "/ws/" + newname);
+    SmbFile renfolder = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     // check if new name not exist
     assertFalse(renfolder.exists());
@@ -167,13 +162,11 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
   public void testCopyFile() throws Exception {
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
 
     s.refresh(false);
-    
+
     Node root = s.getRootNode();
 
     String oldname = "testnode.txt";
@@ -193,31 +186,28 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
 
     // done
     s.save();
-    
-    SmbFile file = new SmbFile("smb://"+user + servername + "/ws/" + oldname);
+
+    SmbFile file = new SmbFile("smb://" + user + servername + "/ws/" + oldname);
 
     assertTrue(file.exists());
 
     String newname = "newfile.txt";
-    SmbFile cpyfile = new SmbFile("smb://"+user + servername + "/ws/" + newname);
+    SmbFile cpyfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     // check if new name not exist
     assertFalse(cpyfile.exists());
 
     file.copyTo(cpyfile); // rename
 
-    
     assertTrue(cpyfile.exists());
     assertTrue(file.exists()); // check that both files exist
-    
-    
+
     // check changes in repository
 
     assertTrue(s.itemExists("/" + oldname));
     assertTrue(s.itemExists("/" + newname));
 
-    
-    //delete test temporary objects
+    // delete test temporary objects
     Node n = ((Node) s.getItem("/" + newname));
     n.remove();
     n = ((Node) s.getItem("/" + oldname));
@@ -226,7 +216,7 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     s.save();
 
   }
-  
+
   /**
    * Test copy Folder
    * 
@@ -235,13 +225,11 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
   public void testCopyFolder() throws Exception {
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
 
     s.refresh(false);
-    
+
     Node root = s.getRootNode();
 
     String oldname = "folder";
@@ -255,12 +243,12 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile folder = new SmbFile("smb://"+user + servername + "/ws/" + oldname+"/");
+    SmbFile folder = new SmbFile("smb://" + user + servername + "/ws/" + oldname + "/");
 
     assertTrue(folder.exists());
 
     String newname = "jcr'3a'system/newfolder";
-    SmbFile cpyfolder = new SmbFile("smb://"+user + servername + "/ws/" + newname+"/");
+    SmbFile cpyfolder = new SmbFile("smb://" + user + servername + "/ws/" + newname + "/");
 
     // check if new name not exist
     assertFalse(cpyfolder.exists());
@@ -285,5 +273,5 @@ public class testRenameMoveCopy extends BaseStandaloneTest {
     s.save();
 
   }
-  
+
 }

@@ -21,15 +21,16 @@ import org.exoplatform.frameworks.ftpclient.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public class CmdPwd extends FtpCommandImpl {
 
   private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdPwd");
-  
+
   public int execute() {
     try {
       sendCommand(FtpConst.Commands.CMD_PWD);
@@ -39,15 +40,15 @@ public class CmdPwd extends FtpCommandImpl {
     }
     return -1;
   }
-  
-  public String getCurrentPath() {    
-    String pVal =  getDescription();
-    
+
+  public String getCurrentPath() {
+    String pVal = getDescription();
+
     if (pVal.indexOf(" \"") != 0) {
       pVal = pVal.substring(pVal.indexOf(" \"") + 2, pVal.lastIndexOf("\" "));
     }
 
     return pVal;
   }
-  
+
 }

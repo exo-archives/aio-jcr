@@ -40,8 +40,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.security.Identity;
 
 /**
- * Created by The eXo Platform SAS.<br/> Prerequisite: enable access control
- * i.e. <access-control>optional</access-control>
+ * Created by The eXo Platform SAS.<br/> Prerequisite: enable access control i.e.
+ * <access-control>optional</access-control>
  * 
  * @author Gennady Azarenkov
  * @version $Id: TestAccess.java 14515 2008-05-20 11:45:21Z ksm $
@@ -343,7 +343,7 @@ public class TestAccess extends BaseStandaloneTest {
     // READ permissions for exo2
 
     // [PN] 19.06.07 owner it's by whom session was open
-    // assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
+    //assertEquals("exo",((ExtendedNode)accessTestRoot.getNode("testAddNode")).getACL().getOwner());
     assertEquals(credentials.getUserID(),
                  ((ExtendedNode) accessTestRoot.getNode("testAddNode")).getACL().getOwner());
 
@@ -569,8 +569,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the setPermission(String identity, String[] permission) completely
-   * replace permissions of the identity.
+   * check if the setPermission(String identity, String[] permission) completely replace permissions
+   * of the identity.
    * 
    * @throws Exception
    */
@@ -594,8 +594,8 @@ public class TestAccess extends BaseStandaloneTest {
   }
 
   /**
-   * check if the removePermission(String identity, String permission) remove
-   * specified permissions of the identity.
+   * check if the removePermission(String identity, String permission) remove specified permissions
+   * of the identity.
    * 
    * @throws Exception
    */
@@ -843,8 +843,10 @@ public class TestAccess extends BaseStandaloneTest {
         PermissionType.REMOVE }, session1.getUserState().getIdentity()));
 
   }
+
   /**
    * Test possibility of removing of all permissions.
+   * 
    * @throws Exception
    */
   public void testEmptyPermissions() throws Exception {
@@ -879,8 +881,10 @@ public class TestAccess extends BaseStandaloneTest {
       // ok
     }
   }
+
   /**
    * Testing of correct parsing of string representation of permissions values.
+   * 
    * @throws Exception
    */
   public void testPerseEntries() throws Exception {
@@ -907,8 +911,10 @@ public class TestAccess extends BaseStandaloneTest {
 
     }
   }
+
   /**
    * Test possibility of removing of all user permissions.
+   * 
    * @throws Exception
    */
   public void testRemoveAllPermissions() throws Exception {

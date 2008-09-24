@@ -39,57 +39,58 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.jcr.webdav.xml.XMLInputTransformer;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class TestSupportedLock extends LockTest {
-  
+
   private Node supportedLockNode;
-  
+
   public void setUp() throws Exception {
     super.setUp();
     if (supportedLockNode == null) {
       supportedLockNode = lockNode.addNode("testSupportedLockNode", "nt:unstructured");
     }
-  }   
-  
-  public void testSuportedLock() throws Exception {    
-    WebDavNamespaceContext nsContext = new WebDavNamespaceContext(supportedLockNode.getSession());    
-    Resource resource  = new CollectionResource(new URI(TextUtil.escape("http://localhost" + supportedLockNode.getPath(), '%', true)) , supportedLockNode, nsContext);
+  }
+
+  public void testSuportedLock() throws Exception {
+    WebDavNamespaceContext nsContext = new WebDavNamespaceContext(supportedLockNode.getSession());
+    Resource resource = new CollectionResource(new URI(TextUtil.escape("http://localhost"
+        + supportedLockNode.getPath(), '%', true)), supportedLockNode, nsContext);
 
     HashSet<QName> properties = new HashSet<QName>();
 
     properties.add(PropertyConstants.SUPPORTEDLOCK);
 
-    PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);    
-    ByteArrayOutputStream outStream = new ByteArrayOutputStream();    
+    PropFindResponseEntity resp = new PropFindResponseEntity(2, resource, properties, false);
+    ByteArrayOutputStream outStream = new ByteArrayOutputStream();
     resp.writeObject(outStream);
-    
+
     XMLInputTransformer transformer = new XMLInputTransformer();
-    HierarchicalProperty multistatus = (HierarchicalProperty)transformer.readFrom(new ByteArrayInputStream(outStream.toByteArray()));
-    
+    HierarchicalProperty multistatus = (HierarchicalProperty) transformer.readFrom(new ByteArrayInputStream(outStream.toByteArray()));
+
     assertEquals(multistatus.getName(), new QName("DAV:", "multistatus"));
-    
+
     HierarchicalProperty response = multistatus.getChild(new QName("DAV:", "response"));
-    
+
     Map<QName, WebDavProperty> davProperties = XmlUtils.parsePropStat(response);
-    
+
     WebDavProperty supportedLock = davProperties.get(PropertyConstants.SUPPORTEDLOCK);
     assertEquals(WebDavStatus.OK, supportedLock.getStatus());
-    
+
     HierarchicalProperty lockEntry = supportedLock.getChild(new QName("DAV:", "lockentry"));
-    
+
     HierarchicalProperty lockScope = lockEntry.getChild(new QName("DAV:", "lockscope"));
     assertNotNull(lockScope);
     HierarchicalProperty exclusive = lockScope.getChild(new QName("DAV:", "exclusive"));
     assertNotNull(exclusive);
-    
+
     HierarchicalProperty lockType = lockEntry.getChild(new QName("DAV:", "locktype"));
     assertNotNull(lockType);
     HierarchicalProperty write = lockType.getChild(new QName("DAV:", "write"));
     assertNotNull(write);
-  }  
+  }
 
 }

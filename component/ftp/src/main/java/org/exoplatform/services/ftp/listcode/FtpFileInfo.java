@@ -19,35 +19,35 @@ package org.exoplatform.services.ftp.listcode;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public interface FtpFileInfo {
 
-  void initFromNode(Node node) throws Exception; 
-  
+  void initFromNode(Node node) throws Exception;
+
   void setName(String name);
-  
+
   String getName();
-  
+
   void setType(boolean collection);
-  
+
   boolean isCollection();
-  
+
   void setSize(long size);
 
   long getSize();
-  
+
   void setDateTime(String dateTime);
-  
+
   String getDateTime();
-  
+
   String getMonth();
-  
+
   int getDay();
-  
-  String getTime();  
-  
+
+  String getTime();
+
 }

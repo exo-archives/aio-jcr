@@ -17,17 +17,17 @@
 package org.exoplatform.services.jcr.lab.cache;
 
 /**
- * Created by The eXo Platform SAS. 
+ * Created by The eXo Platform SAS.
  * 
  * Date: 25.04.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: CacheTestConstants.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class CacheTestConstants {
 
   public static final String KEY_PREFIX = "key_1234567890_qwertyuiopasdfghjklzxcvbnm[]=1-";
-  
-  public static final int CACHE_SIZE = 1000000 * 1;
-  
+
+  public static final int    CACHE_SIZE = 1000000 * 1;
+
 }

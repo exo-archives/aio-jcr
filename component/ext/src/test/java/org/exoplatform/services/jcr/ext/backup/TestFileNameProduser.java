@@ -24,37 +24,40 @@ import junit.framework.TestCase;
 import org.exoplatform.services.jcr.ext.backup.impl.fs.FileNameProducer;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.com.ua
- *          reshetnyak.alex@exoplatform.com.ua
- * Nov 20, 2007  
+ * Created by The eXo Platform SARL Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * reshetnyak.alex@exoplatform.com.ua Nov 20, 2007
  */
 public class TestFileNameProduser extends TestCase {
   FileNameProducer nameProducer;
-  File tempDir;
-  String backupsetName;
+
+  File             tempDir;
+
+  String           backupsetName;
 
   public void testGetNextName() throws Exception {
-    tempDir = new File ("target" + File.separator + "temp" + File.separator + "fileProduser");
+    tempDir = new File("target" + File.separator + "temp" + File.separator + "fileProduser");
     tempDir.mkdirs();
-    
+
     backupsetName = String.valueOf(System.currentTimeMillis());
-    
+
     nextName(true);
     nextName(false);
     nextName(false);
     nextName(false);
     nextName(false);
     nextName(false);
-    
+
     assertEquals(1, 1);
   }
-  
+
   private void nextName(boolean isFullBackup) throws InterruptedException {
-//    nameProducer = new FileNameProducer("reposytory", "production", tempDir.getAbsolutePath(),  isFullBackup);
+    // nameProducer = new FileNameProducer("reposytory", "production", tempDir.getAbsolutePath(),
+    // isFullBackup);
     Thread.sleep(100);
-    nameProducer = new FileNameProducer(backupsetName, tempDir.getAbsolutePath(), Calendar.getInstance(), isFullBackup);
+    nameProducer = new FileNameProducer(backupsetName,
+                                        tempDir.getAbsolutePath(),
+                                        Calendar.getInstance(),
+                                        isFullBackup);
     System.out.println(nameProducer.getNextFile().getName());
   }
 }

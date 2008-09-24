@@ -21,19 +21,19 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
  */
 public interface TransformConstants {
 
-    /**
-     * No transformation is done on the term enum.
-     */
-    static final int TRANSFORM_NONE = 0;
+  /**
+   * No transformation is done on the term enum.
+   */
+  static final int TRANSFORM_NONE       = 0;
 
-    /**
-     * The underlying term enum is transformed to lower case characters.
-     */
-    static final int TRANSFORM_LOWER_CASE = 1;
+  /**
+   * The underlying term enum is transformed to lower case characters.
+   */
+  static final int TRANSFORM_LOWER_CASE = 1;
 
-    /**
-     * The underlying term enum is transformed to upper case characters.
-     */
-    static final int TRANSFORM_UPPER_CASE = 2;
+  /**
+   * The underlying term enum is transformed to upper case characters.
+   */
+  static final int TRANSFORM_UPPER_CASE = 2;
 
 }

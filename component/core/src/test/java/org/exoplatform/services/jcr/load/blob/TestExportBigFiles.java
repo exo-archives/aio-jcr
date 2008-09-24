@@ -44,7 +44,7 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
    * @throws Exception
    */
   public void testBigExportSysView() throws Exception {
-    String TEST_FILE = createBLOBTempFile(1024*5).getAbsolutePath();//5M
+    String TEST_FILE = createBLOBTempFile(1024 * 5).getAbsolutePath();// 5M
     Node testLocalBigFiles = root.addNode("testLocalBigFiles");
 
     // add file to repository
@@ -84,8 +84,8 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
 
     // importing content
     session.importXML(root.getPath(),
-        bufferedInputStream,
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+                      bufferedInputStream,
+                      ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
 
     session.save();
 
@@ -94,9 +94,9 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
     Node content = lbf.getNode("jcr:content");
 
     // comparing with source file
-    compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE)), content
-        .getProperty("jcr:data").getStream());
-    
+    compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE)),
+                  content.getProperty("jcr:data").getStream());
+
     n1.remove();
     session.save();
     file.deleteOnExit();
@@ -110,7 +110,7 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
    * @throws Exception
    */
   public void testBigImportExportDocView() throws Exception {
-    String TEST_FILE2 = createBLOBTempFile(1024*5).getAbsolutePath(); // 5M
+    String TEST_FILE2 = createBLOBTempFile(1024 * 5).getAbsolutePath(); // 5M
     Node testLocalBigFiles = root.addNode("testDocView");
 
     // add file to repository
@@ -150,8 +150,8 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
 
     // importing content
     session.importXML(root.getPath(),
-        bufferedInputStream,
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+                      bufferedInputStream,
+                      ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
 
     session.save();
 
@@ -160,9 +160,9 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
     Node content = lbf.getNode("jcr:content");
 
     // comparing with source file
-    compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE2)), content
-        .getProperty("jcr:data").getStream());
-    
+    compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE2)),
+                  content.getProperty("jcr:data").getStream());
+
     n1.remove();
     session.save();
     file.deleteOnExit();
@@ -212,8 +212,8 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
 
     // importing content
     session.importXML(root.getPath(),
-        bufferedInputStream,
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+                      bufferedInputStream,
+                      ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
 
     session.save();
 
@@ -222,23 +222,23 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
     Node content = lbf.getNode("jcr:content");
 
     // comparing with source file
-    compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE)), content
-        .getProperty("jcr:data").getStream());
-    
+    compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE)),
+                  content.getProperty("jcr:data").getStream());
+
     n1.remove();
     session.save();
     file.deleteOnExit();
     file.delete();
   }
+
   public void testRandomSizeExportImportSysView() throws Exception {
     final int FILES_COUNT = 100;
-    
+
     List<String> fileList = new ArrayList<String>();
-    Random random = new Random(); 
-    
-    
+    Random random = new Random();
+
     for (int i = 0; i < FILES_COUNT; i++) {
-      fileList.add(createBLOBTempFile(random.nextInt(1024*1024)).getAbsolutePath());
+      fileList.add(createBLOBTempFile(random.nextInt(1024 * 1024)).getAbsolutePath());
     }
     Node testLocalBigFiles = root.addNode("testLocalBigFiles");
 
@@ -260,8 +260,8 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
       session.save();
       System.out.println("Saved: " + TEST_FILE + " " + Runtime.getRuntime().freeMemory());
       endTime = System.currentTimeMillis();
-      log.info("Execution time after adding and saving (local big):" + ((endTime - startTime) / 1000)
-          + "s");
+      log.info("Execution time after adding and saving (local big):"
+          + ((endTime - startTime) / 1000) + "s");
 
     }
 
@@ -282,8 +282,8 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
 
     // importing content
     session.importXML(root.getPath(),
-        bufferedInputStream,
-        ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
+                      bufferedInputStream,
+                      ImportUUIDBehavior.IMPORT_UUID_COLLISION_REMOVE_EXISTING);
 
     session.save();
 
@@ -293,8 +293,8 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
       Node lbf = n1.getNode("bigFile" + i);
       Node content = lbf.getNode("jcr:content");
       // comparing with source file
-      compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE)), content
-          .getProperty("jcr:data").getStream());
+      compareStream(new BufferedInputStream(new FileInputStream(TEST_FILE)),
+                    content.getProperty("jcr:data").getStream());
     }
     n1.remove();
     session.save();
@@ -302,6 +302,7 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
     file.delete();
 
   }
+
   protected File createBLOBTempFile(int sizeInb) throws IOException {
     // create test file
     byte[] data = new byte[1024]; // 1Kb
@@ -310,9 +311,9 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
     FileOutputStream tempOut = new FileOutputStream(testFile);
     Random random = new Random();
 
-    for (int i=0; i<sizeInb; i+=1024) {
-      if(i+1024>sizeInb){
-        byte[] rest = new byte[sizeInb-i];
+    for (int i = 0; i < sizeInb; i += 1024) {
+      if (i + 1024 > sizeInb) {
+        byte[] rest = new byte[sizeInb - i];
         random.nextBytes(rest);
         tempOut.write(rest);
         continue;
@@ -322,7 +323,7 @@ public class TestExportBigFiles extends JcrAPIBaseTest {
     }
     tempOut.close();
     testFile.deleteOnExit(); // delete on test exit
-    log.info("Temp file created: " + testFile.getAbsolutePath()+" size: "+testFile.length());
+    log.info("Temp file created: " + testFile.getAbsolutePath() + " size: " + testFile.length());
     return testFile;
   }
 }

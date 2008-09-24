@@ -33,21 +33,22 @@ import org.exoplatform.frameworks.jcr.command.JCRAppContext;
 
 public class AddNodeCommand implements Command {
 
-  private String pathKey = DefaultKeys.PATH;
+  private String pathKey        = DefaultKeys.PATH;
+
   private String currentNodeKey = DefaultKeys.CURRENT_NODE;
-  private String resultKey = DefaultKeys.RESULT;
-  private String nodeTypeKey = DefaultKeys.NODE_TYPE;
+
+  private String resultKey      = DefaultKeys.RESULT;
+
+  private String nodeTypeKey    = DefaultKeys.NODE_TYPE;
 
   public boolean execute(Context context) throws Exception {
 
     Session session = ((JCRAppContext) context).getSession();
 
-    Node parentNode = (Node) session.getItem((String) context
-        .get(currentNodeKey));
+    Node parentNode = (Node) session.getItem((String) context.get(currentNodeKey));
     String relPath = (String) context.get(pathKey);
     if (context.containsKey(nodeTypeKey))
-      context.put(resultKey, parentNode.addNode(relPath, (String) context
-          .get(nodeTypeKey)));
+      context.put(resultKey, parentNode.addNode(relPath, (String) context.get(nodeTypeKey)));
     else
       context.put(resultKey, parentNode.addNode(relPath));
 

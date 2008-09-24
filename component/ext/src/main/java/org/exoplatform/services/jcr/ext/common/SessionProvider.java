@@ -37,56 +37,59 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 
 /**
- * Created by The eXo Platform SAS        .<br/>
- * Provides JCR Session for client program. Usually it is per client thread object
- * Session creates with Repository.login(..) method and then can be stored in some 
- * cache if neccessary. 
+ * Created by The eXo Platform SAS .<br/> Provides JCR Session for client program. Usually it is per
+ * client thread object Session creates with Repository.login(..) method and then can be stored in
+ * some cache if neccessary.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id$
  */
 
 public class SessionProvider implements SessionLifecycleListener {
-  
-  public final static String SESSION_PROVIDER = "JCRsessionProvider";
 
-  private final Map <String, ExtendedSession> cache;
-  
-  private boolean isSystem;
-  
-  private ManageableRepository currentRepository;                                                                                                                           
-  private String currentWorkspace;   
+  public final static String                 SESSION_PROVIDER = "JCRsessionProvider";
 
-  //private final ConversationState userState; 
-  
+  private final Map<String, ExtendedSession> cache;
+
+  private boolean                            isSystem;
+
+  private ManageableRepository               currentRepository;
+
+  private String                             currentWorkspace;
+
+  // private final ConversationState userState;
+
   /**
    * Creates SessionProvider for certain identity
+   * 
    * @param cred
    */
   public SessionProvider(ConversationState userState) {
     this(false);
-    //this.cache = new HashMap<String, ExtendedSession>();
-    //this.userState = userState;
-    if(userState.getAttribute(SESSION_PROVIDER) == null)
+    // this.cache = new HashMap<String, ExtendedSession>();
+    // this.userState = userState;
+    if (userState.getAttribute(SESSION_PROVIDER) == null)
       userState.setAttribute(SESSION_PROVIDER, this);
-  }  
-  
+  }
+
   private SessionProvider(boolean isSystem) {
     this.isSystem = isSystem;
     this.cache = Collections.synchronizedMap(new HashMap<String, ExtendedSession>());
   }
-  
 
   /**
    * Helper for creating System session provider
+   * 
    * @return System session
    */
   public static SessionProvider createSystemProvider() {
-    //Identity id = new Identity(SystemIdentity.SYSTEM, new HashSet<MembershipEntry>());
+    // Identity id = new Identity(SystemIdentity.SYSTEM, new HashSet<MembershipEntry>());
     return new SessionProvider(true);
   }
 
   /**
    * Helper for creating Anonimous session provider
+   * 
    * @return System session
    */
   public static SessionProvider createAnonimProvider() {
@@ -94,9 +97,9 @@ public class SessionProvider implements SessionLifecycleListener {
     return new SessionProvider(new ConversationState(id));
   }
 
-  
   /**
-   * Gets the session from internal cache or creates and caches new one 
+   * Gets the session from internal cache or creates and caches new one
+   * 
    * @param workspaceName
    * @param repository
    * @return session
@@ -104,27 +107,28 @@ public class SessionProvider implements SessionLifecycleListener {
    * @throws NoSuchWorkspaceException
    * @throws RepositoryException
    */
-  public Session getSession(String workspaceName, ManageableRepository repository) 
-    throws LoginException, NoSuchWorkspaceException, RepositoryException {
+  public Session getSession(String workspaceName, ManageableRepository repository) throws LoginException,
+                                                                                  NoSuchWorkspaceException,
+                                                                                  RepositoryException {
     if (workspaceName == null) {
       throw new NullPointerException("Workspace Name is null");
     }
 
     ExtendedSession session = cache.get(key(repository, workspaceName));
-    // create and cache new session 
-    
+    // create and cache new session
+
     if (session == null) {
-      
-      if(!isSystem)
-        session = (ExtendedSession)repository.login(workspaceName);
+
+      if (!isSystem)
+        session = (ExtendedSession) repository.login(workspaceName);
       else
-        session = (ExtendedSession)repository.getSystemSession(workspaceName);
-      
+        session = (ExtendedSession) repository.getSystemSession(workspaceName);
+
       session.registerLifecycleListener(this);
-      
+
       cache.put(key(repository, workspaceName), session);
     }
-    
+
     return session;
   }
 
@@ -140,34 +144,37 @@ public class SessionProvider implements SessionLifecycleListener {
     }
     cache.clear();
   }
-  
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.SessionLifecycleListener#onCloseSession(org.exoplatform.services.jcr.core.ExtendedSession)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.core.SessionLifecycleListener#onCloseSession(org.exoplatform.services
+   * .jcr.core.ExtendedSession)
    */
   public void onCloseSession(ExtendedSession session) {
-    this.cache.remove(key((ManageableRepository)session.getRepository(), session.getWorkspace().getName()));
+    this.cache.remove(key((ManageableRepository) session.getRepository(), session.getWorkspace()
+                                                                                 .getName()));
   }
-  
+
   private String key(ManageableRepository repository, String workspaceName) {
     String repositoryName = repository.getConfiguration().getName();
-    return repositoryName+workspaceName;
+    return repositoryName + workspaceName;
   }
-  
-  public ManageableRepository getCurrentRepository() {                                                                                                                      
-    return currentRepository;                                                                                                                                               
-  }                                                                                                                                                                         
-                                                                                                                                                                            
-  public String getCurrentWorkspace() {                                                                                                                                     
-    return currentWorkspace;                                                                                                                                                
-  }                                                                                                                                                                         
-                                                                                                                                                                            
-  public void setCurrentRepository(ManageableRepository currentRepository) {                                                                                                
-    this.currentRepository = currentRepository;                                                                                                                             
-  }                                                                                                                                                                         
-                                                                                                                                                                            
-  public void setCurrentWorkspace(String currentWorkspace) {                                                                                                                
+
+  public ManageableRepository getCurrentRepository() {
+    return currentRepository;
+  }
+
+  public String getCurrentWorkspace() {
+    return currentWorkspace;
+  }
+
+  public void setCurrentRepository(ManageableRepository currentRepository) {
+    this.currentRepository = currentRepository;
+  }
+
+  public void setCurrentWorkspace(String currentWorkspace) {
     this.currentWorkspace = currentWorkspace;
   }
-  
+
 }

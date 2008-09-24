@@ -36,20 +36,21 @@ public class UnLockActionInfo extends ActionInfo {
       node.addMixin("mix:lockable");
       node.getSession().save();
     }
-    if (!node.isLocked()){
+    if (!node.isLocked()) {
       node.lock(true, true);
     }
     node.unlock();
-    
+
   }
 
   @Override
   public int getEventType() {
     return ExtendedEvent.UNLOCK;
   }
-  public void tearDown(Context ctx) throws RepositoryException{
+
+  public void tearDown(Context ctx) throws RepositoryException {
     Node node = (Node) ctx.get("node");
-    if(node.isLocked())
+    if (node.isLocked())
       node.unlock();
   }
 

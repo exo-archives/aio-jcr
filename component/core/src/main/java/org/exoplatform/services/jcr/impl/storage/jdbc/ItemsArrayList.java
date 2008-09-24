@@ -29,20 +29,18 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
- *          
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 
  * NOTE! For debug purpose only!
- *          
+ * 
  * 17.01.2007
  */
 public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
 
   protected static Log log = ExoLogger.getLogger("jcr.ItemsArrayList");
-  
-  private final long timestamp;
-  
+
+  private final long   timestamp;
+
   // wrapped from AbstractList
   public class Itr implements Iterator<E> {
     /**
@@ -51,15 +49,14 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     int cursor           = 0;
 
     /**
-     * Index of element returned by most recent call to next or previous. Reset
-     * to -1 if this element is deleted by a call to remove.
+     * Index of element returned by most recent call to next or previous. Reset to -1 if this
+     * element is deleted by a call to remove.
      */
     int lastRet          = -1;
 
     /**
-     * The modCount value that the iterator believes that the backing List
-     * should have. If this expectation is violated, the iterator has detected
-     * concurrent modification.
+     * The modCount value that the iterator believes that the backing List should have. If this
+     * expectation is violated, the iterator has detected concurrent modification.
      */
     int expectedModCount = modCount;
 
@@ -71,18 +68,19 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
       ConcurrentModificationException concurrentException = null;
       try {
         checkForComodification();
-      } catch(ConcurrentModificationException e) {
+      } catch (ConcurrentModificationException e) {
         log.error(timestamp + " >>>> ConcurrentModificationException");
         concurrentException = e;
       }
       try {
         E next = get(cursor);
-        
+
         if (concurrentException != null) {
-          log.warn(timestamp + " next accesed with concurrent changes " + next.getQPath().getAsString(), concurrentException);
+          log.warn(timestamp + " next accesed with concurrent changes "
+              + next.getQPath().getAsString(), concurrentException);
           throw concurrentException;
         }
-        
+
         lastRet = cursor++;
         return next;
       } catch (IndexOutOfBoundsException e) {
@@ -112,13 +110,14 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
         throw new ConcurrentModificationException();
     }
   }
-  
+
   ItemsArrayList() {
     super();
     timestamp = System.currentTimeMillis();
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#add(int, java.lang.Object)
    */
   @Override
@@ -127,7 +126,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     super.add(index, (E) element);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#add(java.lang.Object)
    */
   @Override
@@ -136,7 +136,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.add((E) element);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#addAll(java.util.Collection)
    */
   @Override
@@ -145,7 +146,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.addAll(c);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#addAll(int, java.util.Collection)
    */
   @Override
@@ -154,7 +156,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.addAll(index, c);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#clear()
    */
   @Override
@@ -163,7 +166,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     super.clear();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.AbstractList#iterator()
    */
   @Override
@@ -173,7 +177,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return iter;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.AbstractList#listIterator()
    */
   @Override
@@ -182,7 +187,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.listIterator();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.AbstractList#listIterator(int)
    */
   @Override
@@ -191,7 +197,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.listIterator(index);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#remove(int)
    */
   @Override
@@ -200,16 +207,19 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.remove(index);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#remove(java.lang.Object)
    */
   @Override
   public boolean remove(Object o) {
-    log.info(timestamp + " -- remove(" + (o instanceof ItemData ? ((ItemData) o).getQPath().getAsString() : o) + ")");
+    log.info(timestamp + " -- remove("
+        + (o instanceof ItemData ? ((ItemData) o).getQPath().getAsString() : o) + ")");
     return super.remove(o);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.AbstractCollection#removeAll(java.util.Collection)
    */
   @Override
@@ -218,7 +228,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.removeAll(c);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#removeRange(int, int)
    */
   @Override
@@ -227,7 +238,8 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     super.removeRange(fromIndex, toIndex);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.util.ArrayList#set(int, java.lang.Object)
    */
   @Override
@@ -236,5 +248,4 @@ public class ItemsArrayList<E extends ItemData> extends ArrayList<E> {
     return super.set(index, element);
   }
 
-  
 }

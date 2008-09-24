@@ -23,30 +23,29 @@ import javax.jcr.util.TraversingItemVisitor;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: NodeDumpVisitor.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class NodeDumpVisitor extends TraversingItemVisitor {
-  
+
   private String dumpStr = "";
 
-  protected void entering(Property property, int level)
-      throws RepositoryException {
-    dumpStr+=" "+property.getPath()+"\n";
+  protected void entering(Property property, int level) throws RepositoryException {
+    dumpStr += " " + property.getPath() + "\n";
   }
 
   protected void entering(Node node, int level) throws RepositoryException {
-    dumpStr+=node.getPath()+"\n";
+    dumpStr += node.getPath() + "\n";
   }
 
-  protected void leaving(Property property, int level)
-      throws RepositoryException {
+  protected void leaving(Property property, int level) throws RepositoryException {
   }
 
   protected void leaving(Node node, int level) throws RepositoryException {
   }
-  
+
   public String getDump() {
     return dumpStr;
   }

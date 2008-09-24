@@ -43,7 +43,8 @@ import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 public class CommandControllerServlet extends HttpServlet {
 
   @Override
-  protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+  protected void service(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+                                                                                  IOException {
 
     ExoContainer container = (ExoContainer) getServletContext().getAttribute(WebConstants.EXO_CONTAINER);
     if (container == null) {
@@ -51,18 +52,18 @@ public class CommandControllerServlet extends HttpServlet {
       container = RootContainer.getInstance().getPortalContainer(portalName);
     }
 
-    SessionProviderService sessionProviderService =
-        (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
+    SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
 
     RepositoryService repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
     GenericWebAppContext ctx;
     try {
       ctx = new GenericWebAppContext(getServletContext(),
-                               request,
-                               response,
-                               sessionProviderService.getSessionProvider(null), // null for ThreadLocalSessionProvider
-                               repositoryService.getDefaultRepository());
+                                     request,
+                                     response,
+                                     sessionProviderService.getSessionProvider(null), // null for
+                                     // ThreadLocalSessionProvider
+                                     repositoryService.getDefaultRepository());
     } catch (final RepositoryException e) {
       throw new IOException() {
         @Override

@@ -24,26 +24,26 @@ import com.sun.japex.TestCase;
 
 public class NodeRestoreTest extends AbstractGetItemTest {
 
-  private List<Version>   versions     = new ArrayList<Version>();
-  
+  private List<Version> versions = new ArrayList<Version>();
+
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     Node vnode = parent.addNode(context.generateUniqueName("versionableNode"));
     vnode.addMixin("mix:versionable");
     parent.save();
-    vnode.checkin();//v.1
+    vnode.checkin();// v.1
     vnode.checkout();
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
     vnode.save();
-    
-    versions.add(vnode.checkin());//v.2
-    
+
+    versions.add(vnode.checkin());// v.2
+
     vnode.checkout();
     vnode.addNode("Another subnode").setProperty("Property", "property of another subnode");
     vnode.save();
-    vnode.checkin();//v.3
+    vnode.checkin();// v.3
     vnode.checkout();
-    
+
     addNode(vnode);
   }
 

@@ -36,25 +36,25 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 /**
  * Created by The eXo Platform SAS.<br/>
  * 
- * ObjectFactory to produce BindableRepositoryImpl objects 
+ * ObjectFactory to produce BindableRepositoryImpl objects
  * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
  * @version $Id: BindableRepositoryFactory.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class BindableRepositoryFactory implements ObjectFactory {
-  
-  static final String REPOSITORYNAME_ADDRTYPE = "repositoryName";
+
+  static final String REPOSITORYNAME_ADDRTYPE  = "repositoryName";
+
   static final String CONTAINERCONFIG_ADDRTYPE = "containerConfig";
 
-  private static Map cache = new ReferenceMap(ReferenceMap.HARD,
-      ReferenceMap.SOFT);
+  private static Map  cache                    = new ReferenceMap(ReferenceMap.HARD,
+                                                                  ReferenceMap.SOFT);
 
   public BindableRepositoryFactory() {
   }
 
-  public Object getObjectInstance(Object obj, Name name, Context nameCtx,
-      Hashtable environment) throws Exception {
+  public Object getObjectInstance(Object obj, Name name, Context nameCtx, Hashtable environment) throws Exception {
     if (obj instanceof Reference) {
       Reference ref = (Reference) obj;
       synchronized (cache) {
@@ -66,14 +66,13 @@ public class BindableRepositoryFactory implements ObjectFactory {
         ExoContainer container = ExoContainerContext.getCurrentContainerIfPresent();
         if (containerConfig != null) {
           // here the code will work properly only when no StandaloneContainer instance created yet
-          if(container == null) {
+          if (container == null) {
             StandaloneContainer.setConfigurationURL((String) containerConfig.getContent());
             container = StandaloneContainer.getInstance();
           }
         }
-        ManageableRepository rep = ((RepositoryService)container.getComponentInstanceOfType(RepositoryService.class))
-        .getRepository(repositoryName);
-//        BindableRepositoryImpl brep = new BindableRepositoryImpl(rep);
+        ManageableRepository rep = ((RepositoryService) container.getComponentInstanceOfType(RepositoryService.class)).getRepository(repositoryName);
+        // BindableRepositoryImpl brep = new BindableRepositoryImpl(rep);
         cache.put(ref, rep);
         return rep;
       }

@@ -18,18 +18,19 @@ package org.exoplatform.services.jcr.ext.replication;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class ReplicationException extends Exception {
   public ReplicationException(String message) {
     super(message);
   }
-  
+
   public ReplicationException(String message, Throwable e) {
     super(message, e);
   }
-  
+
   public ReplicationException(Throwable e) {
     super(e.getMessage(), e);
   }

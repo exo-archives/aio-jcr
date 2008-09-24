@@ -34,17 +34,17 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * @version $Id: NameTraversingVisitor.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class NameTraversingVisitor extends ItemDataTraversingVisitor {
-  private HashSet<QPath>   validNames       = new HashSet<QPath>();
+  private HashSet<QPath>  validNames       = new HashSet<QPath>();
 
-  private HashSet<String>  validUuids       = new HashSet<String>();
+  private HashSet<String> validUuids       = new HashSet<String>();
 
-  public  final static int SCOPE_NODES      = 1;
+  public final static int SCOPE_NODES      = 1;
 
   public final static int SCOPE_PROPERTYES = 2;
 
   public final static int SCOPE_ALL        = SCOPE_NODES | SCOPE_PROPERTYES;
 
-  private final int        scope;
+  private final int       scope;
 
   public NameTraversingVisitor(ItemDataConsumer dataManager, int scope) {
     super(dataManager);
@@ -83,16 +83,16 @@ public class NameTraversingVisitor extends ItemDataTraversingVisitor {
   }
 
   public static QPath[] getValidNames(Node rootNode, int scope) throws RepositoryException {
-    NameTraversingVisitor visitor = new NameTraversingVisitor(((SessionImpl) rootNode.getSession())
-        .getTransientNodesManager(),scope);
+    NameTraversingVisitor visitor = new NameTraversingVisitor(((SessionImpl) rootNode.getSession()).getTransientNodesManager(),
+                                                              scope);
     (((NodeImpl) rootNode).getData()).accept(visitor);
     HashSet<QPath> valNames = visitor.getValidNames();
     return valNames.toArray(new QPath[valNames.size()]);
   }
 
   public static String[] getValidUuids(Node rootNode, int scope) throws RepositoryException {
-    NameTraversingVisitor visitor = new NameTraversingVisitor(((SessionImpl) rootNode.getSession())
-        .getTransientNodesManager(),scope);
+    NameTraversingVisitor visitor = new NameTraversingVisitor(((SessionImpl) rootNode.getSession()).getTransientNodesManager(),
+                                                              scope);
     (((NodeImpl) rootNode).getData()).accept(visitor);
     HashSet<String> valUuids = visitor.getValidUuids();
     return valUuids.toArray(new String[valUuids.size()]);

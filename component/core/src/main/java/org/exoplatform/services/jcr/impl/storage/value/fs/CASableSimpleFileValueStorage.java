@@ -40,7 +40,7 @@ public class CASableSimpleFileValueStorage extends FileValueStorage {
   @Override
   public void init(Properties props) throws IOException, RepositoryConfigurationException {
     super.init(props);
-    
+
     this.digestAlgo = props.getProperty(ValueContentAddressStorage.DIGEST_ALGO_PARAM);
     String vcasType = props.getProperty(ValueContentAddressStorage.VCAS_TYPE_PARAM);
 

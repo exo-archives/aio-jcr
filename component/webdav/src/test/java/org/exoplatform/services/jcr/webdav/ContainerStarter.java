@@ -24,8 +24,9 @@ public class ContainerStarter {
 
   private final Log             log            = ExoLogger.getLogger("ws.CargoContainer");
 
-  protected static final String TEST_PATH      = (System.getProperty("testPath") == null ? "."
-                                                                                        : System.getProperty("testPath"));
+  protected static final String TEST_PATH      = (System.getProperty("testPath") == null
+                                                   ? "."
+                                                   : System.getProperty("testPath"));
 
   protected static final String CONTAINER_PATH = "http://www.apache.org/dist/tomcat/tomcat-6/v6.0.16/bin/apache-tomcat-6.0.16.zip";
 
@@ -47,10 +48,9 @@ public class ContainerStarter {
       Installer installer = new ZipURLInstaller(new java.net.URL(CONTAINER_PATH), home);
       installer.install();
 
-      LocalConfiguration configuration = (LocalConfiguration) 
-                     new DefaultConfigurationFactory().createConfiguration("tomcat5x",
-                                                                     ContainerType.INSTALLED,
-                                                                     ConfigurationType.STANDALONE);
+      LocalConfiguration configuration = (LocalConfiguration) new DefaultConfigurationFactory().createConfiguration("tomcat5x",
+                                                                                                                    ContainerType.INSTALLED,
+                                                                                                                    ConfigurationType.STANDALONE);
 
       configuration.setProperty(ServletPropertySet.PORT, port);
 
@@ -58,10 +58,9 @@ public class ContainerStarter {
       configuration.addDeployable(new WAR(TEST_PATH + "/test/war/fckeditor.war"));
       configuration.addDeployable(new WAR(TEST_PATH + "/test/war/rest.war"));
 
-      InstalledLocalContainer container = (InstalledLocalContainer) 
-                                          new DefaultContainerFactory().createContainer("tomcat5x",
-                                                                          ContainerType.INSTALLED,
-                                                                           configuration);
+      InstalledLocalContainer container = (InstalledLocalContainer) new DefaultContainerFactory().createContainer("tomcat5x",
+                                                                                                                  ContainerType.INSTALLED,
+                                                                                                                  configuration);
 
       container.setHome(installer.getHome());
 

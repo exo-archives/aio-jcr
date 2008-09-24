@@ -30,8 +30,8 @@ public class NodeCheckoutTest extends AbstractGetItemTest {
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
     vnode.save();
     vnode.checkin();
-    
-    addNode(vnode);    
+
+    addNode(vnode);
   }
 
   @Override

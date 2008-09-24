@@ -99,10 +99,10 @@ public class StreamImporter implements RawDataImporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.exoplatform.services.jcr.impl.core.NodeImpl,
-   *      int, org.exoplatform.services.jcr.impl.xml.XmlSaveType,
-   *      org.exoplatform.services.ext.action.InvocationContext)
+   * @seeorg.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.
+   * exoplatform.services.jcr.impl.core.NodeImpl, int,
+   * org.exoplatform.services.jcr.impl.xml.XmlSaveType,
+   * org.exoplatform.services.ext.action.InvocationContext)
    */
   public ContentImporter createContentImporter(NodeData parent,
                                                int uuidBehavior,

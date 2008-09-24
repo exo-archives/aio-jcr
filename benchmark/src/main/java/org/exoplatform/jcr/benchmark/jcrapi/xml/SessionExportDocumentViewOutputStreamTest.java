@@ -15,10 +15,10 @@ import com.sun.japex.TestCase;
  */
 
 public class SessionExportDocumentViewOutputStreamTest extends AbstractContentCreatorForExportTest {
-  
+
   @Override
-  public void doRun(TestCase tc, JCRTestContext context) throws Exception {       
-    context.getSession().exportSystemView(nextPath(), nextOutputStream(), false, false);    
+  public void doRun(TestCase tc, JCRTestContext context) throws Exception {
+    context.getSession().exportSystemView(nextPath(), nextOutputStream(), false, false);
   }
 
 }

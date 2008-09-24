@@ -164,8 +164,7 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
   }
 
   /**
-   * boolean isExportedByStream, boolean isImportedByStream, boolean
-   * isSystemViewExport
+   * boolean isExportedByStream, boolean isImportedByStream, boolean isSystemViewExport
    * 
    * @param firstAction
    * @param secondAction
@@ -231,7 +230,7 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
                     testSession.save();
 
                   }
-                  
+
                   sessions.add(testSession);
                 } catch (IllegalArgumentException e) {
                   throw new RepositoryException(e);

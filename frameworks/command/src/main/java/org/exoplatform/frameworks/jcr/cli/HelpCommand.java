@@ -30,19 +30,16 @@ import java.util.TreeMap;
 
 public class HelpCommand extends AbstractCliCommand {
 
-  private TreeMap<String, String> map = new TreeMap<String, String>();
-  private final int WORD_LENGTH = 15;
+  private TreeMap<String, String> map         = new TreeMap<String, String>();
+
+  private final int               WORD_LENGTH = 15;
 
   public HelpCommand() {
     map.put("addnode", "<name>, <type> add node as child node of current node");
     map.put("mkdir", "<name>, <type> add node as child node of current node");
     map.put("login", "[<workspace name>] login to workspace");
-    map
-        .put("getitem",
-            "<absPath> or <relPath> or <..> change the current item");
-    map
-        .put(
-            "cd",
+    map.put("getitem", "<absPath> or <relPath> or <..> change the current item");
+    map.put("cd",
             "<absPath> or <relPath> or < ..> change the current item, node names should not contain spaces");
     map.put("getnode", "<relPath> change the current node");
     map.put("cdn", "<relPath> change the current node");
@@ -59,25 +56,15 @@ public class HelpCommand extends AbstractCliCommand {
     map.put("info", "<> show the info of the current context");
     map.put("remove", "<> remove the current item and go to parent item");
     map.put("rem", "<> remove the current item and go to parent item");
-    map
-        .put(
-            "copynode",
+    map.put("copynode",
             "<srcAbsPath>, <destAbsPath> copy the node at srcAbsPath to the new location at destAbsPath");
-    map
-        .put(
-            "copy",
+    map.put("copy",
             "<srcAbsPath>, <destAbsPath> copy the node at srcAbsPath to the new location at destAbsPath");
-    map
-        .put(
-            "movenode",
+    map.put("movenode",
             "<srcAbsPath>, <destAbsPath> move the node at srcAbsPath to the new location at destAbsPath");
-    map
-        .put(
-            "move",
+    map.put("move",
             "<srcAbsPath>, <destAbsPath> move the node at srcAbsPath to the new location at destAbsPath");
-    map
-        .put(
-            "|",
+    map.put("|",
             "<console size> limit the count of lines to output, e.g. |20 will displayed only 20 lines, works in standalone mode only");
   }
 
@@ -107,15 +94,13 @@ public class HelpCommand extends AbstractCliCommand {
               }
             }
             // end format
-            output += findHelpCommandFormatted + " - "
-                + map.get(findHelpCommand) + "\n";
+            output += findHelpCommandFormatted + " - " + map.get(findHelpCommand) + "\n";
             found = true;
             break;
           }
         }
         if (found == false) {
-          output += "Can't find help for the: " + findHelpCommand
-              + " command\n";
+          output += "Can't find help for the: " + findHelpCommand + " command\n";
         }
       } else {
         Set keys = map.keySet();
@@ -131,8 +116,7 @@ public class HelpCommand extends AbstractCliCommand {
             }
           }
           // end format
-          output += currentHelpCommandFormatted + " - "
-              + map.get(currentHelpCommand) + "\n";
+          output += currentHelpCommandFormatted + " - " + map.get(currentHelpCommand) + "\n";
         }
       }
     } catch (Exception e) {

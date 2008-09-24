@@ -21,8 +21,8 @@ public class VersionGetPredecessorsTest extends AbstractGetVersionTest {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    for (Version p: version.getSuccessors());
+    for (Version p : version.getSuccessors())
+      ;
   }
-
 
 }

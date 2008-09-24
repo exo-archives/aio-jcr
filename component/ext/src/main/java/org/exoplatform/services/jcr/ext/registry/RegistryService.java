@@ -48,11 +48,14 @@ import org.picocontainer.Startable;
 import org.xml.sax.SAXException;
 
 /**
- * Created by The eXo Platform SAS . <br/> Centralized collector for JCR based entities (services, apps, users) It contains info about the whole system, i.e.
- * for all repositories used by system. All operations performed in context of "current" repository, i.e. RepositoryService.getCurrentRepository() Each
- * repository has own Registry storage which is placed in workspace configured in "locations" entry like: <properties-param> <name>locations</name>
- * <description>registry locations</description> <property name="repository1" value="workspace1"/> <property name="repository2" value="workspace2"/> The
- * implementation hides storage details from end user
+ * Created by The eXo Platform SAS . <br/> Centralized collector for JCR based entities (services,
+ * apps, users) It contains info about the whole system, i.e. for all repositories used by system.
+ * All operations performed in context of "current" repository, i.e.
+ * RepositoryService.getCurrentRepository() Each repository has own Registry storage which is placed
+ * in workspace configured in "locations" entry like: <properties-param> <name>locations</name>
+ * <description>registry locations</description> <property name="repository1" value="workspace1"/>
+ * <property name="repository2" value="workspace2"/> The implementation hides storage details from
+ * end user
  * 
  * 
  * @author Gennady Azarenkov
@@ -91,7 +94,8 @@ public class RegistryService extends Registry implements Startable {
   protected boolean                   started              = false;
 
   /**
-   * @param params accepts "locations" properties param
+   * @param params
+   *          accepts "locations" properties param
    * @param repositoryService
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
@@ -122,12 +126,12 @@ public class RegistryService extends Registry implements Startable {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry( org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
-   *      java.lang.String, org.exoplatform.services.jcr.core.ManageableRepository)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistryEntry(
+   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String,
+   * org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryEntry getEntry(final SessionProvider sessionProvider, final String entryPath) throws PathNotFoundException,
-                                                                                  RepositoryException {
+                                                                                              RepositoryException {
 
     final String fullPath = "/" + EXO_REGISTRY + "/" + entryPath;
     Session session = session(sessionProvider, repositoryService.getCurrentRepository());
@@ -146,18 +150,21 @@ public class RegistryService extends Registry implements Startable {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#createEntry( org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
-   *      org.w3c.dom.Document)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#createEntry(
+   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
+   * org.w3c.dom.Document)
    */
-  public void createEntry(final SessionProvider sessionProvider, final String groupPath, final RegistryEntry entry) throws RepositoryException {
+  public void createEntry(final SessionProvider sessionProvider,
+                          final String groupPath,
+                          final RegistryEntry entry) throws RepositoryException {
 
     final String fullPath = "/" + EXO_REGISTRY + "/" + groupPath;
     try {
       checkGroup(sessionProvider, groupPath);
-      session(sessionProvider, repositoryService.getCurrentRepository()).getWorkspace().importXML(fullPath,
-                                                                                                  entry.getAsInputStream(),
-                                                                                                  IMPORT_UUID_CREATE_NEW);
+      session(sessionProvider, repositoryService.getCurrentRepository()).getWorkspace()
+                                                                        .importXML(fullPath,
+                                                                                   entry.getAsInputStream(),
+                                                                                   IMPORT_UUID_CREATE_NEW);
     } catch (IOException ioe) {
       throw new RepositoryException("Item " + fullPath + "can't be created " + ioe);
     } catch (ItemExistsException iee) {
@@ -169,9 +176,8 @@ public class RegistryService extends Registry implements Startable {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#removeEntry( org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
-   *      java.lang.String)
+   * @see org.exoplatform.services.jcr.ext.registry.Registry#removeEntry(
+   * org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String, java.lang.String)
    */
   public void removeEntry(final SessionProvider sessionProvider, final String entryPath) throws RepositoryException {
 
@@ -184,27 +190,30 @@ public class RegistryService extends Registry implements Startable {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#recreateEntry(org.exoplatform.services.jcr.ext.common.SessionProvider, java.lang.String,
-   *      org.exoplatform.services.jcr.ext.registry.RegistryEntry)
+   * @see
+   * org.exoplatform.services.jcr.ext.registry.Registry#recreateEntry(org.exoplatform.services.jcr
+   * .ext.common.SessionProvider, java.lang.String,
+   * org.exoplatform.services.jcr.ext.registry.RegistryEntry)
    */
-  public void recreateEntry(final SessionProvider sessionProvider, final String groupPath, final RegistryEntry entry) throws RepositoryException {
+  public void recreateEntry(final SessionProvider sessionProvider,
+                            final String groupPath,
+                            final RegistryEntry entry) throws RepositoryException {
 
     final String entryRelPath = EXO_REGISTRY + "/" + groupPath + "/" + entry.getName();
     final String parentFullPath = "/" + EXO_REGISTRY + "/" + groupPath;
-    
+
     try {
-      Session session =session(sessionProvider, repositoryService.getCurrentRepository()); 
+      Session session = session(sessionProvider, repositoryService.getCurrentRepository());
       Node node = session.getRootNode().getNode(entryRelPath);
-  
+
       // delete existing entry...
       node.remove();
-  
+
       // create same entry,
       // [PN] no check we need here, as we have deleted this node before
-      //checkGroup(sessionProvider, fullParentPath);
+      // checkGroup(sessionProvider, fullParentPath);
       session.importXML(parentFullPath, entry.getAsInputStream(), IMPORT_UUID_CREATE_NEW);
-      
+
       // save recreated changes
       session.save();
     } catch (IOException ioe) {
@@ -216,9 +225,9 @@ public class RegistryService extends Registry implements Startable {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr.ext.common.SessionProvider,
-   *      org.exoplatform.services.jcr.core.ManageableRepository)
+   * @see
+   * org.exoplatform.services.jcr.ext.registry.Registry#getRegistry(org.exoplatform.services.jcr
+   * .ext.common.SessionProvider, org.exoplatform.services.jcr.core.ManageableRepository)
    */
   public RegistryNode getRegistry(final SessionProvider sessionProvider) throws RepositoryException {
 
@@ -243,7 +252,6 @@ public class RegistryService extends Registry implements Startable {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
@@ -276,7 +284,6 @@ public class RegistryService extends Registry implements Startable {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#stop()
    */
   public void stop() {
@@ -287,7 +294,8 @@ public class RegistryService extends Registry implements Startable {
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
-  public void initStorage(boolean replace) throws RepositoryConfigurationException, RepositoryException {
+  public void initStorage(boolean replace) throws RepositoryConfigurationException,
+                                          RepositoryException {
     for (RepositoryEntry repConfiguration : repConfigurations()) {
       String repName = repConfiguration.getName();
       ManageableRepository rep = repositoryService.getRepository(repName);
@@ -331,7 +339,8 @@ public class RegistryService extends Registry implements Startable {
    * @return
    * @throws RepositoryException
    */
-  public void initRegistryEntry(String groupName, String entryName) throws RepositoryException, RepositoryConfigurationException {
+  public void initRegistryEntry(String groupName, String entryName) throws RepositoryException,
+                                                                   RepositoryConfigurationException {
 
     String relPath = EXO_REGISTRY + "/" + groupName + "/" + entryName;
     for (RepositoryEntry repConfiguration : repConfigurations()) {
@@ -378,7 +387,8 @@ public class RegistryService extends Registry implements Startable {
       try {
         Node group = (Node) session.getItem(path);
         if (!group.isNodeType(EXO_REGISTRYGROUP_NT))
-          throw new RepositoryException("Node at " + path + " should be  " + EXO_REGISTRYGROUP_NT + " type");
+          throw new RepositoryException("Node at " + path + " should be  " + EXO_REGISTRYGROUP_NT
+              + " type");
       } catch (PathNotFoundException e) {
         Node parent = (Node) session.getItem(prefix);
         parent.addNode(name, EXO_REGISTRYGROUP_NT);

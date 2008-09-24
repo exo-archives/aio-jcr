@@ -36,12 +36,11 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 
 /**
- * The class visits each node, all subnodes and all of them properties. It
- * transfer as parameter of a method <code>ItemData.visits()</code>. During
- * visiting the class forms the <b>itemAddStates</b> list of
- * <code>List&lt;ItemState&gt;</code> for clone new nodes and their properties
- * and <b>ItemDeletedExistingStates</b> list for remove existing nodes if
- * <code>removeExisting</code> is true.
+ * The class visits each node, all subnodes and all of them properties. It transfer as parameter of
+ * a method <code>ItemData.visits()</code>. During visiting the class forms the <b>itemAddStates</b>
+ * list of <code>List&lt;ItemState&gt;</code> for clone new nodes and their properties and
+ * <b>ItemDeletedExistingStates</b> list for remove existing nodes if <code>removeExisting</code> is
+ * true.
  * 
  * @version $Id: ItemDataCloneVisitor.java 12306 2008-03-24 10:25:55Z ksm $
  */
@@ -63,19 +62,23 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
   /**
    * Creates an instance of this class.
    * 
-   * @param parent - The parent node
-   * @param dstNodeName Destination node name
-   * @param nodeTypeManager - The NodeTypeManager
-   * @param dataManager - Source data manager
-   * @param dstDataManager - Destination data manager
-   * @param removeExisting - If <code>removeExisting</code> is true and an
-   *          existing node in this workspace (the destination workspace) has
-   *          the same <code>UUID</code> as a node being cloned from
-   *          srcWorkspace, then the incoming node takes precedence, and the
-   *          existing node (and its subtree) is removed. If
-   *          <code>removeExisting</code> is false then a <code>UUID</code>
-   *          collision causes this method to throw a <b>ItemExistsException</b>
-   *          and no changes are made.
+   * @param parent
+   *          - The parent node
+   * @param dstNodeName
+   *          Destination node name
+   * @param nodeTypeManager
+   *          - The NodeTypeManager
+   * @param dataManager
+   *          - Source data manager
+   * @param dstDataManager
+   *          - Destination data manager
+   * @param removeExisting
+   *          - If <code>removeExisting</code> is true and an existing node in this workspace (the
+   *          destination workspace) has the same <code>UUID</code> as a node being cloned from
+   *          srcWorkspace, then the incoming node takes precedence, and the existing node (and its
+   *          subtree) is removed. If <code>removeExisting</code> is false then a <code>UUID</code>
+   *          collision causes this method to throw a <b>ItemExistsException</b> and no changes are
+   *          made.
    */
   public ItemDataCloneVisitor(NodeData parent,
                               InternalQName dstNodeName,
@@ -214,8 +217,8 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
   };
 
   /**
-   * Return true if the itemstate for item with <code>itemId</code> UUId exist
-   * in <code>List&lt;ItemState&gt;</code> list.
+   * Return true if the itemstate for item with <code>itemId</code> UUId exist in
+   * <code>List&lt;ItemState&gt;</code> list.
    * 
    * @param list
    * @param itemId

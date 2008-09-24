@@ -20,17 +20,18 @@ import javax.jcr.Node;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: SampleUseCaseTest.java 11907 2008-03-13 15:36:21Z ksm $
- *
- * JCR Use Case test sample
+ * 
+ *          JCR Use Case test sample
  */
 
 public class SampleUseCaseTest extends BaseUsecasesTest {
 
-
   /**
    * Sample test. An example how to make it
+   * 
    * @throws Exception
    */
   public void testSomething() throws Exception {
@@ -42,7 +43,6 @@ public class SampleUseCaseTest extends BaseUsecasesTest {
 
     // and save if you need so...
     session.save();
-
 
     // and test
     this.assertNotNull(subRootNode);

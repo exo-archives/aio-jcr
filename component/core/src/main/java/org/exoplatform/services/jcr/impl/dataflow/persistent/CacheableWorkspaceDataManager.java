@@ -32,46 +32,49 @@ import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 13.04.2006
+ * 
  * @version $Id: CacheableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManager {
 
-  protected final WorkspaceStorageCache cache;
-  
+  protected final WorkspaceStorageCache     cache;
+
   protected final Map<Integer, DataRequest> requestCache;
-  
+
   protected class DataRequest {
-    
-    static public final int GET_NODES = 1;
-    static public final int GET_PROPERTIES = 2;
-    
-    static private final int GET_ITEM_ID = 3;
-    static private final int GET_ITEM_NAME = 4;
-    
-    protected final int type;
-    
-    protected final String parentId;
-    protected final String id;
+
+    static public final int    GET_NODES      = 1;
+
+    static public final int    GET_PROPERTIES = 2;
+
+    static private final int   GET_ITEM_ID    = 3;
+
+    static private final int   GET_ITEM_NAME  = 4;
+
+    protected final int        type;
+
+    protected final String     parentId;
+
+    protected final String     id;
+
     protected final QPathEntry name;
-    
-    protected final int hcode;
-    
-    protected CountDownLatch ready = new CountDownLatch(1); 
-    
+
+    protected final int        hcode;
+
+    protected CountDownLatch   ready          = new CountDownLatch(1);
+
     DataRequest(String parentId, int type) {
       this.parentId = parentId;
       this.name = null;
-      this.id = null; 
+      this.id = null;
       this.type = type;
-      
+
       // hashcode
-      this.hcode = 31 * (31 +  this.type) + this.parentId.hashCode();
+      this.hcode = 31 * (31 + this.type) + this.parentId.hashCode();
     }
-    
+
     DataRequest(String parentId, QPathEntry name) {
       this.parentId = parentId;
       this.name = name;
@@ -79,33 +82,33 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       this.type = GET_ITEM_NAME;
 
       // hashcode
-      int hc = 31 * (31 +  this.type) + this.parentId.hashCode();
+      int hc = 31 * (31 + this.type) + this.parentId.hashCode();
       this.hcode = 31 * hc + this.name.hashCode();
     }
-    
+
     DataRequest(String id) {
       this.parentId = null;
       this.name = null;
       this.id = id;
       this.type = GET_ITEM_ID;
-      
+
       // hashcode
-      this.hcode = 31 * (31 +  this.type) + this.id.hashCode();
+      this.hcode = 31 * (31 + this.type) + this.id.hashCode();
     }
-    
+
     /**
      * Find the same, and if found wait till the one will be finished.
      * 
-     * WARNING. This method effective with cache use only!!!
-     * Without cache the database will control requests performance/chaching process.
+     * WARNING. This method effective with cache use only!!! Without cache the database will control
+     * requests performance/chaching process.
      * 
      * @return this data request
      */
     DataRequest waitSame() {
-      DataRequest prev = null; 
+      DataRequest prev = null;
       synchronized (requestCache) {
         prev = requestCache.get(this.hashCode());
-      } 
+      }
       if (prev != null)
         prev.await();
       return this;
@@ -119,10 +122,10 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
         requestCache.put(this.hashCode(), this);
       }
     }
-    
+
     /**
-     * Done the request. Must be called after the data request will be finished. 
-     * This call allow another same requests to be performed.
+     * Done the request. Must be called after the data request will be finished. This call allow
+     * another same requests to be performed.
      */
     void done() {
       this.ready.countDown();
@@ -130,7 +133,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
         requestCache.remove(this.hashCode());
       }
     }
-    
+
     void await() {
       try {
         this.ready.await();
@@ -138,7 +141,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
         log.warn("Can't wait for same request process. " + e, e);
       }
     }
-    
+
     @Override
     public boolean equals(Object obj) {
       return this.hcode == obj.hashCode();
@@ -149,21 +152,25 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       return hcode;
     }
   }
-  
+
   /**
    * @param dataContainer
    * @param cache
    */
-  public CacheableWorkspaceDataManager(WorkspaceDataContainer dataContainer, WorkspaceStorageCache cache,
-       SystemDataContainerHolder systemDataContainerHolder) {
+  public CacheableWorkspaceDataManager(WorkspaceDataContainer dataContainer,
+                                       WorkspaceStorageCache cache,
+                                       SystemDataContainerHolder systemDataContainerHolder) {
     super(dataContainer, systemDataContainerHolder);
     this.cache = cache;
     this.requestCache = new HashMap<Integer, DataRequest>();
     addItemPersistenceListener(cache);
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(java.lang.String)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(java
+   * .lang.String)
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
     // 2. Try from cache
@@ -175,22 +182,25 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     }
     return data;
   }
-  
+
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
-  
+
     // 1. Try from cache
     ItemData data = getCachedItemData(parentData, name);
-  
+
     // 2. Try from container
     if (data == null) {
       data = getPersistedItemData(parentData, name);
     }
-         
+
     return data;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services.jcr.datamodel.NodeData)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services
+   * .jcr.datamodel.NodeData)
    */
   public List<NodeData> getChildNodesData(NodeData nodeData) throws RepositoryException {
     return getChildNodesData(nodeData, false);
@@ -198,12 +208,14 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform.services.jcr.datamodel.NodeData)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform
+   * .services.jcr.datamodel.NodeData)
    */
   public List<PropertyData> getChildPropertiesData(NodeData nodeData) throws RepositoryException {
     return getChildPropertiesData(nodeData, false);
   }
-  
+
   // same as getChildPropertiesData
   public List<PropertyData> listChildPropertiesData(NodeData nodeData) throws RepositoryException {
     return listChildPropertiesData(nodeData, false);
@@ -217,9 +229,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
    * @throws RepositoryException
    */
   protected List<NodeData> getChildNodesData(NodeData nodeData, boolean forcePersistentRead) throws RepositoryException {
-    
+
     final DataRequest request = new DataRequest(nodeData.getIdentifier(), DataRequest.GET_NODES);
-    
+
     List<NodeData> childNodes = null;
     if (!forcePersistentRead && cache.isEnabled()) {
       request.waitSame();
@@ -243,7 +255,6 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     }
   }
 
-
   /**
    * @param nodeData
    * @param forcePersistentRead
@@ -251,9 +262,10 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
    * @throws RepositoryException
    */
   protected List<PropertyData> getChildPropertiesData(NodeData nodeData, boolean forcePersistentRead) throws RepositoryException {
-    
-    final DataRequest request = new DataRequest(nodeData.getIdentifier(), DataRequest.GET_PROPERTIES);
-    
+
+    final DataRequest request = new DataRequest(nodeData.getIdentifier(),
+                                                DataRequest.GET_PROPERTIES);
+
     List<PropertyData> childProperties = null;
     if (!forcePersistentRead && cache.isEnabled()) {
       request.waitSame();
@@ -264,7 +276,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
 
     try {
       request.start();
-      
+
       childProperties = super.getChildPropertiesData(nodeData);
       if (cache.isEnabled()) {
         NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
@@ -277,11 +289,13 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       request.done();
     }
   }
-  
-  protected List<PropertyData> listChildPropertiesData(NodeData nodeData, boolean forcePersistentRead) throws RepositoryException {
-    
-    final DataRequest request = new DataRequest(nodeData.getIdentifier(), DataRequest.GET_PROPERTIES);
-    
+
+  protected List<PropertyData> listChildPropertiesData(NodeData nodeData,
+                                                       boolean forcePersistentRead) throws RepositoryException {
+
+    final DataRequest request = new DataRequest(nodeData.getIdentifier(),
+                                                DataRequest.GET_PROPERTIES);
+
     List<PropertyData> propertiesList;
     if (!forcePersistentRead && cache.isEnabled()) {
       request.waitSame(); // wait if getChildProp... working somewhere
@@ -295,26 +309,29 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
       if (parentData == null)
         parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
-      cache.addChildPropertiesList(parentData, propertiesList); 
+      cache.addChildPropertiesList(parentData, propertiesList);
     }
     return propertiesList;
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getReferencesData(java.lang.String)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getReferencesData
+   * (java.lang.String)
    */
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
     return super.getReferencesData(identifier, skipVersionStorage);
   }
-  
+
   public WorkspaceStorageCache getCache() {
     return cache;
   }
 
   protected ItemData getCachedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     return cache.get(parentData.getIdentifier(), name);
-  }  
-  
+  }
+
   protected ItemData getPersistedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
 
     ItemData data = null;
@@ -324,17 +341,20 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     }
     return data;
   }
-  
-  /** 
+
+  /**
    * Returns an item from cache by Identifier or null if the item don't cached.
-   */  
+   */
   protected ItemData getCachedItemData(String identifier) throws RepositoryException {
     return cache.get(identifier);
   }
 
-  /** 
-   * Call {@link org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String) WorkspaceDataManager.getItemDataByIdentifier(java.lang.String)}
-   * and cache result if non null returned. 
+  /**
+   * Call
+   * {@link org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
+   * WorkspaceDataManager.getItemDataByIdentifier(java.lang.String)} and cache result if non null
+   * returned.
+   * 
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */
   protected ItemData getPersistedItemData(String identifier) throws RepositoryException {
@@ -344,6 +364,5 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     }
     return data;
   }
-  
-  
+
 }

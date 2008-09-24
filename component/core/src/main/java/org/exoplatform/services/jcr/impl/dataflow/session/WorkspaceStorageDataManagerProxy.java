@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: WorkspaceStorageDataManagerProxy.java 11907 2008-03-13 15:36:21Z ksm $
  */

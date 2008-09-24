@@ -25,8 +25,8 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 18.01.2008
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 18.01.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestVersionable.java 11907 2008-03-13 15:36:21Z ksm $
@@ -59,7 +59,7 @@ public class TestVersionable extends BaseVersionTest {
 
     testRoot.checkin();
   }
-  
+
   @Override
   protected void tearDown() throws Exception {
     testRoot.remove();
@@ -104,7 +104,7 @@ public class TestVersionable extends BaseVersionTest {
     root.save();
     assertFalse(root.hasNode("testRoot"));
     ItemData vhdata = session.getTransientNodesManager().getItemData(vhId);
-    //!!!!
+    // !!!!
     assertNull(vhdata);
   }
 

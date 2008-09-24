@@ -46,24 +46,24 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class PropPatchResponseEntity implements SerializableEntity {
-  
-  private final WebDavNamespaceContext nsContext; 
-  
-  private Node node;
-  
-  private final URI uri;
-  
+
+  private final WebDavNamespaceContext     nsContext;
+
+  private Node                             node;
+
+  private final URI                        uri;
+
   private final List<HierarchicalProperty> setList;
-  
+
   private final List<HierarchicalProperty> removeList;
-  
-  protected final static Set <QName> NON_REMOVING_PROPS = new HashSet<QName>();
+
+  protected final static Set<QName>        NON_REMOVING_PROPS = new HashSet<QName>();
   static {
     NON_REMOVING_PROPS.add(PropertyConstants.CREATIONDATE);
     NON_REMOVING_PROPS.add(PropertyConstants.DISPLAYNAME);
@@ -72,9 +72,12 @@ public class PropPatchResponseEntity implements SerializableEntity {
     NON_REMOVING_PROPS.add(PropertyConstants.GETCONTENTTYPE);
     NON_REMOVING_PROPS.add(PropertyConstants.GETLASTMODIFIED);
   };
-  
-  public PropPatchResponseEntity(WebDavNamespaceContext nsContext, Node node, URI uri,
-      List<HierarchicalProperty> setList, List<HierarchicalProperty> removeList) {
+
+  public PropPatchResponseEntity(WebDavNamespaceContext nsContext,
+                                 Node node,
+                                 URI uri,
+                                 List<HierarchicalProperty> setList,
+                                 List<HierarchicalProperty> removeList) {
     this.nsContext = nsContext;
     this.node = node;
     this.uri = uri;
@@ -85,54 +88,55 @@ public class PropPatchResponseEntity implements SerializableEntity {
   public void writeObject(OutputStream outStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
-      .createXMLStreamWriter(outStream, Constants.DEFAULT_ENCODING);
-    
+                                                        .createXMLStreamWriter(outStream,
+                                                                               Constants.DEFAULT_ENCODING);
+
       xmlStreamWriter.setNamespaceContext(nsContext);
       xmlStreamWriter.setDefaultNamespace("DAV:");
-  
+
       xmlStreamWriter.writeStartDocument();
       xmlStreamWriter.writeStartElement("D", "multistatus", "DAV:");
       xmlStreamWriter.writeNamespace("D", "DAV:");
-      
+
       xmlStreamWriter.writeAttribute("xmlns:b", "urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/");
-  
+
       xmlStreamWriter.writeStartElement("DAV:", "response");
-        xmlStreamWriter.writeStartElement("DAV:", "href");
-          xmlStreamWriter.writeCharacters(uri.toASCIIString());
-        xmlStreamWriter.writeEndElement();
-        
-        Map<String, Set<HierarchicalProperty>> propStats = getPropStat();    
-        PropertyWriteUtil.writePropStats(xmlStreamWriter, propStats);
-        
+      xmlStreamWriter.writeStartElement("DAV:", "href");
+      xmlStreamWriter.writeCharacters(uri.toASCIIString());
       xmlStreamWriter.writeEndElement();
-  
+
+      Map<String, Set<HierarchicalProperty>> propStats = getPropStat();
+      PropertyWriteUtil.writePropStats(xmlStreamWriter, propStats);
+
+      xmlStreamWriter.writeEndElement();
+
       // D:multistatus
       xmlStreamWriter.writeEndElement();
       xmlStreamWriter.writeEndDocument();
-      
+
     } catch (XMLStreamException exc) {
       throw new IOException(exc.getMessage());
-    }    
+    }
   }
 
   protected Map<String, Set<HierarchicalProperty>> getPropStat() {
     Map<String, Set<HierarchicalProperty>> propStats = new HashMap<String, Set<HierarchicalProperty>>();
-    
+
     for (int i = 0; i < setList.size(); i++) {
       HierarchicalProperty setProperty = setList.get(i);
-      
+
       String statname;
       try {
         String propertyName = WebDavNamespaceContext.createName(setProperty.getName());
-        
+
         try {
           contentNode().setProperty(propertyName, setProperty.getValue());
         } catch (RepositoryException exc) {
-          String []value = new String[1];
+          String[] value = new String[1];
           value[0] = setProperty.getValue();
           node.setProperty(propertyName, value);
         }
-                
+
         statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
       } catch (AccessDeniedException e) {
         statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
@@ -149,31 +153,31 @@ public class PropPatchResponseEntity implements SerializableEntity {
       }
 
       Set<HierarchicalProperty> propSet = propStats.get(statname);
-      propSet.add(new HierarchicalProperty(setProperty.getName()));      
+      propSet.add(new HierarchicalProperty(setProperty.getName()));
     }
 
     for (int i = 0; i < removeList.size(); i++) {
       HierarchicalProperty removeProperty = removeList.get(i);
-      
+
       String statname;
       try {
-        
-        if(NON_REMOVING_PROPS.contains(removeProperty.getName())){
+
+        if (NON_REMOVING_PROPS.contains(removeProperty.getName())) {
           statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
-          
+
           if (!propStats.containsKey(statname)) {
             propStats.put(statname, new HashSet<HierarchicalProperty>());
           }
 
           Set<HierarchicalProperty> propSet = propStats.get(statname);
-          propSet.add(new HierarchicalProperty(removeProperty.getName()));    
-          
+          propSet.add(new HierarchicalProperty(removeProperty.getName()));
+
           continue;
-          
+
         }
-        
+
         String propertyName = WebDavNamespaceContext.createName(removeProperty.getName());
-        
+
         Property property = node.getProperty(propertyName);
         property.remove();
         property.save();
@@ -184,7 +188,7 @@ public class PropPatchResponseEntity implements SerializableEntity {
       } catch (ItemNotFoundException e) {
         statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
       } catch (PathNotFoundException e) {
-        statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);      
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
       } catch (RepositoryException e) {
         statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
       }
@@ -194,15 +198,14 @@ public class PropPatchResponseEntity implements SerializableEntity {
       }
 
       Set<HierarchicalProperty> propSet = propStats.get(statname);
-      propSet.add(new HierarchicalProperty(removeProperty.getName()));      
-    }    
-  
+      propSet.add(new HierarchicalProperty(removeProperty.getName()));
+    }
+
     return propStats;
   }
-  
+
   public Node contentNode() throws RepositoryException {
     return node.getNode("jcr:content");
   }
-  
-  
+
 }

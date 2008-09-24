@@ -41,8 +41,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua Nov 20, 2007
+ * Created by The eXo Platform SARL Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua Nov
+ * 20, 2007
  */
 public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
 
@@ -51,17 +51,20 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
   private ObjectOutputStream oosFileData;
 
   private FileCleaner        fileCleaner;
-  
+
   public IncrementalBackupJob() {
     fileCleaner = new FileCleaner(10000);
   }
-  
-  public void init(ManageableRepository repository, String workspaceName, BackupConfig config, Calendar timeStamp) {
+
+  public void init(ManageableRepository repository,
+                   String workspaceName,
+                   BackupConfig config,
+                   Calendar timeStamp) {
     this.repository = repository;
     this.workspaceName = workspaceName;
     this.config = config;
     this.timeStamp = timeStamp;
-    
+
     try {
       url = createStorage();
     } catch (FileNotFoundException e) {
@@ -71,20 +74,23 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
       log.error("Incremental backup initialization failed ", e);
       notifyError("Incremental backup initialization failed ", e);
     }
-  }  
-  
+  }
+
   public void stop() {
     state = FINISHED;
     log.info("Stop requested " + getStorageURL().getPath());
-    
+
     notifyListeners();
   }
 
   @Override
   protected URL createStorage() throws FileNotFoundException, IOException {
-    FileNameProducer fnp = new FileNameProducer(config.getRepository(), config.getWorkspace(),
-        config.getBackupDir().getAbsolutePath(), super.timeStamp, false);
-    
+    FileNameProducer fnp = new FileNameProducer(config.getRepository(),
+                                                config.getWorkspace(),
+                                                config.getBackupDir().getAbsolutePath(),
+                                                super.timeStamp,
+                                                false);
+
     File backupFileData = fnp.getNextFile();
 
     oosFileData = new ObjectOutputStream(new FileOutputStream(backupFileData));
@@ -100,17 +106,18 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
       long start = System.currentTimeMillis();
 
       writeExternal(oosFileData, changesLog, fileCleaner);
-      
+
       long total = System.currentTimeMillis() - start;
 
-      if(log.isDebugEnabled())
+      if (log.isDebugEnabled())
         log.debug("Time : " + total + " ms" + "    Itemstates count : "
-          + changesLog.getAllStates().size());
+            + changesLog.getAllStates().size());
     }
   }
 
-  public void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog,
-      FileCleaner fileCleaner) throws IOException {
+  public void writeExternal(ObjectOutputStream out,
+                            TransactionChangesLog changesLog,
+                            FileCleaner fileCleaner) throws IOException {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
 
@@ -176,14 +183,14 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
   private void writeContent(InputStream is, ObjectOutputStream oos) throws IOException {
     byte[] buf = new byte[1024 * 8];
     int len;
-    
+
     int size = 0;
 
     while ((len = is.read(buf)) > 0) {
       oos.write(buf, 0, len);
-      size+=len;
+      size += len;
     }
-    
+
     oos.flush();
   }
 
@@ -199,5 +206,5 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
 
     return isSessionNull;
   }
-  
+
 }

@@ -24,34 +24,33 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
- * <code>IndexingConfigurationEntityResolver</code> implements an entity
- * resolver for the indexing configuration DTD.
+ * <code>IndexingConfigurationEntityResolver</code> implements an entity resolver for the indexing
+ * configuration DTD.
  */
 public class IndexingConfigurationEntityResolver implements EntityResolver {
 
-    /**
-     * The system id of the indexing configuration DTD.
-     */
-    private static final String SYSTEM_ID =
-            "http://www.exoplatform.org/dtd/indexing-configuration-1.0.dtd";
+  /**
+   * The system id of the indexing configuration DTD.
+   */
+  private static final String SYSTEM_ID     = "http://www.exoplatform.org/dtd/indexing-configuration-1.0.dtd";
 
-    /**
-     * The name of the DTD resource.
-     */
-    private static final String RESOURCE_NAME = "indexing-configuration-1.0.dtd";
+  /**
+   * The name of the DTD resource.
+   */
+  private static final String RESOURCE_NAME = "indexing-configuration-1.0.dtd";
 
-    /**
-     * {@inheritDoc}
-     */
-    public InputSource resolveEntity(String publicId, String systemId)
-            throws SAXException, IOException {
-        if (SYSTEM_ID.equals(systemId)) {
-            int i = 1+3;
-            InputStream in = getClass().getResourceAsStream(RESOURCE_NAME);
-            if (in != null) {
-                return new InputSource(in);
-            }
-        }
-        return null;
+  /**
+   * {@inheritDoc}
+   */
+  public InputSource resolveEntity(String publicId, String systemId) throws SAXException,
+                                                                    IOException {
+    if (SYSTEM_ID.equals(systemId)) {
+      int i = 1 + 3;
+      InputStream in = getClass().getResourceAsStream(RESOURCE_NAME);
+      if (in != null) {
+        return new InputSource(in);
+      }
     }
+    return null;
+  }
 }

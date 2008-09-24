@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.namespaces;
 
-
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
@@ -28,10 +27,11 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: TestNamespaceRegistry.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TestNamespaceRegistry extends JcrAPIBaseTest{
+public class TestNamespaceRegistry extends JcrAPIBaseTest {
 
   protected NamespaceRegistry namespaceRegistry;
 
@@ -47,43 +47,42 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest{
   }
 
   public void testGetPrefixes() throws RepositoryException {
-    //namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
-    String[] namespaces = {"jcr", "nt", "mix","", "sv", "exo", "newMapping"};
+    // namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
+    String[] namespaces = { "jcr", "nt", "mix", "", "sv", "exo", "newMapping" };
 
     String[] prefixes = namespaceRegistry.getPrefixes();
 
     for (int i = 0; i < namespaces.length; i++) {
-    	
+
       String namespace = namespaces[i];
-      assertTrue("not found "+namespace, ArrayUtils.contains(prefixes, namespace));
+      assertTrue("not found " + namespace, ArrayUtils.contains(prefixes, namespace));
     }
-    assertTrue(prefixes.length>=7);
+    assertTrue(prefixes.length >= 7);
 
   }
 
   public void testGetURIs() throws RepositoryException {
-    //namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
-    String[] namespacesURIs = {"http://www.jcp.org/jcr/1.0", "http://www.jcp.org/jcr/nt/1.0",
-                               "http://www.jcp.org/jcr/mix/1.0", "",
-                               "http://www.jcp.org/jcr/sv/1.0", "http://www.exoplatform.com/jcr/exo/1.0",
-                               "http://dumb.uri/jcr"};
+    // namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
+    String[] namespacesURIs = { "http://www.jcp.org/jcr/1.0", "http://www.jcp.org/jcr/nt/1.0",
+        "http://www.jcp.org/jcr/mix/1.0", "", "http://www.jcp.org/jcr/sv/1.0",
+        "http://www.exoplatform.com/jcr/exo/1.0", "http://dumb.uri/jcr" };
 
     String[] uris = namespaceRegistry.getURIs();
     for (int i = 0; i < namespacesURIs.length; i++) {
       String namespacesURI = namespacesURIs[i];
-      assertTrue("not found "+namespacesURI, ArrayUtils.contains(uris, namespacesURI));
+      assertTrue("not found " + namespacesURI, ArrayUtils.contains(uris, namespacesURI));
     }
   }
 
   public void testGetURI() throws RepositoryException {
-    //namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
+    // namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
 
     assertNotNull(namespaceRegistry.getURI("mix"));
     assertNotNull(namespaceRegistry.getURI("newMapping"));
   }
 
   public void testGetPrefix() throws RepositoryException {
-    //namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
+    // namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
 
     assertNotNull(namespaceRegistry.getPrefix("http://www.jcp.org/jcr/mix/1.0"));
     assertEquals("mix", namespaceRegistry.getPrefix("http://www.jcp.org/jcr/mix/1.0"));
@@ -97,8 +96,7 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest{
 
   }
 
-
-  /////////////////// LEVEL 2
+  // ///////////////// LEVEL 2
 
   public void testBuiltInNamespace() throws RepositoryException {
     try {
@@ -141,52 +139,53 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest{
     } catch (NamespaceException e) {
     }
   }
+
   public void testRegisterNamespace() throws RepositoryException {
-    //namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
+    // namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
     assertNotNull(namespaceRegistry.getURI("newMapping"));
     assertEquals("http://dumb.uri/jcr", namespaceRegistry.getURI("newMapping"));
 
-    NodeImpl n = (NodeImpl)root.addNode("newMapping:test", "nt:unstructured");
-    System.out.println("Node before save"+n);
+    NodeImpl n = (NodeImpl) root.addNode("newMapping:test", "nt:unstructured");
+    System.out.println("Node before save" + n);
     root.save();
-    System.out.println("Node after save"+n);
-    n = (NodeImpl)root.getNode("newMapping:test");
+    System.out.println("Node after save" + n);
+    n = (NodeImpl) root.getNode("newMapping:test");
     n.remove();
-    System.out.println("Node after remove"+n);
+    System.out.println("Node after remove" + n);
     root.save();
 
     // [PN] Unregisteration of node types its not supported in eXo JCR.
     // (see http://jira.exoplatform.org/browse/JCR-43)
-//    namespaceRegistry.unregisterNamespace("newMapping");
-//    try {
-//        root.addNode("newMapping:test1", "nt:unstructured");
-//        root.save();
-//        fail("exception should have been thrown");
-//    } catch (RepositoryException e) {
-//    }
-//    
-//    
-//    try {
-//      assertNull(namespaceRegistry.getURI("newMapping"));
-//      fail("exception should have been thrown");
-//    } catch (NamespaceException e) {
-//    }
-    
+    // namespaceRegistry.unregisterNamespace("newMapping");
+    // try {
+    // root.addNode("newMapping:test1", "nt:unstructured");
+    // root.save();
+    // fail("exception should have been thrown");
+    // } catch (RepositoryException e) {
+    // }
+    //    
+    //    
+    // try {
+    // assertNull(namespaceRegistry.getURI("newMapping"));
+    // fail("exception should have been thrown");
+    // } catch (NamespaceException e) {
+    // }
+
   }
 
   public void testReRegiterNamespace() throws RepositoryException {
 
     // (see http://jira.exoplatform.org/browse/JCR-43)
-    
-    //namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
-//    namespaceRegistry.registerNamespace("newMapping2", "http://dumb.uri/jcr");
-//    try {
-//      assertNull(namespaceRegistry.getURI("newMapping"));
-//      fail("exception should have been thrown");
-//    } catch (NamespaceException e) {
-//    }
-//    assertNotNull(namespaceRegistry.getURI("newMapping2"));
-//    assertEquals("http://dumb.uri/jcr", namespaceRegistry.getURI("newMapping2"));
+
+    // namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
+    // namespaceRegistry.registerNamespace("newMapping2", "http://dumb.uri/jcr");
+    // try {
+    // assertNull(namespaceRegistry.getURI("newMapping"));
+    // fail("exception should have been thrown");
+    // } catch (NamespaceException e) {
+    // }
+    // assertNotNull(namespaceRegistry.getURI("newMapping2"));
+    // assertEquals("http://dumb.uri/jcr", namespaceRegistry.getURI("newMapping2"));
   }
 
 }

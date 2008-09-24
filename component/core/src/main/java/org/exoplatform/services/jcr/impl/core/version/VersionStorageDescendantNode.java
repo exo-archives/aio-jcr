@@ -52,171 +52,209 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 public abstract class VersionStorageDescendantNode extends NodeImpl {
 
   // new impl
-  public VersionStorageDescendantNode(NodeData data,
-      SessionImpl session) throws PathNotFoundException,
+  public VersionStorageDescendantNode(NodeData data, SessionImpl session) throws PathNotFoundException,
       RepositoryException {
 
     super(data, session);
   }
-  
+
   public Node addNode(String relPath, String nodeTypeName) throws ConstraintViolationException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
-  
+
   public Node addNode(String relPath) throws ConstraintViolationException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
-  
-  public Property setProperty(String name, boolean value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+
+  public Property setProperty(String name, boolean value) throws ValueFormatException,
+                                                         VersionException,
+                                                         LockException,
+                                                         ConstraintViolationException,
+                                                         RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, Calendar value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, Calendar value) throws ValueFormatException,
+                                                          VersionException,
+                                                          LockException,
+                                                          ConstraintViolationException,
+                                                          RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, double value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, double value) throws ValueFormatException,
+                                                        VersionException,
+                                                        LockException,
+                                                        ConstraintViolationException,
+                                                        RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, InputStream value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, InputStream value) throws ValueFormatException,
+                                                             VersionException,
+                                                             LockException,
+                                                             ConstraintViolationException,
+                                                             RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, long value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, long value) throws ValueFormatException,
+                                                      VersionException,
+                                                      LockException,
+                                                      ConstraintViolationException,
+                                                      RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, Node value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, Node value) throws ValueFormatException,
+                                                      VersionException,
+                                                      LockException,
+                                                      ConstraintViolationException,
+                                                      RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, String value, int type)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
-    throw new ConstraintViolationException("jcr:versionStorage is protected");
-  }
-  
-  public Property setProperty(String name, String value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, String value, int type) throws ValueFormatException,
+                                                                  VersionException,
+                                                                  LockException,
+                                                                  ConstraintViolationException,
+                                                                  RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, String[] values, int type)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
-    throw new ConstraintViolationException("jcr:versionStorage is protected");
-  }
-  
-  public Property setProperty(String name, String[] values)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, String value) throws ValueFormatException,
+                                                        VersionException,
+                                                        LockException,
+                                                        ConstraintViolationException,
+                                                        RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, Value value, int type)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, String[] values, int type) throws ValueFormatException,
+                                                                     VersionException,
+                                                                     LockException,
+                                                                     ConstraintViolationException,
+                                                                     RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, Value value)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, String[] values) throws ValueFormatException,
+                                                           VersionException,
+                                                           LockException,
+                                                           ConstraintViolationException,
+                                                           RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  public Property setProperty(String name, Value[] values, int type)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+  public Property setProperty(String name, Value value, int type) throws ValueFormatException,
+                                                                 VersionException,
+                                                                 LockException,
+                                                                 ConstraintViolationException,
+                                                                 RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
-  
-  public Property setProperty(String name, Value[] values)
-      throws ValueFormatException, VersionException, LockException,
-      ConstraintViolationException, RepositoryException {
+
+  public Property setProperty(String name, Value value) throws ValueFormatException,
+                                                       VersionException,
+                                                       LockException,
+                                                       ConstraintViolationException,
+                                                       RepositoryException {
+    throw new ConstraintViolationException("jcr:versionStorage is protected");
+  }
+
+  public Property setProperty(String name, Value[] values, int type) throws ValueFormatException,
+                                                                    VersionException,
+                                                                    LockException,
+                                                                    ConstraintViolationException,
+                                                                    RepositoryException {
+    throw new ConstraintViolationException("jcr:versionStorage is protected");
+  }
+
+  public Property setProperty(String name, Value[] values) throws ValueFormatException,
+                                                          VersionException,
+                                                          LockException,
+                                                          ConstraintViolationException,
+                                                          RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
   public void remove() throws RepositoryException,
-      ConstraintViolationException, VersionException, LockException {
+                      ConstraintViolationException,
+                      VersionException,
+                      LockException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
-  
+
   public void addMixin(String mixinName) throws ConstraintViolationException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
-  
+
   public boolean canAddMixin(String mixinName) throws RepositoryException {
     return false;
   }
-  
+
   public void removeMixin(String mixinName) throws NoSuchNodeTypeException,
-      ConstraintViolationException, RepositoryException {
-    throw new ConstraintViolationException("jcr:versionStorage is protected");
-  }
-  
-  public void restore(Version version, boolean removeExisting)
-      throws VersionException, ItemExistsException,
-      UnsupportedRepositoryOperationException, LockException,
-      RepositoryException, InvalidItemStateException {
-    throw new UnsupportedRepositoryOperationException("jcr:versionStorage is protected");
-  }
-  
-  public void restore(String versionName, boolean removeExisting)
-      throws VersionException, ItemExistsException,
-      UnsupportedRepositoryOperationException, LockException,
-      RepositoryException, InvalidItemStateException {
-    throw new UnsupportedRepositoryOperationException("jcr:versionStorage is protected");
-  }
-
-  public void restore(Version version, String relPath, boolean removeExisting)
-      throws VersionException, ItemExistsException,
-      UnsupportedRepositoryOperationException, LockException,
-      RepositoryException, InvalidItemStateException {
+                                           ConstraintViolationException,
+                                           RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
 
-  
+  public void restore(Version version, boolean removeExisting) throws VersionException,
+                                                              ItemExistsException,
+                                                              UnsupportedRepositoryOperationException,
+                                                              LockException,
+                                                              RepositoryException,
+                                                              InvalidItemStateException {
+    throw new UnsupportedRepositoryOperationException("jcr:versionStorage is protected");
+  }
+
+  public void restore(String versionName, boolean removeExisting) throws VersionException,
+                                                                 ItemExistsException,
+                                                                 UnsupportedRepositoryOperationException,
+                                                                 LockException,
+                                                                 RepositoryException,
+                                                                 InvalidItemStateException {
+    throw new UnsupportedRepositoryOperationException("jcr:versionStorage is protected");
+  }
+
+  public void restore(Version version, String relPath, boolean removeExisting) throws VersionException,
+                                                                              ItemExistsException,
+                                                                              UnsupportedRepositoryOperationException,
+                                                                              LockException,
+                                                                              RepositoryException,
+                                                                              InvalidItemStateException {
+    throw new ConstraintViolationException("jcr:versionStorage is protected");
+  }
+
   public void update(String srcWorkspaceName) throws NoSuchWorkspaceException,
-      AccessDeniedException, InvalidItemStateException, LockException,
-      RepositoryException {
+                                             AccessDeniedException,
+                                             InvalidItemStateException,
+                                             LockException,
+                                             RepositoryException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
-  
-  
-  public NodeIterator merge(String srcWorkspace, boolean bestEffort)
-      throws UnsupportedRepositoryOperationException, NoSuchWorkspaceException,
-      AccessDeniedException, MergeException, RepositoryException,
-      InvalidItemStateException {
+
+  public NodeIterator merge(String srcWorkspace, boolean bestEffort) throws UnsupportedRepositoryOperationException,
+                                                                    NoSuchWorkspaceException,
+                                                                    AccessDeniedException,
+                                                                    MergeException,
+                                                                    RepositoryException,
+                                                                    InvalidItemStateException {
     throw new ConstraintViolationException("jcr:versionStorage is protected");
   }
-  
+
   public void cancelMerge(Version version) throws VersionException,
-      InvalidItemStateException, UnsupportedRepositoryOperationException,
-      RepositoryException {
-    throw new UnsupportedRepositoryOperationException(
-        "jcr:versionStorage is protected");
+                                          InvalidItemStateException,
+                                          UnsupportedRepositoryOperationException,
+                                          RepositoryException {
+    throw new UnsupportedRepositoryOperationException("jcr:versionStorage is protected");
   }
 
   public void doneMerge(Version version) throws VersionException,
-      InvalidItemStateException, UnsupportedRepositoryOperationException,
-      RepositoryException {
-    throw new UnsupportedRepositoryOperationException(
-        "jcr:versionStorage is protected");
+                                        InvalidItemStateException,
+                                        UnsupportedRepositoryOperationException,
+                                        RepositoryException {
+    throw new UnsupportedRepositoryOperationException("jcr:versionStorage is protected");
   }
-  
+
 }

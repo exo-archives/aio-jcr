@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
  */
 
 public interface ExtendedSession extends Session {
-  
+
   /**
    * @return
    */
@@ -49,15 +49,15 @@ public interface ExtendedSession extends Session {
   LocationFactory getLocationFactory();
 
   /**
-   * Deserialize an XML document and adds the resulting item subtree as a child
-   * of the node at parentAbsPath.
+   * Deserialize an XML document and adds the resulting item subtree as a child of the node at
+   * parentAbsPath.
    * 
-   * @param parentAbsPath the absolute path of the node below which the
-   *          deserialized subtree is added.
-   * @param in The <code>Inputstream</code> from which the XML to be
-   *          deserilaized is read.
-   * @param uuidBehavior a four-value flag that governs how incoming UUIDs are
-   *          handled.
+   * @param parentAbsPath
+   *          the absolute path of the node below which the deserialized subtree is added.
+   * @param in
+   *          The <code>Inputstream</code> from which the XML to be deserilaized is read.
+   * @param uuidBehavior
+   *          a four-value flag that governs how incoming UUIDs are handled.
    * @param context
    * @throws IOException
    * @throws PathNotFoundException

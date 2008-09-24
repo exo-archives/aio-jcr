@@ -34,24 +34,26 @@ import org.exoplatform.frameworks.jcr.command.JCRCommandHelper;
 
 public class AddResourceFileCommand implements Command {
 
-  private String pathKey = DefaultKeys.PATH;
+  private String pathKey        = DefaultKeys.PATH;
+
   private String currentNodeKey = DefaultKeys.CURRENT_NODE;
-  private String resultKey = DefaultKeys.RESULT;
-  private String dataKey = "data";
-  private String mimeTypeKey = "mimeType";
+
+  private String resultKey      = DefaultKeys.RESULT;
+
+  private String dataKey        = "data";
+
+  private String mimeTypeKey    = "mimeType";
 
   public boolean execute(Context context) throws Exception {
 
     Session session = ((JCRAppContext) context).getSession();
 
-    Node parentNode = (Node) session.getItem((String) context
-        .get(currentNodeKey));
+    Node parentNode = (Node) session.getItem((String) context.get(currentNodeKey));
     String relPath = (String) context.get(pathKey);
     Object data = context.get(dataKey);
     String mimeType = (String) context.get(mimeTypeKey);
 
-    Node file = JCRCommandHelper.createResourceFile(parentNode, relPath, data,
-        mimeType);
+    Node file = JCRCommandHelper.createResourceFile(parentNode, relPath, data, mimeType);
 
     // Node file = parentNode.addNode(relPath, "nt:file");
     // Node contentNode = file.addNode("jcr:content", "nt:resource");

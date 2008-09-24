@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.reading;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,13 +32,13 @@ import javax.jcr.ValueFormatException;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestProperty.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TestProperty extends JcrAPIBaseTest{
+public class TestProperty extends JcrAPIBaseTest {
 
   private Node node;
 
@@ -52,9 +51,8 @@ public class TestProperty extends JcrAPIBaseTest{
     values[1] = valueFactory.createValue("true");
     values[2] = valueFactory.createValue("121");
     node.setProperty("multi", values, PropertyType.STRING);
-    node.setProperty("multi-boolean", new Value[]{ 
-        session.getValueFactory().createValue(true),
-        session.getValueFactory().createValue(true)});
+    node.setProperty("multi-boolean", new Value[] { session.getValueFactory().createValue(true),
+        session.getValueFactory().createValue(true) });
 
     node.setProperty("single", session.getValueFactory().createValue("this is the content"));
 
@@ -65,7 +63,7 @@ public class TestProperty extends JcrAPIBaseTest{
 
   public void tearDown() throws Exception {
     node.remove();
-    
+
     super.tearDown();
   }
 
@@ -92,8 +90,7 @@ public class TestProperty extends JcrAPIBaseTest{
     Value[] values = node.getProperty("multi").getValues();
     for (int i = 0; i < values.length; i++) {
       Value value = values[i];
-      if(!("stringValue".equals(value.getString()) || "true".equals(value.getString()) ||
-          "121".equals(value.getString()) )){
+      if (!("stringValue".equals(value.getString()) || "true".equals(value.getString()) || "121".equals(value.getString()))) {
         fail("returned non expected value");
       }
     }
@@ -138,7 +135,6 @@ public class TestProperty extends JcrAPIBaseTest{
 
   }
 
-
   public void testGetLong() throws RepositoryException {
     node.setProperty("long", valueFactory.createValue(15l));
     assertEquals(15, node.getProperty("long").getLong());
@@ -147,8 +143,8 @@ public class TestProperty extends JcrAPIBaseTest{
 
   public void testGetDouble() throws RepositoryException {
     node.setProperty("double", session.getValueFactory().createValue(15));
-    assertEquals(15, (int)node.getProperty("double").getDouble());
-    assertEquals(15, (int)node.getProperty("double").getValue().getDouble());
+    assertEquals(15, (int) node.getProperty("double").getDouble());
+    assertEquals(15, (int) node.getProperty("double").getValue().getDouble());
     try {
       node.getProperty("multi").getDouble();
       fail("exception should have been thrown");
@@ -162,7 +158,10 @@ public class TestProperty extends JcrAPIBaseTest{
     Calendar calendar = new GregorianCalendar();
     node.setProperty("date", session.getValueFactory().createValue(calendar));
     assertEquals(calendar.getTimeInMillis(), node.getProperty("date").getDate().getTimeInMillis());
-    assertEquals(calendar.getTimeInMillis(), node.getProperty("date").getValue().getDate().getTimeInMillis());
+    assertEquals(calendar.getTimeInMillis(), node.getProperty("date")
+                                                 .getValue()
+                                                 .getDate()
+                                                 .getTimeInMillis());
   }
 
   public void testGetBoolean() throws RepositoryException {
@@ -171,17 +170,16 @@ public class TestProperty extends JcrAPIBaseTest{
     assertEquals(true, node.getProperty("boolean").getValue().getBoolean());
   }
 
-
-
   public void testGetLength() throws RepositoryException, IOException {
     Property property = node.getProperty("single");
-    assertTrue(property.getLength()>0);
+    assertTrue(property.getLength() > 0);
     property = node.getProperty("stream");
-    //node.setProperty("stream", new BinaryValue(new ByteArrayInputStream("inputStream".getBytes())));
+    // node.setProperty("stream", new BinaryValue(new
+    // ByteArrayInputStream("inputStream".getBytes())));
     Value b = valueFactory.createValue(new ByteArrayInputStream("inputStream".getBytes()));
     property.setValue(b);
-    
-    assertTrue(property.getLength()>0);
+
+    assertTrue(property.getLength() > 0);
 
     try {
       node.getProperty("multi").getLength();
@@ -192,7 +190,7 @@ public class TestProperty extends JcrAPIBaseTest{
 
   public void testGetLengths() throws RepositoryException, IOException {
     Property property = node.getProperty("multi");
-    assertTrue(property.getLengths()[0]>0);
+    assertTrue(property.getLengths()[0] > 0);
 
     try {
       node.getProperty("single").getLengths();
@@ -213,13 +211,12 @@ public class TestProperty extends JcrAPIBaseTest{
 
   public void testGetBinaryAsString() throws RepositoryException, IOException {
 
-    //System.out.println("STREAM>>>>>>");
-  	
-    node.setProperty("stream", new BinaryValue("inputStream")); 
-    //System.out.println("STREAM>>>>>>");
+    // System.out.println("STREAM>>>>>>");
 
-        
-    //log.debug("STREAM>>>>>>");
+    node.setProperty("stream", new BinaryValue("inputStream"));
+    // System.out.println("STREAM>>>>>>");
+
+    // log.debug("STREAM>>>>>>");
     Value value = node.getProperty("stream").getValue();
     assertEquals("inputStream", value.getString());
     try {
@@ -229,29 +226,30 @@ public class TestProperty extends JcrAPIBaseTest{
     }
 
   }
- 
+
   public void testGetNode() throws RepositoryException {
     Node root = session.getRootNode();
     Node node1 = root.addNode("childNode1", "nt:unstructured");
 
-  	Node refNode = node1.addNode("refNode", "nt:resource");
-    refNode.setProperty("jcr:data", session.getValueFactory().createValue("this is the content", PropertyType.BINARY));
+    Node refNode = node1.addNode("refNode", "nt:resource");
+    refNode.setProperty("jcr:data", session.getValueFactory().createValue("this is the content",
+                                                                          PropertyType.BINARY));
     refNode.setProperty("jcr:mimeType", session.getValueFactory().createValue("text/html"));
-    refNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(Calendar.getInstance()));
+    refNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                   .createValue(Calendar.getInstance()));
 
     Value refVal = valueFactory.createValue(refNode);
     Property p = node1.setProperty("reference", refVal);
-    //log.debug("RefVal >>>"+p.getString());
-    
+    // log.debug("RefVal >>>"+p.getString());
+
     root.save();
-    
+
     assertEquals(refNode.getUUID(), node1.getProperty("reference").getString());
     assertEquals(refNode.getPath(), node1.getProperty("reference").getNode().getPath());
-    
+
     refNode.remove();
     node1.remove();
-    
+
   }
 
-  
 }

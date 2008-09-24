@@ -34,8 +34,7 @@ public class MoveNodeCommand extends AbstractCliCommand {
       String destAbsPath = ctx.getParameter(1);
       Workspace workspace = ctx.getSession().getWorkspace();
       workspace.move(srcAbsPath, destAbsPath);
-      output = "Node [" + srcAbsPath + "] has been moved to [" + destAbsPath
-          + "] successfully \n";
+      output = "Node [" + srcAbsPath + "] has been moved to [" + destAbsPath + "] successfully \n";
     } catch (Exception e) {
       output = "Can't execute command - " + e.getMessage() + "\n";
     }

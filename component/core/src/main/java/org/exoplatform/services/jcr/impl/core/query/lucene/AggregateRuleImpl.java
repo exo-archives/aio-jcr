@@ -40,10 +40,9 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.util.Text;
 
 /**
- * <code>AggregateRule</code> defines a configuration for a node index
- * aggregate. It defines rules for items that should be included in the node
- * scope index of an ancestor. Per default the values of properties are only
- * added to the node scope index of the parent node.
+ * <code>AggregateRule</code> defines a configuration for a node index aggregate. It defines rules
+ * for items that should be included in the node scope index of an ancestor. Per default the values
+ * of properties are only added to the node scope index of the parent node.
  */
 class AggregateRuleImpl implements AggregateRule {
 
@@ -70,15 +69,21 @@ class AggregateRuleImpl implements AggregateRule {
   /**
    * Creates a new indexing aggregate using the given <code>config</code>.
    * 
-   * @param config the configuration for this indexing aggregate.
-   * @param resolver the name resolver for parsing Names within the config.
-   * @param ism the item state manager of the workspace.
-   * @param hmgr a hierarchy manager for the item state manager.
+   * @param config
+   *          the configuration for this indexing aggregate.
+   * @param resolver
+   *          the name resolver for parsing Names within the config.
+   * @param ism
+   *          the item state manager of the workspace.
+   * @param hmgr
+   *          a hierarchy manager for the item state manager.
    * @throws IllegalNameException
-   * @throws MalformedPathException if a path in the configuration is malformed.
-   * @throws IllegalNameException if a node type name contains illegal
-   *           characters.
-   * @throws NamespaceException if a node type contains an unknown prefix.
+   * @throws MalformedPathException
+   *           if a path in the configuration is malformed.
+   * @throws IllegalNameException
+   *           if a node type name contains illegal characters.
+   * @throws NamespaceException
+   *           if a node type contains an unknown prefix.
    * @throws RepositoryException
    * @throws PathNotFoundException
    */
@@ -92,15 +97,15 @@ class AggregateRuleImpl implements AggregateRule {
   }
 
   /**
-   * Returns root node state for the indexing aggregate where
-   * <code>nodeState</code> belongs to.
+   * Returns root node state for the indexing aggregate where <code>nodeState</code> belongs to.
    * 
    * @param nodeState
-   * @return the root node state of the indexing aggregate or <code>null</code>
-   *         if <code>nodeState</code> does not belong to an indexing
-   *         aggregate.
-   * @throws ItemStateException if an error occurs.
-   * @throws RepositoryException if an error occurs.
+   * @return the root node state of the indexing aggregate or <code>null</code> if
+   *         <code>nodeState</code> does not belong to an indexing aggregate.
+   * @throws ItemStateException
+   *           if an error occurs.
+   * @throws RepositoryException
+   *           if an error occurs.
    */
   public NodeData getAggregateRoot(NodeData nodeState) throws RepositoryException {
     for (int i = 0; i < rules.length; i++) {
@@ -113,15 +118,15 @@ class AggregateRuleImpl implements AggregateRule {
   }
 
   /**
-   * Returns the node states that are part of the indexing aggregate of the
-   * <code>nodeState</code>.
+   * Returns the node states that are part of the indexing aggregate of the <code>nodeState</code>.
    * 
-   * @param nodeState a node state
-   * @return the node states that are part of the indexing aggregate of
-   *         <code>nodeState</code>. Returns <code>null</code> if this
-   *         aggregate does not apply to <code>nodeState</code>.
+   * @param nodeState
+   *          a node state
+   * @return the node states that are part of the indexing aggregate of <code>nodeState</code>.
+   *         Returns <code>null</code> if this aggregate does not apply to <code>nodeState</code>.
    * @throws RepositoryException
-   * @throws ItemStateException if an error occurs.
+   * @throws ItemStateException
+   *           if an error occurs.
    */
   public NodeData[] getAggregatedNodeStates(NodeData nodeState) throws RepositoryException {
     if (nodeState.getPrimaryTypeName().equals(nodeTypeName)) {
@@ -142,10 +147,11 @@ class AggregateRuleImpl implements AggregateRule {
   /**
    * Reads the node type of the root node of the indexing aggregate.
    * 
-   * @param config the configuration.
+   * @param config
+   *          the configuration.
    * @return the name of the node type.
-   * @throws IllegalNameException if the node type name contains illegal
-   *           characters.
+   * @throws IllegalNameException
+   *           if the node type name contains illegal characters.
    * @throws RepositoryException
    * @throws PathNotFoundException
    */
@@ -159,11 +165,13 @@ class AggregateRuleImpl implements AggregateRule {
   /**
    * Creates rules defined in the <code>config</code>.
    * 
-   * @param config the indexing aggregate configuration.
+   * @param config
+   *          the indexing aggregate configuration.
    * @return the rules defined in the <code>config</code>.
-   * @throws MalformedPathException if a path in the configuration is malformed.
-   * @throws IllegalNameException if the node type name contains illegal
-   *           characters.
+   * @throws MalformedPathException
+   *           if a path in the configuration is malformed.
+   * @throws IllegalNameException
+   *           if the node type name contains illegal characters.
    * @throws RepositoryException
    * @throws PathNotFoundException
    */
@@ -199,7 +207,8 @@ class AggregateRuleImpl implements AggregateRule {
   // ---------------------------< internal >-----------------------------------
 
   /**
-   * @param node a node.
+   * @param node
+   *          a node.
    * @return the text content of the <code>node</code>.
    */
   private static String getTextContent(Node node) {
@@ -227,12 +236,12 @@ class AggregateRuleImpl implements AggregateRule {
     private final QPath         pattern;
 
     /**
-     * Creates a new rule with a relative path pattern and an optional node type
-     * name.
+     * Creates a new rule with a relative path pattern and an optional node type name.
      * 
-     * @param nodeTypeName node type name or <code>null</code> if all node
-     *          types are allowed.
-     * @param pattern a relative path pattern.
+     * @param nodeTypeName
+     *          node type name or <code>null</code> if all node types are allowed.
+     * @param pattern
+     *          a relative path pattern.
      */
     private Rule(QPath pattern, InternalQName nodeTypeName) {
       this.nodeTypeName = nodeTypeName;
@@ -240,19 +249,19 @@ class AggregateRuleImpl implements AggregateRule {
     }
 
     /**
-     * If the given <code>nodeState</code> matches this rule the root node
-     * state of the indexing aggregate is returned.
+     * If the given <code>nodeState</code> matches this rule the root node state of the indexing
+     * aggregate is returned.
      * 
-     * @param nodeState a node state.
-     * @return the root node state of the indexing aggregate or
-     *         <code>null</code> if <code>nodeState</code> does not belong
-     *         to an indexing aggregate defined by this rule.
+     * @param nodeState
+     *          a node state.
+     * @return the root node state of the indexing aggregate or <code>null</code> if
+     *         <code>nodeState</code> does not belong to an indexing aggregate defined by this rule.
      */
     NodeData matches(NodeData nodeState) throws RepositoryException {
       // first check node type
       if (nodeTypeName == null || nodeState.getPrimaryTypeName().equals(nodeTypeName)) {
         // check pattern
-        QPathEntry[] elements = pattern.getEntries(); 
+        QPathEntry[] elements = pattern.getEntries();
         for (int e = elements.length - 1; e >= 0; e--) {
           String parentId = nodeState.getParentIdentifier();
           if (parentId == null) {
@@ -267,8 +276,7 @@ class AggregateRuleImpl implements AggregateRule {
             // check name
             ItemData item = ism.getItemData(nodeState.getIdentifier());
 
-            if (item != null && item.isNode()
-                && elements[e].equals(item.getQPath().getName())) {
+            if (item != null && item.isNode() && elements[e].equals(item.getQPath().getName())) {
               nodeState = parent;
             } else {
               return null;
@@ -285,11 +293,12 @@ class AggregateRuleImpl implements AggregateRule {
     /**
      * Resolves the <code>nodeState</code> using this rule.
      * 
-     * @param nodeState the root node of the enclosing indexing aggregate.
+     * @param nodeState
+     *          the root node of the enclosing indexing aggregate.
      * @return the descendant node states as defined by this rule.
      * @throws RepositoryException
-     * @throws ItemStateException if an error occurs while resolving the node
-     *           states.
+     * @throws ItemStateException
+     *           if an error occurs while resolving the node states.
      */
     List<NodeData> resolve(NodeData nodeState) throws RepositoryException {
       List<NodeData> nodeStates = new ArrayList<NodeData>();
@@ -302,12 +311,15 @@ class AggregateRuleImpl implements AggregateRule {
     /**
      * Recursively resolves node states along the path {@link #pattern}.
      * 
-     * @param nodeState the current node state.
-     * @param collector resolved node states are collected using the list.
-     * @param offset the current path element offset into the path pattern.
+     * @param nodeState
+     *          the current node state.
+     * @param collector
+     *          resolved node states are collected using the list.
+     * @param offset
+     *          the current path element offset into the path pattern.
      * @throws RepositoryException
-     * @throws ItemStateException if an error occurs while accessing node
-     *           states.
+     * @throws ItemStateException
+     *           if an error occurs while accessing node states.
      */
     private void resolve(NodeData nodeState, List<NodeData> collector, int offset) throws RepositoryException {
       QPathEntry currentName = pattern.getEntries()[offset];// [offset].getName();
@@ -334,7 +346,7 @@ class AggregateRuleImpl implements AggregateRule {
         // traverse
         offset++;
         for (Iterator<NodeData> it = cne.iterator(); it.hasNext();) {
-          NodeData nodeData =it.next(); 
+          NodeData nodeData = it.next();
           if (nodeData != null)
             resolve(nodeData, collector, offset);
         }

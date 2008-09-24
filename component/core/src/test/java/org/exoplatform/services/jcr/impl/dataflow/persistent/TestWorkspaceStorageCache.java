@@ -23,14 +23,16 @@ import org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class TestWorkspaceStorageCache extends WorkspaceStorageCacheBaseCase {
 
   @Override
   public WorkspaceStorageCache getCacheImpl() throws Exception {
-    return new WorkspaceStorageCacheImpl((CacheService) session.getContainer().getComponentInstanceOfType(CacheService.class),
-                                         (WorkspaceEntry) session.getContainer().getComponentInstanceOfType(WorkspaceEntry.class));
+    return new WorkspaceStorageCacheImpl((CacheService) session.getContainer()
+                                                               .getComponentInstanceOfType(CacheService.class),
+                                         (WorkspaceEntry) session.getContainer()
+                                                                 .getComponentInstanceOfType(WorkspaceEntry.class));
   }
 }

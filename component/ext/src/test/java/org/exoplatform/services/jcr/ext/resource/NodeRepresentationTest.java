@@ -33,28 +33,24 @@ import org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepres
  */
 public class NodeRepresentationTest extends BaseStandaloneTest {
 
-  private NodeRepresentationService nodeRepresentationService;
+  private NodeRepresentationService       nodeRepresentationService;
+
   private NtFileNodeRepresentationFactory ntFileNodeRepresentationFactory;
-  private Node testRoot;
-  
+
+  private Node                            testRoot;
 
   public void setUp() throws Exception {
     super.setUp();
     if (nodeRepresentationService == null) {
-      nodeRepresentationService = (NodeRepresentationService) container
-          .getComponentInstanceOfType(NodeRepresentationService.class);
+      nodeRepresentationService = (NodeRepresentationService) container.getComponentInstanceOfType(NodeRepresentationService.class);
       assertNotNull(nodeRepresentationService);
-      ntFileNodeRepresentationFactory = (NtFileNodeRepresentationFactory) container
-          .getComponentInstanceOfType(NtFileNodeRepresentationFactory.class);
+      ntFileNodeRepresentationFactory = (NtFileNodeRepresentationFactory) container.getComponentInstanceOfType(NtFileNodeRepresentationFactory.class);
       assertNotNull(ntFileNodeRepresentationFactory);
-      
-      testRoot = root.addNode("NodeRepresentationTest",
-      "nt:unstructured");
+
+      testRoot = root.addNode("NodeRepresentationTest", "nt:unstructured");
 
     }
   }
-  
-  
 
   @Override
   protected void tearDown() throws Exception {
@@ -63,10 +59,8 @@ public class NodeRepresentationTest extends BaseStandaloneTest {
     super.tearDown();
   }
 
-
-
   public void testServiceInitialization() throws Exception {
-    Collection <String> nts = nodeRepresentationService.getNodeTypes();
+    Collection<String> nts = nodeRepresentationService.getNodeTypes();
     assertTrue(nts.size() > 0);
     assertTrue(nts.contains("nt:file"));
     assertTrue(nts.contains("nt:resource"));
@@ -81,21 +75,21 @@ public class NodeRepresentationTest extends BaseStandaloneTest {
     d.setProperty("jcr:lastModified", Calendar.getInstance());
     d.setProperty("jcr:data", new ByteArrayInputStream(data.getBytes()));
     session.save();
-    
-    NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(file, "text/plain");
+
+    NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(file,
+                                                                                            "text/plain");
 
     assertNotNull(nodeRepresentation);
-    
+
     assertTrue(nodeRepresentation instanceof NtFileNodeRepresentation);
-    
-//    for(String n : nodeRepresentation.getPropertyNames()) {
-//      System.out.println(">>>>>>>>>>>>>>>>>>> "+n+" "+nodeRepresentation);
-//    }
-    
+
+    // for(String n : nodeRepresentation.getPropertyNames()) {
+    // System.out.println(">>>>>>>>>>>>>>>>>>> "+n+" "+nodeRepresentation);
+    // }
+
     assertEquals(3, nodeRepresentation.getPropertyNames().size());
-    
-    compareStream(nodeRepresentation.getInputStream(), new ByteArrayInputStream(data
-        .getBytes()));
+
+    compareStream(nodeRepresentation.getInputStream(), new ByteArrayInputStream(data.getBytes()));
 
   }
 

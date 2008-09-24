@@ -23,30 +23,36 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
 
 /**
-* @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
-* @version $Id: SimpleS3IOChannel.java 11907 2008-03-13 15:36:21Z ksm $
-*/
+ * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
+ * @version $Id: SimpleS3IOChannel.java 11907 2008-03-13 15:36:21Z ksm $
+ */
 public class SimpleS3IOChannel extends S3IOChannel {
 
-  public SimpleS3IOChannel(String bucket, String awsAccessKey,
-      String awsSecretAccessKey, File s3SwapDirectory, FileCleaner cleaner, String storageId) {
+  public SimpleS3IOChannel(String bucket,
+                           String awsAccessKey,
+                           String awsSecretAccessKey,
+                           File s3SwapDirectory,
+                           FileCleaner cleaner,
+                           String storageId) {
     super(bucket, awsAccessKey, awsSecretAccessKey, s3SwapDirectory, cleaner, storageId);
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.storage.value.s3.S3IOChannel#getFile(java.lang.String, int)
+
+  /*
+   * (non-Javadoc)
+   * @see org.exoplatform.services.jcr.impl.storage.value.s3.S3IOChannel#getFile(java.lang.String,
+   * int)
    */
   protected String getFile(String propertyId, int orderNumber) {
     return propertyId + orderNumber;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.storage.value.s3.S3IOChannel#getFiles(java.lang.String)
    */
   protected String[] getFiles(String propertyId) {
     try {
-      return S3ValueIOUtil.getBucketList(bucket, awsAccessKey,
-          awsSecretAccessKey, propertyId);
+      return S3ValueIOUtil.getBucketList(bucket, awsAccessKey, awsSecretAccessKey, propertyId);
     } catch (IOException ioe) {
       return null;
     }

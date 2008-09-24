@@ -29,33 +29,41 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  */
 
 public interface BackupJob extends Runnable {
-  
-  public static final int FULL = 1;
+
+  public static final int FULL        = 1;
+
   public static final int INCREMENTAL = 2;
 
-  public static final int STARTING = 0;
-  public static final int WAITING = 1;
-  public static final int WORKING = 2;
-  public static final int FINISHED = 4;
+  public static final int STARTING    = 0;
+
+  public static final int WAITING     = 1;
+
+  public static final int WORKING     = 2;
+
+  public static final int FINISHED    = 4;
 
   /**
    * FULL or INCREMENTAL
+   * 
    * @return
    */
   int getType();
 
   int getState();
-  
+
   int getId();
 
   URL getStorageURL() throws BackupOperationException;
-  
+
   void stop();
-  
-  void init(ManageableRepository repository, String workspaceName, BackupConfig config, Calendar timeStamp);
+
+  void init(ManageableRepository repository,
+            String workspaceName,
+            BackupConfig config,
+            Calendar timeStamp);
 
   void addListener(BackupJobListener listener);
-  
+
   void removeListener(BackupJobListener listener);
-  
+
 }

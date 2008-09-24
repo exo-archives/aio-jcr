@@ -33,8 +33,7 @@ public abstract class AbstractGetSessionTest extends JCRTestBase {
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     int runIterations = tc.getIntParam("japex.runIterations");
     // 1. Create root node for this test using current session
-    testRoot = context.getSession().getRootNode().addNode(
-        context.generateUniqueName("testRoot"));
+    testRoot = context.getSession().getRootNode().addNode(context.generateUniqueName("testRoot"));
     context.getSession().save();
     // 2. Create parents (see AbstractItemsTest for details)
     String parentName = "";
@@ -48,7 +47,7 @@ public abstract class AbstractGetSessionTest extends JCRTestBase {
     // 3. Create sessions, one session has one unsaved node
     for (int i = 0; i < runIterations; i++) {
       Session session = context.getSession().getRepository().login();
-      Node parentNode = (Node)session.getItem(parentNames.remove(0));
+      Node parentNode = (Node) session.getItem(parentNames.remove(0));
       parentNode.addNode(context.generateUniqueName("testNode"));
       sessions.add(session);
     }
@@ -61,7 +60,7 @@ public abstract class AbstractGetSessionTest extends JCRTestBase {
     sessions.clear();
     parentNames.clear();
   }
-  
+
   protected Session nextSession() {
     return sessions.remove(0);
   }

@@ -28,7 +28,7 @@ public class NodeOrderBeforeTest extends AbstractGetItemTest {
     context.getSession().save();
     addNode(node);
   }
-  
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     nextNode().orderBefore("node3", "node2");

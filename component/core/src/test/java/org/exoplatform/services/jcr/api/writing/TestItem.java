@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.writing;
 
-
 import java.util.List;
 
 import javax.jcr.Node;
@@ -30,29 +29,27 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestItem.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TestItem extends JcrAPIBaseTest{
-
+public class TestItem extends JcrAPIBaseTest {
 
   public void testSave() throws RepositoryException {
     Node root = session.getRootNode();
     try {
-        root.addNode("childNode", "nt:folder").addNode("childNode2", "nt:propertyDefinition");
-    	root.save();
-    	fail("exception should have been thrown");
+      root.addNode("childNode", "nt:folder").addNode("childNode2", "nt:propertyDefinition");
+      root.save();
+      fail("exception should have been thrown");
     } catch (ConstraintViolationException e) {
     }
 
-    //assertEquals("/childNode/childNode2", root.getNode("childNode/childNode2").getPath());
+    // assertEquals("/childNode/childNode2", root.getNode("childNode/childNode2").getPath());
     session.refresh(false);
 
-
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
     root = session.getRootNode();
 
     try {
@@ -70,17 +67,17 @@ public class TestItem extends JcrAPIBaseTest{
     node2.setProperty("existingProp", "existingValue");
     node2.setProperty("existingProp2", "existingValue2");
     root.save();
-    
+
     node2.setProperty("prop", "propValue");
     node2.setProperty("existingProp", "existingValueBis");
-    
+
     node2.getProperty("existingProp2").remove();
     node2.getNode("node2BRem").remove();
-    
+
     node2.addNode("addedNode", "nt:unstructured");
-//System.out.println(">>>>>>>>>>>>"+node.getProperty("prop"));
+    // System.out.println(">>>>>>>>>>>>"+node.getProperty("prop"));
     node2.save();
-    
+
     try {
       node2.getProperty("existingProp2");
       fail("exception should have been thrown");
@@ -92,12 +89,11 @@ public class TestItem extends JcrAPIBaseTest{
     } catch (PathNotFoundException e) {
     }
 
-    
-//System.out.println(">>>>>>>>>>>>"+session.getTransientNodesManager().dump());
+    // System.out.println(">>>>>>>>>>>>"+session.getTransientNodesManager().dump());
 
-//System.out.println(">>>>>>>>>>>>"+((Node)session.getItem("/childNode")).getProperty("prop"));
+    // System.out.println(">>>>>>>>>>>>"+((Node)session.getItem("/childNode")).getProperty("prop"));
 
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
     Node node22 = session.getRootNode().getNode("testSave2");
     root = session.getRootNode();
     try {
@@ -112,12 +108,13 @@ public class TestItem extends JcrAPIBaseTest{
       fail("exception should have been thrown");
     } catch (PathNotFoundException e) {
     }
-    
-    List <PropertyData> props = session.getTransientNodesManager().getChildPropertiesData((NodeData)((NodeImpl)node22).getData());
-    for(PropertyData prop: props) {
-      System.out.println("PROPS >>>>>>>>>>>> "+prop.getQPath().getAsString());
+
+    List<PropertyData> props = session.getTransientNodesManager()
+                                      .getChildPropertiesData((NodeData) ((NodeImpl) node22).getData());
+    for (PropertyData prop : props) {
+      System.out.println("PROPS >>>>>>>>>>>> " + prop.getQPath().getAsString());
     }
-    
+
     try {
       node22.getNode("node2BRem");
       fail("exception should have been thrown");

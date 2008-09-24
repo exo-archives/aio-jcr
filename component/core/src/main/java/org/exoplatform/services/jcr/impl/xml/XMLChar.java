@@ -17,15 +17,16 @@
 package org.exoplatform.services.jcr.impl.xml;
 
 /**
- * This class defines the basic XML character properties. The data in this class
- * can be used to verify that a character is a valid XML character or if the
- * character is a space, name start, or name character.
+ * This class defines the basic XML character properties. The data in this class can be used to
+ * verify that a character is a valid XML character or if the character is a space, name start, or
+ * name character.
  */
 public class XMLChar {
   /**
    * Returns true if the specified character is a supplemental character.
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    * @return
    */
   public static boolean isSupplemental(int ch) {
@@ -33,11 +34,12 @@ public class XMLChar {
   }
 
   /**
-   * Returns true the supplemental character corresponding to the given
-   * surrogates.
+   * Returns true the supplemental character corresponding to the given surrogates.
    * 
-   * @param h The high surrogate.
-   * @param l The low surrogate.
+   * @param h
+   *          The high surrogate.
+   * @param l
+   *          The low surrogate.
    */
   public static int supplemental(char h, char l) {
     return (h - 0xD800) * 0x400 + (l - 0xDC00) + 0x10000;
@@ -46,7 +48,8 @@ public class XMLChar {
   /**
    * Returns the high surrogate of a supplemental character
    * 
-   * @param c The supplemental character to "split".
+   * @param c
+   *          The supplemental character to "split".
    */
   public static char highSurrogate(int ch) {
     return (char) (((ch - 0x00010000) >> 10) + 0xD800);
@@ -55,7 +58,8 @@ public class XMLChar {
   /**
    * Returns the low surrogate of a supplemental character
    * 
-   * @param c The supplemental character to "split".
+   * @param c
+   *          The supplemental character to "split".
    */
   public static char lowSurrogate(int ch) {
     return (char) (((ch - 0x00010000) & 0x3FF) + 0xDC00);
@@ -64,7 +68,8 @@ public class XMLChar {
   /**
    * Returns whether the given character is a high surrogate
    * 
-   * @param c The character to check.
+   * @param c
+   *          The character to check.
    */
   public static boolean isHighSurrogate(int ch) {
     return (0xD800 <= ch && ch <= 0xDBFF);
@@ -73,29 +78,31 @@ public class XMLChar {
   /**
    * Returns whether the given character is a low surrogate
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isLowSurrogate(int ch) {
     return (0xDC00 <= ch && ch <= 0xDFFF);
   }
 
   /**
-   * Returns true if the specified character can be considered markup. Markup
-   * characters include '&lt;', '&amp;', and '%'.
+   * Returns true if the specified character can be considered markup. Markup characters include
+   * '&lt;', '&amp;', and '%'.
    * 
-   * @param c The character to check.
+   * @param c
+   *          The character to check.
    */
   public static boolean isMarkup(int c) {
     return c == '<' || c == '&' || c == '%';
   }
 
   /**
-   * Returns true if the specified character is a character which may represent
-   * markup or character data as defined by production [2] in the XML 1.0
-   * specification. <b>Char
+   * Returns true if the specified character is a character which may represent markup or character
+   * data as defined by production [2] in the XML 1.0 specification. <b>Char
    * ::=#x9|#xA|#xD|[#x20-#xD7FF]|[#xE000-#xFFFD]|[#x10000-#x10FFFF]</b>
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isChar(int ch) {
     return 0x09 == ch // TAB
@@ -108,11 +115,11 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is valid as defined by production
-   * [2] in the XML 1.0 specification. Include for backward compatibility with
-   * org.apache.xerces.util.XMLChar
+   * Returns true if the specified character is valid as defined by production [2] in the XML 1.0
+   * specification. Include for backward compatibility with org.apache.xerces.util.XMLChar
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    * @see org.apache.xerces.util.XMLChar#isValid
    */
   public static boolean isValid(int ch) {
@@ -122,18 +129,19 @@ public class XMLChar {
   /**
    * Returns true if the specified character is invalid.
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isInvalid(int ch) {
     return !isValid(ch);
   }
 
   /**
-   * Returns true if the specified character is a space character as defined by
-   * production [3] in the XML 1.0 specification. <b>S ::= (#x20 | #x9 | #xD |
-   * #xA)+</b>
+   * Returns true if the specified character is a space character as defined by production [3] in
+   * the XML 1.0 specification. <b>S ::= (#x20 | #x9 | #xD | #xA)+</b>
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isSpace(int ch) {
     return 0x20 == ch // SPACE
@@ -143,10 +151,11 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a digit as defined by production
-   * [88] in the XML 1.0 specification.
+   * Returns true if the specified character is a digit as defined by production [88] in the XML 1.0
+   * specification.
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isDigit(int ch) {
     return (0x0030 <= ch && ch <= 0x0039) || (0x0660 <= ch && ch <= 0x0669)
@@ -160,10 +169,11 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a BaseChar as defined by
-   * production [85] in the XML 1.0 specification.
+   * Returns true if the specified character is a BaseChar as defined by production [85] in the XML
+   * 1.0 specification.
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isBaseChar(int ch) {
     return (0x0041 <= ch && ch <= 0x005A) || (0x0061 <= ch && ch <= 0x007A)
@@ -250,31 +260,33 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a Ideographic as defined by
-   * production [86] in the XML 1.0 specification.
+   * Returns true if the specified character is a Ideographic as defined by production [86] in the
+   * XML 1.0 specification.
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isIdeographic(int ch) {
     return (0x4E00 <= ch && ch <= 0x9FA5) || 0x3007 == ch || (0x3021 <= ch && ch <= 0x3029);
   }
 
   /**
-   * Returns true if the specified character is a letter as defined by
-   * production [84] in the XML 1.0 specification. <b>Letter ::= BaseChar |
-   * Ideographic</b>
+   * Returns true if the specified character is a letter as defined by production [84] in the XML
+   * 1.0 specification. <b>Letter ::= BaseChar | Ideographic</b>
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isLetter(int ch) {
     return isBaseChar(ch) || isIdeographic(ch);
   }
 
   /**
-   * Returns true if the specified character is a combining char as defined by
-   * production [87] in the XML 1.0 specification.
+   * Returns true if the specified character is a combining char as defined by production [87] in
+   * the XML 1.0 specification.
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isCombiningChar(int ch) {
     return (0x0300 <= ch && ch <= 0x0345) || (0x0360 <= ch && ch <= 0x0361)
@@ -316,10 +328,11 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a extender as defined by
-   * production [89] in the XML 1.0 specification.
+   * Returns true if the specified character is a extender as defined by production [89] in the XML
+   * 1.0 specification.
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isExtender(int ch) {
     return 0x00B7 == ch || 0x02D0 == ch || 0x02D1 == ch || 0x0387 == ch || 0x0640 == ch
@@ -328,11 +341,12 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a valid name character as
-   * defined by production [4] in the XML 1.0 specification. <b>NameChar ::=
-   * Letter | Digit | '.' | '-' | '_' | ':' | CombiningChar | Extender</b>
+   * Returns true if the specified character is a valid name character as defined by production [4]
+   * in the XML 1.0 specification. <b>NameChar ::= Letter | Digit | '.' | '-' | '_' | ':' |
+   * CombiningChar | Extender</b>
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isName(int ch) {
     return isLetter(ch) || isDigit(ch) || '.' == ch || '-' == ch || '_' == ch || ':' == ch
@@ -340,21 +354,22 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a valid name start character as
-   * defined by production [5] in the XML 1.0 specification.<b> (Letter | '_' |
-   * ':')</b>
+   * Returns true if the specified character is a valid name start character as defined by
+   * production [5] in the XML 1.0 specification.<b> (Letter | '_' | ':')</b>
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isNameStart(int ch) {
     return isLetter(ch) || '_' == ch || ':' == ch;
   }
 
   /**
-   * Check to see if a string is a valid Name according to [5] in the XML 1.0
-   * Recommendation <b>Name ::= (Letter | '_' | ':') (NameChar)*</b>
+   * Check to see if a string is a valid Name according to [5] in the XML 1.0 Recommendation <b>Name
+   * ::= (Letter | '_' | ':') (NameChar)*</b>
    * 
-   * @param name string to check
+   * @param name
+   *          string to check
    * @return true if name is a valid Name
    */
   public static boolean isValidName(String name) {
@@ -373,32 +388,33 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a valid NCName start character
-   * as defined by production [6] in Namespaces in XML recommendation.
-   * <b>NCNameStartChar ::= Letter | '_'</b>
+   * Returns true if the specified character is a valid NCName start character as defined by
+   * production [6] in Namespaces in XML recommendation. <b>NCNameStartChar ::= Letter | '_'</b>
    * 
-   * @param ch The character to check.
+   * @param ch
+   *          The character to check.
    */
   public static boolean isNCNameStart(int ch) {
     return isLetter(ch) || '_' == ch;
   }
 
   /**
-   * Returns true if the specified character is a valid NCName character as
-   * defined by production [5] in Namespaces in XML recommendation.
-   * <b>NCNameChar ::= NameChar - ':'</b>
+   * Returns true if the specified character is a valid NCName character as defined by production
+   * [5] in Namespaces in XML recommendation. <b>NCNameChar ::= NameChar - ':'</b>
    * 
-   * @param c The character to check.
+   * @param c
+   *          The character to check.
    */
   public static boolean isNCName(int ch) {
     return isName(ch) && ':' != ch;
   }
 
   /**
-   * Check to see if a string is a valid NCName according to [4] from the XML
-   * Namespaces 1.0 Recommendation <b>NCName ::= NCNameStartChar NCNameChar*</b>
+   * Check to see if a string is a valid NCName according to [4] from the XML Namespaces 1.0
+   * Recommendation <b>NCName ::= NCNameStartChar NCNameChar*</b>
    * 
-   * @param ncName string to check
+   * @param ncName
+   *          string to check
    * @return true if name is a valid NCName
    */
   public static boolean isValidNCName(String ncName) {
@@ -417,11 +433,12 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the specified character is a valid Pubid character as
-   * defined by production [13] in the XML 1.0 specification. <b>PubidChar ::=
-   * #x20 | #xD | #xA | [a-zA-Z0-9] | [-'()+,./:=?;!*#@$_%]</b>
+   * Returns true if the specified character is a valid Pubid character as defined by production
+   * [13] in the XML 1.0 specification. <b>PubidChar ::= #x20 | #xD | #xA | [a-zA-Z0-9] |
+   * [-'()+,./:=?;!*#@$_%]</b>
    * 
-   * @param c The character to check.
+   * @param c
+   *          The character to check.
    */
   public static boolean isPubid(int ch) {
     return 0x09 == ch
@@ -434,10 +451,11 @@ public class XMLChar {
   }
 
   /**
-   * Check to see if a string is a valid Nmtoken according to [7] in the XML 1.0
-   * Recommendation <b>Nmtoken ::= (NameChar)+</b>
+   * Check to see if a string is a valid Nmtoken according to [7] in the XML 1.0 Recommendation
+   * <b>Nmtoken ::= (NameChar)+</b>
    * 
-   * @param nmtoken string to check
+   * @param nmtoken
+   *          string to check
    * @return true if nmtoken is a valid Nmtoken
    */
   public static boolean isValidNmtoken(String nmtoken) {
@@ -453,11 +471,12 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the encoding name is a valid IANA encoding. This method
-   * does not verify that there is a decoder available for this encoding, only
-   * that the characters are valid for an IANA encoding name.
+   * Returns true if the encoding name is a valid IANA encoding. This method does not verify that
+   * there is a decoder available for this encoding, only that the characters are valid for an IANA
+   * encoding name.
    * 
-   * @param ianaEncoding The IANA encoding name.
+   * @param ianaEncoding
+   *          The IANA encoding name.
    */
   public static boolean isValidIANAEncoding(String ianaEncoding) {
     if (ianaEncoding != null) {
@@ -480,11 +499,12 @@ public class XMLChar {
   }
 
   /**
-   * Returns true if the encoding name is a valid Java encoding. This method
-   * does not verify that there is a decoder available for this encoding, only
-   * that the characters are valid for an Java encoding name.
+   * Returns true if the encoding name is a valid Java encoding. This method does not verify that
+   * there is a decoder available for this encoding, only that the characters are valid for an Java
+   * encoding name.
    * 
-   * @param javaEncoding The Java encoding name.
+   * @param javaEncoding
+   *          The Java encoding name.
    */
   public static boolean isValidJavaEncoding(String javaEncoding) {
     if (javaEncoding != null) {

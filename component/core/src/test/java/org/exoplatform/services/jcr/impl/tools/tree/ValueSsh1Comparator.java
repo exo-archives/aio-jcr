@@ -49,8 +49,7 @@ public class ValueSsh1Comparator extends ItemDataTraversingVisitor {
 
   private final MessageDigest                   md;
 
-  protected Log                                 log               = ExoLogger
-                                                                      .getLogger(ValueSsh1Comparator.class);
+  protected Log                                 log               = ExoLogger.getLogger(ValueSsh1Comparator.class);
 
   public ValueSsh1Comparator(ItemDataConsumer dataManager, InputStream ssh1ChecksumStream) throws IOException,
       NoSuchAlgorithmException {
@@ -77,7 +76,7 @@ public class ValueSsh1Comparator extends ItemDataTraversingVisitor {
         md.update(valueData.getAsByteArray());
         if (!Arrays.equals(checkSum, md.digest()))
           throw new RepositoryException("Ssh1 not equals " + property.getQPath().getAsString());
-        
+
       } catch (IllegalStateException e) {
         throw new RepositoryException(e);
       } catch (IOException e) {
@@ -95,7 +94,6 @@ public class ValueSsh1Comparator extends ItemDataTraversingVisitor {
 
   @Override
   protected void leaving(PropertyData arg0, int arg1) throws RepositoryException {
-   
 
   }
 

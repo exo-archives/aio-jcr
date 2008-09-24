@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+
 /**
  * Created by The eXo Platform SAS.</br>
  * 
@@ -33,15 +34,23 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  */
 
 public class PersistedNodeData extends PersistedItemData implements NodeData {
-  
-  protected final int orderNumber;
-  protected final InternalQName primaryTypeName;
+
+  protected final int             orderNumber;
+
+  protected final InternalQName   primaryTypeName;
+
   protected final InternalQName[] mixinTypeNames;
-  protected AccessControlList acl;
-  
-  public PersistedNodeData(String id, QPath qpath, String parentId, int version,
-      int orderNumber, InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
-      AccessControlList acl) {
+
+  protected AccessControlList     acl;
+
+  public PersistedNodeData(String id,
+                           QPath qpath,
+                           String parentId,
+                           int version,
+                           int orderNumber,
+                           InternalQName primaryTypeName,
+                           InternalQName[] mixinTypeNames,
+                           AccessControlList acl) {
     super(id, qpath, parentId, version);
     this.primaryTypeName = primaryTypeName;
     this.mixinTypeNames = mixinTypeNames;
@@ -49,49 +58,60 @@ public class PersistedNodeData extends PersistedItemData implements NodeData {
     this.acl = acl;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getOrderNumber()
    */
   public int getOrderNumber() {
     return orderNumber;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getPrimaryTypeName()
    */
   public InternalQName getPrimaryTypeName() {
     return primaryTypeName;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getMixinTypeNames()
    */
   public InternalQName[] getMixinTypeNames() {
     return mixinTypeNames;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getACL()
    */
   public AccessControlList getACL() {
     return acl;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.NodeData#setACL(org.exoplatform.services.jcr.access.AccessControlList)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.datamodel.NodeData#setACL(org.exoplatform.services.jcr.access.
+   * AccessControlList)
    */
   public void setACL(AccessControlList acl) {
     this.acl = acl;
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow.ItemDataVisitor)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow
+   * .ItemDataVisitor)
    */
   public void accept(ItemDataVisitor visitor) throws RepositoryException {
     visitor.visit(this);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#isNode()
    */
   public boolean isNode() {

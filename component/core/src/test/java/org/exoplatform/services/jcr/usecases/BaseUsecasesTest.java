@@ -17,8 +17,10 @@
 package org.exoplatform.services.jcr.usecases;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: BaseUsecasesTest.java 11907 2008-03-13 15:36:21Z ksm $
  */

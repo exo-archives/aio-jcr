@@ -18,27 +18,28 @@
 package org.exoplatform.services.jcr.webdav.resource;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class IllegalResourceTypeException extends Exception {
 
-	public IllegalResourceTypeException() {
-		super();
-	}
+  public IllegalResourceTypeException() {
+    super();
+  }
 
-	public IllegalResourceTypeException(String message, Throwable t) {
-		super(message, t);
-	}
+  public IllegalResourceTypeException(String message, Throwable t) {
+    super(message, t);
+  }
 
-	public IllegalResourceTypeException(String message) {
-		super(message);
-	}
+  public IllegalResourceTypeException(String message) {
+    super(message);
+  }
 
-	public IllegalResourceTypeException(Throwable t) {
-		super(t);
-	}
+  public IllegalResourceTypeException(Throwable t) {
+    super(t);
+  }
 
 }

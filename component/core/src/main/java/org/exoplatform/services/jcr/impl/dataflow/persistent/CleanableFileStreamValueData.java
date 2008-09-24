@@ -25,8 +25,9 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 
 /**
- * Created by The eXo Platform SAS.
- * Implementation of FileStream ValueData secures deleting file in object finalization 
+ * Created by The eXo Platform SAS. Implementation of FileStream ValueData secures deleting file in
+ * object finalization
+ * 
  * @author Gennady Azarenkov
  * @version $Id: CleanableFileStreamValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -34,7 +35,7 @@ import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
 
   protected final FileCleaner cleaner;
-  
+
   public CleanableFileStreamValueData(SwapFile file, int orderNumber, FileCleaner cleaner) {
     super(file, orderNumber, false);
     this.cleaner = cleaner;
@@ -46,8 +47,7 @@ public class CleanableFileStreamValueData extends FileStreamPersistedValueData {
 
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
-      return new TransientValueData(orderNumber, null, null, 
-        file, cleaner, -1, null, false);
+      return new TransientValueData(orderNumber, null, null, file, cleaner, -1, null, false);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }

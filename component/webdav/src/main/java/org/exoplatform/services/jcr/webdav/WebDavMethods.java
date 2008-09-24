@@ -20,8 +20,7 @@ package org.exoplatform.services.jcr.webdav;
 import org.exoplatform.common.http.HTTPMethods;
 
 /**
- * Created by The eXo Platform SARL Author : Vitaly Guly
- * <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
  * @version $Id: $
  */

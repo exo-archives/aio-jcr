@@ -24,6 +24,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
  * a string value implementation
+ * 
  * @author Gennady Azarenkov
  */
 public class StringValue extends BaseValue {

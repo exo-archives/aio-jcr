@@ -40,8 +40,7 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: TestNodeIndexer.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -53,20 +52,27 @@ public class TestNodeIndexer extends JcrImplBaseTest {
    * Test node with string valued property.
    * <p>
    * In this case there are:
-   * <p> - node "test"
-   * <p> - property "jcr:primaryType" val "nt:ustructured" string
-   * <p> - property "jcr:prop" val "prop value" string
+   * <p>
+   * - node "test"
+   * <p>
+   * - property "jcr:primaryType" val "nt:ustructured" string
+   * <p>
+   * - property "jcr:prop" val "prop value" string
    * <p>
    * <p>
    * Expected lucene document structure. Fields:
    * <p>
-   * _:UUID uuid of node;<p>
-   * _:PARENT uuid of parent node
-   * _:LABEL name of the node "test"<p>
-   * _:PROPERTIES "jcr:primaryType"+'\uFFFF'+"nt:unstructured"
-   * _:PROPERTIES "jcr:prop"+'\uFFFF'+"prop value"<p>
-   * _:FULLTEXT "prop value"<p>
-   * jcr:FULL:prop "prop value"<p>
+   * _:UUID uuid of node;
+   * <p>
+   * _:PARENT uuid of parent node _:LABEL name of the node "test"
+   * <p>
+   * _:PROPERTIES "jcr:primaryType"+'\uFFFF'+"nt:unstructured" _:PROPERTIES
+   * "jcr:prop"+'\uFFFF'+"prop value"
+   * <p>
+   * _:FULLTEXT "prop value"
+   * <p>
+   * jcr:FULL:prop "prop value"
+   * <p>
    * 
    * 
    * @throws Exception
@@ -84,13 +90,12 @@ public class TestNodeIndexer extends JcrImplBaseTest {
 
     NodeData data = (NodeData) ((NodeImpl) node).getData();
     assertNotNull(data);
-    
-    DocumentReaderService extractor = (DocumentReaderService) container
-        .getComponentInstanceOfType(DocumentReaderServiceImpl.class);
-    NodeIndexer indexer = new NodeIndexer(data, manager,
-        new NSRegistryBasedNamespaceMappings(
-            (NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
-        extractor);
+
+    DocumentReaderService extractor = (DocumentReaderService) container.getComponentInstanceOfType(DocumentReaderServiceImpl.class);
+    NodeIndexer indexer = new NodeIndexer(data,
+                                          manager,
+                                          new NSRegistryBasedNamespaceMappings((NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
+                                          extractor);
 
     Document doc = indexer.createDoc();
 
@@ -119,13 +124,15 @@ public class TestNodeIndexer extends JcrImplBaseTest {
     assertNotNull(props);
     assertEquals(2, props.size());
 
-    //:PROPERTIES jcr:primaryType "jcr:prop" + '\uFFFF' + "prop value"
-    List<Field> prop1 = this.findField(list, FieldNames.PROPERTIES,"jcr:prop" + '\uFFFF' + "prop value");
+    // :PROPERTIES jcr:primaryType "jcr:prop" + '\uFFFF' + "prop value"
+    List<Field> prop1 = this.findField(list, FieldNames.PROPERTIES, "jcr:prop" + '\uFFFF'
+        + "prop value");
     assertNotNull(prop1);
     assertEquals(1, prop1.size());
-    
-    //:PROPERTIES jcr:primaryType "jcr:prop" + '\uFFFF' + "prop value"
-    List<Field> prop2 = this.findField(list, FieldNames.PROPERTIES,"jcr:primaryType" + '\uFFFF' + "nt:unstructured");
+
+    // :PROPERTIES jcr:primaryType "jcr:prop" + '\uFFFF' + "prop value"
+    List<Field> prop2 = this.findField(list, FieldNames.PROPERTIES, "jcr:primaryType" + '\uFFFF'
+        + "nt:unstructured");
     assertNotNull(prop2);
     assertEquals(1, prop2.size());
 
@@ -135,27 +142,28 @@ public class TestNodeIndexer extends JcrImplBaseTest {
     assertEquals(1, full.size());
     assertEquals(node.getProperty("jcr:prop").getString(), full.get(0).stringValue());
 
-    //jcr:FULL:prop "prop","value"
+    // jcr:FULL:prop "prop","value"
     List<Field> prefixed = this.findField(list, "jcr:FULL:prop");
     assertNotNull(prefixed);
     assertEquals(1, prefixed.size());
     assertEquals(node.getProperty("jcr:prop").getString(), prefixed.get(0).stringValue());
 
     // Check sum - there must be 6 fields
-    assertEquals(7,list.size());
+    assertEquals(7, list.size());
   }
 
   /**
    * Test root node indexing;
    * <p>
    * In this case there are:
-   * <p> - root node
+   * <p>
+   * - root node
    * <p>
    * Expected lucene document structure. Fields:
    * <p>
-   * _:UUID uuid of root node;<p>
-   * _:PARENT ""
-   * _:LABEL name ""
+   * _:UUID uuid of root node;
+   * <p>
+   * _:PARENT "" _:LABEL name ""
    * 
    * @throws Exception
    */
@@ -168,13 +176,12 @@ public class TestNodeIndexer extends JcrImplBaseTest {
 
     NodeData data = (NodeData) ((NodeImpl) root).getData();
     assertNotNull(data);
-    
-    DocumentReaderService extractor = (DocumentReaderService) container
-        .getComponentInstanceOfType(DocumentReaderServiceImpl.class);
-    NodeIndexer indexer = new NodeIndexer(data, manager,
-        new NSRegistryBasedNamespaceMappings(
-            (NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
-        extractor);
+
+    DocumentReaderService extractor = (DocumentReaderService) container.getComponentInstanceOfType(DocumentReaderServiceImpl.class);
+    NodeIndexer indexer = new NodeIndexer(data,
+                                          manager,
+                                          new NSRegistryBasedNamespaceMappings((NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
+                                          extractor);
 
     Document doc = indexer.createDoc();
 
@@ -198,30 +205,44 @@ public class TestNodeIndexer extends JcrImplBaseTest {
     assertEquals(1, label.size());
     assertEquals("", label.get(0).stringValue());
   }
-  
+
   /**
    * Test of indexing Binary value
    * <p>
    * In this case there are:
-   * <p> - node "jcr:content" 
-   * <p> - property "jcr:primaryType" val "nt:resource" name
-   * <p> - property "jcr:lastModified" calendar
-   * <p> - property "jcr:uuid" string
-   * <p> - property "jcr:mimetype" "text/plain" string
-   * <p> - property "jcr:data" "binary value" binary
+   * <p>
+   * - node "jcr:content"
+   * <p>
+   * - property "jcr:primaryType" val "nt:resource" name
+   * <p>
+   * - property "jcr:lastModified" calendar
+   * <p>
+   * - property "jcr:uuid" string
+   * <p>
+   * - property "jcr:mimetype" "text/plain" string
+   * <p>
+   * - property "jcr:data" "binary value" binary
    * <p>
    * Expected lucene document structure. Fields:
    * <p>
-   * _:UUID uuid of node;<p>
-   * _:PARENT uuid of parent node
-   * _:LABEL name of the node "test"<p>
-   * _:PROPERTIES "jcr:primaryType"+'\uFFFF'+"nt:resource" <p>
-   * _:PROPERTIES "jcr:lastModified"+'\uFFFF'+currentTtimeString <p>
-   * _:PROPERTIES "jcr:uuid"+'\uFFFF'+ uuid <p>
-   * jcr:FULL:uuid uuid <p>
-   * _:PROPERTIES "jcr:mimetype"+'\uFFFF'+"text/plain" <p>
-   * _:FULLTEXT "text/plain"<p>
-   * _:FULLTEXT "binary value"<p>
+   * _:UUID uuid of node;
+   * <p>
+   * _:PARENT uuid of parent node _:LABEL name of the node "test"
+   * <p>
+   * _:PROPERTIES "jcr:primaryType"+'\uFFFF'+"nt:resource"
+   * <p>
+   * _:PROPERTIES "jcr:lastModified"+'\uFFFF'+currentTtimeString
+   * <p>
+   * _:PROPERTIES "jcr:uuid"+'\uFFFF'+ uuid
+   * <p>
+   * jcr:FULL:uuid uuid
+   * <p>
+   * _:PROPERTIES "jcr:mimetype"+'\uFFFF'+"text/plain"
+   * <p>
+   * _:FULLTEXT "text/plain"
+   * <p>
+   * _:FULLTEXT "binary value"
+   * <p>
    * 
    * 
    * 
@@ -232,12 +253,12 @@ public class TestNodeIndexer extends JcrImplBaseTest {
     Node node = root.addNode("jcr:content", "nt:resource");
 
     MimeTypeResolver mimetypeResolver = new MimeTypeResolver();
-    mimetypeResolver.setDefaultMimeType("text/plain");//"application/zip");
+    mimetypeResolver.setDefaultMimeType("text/plain");// "application/zip");
     String mimeType = mimetypeResolver.getMimeType("text/plain");
 
-      node.setProperty("jcr:mimeType", mimeType);
-      node.setProperty("jcr:lastModified", Calendar.getInstance());
-      node.setProperty("jcr:data", new ByteArrayInputStream("binary value".getBytes()));
+    node.setProperty("jcr:mimeType", mimeType);
+    node.setProperty("jcr:lastModified", Calendar.getInstance());
+    node.setProperty("jcr:data", new ByteArrayInputStream("binary value".getBytes()));
 
     root.save();
 
@@ -245,21 +266,20 @@ public class TestNodeIndexer extends JcrImplBaseTest {
 
     NodeData data = (NodeData) ((NodeImpl) node).getData();
     assertNotNull(data);
-    
-    DocumentReaderService extractor = (DocumentReaderService) container
-        .getComponentInstanceOfType(DocumentReaderServiceImpl.class);
-    NodeIndexer indexer = new NodeIndexer(data, manager,
-        new NSRegistryBasedNamespaceMappings(
-            (NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
-        extractor);
+
+    DocumentReaderService extractor = (DocumentReaderService) container.getComponentInstanceOfType(DocumentReaderServiceImpl.class);
+    NodeIndexer indexer = new NodeIndexer(data,
+                                          manager,
+                                          new NSRegistryBasedNamespaceMappings((NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
+                                          extractor);
 
     Document doc = indexer.createDoc();
 
     List<Field> list = doc.getFields();
 
     // Check sum - there must be 6 fields
-    assertEquals(10,list.size());
-    
+    assertEquals(10, list.size());
+
     // _:UUID
     List<Field> uuid = this.findField(list, FieldNames.UUID);
     assertNotNull(uuid);
@@ -284,17 +304,23 @@ public class TestNodeIndexer extends JcrImplBaseTest {
    * Test of indexing Binary value
    * <p>
    * In this case there are:
-   * <p> - node "jcr:content" 
-   * <p> - property "jcr:primaryType" val "nt:unstructured" name
-   * <p> - property "pathprop" "/wooo" path
+   * <p>
+   * - node "jcr:content"
+   * <p>
+   * - property "jcr:primaryType" val "nt:unstructured" name
+   * <p>
+   * - property "pathprop" "/wooo" path
    * <p>
    * Expected lucene document structure. Fields:
    * <p>
-   * _:UUID uuid of node;<p>
-   * _:PARENT uuid of parent node
-   * _:LABEL name of the node "test"<p>
-   * _:PROPERTIES "jcr:primaryType"+'\uFFFF'+"nt:unstructured" <p>
-   * _:PROPERTIES "pathprop"+'\uFFFF'+"/wooo" <p>
+   * _:UUID uuid of node;
+   * <p>
+   * _:PARENT uuid of parent node _:LABEL name of the node "test"
+   * <p>
+   * _:PROPERTIES "jcr:primaryType"+'\uFFFF'+"nt:unstructured"
+   * <p>
+   * _:PROPERTIES "pathprop"+'\uFFFF'+"/wooo"
+   * <p>
    * 
    * @throws Exception
    */
@@ -302,29 +328,28 @@ public class TestNodeIndexer extends JcrImplBaseTest {
   public void testCreateDocument_Path() throws Exception {
     Node node = root.addNode("test_path");
 
-    node.setProperty("pathprop", "/wooo",PropertyType.PATH);
-   
+    node.setProperty("pathprop", "/wooo", PropertyType.PATH);
+
     root.save();
 
     ItemDataConsumer manager = this.session.getTransientNodesManager();
 
     NodeData data = (NodeData) ((NodeImpl) node).getData();
     assertNotNull(data);
-    
-    DocumentReaderService extractor = (DocumentReaderService) container
-        .getComponentInstanceOfType(DocumentReaderServiceImpl.class);
-    NodeIndexer indexer = new NodeIndexer(data, manager,
-        new NSRegistryBasedNamespaceMappings(
-            (NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
-        extractor);
+
+    DocumentReaderService extractor = (DocumentReaderService) container.getComponentInstanceOfType(DocumentReaderServiceImpl.class);
+    NodeIndexer indexer = new NodeIndexer(data,
+                                          manager,
+                                          new NSRegistryBasedNamespaceMappings((NamespaceRegistryImpl) this.repository.getNamespaceRegistry()),
+                                          extractor);
 
     Document doc = indexer.createDoc();
 
     List<Field> list = doc.getFields();
 
     // Check sum - there must be 6 fields
-    assertEquals(5,list.size());
-    
+    assertEquals(5, list.size());
+
     // _:UUID
     List<Field> uuid = this.findField(list, FieldNames.UUID);
     assertNotNull(uuid);
@@ -343,26 +368,25 @@ public class TestNodeIndexer extends JcrImplBaseTest {
     assertEquals(1, label.size());
     assertEquals(node.getName(), label.get(0).stringValue());
 
-    // _:PROPERTIES 
+    // _:PROPERTIES
     List<Field> props = this.findField(list, FieldNames.PROPERTIES);
     assertNotNull(props);
     assertEquals(2, props.size());
-    
-    //:PROPERTIES jcr:primaryType "pathprop" + '\uFFFF' + "/wooo"
-    List<Field> prop1 = this.findField(list, FieldNames.PROPERTIES,"pathprop" + '\uFFFF' + "/wooo");
+
+    // :PROPERTIES jcr:primaryType "pathprop" + '\uFFFF' + "/wooo"
+    List<Field> prop1 = this.findField(list, FieldNames.PROPERTIES, "pathprop" + '\uFFFF' + "/wooo");
     assertNotNull(prop1);
     assertEquals(1, prop1.size());
-    
-    //:PROPERTIES jcr:primaryType "jcr:primaryType" + '\uFFFF' + "jcr:primaryType" + '\uFFFF' + "nt:unstructured"
-    List<Field> prop2 = this.findField(list, FieldNames.PROPERTIES,"jcr:primaryType" + '\uFFFF' + "nt:unstructured");
+
+    // :PROPERTIES jcr:primaryType "jcr:primaryType" + '\uFFFF' + "jcr:primaryType" + '\uFFFF' +
+    // "nt:unstructured"
+    List<Field> prop2 = this.findField(list, FieldNames.PROPERTIES, "jcr:primaryType" + '\uFFFF'
+        + "nt:unstructured");
     assertNotNull(prop2);
     assertEquals(1, prop2.size());
 
   }
 
-  
-  
-  
   /**
    * @return Field or null if is not finded
    */
@@ -377,16 +401,15 @@ public class TestNodeIndexer extends JcrImplBaseTest {
 
   /**
    * Find Field from list, named as fieldName, and valued as fieldStringValue
+   * 
    * @return Field or null if is not finded
    */
-  public List<Field> findField(List<Field> list, String fieldName,
-      String fieldStringValue) {
+  public List<Field> findField(List<Field> list, String fieldName, String fieldStringValue) {
     List<Field> out = new Vector<Field>();
     for (int i = 0; i < list.size(); i++) {
-      if ((list.get(i).name().equalsIgnoreCase(fieldName)) &&
-          (list.get(i).stringValue() != null) &&
-          (list.get(i).stringValue().equals(fieldStringValue))){
-      out.add(list.get(i));
+      if ((list.get(i).name().equalsIgnoreCase(fieldName)) && (list.get(i).stringValue() != null)
+          && (list.get(i).stringValue().equals(fieldStringValue))) {
+        out.add(list.get(i));
       }
     }
     return (out.isEmpty()) ? null : out;

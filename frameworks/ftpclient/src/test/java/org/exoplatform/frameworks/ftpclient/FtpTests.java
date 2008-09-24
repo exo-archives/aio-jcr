@@ -47,8 +47,8 @@ import org.exoplatform.frameworks.ftpclient.cmdtests.TYPETest;
 import org.exoplatform.frameworks.ftpclient.cmdtests.USERPASSTest;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
@@ -56,19 +56,19 @@ public class FtpTests extends TestCase {
 
   public static TestSuite suite() {
     Log log = new Log("FtpTests");
-    
+
     log.info("Checking server...");
 
-    TestSuite suite = new TestSuite("jcr.ftp tests");    
-    
+    TestSuite suite = new TestSuite("jcr.ftp tests");
+
     log.info("checking...");
     if (!isServerPresent()) {
       log.info("Server not found! Tests are skipping...");
       return suite;
     }
-    
+
     log.info("Preparing FTP tests...");
-    
+
     suite.addTestSuite(NOOPTest.class);
     suite.addTestSuite(HELPTest.class);
     suite.addTestSuite(QUITTest.class);
@@ -95,23 +95,23 @@ public class FtpTests extends TestCase {
     suite.addTestSuite(STORTest.class);
     suite.addTestSuite(RETRTest.class);
 
-    return suite;    
+    return suite;
   }
-  
-  private static boolean isServerPresent() {    
+
+  private static boolean isServerPresent() {
     try {
       FtpClientSession client = FtpTestConfig.getTestFtpClient();
       boolean connected = client.connect();
-      
+
       if (connected) {
         client.close();
         return true;
-      }      
-      
+      }
+
     } catch (Exception exc) {
     }
-    
+
     return false;
   }
-  
+
 }

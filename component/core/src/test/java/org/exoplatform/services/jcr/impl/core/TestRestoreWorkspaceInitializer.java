@@ -62,12 +62,12 @@ public class TestRestoreWorkspaceInitializer extends JcrImplBaseTest {
     File f;
     InputStream is;
     blob.setProperty("blob", is = new FileInputStream(f = createBLOBTempFile(2 * 1024))); // 2M
-    
+
     root.save();
-    
+
     is.close();
     f.renameTo(new File("./sv_export_binary.bin"));
-    
+
     File outf = new File("./sv_export_root.xml");
     FileOutputStream out = new FileOutputStream(outf);
     session.exportWorkspaceSystemView(out, false, false);
@@ -75,14 +75,12 @@ public class TestRestoreWorkspaceInitializer extends JcrImplBaseTest {
   }
 
   /**
-   * Should be used with RestoreWorkspaceInitializer and export file obtained in the test testExportSystemWorkspace().
+   * Should be used with RestoreWorkspaceInitializer and export file obtained in the test
+   * testExportSystemWorkspace().
    * 
-   * Sample config:
-   * <initializer class="org.exoplatform.services.jcr.impl.core.RestoreWorkspaceInitializer"> 
-   *   <properties> 
-   *     <property name="restore-path" value="./sv_export_root.xml"/>
-   *   </properties>
-   * </initializer>
+   * Sample config: <initializer
+   * class="org.exoplatform.services.jcr.impl.core.RestoreWorkspaceInitializer"> <properties>
+   * <property name="restore-path" value="./sv_export_root.xml"/> </properties> </initializer>
    * 
    * @throws Exception
    */
@@ -91,7 +89,8 @@ public class TestRestoreWorkspaceInitializer extends JcrImplBaseTest {
     Session ws1 = repository.login(new CredentialsImpl("root", "exo".toCharArray()), "ws1");
     Node ws1root = ws1.getRootNode();
     if (ws1root.hasProperty("1_common/cargo/cargo/0.5/cargo-0.5.jar/jcr:content/jcr:data")) {
-      InputStream is = ws1root.getProperty("1_common/cargo/cargo/0.5/cargo-0.5.jar/jcr:content/jcr:data").getStream();
+      InputStream is = ws1root.getProperty("1_common/cargo/cargo/0.5/cargo-0.5.jar/jcr:content/jcr:data")
+                              .getStream();
       FileOutputStream fout = new FileOutputStream("./cargo-0.5.jar");
       int r = -1;
       byte[] b = new byte[1024];
@@ -100,7 +99,7 @@ public class TestRestoreWorkspaceInitializer extends JcrImplBaseTest {
       }
       fout.close();
     }
-    
+
     if (root.hasNode("multivaluedProperty")) {
       Node multiv = root.getNode("multivaluedProperty");
       try {
@@ -110,8 +109,10 @@ public class TestRestoreWorkspaceInitializer extends JcrImplBaseTest {
         p.getValues();
         p = multiv.getProperty("exojcrtest:multiValuedName");
         p.getValues();
-        
-        compareStream(new FileInputStream("./sv_export_binary.bin"), root.getNode("binaryTest").getProperty("blob").getStream());
+
+        compareStream(new FileInputStream("./sv_export_binary.bin"), root.getNode("binaryTest")
+                                                                         .getProperty("blob")
+                                                                         .getStream());
       } catch (ValueFormatException e) {
         e.printStackTrace();
         fail(e.getMessage());

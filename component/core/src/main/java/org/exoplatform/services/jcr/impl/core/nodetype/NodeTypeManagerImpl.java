@@ -65,42 +65,40 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
-  protected static Log                         log               = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
+  protected static Log                                                log               = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
 
-  private static final String                  NODETYPES_FILE    = "nodetypes.xml";
+  private static final String                                         NODETYPES_FILE    = "nodetypes.xml";
 
-  public static final String                   NODETYPES_ROOT    = "/jcr:system/jcr:nodetypes";
+  public static final String                                          NODETYPES_ROOT    = "/jcr:system/jcr:nodetypes";
 
-  private ValueFactory                         valueFactory;
+  private ValueFactory                                                valueFactory;
 
-  private LocationFactory                      locationFactory;
+  private LocationFactory                                             locationFactory;
 
-  //private List<NodeType> nodeTypes;
-  private Map<InternalQName, ExtendedNodeType> nodeTypes;
+  // private List<NodeType> nodeTypes;
+  private Map<InternalQName, ExtendedNodeType>                        nodeTypes;
 
-  private String                               accessControlPolicy;
+  private String                                                      accessControlPolicy;
 
-  private ItemDefinitionsHolder                itemDefintionsHolder;
+  private ItemDefinitionsHolder                                       itemDefintionsHolder;
 
-  private NamespaceRegistry                    namespaceRegistry = null;
+  private NamespaceRegistry                                           namespaceRegistry = null;
 
-  private NodeTypeDataPersister                persister         = null;
-  
+  private NodeTypeDataPersister                                       persister         = null;
+
   /**
    * Listeners (soft references)
    */
-  private final Map<NodeTypeManagerListener,NodeTypeManagerListener> listeners =
-          Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener,NodeTypeManagerListener>());
-  
+  private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners         = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
 
   public NodeTypeManagerImpl(RepositoryEntry config,
-  //DataManager dataManager, 
+  // DataManager dataManager,
                              LocationFactory locationFactory,
                              ValueFactoryImpl valueFactory,
                              NamespaceRegistry namespaceRegistry,
                              NodeTypeDataPersister persister) throws RepositoryException {
     this(
-    //dataManager, 
+    // dataManager,
          locationFactory,
          valueFactory,
          namespaceRegistry,
@@ -116,7 +114,9 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                 String accessControlPolicy,
                                 NodeTypeDataPersister persister,
                                 Map<InternalQName, ExtendedNodeType> nodeTypes) {
-    this.nodeTypes = nodeTypes != null ? nodeTypes : new LinkedHashMap<InternalQName, ExtendedNodeType>();
+    this.nodeTypes = nodeTypes != null
+        ? nodeTypes
+        : new LinkedHashMap<InternalQName, ExtendedNodeType>();
     this.valueFactory = valueFactory;
     this.locationFactory = locationFactory;
     this.namespaceRegistry = namespaceRegistry;
@@ -127,26 +127,33 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   public WorkspaceNTManagerImpl createWorkspaceNTManager(SessionImpl session) throws RepositoryException {
-    WorkspaceNTManagerImpl wntm =
-        new WorkspaceNTManagerImpl(namespaceRegistry, accessControlPolicy, session, persister, nodeTypes);
+    WorkspaceNTManagerImpl wntm = new WorkspaceNTManagerImpl(namespaceRegistry,
+                                                             accessControlPolicy,
+                                                             session,
+                                                             persister,
+                                                             nodeTypes);
     return wntm;
   }
 
   /**
-   * 6.10.4 Returns the NodeType specified by nodeTypeName. If no node type by that name is registered, a NoSuchNodeTypeException is thrown.
+   * 6.10.4 Returns the NodeType specified by nodeTypeName. If no node type by that name is
+   * registered, a NoSuchNodeTypeException is thrown.
    */
-  public NodeType getNodeType(String nodeTypeName) throws NoSuchNodeTypeException, RepositoryException {
+  public NodeType getNodeType(String nodeTypeName) throws NoSuchNodeTypeException,
+                                                  RepositoryException {
     return getNodeType(locationFactory.parseJCRName(nodeTypeName).getInternalName());
   }
 
-  public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException, RepositoryException {
+  public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException,
+                                                          RepositoryException {
 
     ExtendedNodeType nt = findNodeType(qName);
 
     if (nt != null)
       return nt;
 
-    throw new NoSuchNodeTypeException("NodeTypeManager.getNodeType(): NodeType '" + qName.getAsString() + "' not found.");
+    throw new NoSuchNodeTypeException("NodeTypeManager.getNodeType(): NodeType '"
+        + qName.getAsString() + "' not found.");
   }
 
   public ExtendedNodeType findNodeType(InternalQName qName) {
@@ -157,7 +164,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                                                                                    RepositoryException {
     ExtendedNodeType primaryNt = findNodeType(primaryType);
     if (primaryNt == null)
-      throw new NoSuchNodeTypeException("Node (primary) type '" + primaryType.getAsString() + "' is not found.");
+      throw new NoSuchNodeTypeException("Node (primary) type '" + primaryType.getAsString()
+          + "' is not found.");
 
     List<ExtendedNodeType> nts = new ArrayList<ExtendedNodeType>();
     nts.add(primaryNt);
@@ -166,9 +174,11 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       for (InternalQName mixin : mixinTypes) {
         ExtendedNodeType mixinNt = findNodeType(mixin);
         if (mixinNt == null)
-          throw new NoSuchNodeTypeException("Node (mixin) type '" + mixin.getAsString() + "' is not found.");
+          throw new NoSuchNodeTypeException("Node (mixin) type '" + mixin.getAsString()
+              + "' is not found.");
         if (!mixinNt.isMixin())
-          throw new IllegalArgumentException("Node type '" + mixin.getAsString() + "' is not mixin.");
+          throw new IllegalArgumentException("Node type '" + mixin.getAsString()
+              + "' is not mixin.");
         nts.add(mixinNt);
       }
 
@@ -179,7 +189,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Don't use. To use findPropertyDefinitions() and getAnyDefinition() then.
    */
   @Deprecated
-  public PropertyDefinition findPropertyDefinition(InternalQName propertyName, List<ExtendedNodeType> typesList) throws RepositoryException {
+  public PropertyDefinition findPropertyDefinition(InternalQName propertyName,
+                                                   List<ExtendedNodeType> typesList) throws RepositoryException {
     PropertyDefinition pdResidual = null;
     for (ExtendedNodeType nt : typesList) {
       PropertyDefinitions pds = nt.getPropertyDefinitions(propertyName);
@@ -194,7 +205,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     }
 
     if (pdResidual == null)
-      throw new RepositoryException("Property definition '" + propertyName.getAsString() + "' is not found.");
+      throw new RepositoryException("Property definition '" + propertyName.getAsString()
+          + "' is not found.");
 
     return pdResidual;
   }
@@ -211,7 +223,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return findPropertyDefinition(propertyName, allTypes);
   }
 
-  public PropertyDefinitions findPropertyDefinitions(InternalQName propertyName, List<ExtendedNodeType> typesList) throws RepositoryException {
+  public PropertyDefinitions findPropertyDefinitions(InternalQName propertyName,
+                                                     List<ExtendedNodeType> typesList) throws RepositoryException {
     PropertyDefinitions pdResidual = null;
     for (ExtendedNodeType nt : typesList) {
       PropertyDefinitions pds = nt.getPropertyDefinitions(propertyName);
@@ -227,7 +240,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     }
 
     if (pdResidual == null)
-      throw new RepositoryException("Property definition '" + propertyName.getAsString() + "' is not found.");
+      throw new RepositoryException("Property definition '" + propertyName.getAsString()
+          + "' is not found.");
 
     return pdResidual;
   }
@@ -240,7 +254,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return findPropertyDefinitions(propertyName, allTypes);
   }
 
-  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName, List<ExtendedNodeType> typesList) throws RepositoryException {
+  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
+                                               List<ExtendedNodeType> typesList) throws RepositoryException {
     NodeDefinitionImpl ndResidual = null;
     for (ExtendedNodeType nt : typesList) {
       NodeDefinitionImpl nd = (NodeDefinitionImpl) nt.getChildNodeDefinition(nodeName);
@@ -253,18 +268,22 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     }
 
     if (ndResidual == null)
-      throw new RepositoryException("Child node definition '" + nodeName.getAsString() + "' is not found.");
+      throw new RepositoryException("Child node definition '" + nodeName.getAsString()
+          + "' is not found.");
 
     return ndResidual;
   }
 
-  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName, InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException {
+  public NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
+                                               InternalQName primaryType,
+                                               InternalQName[] mixinTypes) throws RepositoryException {
 
     List<ExtendedNodeType> allTypes = getNodeTypes(primaryType, mixinTypes);
     return findNodeDefinition(nodeName, allTypes);
   }
 
-  public boolean isOrderableChildNodesSupported(InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException {
+  public boolean isOrderableChildNodesSupported(InternalQName primaryType,
+                                                InternalQName[] mixinTypes) throws RepositoryException {
 
     for (ExtendedNodeType nt : getNodeTypes(primaryType, mixinTypes)) {
       if (nt.hasOrderableChildNodes()) {
@@ -287,7 +306,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available primary node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException if an error occurs.
+   * @throws RepositoryException
+   *           if an error occurs.
    */
   public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -304,7 +324,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available mixin node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException if an error occurs.
+   * @throws RepositoryException
+   *           if an error occurs.
    */
   public NodeTypeIterator getMixinNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -320,9 +341,12 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Registers node type from object
    * 
-   * @param nodeType - the node type object
-   * @param alreadyExistsBehaviour - if node type with such a name already exists: IGNORE_IF_EXISTS - does not register new node (default) FAIL_IF_EXISTS -
-   *          throws RepositoryException REPLACE_IF_EXISTS - replaces registerd type with new one
+   * @param nodeType
+   *          - the node type object
+   * @param alreadyExistsBehaviour
+   *          - if node type with such a name already exists: IGNORE_IF_EXISTS - does not register
+   *          new node (default) FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
+   *          replaces registerd type with new one
    * @throws RepositoryException
    */
   public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
@@ -333,14 +357,15 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
     long start = System.currentTimeMillis();
 
-    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE) && nodeType.getName().equals("exo:privilegeable")) {
+    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)
+        && nodeType.getName().equals("exo:privilegeable")) {
       throw new RepositoryException("NodeType exo:privilegeable is DISABLED");
     }
 
     InternalQName qname = nodeType.getQName();
     if (qname == null) {
-      throw new RepositoryException("NodeType implementation class " + nodeType.getClass().getName()
-          + " is not supported in this method");
+      throw new RepositoryException("NodeType implementation class "
+          + nodeType.getClass().getName() + " is not supported in this method");
     }
 
     if (findNodeType(qname) != null) {
@@ -360,21 +385,28 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
           persister.saveChanges();
         }
       } catch (InvalidItemStateException e) {
-        log.warn("Error of storing node type " + nodeType.getName() + ". May be node type already registered .", e);
+        log.warn("Error of storing node type " + nodeType.getName()
+            + ". May be node type already registered .", e);
       }
-      log.info("NodeType " + nodeType.getName() + " initialized. " + (System.currentTimeMillis() - start) + " ms");
+      log.info("NodeType " + nodeType.getName() + " initialized. "
+          + (System.currentTimeMillis() - start) + " ms");
     } else {
-      log.debug("NodeType " + nodeType.getName() + " registered but not initialized (storage is not initialized). "
+      log.debug("NodeType " + nodeType.getName()
+          + " registered but not initialized (storage is not initialized). "
           + (System.currentTimeMillis() - start) + " ms");
     }
   }
 
   /**
-   * Registers node type from class containing the NT definition The class should have constructor with one parameter NodeTypeManager
+   * Registers node type from class containing the NT definition The class should have constructor
+   * with one parameter NodeTypeManager
    * 
-   * @param nodeTypeType - Class containing node type definition
-   * @param alreadyExistsBehaviour if node type with such a name already exists: IGNORE_IF_EXISTS - does not register new node (default) FAIL_IF_EXISTS - throws
-   *          RepositoryException REPLACE_IF_EXISTS - replaces registerd type with new one
+   * @param nodeTypeType
+   *          - Class containing node type definition
+   * @param alreadyExistsBehaviour
+   *          if node type with such a name already exists: IGNORE_IF_EXISTS - does not register new
+   *          node (default) FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
+   *          replaces registerd type with new one
    * @throws RepositoryException
    */
   public void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
@@ -388,10 +420,12 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
     if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
       List<String> nsupertypes = nodeTypeValue.getDeclaredSupertypeNames();
-      if (nsupertypes != null && nsupertypes.contains("exo:privilegeable") || nodeTypeValue.getName().equals("exo:privilegeable")) {
+      if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
+          || nodeTypeValue.getName().equals("exo:privilegeable")) {
         // skip this node, so it's not necessary at this runtime
         // + "' -- it's not necessary at this runtime";
-        log.warn("Node type " + nodeTypeValue.getName() + " is not register due to DISABLE control policy");
+        log.warn("Node type " + nodeTypeValue.getName()
+            + " is not register due to DISABLE control policy");
         return;
       }
     }
@@ -409,7 +443,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * @param xml
    * @param alreadyExistsBehaviour
    * @throws RepositoryException
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager#registerNodeType(java.io.InputStream, int)
+   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager#registerNodeType(java.io.InputStream,
+   *      int)
    */
   public void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
 
@@ -445,7 +480,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       Constructor<ExtendedNodeType> c = nodeTypeType.getConstructor(new Class[] { NodeTypeManager.class });
       return c.newInstance(new Object[] { this });
     } catch (Exception e1) {
-      throw new InstantiationException("Error in making istance of " + nodeTypeType.getName()
+      throw new InstantiationException("Error in making istance of "
+          + nodeTypeType.getName()
           + ". Class should have been NodeType subclass and have constructor with one argument NodeTypeManager type. Reason: "
           + e1.getCause());
     }
@@ -458,19 +494,19 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       if (xml != null) {
         registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
       } else {
-        String msg =
-            "Resource file '" + NODETYPES_FILE
-                + "' with NodeTypes configuration does not found. Can not create node type manager";
+        String msg = "Resource file '" + NODETYPES_FILE
+            + "' with NodeTypes configuration does not found. Can not create node type manager";
         log.error(msg);
         throw new RepositoryException(msg);
       }
     } catch (Exception e) {
-      String msg =
-          "Error of initialization default types. Resource file with NodeTypes configuration '" + NODETYPES_FILE + "'. " + e;
+      String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
+          + NODETYPES_FILE + "'. " + e;
       log.error(msg);
       throw new RepositoryException(msg, e);
     } finally {
-      log.info("Initialization of default nodetypes done. " + (System.currentTimeMillis() - start) + " ms.");
+      log.info("Initialization of default nodetypes done. " + (System.currentTimeMillis() - start)
+          + " ms.");
     }
   }
 
@@ -485,9 +521,10 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       for (NodeType nodeType : loadedNt) {
         nodeTypes.put(((ExtendedNodeType) nodeType).getQName(), (ExtendedNodeType) nodeType);
       }
-      //nodeTypes.addAll(loadedNt);
+      // nodeTypes.addAll(loadedNt);
       if (loadedNt.size() > 0)
-        log.info("NodeTypes (count: " + loadedNt.size() + ") loaded. " + (System.currentTimeMillis() - start) + " ms");
+        log.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
+            + (System.currentTimeMillis() - start) + " ms");
     } catch (PathNotFoundException e) {
       log.warn("NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible");
       return;
@@ -524,7 +561,9 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * For use with primary and mixin types in one call
    */
-  public boolean isNodeType(InternalQName testTypeName, InternalQName typeName, InternalQName[] typeNames) {
+  public boolean isNodeType(InternalQName testTypeName,
+                            InternalQName typeName,
+                            InternalQName[] typeNames) {
 
     if (isNodeType(testTypeName, typeName))
       return true;
@@ -572,68 +611,68 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public ItemDefinitionsHolder getItemDefinitionsHolder() {
     return itemDefintionsHolder;
   }
+
   /**
    * Add a <code>NodeTypeRegistryListener</code>
-   *
-   * @param listener the new listener to be informed on (un)registration
-   *                 of node types
+   * 
+   * @param listener
+   *          the new listener to be informed on (un)registration of node types
    */
   public void addListener(NodeTypeManagerListener listener) {
-      if (!listeners.containsKey(listener)) {
-          listeners.put(listener, listener);
-      }
+    if (!listeners.containsKey(listener)) {
+      listeners.put(listener, listener);
+    }
   }
 
   /**
    * Remove a <code>NodeTypeRegistryListener</code>
-   *
-   * @param listener an existing listener
+   * 
+   * @param listener
+   *          an existing listener
    */
   public void removeListener(NodeTypeManagerListener listener) {
-      listeners.remove(listener);
-  } 
+    listeners.remove(listener);
+  }
+
   /**
    * Notify the listeners that a node type <code>ntName</code> has been registered.
    */
   private void notifyRegistered(InternalQName ntName) {
-      // copy listeners to array to avoid ConcurrentModificationException
-      NodeTypeManagerListener[] la =
-              listeners.values().toArray(
-              new NodeTypeManagerListener[listeners.size()]); 
-      for (int i = 0; i < la.length; i++) {
-          if (la[i] != null) {
-              la[i].nodeTypeRegistered(ntName);
-          }
+    // copy listeners to array to avoid ConcurrentModificationException
+    NodeTypeManagerListener[] la = listeners.values()
+                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
+    for (int i = 0; i < la.length; i++) {
+      if (la[i] != null) {
+        la[i].nodeTypeRegistered(ntName);
       }
+    }
   }
 
   /**
    * Notify the listeners that a node type <code>ntName</code> has been re-registered.
    */
   private void notifyReRegistered(InternalQName ntName) {
-      // copy listeners to array to avoid ConcurrentModificationException
-      NodeTypeManagerListener[] la =
-              listeners.values().toArray(
-              new NodeTypeManagerListener[listeners.size()]);
-      for (int i = 0; i < la.length; i++) {
-          if (la[i] != null) {
-              la[i].nodeTypeReRegistered(ntName);
-          }
+    // copy listeners to array to avoid ConcurrentModificationException
+    NodeTypeManagerListener[] la = listeners.values()
+                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
+    for (int i = 0; i < la.length; i++) {
+      if (la[i] != null) {
+        la[i].nodeTypeReRegistered(ntName);
       }
+    }
   }
 
   /**
    * Notify the listeners that a node type <code>ntName</code> has been unregistered.
    */
   private void notifyUnregistered(InternalQName ntName) {
-      // copy listeners to array to avoid ConcurrentModificationException
-      NodeTypeManagerListener[] la =
-              listeners.values().toArray(
-              new NodeTypeManagerListener[listeners.size()]);
-      for (int i = 0; i < la.length; i++) {
-          if (la[i] != null) {
-              la[i].nodeTypeUnregistered(ntName);
-          }
+    // copy listeners to array to avoid ConcurrentModificationException
+    NodeTypeManagerListener[] la = listeners.values()
+                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
+    for (int i = 0; i < la.length; i++) {
+      if (la[i] != null) {
+        la[i].nodeTypeUnregistered(ntName);
       }
+    }
   }
 }

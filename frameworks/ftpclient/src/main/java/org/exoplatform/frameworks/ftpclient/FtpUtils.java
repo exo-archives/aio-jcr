@@ -21,32 +21,33 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public class FtpUtils {
 
-  protected static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpUtils"); 
-  
-  public static int getReplyCode(String reply) {    
+  protected static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpUtils");
+
+  public static int getReplyCode(String reply) {
     if (reply.charAt(3) != ' ') {
       return -1;
-    }    
+    }
     String replyCodeVal = reply.substring(0, 3);
     return new Integer(replyCodeVal);
   }
-  
-  public static boolean isPortFree(int port) {    
+
+  public static boolean isPortFree(int port) {
     try {
       ServerSocket serverSocket = new ServerSocket(port);
       serverSocket.close();
       return true;
     } catch (Exception exc) {
       log.info(FtpConst.EXC_MSG + exc.getMessage(), exc);
-    }    
+    }
     return false;
   }
-  
+
 }

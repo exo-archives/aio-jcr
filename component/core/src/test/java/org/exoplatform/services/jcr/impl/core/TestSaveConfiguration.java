@@ -30,7 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: TestSaveConfiguration.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestSaveConfiguration extends JcrImplBaseTest {
-  protected static Log             log = ExoLogger.getLogger("jcr.SessionDataManager");
+  protected static Log                   log = ExoLogger.getLogger("jcr.SessionDataManager");
 
   private final TestRepositoryManagement rpm = new TestRepositoryManagement();
 

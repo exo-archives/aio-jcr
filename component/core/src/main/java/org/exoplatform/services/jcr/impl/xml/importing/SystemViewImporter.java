@@ -93,7 +93,8 @@ public class SystemViewImporter extends BaseXmlImporter {
                             NamespaceRegistry namespaceRegistry,
                             AccessManager accessManager,
                             ConversationState userState,
-                            Map<String, Object> context, RepositoryImpl repository,
+                            Map<String, Object> context,
+                            RepositoryImpl repository,
                             String currentWorkspaceName) {
     super(parent,
           ancestorToSave,
@@ -105,14 +106,14 @@ public class SystemViewImporter extends BaseXmlImporter {
           namespaceRegistry,
           accessManager,
           userState,
-          context, repository, currentWorkspaceName);
+          context,
+          repository,
+          currentWorkspaceName);
   }
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
-   *      int, int)
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
     // property values
@@ -136,9 +137,8 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   *      java.lang.String, java.lang.String)
+   * java.lang.String, java.lang.String)
    */
   public void endElement(String uri, String localName, String name) throws RepositoryException {
     InternalQName elementName = locationFactory.parseJCRName(name).getInternalName();
@@ -161,9 +161,8 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java.lang.String,
-   *      java.lang.String, java.lang.String, java.util.Map)
+   * java.lang.String, java.lang.String, java.util.Map)
    */
   public void startElement(String namespaceURI,
                            String localName,
@@ -358,7 +357,7 @@ public class SystemViewImporter extends BaseXmlImporter {
     } else {
 
       ImportNodeData currentNodeInfo = (ImportNodeData) getParent();
-      List<ValueData> values = parseValues(); 
+      List<ValueData> values = parseValues();
 
       // determinating is property multivalue;
       boolean isMultivalue = true;
@@ -398,8 +397,6 @@ public class SystemViewImporter extends BaseXmlImporter {
                                             currentNodeInfo.getIdentifier(),
                                             isMultivalue);
       propertyData.setValues(values);
-
-
 
     }
     return propertyData;
@@ -503,10 +500,11 @@ public class SystemViewImporter extends BaseXmlImporter {
   /**
    * Returns the value of the named XML attribute.
    * 
-   * @param attributes set of XML attributes
-   * @param name attribute name
-   * @return attribute value, or <code>null</code> if the named attribute is
-   *         not found
+   * @param attributes
+   *          set of XML attributes
+   * @param name
+   *          attribute name
+   * @return attribute value, or <code>null</code> if the named attribute is not found
    * @throws RepositoryException
    */
 

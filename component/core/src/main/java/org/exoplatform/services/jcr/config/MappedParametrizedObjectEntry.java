@@ -28,17 +28,16 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: MappedParametrizedObjectEntry.java 1807 2005-08-28 13:34:58Z
- *          geaz $
+ * @version $Id: MappedParametrizedObjectEntry.java 1807 2005-08-28 13:34:58Z geaz $
  */
 
 public abstract class MappedParametrizedObjectEntry {
 
-  protected static final Log    LOG                                = ExoLogger.getLogger("jcr.MappedParametrizedObjectEntry");
-  
-  protected String type;
+  protected static final Log LOG = ExoLogger.getLogger("jcr.MappedParametrizedObjectEntry");
 
-  protected List   parameters;
+  protected String           type;
+
+  protected List             parameters;
 
   public MappedParametrizedObjectEntry() {
     parameters = new ArrayList();
@@ -56,7 +55,8 @@ public abstract class MappedParametrizedObjectEntry {
   /**
    * Parse named parameter.
    * 
-   * @param name parameter name
+   * @param name
+   *          parameter name
    * @return String
    * @throws RepositoryConfigurationException
    */
@@ -70,9 +70,11 @@ public abstract class MappedParametrizedObjectEntry {
   /**
    * Parse named parameter.
    * 
-   * @param name parameter name
-   * @param defaultValue default value
-   * @return String 
+   * @param name
+   *          parameter name
+   * @param defaultValue
+   *          default value
+   * @return String
    */
   public String getParameterValue(String name, String defaultValue) {
     String value = defaultValue;
@@ -85,12 +87,14 @@ public abstract class MappedParametrizedObjectEntry {
     }
     return value;
   }
-  
+
   /**
    * Parse named parameter as Integer.
    * 
-   * @param name parameter name
-   * @param defaultValue default Integer value
+   * @param name
+   *          parameter name
+   * @param defaultValue
+   *          default Integer value
    * @return Integer value
    */
   public Integer getParameterInteger(String name, Integer defaultValue) {
@@ -100,7 +104,7 @@ public abstract class MappedParametrizedObjectEntry {
         try {
           return StringNumberParser.parseInt(p.getValue());
         } catch (NumberFormatException e) {
-          LOG.warn(name + ": unparseable Integer. " + e);    
+          LOG.warn(name + ": unparseable Integer. " + e);
         }
       }
     }
@@ -110,7 +114,8 @@ public abstract class MappedParametrizedObjectEntry {
   /**
    * Parse named parameter as Integer.
    * 
-   * @param name parameter name
+   * @param name
+   *          parameter name
    * @return Integer value
    * @throws RepositoryConfigurationException
    */
@@ -121,12 +126,14 @@ public abstract class MappedParametrizedObjectEntry {
       throw new RepositoryConfigurationException(name + ": unparseable Integer. " + e, e);
     }
   }
-  
+
   /**
    * Parse named parameter as Long.
    * 
-   * @param name parameter name
-   * @param defaultValue default Long value
+   * @param name
+   *          parameter name
+   * @param defaultValue
+   *          default Long value
    * @return Long value
    */
   public Long getParameterLong(String name, Long defaultValue) {
@@ -136,18 +143,19 @@ public abstract class MappedParametrizedObjectEntry {
         try {
           return StringNumberParser.parseLong(p.getValue());
         } catch (NumberFormatException e) {
-          LOG.warn(name + ": unparseable Long. " + e);    
+          LOG.warn(name + ": unparseable Long. " + e);
         }
       }
     }
     return defaultValue;
   }
-  
+
   /**
    * Parse named parameter as Long.
    * 
-   * @param name parameter name
-   * @return Long value 
+   * @param name
+   *          parameter name
+   * @return Long value
    * @throws RepositoryConfigurationException
    */
   public Long getParameterLong(String name) throws RepositoryConfigurationException {
@@ -157,12 +165,15 @@ public abstract class MappedParametrizedObjectEntry {
       throw new RepositoryConfigurationException(name + ": unparseable Long. " + e, e);
     }
   }
-  
+
   /**
-   * Parse named parameter using {@link StringNumberParser.parseTime} and return time in milliseconds (Long value).
+   * Parse named parameter using {@link StringNumberParser.parseTime} and return time in
+   * milliseconds (Long value).
    * 
-   * @param name parameter name
-   * @param defaultValue default time value
+   * @param name
+   *          parameter name
+   * @param defaultValue
+   *          default time value
    * @return
    */
   public Long getParameterTime(String name, Long defaultValue) {
@@ -178,11 +189,13 @@ public abstract class MappedParametrizedObjectEntry {
     }
     return defaultValue;
   }
-  
+
   /**
-   * Parse named parameter using {@link StringNumberParser.parseTime} and return time in milliseconds (Long value).
+   * Parse named parameter using {@link StringNumberParser.parseTime} and return time in
+   * milliseconds (Long value).
    * 
-   * @param name parameter name
+   * @param name
+   *          parameter name
    * @return Long value
    * @throws RepositoryConfigurationException
    */
@@ -193,12 +206,14 @@ public abstract class MappedParametrizedObjectEntry {
       throw new RepositoryConfigurationException(name + ": unparseable time (as Long). " + e, e);
     }
   }
-  
+
   /**
    * Parse named parameter as Boolean.
    * 
-   * @param name parameter name
-   * @param defaultValue default value
+   * @param name
+   *          parameter name
+   * @param defaultValue
+   *          default value
    * @return boolean value
    */
   public Boolean getParameterBoolean(String name, Boolean defaultValue) {
@@ -221,7 +236,7 @@ public abstract class MappedParametrizedObjectEntry {
   public Boolean getParameterBoolean(String name) throws RepositoryConfigurationException {
     return new Boolean(getParameterValue(name));
   }
-  
+
   public String getType() {
     return type;
   }

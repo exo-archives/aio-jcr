@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.writing;
 
-
 import java.io.ByteArrayInputStream;
 import java.util.GregorianCalendar;
 
@@ -30,11 +29,12 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class TestValue extends JcrAPIBaseTest{
+public class TestValue extends JcrAPIBaseTest {
 
   public void initRepository() throws RepositoryException {
     Node root = session.getRootNode();
@@ -42,17 +42,17 @@ public class TestValue extends JcrAPIBaseTest{
     // Unknown Property Type. Should set something!
     propDef.setProperty("jcr:defaultValue", "testString");
 
-    root.addNode("childNodeDefNode","nt:unstructured");
+    root.addNode("childNodeDefNode", "nt:unstructured");
     session.save();
   }
 
   public void tearDown() throws Exception {
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
     Node root = session.getRootNode();
     root.getNode("propertyDefNode").remove();
     root.getNode("childNodeDefNode").remove();
     session.save();
-    
+
     super.tearDown();
   }
 
@@ -66,10 +66,11 @@ public class TestValue extends JcrAPIBaseTest{
     property.setValue(true);
     property.setValue(new GregorianCalendar());
     property.setValue(20D);
-    property.setValue(20L); 
-    assertFalse("Property '" + property.getPath() + "' must be single-valued", property.getDefinition().isMultiple());
+    property.setValue(20L);
+    assertFalse("Property '" + property.getPath() + "' must be single-valued",
+                property.getDefinition().isMultiple());
   }
-  
+
   public void testSetMuliValue() throws RepositoryException {
     Node root = session.getRootNode();
     Node propertyDefNode = root.getNode("propertyDefNode");
@@ -77,14 +78,16 @@ public class TestValue extends JcrAPIBaseTest{
     // remove initially created property
     singleValuedProperty.setValue((String) null);
     propertyDefNode.save();
-    
-    Property multiValuedProperty = propertyDefNode.setProperty("jcr:defaultValue", new String[] {null, null});
-    
-    Value[] values = {session.getValueFactory().createValue("not"), session.getValueFactory().createValue("in")};
+
+    Property multiValuedProperty = propertyDefNode.setProperty("jcr:defaultValue", new String[] {
+        null, null });
+
+    Value[] values = { session.getValueFactory().createValue("not"),
+        session.getValueFactory().createValue("in") };
     multiValuedProperty.setValue(values);
-    
-    assertTrue("Property '" + multiValuedProperty.getPath() + "' must be multi-valued", 
-        multiValuedProperty.getDefinition().isMultiple());
+
+    assertTrue("Property '" + multiValuedProperty.getPath() + "' must be multi-valued",
+               multiValuedProperty.getDefinition().isMultiple());
   }
 
 }

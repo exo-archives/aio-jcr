@@ -21,9 +21,8 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 
 /**
- * <code>ExtendedValue</code> is a addition to the
- * {@link javax.jcr.Value Value} interface It is created for compatibility with
- * RMI interface with JSR specification.
+ * <code>ExtendedValue</code> is a addition to the {@link javax.jcr.Value Value} interface It is
+ * created for compatibility with RMI interface with JSR specification.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ExtendedValue.java 11907 2008-03-13 15:36:21Z ksm $
@@ -59,8 +58,8 @@ public interface ExtendedValue extends Value {
    * @throws IllegalStateException
    * @throws RepositoryException
    */
-  public String getReference() throws ValueFormatException, IllegalStateException,
-      RepositoryException;
-  
-  
+  public String getReference() throws ValueFormatException,
+                              IllegalStateException,
+                              RepositoryException;
+
 }

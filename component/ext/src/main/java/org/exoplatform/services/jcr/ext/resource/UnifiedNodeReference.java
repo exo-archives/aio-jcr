@@ -27,48 +27,53 @@ import java.util.StringTokenizer;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class UnifiedNodeReference {
-  
-  public static final String JCR_SCHEME = "jcr";
-  
-  private String userInfo;
-  private String repository;
-  private String workspace;
-  private Identifier id;
-  private String path;
-  
+
+  public static final String      JCR_SCHEME = "jcr";
+
+  private String                  userInfo;
+
+  private String                  repository;
+
+  private String                  workspace;
+
+  private Identifier              id;
+
+  private String                  path;
+
   private static URLStreamHandler handler;
-  
+
   public UnifiedNodeReference(final String spec) throws URISyntaxException, MalformedURLException {
     this(new URL(null, spec, getURLStreamHandler()));
   }
-  
+
   public UnifiedNodeReference(final URL url) throws URISyntaxException {
     this(url.toURI());
   }
-  
+
   public UnifiedNodeReference(final URI uri) throws URISyntaxException {
-    
+
     String scheme = uri.getScheme();
-    if(uri.getScheme() == null)
+    if (uri.getScheme() == null)
       scheme = JCR_SCHEME;
-    if(!scheme.equals(JCR_SCHEME))
+    if (!scheme.equals(JCR_SCHEME))
       throw new URISyntaxException(scheme, "Only 'jcr' scheme is acceptable!");
-    
+
     userInfo = uri.getUserInfo();
-    
+
     repository = uri.getHost();
-    
+
     workspace = parseWorkpace(uri);
-    
+
     String fragment = uri.getFragment();
-    if(fragment != null) {
-      if(fragment.startsWith("/"))
+    if (fragment != null) {
+      if (fragment.startsWith("/"))
         this.path = fragment;
       else
         this.id = new Identifier(uri.getFragment());
@@ -76,62 +81,63 @@ public class UnifiedNodeReference {
       throw new URISyntaxException(fragment, "Neither Path nor Identifier defined!");
 
   }
-  
-  public UnifiedNodeReference(final URI uri, final String defaultRepository,
-      final String defaultWorkspace) throws URISyntaxException {
- 
+
+  public UnifiedNodeReference(final URI uri,
+                              final String defaultRepository,
+                              final String defaultWorkspace) throws URISyntaxException {
+
     String scheme = uri.getScheme();
-    if(uri.getScheme() == null)
+    if (uri.getScheme() == null)
       scheme = JCR_SCHEME;
-    if(!scheme.equals(JCR_SCHEME))
+    if (!scheme.equals(JCR_SCHEME))
       throw new URISyntaxException(scheme, "Only 'jcr' scheme is acceptable!");
-    
+
     userInfo = uri.getUserInfo();
 
     repository = uri.getHost();
     if (repository == null)
       repository = defaultRepository;
-    
+
     workspace = parseWorkpace(uri);
-    if (workspace == null || workspace.length() == 0) 
+    if (workspace == null || workspace.length() == 0)
       workspace = defaultWorkspace;
-    
+
     String fragment = uri.getFragment();
-    if(fragment != null) {
-      if(fragment.startsWith("/"))
+    if (fragment != null) {
+      if (fragment.startsWith("/"))
         this.path = fragment;
       else
         this.id = new Identifier(uri.getFragment());
     } else
       throw new URISyntaxException(fragment, "Neither Path nor Identifier defined!");
-    
+
   }
-  
-  public UnifiedNodeReference(final String repository, final String workspace,
-      final Identifier identifier) {
-    
+
+  public UnifiedNodeReference(final String repository,
+                              final String workspace,
+                              final Identifier identifier) {
+
     this.repository = repository;
     this.workspace = workspace;
     this.id = identifier;
- 
+
   }
- 
-  public UnifiedNodeReference(final String repository, final String workspace,
-      final String path) {
-    
+
+  public UnifiedNodeReference(final String repository, final String workspace, final String path) {
+
     this.repository = repository;
     this.workspace = workspace;
     this.path = path;
- 
+
   }
-  
+
   /**
    * @return the repository name.
    */
   public String getRepository() {
     return repository;
   }
-  
+
   /**
    * @return the workspace name.
    */
@@ -145,47 +151,47 @@ public class UnifiedNodeReference {
   public Identifier getIdentitifier() {
     return id;
   }
-  
+
   /**
    * @return true if UUID used as node identifier.
    */
   public boolean isIdentitifier() {
     return id != null;
   }
-  
+
   /**
    * @return the node path.
    */
   public String getPath() {
     return path;
   }
-  
+
   /**
    * @return true if full path used as node identifier.
    */
   public boolean isPath() {
     return path != null;
   }
-  
+
   /**
    * @return the user info part of URL, it looks like <code>user:pass</code>.
    */
   public String getUserInfo() {
     return userInfo;
   }
-  
+
   /**
    * @return the URI of node.
    * @throws URISyntaxException
    */
   public URI getURI() throws URISyntaxException {
-    if(id != null)
+    if (id != null)
       return new URI(JCR_SCHEME, userInfo, repository, -1, '/' + workspace, null, id.getString());
-    else if(path != null)
+    else if (path != null)
       return new URI(JCR_SCHEME, userInfo, repository, -1, '/' + workspace, null, path);
     throw new URISyntaxException("", "Path or Idenfifier is not defined!");
   }
-  
+
   /**
    * @return the URL of node.
    * @throws MalformedURLException
@@ -197,7 +203,7 @@ public class UnifiedNodeReference {
     } catch (URISyntaxException e) {
       throw new MalformedURLException();
     }
-    
+
     try {
       return new URL(uri.toString());
     } catch (MalformedURLException e) {
@@ -205,21 +211,21 @@ public class UnifiedNodeReference {
       return new URL(null, uri.toString(), getURLStreamHandler());
     }
   }
-  
+
   /**
    * @return the handler for protocol <code>jcr</code>.
    * 
    * @see java.net.URLStreamHandler.
    */
   public static URLStreamHandler getURLStreamHandler() {
-    
+
     if (handler != null)
       return handler;
-    
+
     // use Class#forName(), instead created by 'new' to be sure handler
     // was started and set required system property.
-    // Usually this job must be done by java.net.URL, but it does 
-    // not work in web container. Under tomcat class of handler can't be found in 
+    // Usually this job must be done by java.net.URL, but it does
+    // not work in web container. Under tomcat class of handler can't be found in
     // $CATALINA_HOME/lib/*.jar. Probably the same problem can be under AS.
     String packagePrefixList = System.getProperty("java.protocol.handler.pkgs");
 
@@ -241,7 +247,7 @@ public class UnifiedNodeReference {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
             cls = cl.loadClass(clsName);
           } catch (ClassNotFoundException e2) {
-            // last chance, try use system ClasLoader 
+            // last chance, try use system ClasLoader
             ClassLoader cl = ClassLoader.getSystemClassLoader();
             if (cl != null) {
               cls = cl.loadClass(clsName);
@@ -258,7 +264,7 @@ public class UnifiedNodeReference {
     }
     return handler;
   }
-  
+
   private static String parseWorkpace(URI uri) {
     String path = uri.getPath();
     int sl = path.indexOf('/', 1);
@@ -266,6 +272,5 @@ public class UnifiedNodeReference {
       return path.substring(1);
     return path.substring(1, sl);
   }
-  
-}
 
+}

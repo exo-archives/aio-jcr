@@ -37,7 +37,7 @@ public class CASableTreeFileValueStorage extends TreeFileValueStorage {
   @Override
   public void init(Properties props) throws IOException, RepositoryConfigurationException {
     super.init(props);
-    
+
     this.digestAlgo = props.getProperty(ValueContentAddressStorage.DIGEST_ALGO_PARAM);
     String vcasType = props.getProperty(ValueContentAddressStorage.VCAS_TYPE_PARAM);
 
@@ -49,7 +49,7 @@ public class CASableTreeFileValueStorage extends TreeFileValueStorage {
     }
     vcas.init(props);
   }
-  
+
   @Override
   public FileIOChannel openIOChannel() throws IOException {
     return new CASableTreeFileIOChannel(rootDir, cleaner, getId(), vcas, digestAlgo);

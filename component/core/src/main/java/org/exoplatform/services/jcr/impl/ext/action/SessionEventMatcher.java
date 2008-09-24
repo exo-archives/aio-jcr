@@ -36,12 +36,12 @@ public class SessionEventMatcher implements ActionMatcher {
   public static final String    EVENTTYPE_KEY        = "types";
 
   /**
-   * Key describe a workspace 
+   * Key describe a workspace
    */
   public static final String    WORKSPACE_KEY        = "workspaces";
 
   /**
-   * Key describe an Item absolute paths 
+   * Key describe an Item absolute paths
    */
   public static final String    PATH_KEY             = "paths";
 

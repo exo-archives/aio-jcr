@@ -35,26 +35,25 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class S3ValueStorage extends ValueStoragePlugin {
 
-  protected static Log logger = ExoLogger.getLogger("SimpleS3ValueStorage");
+  protected static Log        logger                = ExoLogger.getLogger("SimpleS3ValueStorage");
 
-  public final static String BUCKET = "bucket";
+  public final static String  BUCKET                = "bucket";
 
-  public final static String AWS_ACCESS_KEY = "aws-access-key";
+  public final static String  AWS_ACCESS_KEY        = "aws-access-key";
 
-  public final static String AWS_SECRET_ACCESS_KEY = "aws-secret-access-key";
-  
-  public final static String S3_SWAP_DIRECTORY = "s3-swap-directory";
+  public final static String  AWS_SECRET_ACCESS_KEY = "aws-secret-access-key";
 
-  protected String bucket;
+  public final static String  S3_SWAP_DIRECTORY     = "s3-swap-directory";
 
-  protected String awsAccessKey;
-  
-  protected String awsSecretAccessKey;
+  protected String            bucket;
 
-  protected File s3SwapDirectory;
+  protected String            awsAccessKey;
+
+  protected String            awsSecretAccessKey;
+
+  protected File              s3SwapDirectory;
 
   protected final FileCleaner cleaner;
-  
 
   public S3ValueStorage() {
     this.cleaner = new FileCleaner();
@@ -62,16 +61,14 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#init(java.util.Properties)
    */
-  public void init(Properties props) throws IOException,
-      RepositoryConfigurationException {
+  public void init(Properties props) throws IOException, RepositoryConfigurationException {
     bucket = props.getProperty(BUCKET);
     awsAccessKey = props.getProperty(AWS_ACCESS_KEY);
     awsSecretAccessKey = props.getProperty(AWS_SECRET_ACCESS_KEY);
     s3SwapDirectory = new File(props.getProperty(S3_SWAP_DIRECTORY));
-    
+
     if (!s3SwapDirectory.exists()) {
       if (s3SwapDirectory.mkdirs()) {
         logger.info("Created S3 swap directory " + s3SwapDirectory.getAbsolutePath());
@@ -82,11 +79,11 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
     S3ValueIOUtil.createBucket(bucket, awsAccessKey, awsSecretAccessKey);
   }
 
-
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#checkConsistency(org.exoplatform.services.jcr.storage.WorkspaceStorageConnection)
+   * @see
+   * org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#checkConsistency(org.exoplatform
+   * .services.jcr.storage.WorkspaceStorageConnection)
    */
   public void checkConsistency(WorkspaceStorageConnection dataConnection) {
 
@@ -94,9 +91,8 @@ public abstract class S3ValueStorage extends ValueStoragePlugin {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#match(java.lang.String,
-   *      org.exoplatform.services.jcr.datamodel.PropertyData, int)
+   * org.exoplatform.services.jcr.datamodel.PropertyData, int)
    */
   @Override
   public boolean match(String storageId) {

@@ -152,11 +152,10 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.xml.importing.ContentImporter#getChanges()
    */
   public PlainChangesLog getChanges() {
-    
+
     Collections.sort(changesLog.getAllStates(), new PathSorter());
 
     if (log.isDebugEnabled()) {
@@ -279,9 +278,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#registerNamespace(java.lang.String,
-   *      java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#registerNamespace(java.lang.String,
+   * java.lang.String)
    */
   public void registerNamespace(String prefix, String uri) {
     try {
@@ -349,8 +348,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Find proper nodeType for subnode with name <b>name</b> and parent node
-   * type <b>parentNodeType</b> and mixin types <b>parentMixinNames</b>.
+   * Find proper nodeType for subnode with name <b>name</b> and parent node type
+   * <b>parentNodeType</b> and mixin types <b>parentMixinNames</b>.
    * 
    * @param parentNodeType
    * @param parentMixinNames
@@ -395,8 +394,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Check if parentNodeType and parentMixinNames allowed nodeTypeName as
-   * nodetype of subnode.
+   * Check if parentNodeType and parentMixinNames allowed nodeTypeName as nodetype of subnode.
    * 
    * @param parentNodeType
    * @param parentMixinNames
@@ -503,15 +501,13 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Check if item with uuid=identifier exists. If no item exist return same
-   * identifier. If same uuid item exist and depend on uuidBehavior do:
+   * Check if item with uuid=identifier exists. If no item exist return same identifier. If same
+   * uuid item exist and depend on uuidBehavior do:
    * <ol>
-   * <li>IMPORT_UUID_CREATE_NEW - return null. Caller will create new
-   * identifier.</li>
-   * <li>IMPORT_UUID_COLLISION_REMOVE_EXISTING - Remove same uuid item and his
-   * subtree. Also if item MIX_VERSIONABLE, remove version history</li>
-   * <li>IMPORT_UUID_COLLISION_REPLACE_EXISTING - Remove same uuid item and his
-   * subtree.</li>
+   * <li>IMPORT_UUID_CREATE_NEW - return null. Caller will create new identifier.</li>
+   * <li>IMPORT_UUID_COLLISION_REMOVE_EXISTING - Remove same uuid item and his subtree. Also if item
+   * MIX_VERSIONABLE, remove version history</li>
+   * <li>IMPORT_UUID_COLLISION_REPLACE_EXISTING - Remove same uuid item and his subtree.</li>
    * <li>IMPORT_UUID_COLLISION_THROW - throw new ItemExistsException</li>
    * </ol>
    * 
@@ -572,10 +568,14 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Return list of changes for item.
    * 
-   * @param parentData - parent item
-   * @param name - item name
-   * @param state - state
-   * @param skipIdentifier - skipped identifier.
+   * @param parentData
+   *          - parent item
+   * @param name
+   *          - item name
+   * @param state
+   *          - state
+   * @param skipIdentifier
+   *          - skipped identifier.
    * @return
    */
   private List<ItemState> getItemStatesList(NodeData parentData,
@@ -616,8 +616,10 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Check if item <b>parent</b> is parent item of item <b>data</b>.
    * 
-   * @param data - Possible child ItemData.
-   * @param parent - Possible parent ItemData.
+   * @param data
+   *          - Possible child ItemData.
+   * @param parent
+   *          - Possible parent ItemData.
    * @return True if parent of both ItemData the same.
    */
   private boolean isParent(ItemData data, ItemData parent) {
@@ -681,7 +683,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
   /**
    * Remove version history of versionable node.
    * 
-   * @param mixVersionableNode - node
+   * @param mixVersionableNode
+   *          - node
    * @throws RepositoryException
    * @throws ConstraintViolationException
    * @throws VersionException
@@ -715,13 +718,11 @@ public abstract class BaseXmlImporter implements ContentImporter {
   }
 
   /**
-   * Class helps sort ItemStates list. After sorting the delete states has to be
-   * on top of the list
+   * Class helps sort ItemStates list. After sorting the delete states has to be on top of the list
    */
   private class PathSorter implements Comparator<ItemState> {
     /*
      * (non-Javadoc)
-     * 
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare(final ItemState i1, final ItemState i2) {

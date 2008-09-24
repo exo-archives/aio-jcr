@@ -14,11 +14,12 @@ import com.sun.japex.TestCase;
  * @author Vitaliy Obmanyuk
  */
 
-public class SessionExportDocumentViewContentHandlerTest extends AbstractContentCreatorForExportTest {
-  
+public class SessionExportDocumentViewContentHandlerTest extends
+                                                        AbstractContentCreatorForExportTest {
+
   @Override
-  public void doRun(TestCase tc, JCRTestContext context) throws Exception {       
-    context.getSession().exportDocumentView(nextPath(), nextTransformerHandler(), false, false);    
+  public void doRun(TestCase tc, JCRTestContext context) throws Exception {
+    context.getSession().exportDocumentView(nextPath(), nextTransformerHandler(), false, false);
   }
 
 }

@@ -30,10 +30,10 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @version $Id: PublisherPriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class DynamicPriorityChecker extends AbstractPriorityChecker {
-  
-  private int                        previousPartisipantsCount;
-  
-  private int                        previousMaxPriority;
+
+  private int previousPartisipantsCount;
+
+  private int previousMaxPriority;
 
   /**
    * @param channelManager
@@ -42,15 +42,18 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
    * @param ownName
    * @param otherParticipants
    */
-  public DynamicPriorityChecker(ChannelManager channelManager, int ownPriority, String ownName,
-      List<String> otherParticipants) {
+  public DynamicPriorityChecker(ChannelManager channelManager,
+                                int ownPriority,
+                                String ownName,
+                                List<String> otherParticipants) {
     super(channelManager, ownPriority, ownName, otherParticipants);
   }
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.replication.priority.PriorityChecker#receive(org.exoplatform.services.jcr.ext.replication.Packet)
+   * @see
+   * org.exoplatform.services.jcr.ext.replication.priority.PriorityChecker#receive(org.exoplatform
+   * .services.jcr.ext.replication.Packet)
    */
   @Override
   public void receive(Packet packet) {
@@ -64,24 +67,26 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
           switch (packet.getPacketType()) {
 
           case Packet.PacketType.GET_ALL_PRIORITY:
-            Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY, ownName,
-                (long) ownPriority, packet.getIdentifier());
+            Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY,
+                                              ownName,
+                                              (long) ownPriority,
+                                              packet.getIdentifier());
             channelManager.sendPacket(pktMyPriority);
             break;
 
           case Packet.PacketType.OWN_PRIORITY:
             if (identifier.equals(packet.getIdentifier())) {
-              currentPartisipants.put(packet.getOwnerName(), Integer
-                  .valueOf((int) packet.getSize()));
-              
+              currentPartisipants.put(packet.getOwnerName(),
+                                      Integer.valueOf((int) packet.getSize()));
+
               if (log.isDebugEnabled()) {
                 log.info(channelManager.getChannel().getClusterName() + " : " + identifier
                     + " : added member :");
                 log.info("   +" + packet.getOwnerName() + ":"
                     + currentPartisipants.get(packet.getOwnerName()));
               }
-              
-              if (otherPartisipants.size() == currentPartisipants.size()) 
+
+              if (otherPartisipants.size() == currentPartisipants.size())
                 memberListener.memberRejoin();
             }
 
@@ -96,13 +101,13 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
     }
 
   }
-  
+
   public void informAll() {
-    
-      previousPartisipantsCount = currentPartisipants.size() + 1;
-      previousMaxPriority = getCurrentMaxPriority();
-    
-      super.informAll();
+
+    previousPartisipantsCount = currentPartisipants.size() + 1;
+    previousMaxPriority = getCurrentMaxPriority();
+
+    super.informAll();
   }
 
   private int getCurrentMaxPriority() {
@@ -114,7 +119,7 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
 
     if (ownPriority > max)
       max = ownPriority;
-    
+
     return max == Integer.MIN_VALUE ? ownPriority : max;
   }
 
@@ -122,13 +127,16 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
   public boolean isMaxPriority() {
     if (otherPartisipants.size() == 1)
       return ownPriority == MAX_PRIORITY;
-    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 && ownPriority == MAX_PRIORITY)
+    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0
+        && ownPriority == MAX_PRIORITY)
       return false;
-    //else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 && previousMaxPriority != ownPriority && previousPartisipantsCount == 2)
-    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 && previousMaxPriority != ownPriority && previousPartisipantsCount > 1)
-        return false;
-      else
-        return true;
-    
+    // else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0 &&
+    // previousMaxPriority != ownPriority && previousPartisipantsCount == 2)
+    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0
+        && previousMaxPriority != ownPriority && previousPartisipantsCount > 1)
+      return false;
+    else
+      return true;
+
   }
 }

@@ -17,8 +17,8 @@
 package org.exoplatform.services.jcr.ext.backup;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 06.12.2007
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 06.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupConfigurationException.java 568 2008-01-09 16:48:40Z rainf0x $

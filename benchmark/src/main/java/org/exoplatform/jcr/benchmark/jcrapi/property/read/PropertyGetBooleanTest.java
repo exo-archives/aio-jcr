@@ -13,20 +13,21 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class PropertyGetBooleanTest extends AbstractRootNodeTest {
-  
+
   private Property property = null;
-  
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
     property = node.setProperty("testProperty", true);
     context.getSession().save();
   }
-  
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     property.getBoolean();

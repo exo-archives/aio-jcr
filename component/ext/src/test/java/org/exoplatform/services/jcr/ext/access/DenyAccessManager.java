@@ -36,7 +36,7 @@ public class DenyAccessManager extends AccessManager {
   private String denyName = "";
 
   public DenyAccessManager(RepositoryEntry config, WorkspaceEntry wsConfig) throws RepositoryException,
-                                                                                                              RepositoryConfigurationException {
+      RepositoryConfigurationException {
     super(config, wsConfig);
     this.denyName = wsConfig.getAccessManager().getParameterValue("name");
 
@@ -47,7 +47,8 @@ public class DenyAccessManager extends AccessManager {
   @Override
   public boolean hasPermission(AccessControlList acl, String[] permission, Identity user) {
     if (super.hasPermission(acl, permission, user)) {
-      if (user.getUserId().equals("root") || user.getUserId().equals(SystemIdentity.SYSTEM) || user.getUserId().equals("admin"))
+      if (user.getUserId().equals("root") || user.getUserId().equals(SystemIdentity.SYSTEM)
+          || user.getUserId().equals("admin"))
         return true;
 
       if (context() != null) {

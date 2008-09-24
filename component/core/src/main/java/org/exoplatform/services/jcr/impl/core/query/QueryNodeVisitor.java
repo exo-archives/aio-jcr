@@ -21,29 +21,29 @@ package org.exoplatform.services.jcr.impl.core.query;
  */
 public interface QueryNodeVisitor {
 
-    Object visit(QueryRootNode node, Object data);
+  Object visit(QueryRootNode node, Object data);
 
-    Object visit(OrQueryNode node, Object data);
+  Object visit(OrQueryNode node, Object data);
 
-    Object visit(AndQueryNode node, Object data);
+  Object visit(AndQueryNode node, Object data);
 
-    Object visit(NotQueryNode node, Object data);
+  Object visit(NotQueryNode node, Object data);
 
-    Object visit(ExactQueryNode node, Object data);
+  Object visit(ExactQueryNode node, Object data);
 
-    Object visit(NodeTypeQueryNode node, Object data);
+  Object visit(NodeTypeQueryNode node, Object data);
 
-    Object visit(TextsearchQueryNode node, Object data);
+  Object visit(TextsearchQueryNode node, Object data);
 
-    Object visit(PathQueryNode node, Object data);
+  Object visit(PathQueryNode node, Object data);
 
-    Object visit(LocationStepQueryNode node, Object data);
+  Object visit(LocationStepQueryNode node, Object data);
 
-    Object visit(RelationQueryNode node, Object data);
+  Object visit(RelationQueryNode node, Object data);
 
-    Object visit(OrderQueryNode node, Object data);
+  Object visit(OrderQueryNode node, Object data);
 
-    Object visit(DerefQueryNode node, Object data);
+  Object visit(DerefQueryNode node, Object data);
 
-    Object visit(PropertyFunctionQueryNode node, Object data);
+  Object visit(PropertyFunctionQueryNode node, Object data);
 }

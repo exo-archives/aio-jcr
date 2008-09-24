@@ -31,13 +31,13 @@ import javax.jcr.version.VersionException;
  * @version $Id: WeightNodeGenerator.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class WeightNodeGenerator implements NodeGenerator {
-  private int maxDepth;
+  private int                 maxDepth;
 
-  private int maxWidth;
+  private int                 maxWidth;
 
-  protected Node currentNode;
+  protected Node              currentNode;
 
-  private static final Random  random = new Random();
+  private static final Random random = new Random();
 
   public WeightNodeGenerator(int maxDepth, int maxWidth) {
     super();
@@ -62,32 +62,35 @@ public class WeightNodeGenerator implements NodeGenerator {
   }
 
   protected void addNodes(Node parentNode, int level) throws ItemExistsException,
-      PathNotFoundException,
-      VersionException,
-      ConstraintViolationException,
-      LockException,
-      RepositoryException {
+                                                     PathNotFoundException,
+                                                     VersionException,
+                                                     ConstraintViolationException,
+                                                     LockException,
+                                                     RepositoryException {
     if (level >= maxDepth)
       return;
-    //int maxNodesOnLevel = (int) Math.round((new Double(maxWidth) / new Double(maxDepth)) * level);
-    //maxNodesOnLevel = maxNodesOnLevel != 0 ? maxNodesOnLevel : 1;
-    int maxNodesOnLevel =  random.nextInt(maxWidth)+1;
+    // int maxNodesOnLevel = (int) Math.round((new Double(maxWidth) / new Double(maxDepth)) *
+    // level);
+    // maxNodesOnLevel = maxNodesOnLevel != 0 ? maxNodesOnLevel : 1;
+    int maxNodesOnLevel = random.nextInt(maxWidth) + 1;
     for (int i = 0; i < maxNodesOnLevel; i++) {
       currentNode = parentNode.addNode("node_level_" + level + "_number_" + i + "_"
           + random.nextInt(Integer.MAX_VALUE));
-      addProperties() ;
+      addProperties();
       addNodes(currentNode, level + 1);
     }
   }
-  protected void addProperties() throws RepositoryException{
-    
+
+  protected void addProperties() throws RepositoryException {
+
   }
+
   public void genereteTree(Node root) throws ItemExistsException,
-      PathNotFoundException,
-      VersionException,
-      ConstraintViolationException,
-      LockException,
-      RepositoryException {
+                                     PathNotFoundException,
+                                     VersionException,
+                                     ConstraintViolationException,
+                                     LockException,
+                                     RepositoryException {
     addNodes(root, 1);
   }
 

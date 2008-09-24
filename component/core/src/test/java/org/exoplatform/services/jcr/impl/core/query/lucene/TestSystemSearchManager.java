@@ -31,17 +31,15 @@ import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: TestSystemSearchManager.java 11907 2008-03-13 15:36:21Z ksm $
  * 
- * There is test of system Search Manager
+ *          There is test of system Search Manager
  */
 public class TestSystemSearchManager extends JcrImplBaseTest {
 
-  public static final Log logger = ExoLogger
-      .getLogger(TestSearchManagerIndexing.class);
+  public static final Log     logger = ExoLogger.getLogger(TestSearchManagerIndexing.class);
 
   private SystemSearchManager manager;
 
@@ -52,29 +50,28 @@ public class TestSystemSearchManager extends JcrImplBaseTest {
     IndexReader ir = si.getIndex().getIndexReader();
 
     SearchManager sManager = (SearchManager) this.session.getContainer()
-    .getComponentInstanceOfType(SearchManager.class);
+                                                         .getComponentInstanceOfType(SearchManager.class);
     SearchIndex ssi = (SearchIndex) sManager.getHandler();
     IndexReader sir = ssi.getIndex().getIndexReader();
-    
+
     // remember document number, before any test
     int sysdocnum = ir.numDocs();
     int secdocnum = sir.numDocs();
-    
+
     logger.info("  DOCNUM in system index[" + sysdocnum + "]");
     logger.info("  DOCNUM in second index[" + secdocnum + "]");
 
-    workspace.getNamespaceRegistry().registerNamespace("test_my",
-        "http://www.test_my.org/test_my");
+    workspace.getNamespaceRegistry().registerNamespace("test_my", "http://www.test_my.org/test_my");
 
     session.save();
 
     ir = si.getIndex().getIndexReader();
     sir = ssi.getIndex().getIndexReader();
-    //assert that document num increased in system index
+    // assert that document num increased in system index
     assertEquals(sysdocnum + 1, ir.numDocs());
-    //assert that document num havn't changed in other indexes
-    assertEquals(secdocnum,sir.numDocs());
-    
+    // assert that document num havn't changed in other indexes
+    assertEquals(secdocnum, sir.numDocs());
+
     ir.close();
     sir.close();
   }
@@ -99,7 +96,6 @@ public class TestSystemSearchManager extends JcrImplBaseTest {
 
     ir = si.getIndex().getIndexReader();
 
- 
     // jcr:VersionLabels doc
     // ??? doc
     // jcr:frozenNode doc
@@ -113,33 +109,34 @@ public class TestSystemSearchManager extends JcrImplBaseTest {
   public void testAddNodeType() throws Exception {
     SearchIndex si = (SearchIndex) manager.getHandler();
     IndexReader ir = si.getIndex().getIndexReader();
-  
+
     // remeber document number, before any test
     int docnum = ir.numDocs();
     logger.info("  DOCNUM [" + docnum + "]");
-    
-    ExtendedNodeTypeManager typeManager = (ExtendedNodeTypeManager) session
-        .getWorkspace().getNodeTypeManager();
+
+    ExtendedNodeTypeManager typeManager = (ExtendedNodeTypeManager) session.getWorkspace()
+                                                                           .getNodeTypeManager();
 
     String cnd = "<nodeTypes><nodeType name='test_my:referenceable' isMixin='true' hasOrderableChildNodes='false' primaryItemName=''>"
         + "<supertypes>"
         + "     <supertype>mix:referenceable</supertype>"
-        + "</supertypes>" + "</nodeType>" + "</nodeTypes>";
+        + "</supertypes>"
+        + "</nodeType>" + "</nodeTypes>";
 
     typeManager.registerNodeTypes(new ByteArrayInputStream(cnd.getBytes()),
-        ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+                                  ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
     session.save();
-    
+
     ir = si.getIndex().getIndexReader();
-    
-    assertEquals(docnum+1,ir.numDocs());
+
+    assertEquals(docnum + 1, ir.numDocs());
     ir.close();
   }
 
   public void setUp() throws Exception {
     super.setUp();
     manager = (SystemSearchManager) this.session.getContainer()
-        .getComponentInstanceOfType(SystemSearchManager.class);
+                                                .getComponentInstanceOfType(SystemSearchManager.class);
   }
 
 }

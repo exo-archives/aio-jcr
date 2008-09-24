@@ -17,13 +17,13 @@
 package org.exoplatform.services.ftp.listcode;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public interface FtpSystemCoder {
-  
+
   String serializeFileInfo(FtpFileInfo fileInfo);
-  
+
 }

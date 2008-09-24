@@ -31,8 +31,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Created by The eXo Platform SAS.<br/> The extension for JSR-170 standard
- * Node interface.
+ * Created by The eXo Platform SAS.<br/> The extension for JSR-170 standard Node interface.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ExtendedNode.java 11907 2008-03-13 15:36:21Z ksm $
@@ -48,7 +47,7 @@ public interface ExtendedNode extends Node {
    * @throws AccessControlException
    */
   void setPermissions(Map<String, String[]> permissions) throws RepositoryException,
-      AccessControlException;
+                                                        AccessControlException;
 
   /**
    * @return Access Control List
@@ -79,8 +78,9 @@ public interface ExtendedNode extends Node {
    * @throws RepositoryException
    * @throws AccessControlException
    */
-  void removePermission(String identity, String permission) throws RepositoryException, AccessControlException;
-  
+  void removePermission(String identity, String permission) throws RepositoryException,
+                                                           AccessControlException;
+
   /**
    * Sets permissions for particular identity.
    * 
@@ -90,13 +90,14 @@ public interface ExtendedNode extends Node {
    * @throws AccessControlException
    */
   void setPermission(String identity, String[] permission) throws RepositoryException,
-      AccessControlException;
+                                                          AccessControlException;
 
   /**
    * Checks if there are permission to perform some actions.
    * 
    * @param actions
-   * @throws AccessControlException if no such permissions found
+   * @throws AccessControlException
+   *           if no such permissions found
    * @throws RepositoryException
    */
   void checkPermission(String actions) throws AccessControlException, RepositoryException;
@@ -108,8 +109,8 @@ public interface ExtendedNode extends Node {
    * 
    */
   Lock lock(boolean isDeep, long timeOut) throws UnsupportedRepositoryOperationException,
-      LockException,
-      AccessDeniedException,
-      InvalidItemStateException,
-      RepositoryException;
+                                         LockException,
+                                         AccessDeniedException,
+                                         InvalidItemStateException,
+                                         RepositoryException;
 }

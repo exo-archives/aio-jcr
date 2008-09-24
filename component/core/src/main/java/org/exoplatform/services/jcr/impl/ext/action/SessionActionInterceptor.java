@@ -53,8 +53,7 @@ public class SessionActionInterceptor {
   private static Log          log        = ExoLogger.getLogger("jcr.SessionActionInterceptor");
 
   /**
-   * SessionActionInterceptor is per session, and only one action per
-   * session/time can be active.
+   * SessionActionInterceptor is per session, and only one action per session/time can be active.
    */
   private ItemImpl            activeItem = null;
 
@@ -108,8 +107,9 @@ public class SessionActionInterceptor {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.NODE_ADDED);
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
-      
+      conditions.put(SessionEventMatcher.NODETYPES_KEY,
+                     readNodeTypeNames((NodeData) node.getData()));
+
       InvocationContext ctx = new InvocationContext();
       ctx.put(InvocationContext.CURRENT_ITEM, node);
       ctx.put(InvocationContext.EXO_CONTAINER, container);
@@ -133,7 +133,8 @@ public class SessionActionInterceptor {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.CHECKIN);
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+      conditions.put(SessionEventMatcher.NODETYPES_KEY,
+                     readNodeTypeNames((NodeData) node.getData()));
 
       InvocationContext ctx = new InvocationContext();
       ctx.put(InvocationContext.CURRENT_ITEM, node);
@@ -158,7 +159,8 @@ public class SessionActionInterceptor {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.CHECKOUT);
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+      conditions.put(SessionEventMatcher.NODETYPES_KEY,
+                     readNodeTypeNames((NodeData) node.getData()));
 
       InvocationContext ctx = new InvocationContext();
       ctx.put(InvocationContext.CURRENT_ITEM, node);
@@ -183,7 +185,8 @@ public class SessionActionInterceptor {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.LOCK);
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+      conditions.put(SessionEventMatcher.NODETYPES_KEY,
+                     readNodeTypeNames((NodeData) node.getData()));
 
       InvocationContext ctx = new InvocationContext();
       ctx.put(InvocationContext.CURRENT_ITEM, node);
@@ -208,9 +211,10 @@ public class SessionActionInterceptor {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.READ);
       conditions.put(SessionEventMatcher.PATH_KEY, item.getInternalPath());
-      
+
       if (item.isNode()) {
-        conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) item.getData()));
+        conditions.put(SessionEventMatcher.NODETYPES_KEY,
+                       readNodeTypeNames((NodeData) item.getData()));
       } else {
         conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames(item.parentData()));
       }
@@ -278,7 +282,8 @@ public class SessionActionInterceptor {
       Condition conditions = new Condition();
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, ExtendedEvent.UNLOCK);
       conditions.put(SessionEventMatcher.PATH_KEY, node.getInternalPath());
-      conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) node.getData()));
+      conditions.put(SessionEventMatcher.NODETYPES_KEY,
+                     readNodeTypeNames((NodeData) node.getData()));
 
       InvocationContext ctx = new InvocationContext();
       ctx.put(InvocationContext.CURRENT_ITEM, node);
@@ -305,7 +310,8 @@ public class SessionActionInterceptor {
       conditions.put(SessionEventMatcher.EVENTTYPE_KEY, event);
       conditions.put(SessionEventMatcher.PATH_KEY, item.getInternalPath());
       if (item.isNode()) {
-        conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames((NodeData) item.getData()));
+        conditions.put(SessionEventMatcher.NODETYPES_KEY,
+                       readNodeTypeNames((NodeData) item.getData()));
       } else {
         conditions.put(SessionEventMatcher.NODETYPES_KEY, readNodeTypeNames(item.parentData()));
       }
@@ -354,8 +360,8 @@ public class SessionActionInterceptor {
     for (int i = 1; i <= mixinNames.length; i++) {
       nodeTypeNames[i] = mixinNames[i - 1];
     }
-    
-    return nodeTypeNames; 
+
+    return nodeTypeNames;
   }
 
   protected final void launch(Condition conditions, InvocationContext context) {

@@ -38,32 +38,30 @@ import org.exoplatform.services.security.ConversationState;
 
 public class BasicAppContext extends ContextBase implements JCRAppContext {
 
-  protected static Log log = ExoLogger.getLogger("jcr.BasicAppContext");
+  protected static Log                 log = ExoLogger.getLogger("jcr.BasicAppContext");
 
-  protected final SessionProvider  sessionProvider;
+  protected final SessionProvider      sessionProvider;
+
   protected final ManageableRepository repository;
-  protected String currentWorkspace;
 
-  public BasicAppContext(ManageableRepository rep)
-      throws NamingException {
+  protected String                     currentWorkspace;
+
+  public BasicAppContext(ManageableRepository rep) throws NamingException {
     this.sessionProvider = new SessionProvider(ConversationState.getCurrent());
     this.repository = rep;
     this.currentWorkspace = rep.getConfiguration().getDefaultWorkspaceName();
   }
-  
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.frameworks.jcr.command.JCRAppContext#getSession()
    */
-  public Session getSession() throws LoginException, NoSuchWorkspaceException,
-      RepositoryException {
+  public Session getSession() throws LoginException, NoSuchWorkspaceException, RepositoryException {
     return sessionProvider.getSession(currentWorkspace, repository);
   }
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.frameworks.jcr.command.JCRAppContext#setCurrentWorkspace(java.lang.String)
    */
   public void setCurrentWorkspace(String workspaceName) {

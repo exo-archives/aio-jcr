@@ -29,13 +29,13 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class EditLockedCommonDeepNodeTest extends JCRTestBase {
   /*
-   * This test measures performance of lock mechanism, each thread has common level1
-   * node
+   * This test measures performance of lock mechanism, each thread has common level1 node
    */
 
   public static Log     log             = ExoLogger.getLogger("jcr.benchmark");
@@ -45,12 +45,12 @@ public class EditLockedCommonDeepNodeTest extends JCRTestBase {
   public static boolean rootNodeDeleted = false;
 
   public static String  rootNodeName    = "rootLockUnlockCommonDeepNodeTest";
-  
-  public static String  child1 = "child1";
-  
-  public static String  child2 = "child2";
-  
-  public static String  child3 = "child3";
+
+  public static String  child1          = "child1";
+
+  public static String  child2          = "child2";
+
+  public static String  child3          = "child3";
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
@@ -59,7 +59,8 @@ public class EditLockedCommonDeepNodeTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    Node rootNode = (Node)context.getSession().getItem("/" + rootNodeName + "/" + child1 + "/"+ child2 + "/" + child3);
+    Node rootNode = (Node) context.getSession().getItem("/" + rootNodeName + "/" + child1 + "/"
+        + child2 + "/" + child3);
     try {
       rootNode.addNode(context.generateUniqueName("node"), "nt:unstructured");
       context.getSession().save();
@@ -68,8 +69,8 @@ public class EditLockedCommonDeepNodeTest extends JCRTestBase {
       // as expected
     }
     try {
-      rootNode.setProperty(context.generateUniqueName("property"), context
-          .generateUniqueName("value"));
+      rootNode.setProperty(context.generateUniqueName("property"),
+                           context.generateUniqueName("value"));
       context.getSession().save();
       throw new RuntimeException("LockException must be here");
     } catch (LockException e) {
@@ -91,7 +92,9 @@ public class EditLockedCommonDeepNodeTest extends JCRTestBase {
         rootNode.addMixin("mix:lockable");
         tmpSession.save();
         rootNode.lock(true, false);
-        rootNode.addNode(child1, "nt:unstructured").addNode(child2, "nt:unstructured").addNode(child3, "nt:unstructured");
+        rootNode.addNode(child1, "nt:unstructured")
+                .addNode(child2, "nt:unstructured")
+                .addNode(child3, "nt:unstructured");
         tmpSession.save();
         tmpSession.logout();
         rootNodeCreated = true;

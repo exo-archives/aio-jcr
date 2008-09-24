@@ -22,20 +22,20 @@ import java.util.ArrayList;
 import org.exoplatform.services.ftp.FtpConst;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdPwd extends FtpCommandImpl {
 
   public CmdPwd() {
-    commandName = FtpConst.Commands.CMD_PWD; 
+    commandName = FtpConst.Commands.CMD_PWD;
   }
-  
-  public void run(String []params) throws IOException {    
+
+  public void run(String[] params) throws IOException {
     ArrayList<String> curPath = clientSession().getPath();
-    
+
     String path = "/";
     for (int i = 0; i < curPath.size(); i++) {
       path += curPath.get(i);
@@ -43,8 +43,8 @@ public class CmdPwd extends FtpCommandImpl {
         path += "/";
       }
     }
-    
+
     reply(String.format(FtpConst.Replyes.REPLY_257, path));
   }
-  
+
 }

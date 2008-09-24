@@ -26,8 +26,8 @@ import javax.xml.namespace.QName;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
@@ -36,16 +36,16 @@ public class XmlUtils {
   public static Map<QName, WebDavProperty> parsePropStat(HierarchicalProperty response) {
     HashMap<QName, WebDavProperty> properties = new HashMap<QName, WebDavProperty>();
 
-    for (HierarchicalProperty propStat : response.getChildren()) {      
+    for (HierarchicalProperty propStat : response.getChildren()) {
       if (!propStat.getName().equals(new QName("DAV:", "propstat"))) {
         continue;
       }
-      
+
       HierarchicalProperty prop = propStat.getChild(new QName("DAV:", "prop"));
       HierarchicalProperty stat = propStat.getChild(new QName("DAV:", "status"));
-      
+
       int status = new Integer(stat.getValue().split(" ")[1]).intValue();
-      
+
       List<HierarchicalProperty> props = prop.getChildren();
       for (HierarchicalProperty property : props) {
         WebDavProperty webDavProperty = new WebDavProperty(property);
@@ -53,8 +53,8 @@ public class XmlUtils {
         properties.put(webDavProperty.getName(), webDavProperty);
       }
     }
-    
+
     return properties;
   }
-  
+
 }

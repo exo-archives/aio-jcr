@@ -40,7 +40,8 @@ import org.exoplatform.services.log.ExoLogger;
  * 
  * Stored CAS table in JDBC database.<br/>
  * 
- * NOTE! To make SQL commands compatible with possible ALL RDBMS we use objects names in <strong>!lowercase!</strong>.<br/>
+ * NOTE! To make SQL commands compatible with possible ALL RDBMS we use objects names in
+ * <strong>!lowercase!</strong>.<br/>
  * 
  * Date: 18.07.2008
  * 
@@ -69,15 +70,12 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
    */
   public static final String DEFAULT_TABLE_NAME                 = "JCR_VCAS";
 
-  private static Log         LOG                                =
-                                                                    ExoLogger.getLogger("jcr.JDBCValueContentAddressStorageImpl");
+  private static Log         LOG                                = ExoLogger.getLogger("jcr.JDBCValueContentAddressStorageImpl");
 
-  private final String       MYSQL_PK_CONSTRAINT_DETECT_PATTERN =
-                                                                    "(.*Constraint+.*Violation+.*Duplicate+.*entry+.*)+?";
+  private final String       MYSQL_PK_CONSTRAINT_DETECT_PATTERN = "(.*Constraint+.*Violation+.*Duplicate+.*entry+.*)+?";
 
-  private final Pattern      MYSQL_PK_CONSTRAINT_DETECT         =
-                                                                    Pattern.compile(MYSQL_PK_CONSTRAINT_DETECT_PATTERN,
-                                                                                    Pattern.CASE_INSENSITIVE);
+  private final Pattern      MYSQL_PK_CONSTRAINT_DETECT         = Pattern.compile(MYSQL_PK_CONSTRAINT_DETECT_PATTERN,
+                                                                                  Pattern.CASE_INSENSITIVE);
 
   protected DataSource       dataSource;
 
@@ -103,8 +101,9 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#init(java.util.Properties)
+   * @see
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#init(java.util
+   * .Properties)
    */
   public void init(Properties props) throws RepositoryConfigurationException, VCASException {
     // init database metadata
@@ -121,8 +120,8 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     sqlVCASIDX = tableName + "_IDX";
 
     if (DBConstants.DB_DIALECT_PGSQL.equalsIgnoreCase(dialect)) {
-      // use lowercase for postgres metadata.getTable(), HSQLDB wants UPPERCASE 
-      // for other seems not matter 
+      // use lowercase for postgres metadata.getTable(), HSQLDB wants UPPERCASE
+      // for other seems not matter
       tableName = tableName.toUpperCase().toLowerCase();
       sqlConstraintPK = sqlConstraintPK.toUpperCase().toLowerCase();
       sqlVCASIDX = sqlVCASIDX.toUpperCase().toLowerCase();
@@ -131,24 +130,23 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
     sqlAddRecord = "INSERT INTO " + tableName + " (PROPERTY_ID, ORDER_NUM, CAS_ID) VALUES(?,?,?)";
     sqlDeleteRecord = "DELETE FROM " + tableName + " WHERE PROPERTY_ID=?";
     sqlSelectRecord = "SELECT CAS_ID FROM " + tableName + " WHERE PROPERTY_ID=? AND ORDER_NUM=?";
-    sqlSelectRecords =
-        "SELECT CAS_ID, ORDER_NUM FROM " + tableName + " WHERE PROPERTY_ID=? ORDER BY ORDER_NUM";
+    sqlSelectRecords = "SELECT CAS_ID, ORDER_NUM FROM " + tableName
+        + " WHERE PROPERTY_ID=? ORDER BY ORDER_NUM";
 
     // TODO CLEANUP. this script owrks ok if shared exists only
-    //    sqlSelectOwnRecords =
-    //        "SELECT DISTINCT OWN.cas_id, OWN.order_num FROM jcr_vcas_test OWN, jcr_vcas_test S, jcr_vcas_test P "
-    //            + "WHERE OWN.property_id=P.property_id AND OWN.cas_id<>S.cas_id AND S.cas_id=P.cas_id AND S.property_id<>P.property_id AND P.property_id=? "
-    //            + "ORDER BY OWN.order_num";
-    sqlSelectOwnRecords =
-        "SELECT P.CAS_ID, P.ORDER_NUM, S.CAS_ID as SHARED_ID " + "FROM " + tableName
-            + " P LEFT JOIN " + tableName
-            + " S ON P.PROPERTY_ID<>S.PROPERTY_ID AND P.CAS_ID=S.CAS_ID "
-            + "WHERE P.PROPERTY_ID=? GROUP BY P.CAS_ID, P.ORDER_NUM, S.CAS_ID ORDER BY P.ORDER_NUM";
+    // sqlSelectOwnRecords =
+    // "SELECT DISTINCT OWN.cas_id, OWN.order_num FROM jcr_vcas_test OWN, jcr_vcas_test S, jcr_vcas_test P "
+    // +
+    // "WHERE OWN.property_id=P.property_id AND OWN.cas_id<>S.cas_id AND S.cas_id=P.cas_id AND S.property_id<>P.property_id AND P.property_id=? "
+    // + "ORDER BY OWN.order_num";
+    sqlSelectOwnRecords = "SELECT P.CAS_ID, P.ORDER_NUM, S.CAS_ID as SHARED_ID " + "FROM "
+        + tableName + " P LEFT JOIN " + tableName
+        + " S ON P.PROPERTY_ID<>S.PROPERTY_ID AND P.CAS_ID=S.CAS_ID "
+        + "WHERE P.PROPERTY_ID=? GROUP BY P.CAS_ID, P.ORDER_NUM, S.CAS_ID ORDER BY P.ORDER_NUM";
 
-    sqlSelectSharingProps =
-        "SELECT DISTINCT C.PROPERTY_ID AS PROPERTY_ID FROM " + tableName + " C, " + tableName
-            + " P "
-            + "WHERE C.CAS_ID=P.CAS_ID AND C.PROPERTY_ID<>P.PROPERTY_ID AND P.PROPERTY_ID=?";
+    sqlSelectSharingProps = "SELECT DISTINCT C.PROPERTY_ID AS PROPERTY_ID FROM " + tableName
+        + " C, " + tableName + " P "
+        + "WHERE C.CAS_ID=P.CAS_ID AND C.PROPERTY_ID<>P.PROPERTY_ID AND P.PROPERTY_ID=?";
 
     // init database objects
     final String sn = props.getProperty(JDBC_SOURCE_NAME_PARAM);
@@ -192,8 +190,9 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#add(java.lang.String, int, java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#add(java.lang
+   * .String, int, java.lang.String)
    */
   public void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
                                                                      VCASException {
@@ -212,7 +211,7 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
       }
     } catch (SQLException e) {
       // check is it a primary key vioaltion or smth else
-      // if primary key - it's record already exists issue, VCAS error otherwise.   
+      // if primary key - it's record already exists issue, VCAS error otherwise.
       if (isRecordAlreadyExistsException(e))
         throw new RecordAlreadyExistsException("Record already exists, propertyId=" + propertyId
             + " orderNum=" + orderNum + ". Error: " + e, e);
@@ -223,30 +222,37 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   private boolean isRecordAlreadyExistsException(SQLException e) {
     // Search in UPPER case
-    // MySQL 5.0.x - com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException: 
-    //               Duplicate entry '4f684b34c0a800030018c34f99165791-0' for key 1
-    // HSQLDB 8.x -  java.sql.SQLException: Violation of unique constraint $$: duplicate value(s) for column(s) $$: 
-    //               JCR_VCAS_PK in statement [INSERT INTO JCR_VCAS (PROPERTY_ID, ORDER_NUM, CAS_ID) VALUES(?,?,?)] 
-    // PostgreSQL 8.2.x - org.postgresql.util.PSQLException: ERROR: duplicate key violates unique constraint "jcr_vcas_pk"
-    // Oracle 9i x64 (on Fedora 7) -  java.sql.SQLException: ORA-00001: unique constraint (EXOADMIN.JCR_VCAS_PK) violated
+    // MySQL 5.0.x - com.mysql.jdbc.exceptions.MySQLIntegrityConstraintViolationException:
+    // Duplicate entry '4f684b34c0a800030018c34f99165791-0' for key 1
+    // HSQLDB 8.x - java.sql.SQLException: Violation of unique constraint $$: duplicate value(s) for
+    // column(s) $$:
+    // JCR_VCAS_PK in statement [INSERT INTO JCR_VCAS (PROPERTY_ID, ORDER_NUM, CAS_ID)
+    // VALUES(?,?,?)]
+    // PostgreSQL 8.2.x - org.postgresql.util.PSQLException: ERROR: duplicate key violates unique
+    // constraint "jcr_vcas_pk"
+    // Oracle 9i x64 (on Fedora 7) - java.sql.SQLException: ORA-00001: unique constraint
+    // (EXOADMIN.JCR_VCAS_PK) violated
     String err = e.toString();
-    if (DBConstants.DB_DIALECT_MYSQL.equalsIgnoreCase(dialect) || DBConstants.DB_DIALECT_MYSQL_UTF8.equalsIgnoreCase(dialect)) {
+    if (DBConstants.DB_DIALECT_MYSQL.equalsIgnoreCase(dialect)
+        || DBConstants.DB_DIALECT_MYSQL_UTF8.equalsIgnoreCase(dialect)) {
       // for MySQL will search
       return MYSQL_PK_CONSTRAINT_DETECT.matcher(err).find();
     } else if (err.toLowerCase().toUpperCase().indexOf(sqlConstraintPK.toLowerCase().toUpperCase()) >= 0)
       // most of supported dbs prints PK name in exception
       return true;
-    
-    // NOTICE! As an additional check we may ask the database for property currently processed in VCAS 
+
+    // NOTICE! As an additional check we may ask the database for property currently processed in
+    // VCAS
     // and tell true if the property already exists only.
-    
+
     return false;
   }
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#delete(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#delete(java.
+   * lang.String)
    */
   public void delete(String propertyId) throws RecordNotFoundException, VCASException {
     try {
@@ -269,8 +275,9 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifier(java.lang.String, int)
+   * @see
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifier
+   * (java.lang.String, int)
    */
   public String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException,
                                                               VCASException {
@@ -297,8 +304,9 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifiers(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#getIdentifiers
+   * (java.lang.String)
    */
   public List<String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException,
                                                                         VCASException {
@@ -344,8 +352,9 @@ public class JDBCValueContentAddressStorageImpl implements ValueContentAddressSt
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#hasSharedContent(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.storage.value.cas.ValueContentAddressStorage#hasSharedContent
+   * (java.lang.String)
    */
   public boolean hasSharedContent(String propertyId) throws RecordNotFoundException, VCASException {
     try {

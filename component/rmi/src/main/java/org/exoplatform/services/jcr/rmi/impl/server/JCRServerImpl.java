@@ -28,11 +28,10 @@ import org.exoplatform.services.jcr.rmi.api.remote.RemoteRepository;
 import org.picocontainer.Startable;
 
 /**
- * Default implementation of the
- * {@link RemoteAdapterFactory RemoteAdapterFactory} interface. This factory
- * uses the server adapters defined in this package as the default adapter
- * implementations. Subclasses can override or extend the default adapters by
- * implementing the corresponding factory methods.
+ * Default implementation of the {@link RemoteAdapterFactory RemoteAdapterFactory} interface. This
+ * factory uses the server adapters defined in this package as the default adapter implementations.
+ * Subclasses can override or extend the default adapters by implementing the corresponding factory
+ * methods.
  * <p>
  */
 public class JCRServerImpl implements JCRServer, Startable {
@@ -57,7 +56,6 @@ public class JCRServerImpl implements JCRServer, Startable {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.rmi2.api.server.JCRSerever#bind()
    */
   public void bind() {
@@ -69,8 +67,7 @@ public class JCRServerImpl implements JCRServer, Startable {
       List config = service.getConfig().getRepositoryConfigurations();
       for (int i = 1; i <= config.size(); i++) {
         RepositoryEntry conf = (RepositoryEntry) config.get(i - 1);
-        RemoteRepository remote = factory
-            .getRemoteRepository(service.getRepository(conf.getName()));
+        RemoteRepository remote = factory.getRemoteRepository(service.getRepository(conf.getName()));
 
         InetAddress addr = InetAddress.getLocalHost();
         String hostname = addr.getHostName();
@@ -92,7 +89,6 @@ public class JCRServerImpl implements JCRServer, Startable {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.rmi2.api.server.JCRSerever#start()
    */
   public void start() {
@@ -103,7 +99,6 @@ public class JCRServerImpl implements JCRServer, Startable {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.rmi2.api.server.JCRSerever#stop()
    */
   public void stop() {
@@ -115,7 +110,6 @@ public class JCRServerImpl implements JCRServer, Startable {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.rmi2.api.server.JCRSerever#unbind()
    */
   public void unbind() {

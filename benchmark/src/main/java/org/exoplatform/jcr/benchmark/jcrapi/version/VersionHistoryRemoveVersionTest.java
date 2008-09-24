@@ -32,8 +32,8 @@ public class VersionHistoryRemoveVersionTest extends AbstractGetItemTest {
     vnode.save();
     vnode.checkin(); // v.2
     vnode.checkout();
-    
-    addNode(vnode.getVersionHistory());    
+
+    addNode(vnode.getVersionHistory());
   }
 
   @Override

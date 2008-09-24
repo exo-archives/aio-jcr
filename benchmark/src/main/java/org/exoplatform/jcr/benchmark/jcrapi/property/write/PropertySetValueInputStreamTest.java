@@ -24,7 +24,8 @@ public class PropertySetValueInputStreamTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    Property property = parent.setProperty(context.generateUniqueName("testProperty"), new ByteArrayInputStream(new byte[1024]));
+    Property property = parent.setProperty(context.generateUniqueName("testProperty"),
+                                           new ByteArrayInputStream(new byte[1024]));
     addProperty(property);
   }
 

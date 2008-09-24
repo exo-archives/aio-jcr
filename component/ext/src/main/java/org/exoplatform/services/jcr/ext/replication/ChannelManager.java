@@ -99,10 +99,10 @@ public class ChannelManager implements RequestHandler {
   public synchronized void connect() throws ReplicationException {
 
     log.info("channalName : " + channelName);
-    
+
     if (log.isDebugEnabled())
       log.info("testChannalName == " + testChannelName);
-    
+
     try {
       if (testChannelName == null)
         channel.connect(channelName);
@@ -160,8 +160,10 @@ public class ChannelManager implements RequestHandler {
 
     cutData(data, offset, tempBuffer);
 
-    Packet firsPacket = new Packet(Packet.PacketType.BIG_PACKET_FIRST, data.length, tempBuffer,
-        packet.getIdentifier());
+    Packet firsPacket = new Packet(Packet.PacketType.BIG_PACKET_FIRST,
+                                   data.length,
+                                   tempBuffer,
+                                   packet.getIdentifier());
     firsPacket.setOwnName(packet.getOwnerName());
     firsPacket.setOffset(offset);
     sendPacket(firsPacket);
@@ -174,8 +176,10 @@ public class ChannelManager implements RequestHandler {
     while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
       cutData(data, offset, tempBuffer);
 
-      Packet middlePacket = new Packet(Packet.PacketType.BIG_PACKET_MIDDLE, data.length,
-          tempBuffer, packet.getIdentifier());
+      Packet middlePacket = new Packet(Packet.PacketType.BIG_PACKET_MIDDLE,
+                                       data.length,
+                                       tempBuffer,
+                                       packet.getIdentifier());
       middlePacket.setOwnName(packet.getOwnerName());
       middlePacket.setOffset(offset);
       Thread.sleep(1);
@@ -190,8 +194,10 @@ public class ChannelManager implements RequestHandler {
     byte[] lastBuffer = new byte[data.length - (int) offset];
     cutData(data, offset, lastBuffer);
 
-    Packet lastPacket = new Packet(Packet.PacketType.BIG_PACKET_LAST, data.length, lastBuffer,
-        packet.getIdentifier());
+    Packet lastPacket = new Packet(Packet.PacketType.BIG_PACKET_LAST,
+                                   data.length,
+                                   lastBuffer,
+                                   packet.getIdentifier());
     lastPacket.setOwnName(packet.getOwnerName());
     lastPacket.setOffset(offset);
     sendPacket(lastPacket);
@@ -205,16 +211,20 @@ public class ChannelManager implements RequestHandler {
       destination[i] = sourceData[i + (int) startPos];
   }
 
-  public synchronized void sendBinaryFile(String filePath, String ownerName, String identifier,
-      String systemId) throws Exception {
+  public synchronized void sendBinaryFile(String filePath,
+                                          String ownerName,
+                                          String identifier,
+                                          String systemId) throws Exception {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + filePath);
 
     File f = new File(filePath);
     InputStream in = new FileInputStream(f);
 
-    Packet packet = new Packet(Packet.PacketType.BinaryFile_First_Packet, identifier, ownerName, f
-        .getName());
+    Packet packet = new Packet(Packet.PacketType.BinaryFile_First_Packet,
+                               identifier,
+                               ownerName,
+                               f.getName());
     packet.setSystemId(systemId);
     sendPacket(packet);
 
@@ -223,8 +233,10 @@ public class ChannelManager implements RequestHandler {
     long offset = 0;
 
     while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-      packet = new Packet(Packet.PacketType.BinaryFile_Middle_Packet, new FixupStream(),
-          identifier, buf);
+      packet = new Packet(Packet.PacketType.BinaryFile_Middle_Packet,
+                          new FixupStream(),
+                          identifier,
+                          buf);
 
       packet.setOffset(offset);
       packet.setOwnName(ownerName);
@@ -247,8 +259,10 @@ public class ChannelManager implements RequestHandler {
       for (int i = 0; i < len; i++)
         buffer[i] = buf[i];
 
-      packet = new Packet(Packet.PacketType.BinaryFile_Last_Packet, new FixupStream(), identifier,
-          buffer);
+      packet = new Packet(Packet.PacketType.BinaryFile_Last_Packet,
+                          new FixupStream(),
+                          identifier,
+                          buffer);
       packet.setOffset(offset);
       packet.setOwnName(ownerName);
       packet.setFileName(f.getName());
@@ -264,9 +278,9 @@ public class ChannelManager implements RequestHandler {
       Packet packet = Packet.getAsPacket(message.getBuffer());
 
       for (PacketListener handler : packetListeners) {
-//        synchronized (handler) {
-          handler.receive(packet);
-//        }
+        // synchronized (handler) {
+        handler.receive(packet);
+        // }
       }
 
     } catch (IOException e) {

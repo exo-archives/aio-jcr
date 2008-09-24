@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.reading;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
@@ -32,10 +31,11 @@ import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TestValue extends JcrAPIBaseTest{
+public class TestValue extends JcrAPIBaseTest {
 
   public void testGetString() throws RepositoryException {
     Value value = session.getValueFactory().createValue("text");
@@ -53,7 +53,7 @@ public class TestValue extends JcrAPIBaseTest{
     }
 
     value = session.getValueFactory().createValue("20");
-    assertEquals(20, (int)value.getDouble());
+    assertEquals(20, (int) value.getDouble());
 
     try {
       value.getStream();
@@ -94,7 +94,7 @@ public class TestValue extends JcrAPIBaseTest{
     iS.read(bytes);
     assertEquals("inputStream", new String(bytes));
 
-    //assertEquals(aval, value.getStream().available());
+    // assertEquals(aval, value.getStream().available());
     assertEquals(aval, bytes.length);
 
     value = session.getValueFactory().createValue("text");
@@ -102,7 +102,7 @@ public class TestValue extends JcrAPIBaseTest{
     bytes = new byte[2];
     iS.read(bytes);
     assertEquals("te", new String(bytes));
-	//Once a Value object has been read once using getStream(),
+    // Once a Value object has been read once using getStream(),
     // all subsequent calls to getStream() will return the same stream object.
     iS = value.getStream();
     bytes = new byte[2];
@@ -133,7 +133,7 @@ public class TestValue extends JcrAPIBaseTest{
       fail("not good exception thrown");
     }
   }
-  
+
   public void testGetDateFromString() throws RepositoryException {
     // try set value as string with ISO date
     Value value = session.getValueFactory().createValue("2007-07-04T14:24:03.123+01:00");
@@ -144,7 +144,7 @@ public class TestValue extends JcrAPIBaseTest{
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // try set value as string with ISO date (Zulu TZ - i.e. GMT/UTC)
     value = session.getValueFactory().createValue("1985-07-04T14:24:03.123Z");
     try {
@@ -153,8 +153,8 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }    
-    
+    }
+
     // try set value as string with ISO date + RFC 822 TZ
     value = session.getValueFactory().createValue("2007-07-04T14:24:03.123-0800");
     try {
@@ -163,8 +163,8 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }        
-    
+    }
+
     // try set value as string with ISO date
     value = session.getValueFactory().createValue("2007-07-04T14:24:03+01:00");
     try {
@@ -174,7 +174,7 @@ public class TestValue extends JcrAPIBaseTest{
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // try set value as string with ISO date (Zulu TZ - i.e. GMT/UTC)
     value = session.getValueFactory().createValue("2007-07-04T14:24:03Z");
     try {
@@ -184,7 +184,7 @@ public class TestValue extends JcrAPIBaseTest{
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // try set value as string with ISO date + RFC 822 TZ
     value = session.getValueFactory().createValue("2007-07-04T14:24:03+0200");
     try {
@@ -194,7 +194,7 @@ public class TestValue extends JcrAPIBaseTest{
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // try set value as string with simple date
     value = session.getValueFactory().createValue("2007-07-04T14:24:03");
     try {
@@ -203,8 +203,8 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }    
-    
+    }
+
     // try set value as string with ISO date
     value = session.getValueFactory().createValue("2007-07-04T14:24+03:00");
     try {
@@ -213,8 +213,8 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }    
-    
+    }
+
     // try set value as string with ISO date + RFC 822 TZ
     value = session.getValueFactory().createValue("2007-07-04T14:24-0700");
     try {
@@ -224,7 +224,7 @@ public class TestValue extends JcrAPIBaseTest{
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // try set value as string with ISO date
     value = session.getValueFactory().createValue("2007-07-04T14:24");
     try {
@@ -233,8 +233,8 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }    
-    
+    }
+
     // try set value as string with ISO date
     value = session.getValueFactory().createValue("2007-07-04");
     try {
@@ -243,8 +243,8 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }    
-    
+    }
+
     // try set value as string with ISO date
     value = session.getValueFactory().createValue("1988-11");
     try {
@@ -253,21 +253,21 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }    
-    
+    }
+
     // try set value as string with ISO date
     value = session.getValueFactory().createValue(2017);
     try {
-      value.getDate(); //value.getDate().getTime()
+      value.getDate(); // value.getDate().getTime()
     } catch (ValueFormatException e) {
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // ERA tests
 
-    // try set value as string with ISO date    
+    // try set value as string with ISO date
     value = session.getValueFactory().createValue("-0104-07-04T14:24:03.123+04:00");
     try {
       value.getDate();
@@ -276,7 +276,7 @@ public class TestValue extends JcrAPIBaseTest{
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // try set value as string with ISO date
     value = session.getValueFactory().createValue(-117);
     try {
@@ -286,7 +286,7 @@ public class TestValue extends JcrAPIBaseTest{
     } catch (RepositoryException e) {
       fail("not good exception thrown");
     }
-    
+
     // try set value as string with ISO date + RFC 822 TZ
     value = session.getValueFactory().createValue("-0027-07-04T14:24:03-0400");
     try {
@@ -295,7 +295,7 @@ public class TestValue extends JcrAPIBaseTest{
       fail("Exception should not have been thrown");
     } catch (RepositoryException e) {
       fail("not good exception thrown");
-    }    
+    }
   }
 
   public void testGetBoolean() throws RepositoryException {
@@ -343,7 +343,7 @@ public class TestValue extends JcrAPIBaseTest{
   }
 
   public void testEquals() throws Exception {
-  	
+
     assertTrue(valueFactory.createValue("test").equals(valueFactory.createValue("test")));
     assertFalse(valueFactory.createValue("2").equals(valueFactory.createValue(2l)));
   }

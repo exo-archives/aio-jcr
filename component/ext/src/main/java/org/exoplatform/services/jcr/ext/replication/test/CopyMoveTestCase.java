@@ -37,47 +37,52 @@ import org.exoplatform.services.jcr.RepositoryService;
  */
 public class CopyMoveTestCase extends BaseReplicationTestCase {
 
-  public CopyMoveTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+  public CopyMoveTestCase(RepositoryService repositoryService,
+                          String reposytoryName,
+                          String workspaceName,
+                          String userName,
+                          String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
     log.info("CopyMoveTestCase inited");
   }
 
-  public StringBuffer workspaceCopy(String srcRepoPath, String nodeName, String destNodeName, long contentSize) {
+  public StringBuffer workspaceCopy(String srcRepoPath,
+                                    String nodeName,
+                                    String destNodeName,
+                                    long contentSize) {
     StringBuffer sb = new StringBuffer();
 
     // add source node
-      byte[] buf = new byte[BUFFER_SIZE];
+    byte[] buf = new byte[BUFFER_SIZE];
 
-      File tempFile = null;
-      try {
-        tempFile = File.createTempFile("tempF", "_");
-        FileOutputStream fos = new FileOutputStream(tempFile);
+    File tempFile = null;
+    try {
+      tempFile = File.createTempFile("tempF", "_");
+      FileOutputStream fos = new FileOutputStream(tempFile);
 
-        for (int i = 0; i < buf.length; i++)
-          buf[i] = (byte) (i % 255);
+      for (int i = 0; i < buf.length; i++)
+        buf[i] = (byte) (i % 255);
 
-        for (long i = 0; i < contentSize/BUFFER_SIZE; i++)
-          fos.write(buf);
-        fos.write(buf, 0, (int)(contentSize%BUFFER_SIZE));
-        fos.close();
+      for (long i = 0; i < contentSize / BUFFER_SIZE; i++)
+        fos.write(buf);
+      fos.write(buf, 0, (int) (contentSize % BUFFER_SIZE));
+      fos.close();
 
+      Node srcNode = addNodePath(srcRepoPath).addNode(nodeName, "nt:file");
+      Node contentNode = srcNode.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:encoding", "UTF-8");
+      contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+      contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
 
-        Node srcNode = addNodePath(srcRepoPath).addNode(nodeName, "nt:file");
-        Node contentNode = srcNode.addNode("jcr:content", "nt:resource");
-        contentNode.setProperty("jcr:encoding", "UTF-8");
-        contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
-        contentNode.setProperty("jcr:mimeType", "application/octet-stream");
-        contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-            Calendar.getInstance()));
+      session.save();
 
-        session.save();
-      
-        String normalizedSrcPath = getNormalizePath(srcRepoPath) + "/" + nodeName;
-        String normalizedDestPath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
-        
-        session.getWorkspace().copy(normalizedSrcPath, normalizedDestPath);
-        session.save();
+      String normalizedSrcPath = getNormalizePath(srcRepoPath) + "/" + nodeName;
+      String normalizedDestPath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
+
+      session.getWorkspace().copy(normalizedSrcPath, normalizedDestPath);
+      session.save();
 
       sb.append("ok");
     } catch (RepositoryException e) {
@@ -90,42 +95,44 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
     return sb;
   }
-  
-  public StringBuffer workspaceMove(String srcRepoPath, String nodeName, String destNodeName, long contentSize) {
+
+  public StringBuffer workspaceMove(String srcRepoPath,
+                                    String nodeName,
+                                    String destNodeName,
+                                    long contentSize) {
     StringBuffer sb = new StringBuffer();
 
     // add source node
-      byte[] buf = new byte[BUFFER_SIZE];
+    byte[] buf = new byte[BUFFER_SIZE];
 
-      File tempFile = null;
-      try {
-        tempFile = File.createTempFile("tempF", "_");
-        FileOutputStream fos = new FileOutputStream(tempFile);
+    File tempFile = null;
+    try {
+      tempFile = File.createTempFile("tempF", "_");
+      FileOutputStream fos = new FileOutputStream(tempFile);
 
-        for (int i = 0; i < buf.length; i++)
-          buf[i] = (byte) (i % 255);
+      for (int i = 0; i < buf.length; i++)
+        buf[i] = (byte) (i % 255);
 
-        for (long i = 0; i < contentSize/BUFFER_SIZE; i++)
-          fos.write(buf);
-        fos.write(buf, 0, (int)(contentSize%BUFFER_SIZE));
-        fos.close();
+      for (long i = 0; i < contentSize / BUFFER_SIZE; i++)
+        fos.write(buf);
+      fos.write(buf, 0, (int) (contentSize % BUFFER_SIZE));
+      fos.close();
 
+      Node srcNode = addNodePath(srcRepoPath).addNode(nodeName, "nt:file");
+      Node contentNode = srcNode.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:encoding", "UTF-8");
+      contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+      contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
 
-        Node srcNode = addNodePath(srcRepoPath).addNode(nodeName, "nt:file");
-        Node contentNode = srcNode.addNode("jcr:content", "nt:resource");
-        contentNode.setProperty("jcr:encoding", "UTF-8");
-        contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
-        contentNode.setProperty("jcr:mimeType", "application/octet-stream");
-        contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-            Calendar.getInstance()));
+      session.save();
 
-        session.save();
-      
-        String normalizedSrcPath = getNormalizePath(srcRepoPath) + "/" + nodeName;
-        String normalizedDestPath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
-        
-        session.getWorkspace().move(normalizedSrcPath, normalizedDestPath);
-        session.save();
+      String normalizedSrcPath = getNormalizePath(srcRepoPath) + "/" + nodeName;
+      String normalizedDestPath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
+
+      session.getWorkspace().move(normalizedSrcPath, normalizedDestPath);
+      session.save();
 
       sb.append("ok");
     } catch (RepositoryException e) {
@@ -138,42 +145,44 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
     return sb;
   }
-  
-  public StringBuffer sessionMove(String srcRepoPath, String nodeName, String destNodeName, long contentSize) {
+
+  public StringBuffer sessionMove(String srcRepoPath,
+                                  String nodeName,
+                                  String destNodeName,
+                                  long contentSize) {
     StringBuffer sb = new StringBuffer();
 
     // add source node
-      byte[] buf = new byte[BUFFER_SIZE];
+    byte[] buf = new byte[BUFFER_SIZE];
 
-      File tempFile = null;
-      try {
-        tempFile = File.createTempFile("tempF", "_");
-        FileOutputStream fos = new FileOutputStream(tempFile);
+    File tempFile = null;
+    try {
+      tempFile = File.createTempFile("tempF", "_");
+      FileOutputStream fos = new FileOutputStream(tempFile);
 
-        for (int i = 0; i < buf.length; i++)
-          buf[i] = (byte) (i % 255);
+      for (int i = 0; i < buf.length; i++)
+        buf[i] = (byte) (i % 255);
 
-        for (long i = 0; i < contentSize/BUFFER_SIZE; i++)
-          fos.write(buf);
-        fos.write(buf, 0, (int)(contentSize%BUFFER_SIZE));
-        fos.close();
+      for (long i = 0; i < contentSize / BUFFER_SIZE; i++)
+        fos.write(buf);
+      fos.write(buf, 0, (int) (contentSize % BUFFER_SIZE));
+      fos.close();
 
+      Node srcNode = addNodePath(srcRepoPath).addNode(nodeName, "nt:file");
+      Node contentNode = srcNode.addNode("jcr:content", "nt:resource");
+      contentNode.setProperty("jcr:encoding", "UTF-8");
+      contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
+      contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+      contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
 
-        Node srcNode = addNodePath(srcRepoPath).addNode(nodeName, "nt:file");
-        Node contentNode = srcNode.addNode("jcr:content", "nt:resource");
-        contentNode.setProperty("jcr:encoding", "UTF-8");
-        contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
-        contentNode.setProperty("jcr:mimeType", "application/octet-stream");
-        contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-            Calendar.getInstance()));
+      session.save();
 
-        session.save();
-      
-        String normalizedSrcPath = getNormalizePath(srcRepoPath) + "/" + nodeName;
-        String normalizedDestPath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
-        
-        session.move(normalizedSrcPath, normalizedDestPath);
-        session.save();
+      String normalizedSrcPath = getNormalizePath(srcRepoPath) + "/" + nodeName;
+      String normalizedDestPath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
+
+      session.move(normalizedSrcPath, normalizedDestPath);
+      session.save();
 
       sb.append("ok");
     } catch (RepositoryException e) {
@@ -186,23 +195,26 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
 
     return sb;
   }
-  
-  public StringBuffer checkCopyMoveNode(String srcRepoPath, String nodeName, String destNodeName, long contentSize) {
+
+  public StringBuffer checkCopyMoveNode(String srcRepoPath,
+                                        String nodeName,
+                                        String destNodeName,
+                                        long contentSize) {
     StringBuffer sb = new StringBuffer();
 
     String normalizePath = getNormalizePath(srcRepoPath) + "/" + destNodeName;
     try {
-      Node ntFile = (Node)session.getItem(normalizePath);
-      
+      Node ntFile = (Node) session.getItem(normalizePath);
+
       InputStream stream = ntFile.getNode("jcr:content").getProperty("jcr:data").getStream();
-      
+
       byte buf[] = new byte[BUFFER_SIZE];
       long length = 0;
       int lenReads = 0;
-      while ((lenReads = stream.read(buf)) > 0) 
-        length+=lenReads;
-      
-      if (length == contentSize) 
+      while ((lenReads = stream.read(buf)) > 0)
+        length += lenReads;
+
+      if (length == contentSize)
         sb.append("ok");
       else
         sb.append("fail");

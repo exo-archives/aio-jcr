@@ -26,49 +26,47 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 public class MetaDataActionTest extends BaseStandaloneTest {
 
   /**
-                 <value>
-                    <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
-                      <field  name="eventTypes"><string>addProperty,changeProperty</string></field>
-                      <field  name="path"><string>/MetaDataActionTest/testAddContent</string></field>
-                      <field  name="isDeep"><boolean>true</boolean></field>
-                      <field  name="parentNodeType"><string>nt:resource</string></field>
-                      <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.metadata.AddMetadataAction</string></field>
-                    </object>
-                  </value>
-
+   * <value> <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration"> <field
+   * name="eventTypes"><string>addProperty,changeProperty</string></field> <field
+   * name="path"><string>/MetaDataActionTest/testAddContent</string></field> <field
+   * name="isDeep"><boolean>true</boolean></field> <field
+   * name="parentNodeType"><string>nt:resource</string></field> <field
+   * name="actionClassName"><string
+   * >org.exoplatform.services.jcr.ext.metadata.AddMetadataAction</string></field> </object>
+   * </value>
+   * 
    * @throws Exception
    */
   public void testAddContent() throws Exception {
 
-    
     InputStream is = MetaDataActionTest.class.getResourceAsStream("/test_index.xls");
     Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
     session.save();
     Node contentNode = rootNode.addNode("testAddContent", "nt:resource");
-    //contentNode.setProperty("jcr:encoding", "UTF-8");
+    // contentNode.setProperty("jcr:encoding", "UTF-8");
     contentNode.setProperty("jcr:data", is);
     contentNode.setProperty("jcr:mimeType", "application/excel");
     contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
     root.save();
 
-    Node testNode = repository.getSystemSession().getRootNode().getNode("MetaDataActionTest/testAddContent");
+    Node testNode = repository.getSystemSession()
+                              .getRootNode()
+                              .getNode("MetaDataActionTest/testAddContent");
     assertTrue(testNode.hasProperty("dc:creator"));
     assertTrue(testNode.hasProperty("dc:date"));
     assertTrue(testNode.hasProperty("dc:contributor"));
   }
 
   /**
-   * Prerequisites:
-                  <value>
-                    <object type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration">
-                      <field  name="eventTypes"><string>addNode</string></field>
-                      <field  name="path"><string>/MetaDataActionTest/setmetadata</string></field>
-                      <field  name="isDeep"><boolean>false</boolean></field>
-                      <field  name="actionClassName"><string>org.exoplatform.services.jcr.ext.metadata.SetDCMetadataAction</string></field>
-                    </object>
-                  </value>
-
-   *
+   * Prerequisites: <value> <object
+   * type="org.exoplatform.services.jcr.impl.ext.action.ActionConfiguration"> <field
+   * name="eventTypes"><string>addNode</string></field> <field
+   * name="path"><string>/MetaDataActionTest/setmetadata</string></field> <field
+   * name="isDeep"><boolean>false</boolean></field> <field
+   * name="actionClassName"><string>org.exoplatform
+   * .services.jcr.ext.metadata.SetDCMetadataAction</string></field> </object> </value>
+   * 
+   * 
    * @throws Exception
    */
   public void testSetMetaData() throws Exception {
@@ -78,9 +76,10 @@ public class MetaDataActionTest extends BaseStandaloneTest {
     rootNode.save();
     assertTrue(contentNode.hasProperty("dc:creator"));
     assertTrue(contentNode.hasProperty("dc:date"));
-    assertEquals(session.getUserID(), contentNode.getProperty("dc:creator").getValues()[0].getString());
+    assertEquals(session.getUserID(),
+                 contentNode.getProperty("dc:creator").getValues()[0].getString());
   }
-  
+
   public void testDontSetMetaData() throws Exception {
     Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
     session.save();
@@ -91,23 +90,24 @@ public class MetaDataActionTest extends BaseStandaloneTest {
     assertFalse(contentNode.hasProperty("dc:date"));
     assertFalse(contentNode.hasProperty("dc:creator"));
   }
-  
+
   public void testDontSetMetaDataNtFile() throws Exception {
     Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
     session.save();
     Node node = rootNode.addNode("testDontSetMetaDataNtFile", "nt:file");
     Node contentNode = node.addNode("jcr:content", "nt:unstructured");
-    contentNode.setProperty("jcr:data", MetaDataActionTest.class.getResourceAsStream("/test_index.xls"));
+    contentNode.setProperty("jcr:data",
+                            MetaDataActionTest.class.getResourceAsStream("/test_index.xls"));
     contentNode.setProperty("jcr:mimeType", "application/vnd.ms-excel");
     contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
     // dc:elementset properties SHOULD NOT be setted automatically
     rootNode.save();
-    
+
     assertFalse(contentNode.hasProperty("dc:creator"));
     assertFalse(contentNode.hasProperty("dc:date"));
     assertFalse(contentNode.hasProperty("dc:creator"));
   }
-  
+
   public void testDontSetMetaDataAnywhere() throws Exception {
     Node rootNode = session.getRootNode().addNode("MetaDataActionTest");
     session.save();

@@ -20,34 +20,34 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Created by The eXo Platform SAS.<br/>
- * iterator of PlainChangesLog
+ * Created by The eXo Platform SAS.<br/> iterator of PlainChangesLog
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ChangesLogIterator.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class ChangesLogIterator {
 
-  private Iterator <PlainChangesLog> internalIterator; 
+  private Iterator<PlainChangesLog> internalIterator;
 
-  public ChangesLogIterator(Collection <PlainChangesLog> logs) {
+  public ChangesLogIterator(Collection<PlainChangesLog> logs) {
     internalIterator = logs.iterator();
   }
 
   /**
-   * @return if there is next changes log 
+   * @return if there is next changes log
    */
   public boolean hasNextLog() {
     return internalIterator.hasNext();
   }
-  
+
   /**
    * @return next changes log
    */
   public PlainChangesLog nextLog() {
     return internalIterator.next();
   }
-  
+
   /**
    * @void remove changes log
    */

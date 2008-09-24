@@ -92,10 +92,12 @@ public class DocumentViewImporter extends BaseXmlImporter {
   /**
    * Document view importer.
    * 
-   * @param parent - parent node
+   * @param parent
+   *          - parent node
    * @param uuidBehavior
    * @param saveType
-   * @param respectPropertyDefinitionsConstraints sdf;gkjwpeoirjtg
+   * @param respectPropertyDefinitionsConstraints
+   *          sdf;gkjwpeoirjtg
    */
   public DocumentViewImporter(NodeData parent,
                               QPath ancestorToSave,
@@ -107,7 +109,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
                               NamespaceRegistry namespaceRegistry,
                               AccessManager accessManager,
                               ConversationState userState,
-                              Map<String, Object> context, RepositoryImpl repository,
+                              Map<String, Object> context,
+                              RepositoryImpl repository,
                               String currentWorkspaceName) {
     super(parent,
           ancestorToSave,
@@ -128,9 +131,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
-   *      int, int)
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
 
@@ -185,9 +186,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   *      java.lang.String, java.lang.String)
+   * java.lang.String, java.lang.String)
    */
   public void endElement(String uri, String localName, String qName) throws RepositoryException {
     tree.pop();

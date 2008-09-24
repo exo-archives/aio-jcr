@@ -50,7 +50,7 @@ public class InvocationContext extends HashMap implements Context {
   public Object put(String key, ItemImpl item) {
     return super.put(key, item);
   }
-  
+
   public Object put(String key, ExoContainer container) {
     return super.put(key, container);
   }
@@ -85,7 +85,7 @@ public class InvocationContext extends HashMap implements Context {
   public final int getEventType() {
     return (Integer) get(EVENT);
   }
-  
+
   public String getString(final String name) {
     if (!containsKey(name))
       return null;

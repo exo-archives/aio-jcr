@@ -63,7 +63,8 @@ public abstract class AbstractBackupJob implements BackupJob {
     protected final BackupJob           job;
 
     NotifyThread(BackupJobListener[] listeners, BackupJob job) {
-      super.setDaemon(true); // The Java Virtual Machine exits when the only threads running are all daemon threads.
+      super.setDaemon(true); // The Java Virtual Machine exits when the only threads running are all
+      // daemon threads.
       this.listeners = listeners;
       this.job = job;
     }
@@ -101,7 +102,8 @@ public abstract class AbstractBackupJob implements BackupJob {
   }
 
   /**
-   * This method is called by run() and resume() Backup implementation knows how to create new storage
+   * This method is called by run() and resume() Backup implementation knows how to create new
+   * storage
    * 
    * @return URL of new storage
    */
@@ -141,7 +143,8 @@ public abstract class AbstractBackupJob implements BackupJob {
    */
   protected void notifyListeners() {
     synchronized (listeners) {
-      Thread notifier = new NotifyThread(listeners.toArray(new BackupJobListener[listeners.size()]), this);
+      Thread notifier = new NotifyThread(listeners.toArray(new BackupJobListener[listeners.size()]),
+                                         this);
       notifier.start();
     }
   }
@@ -149,11 +152,15 @@ public abstract class AbstractBackupJob implements BackupJob {
   /**
    * Notify all listeners about an error
    * 
-   * @param error - Throwable instance
+   * @param error
+   *          - Throwable instance
    */
   protected void notifyError(String message, Throwable error) {
     synchronized (listeners) {
-      Thread notifier = new ErrorNotifyThread(listeners.toArray(new BackupJobListener[listeners.size()]), this, message, error);
+      Thread notifier = new ErrorNotifyThread(listeners.toArray(new BackupJobListener[listeners.size()]),
+                                              this,
+                                              message,
+                                              error);
       notifier.start();
     }
   }

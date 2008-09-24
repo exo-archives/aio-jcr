@@ -20,12 +20,12 @@ import com.sun.japex.TestCase;
 public class RepositoryLoginTest extends JCRTestBase {
 
   private Repository repository = null;
-  
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     repository = context.getSession().getRepository();
   }
-  
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     repository.login(context.getCredentials());

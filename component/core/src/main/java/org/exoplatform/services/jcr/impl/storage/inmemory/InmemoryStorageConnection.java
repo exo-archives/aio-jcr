@@ -38,8 +38,10 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: InmemoryStorageConnection.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -48,32 +50,28 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
 
   private static Log log = ExoLogger.getLogger("jcr.InmemoryStorageConnection");
 
-  private TreeMap items;
+  private TreeMap    items;
 
-  private TreeMap identifiers;
+  private TreeMap    identifiers;
 
-  
   InmemoryStorageConnection(String name) {
-    items = WorkspaceContainerRegistry.getInstance()
-        .getWorkspaceContainer(name);
+    items = WorkspaceContainerRegistry.getInstance().getWorkspaceContainer(name);
     identifiers = new TreeMap();
   }
 
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException,
-      IllegalStateException {
-    return getItemData(QPath.makeChildPath(parentData.getQPath(),new QPathEntry[]{name}));
+                                                                   IllegalStateException {
+    return getItemData(QPath.makeChildPath(parentData.getQPath(), new QPathEntry[] { name }));
   }
 
-  public ItemData getItemData(QPath qPath) throws RepositoryException,
-      IllegalStateException {
+  public ItemData getItemData(QPath qPath) throws RepositoryException, IllegalStateException {
     log.debug("InmemoryContainer finding " + qPath.getAsString());
     Object o = items.get(qPath.getAsString());
     log.debug("InmemoryContainer FOUND " + qPath.getAsString() + " " + o);
     return (ItemData) o;
   }
 
-  public ItemData getItemData(String identifier) throws RepositoryException,
-      IllegalStateException {
+  public ItemData getItemData(String identifier) throws RepositoryException, IllegalStateException {
     Iterator itemsIterator = items.values().iterator();
     while (itemsIterator.hasNext()) {
       ItemData data = (ItemData) itemsIterator.next();
@@ -83,17 +81,18 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     return null;
   }
 
-  public List<NodeData> getChildNodesData(NodeData parent)
-      throws RepositoryException, IllegalStateException {
+  public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException,
+                                                          IllegalStateException {
     return null;
   }
 
-  public List<PropertyData> getChildPropertiesData(NodeData parent)
-      throws RepositoryException, IllegalStateException {
+  public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException,
+                                                                   IllegalStateException {
     return null;
   }
-  
-  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException, IllegalStateException {
+
+  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException,
+                                                                    IllegalStateException {
     return null;
   }
 
@@ -101,13 +100,12 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
     return 0;
   }
 
-  public int getChildPropertiesCount(NodeData nodeData)
-      throws RepositoryException {
+  public int getChildPropertiesCount(NodeData nodeData) throws RepositoryException {
     return 0;
   }
 
   public List<PropertyData> getReferencesData(String identifier) throws RepositoryException,
-      IllegalStateException {
+                                                                IllegalStateException {
     ArrayList<PropertyData> refs = new ArrayList<PropertyData>();
     Iterator it = items.values().iterator();
     while (it.hasNext()) {
@@ -128,8 +126,9 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
   }
 
   public void add(NodeData item) throws RepositoryException,
-      UnsupportedOperationException, InvalidItemStateException,
-      IllegalStateException {
+                                UnsupportedOperationException,
+                                InvalidItemStateException,
+                                IllegalStateException {
 
     if (items.get(item.getQPath().getAsString()) != null)
       throw new ItemExistsException("WorkspaceContainerImpl.add(Item) item '"
@@ -148,41 +147,47 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
   }
 
   public void add(PropertyData prop) throws RepositoryException,
-      UnsupportedOperationException, InvalidItemStateException,
-      IllegalStateException {
+                                    UnsupportedOperationException,
+                                    InvalidItemStateException,
+                                    IllegalStateException {
     items.put(prop.getQPath().getAsString(), prop);
-    log.debug("InmemoryContainer added property "
-        + prop.getQPath().getAsString());
+    log.debug("InmemoryContainer added property " + prop.getQPath().getAsString());
   }
 
   public void update(NodeData data) throws RepositoryException,
-      UnsupportedOperationException, InvalidItemStateException,
-      IllegalStateException {
+                                   UnsupportedOperationException,
+                                   InvalidItemStateException,
+                                   IllegalStateException {
     throw new UnsupportedOperationException("not implemented");
   }
-  
+
   public void reindex(NodeData oldData, NodeData data) throws RepositoryException,
-    UnsupportedOperationException, InvalidItemStateException,
-    IllegalStateException {
+                                                      UnsupportedOperationException,
+                                                      InvalidItemStateException,
+                                                      IllegalStateException {
     throw new UnsupportedOperationException("not implemented");
   }
 
   public void update(PropertyData item) throws RepositoryException,
-      UnsupportedOperationException, InvalidItemStateException,
-      IllegalStateException {
+                                       UnsupportedOperationException,
+                                       InvalidItemStateException,
+                                       IllegalStateException {
     items.put(item.getQPath().getAsString(), item);
     log.debug("InmemoryContainer updated " + item);
   }
 
   public void delete(NodeData data) throws RepositoryException,
-      UnsupportedOperationException, InvalidItemStateException,
-      IllegalStateException {
+                                   UnsupportedOperationException,
+                                   InvalidItemStateException,
+                                   IllegalStateException {
     items.remove(data.getQPath().getAsString());
     log.debug("InmemoryContainer removed " + data.getQPath().getAsString());
   }
-  
-  public void delete(PropertyData data) throws RepositoryException, UnsupportedOperationException,
-      InvalidItemStateException, IllegalStateException {
+
+  public void delete(PropertyData data) throws RepositoryException,
+                                       UnsupportedOperationException,
+                                       InvalidItemStateException,
+                                       IllegalStateException {
     items.remove(data.getQPath().getAsString());
     log.debug("InmemoryContainer removed " + data.getQPath().getAsString());
   }
@@ -200,27 +205,27 @@ public class InmemoryStorageConnection implements WorkspaceStorageConnection {
   protected List getChildProperties(NodeData node) {
     return null;
   }
-  
+
   protected List getChildNodes(NodeData node) {
     return null;
   }
-  
+
   public String dump() {
     String str = "Inmemory WorkspaceContainer Data: \n";
     Iterator i = items.keySet().iterator();
     while (i.hasNext()) {
       JCRPath d = (JCRPath) i.next();
-      str += d.getInternalPath() + "\n"; 
+      str += d.getInternalPath() + "\n";
     }
     return str;
   }
 
   public void rename(NodeData destData) throws RepositoryException,
-      UnsupportedOperationException,
-      InvalidItemStateException,
-      IllegalStateException {
-   throw new UnsupportedOperationException();
-    
+                                       UnsupportedOperationException,
+                                       InvalidItemStateException,
+                                       IllegalStateException {
+    throw new UnsupportedOperationException();
+
   }
 
 }

@@ -43,7 +43,8 @@ public class DateValue extends BaseValue {
   /**
    * Constructs a <code>DateValue</code> object representing a date.
    * 
-   * @param date the date this <code>DateValue</code> should represent s
+   * @param date
+   *          the date this <code>DateValue</code> should represent s
    */
   public DateValue(Calendar date) throws IOException {
     super(TYPE, new TransientValueData(date));
@@ -61,8 +62,8 @@ public class DateValue extends BaseValue {
 
     if (date != null) {
       return JCRDateFormat.format(date);
-    } 
-    
+    }
+
     throw new ValueFormatException("empty value");
   }
 
@@ -82,8 +83,9 @@ public class DateValue extends BaseValue {
   /**
    * @see Value#getBoolean
    */
-  public boolean getBoolean() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public boolean getBoolean() throws ValueFormatException,
+                             IllegalStateException,
+                             RepositoryException {
 
     throw new ValueFormatException("cannot convert date to boolean");
   }
@@ -118,21 +120,20 @@ public class DateValue extends BaseValue {
   public InputStream getStream() throws ValueFormatException, RepositoryException {
 
     try {
-      if(data == null ) {
+      if (data == null) {
         String inernalString = getInternalString();
-        
-        //force replace of data
+
+        // force replace of data
         data = new LocalTransientValueData(true);
-        
-        //Replace internall stram
+
+        // Replace internall stram
         data.stream = new ByteArrayInputStream(inernalString.getBytes(Constants.DEFAULT_ENCODING));
       }
       return data.getAsStream();
     } catch (UnsupportedEncodingException e) {
       throw new RepositoryException(Constants.DEFAULT_ENCODING + " not supported on this platform",
-          e);
-    } 
-     catch (IOException e) {
+                                    e);
+    } catch (IOException e) {
       throw new RepositoryException(e);
     }
 

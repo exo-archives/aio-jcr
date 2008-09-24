@@ -27,15 +27,15 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPwd;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class PWDTest extends TestCase {
-  
+
   private static Log log = new Log("PWDTest");
-  
+
   public void testPWD() throws Exception {
     log.info("Test...");
 
@@ -51,7 +51,7 @@ public class PWDTest extends TestCase {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
@@ -60,11 +60,10 @@ public class PWDTest extends TestCase {
     {
       CmdPwd cmdPwd = new CmdPwd();
       assertEquals(FtpConst.Replyes.REPLY_257, client.executeCommand(cmdPwd));
-    }    
-    
+    }
+
     client.close();
-    log.info("Complete.\r\n");                
-  }  
+    log.info("Complete.\r\n");
+  }
 
 }
-

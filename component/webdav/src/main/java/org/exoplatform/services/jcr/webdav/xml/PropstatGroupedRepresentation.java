@@ -42,67 +42,68 @@ import org.exoplatform.services.jcr.webdav.resource.Resource;
 
 public class PropstatGroupedRepresentation {
 
-	protected final Map<String, Set<HierarchicalProperty>> propStats;
-	protected Set<QName> propNames = null;
-	protected final boolean namesOnly;
-	protected final Resource resource;
+  protected final Map<String, Set<HierarchicalProperty>> propStats;
 
-	public PropstatGroupedRepresentation(final Resource resource,
-			final Set<QName> propNames, boolean namesOnly)
-			throws RepositoryException {
-		this.namesOnly = namesOnly;
-		this.resource = resource;
-		this.propStats = new HashMap<String, Set<HierarchicalProperty>>();
-		
-		this.propNames = propNames;
-		
-		if (propNames != null) {		  
-		  this.propNames = new HashSet();
-		  Iterator<QName> propertyNameIter = propNames.iterator();
-		  while (propertyNameIter.hasNext()) {
-		    QName property = propertyNameIter.next();		    
-		    this.propNames.add(property);
-		  }		  		  
-		}
-	}
+  protected Set<QName>                                   propNames = null;
 
-	public final Map<String, Set<HierarchicalProperty>> getPropStats()
-			throws RepositoryException {
-		String statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
-		if (propNames == null) {
-			propStats.put(statname, resource.getProperties(namesOnly));
-		} else {
-		  
-			for (QName propName : propNames) {
-				HierarchicalProperty prop = new HierarchicalProperty(propName);
-				try {				  
-					prop = resource.getProperty(propName);
-					statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
-					
-				} catch (AccessDeniedException e) {
-					statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
-					e.printStackTrace();
-				} catch (ItemNotFoundException e) {
-					statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
-					e.printStackTrace();
-					
-				} catch (PathNotFoundException e) {
-				  statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
-					
-				} catch (RepositoryException e) {
-					statname = WebDavStatus
-							.getStatusDescription(WebDavStatus.INTERNAL_SERVER_ERROR);
-				}
+  protected final boolean                                namesOnly;
 
-				if (!propStats.containsKey(statname)) {
-					propStats.put(statname, new HashSet<HierarchicalProperty>());
-				}
+  protected final Resource                               resource;
 
-				Set<HierarchicalProperty> propSet = propStats.get(statname);
-				propSet.add(prop);
-			}
-		}
-		return propStats;
-	}
+  public PropstatGroupedRepresentation(final Resource resource,
+                                       final Set<QName> propNames,
+                                       boolean namesOnly) throws RepositoryException {
+    this.namesOnly = namesOnly;
+    this.resource = resource;
+    this.propStats = new HashMap<String, Set<HierarchicalProperty>>();
+
+    this.propNames = propNames;
+
+    if (propNames != null) {
+      this.propNames = new HashSet();
+      Iterator<QName> propertyNameIter = propNames.iterator();
+      while (propertyNameIter.hasNext()) {
+        QName property = propertyNameIter.next();
+        this.propNames.add(property);
+      }
+    }
+  }
+
+  public final Map<String, Set<HierarchicalProperty>> getPropStats() throws RepositoryException {
+    String statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+    if (propNames == null) {
+      propStats.put(statname, resource.getProperties(namesOnly));
+    } else {
+
+      for (QName propName : propNames) {
+        HierarchicalProperty prop = new HierarchicalProperty(propName);
+        try {
+          prop = resource.getProperty(propName);
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+
+        } catch (AccessDeniedException e) {
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
+          e.printStackTrace();
+        } catch (ItemNotFoundException e) {
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
+          e.printStackTrace();
+
+        } catch (PathNotFoundException e) {
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
+
+        } catch (RepositoryException e) {
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if (!propStats.containsKey(statname)) {
+          propStats.put(statname, new HashSet<HierarchicalProperty>());
+        }
+
+        Set<HierarchicalProperty> propSet = propStats.get(statname);
+        propSet.add(prop);
+      }
+    }
+    return propStats;
+  }
 
 }

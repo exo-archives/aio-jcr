@@ -35,8 +35,8 @@ import org.exoplatform.services.rest.transformer.StringOutputTransformer;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 18.08.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SynchronizationService.java 111 2008-11-11 11:11:11Z peterit $
  */
 
@@ -44,32 +44,34 @@ import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 @OutputTransformer(StringOutputTransformer.class)
 public class SynchronizationService implements ResourceContainer {
 
-  public static final String ID_DELIMITER = "$|";
-  
+  public static final String        ID_DELIMITER = "$|";
+
   protected final RepositoryService repoService;
-  protected final BackupManager backupManager;
-  protected final InitParams params;
-  
+
+  protected final BackupManager     backupManager;
+
+  protected final InitParams        params;
+
   /**
    * User identity in request
    */
   protected class RequestIdentity {
-    
+
     final String userName;
-    
+
     final String password;
-    
+
     RequestIdentity(String userName, String password) {
       this.userName = userName;
       this.password = password;
     }
   }
-  
+
   protected RequestIdentity parseIdentityLine(String identityLine) throws IOException {
-  
+
     String l = new String(Base64.decode(identityLine));
     String[] lpair = l.split(ID_DELIMITER);
-    
+
     String userName, password;
     if (lpair.length > 0) {
       userName = lpair[0];
@@ -79,38 +81,40 @@ public class SynchronizationService implements ResourceContainer {
         password = lpair[1];
     } else
       userName = password = null;
-    
+
     return new RequestIdentity(userName, password);
   }
-  
+
   protected String makeIdentityLine(RequestIdentity identity) {
-    
+
     String l = identity.userName + ID_DELIMITER + identity.password;
     return new String(Base64.encode(l.getBytes()));
   }
-  
-  public SynchronizationService(RepositoryService repoService, BackupManager backupManager, InitParams params) {
+
+  public SynchronizationService(RepositoryService repoService,
+                                BackupManager backupManager,
+                                InitParams params) {
     this.repoService = repoService;
     this.backupManager = backupManager;
-    this.params = params; 
+    this.params = params;
   }
-  
-  //@QueryTemplate("operation=addNTFile")
+
+  // @QueryTemplate("operation=addNTFile")
   @HTTPMethod("GET")
   @URITemplate("/hostfullbackup/{repositoryName}/{workspaceName}/{resourcePath}/")
-  public Response hostFullBackup(@URIParam("repositoryName") String repositoryName, 
-                             @URIParam("workspaceName") String workspaceName, 
-                             @URIParam("resourcePath") String resourcePath, 
-                             @URIParam("fileName") String fileName,
-                             @QueryParam("id") String identityLine) {
-    
+  public Response hostFullBackup(@URIParam("repositoryName") String repositoryName,
+                                 @URIParam("workspaceName") String workspaceName,
+                                 @URIParam("resourcePath") String resourcePath,
+                                 @URIParam("fileName") String fileName,
+                                 @QueryParam("id") String identityLine) {
+
     try {
       RequestIdentity identity = parseIdentityLine(identityLine);
-      
+
       return Response.Builder.ok("TODO".toString(), "text/plain").build();
     } catch (IOException e) {
       return Response.Builder.ok("TODO".toString(), "text/plain").build();
     }
   }
-  
+
 }

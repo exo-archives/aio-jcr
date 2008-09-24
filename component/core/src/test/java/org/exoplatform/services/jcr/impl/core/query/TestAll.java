@@ -22,33 +22,32 @@ import junit.framework.TestSuite;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: TestAll.java 12102 2008-03-19 13:16:27Z serg $
  */
 public class TestAll extends TestCase {
 
   /**
-   * Returns a <code>Test</code> suite that executes all tests inside this
-   * package.
-   *
-   * @return a <code>Test</code> suite that executes all tests inside this
-   *         package.
+   * Returns a <code>Test</code> suite that executes all tests inside this package.
+   * 
+   * @return a <code>Test</code> suite that executes all tests inside this package.
    */
   public static Test suite() {
-      TestSuite suite = new TestSuite("Search tests");
+    TestSuite suite = new TestSuite("Search tests");
 
-      //suite.addTestSuite(TestIndexingConfig.class);
-      //suite.addTestSuite(TestPermission.class);
-      
-     // lucene
-     // suite.addTestSuite(TestFileBasedNamespaceMappings.class);
-     // suite.addTestSuite(TestNodeIndexer.class);
-     // suite.addTestSuite(TestRemapping.class);
-     // suite.addTestSuite(TestSearchManagerIndexing.class);
-     // suite.addTestSuite(TestSystemSearchManager.class);
-     // suite.addTestSuite(TestAggregateRules.class);
-     // suite.addTestSuite(TestIndexRules.class);
-      
-      return suite;
+    // suite.addTestSuite(TestIndexingConfig.class);
+    // suite.addTestSuite(TestPermission.class);
+
+    // lucene
+    // suite.addTestSuite(TestFileBasedNamespaceMappings.class);
+    // suite.addTestSuite(TestNodeIndexer.class);
+    // suite.addTestSuite(TestRemapping.class);
+    // suite.addTestSuite(TestSearchManagerIndexing.class);
+    // suite.addTestSuite(TestSystemSearchManager.class);
+    // suite.addTestSuite(TestAggregateRules.class);
+    // suite.addTestSuite(TestIndexRules.class);
+
+    return suite;
   }
 }

@@ -22,22 +22,24 @@ import java.util.Calendar;
 import org.exoplatform.services.jcr.ext.backup.impl.BackupManagerImpl.MessagesListener;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua 15.01.2008
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 15.01.2008
  * 
- * TODO message may be associated with chain, i.e. it's will be possible to select only given chain messages in BackupMessagesLog
+ * TODO message may be associated with chain, i.e. it's will be possible to select only given chain
+ * messages in BackupMessagesLog
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupMessage.java 760 2008-02-07 15:08:07Z pnedonosko $
  */
 public class BackupMessage {
-  
-  public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS"; 
-  
-  protected final String message;
-  
-  protected final Calendar time;
-  
-  private String string;
+
+  public static final String DATE_FORMAT_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
+
+  protected final String     message;
+
+  protected final Calendar   time;
+
+  private String             string;
 
   BackupMessage(String message) {
     this.time = Calendar.getInstance();
@@ -47,7 +49,7 @@ public class BackupMessage {
   public String getMessage() {
     return message;
   }
-  
+
   public boolean isError() {
     return false;
   }
@@ -55,7 +57,7 @@ public class BackupMessage {
   public Calendar getTime() {
     return (Calendar) time.clone();
   }
-  
+
   String formatDate(final Calendar date) {
     final SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_PATTERN);
     return df.format(date.getTime());
@@ -81,6 +83,5 @@ public class BackupMessage {
     else
       return string;
   }
-  
-  
+
 }

@@ -36,23 +36,26 @@ import org.exoplatform.frameworks.jcr.command.JCRAppContext;
 
 public class SetPropertyCommand implements Command {
 
-  private String nameKey = DefaultKeys.NAME;
-  private String currentNodeKey = DefaultKeys.CURRENT_NODE;
-  private String resultKey = DefaultKeys.RESULT;
+  private String nameKey         = DefaultKeys.NAME;
+
+  private String currentNodeKey  = DefaultKeys.CURRENT_NODE;
+
+  private String resultKey       = DefaultKeys.RESULT;
+
   private String propertyTypeKey = DefaultKeys.PROPERTY_TYPE;
-  private String valuesKey = DefaultKeys.VALUES;
-  private String multiValuedKey = DefaultKeys.MULTI_VALUED;
+
+  private String valuesKey       = DefaultKeys.VALUES;
+
+  private String multiValuedKey  = DefaultKeys.MULTI_VALUED;
 
   public boolean execute(Context context) throws Exception {
 
     Session session = ((JCRAppContext) context).getSession();
 
-    Node parentNode = (Node) session.getItem((String) context
-        .get(currentNodeKey));
+    Node parentNode = (Node) session.getItem((String) context.get(currentNodeKey));
     String name = (String) context.get(nameKey);
 
-    int type = PropertyType
-        .valueFromName((String) context.get(propertyTypeKey));
+    int type = PropertyType.valueFromName((String) context.get(propertyTypeKey));
     boolean multi;// = ((Boolean)context.get(multiValuedKey)).booleanValue();
     if (context.get(multiValuedKey).equals("true")) {
       multi = true;
@@ -61,17 +64,13 @@ public class SetPropertyCommand implements Command {
     }
     Object values = context.get(valuesKey);
     if (values instanceof String)
-      context.put(resultKey, parentNode
-          .setProperty(name, (String) values, type));
+      context.put(resultKey, parentNode.setProperty(name, (String) values, type));
     else if (values instanceof String[])
-      context.put(resultKey, parentNode.setProperty(name, (String[]) values,
-          type));
+      context.put(resultKey, parentNode.setProperty(name, (String[]) values, type));
     else if (values instanceof InputStream)
-      context
-          .put(resultKey, parentNode.setProperty(name, (InputStream) values));
+      context.put(resultKey, parentNode.setProperty(name, (InputStream) values));
     else
-      throw new Exception(
-          "Values other than String, String[], InputStream is not supported");
+      throw new Exception("Values other than String, String[], InputStream is not supported");
 
     return false;
   }

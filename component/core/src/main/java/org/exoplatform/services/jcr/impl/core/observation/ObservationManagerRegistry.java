@@ -40,15 +40,15 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ObservationManagerRegistry {
-  
-  protected static Log log = ExoLogger.getLogger("jcr.RepositoryService");
+
+  protected static Log                           log = ExoLogger.getLogger("jcr.RepositoryService");
 
   protected Map<EventListener, ListenerCriteria> listenersMap;
 
   protected ActionLauncher                       launcher;
 
   public ObservationManagerRegistry(WorkspacePersistentDataManager workspaceDataManager,
-      SessionRegistry sessionRegistry) {
+                                    SessionRegistry sessionRegistry) {
 
     this.listenersMap = new HashMap<EventListener, ListenerCriteria>();
     this.launcher = new ActionLauncher(this, workspaceDataManager, sessionRegistry);

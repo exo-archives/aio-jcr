@@ -58,9 +58,9 @@ public final class ValuePluginFilter {
    * @throws RepositoryConfigurationException
    */
   public ValuePluginFilter(int propertyType,
-      QPath ancestorPath,
-      InternalQName propertyName,
-      long minValueSize) throws RepositoryConfigurationException {
+                           QPath ancestorPath,
+                           InternalQName propertyName,
+                           long minValueSize) throws RepositoryConfigurationException {
     if (propertyType == PropertyType.UNDEFINED)
       throw new RepositoryConfigurationException("Property type is obligatory");
     this.propertyType = propertyType;
@@ -82,7 +82,8 @@ public final class ValuePluginFilter {
   }
 
   /**
-   * @param prop - incoming PropertyData
+   * @param prop
+   *          - incoming PropertyData
    * @return true if this filter criterias match incoming PropertyData
    */
   public boolean match(PropertyData prop, int valueOrderNumer) {

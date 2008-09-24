@@ -15,28 +15,29 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.services.jcr.impl.proccess;
+
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: WorkerThread.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public abstract class WorkerThread extends Thread {
-  
+
   protected boolean stopped = false;
-  
-  protected long timeout;
+
+  protected long    timeout;
 
   public WorkerThread(String name, long timeout) {
     super(name);
     this.timeout = timeout;
   }
-  
+
   public WorkerThread(long timeout) {
     super();
     this.timeout = timeout;
   }
-
 
   @Override
   public void run() {
@@ -45,17 +46,17 @@ public abstract class WorkerThread extends Thread {
         callPeriodically();
         sleep(timeout);
       } catch (Exception e) {
-        if(!(e instanceof InterruptedException))
+        if (!(e instanceof InterruptedException))
           e.printStackTrace();
-        
+
       }
     }
   }
-  
+
   public void halt() {
     stopped = true;
   }
-  
+
   protected abstract void callPeriodically() throws Exception;
 
 }

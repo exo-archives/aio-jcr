@@ -18,27 +18,28 @@
 package org.exoplatform.services.jcr.webdav;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class PreconditionException extends Exception {
 
-	public PreconditionException() {
-		super();
-	}
+  public PreconditionException() {
+    super();
+  }
 
-	public PreconditionException(String message, Throwable t) {
-		super(message, t);
-	}
+  public PreconditionException(String message, Throwable t) {
+    super(message, t);
+  }
 
-	public PreconditionException(String message) {
-		super(message);
-	}
+  public PreconditionException(String message) {
+    super(message);
+  }
 
-	public PreconditionException(Throwable t) {
-		super(t);
-	}
+  public PreconditionException(Throwable t) {
+    super(t);
+  }
 
 }

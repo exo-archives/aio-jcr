@@ -21,11 +21,11 @@ import java.util.Map;
 import org.exoplatform.services.organization.UserProfile;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 24.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: UserProfileImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserProfileImpl implements UserProfile {
@@ -47,17 +47,17 @@ public class UserProfileImpl implements UserProfile {
 
   public void setAttribute(String key, String value) {
     // TODO Auto-generated method stub
-    
+
   }
 
   public void setUserInfoMap(Map<String, String> map) {
     // TODO Auto-generated method stub
-    
+
   }
 
   public void setUserName(String username) {
     // TODO Auto-generated method stub
-    
+
   }
 
 }

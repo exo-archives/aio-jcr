@@ -27,15 +27,15 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPass;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CDUPTest extends TestCase {
-  
+
   private static Log log = new Log("CDUPTest");
-  
+
   public void testCDUP() throws Exception {
     log.info("Test...");
 
@@ -51,7 +51,7 @@ public class CDUPTest extends TestCase {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
@@ -61,10 +61,9 @@ public class CDUPTest extends TestCase {
       CmdCdUp cmdCdUp = new CmdCdUp();
       assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(cmdCdUp));
     }
-    
+
     client.close();
-    log.info("Complete.\r\n");                
-  }  
+    log.info("Complete.\r\n");
+  }
 
 }
-

@@ -43,15 +43,15 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class GenericWebAppContext extends ServletWebContext implements JCRAppContext {
 
-  public static final String JCR_CONTENT_MAPPING = "org.exoplatform.frameworks.web.repositoryMapping";
+  public static final String           JCR_CONTENT_MAPPING = "org.exoplatform.frameworks.web.repositoryMapping";
 
-  private static Log         log                 = ExoLogger.getLogger("jcr.JCRWebAppContext");
+  private static Log                   log                 = ExoLogger.getLogger("jcr.JCRWebAppContext");
 
-  protected final SessionProvider  sessionProvider;
-  
+  protected final SessionProvider      sessionProvider;
+
   protected final ManageableRepository repository;
 
-  protected String           currentWorkspace;
+  protected String                     currentWorkspace;
 
   public GenericWebAppContext(ServletContext servletContext,
                               HttpServletRequest request,
@@ -106,7 +106,6 @@ public class GenericWebAppContext extends ServletWebContext implements JCRAppCon
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.frameworks.jcr.command.JCRAppContext#getSession()
    */
   public Session getSession() throws LoginException, NoSuchWorkspaceException, RepositoryException {
@@ -115,7 +114,6 @@ public class GenericWebAppContext extends ServletWebContext implements JCRAppCon
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.frameworks.jcr.command.JCRAppContext#setCurrentWorkspace(java.lang.String)
    */
   public void setCurrentWorkspace(String workspaceName) {

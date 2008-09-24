@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.reading;
 
-
 import java.util.Calendar;
 
 import javax.jcr.Item;
@@ -31,23 +30,27 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestItem.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class TestItem extends JcrAPIBaseTest{
+public class TestItem extends JcrAPIBaseTest {
 
   public void initRepository() throws RepositoryException {
 
     Node root = session.getRootNode();
     Node file = root.addNode("childNode", "nt:folder").addNode("childNode2", "nt:file");
     Node contentNode = file.addNode("jcr:content", "nt:resource");
-//    System.out.println(" >>>>>>>>>");
-    contentNode.setProperty("jcr:data", session.getValueFactory().createValue("this is the content", PropertyType.BINARY));
+    // System.out.println(" >>>>>>>>>");
+    contentNode.setProperty("jcr:data", session.getValueFactory()
+                                               .createValue("this is the content",
+                                                            PropertyType.BINARY));
     contentNode.setProperty("jcr:mimeType", session.getValueFactory().createValue("text/html"));
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(Calendar.getInstance()));
-    
-//    System.out.println(" >>>>>>>>>"+((SessionImpl)session).getNodesManager());
-//    System.out.println(" >>>>>>>>>"+((SessionImpl)session).getContainer());
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
+
+    // System.out.println(" >>>>>>>>>"+((SessionImpl)session).getNodesManager());
+    // System.out.println(" >>>>>>>>>"+((SessionImpl)session).getContainer());
     session.save();
   }
 
@@ -55,10 +58,10 @@ public class TestItem extends JcrAPIBaseTest{
     Node root = session.getRootNode();
     root.getNode("childNode").remove();
     session.save();
-    
+
     super.tearDown();
   }
-  
+
   public void testGetPath() throws RepositoryException {
     Node root = session.getRootNode();
     Property property = root.getProperty("childNode/childNode2/jcr:content/jcr:data");
@@ -104,7 +107,6 @@ public class TestItem extends JcrAPIBaseTest{
     } catch (ItemNotFoundException e) {
     }
   }
-
 
   public void testGetParent() throws RepositoryException {
     Node root = session.getRootNode();
@@ -153,9 +155,5 @@ public class TestItem extends JcrAPIBaseTest{
     assertFalse(contentNode2.isSame(root));
     assertFalse(contentNode2.isSame(contentNode.getProperty("jcr:data")));
   }
-
-
-
-
 
 }

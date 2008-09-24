@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.util;
 
-
 public class Sleeping10Seconds {
 
   public void testSomething() throws Exception {

@@ -23,52 +23,52 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
+ * 
  * @version $Id: $
  */
 
 public class TestBrokenQuery extends BaseQueryTest {
-  
-  public void testSQLQueryCorrect()throws Exception{
-    try{
+
+  public void testSQLQueryCorrect() throws Exception {
+    try {
       QueryManager qman = this.workspace.getQueryManager();
-      Query q = qman.createQuery("SELECT * FROM nt:resource", Query.SQL); 
-   
+      Query q = qman.createQuery("SELECT * FROM nt:resource", Query.SQL);
+
       QueryResult res = q.execute();
-    }catch(InvalidQueryException e){
+    } catch (InvalidQueryException e) {
       fail();
     }
   }
-  
-  public void testSQLQueryInCorrect()throws Exception{
-    try{
+
+  public void testSQLQueryInCorrect() throws Exception {
+    try {
       QueryManager qman = this.workspace.getQueryManager();
-      Query q = qman.createQuery("SELECT * FROM nt:resource", Query.XPATH); 
+      Query q = qman.createQuery("SELECT * FROM nt:resource", Query.XPATH);
       QueryResult res = q.execute();
       fail();
-    }catch(InvalidQueryException e){
+    } catch (InvalidQueryException e) {
     }
   }
-  
-  public void testXPATHQueryCorrect()throws Exception{
-    try{
+
+  public void testXPATHQueryCorrect() throws Exception {
+    try {
       QueryManager qman = this.workspace.getQueryManager();
-      Query q = qman.createQuery("*", Query.XPATH); 
+      Query q = qman.createQuery("*", Query.XPATH);
       QueryResult res = q.execute();
-    }catch(InvalidQueryException e){
+    } catch (InvalidQueryException e) {
       fail();
     }
   }
-  
-  public void testXPATHQueryInCorrect()throws Exception{
-    try{
+
+  public void testXPATHQueryInCorrect() throws Exception {
+    try {
       QueryManager qman = this.workspace.getQueryManager();
-      Query q = qman.createQuery("*", Query.SQL); 
+      Query q = qman.createQuery("*", Query.SQL);
       QueryResult res = q.execute();
       fail();
-    }catch(InvalidQueryException e){
+    } catch (InvalidQueryException e) {
     }
   }
-  
+
 }

@@ -81,20 +81,29 @@ public class TestJira282 extends JcrAPIBaseTest {
     prepareRoot();
 
     for (int i = 0; i < ADD_THREAD_COUNT; i++) {
-      AddAgent agent = new AddAgent((SessionImpl) repository.login(this.credentials /*session.getCredentials()*/,
-                                                     session.getWorkspace().getName()));
+      AddAgent agent = new AddAgent((SessionImpl) repository.login(this.credentials /*
+                                                                                     * session.getCredentials
+                                                                                     * ()
+                                                                                     */,
+                                                                   session.getWorkspace().getName()));
       agent.start();
       agents.add(agent);
     }
     for (int i = 0; i < GET_THREAD_COUNT; i++) {
-      GetAgent agent = new GetAgent((SessionImpl) repository.login(this.credentials /*session.getCredentials()*/,
-                                                     session.getWorkspace().getName()));
+      GetAgent agent = new GetAgent((SessionImpl) repository.login(this.credentials /*
+                                                                                     * session.getCredentials
+                                                                                     * ()
+                                                                                     */,
+                                                                   session.getWorkspace().getName()));
       agent.start();
       agents.add(agent);
     }
     for (int i = 0; i < SET_THREAD_COUNT; i++) {
-      SetAgent agent = new SetAgent((SessionImpl) repository.login(this.credentials /*session.getCredentials()*/,
-                                                     session.getWorkspace().getName()));
+      SetAgent agent = new SetAgent((SessionImpl) repository.login(this.credentials /*
+                                                                                     * session.getCredentials
+                                                                                     * ()
+                                                                                     */,
+                                                                   session.getWorkspace().getName()));
       agent.start();
       agents.add(agent);
     }
@@ -135,7 +144,6 @@ public class TestJira282 extends JcrAPIBaseTest {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Thread#run()
      */
     /**
@@ -198,7 +206,6 @@ public class TestJira282 extends JcrAPIBaseTest {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Thread#run()
      */
     @Override
@@ -240,7 +247,6 @@ public class TestJira282 extends JcrAPIBaseTest {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Thread#run()
      */
     @Override

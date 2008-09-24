@@ -118,9 +118,9 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
   }
 
   /**
-   * Create repository.
-   * <br>Init worksapces for initial start or them load from persistence.
-   * <br>Add namespaces and nodetypes from service plugins.
+   * Create repository. <br>
+   * Init worksapces for initial start or them load from persistence. <br>
+   * Add namespaces and nodetypes from service plugins.
    * 
    */
   public void createRepository(RepositoryEntry rEntry) throws RepositoryConfigurationException,
@@ -128,13 +128,13 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     if (repositoryContainers.containsKey(rEntry.getName()))
       throw new RepositoryConfigurationException("Repository container " + rEntry.getName()
           + " already started");
-    
+
     RepositoryContainer repositoryContainer = new RepositoryContainer(parentContainer, rEntry);
     // Storing and starting the repository container under
     // key=repository_name
     repositoryContainers.put(rEntry.getName(), repositoryContainer);
     repositoryContainer.start();
-    
+
     if (!config.getRepositoryConfigurations().contains(rEntry)) {
       config.getRepositoryConfigurations().add(rEntry);
     }
@@ -319,9 +319,11 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
             } catch (Exception e) {
               throw new RepositoryException(e);
             }
-            log.info("Trying register node types (" + repositoryName + ") from xml-file " + nodeTypeFilesName);
+            log.info("Trying register node types (" + repositoryName + ") from xml-file "
+                + nodeTypeFilesName);
             ntManager.registerNodeTypes(inXml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-            log.info("Node types is registered (" + repositoryName + ") from xml-file " + nodeTypeFilesName);
+            log.info("Node types is registered (" + repositoryName + ") from xml-file "
+                + nodeTypeFilesName);
           }
         }
       }

@@ -46,10 +46,8 @@ import org.exoplatform.services.security.ConversationState;
 /**
  * Created by The eXo Platform SAS .
  * 
- * @deprecated use SessionProvider related mechanism instead
- * 
- * TODO uses in exo.cs.web.portal exo.ecm.web.portal
- * 
+ * @deprecated use SessionProvider related mechanism instead TODO uses in exo.cs.web.portal
+ *             exo.ecm.web.portal
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: SimpleSessionFactoryInitializedFilter.java 7163 2006-07-19 07:30:39Z peterit $
  */
@@ -66,7 +64,8 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
     servletContext = config.getServletContext();
   }
 
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+                                                                                           ServletException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpSession httpSession = httpRequest.getSession();
@@ -82,7 +81,8 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
 
     if (httpRequest.getRemoteUser() != null) {
       if (ConversationState.getCurrent() == null) {
-        log.warn("Cannot find the identity for user " + httpRequest.getRemoteUser() + ", trying to create the new one");
+        log.warn("Cannot find the identity for user " + httpRequest.getRemoteUser()
+            + ", trying to create the new one");
         ConversationState state = null;
         try {
           state = stateRegistry.getState(httpRequest.getRemoteUser());
@@ -107,8 +107,7 @@ public class SimpleSessionFactoryInitializedFilter implements Filter {
             rep = (ManageableRepository) ctx.lookup(repositoryName);
             log.info("Repository found in the JNDI context " + rep + " InitialContextFactory: "
                 + System.getProperty(Context.INITIAL_CONTEXT_FACTORY));
-            RepositoryService repositoryService =
-                (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
+            RepositoryService repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
             repositoryService.setCurrentRepositoryName(repositoryName);
           } catch (NamingException e) {
             e.printStackTrace();

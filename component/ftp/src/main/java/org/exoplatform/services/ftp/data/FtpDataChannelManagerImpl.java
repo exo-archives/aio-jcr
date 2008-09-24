@@ -23,36 +23,41 @@ import org.exoplatform.services.ftp.config.FtpConfig;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class FtpDataChannelManagerImpl implements FtpDataChannelManager {
 
-  private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpDataChannelManagerImpl");
-  
-  private FtpConfig configuration;
-  
-  private int dataChannels;
-  
-  //private Random random;
-  
-  protected FtpDataTransiver []channels; 
-  
-  public FtpDataChannelManagerImpl(FtpConfig configuration) {    
-    this.configuration = configuration;    
+  private static Log           log = ExoLogger.getLogger(FtpConst.FTP_PREFIX
+                                       + "FtpDataChannelManagerImpl");
+
+  private FtpConfig            configuration;
+
+  private int                  dataChannels;
+
+  // private Random random;
+
+  protected FtpDataTransiver[] channels;
+
+  public FtpDataChannelManagerImpl(FtpConfig configuration) {
+    this.configuration = configuration;
     dataChannels = configuration.getDataMaxPort() - configuration.getDataMinPort() + 1;
-    
+
     channels = new FtpDataTransiver[dataChannels];
   }
 
   public FtpDataTransiver getDataTransiver(FtpClientSession clientSession) {
-    synchronized (this) {      
+    synchronized (this) {
       for (int i = 0; i < channels.length; i++) {
         if (channels[i] == null) {
           try {
-            FtpDataTransiver transiver = new FtpDataTransiverImpl(this, configuration.getDataMinPort() + i, configuration, clientSession);
+            FtpDataTransiver transiver = new FtpDataTransiverImpl(this,
+                                                                  configuration.getDataMinPort()
+                                                                      + i,
+                                                                  configuration,
+                                                                  clientSession);
             channels[i] = transiver;
             return transiver;
           } catch (Exception exc) {
@@ -63,7 +68,7 @@ public class FtpDataChannelManagerImpl implements FtpDataChannelManager {
     }
     return null;
   }
-  
+
   public void freeDataTransiver(FtpDataTransiver dataTransiver) {
     synchronized (this) {
       int dataPort = dataTransiver.getDataPort();
@@ -71,15 +76,15 @@ public class FtpDataChannelManagerImpl implements FtpDataChannelManager {
       channels[index] = null;
     }
   }
-  
-//  public int getFreeDataPort() {
-//    int curRandomNum = random.nextInt(dataChannels);
-//    //channels[resultChannel - dataMinPort] = 1;
-//    return -1;
-//  }
-//  
-//  public void releaseDataPort(int dataPort) {
-//    
-//  }  
-  
+
+  // public int getFreeDataPort() {
+  // int curRandomNum = random.nextInt(dataChannels);
+  // //channels[resultChannel - dataMinPort] = 1;
+  // return -1;
+  // }
+  //  
+  // public void releaseDataPort(int dataPort) {
+  //    
+  // }
+
 }

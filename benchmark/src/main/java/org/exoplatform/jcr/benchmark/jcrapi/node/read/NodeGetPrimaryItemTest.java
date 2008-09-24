@@ -27,17 +27,18 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class NodeGetPrimaryItemTest extends AbstractNodeTest {
 
   private Node ntfile;
-  
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
-    
+
     ntfile = root.addNode(context.generateUniqueName("childNode"), "nt:file");
     Node content = ntfile.addNode("jcr:content", "nt:resource");
     content.setProperty("jcr:data", new ByteArrayInputStream(new byte[1]));

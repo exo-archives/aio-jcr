@@ -37,10 +37,9 @@ import com.sun.japex.TestCase;
 
 public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
   /*
-   * This test will read randomly one of 1 million nodes of type nt:file that
-   * has been created beforehand
-   * /download/node0..8/node0..49/node0..49/0..7-0..49-0..49-0..49.txt. Digits
-   * are genereted randomly using levelXNodesCount parameters.
+   * This test will read randomly one of 1 million nodes of type nt:file that has been created
+   * beforehand /download/node0..8/node0..49/node0..49/0..7-0..49-0..49-0..49.txt. Digits are
+   * genereted randomly using levelXNodesCount parameters.
    */
   private Random rand       = new Random();
 
@@ -68,12 +67,13 @@ public class RandomReadNtFileWithMetadataTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    int level1Index =  rand.nextInt(level1);
+    int level1Index = rand.nextInt(level1);
     int level2Index = rand.nextInt(level2);
     int level3Index = rand.nextInt(level3);
     int level4Index = rand.nextInt(level4);
-    String path = rootPath + "/node" + (startIndex +level1Index) + "/node" + level2Index + "/node" + level3Index
-        + "/" + level1Index + "-" + level2Index + "-" + level3Index + "-" + level4Index + ".txt";
+    String path = rootPath + "/node" + (startIndex + level1Index) + "/node" + level2Index + "/node"
+        + level3Index + "/" + level1Index + "-" + level2Index + "-" + level3Index + "-"
+        + level4Index + ".txt";
     Node node = context.getSession().getRootNode().getNode(path);
     try {
       Node contentNode = node.getNode("jcr:content");

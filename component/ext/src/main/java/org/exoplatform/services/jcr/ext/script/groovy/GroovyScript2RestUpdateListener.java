@@ -31,14 +31,18 @@ import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
  */
 public class GroovyScript2RestUpdateListener implements EventListener {
 
-  private String repository;
-  private String workspace;
-  private GroovyScript2RestLoader groovyScript2RestLoader;
-  private Session session;
+  private String                  repository;
 
-  public GroovyScript2RestUpdateListener(String repository, String workspace,
-      GroovyScript2RestLoader groovyScript2RestLoader,
-      Session session) {
+  private String                  workspace;
+
+  private GroovyScript2RestLoader groovyScript2RestLoader;
+
+  private Session                 session;
+
+  public GroovyScript2RestUpdateListener(String repository,
+                                         String workspace,
+                                         GroovyScript2RestLoader groovyScript2RestLoader,
+                                         Session session) {
     this.repository = repository;
     this.workspace = workspace;
     this.groovyScript2RestLoader = groovyScript2RestLoader;
@@ -58,33 +62,33 @@ public class GroovyScript2RestUpdateListener implements EventListener {
 
         // interesting about change script source code
         if (path.endsWith("/jcr:data")) {
-          
-          Node node = session.getItem(path).getParent(); 
+
+          Node node = session.getItem(path).getParent();
           // check is script should be automatically loaded
           if (node.getProperty("exo:autoload").getBoolean()) {
-            String unifiedNodePath = new UnifiedNodeReference(
-                repository, workspace, node.getPath()).getURL().toString();
+            String unifiedNodePath = new UnifiedNodeReference(repository, workspace, node.getPath()).getURL()
+                                                                                                    .toString();
             if (event.getType() == Event.PROPERTY_CHANGED) {
               groovyScript2RestLoader.unloadScript(unifiedNodePath);
-              groovyScript2RestLoader.loadScript(unifiedNodePath,
-                  node.getProperty("jcr:data").getStream());
+              groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data")
+                                                                      .getStream());
             } else {
-              // if Event.PROPERTY_ADDED 
-              groovyScript2RestLoader.loadScript(unifiedNodePath,
-                  node.getProperty("jcr:data").getStream());
+              // if Event.PROPERTY_ADDED
+              groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data")
+                                                                      .getStream());
             }
           }
         }
         // property 'exo:autoload' changed, if it false script should be removed
-        // from ResourceBinder. Not care about Event.ADDED_NODE it will be catched 
+        // from ResourceBinder. Not care about Event.ADDED_NODE it will be catched
         // by path.endsWith("/jcr:data").
         if (path.endsWith("/exo:autoload") && event.getType() == Event.PROPERTY_CHANGED) {
-          Node node = session.getItem(path).getParent(); 
-          String unifiedNodePath = new UnifiedNodeReference(
-              repository, workspace, node.getPath()).getURL().toString();
+          Node node = session.getItem(path).getParent();
+          String unifiedNodePath = new UnifiedNodeReference(repository, workspace, node.getPath()).getURL()
+                                                                                                  .toString();
           if (node.getProperty("exo:autoload").getBoolean()) {
-            groovyScript2RestLoader.loadScript(unifiedNodePath,
-                node.getProperty("jcr:data").getStream());
+            groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data")
+                                                                    .getStream());
           } else {
             groovyScript2RestLoader.unloadScript(unifiedNodePath);
           }

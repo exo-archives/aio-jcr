@@ -33,22 +33,20 @@ import org.exoplatform.services.security.IdentityRegistry;
  */
 
 public class RemoteAuthenticationPolicy extends BaseAuthenticator {
-  
+
   public RemoteAuthenticationPolicy(RepositoryEntry config, IdentityRegistry identityRegistry) {
-    super(config, identityRegistry); 
+    super(config, identityRegistry);
   }
 
   public ConversationState authenticate(Credentials credentials) throws LoginException {
     throw new LoginException("Not implemented");
   }
-  
-  
 
-//  /* (non-Javadoc)
-//   * @see org.exoplatform.services.jcr.impl.core.access.BaseAuthenticationPolicy#authenticate()
-//   */
-//  public Identity authenticate() throws LoginException {
-//    return new CredentialsImpl("admin", "admin".toCharArray());
-//  }
+  // /* (non-Javadoc)
+  // * @see org.exoplatform.services.jcr.impl.core.access.BaseAuthenticationPolicy#authenticate()
+  // */
+  // public Identity authenticate() throws LoginException {
+  // return new CredentialsImpl("admin", "admin".toCharArray());
+  // }
 
 }

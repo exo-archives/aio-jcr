@@ -20,17 +20,17 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * <code>NodeIdIterator</code> extends the Iterator iterface by the NodeId
- * specific methods.
+ * <code>NodeIdIterator</code> extends the Iterator iterface by the NodeId specific methods.
  */
 public interface NodeIdIterator extends Iterator {
 
-    /**
-     * Returns the next nodeid in the iteration.
-     * @return the next nodeid.
-     *
-     * @throws NoSuchElementException
-     */
-    String nextNodeId() throws NoSuchElementException;
+  /**
+   * Returns the next nodeid in the iteration.
+   * 
+   * @return the next nodeid.
+   * 
+   * @throws NoSuchElementException
+   */
+  String nextNodeId() throws NoSuchElementException;
 
 }

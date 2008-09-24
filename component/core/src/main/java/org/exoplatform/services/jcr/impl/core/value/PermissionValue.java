@@ -38,14 +38,14 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 public class PermissionValue extends BaseValue {
 
   private static final int TYPE = ExtendedPropertyType.PERMISSION;
-  
-  private String identity;
 
-  private String permission;
+  private String           identity;
+
+  private String           permission;
 
   public PermissionValue(TransientValueData data) throws IOException {
     super(TYPE, data);
-    
+
     try {
       String[] persArray = parse(new String(data.getAsByteArray()));
       this.identity = persArray[0];
@@ -55,31 +55,32 @@ public class PermissionValue extends BaseValue {
     }
   }
 
-  public PermissionValue(String identity, String permission) throws IOException {    
-    super(TYPE, new TransientValueData(asString(identity, permission))); // identity + " " + permission
+  public PermissionValue(String identity, String permission) throws IOException {
+    super(TYPE, new TransientValueData(asString(identity, permission))); // identity + " " +
+    // permission
     if (identity != null && identity.indexOf(" ") != -1)
       throw new RuntimeException("Identity should not contain ' '");
-    if(permission != null && !permission.equals(PermissionType.READ) &&
-       !permission.equals(PermissionType.ADD_NODE) &&
-       !permission.equals(PermissionType.REMOVE) &&
-       !permission.equals(PermissionType.SET_PROPERTY))
-      throw new RuntimeException("Permission should be one of defined in PermissionType. Have "+permission);
+    if (permission != null && !permission.equals(PermissionType.READ)
+        && !permission.equals(PermissionType.ADD_NODE) && !permission.equals(PermissionType.REMOVE)
+        && !permission.equals(PermissionType.SET_PROPERTY))
+      throw new RuntimeException("Permission should be one of defined in PermissionType. Have "
+          + permission);
     this.identity = identity;
     this.permission = permission;
   }
-  
+
   static public PermissionValue parseValue(String pstring) throws IOException {
     String[] persArray = parse(pstring);
     return new PermissionValue(persArray[0], persArray[1]);
   }
-  
+
   static public String[] parse(String pstring) {
     StringTokenizer parser = new StringTokenizer(pstring, AccessControlEntry.DELIMITER);
     String identityString = parser.nextToken();
     String permissionString = parser.nextToken();
-    
-    String[] persArray = new String[2]; 
-    
+
+    String[] persArray = new String[2];
+
     if (identityString != null) {
       persArray[0] = identityString;
     } else {
@@ -96,12 +97,12 @@ public class PermissionValue extends BaseValue {
   protected String getInternalString() throws ValueFormatException {
     return asString(identity, permission);
   }
-  
+
   static protected String asString(String identity, String permission) {
-    if (identity != null || permission != null) //SystemIdentity.ANY, PermissionType.ALL
-      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlEntry.DELIMITER 
-        + (permission != null ? permission : PermissionType.READ);
-    else 
+    if (identity != null || permission != null) // SystemIdentity.ANY, PermissionType.ALL
+      return (identity != null ? identity : SystemIdentity.ANY) + AccessControlEntry.DELIMITER
+          + (permission != null ? permission : PermissionType.READ);
+    else
       return "";
   }
 

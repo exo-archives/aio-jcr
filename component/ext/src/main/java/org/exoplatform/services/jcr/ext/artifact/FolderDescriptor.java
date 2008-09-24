@@ -26,15 +26,14 @@ public class FolderDescriptor implements Descriptor {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.ext.maven.Descriptor#getAsString()
    */
   public String getAsString() {
     return folderId;
   }
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.ext.maven.Descriptor#getAsPath()
    */
   public String getAsPath() {

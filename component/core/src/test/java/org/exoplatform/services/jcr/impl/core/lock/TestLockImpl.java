@@ -27,14 +27,14 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
  * @version $Id: TestLockImpl.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestLockImpl extends JcrImplBaseTest {
-  private ExtendedNode      lockedNode                = null;
+  private ExtendedNode      lockedNode        = null;
 
   private LockManagerImpl   service;
 
-  private static final long LOCK_TIMEOUT              = 5;                             // sec
+  private static final long LOCK_TIMEOUT      = 5;                            // sec
 
   private static final long LOCK_REMOVER_WAIT = LockRemover.DEFAULT_THREAD_TIMEOUT
-                                                          + (LOCK_TIMEOUT + 1) * 1000; // 15sec
+                                                  + (LOCK_TIMEOUT + 1) * 1000; // 15sec
 
   public void setUp() throws Exception {
 
@@ -59,7 +59,8 @@ public class TestLockImpl extends JcrImplBaseTest {
 
       assertTrue(lockedNode.isLocked());
       lock.setTimeOut(LOCK_TIMEOUT);// 5 sec
-      log.info("Stoping thread. Wait for removing lock for node "+((NodeImpl) lockedNode).getData().getIdentifier()+"by LockRemover");
+      log.info("Stoping thread. Wait for removing lock for node "
+          + ((NodeImpl) lockedNode).getData().getIdentifier() + "by LockRemover");
       Thread.sleep(LOCK_REMOVER_WAIT);
       assertFalse(lockedNode.isLocked());
 

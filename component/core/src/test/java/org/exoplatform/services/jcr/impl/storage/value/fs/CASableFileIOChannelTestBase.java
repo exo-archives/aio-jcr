@@ -42,8 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
 
-  private static Log                   LOG =
-                                               ExoLogger.getLogger("jcr.CASableFileIOChannelTestBase");
+  private static Log                   LOG = ExoLogger.getLogger("jcr.CASableFileIOChannelTestBase");
 
   protected ValueContentAddressStorage vcas;
 
@@ -103,9 +102,9 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     TransientValueData value = new TransientValueData(new FileInputStream(testFile));
     fch.write(propertyId, value);
 
-    File vsfile =
-        new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 0),
-                                           CASableIOSupport.HASHFILE_ORDERNUMBER)); // orderNum=0 
+    File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 0),
+                                                     CASableIOSupport.HASHFILE_ORDERNUMBER)); // orderNum
+    // =0
     assertTrue("File should exists " + vsfile.getAbsolutePath(), vsfile.exists());
 
     InputStream etalon, tested;
@@ -115,9 +114,10 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   }
 
   /**
-   * Tries write value already existed in channel. 
+   * Tries write value already existed in channel.
    * 
-   * Check if excpetion RecordAlreadyExistsException will be thrown and storage content will not be changed.
+   * Check if excpetion RecordAlreadyExistsException will be thrown and storage content will not be
+   * changed.
    * 
    * @param digestType
    * @throws Exception
@@ -129,7 +129,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     String propertyId = IdGenerator.generate();
     TransientValueData value = new TransientValueData(new FileInputStream(testFile));
     fch.write(propertyId, value);
-    
+
     long initialSize = calcDirSize(rootDir);
 
     try {
@@ -177,9 +177,9 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
     TransientValueData value = new TransientValueData(new FileInputStream(testFile));
     fch.write(propertyId, value);
 
-    File vsfile =
-        new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 0),
-                                           CASableIOSupport.HASHFILE_ORDERNUMBER)); // orderNum=0 
+    File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 0),
+                                                     CASableIOSupport.HASHFILE_ORDERNUMBER)); // orderNum
+    // =0
 
     fch.delete(propertyId);
 
@@ -189,7 +189,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   /**
    * Tries delete not existing value in channel.
    * 
-   * Check if excpetion RecordNotFoundException will be thrown and storage content will not be changed.
+   * Check if excpetion RecordNotFoundException will be thrown and storage content will not be
+   * changed.
    * 
    * @param digestType
    * @throws Exception
@@ -210,7 +211,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   /**
    * Tries read not existing value in channel.<br/>
    * 
-   * Check if excpetion RecordNotFoundException will be thrown and storage content will not be changed.
+   * Check if excpetion RecordNotFoundException will be thrown and storage content will not be
+   * changed.
    * 
    * @param digestType
    * @throws Exception
@@ -245,9 +247,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
       fch.write(propertyId, new FileStreamPersistedValueData(testFile, i, true));
     }
 
-    File vsfile =
-        new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 15),
-                                           CASableIOSupport.HASHFILE_ORDERNUMBER));
+    File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 15),
+                                                     CASableIOSupport.HASHFILE_ORDERNUMBER));
     assertTrue("File should exists " + vsfile.getAbsolutePath(), vsfile.exists());
 
     assertEquals("Storage size must be increased on size of ONE file ", initialSize
@@ -273,9 +274,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
       fch.write(propertyId, new FileStreamPersistedValueData(f, i, true));
     }
 
-    File vsfile =
-        new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 15),
-                                           CASableIOSupport.HASHFILE_ORDERNUMBER));
+    File vsfile = new File(rootDir, fch.makeFilePath(vcas.getIdentifier(propertyId, 15),
+                                                     CASableIOSupport.HASHFILE_ORDERNUMBER));
     assertTrue("File should exists " + vsfile.getAbsolutePath(), vsfile.exists());
 
     assertEquals("Storage size must be increased on size of ALL files ",
@@ -333,7 +333,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   }
 
   /**
-   * Delete one of properties with same content address. Check if storage still contains (only one) file.
+   * Delete one of properties with same content address. Check if storage still contains (only one)
+   * file.
    * 
    * @param digestType
    * @throws Exception
@@ -363,7 +364,8 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   }
 
   /**
-   * Delete one of properties with unique content address. Check if storage contains on one file less.
+   * Delete one of properties with unique content address. Check if storage contains on one file
+   * less.
    * 
    * @param digestType
    * @throws Exception
@@ -399,7 +401,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   }
 
   /**
-   * Delete one of properties with value shared between some values in few properties. 
+   * Delete one of properties with value shared between some values in few properties.
    * 
    * Check if storage contains only files related to the values.
    * 
@@ -448,7 +450,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
         // new file
         m2filesCount++;
         File f = createBLOBTempFile(350);
-        addedSize += (m2fileSize = f.length()); // add size        
+        addedSize += (m2fileSize = f.length()); // add size
         v = new FileStreamPersistedValueData(f, i, true);
       }
       fch.write(property2MultivaluedId, v);
@@ -639,7 +641,7 @@ public abstract class CASableFileIOChannelTestBase extends JcrImplBaseTest {//
   public void testReadNotExistingMD5() throws Exception {
     readNotExisting("MD5");
   }
-  
+
   public void testReadNotExistingSHA1() throws Exception {
     readNotExisting("SHA1");
   }

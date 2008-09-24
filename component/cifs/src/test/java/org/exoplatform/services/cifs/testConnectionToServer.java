@@ -26,19 +26,17 @@ import org.exoplatform.services.log.ExoLogger;
 import jcifs.smb.SmbFile;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * <p>
  * 
  * Here is the tests of connection with server.
- * <p> 
+ * <p>
  * jCifs used as smb-client
  * 
  */
 
 public class testConnectionToServer extends BaseStandaloneTest {
-  protected static Log logger = ExoLogger
-      .getLogger("jcr.JCRTest.testConnectionToServer");
+  protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testConnectionToServer");
 
   /**
    * Test if server run and available
@@ -56,12 +54,12 @@ public class testConnectionToServer extends BaseStandaloneTest {
    */
   public void testConnection() throws Exception {
     // get realy used server name, Win32ServerName may not be initialized
-    String servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName()
+    String servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
         : serv.getConfiguration().getServerName();
 
     long t1 = System.currentTimeMillis();
-    SmbFile host = new SmbFile("smb://"+ user + servername + "/");
+    SmbFile host = new SmbFile("smb://" + user + servername + "/");
     long t2 = System.currentTimeMillis() - t1;
 
     assertEquals(host.getType(), SmbFile.TYPE_SERVER);
@@ -76,11 +74,11 @@ public class testConnectionToServer extends BaseStandaloneTest {
    */
   public void testDeviceList() throws Exception {
     // get realy used server name, Win32ServerName may not be initialized
-    String servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName()
+    String servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
         : serv.getConfiguration().getServerName();
 
-    SmbFile host = new SmbFile("smb://"+ user + servername + "/");
+    SmbFile host = new SmbFile("smb://" + user + servername + "/");
 
     // Get share list from server and measure spended time
     long t1 = System.currentTimeMillis();
@@ -100,7 +98,8 @@ public class testConnectionToServer extends BaseStandaloneTest {
         repo = repositoryService.getDefaultRepository();
       } else {
         // obtain repository object from JNDI or from eXo Container
-        repo = isJndi ? (Repository) new InitialContext().lookup(repoName)
+        repo = isJndi
+            ? (Repository) new InitialContext().lookup(repoName)
             : repositoryService.getRepository(repoName);
       }
     } catch (Exception e) {
@@ -111,9 +110,8 @@ public class testConnectionToServer extends BaseStandaloneTest {
       wsList = ((ManageableRepository) repo).getWorkspaceNames();
     } else {
       if (wsList == null) {
-        throw new RuntimeException(
-            "Non-eXo JCR does not support dynamic workspace list. Please set 'workspaces' "
-                + "parameter with comma delimited workspace names available to browsing.");
+        throw new RuntimeException("Non-eXo JCR does not support dynamic workspace list. Please set 'workspaces' "
+            + "parameter with comma delimited workspace names available to browsing.");
       }
     }
 
@@ -136,8 +134,7 @@ public class testConnectionToServer extends BaseStandaloneTest {
 
     assertTrue(java.util.Arrays.equals(shares, receivedShares));
 
-    logger.debug("received " + receivedShares.length + " shares in " + t2
-        + "ms");
+    logger.debug("received " + receivedShares.length + " shares in " + t2 + "ms");
   }
 
 }

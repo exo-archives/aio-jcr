@@ -22,13 +22,12 @@ import java.util.ArrayList;
 import org.apache.commons.codec.binary.Base64;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class NodeTypeUtil {
-  
 
   public static String getNodeType(String nodeTypeHeader) {
     if (nodeTypeHeader != null)
@@ -36,17 +35,17 @@ public class NodeTypeUtil {
     else
       return null;
   }
-  
+
   public static ArrayList<String> getMixinTypes(String mixinTypeHeader) {
     ArrayList<String> mixins = new ArrayList<String>();
     if (mixinTypeHeader == null) {
       return mixins;
     }
-    
-    String mixTypes =  new String(Base64.decodeBase64(mixinTypeHeader.getBytes()));
-    
-    String []mixType = mixTypes.split(";");
-     
+
+    String mixTypes = new String(Base64.decodeBase64(mixinTypeHeader.getBytes()));
+
+    String[] mixType = mixTypes.split(";");
+
     for (int i = 0; i < mixType.length; i++) {
       String curMixType = mixType[i];
       if ("".equals(curMixType)) {
@@ -54,8 +53,8 @@ public class NodeTypeUtil {
       }
       mixins.add(curMixType);
     }
-    
+
     return mixins;
-  }  
-  
+  }
+
 }

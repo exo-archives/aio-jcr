@@ -23,24 +23,24 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractGetVersionTest extends JCRTestBase {
 
-  protected Node root;
-  
-  protected Node vnode;
-  
+  protected Node           root;
+
+  protected Node           vnode;
+
   protected VersionHistory vhistory;
-  
-  protected Version version;
-  
+
+  protected Version        version;
+
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     super.doFinish(tc, context);
-    
+
     try {
       context.getSession().getNodeByUUID(vhistory.getVersionableUUID()).checkout();
-    } catch(RepositoryException e) {
+    } catch (RepositoryException e) {
       // skip it
     }
-    
+
     vnode.remove();
     context.getSession().save();
   }
@@ -48,16 +48,16 @@ public abstract class AbstractGetVersionTest extends JCRTestBase {
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
-    
+
     root = context.getSession().getRootNode();
-    
+
     vnode = root.addNode(context.generateUniqueName("versionableNode"));
     vnode.addMixin("mix:versionable");
     root.save();
-    
+
     version = vnode.checkin(); // v.1
     vnode.checkout();
-    
+
     vhistory = vnode.getVersionHistory();
     vhistory.addVersionLabel("1", "v.1", false);
   }

@@ -36,8 +36,7 @@ import org.picocontainer.Startable;
  */
 public class CIFSServiceImpl implements CIFSService, Startable {
 
-  private Log                 log    = ExoLogger
-                                         .getLogger("org.exoplatform.services.cifs.CIFSServiceImpl");
+  private Log                 log    = ExoLogger.getLogger("org.exoplatform.services.cifs.CIFSServiceImpl");
 
   /**
    * Server (service) configuration.
@@ -59,9 +58,11 @@ public class CIFSServiceImpl implements CIFSService, Startable {
    */
   private NetworkServer       server;
 
-  public CIFSServiceImpl(InitParams params, RepositoryService repositoryService,
-      OrganizationService organizationService) throws RepositoryException,
-      RepositoryConfigurationException, NamingException {
+  public CIFSServiceImpl(InitParams params,
+                         RepositoryService repositoryService,
+                         OrganizationService organizationService) throws RepositoryException,
+      RepositoryConfigurationException,
+      NamingException {
 
     this.repositoryService = repositoryService;
     this.organizationService = organizationService;

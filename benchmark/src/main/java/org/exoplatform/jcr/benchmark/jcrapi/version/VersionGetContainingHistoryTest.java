@@ -22,5 +22,4 @@ public class VersionGetContainingHistoryTest extends AbstractGetVersionTest {
     version.getContainingHistory();
   }
 
-
 }

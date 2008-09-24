@@ -24,44 +24,46 @@ import com.sun.japex.TestCase;
 
 public class NodeRestoreToRelPathTest extends AbstractGetItemTest {
 
-  private List<Version>   versions     = new ArrayList<Version>();
-  
-  private List<String> names     = new ArrayList<String>();
-  
+  private List<Version> versions = new ArrayList<Version>();
+
+  private List<String>  names    = new ArrayList<String>();
+
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     Node vnode = parent.addNode(context.generateUniqueName("versionableNode"));
     vnode.addMixin("mix:versionable");
     parent.save();
-    
-    vnode.checkin();//v.1
+
+    vnode.checkin();// v.1
     vnode.checkout();
     vnode.setProperty("Property", "property of subnode");
     vnode.save();
-    
-    versions.add(vnode.checkin());//v.2
-    
+
+    versions.add(vnode.checkin());// v.2
+
     vnode.checkout();
     vnode.setProperty("Property", "property of subnode, v.3");
     vnode.save();
-    vnode.checkin();//v.3
+    vnode.checkin();// v.3
     vnode.checkout();
-    
-    addNode(vnode);    
-    
+
+    addNode(vnode);
+
     // gen a relPath for a restore
     Node rnode = parent.addNode(context.generateUniqueName("restoredNode"));
     parent.save();
-    
+
     names.add("../" + rnode.getName() + "/" + vnode.getName() + "_restored");
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    final int iter = getCurrentIteration(); 
+    final int iter = getCurrentIteration();
     final String relPath = names.get(iter);
     final Node n = nextNode();
-    //log.info(n.getPath() + " " + n.getUUID() + " vh:" + n.getVersionHistory().getPath() + " v:" + versions.get(iter).getPath() + " " + versions.get(iter).getContainingHistory().getVersionableUUID());
+    // log.info(n.getPath() + " " + n.getUUID() + " vh:" + n.getVersionHistory().getPath() + " v:" +
+    // versions.get(iter).getPath() + " " +
+    // versions.get(iter).getContainingHistory().getVersionableUUID());
     // restore v.2 to ../restoredNode-xxx/versionableNode-xxx_restored
     n.restore(versions.get(iter), relPath, true);
   }

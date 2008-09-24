@@ -9,6 +9,6 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 public interface WorkspaceStorageConnectionFactory {
 
   WorkspaceStorageConnection openConnection() throws RepositoryException;
-  
+
   Connection getJdbcConnection() throws RepositoryException;
 }

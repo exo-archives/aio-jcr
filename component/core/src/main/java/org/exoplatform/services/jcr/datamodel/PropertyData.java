@@ -28,8 +28,7 @@ import java.util.List;
 public interface PropertyData extends ItemData {
 
   /**
-   * @return list of values ValueData. It is possible to return zer-length list
-   *         but not null
+   * @return list of values ValueData. It is possible to return zer-length list but not null
    */
   List<ValueData> getValues();
 
@@ -42,5 +41,5 @@ public interface PropertyData extends ItemData {
    * @return type of stored values (See PropertyType)
    */
   int getType();
-  
+
 }

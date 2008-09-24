@@ -16,31 +16,30 @@
  */
 package org.exoplatform.services.jcr.storage;
 
-
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
  * Abstract jcr data storage
- *
+ * 
  * @author Gennady Azarenkov
  * @version $Id: DataContainer.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public abstract interface DataContainer {
-  
+
   /**
    * @return some info about this container
    */
   String getInfo();
-  
+
   /**
-   * @return name of this container 
+   * @return name of this container
    */
   String getName();
-  
+
   /**
-   * @return current storage version 
+   * @return current storage version
    */
   String getStorageVersion();
-  
+
 }

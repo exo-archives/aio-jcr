@@ -21,7 +21,7 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
  * @version $Id: ValueReference.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class ValueReference {
-  
+
   private final int    orderNumber;
 
   private final String identifier;

@@ -315,7 +315,9 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
                                                           null,
                                                           true,
                                                           null,
-                                                          new InternalQName[] { Constants.MIX_REFERENCEABLE, Constants.EXO_OWNEABLE });
+                                                          new InternalQName[] {
+                                                              Constants.MIX_REFERENCEABLE,
+                                                              Constants.EXO_OWNEABLE });
     DummyAction dAction = new DummyAction();
     catalog.addAction(matcher, dAction);
 
@@ -327,7 +329,7 @@ public class TestSessionActionCatalog extends BaseUsecasesTest {
     tnode.addMixin("mix:referenceable");
     assertEquals(2, dAction.getActionExecuterCount());
   }
-  
+
   public void testRemoveMixinAction() throws Exception {
     SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
     catalog.clear();

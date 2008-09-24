@@ -10,15 +10,15 @@ import org.exoplatform.frameworks.ftpclient.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdStat extends FtpCommandImpl {
-  
+
   private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdStat");
-  
+
   public int execute() {
     try {
       sendCommand(FtpConst.Commands.CMD_STAT);
@@ -26,8 +26,8 @@ public class CmdStat extends FtpCommandImpl {
     } catch (Exception exc) {
       log.info(FtpConst.EXC_MSG + exc.getMessage(), exc);
     }
-    
+
     return -1;
-  }  
+  }
 
 }

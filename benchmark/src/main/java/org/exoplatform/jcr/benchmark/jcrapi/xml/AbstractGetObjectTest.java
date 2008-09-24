@@ -39,16 +39,16 @@ public abstract class AbstractGetObjectTest extends AbstractItemsTest {
   private List<String>             paths                        = new ArrayList<String>();
 
   private List<OutputStream>       outputStreams                = new ArrayList<OutputStream>();
-  
-  private List<InputStream>       inputStreams                = new ArrayList<InputStream>();
+
+  private List<InputStream>        inputStreams                 = new ArrayList<InputStream>();
 
   private List<TransformerHandler> transformerHandlers          = new ArrayList<TransformerHandler>();
 
   private volatile int             iterationPath                = 0;
 
   private volatile int             iterationOutputStream        = 0;
-  
-  private volatile int             iterationInputStream        = 0;
+
+  private volatile int             iterationInputStream         = 0;
 
   private volatile int             iterationTransformerHandlers = 0;
 
@@ -59,10 +59,10 @@ public abstract class AbstractGetObjectTest extends AbstractItemsTest {
   protected OutputStream nextOutputStream() {
     return outputStreams.get(iterationOutputStream++);
   }
-  
+
   protected InputStream nextInputStream() {
     return inputStreams.get(iterationInputStream++);
-  }  
+  }
 
   protected TransformerHandler nextTransformerHandler() {
     return transformerHandlers.get(iterationTransformerHandlers++);
@@ -75,7 +75,7 @@ public abstract class AbstractGetObjectTest extends AbstractItemsTest {
   protected void addOutputStream(OutputStream outputStream) {
     outputStreams.add(outputStream);
   }
-  
+
   protected void addInputStream(InputStream inputStream) {
     inputStreams.add(inputStream);
   }

@@ -42,76 +42,90 @@ import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
- * Created by The eXo Platform SAS .<br/> 
+ * Created by The eXo Platform SAS .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class LockCommand {
-  
+
   private final NullResourceLocksHolder nullResourceLocks;
-  
+
   public LockCommand(final NullResourceLocksHolder nullResourceLocks) {
     this.nullResourceLocks = nullResourceLocks;
   }
 
-  public Response lock(Session session, String path, HierarchicalProperty body,
-      Depth depth, String timeout) {
-    
+  public Response lock(Session session,
+                       String path,
+                       HierarchicalProperty body,
+                       Depth depth,
+                       String timeout) {
+
     String lockToken;
     try {
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       try {
-        Node node = (Node)session.getItem(path);
-        
+        Node node = (Node) session.getItem(path);
+
         if (!node.isNodeType("mix:lockable")) {
           if (node.canAddMixin("mix:lockable")) {
             node.addMixin("mix:lockable");
             session.save();
           }
         }
-        
+
         Lock lock = node.lock((depth.getIntValue() != 1), false);
         lockToken = lock.getLockToken();
       } catch (PathNotFoundException pexc) {
         lockToken = nullResourceLocks.addLock(session, path);
       }
-      
+
       LockRequestEntity requestEntity = new LockRequestEntity(body);
-      
-      return Response.Builder
-        .ok(body(nsContext, requestEntity, depth, lockToken, requestEntity.getOwner(), timeout), "text/xml")
-        .header("Lock-Token", "<" + lockToken + ">")
-        .build();  
-     
-    // TODO 412 Precondition Failed ?
+
+      return Response.Builder.ok(body(nsContext,
+                                      requestEntity,
+                                      depth,
+                                      lockToken,
+                                      requestEntity.getOwner(),
+                                      timeout),
+                                 "text/xml").header("Lock-Token", "<" + lockToken + ">").build();
+
+      // TODO 412 Precondition Failed ?
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
-    }  catch (AccessDeniedException e) {
+    } catch (AccessDeniedException e) {
       return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
     } catch (Exception exc) {
       exc.printStackTrace();
       return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
-    
+
   }
-  
+
   private final SerializableEntity body(WebDavNamespaceContext nsContext,
-      LockRequestEntity input, Depth depth, String lockToken, String lockOwner, String timeout) {
+                                        LockRequestEntity input,
+                                        Depth depth,
+                                        String lockToken,
+                                        String lockOwner,
+                                        String timeout) {
     return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
   }
-  
+
   public class LockResultResponseEntity implements SerializableEntity {
-    
+
     protected WebDavNamespaceContext nsContext;
-    
-    protected String lockToken;
-    
-    protected String lockOwner;
-    
-    protected String timeOut;
-    
-    public LockResultResponseEntity(WebDavNamespaceContext nsContext, String lockToken, String lockOwner, String timeOut) {
+
+    protected String                 lockToken;
+
+    protected String                 lockOwner;
+
+    protected String                 timeOut;
+
+    public LockResultResponseEntity(WebDavNamespaceContext nsContext,
+                                    String lockToken,
+                                    String lockOwner,
+                                    String timeOut) {
       this.nsContext = nsContext;
       this.lockToken = lockToken;
       this.lockOwner = lockOwner;
@@ -121,27 +135,30 @@ public class LockCommand {
     public void writeObject(OutputStream stream) throws IOException {
       try {
         XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
-            .createXMLStreamWriter(stream, Constants.DEFAULT_ENCODING);
+                                                          .createXMLStreamWriter(stream,
+                                                                                 Constants.DEFAULT_ENCODING);
         xmlStreamWriter.setNamespaceContext(nsContext);
         xmlStreamWriter.setDefaultNamespace("DAV:");
 
         xmlStreamWriter.writeStartDocument();
-        
+
         xmlStreamWriter.writeStartElement("D", "prop", "DAV:");
         xmlStreamWriter.writeNamespace("D", "DAV:");
-        
-        HierarchicalProperty lockDiscovery = GenericResource.lockDiscovery(lockToken, lockOwner, timeOut);
+
+        HierarchicalProperty lockDiscovery = GenericResource.lockDiscovery(lockToken,
+                                                                           lockOwner,
+                                                                           timeOut);
         PropertyWriteUtil.writeProperty(xmlStreamWriter, lockDiscovery);
-        
+
         xmlStreamWriter.writeEndElement();
-        
+
         xmlStreamWriter.writeEndDocument();
       } catch (Exception e) {
         e.printStackTrace();
         throw new IOException(e.getMessage());
-      } 
+      }
     }
-    
+
   }
-  
+
 }

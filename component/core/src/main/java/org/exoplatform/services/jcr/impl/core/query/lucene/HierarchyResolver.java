@@ -19,20 +19,21 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.io.IOException;
 
 /**
- * <code>HierarchyResolver</code> extends an {@link org.apache.lucene.index.IndexReader}
- * with the ability to resolve a JCR hierarchy.
+ * <code>HierarchyResolver</code> extends an {@link org.apache.lucene.index.IndexReader} with the
+ * ability to resolve a JCR hierarchy.
  */
 public interface HierarchyResolver {
 
-    /**
-     * Returns the document number of the parent of <code>n</code> or
-     * <code>-1</code> if <code>n</code> does not have a parent (<code>n</code>
-     * is the root node).
-     *
-     * @param n the document number.
-     * @return the document number of <code>n</code>'s parent.
-     * @throws java.io.IOException if an error occurs while reading from the index.
-     */
-    int getParent(int n) throws IOException;
+  /**
+   * Returns the document number of the parent of <code>n</code> or <code>-1</code> if
+   * <code>n</code> does not have a parent (<code>n</code> is the root node).
+   * 
+   * @param n
+   *          the document number.
+   * @return the document number of <code>n</code>'s parent.
+   * @throws java.io.IOException
+   *           if an error occurs while reading from the index.
+   */
+  int getParent(int n) throws IOException;
 
 }

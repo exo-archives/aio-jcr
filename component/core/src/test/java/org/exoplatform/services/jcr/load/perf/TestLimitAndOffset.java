@@ -134,14 +134,14 @@ public class TestLimitAndOffset extends BaseStandaloneTest {
     nodeIterartor.skip(NEED_NODES);
     for (int i = 0; i < NEED_NODES; i++) {
       Node node = nodeIterartor.nextNode();
-      assertEquals(i+NEED_NODES, node.getProperty("val").getLong());
+      assertEquals(i + NEED_NODES, node.getProperty("val").getLong());
     }
     log.info("Time _testGetNodeIteratorSecondPage=" + (System.currentTimeMillis() - time));
   }
 
   public void testQuerySecondPage() throws Exception {
     QueryResult result = query.execute();
-  
+
     long time = System.currentTimeMillis();
     NodeIterator nodeIterartor = result.getNodes();
     long size = nodeIterartor.getSize();
@@ -149,7 +149,7 @@ public class TestLimitAndOffset extends BaseStandaloneTest {
     nodeIterartor.skip(NEED_NODES);
     for (int i = 0; i < NEED_NODES; i++) {
       Node node = nodeIterartor.nextNode();
-      assertEquals(i+NEED_NODES, node.getProperty("val").getLong());
+      assertEquals(i + NEED_NODES, node.getProperty("val").getLong());
     }
     log.info("Time _testQuerySecondPage =" + (System.currentTimeMillis() - time));
   }

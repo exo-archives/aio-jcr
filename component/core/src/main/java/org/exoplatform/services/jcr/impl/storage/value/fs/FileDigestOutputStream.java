@@ -23,20 +23,21 @@ import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 14.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class FileDigestOutputStream extends DigestOutputStream {
 
   protected final File file;
-  
-  private boolean closed = false;
-  private String digestHash = null;
-  
+
+  private boolean      closed     = false;
+
+  private String       digestHash = null;
+
   FileDigestOutputStream(File file, MessageDigest digest) throws IOException {
     super(new FileOutputStream(file), digest);
     this.file = file;
@@ -44,8 +45,8 @@ public class FileDigestOutputStream extends DigestOutputStream {
 
   public File getFile() {
     return file;
-  }  
-  
+  }
+
   public String getDigestHash() {
     if (digestHash == null) {
       StringBuilder hash = new StringBuilder();
@@ -54,7 +55,7 @@ public class FileDigestOutputStream extends DigestOutputStream {
         String hs = Integer.toHexString(i);
         if (hs.length() < 2)
           hash.append('0'); // pad with zero
-        
+
         hash.append(hs);
       }
       if (closed)
@@ -63,7 +64,7 @@ public class FileDigestOutputStream extends DigestOutputStream {
       else
         return hash.toString();
     }
-    
+
     return digestHash;
   }
 
@@ -72,5 +73,5 @@ public class FileDigestOutputStream extends DigestOutputStream {
     super.close();
     closed = true;
   }
-  
+
 }

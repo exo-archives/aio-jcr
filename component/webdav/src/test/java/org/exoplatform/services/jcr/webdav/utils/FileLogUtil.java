@@ -22,22 +22,22 @@ package org.exoplatform.services.jcr.webdav.utils;
 //import java.io.IOException;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class FileLogUtil {
 
-//  public static void logToFile(byte []bytes) throws IOException {
-//    String fileName = "D:\\exo\\projects\\exo_new\\jcr\\branches\\1.6.2\\component\\webdav\\tst.xml";
-//    File file = new File(fileName);
-//    FileOutputStream outFile = new FileOutputStream(file);
-//    outFile.write(bytes);
-//    outFile.close();
-//    String reply = new String(bytes);    
-//    System.out.println("REPLY: " + reply);
-//  }    
-  
-}
+  // public static void logToFile(byte []bytes) throws IOException {
+  // String fileName =
+  // "D:\\exo\\projects\\exo_new\\jcr\\branches\\1.6.2\\component\\webdav\\tst.xml";
+  // File file = new File(fileName);
+  // FileOutputStream outFile = new FileOutputStream(file);
+  // outFile.write(bytes);
+  // outFile.close();
+  // String reply = new String(bytes);
+  // System.out.println("REPLY: " + reply);
+  // }
 
+}

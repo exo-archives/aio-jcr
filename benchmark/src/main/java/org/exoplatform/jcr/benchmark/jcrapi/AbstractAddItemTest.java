@@ -26,61 +26,61 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractAddItemTest extends JCRTestBase {
 
-  private List<Node> parents = new ArrayList<Node>();
-  
-  private volatile int iteration = 0; 
+  private List<Node>   parents   = new ArrayList<Node>();
 
-  protected Node rootNode = null;
-  
+  private volatile int iteration = 0;
+
+  protected Node       rootNode  = null;
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     Session session = context.getSession();
     rootNode = session.getRootNode().addNode(context.generateUniqueName("rootNode"));
     session.save();
-    
+
     int runIterations = tc.getIntParam("japex.runIterations");
-    
+
     Node parent = null;
-    
-    for (int i = 0; i < runIterations; i++) {      
+
+    for (int i = 0; i < runIterations; i++) {
       if (i % 100 == 0) {
         // each parent will has no more 100 child nodes
         parent = rootNode.addNode(context.generateUniqueName("parentNode"));
         rootNode.save();
       }
-      addParent(parent);      
+      addParent(parent);
       // create additional content of the parent node
       createContent(parent, tc, context);
     }
-    
+
   }
 
   protected abstract void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception;
-  
+
   protected Node nextParent() {
     return parents.get(iteration++);
   }
-  
+
   protected void addParent(Node parent) {
     parents.add(parent);
   }
-  
+
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     rootNode.refresh(false);
-    
-    for (Node parent: parents) {
+
+    for (Node parent : parents) {
       try {
         parent.remove();
-      } catch(InvalidItemStateException e) {
+      } catch (InvalidItemStateException e) {
         // was deleted or discarded
       }
       rootNode.save();
     }
-    
+
     rootNode.remove();
     context.getSession().save();
-    
+
     parents.clear();
     parents = null;
   }

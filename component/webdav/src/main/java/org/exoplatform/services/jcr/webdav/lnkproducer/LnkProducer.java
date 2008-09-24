@@ -28,52 +28,49 @@ import org.exoplatform.services.rest.QueryParam;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
-import org.exoplatform.services.rest.URITemplate;
-//import org.exoplatform.services.rest.ResourceDispatcher.Context;
+import org.exoplatform.services.rest.URITemplate; //import org.exoplatform.services.rest.ResourceDispatcher.Context;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
 import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 @URITemplate("/lnkproducer/")
 public class LnkProducer implements ResourceContainer {
-  
-  
+
   public LnkProducer() {
   }
-  
+
   @HTTPMethod("GET")
   @URITemplate("/{linkFilePath}/")
   @InputTransformer(PassthroughInputTransformer.class)
   @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response produceLink(
-      @URIParam("linkFilePath") String linkFilePath,
-      @QueryParam("path") String path,
-      @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
-      @ContextParam(ResourceDispatcher.CONTEXT_PARAM_HOST) String host
-      ) {
-    
+  public Response produceLink(@URIParam("linkFilePath") String linkFilePath,
+                              @QueryParam("path") String path,
+                              @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                              @ContextParam(ResourceDispatcher.CONTEXT_PARAM_HOST) String host) {
+
     baseURI += "/jcr";
-    
+
     try {
       LinkGenerator linkGenerator = new LinkGenerator(host, baseURI, path);
-      byte []content = linkGenerator.generateLinkContent();
-      
+      byte[] content = linkGenerator.generateLinkContent();
+
       ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
-      
-      return Response.Builder.ok().
-          header("Content-Length", "" + content.length).
-          entity(byteArrayInputStream, "application/octet-stream").build();
-          
+
+      return Response.Builder.ok()
+                             .header("Content-Length", "" + content.length)
+                             .entity(byteArrayInputStream, "application/octet-stream")
+                             .build();
+
     } catch (IOException ioexc) {
       return Response.Builder.serverError().build();
     }
-    
+
   }
-  
+
 }

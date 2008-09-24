@@ -24,41 +24,41 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 
 /**
- * Created by The eXo Platform SAS. 
+ * Created by The eXo Platform SAS.
  * 
  * Date: 05.05.2008
  * 
- * The interface responsible for workspace
- * storage initialization including: - root node - for all workspaces -
- * /jcr:system - for system workspace /exo:namespaces /jcr:nodetypes
+ * The interface responsible for workspace storage initialization including: - root node - for all
+ * workspaces - /jcr:system - for system workspace /exo:namespaces /jcr:nodetypes
  * /jcr:versionStorage - search index root if configured
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: WorkspaceInitializer.java 13891 2008-05-05 16:02:30Z pnedonosko $
  */
 public interface WorkspaceInitializer extends Startable {
-  
-  public static final String ROOT_NODETYPE_PARAMETER = "root-nodetype";
-  
+
+  public static final String ROOT_NODETYPE_PARAMETER    = "root-nodetype";
+
   public static final String ROOT_PERMISSIONS_PARAMETER = "root-permissions";
-  
+
   /**
    * Tell if the worksapce is initialize.
    * 
    * @return boolean, if true - the workspace is initialized, false - otherwise.
    */
   boolean isWorkspaceInitialized();
-  
+
   /**
    * Perform the workspace initialization process.
    * 
-   * @param rootNodeType - root node type (used in pre 1.9 core)
+   * @param rootNodeType
+   *          - root node type (used in pre 1.9 core)
    * @return
    * @throws RepositoryException
    */
   @Deprecated
   NodeData initWorkspace(InternalQName rootNodeType) throws RepositoryException;
-  
+
   /**
    * Perform the workspace initialization process.
    * 
@@ -66,5 +66,5 @@ public interface WorkspaceInitializer extends Startable {
    * @throws RepositoryException
    */
   NodeData initWorkspace() throws RepositoryException;
-  
+
 }

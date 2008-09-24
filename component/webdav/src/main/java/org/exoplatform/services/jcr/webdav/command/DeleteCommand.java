@@ -26,26 +26,26 @@ import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class DeleteCommand {
-  
+
   public Response delete(Session session, String path) {
     try {
       Item item = session.getItem(path);
       item.remove();
       session.save();
       return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).build();
-      
+
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
-      
+
     } catch (RepositoryException exc) {
       return Response.Builder.forbidden().build();
-    }    
+    }
   }
 
 }

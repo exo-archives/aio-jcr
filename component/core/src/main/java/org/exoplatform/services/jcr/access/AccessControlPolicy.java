@@ -18,14 +18,17 @@ package org.exoplatform.services.jcr.access;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: AccessControlPolicy.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface AccessControlPolicy {
-  
-  public static final String DISABLE = "disable";
-  public static final String OPTIONAL = "optional";
+
+  public static final String DISABLE   = "disable";
+
+  public static final String OPTIONAL  = "optional";
+
   public static final String MANDATORY = "mandatory";
 
 }

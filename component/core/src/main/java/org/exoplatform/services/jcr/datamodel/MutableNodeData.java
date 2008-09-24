@@ -18,21 +18,21 @@ package org.exoplatform.services.jcr.datamodel;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: MutableNodeData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface MutableNodeData extends NodeData, MutableItemData {
-	 
-	void setOrderNumber(int orderNum);
 
-	void setMixinTypeNames(InternalQName[] mixinTypeNames);
+  void setOrderNumber(int orderNum);
 
-	void setIdentifier(String identifier);
-	
-	void setACL(AccessControlList acl);
-	
+  void setMixinTypeNames(InternalQName[] mixinTypeNames);
+
+  void setIdentifier(String identifier);
+
+  void setACL(AccessControlList acl);
+
 }

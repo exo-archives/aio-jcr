@@ -20,20 +20,19 @@ import java.net.InetAddress;
 import java.security.SecureRandom;
 
 /**
- * Created by The eXo Platform SAS
- * 10.07.2007
+ * Created by The eXo Platform SAS 10.07.2007
  * 
- * Standalone IDGenerator. For testing purpose.
- * Logic wrapped from IdGenerator/IdGeneratorService
+ * Standalone IDGenerator. For testing purpose. Logic wrapped from IdGenerator/IdGeneratorService
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SIDGenerator.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class SIDGenerator {
-  
-  private static String hexServerIP_ = null;
-  private static final SecureRandom seeder_ = new SecureRandom();
-  
+
+  private static String             hexServerIP_ = null;
+
+  private static final SecureRandom seeder_      = new SecureRandom();
+
   static {
     try {
       // get the inet address
@@ -43,33 +42,33 @@ public class SIDGenerator {
     } catch (java.net.UnknownHostException uhe) {
       uhe.printStackTrace();
       hexServerIP_ = null;
-    }    
+    }
   }
-  
+
   public static String generate() {
-    return generateStringID(""+System.currentTimeMillis());
+    return generateStringID("" + System.currentTimeMillis());
   }
-  
-  public static long generateLongID(Object o)  {
-    String uuid = generateStringID(o) ;
-    return  uuid.hashCode() ;
+
+  public static long generateLongID(Object o) {
+    String uuid = generateStringID(o);
+    return uuid.hashCode();
   }
-  
+
   public static int generatIntegerID(Object o) {
-    String uuid = generateStringID(o) ;
-    return  uuid.hashCode() ;
+    String uuid = generateStringID(o);
+    return uuid.hashCode();
   }
-  
-  public static String generateStringID(Object o)   {
+
+  public static String generateStringID(Object o) {
     StringBuffer tmpBuffer = new StringBuffer(16);
     String hashcode = hexFormat(System.identityHashCode(o), 8);
     tmpBuffer.append(hexServerIP_);
     tmpBuffer.append(hashcode);
-  
-    long timeNow      = System.currentTimeMillis();
-    int timeLow       = (int)timeNow & 0xFFFFFFFF;
-    int node          = seeder_.nextInt();
-  
+
+    long timeNow = System.currentTimeMillis();
+    int timeLow = (int) timeNow & 0xFFFFFFFF;
+    int node = seeder_.nextInt();
+
     StringBuffer guid = new StringBuffer(32);
     guid.append(hexFormat(timeLow, 8));
     guid.append(tmpBuffer.toString());

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
- 
+
 package org.exoplatform.services.jcr.core;
 
 import java.io.InputStream;
@@ -37,14 +37,19 @@ public interface ExtendedProperty extends Property {
   /**
    * Write binary data portion to the property value data.
    * 
-   * @param index - value index, 0 for first-in-multivalue/single-value, 1 - second etc.
-   * @param value - stream with the data portion
-   * @param length - value bytes count will be written
-   * @param position - position in the property value data from which the value
-   *          will be written
+   * @param index
+   *          - value index, 0 for first-in-multivalue/single-value, 1 - second etc.
+   * @param value
+   *          - stream with the data portion
+   * @param length
+   *          - value bytes count will be written
+   * @param position
+   *          - position in the property value data from which the value will be written
    */
-  void updateValue(int index, InputStream value, long length, long position) 
-      throws ValueFormatException, VersionException, LockException, 
-      ConstraintViolationException, RepositoryException;
+  void updateValue(int index, InputStream value, long length, long position) throws ValueFormatException,
+                                                                            VersionException,
+                                                                            LockException,
+                                                                            ConstraintViolationException,
+                                                                            RepositoryException;
 
 }

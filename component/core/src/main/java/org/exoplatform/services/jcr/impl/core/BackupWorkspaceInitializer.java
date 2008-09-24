@@ -60,8 +60,8 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 22.05.2008
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 22.05.2008
  * 
  * @version $Id$
  */
@@ -70,13 +70,24 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
 
   private FileCleaner  fileCleaner;
 
-  public BackupWorkspaceInitializer(WorkspaceEntry config, RepositoryEntry repConfig,
-      CacheableWorkspaceDataManager dataManager, NamespaceRegistryImpl namespaceRegistry,
-      LocationFactory locationFactory, NodeTypeManagerImpl nodeTypeManager,
-      ValueFactoryImpl valueFactory, AccessManager accessManager)
-      throws RepositoryConfigurationException, PathNotFoundException, RepositoryException {
-    super(config, repConfig, dataManager, namespaceRegistry, locationFactory, nodeTypeManager,
-        valueFactory, accessManager);
+  public BackupWorkspaceInitializer(WorkspaceEntry config,
+                                    RepositoryEntry repConfig,
+                                    CacheableWorkspaceDataManager dataManager,
+                                    NamespaceRegistryImpl namespaceRegistry,
+                                    LocationFactory locationFactory,
+                                    NodeTypeManagerImpl nodeTypeManager,
+                                    ValueFactoryImpl valueFactory,
+                                    AccessManager accessManager) throws RepositoryConfigurationException,
+      PathNotFoundException,
+      RepositoryException {
+    super(config,
+          repConfig,
+          dataManager,
+          namespaceRegistry,
+          locationFactory,
+          nodeTypeManager,
+          valueFactory,
+          accessManager);
 
     this.fileCleaner = new FileCleaner();
 
@@ -138,7 +149,9 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
   }
 
   private void incrementalRestore(File incrementalBackupFile) throws FileNotFoundException,
-      IOException, ClassNotFoundException, RepositoryException {
+                                                             IOException,
+                                                             ClassNotFoundException,
+                                                             RepositoryException {
     ObjectInputStream ois = null;
     try {
       ois = new ObjectInputStream(new FileInputStream(incrementalBackupFile));
@@ -163,19 +176,21 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
     try {
       dataManager.save(changesLog);
     } catch (JCRInvalidItemStateException e) {
-      TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(), e
-          .getState(), changesLog);
+      TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(),
+                                                                          e.getState(),
+                                                                          changesLog);
       if (normalizeChangesLog != null)
         saveChangesLog(normalizeChangesLog);
       else
-        throw new RepositoryException(
-            "Collisions found during save of restore changes log, but caused item is not found by ID "
-                + e.getIdentifier() + ". " + e, e);
+        throw new RepositoryException("Collisions found during save of restore changes log, but caused item is not found by ID "
+                                          + e.getIdentifier() + ". " + e,
+                                      e);
     }
   }
 
-  private TransactionChangesLog getNormalizedChangesLog(String collisionID, int state,
-      TransactionChangesLog changesLog) {
+  private TransactionChangesLog getNormalizedChangesLog(String collisionID,
+                                                        int state,
+                                                        TransactionChangesLog changesLog) {
     ItemState citem = changesLog.getItemState(collisionID);
 
     if (citem != null) {
@@ -205,8 +220,9 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
             normalized.add(change);
         }
 
-        PlainChangesLog plog = new PlainChangesLogImpl(normalized, next.getSessionId(), next
-            .getEventType());
+        PlainChangesLog plog = new PlainChangesLogImpl(normalized,
+                                                       next.getSessionId(),
+                                                       next.getEventType());
         result.addLog(plog);
       }
 
@@ -251,7 +267,7 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
   }
 
   private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
+                                                                  ClassNotFoundException {
     int changesLogType = in.readInt();
 
     TransactionChangesLog transactionChangesLog = null;
@@ -287,7 +303,9 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
       }
 
       RestoreChangesLog restoreChangesLog = new RestoreChangesLog(transactionChangesLog,
-          listFixupStreams, listFiles, fileCleaner);
+                                                                  listFixupStreams,
+                                                                  listFiles,
+                                                                  fileCleaner);
 
       restoreChangesLog.restore();
 
@@ -342,7 +360,9 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
     private FileCleaner           fileCleaner;
 
     public RestoreChangesLog(TransactionChangesLog transactionChangesLog,
-        List<FixupStream> listFixupStreams, List<File> listFiles, FileCleaner fileCleaner) {
+                             List<FixupStream> listFixupStreams,
+                             List<File> listFiles,
+                             FileCleaner fileCleaner) {
       this.itemDataChangesLog = transactionChangesLog;
       this.listFixupStream = listFixupStreams;
       this.listFile = listFiles;
@@ -360,8 +380,8 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
         ItemData itemData = itemState.getData();
 
         TransientPropertyData propertyData = (TransientPropertyData) itemData;
-        TransientValueData transientValueData = (TransientValueData) (propertyData.getValues()
-            .get(listFixupStream.get(i).getValueDataId()));
+        TransientValueData transientValueData = (TransientValueData) (propertyData.getValues().get(listFixupStream.get(i)
+                                                                                                                  .getValueDataId()));
         transientValueData.setStream(new FileInputStream(listFile.get(i)));
         transientValueData.setFileCleaner(fileCleaner);
         transientValueData.isByteArray();
@@ -371,27 +391,29 @@ public class BackupWorkspaceInitializer extends RestoreWorkspaceInitializer {
         fileCleaner.addFile(listFile.get(i));
     }
   }
-  
-  class FixupStream implements Externalizable{
+
+  class FixupStream implements Externalizable {
     int iItemStateId = -1;
+
     int iValueDataId = -1;
-    
-    public FixupStream(){}
-    
-    public FixupStream(int itemState_, int valueData_){
+
+    public FixupStream() {
+    }
+
+    public FixupStream(int itemState_, int valueData_) {
       iItemStateId = itemState_;
       iValueDataId = valueData_;
     }
-    
-    public int getItemSateId(){
+
+    public int getItemSateId() {
       return iItemStateId;
     }
-    
-    public int getValueDataId (){
+
+    public int getValueDataId() {
       return iValueDataId;
     }
-    
-    public boolean compare(FixupStream fs){
+
+    public boolean compare(FixupStream fs) {
       boolean b = true;
       if (fs.getItemSateId() != this.getItemSateId())
         b = false;

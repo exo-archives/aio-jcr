@@ -31,13 +31,13 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdStor;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class STORTest extends TestCase {
-  
+
   private static Log log = new Log("STORTest");
 
   public void testSTOR() throws Exception {
@@ -45,9 +45,9 @@ public class STORTest extends TestCase {
 
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
-    
-    byte []fileContent = "THIS FILE CONTENT".getBytes();
-  
+
+    byte[] fileContent = "THIS FILE CONTENT".getBytes();
+
     // desired reply - 530 Please login with USER and PASS
     {
       CmdStor cmdStor = new CmdStor(null);
@@ -57,8 +57,10 @@ public class STORTest extends TestCase {
 
     // login
     {
-      assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(new CmdUser(FtpTestConfig.USER_ID)));
-      assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(new CmdPass(FtpTestConfig.USER_PASS)));
+      assertEquals(FtpConst.Replyes.REPLY_331,
+                   client.executeCommand(new CmdUser(FtpTestConfig.USER_ID)));
+      assertEquals(FtpConst.Replyes.REPLY_230,
+                   client.executeCommand(new CmdPass(FtpTestConfig.USER_PASS)));
     }
 
     // desired reply - 425 Unable to build data connection
@@ -67,54 +69,54 @@ public class STORTest extends TestCase {
       cmdStor.setFileContent(fileContent);
       assertEquals(FtpConst.Replyes.REPLY_425, client.executeCommand(cmdStor));
     }
-    
+
     // desired reply - 500 STOR: command requires a parameter
     {
       assertEquals(FtpConst.Replyes.REPLY_227, client.executeCommand(new CmdPasv()));
-      
+
       CmdStor cmdStor = new CmdStor(null);
       cmdStor.setFileContent(fileContent);
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdStor));
     }
-        
+
     String fileName = "test_stor_file_" + System.currentTimeMillis() + ".txt";
-    
+
     // desired reply - 550 test_stor_file.txt: Permission denied
     {
       assertEquals(FtpConst.Replyes.REPLY_227, client.executeCommand(new CmdPasv()));
-      
+
       CmdStor cmdStor = new CmdStor(fileName);
       cmdStor.setFileContent(fileContent);
       assertEquals(FtpConst.Replyes.REPLY_550, client.executeCommand(cmdStor));
     }
-    
+
     // desired reply - 125 Data connection already open; Transfer starting
-    //                 226 Transfer complete
+    // 226 Transfer complete
     {
       assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(new CmdCwd("production")));
       assertEquals(FtpConst.Replyes.REPLY_227, client.executeCommand(new CmdPasv()));
-      
+
       CmdStor cmdStor = new CmdStor(fileName);
       cmdStor.setFileContent(fileContent);
       assertEquals(FtpConst.Replyes.REPLY_226, client.executeCommand(cmdStor));
     }
-    
+
     // desired reply - 550 Restore value invalid
     {
       assertEquals(FtpConst.Replyes.REPLY_227, client.executeCommand(new CmdPasv()));
-      assertEquals(FtpConst.Replyes.REPLY_350, client.executeCommand(new CmdRest(1000)));            
-      
+      assertEquals(FtpConst.Replyes.REPLY_350, client.executeCommand(new CmdRest(1000)));
+
       CmdStor cmdStor = new CmdStor(fileName);
       cmdStor.setFileContent(fileContent);
       assertEquals(FtpConst.Replyes.REPLY_550, client.executeCommand(cmdStor));
     }
-    
+
     {
       assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(new CmdDele(fileName)));
     }
-    
+
     client.close();
     log.info("Complete.\r\n");
-  }  
-    
+  }
+
 }

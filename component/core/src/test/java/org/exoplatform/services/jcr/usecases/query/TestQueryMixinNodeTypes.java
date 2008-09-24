@@ -34,8 +34,7 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SARL Author : Pham Xuan Hoa
- * hoa.pham@exoplatform.com Jan 16, 2008
+ * Created by The eXo Platform SARL Author : Pham Xuan Hoa hoa.pham@exoplatform.com Jan 16, 2008
  */
 public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
 
@@ -80,9 +79,11 @@ public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
     int nodesFound = 0;
     while (resNodes.hasNext()) {
       nodesFound++;
-      log.info("The query '" + datetimeStatement + "' found node: " + resNodes.nextNode() + ", total: " + nodesFound);
+      log.info("The query '" + datetimeStatement + "' found node: " + resNodes.nextNode()
+          + ", total: " + nodesFound);
     }
-    assertEquals("The search should find one node. Result size = " + resNodes.getSize() + ", actual = " + nodesFound, 1, nodesFound);
+    assertEquals("The search should find one node. Result size = " + resNodes.getSize()
+        + ", actual = " + nodesFound, 1, nodesFound);
 
     // Please try with both statements
     // String stateStatement =
@@ -95,7 +96,7 @@ public class TestQueryMixinNodeTypes extends BaseUsecasesTest {
   }
 
   private void registerNodetypes() throws Exception {
-    
+
     registerNamespace("kfx", "http://www.exoplatform.com/jcr/kfx/1.1/");
     registerNamespace("dc", "http://purl.org/dc/elements/1.1/");
 

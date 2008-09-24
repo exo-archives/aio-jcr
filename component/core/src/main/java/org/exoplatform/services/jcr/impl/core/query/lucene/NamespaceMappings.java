@@ -21,18 +21,19 @@ import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * The class <code>NamespaceMappings</code> holds a namespace mapping that is
- * used internally in the search index. Storing paths with the full uri of a
- * namespace would require too much space in the search index.
+ * The class <code>NamespaceMappings</code> holds a namespace mapping that is used internally in the
+ * search index. Storing paths with the full uri of a namespace would require too much space in the
+ * search index.
  */
 public interface NamespaceMappings extends NamespaceAccessor {
 
-    /**
-     * Translates a property name from a session local namespace mapping into a
-     * search index private namespace mapping.
-     *
-     * @param qName     the property name to translate
-     * @return the translated JCR property name
-     */
-    public String translatePropertyName(InternalQName qName) throws IllegalNameException;
+  /**
+   * Translates a property name from a session local namespace mapping into a search index private
+   * namespace mapping.
+   * 
+   * @param qName
+   *          the property name to translate
+   * @return the translated JCR property name
+   */
+  public String translatePropertyName(InternalQName qName) throws IllegalNameException;
 }

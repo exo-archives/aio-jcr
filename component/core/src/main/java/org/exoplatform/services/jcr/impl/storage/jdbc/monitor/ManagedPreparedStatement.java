@@ -40,22 +40,22 @@ import org.apache.commons.logging.Log;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 2-sep-08
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ManagedPreparedStatement.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class ManagedPreparedStatement extends ManagedStatement implements PreparedStatement {
 
   protected final PreparedStatement jdbcStmt;
-  
-  protected final String sqlStmt;
-  
+
+  protected final String            sqlStmt;
+
   ManagedPreparedStatement(PreparedStatement jdbcStmt, String sqlStmt, int interest, Log log) {
     super(jdbcStmt, interest, log);
     this.jdbcStmt = jdbcStmt;
     this.sqlStmt = sqlStmt;
   }
-  
+
   public void addBatch() throws SQLException {
     jdbcStmt.addBatch();
   }
@@ -74,8 +74,8 @@ public class ManagedPreparedStatement extends ManagedStatement implements Prepar
       return jdbcStmt.executeQuery();
     } finally {
       if ((interest & ManagedConnection.EXECUTE_INTREST) != 0)
-        log.info(ManagedConnection.EXECUTE_INTEREST_NAME + " " + sqlStmt + " - " + 
-                 (System.currentTimeMillis() - start) + "ms");  
+        log.info(ManagedConnection.EXECUTE_INTEREST_NAME + " " + sqlStmt + " - "
+            + (System.currentTimeMillis() - start) + "ms");
     }
   }
 
@@ -85,8 +85,8 @@ public class ManagedPreparedStatement extends ManagedStatement implements Prepar
       return jdbcStmt.executeUpdate();
     } finally {
       if ((interest & ManagedConnection.EXECUTE_INTREST) != 0)
-        log.info(ManagedConnection.EXECUTE_INTEREST_NAME + " " + sqlStmt + " - " + 
-                 (System.currentTimeMillis() - start) + "ms");  
+        log.info(ManagedConnection.EXECUTE_INTEREST_NAME + " " + sqlStmt + " - "
+            + (System.currentTimeMillis() - start) + "ms");
     }
   }
 

@@ -20,18 +20,19 @@ import javax.jcr.ImportUUIDBehavior;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public  class TestDocumentViewCollision extends AbstractCollisionTest {
+public class TestDocumentViewCollision extends AbstractCollisionTest {
 
   public TestDocumentViewCollision() {
     super();
   }
 
   /**
-   * (boolean isSystemView, boolean isExportedByStream, boolean
-   * isImportedByStream, XmlSaveType saveType, int testedBehavior)
+   * (boolean isSystemView, boolean isExportedByStream, boolean isImportedByStream, XmlSaveType
+   * saveType, int testedBehavior)
    */
   public void testUuidCollision_IContentHandler_EContentHandler_Session_COLLISION_THROW() throws Exception {
     importUuidCollisionTest(false,

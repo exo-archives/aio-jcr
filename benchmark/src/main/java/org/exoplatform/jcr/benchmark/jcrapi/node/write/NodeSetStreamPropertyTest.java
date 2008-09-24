@@ -21,7 +21,7 @@ public class NodeSetStreamPropertyTest extends AbstractAddItemEmptyContentTest {
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     nextParent().setProperty(context.generateUniqueName("property"),
-        new ByteArrayInputStream(new byte[1024]));
+                             new ByteArrayInputStream(new byte[1024]));
   }
 
 }

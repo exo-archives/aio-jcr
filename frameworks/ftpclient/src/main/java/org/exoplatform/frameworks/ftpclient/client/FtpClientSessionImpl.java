@@ -29,42 +29,47 @@ import org.exoplatform.frameworks.ftpclient.data.FtpDataTransiver;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public class FtpClientSessionImpl implements FtpClientSession {
 
-  private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpClientSessionImpl");
-  
-  protected String host;
-  protected int port;
-  protected Socket clientSocket = null;
+  private static Log         log           = ExoLogger.getLogger(FtpConst.FTP_PREFIX
+                                               + "FtpClientSessionImpl");
 
-  protected String systemType;
+  protected String           host;
+
+  protected int              port;
+
+  protected Socket           clientSocket  = null;
+
+  protected String           systemType;
+
   protected FtpDataTransiver dataTransiver = null;
-  
+
   public FtpClientSessionImpl(String host, int port) {
-    //log.info("Starting client...");
+    // log.info("Starting client...");
     this.host = host;
     this.port = port;
   }
-  
+
   public boolean connect() throws Exception {
     return connect(1);
   }
-  
+
   public boolean connect(int attemptsCount) throws Exception {
     Exception prevExc = null;
     for (int i = 0; i < attemptsCount; i++) {
       try {
         clientSocket = new Socket();
         SocketAddress sockAddr = new InetSocketAddress(host, port);
-        clientSocket.connect(sockAddr);   
-        //log.info("Connected - " + clientSocket.isConnected());
-        
-        boolean connected = false; 
+        clientSocket.connect(sockAddr);
+        // log.info("Connected - " + clientSocket.isConnected());
+
+        boolean connected = false;
         for (int wi = 0; wi < 200; wi++) {
           if (clientSocket.isConnected()) {
             connected = true;
@@ -72,38 +77,38 @@ public class FtpClientSessionImpl implements FtpClientSession {
           }
           Thread.sleep(1);
         }
-        
+
         if (!connected) {
-          throw new Exception(); 
+          throw new Exception();
         }
-        
+
         BufferedReader br = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        
+
         String reply = "";
         while (!reply.startsWith("220 ")) {
           reply = br.readLine();
-          //log.info("REPLY - " + reply);
+          // log.info("REPLY - " + reply);
         }
-        
+
         return true;
       } catch (Exception exc) {
-        prevExc = exc;        
+        prevExc = exc;
       }
       Thread.sleep(3000);
-      //log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> sleeping.........");
+      // log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> sleeping.........");
     }
-    
+
     log.info("unhandled exception. " + prevExc.getMessage(), prevExc);
-    
+
     return false;
   }
 
   public void close() {
-    try {      
+    try {
       if (dataTransiver != null) {
         dataTransiver.close();
       }
-      
+
       if (clientSocket == null) {
         return;
       }
@@ -114,38 +119,38 @@ public class FtpClientSessionImpl implements FtpClientSession {
       log.info(FtpConst.EXC_MSG + exc.getMessage(), exc);
     }
   }
-  
+
   public Socket getClientSocket() {
     return clientSocket;
   }
-  
+
   public int executeCommand(FtpCommand command) throws Exception {
     if (clientSocket == null) {
       return -1;
     }
     return command.run(this);
   }
-  
+
   public int executeCommand(FtpCommand command, int expectReply, int attemptsCount) throws Exception {
     int reply = -1;
     for (int i = 0; i < attemptsCount; i++) {
-       reply = command.run(this);
-       if (reply == expectReply) {
-         return reply;
-       }
-       Thread.sleep(100);
+      reply = command.run(this);
+      if (reply == expectReply) {
+        return reply;
+      }
+      Thread.sleep(100);
     }
     return reply;
   }
-  
+
   public void setSystemType(String systemType) {
     this.systemType = systemType;
   }
-  
+
   public String getSystemType() {
     return systemType;
   }
-  
+
   public void setDataTransiver(FtpDataTransiver dataTransiver) {
     this.dataTransiver = dataTransiver;
   }
@@ -153,5 +158,5 @@ public class FtpClientSessionImpl implements FtpClientSession {
   public FtpDataTransiver getDataTransiver() {
     return dataTransiver;
   }
-  
+
 }

@@ -21,9 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS 
- * Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 15.01.2008
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 15.01.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupError.java 627 2008-01-15 14:18:58Z pnedonosko $
@@ -45,7 +44,7 @@ public class BackupError extends BackupMessage {
     super(description);
     this.stackTraces.addAll(clone);
   }
-  
+
   public boolean isError() {
     return true;
   }
@@ -77,8 +76,9 @@ public class BackupError extends BackupMessage {
     }
   }
 
-  private void printStackTraceAsCause(PrintStream s, StackTraceElement[] ourTrace,
-      StackTraceElement[] causedTrace) {
+  private void printStackTraceAsCause(PrintStream s,
+                                      StackTraceElement[] ourTrace,
+                                      StackTraceElement[] causedTrace) {
     // Compute number of frames in common between this and caused
     int m = ourTrace.length - 1, n = causedTrace.length - 1;
     while (m >= 0 && n >= 0 && ourTrace[m].equals(causedTrace[n])) {

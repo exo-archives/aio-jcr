@@ -22,12 +22,13 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class NodeGetPropertiesByPatternTest extends AbstractNodeTest {
 
-   @Override
+  @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     node.getProperties("property*");
   }

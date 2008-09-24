@@ -20,75 +20,75 @@ import java.io.IOException;
 import java.util.BitSet;
 
 /**
- * A <code>DocId</code> that contains a document number and the creation tick
- * of the index segment.
+ * A <code>DocId</code> that contains a document number and the creation tick of the index segment.
  */
 final class ForeignSegmentDocId extends DocId {
 
-    /**
-     * The document number.
-     */
-    private final int docNumber;
+  /**
+   * The document number.
+   */
+  private final int  docNumber;
 
-    /**
-     * The creation tick of the index segment.
-     */
-    private final long creationTick;
+  /**
+   * The creation tick of the index segment.
+   */
+  private final long creationTick;
 
-    /**
-     * Creates a <code>DocId</code> based on a document number in the index
-     * segment with the given <code>creationTick</code>.
-     *
-     * @param docNumber    the lucene document number.
-     * @param creationTick the creation tick of the index segment.
-     */
-    ForeignSegmentDocId(int docNumber, long creationTick) {
-        this.docNumber = docNumber;
-        this.creationTick = creationTick;
-    }
+  /**
+   * Creates a <code>DocId</code> based on a document number in the index segment with the given
+   * <code>creationTick</code>.
+   * 
+   * @param docNumber
+   *          the lucene document number.
+   * @param creationTick
+   *          the creation tick of the index segment.
+   */
+  ForeignSegmentDocId(int docNumber, long creationTick) {
+    this.docNumber = docNumber;
+    this.creationTick = creationTick;
+  }
 
-    /**
-     * @return the document number in the foreign index segment.
-     */
-    int getDocNumber() {
-        return docNumber;
-    }
+  /**
+   * @return the document number in the foreign index segment.
+   */
+  int getDocNumber() {
+    return docNumber;
+  }
 
-    /**
-     * @return the creation tick of the foreign index segment.
-     */
-    long getCreationTick() {
-        return creationTick;
-    }
+  /**
+   * @return the creation tick of the foreign index segment.
+   */
+  long getCreationTick() {
+    return creationTick;
+  }
 
-    /**
-     * @inheritDoc
-     */
-    int getDocumentNumber(MultiIndexReader reader) throws IOException {
-        return reader.getDocumentNumber(this);
-    }
+  /**
+   * @inheritDoc
+   */
+  int getDocumentNumber(MultiIndexReader reader) throws IOException {
+    return reader.getDocumentNumber(this);
+  }
 
-    /**
-     * This implementation will return <code>this</code>. Document number is
-     * not known until resolved in {@link #getDocumentNumber(MultiIndexReader)}.
-     *
-     * {@inheritDoc}
-     */
-    DocId applyOffset(int offset) {
-        return this;
-    }
+  /**
+   * This implementation will return <code>this</code>. Document number is not known until resolved
+   * in {@link #getDocumentNumber(MultiIndexReader)}.
+   * 
+   * {@inheritDoc}
+   */
+  DocId applyOffset(int offset) {
+    return this;
+  }
 
-    /**
-     * Always returns <code>true</code> because this calls is in context of the
-     * index segment where this DocId lives. Within this segment this DocId is
-     * always valid. Whether the target of this DocId is valid can only be
-     * checked in the method {@link #getDocumentNumber(MultiIndexReader)}.
-     *
-     * @param deleted the deleted documents in the segment where this DocId
-     *                lives.
-     * @return always <code>true</code>.
-     */
-    boolean isValid(BitSet deleted) {
-        return true;
-    }
+  /**
+   * Always returns <code>true</code> because this calls is in context of the index segment where
+   * this DocId lives. Within this segment this DocId is always valid. Whether the target of this
+   * DocId is valid can only be checked in the method {@link #getDocumentNumber(MultiIndexReader)}.
+   * 
+   * @param deleted
+   *          the deleted documents in the segment where this DocId lives.
+   * @return always <code>true</code>.
+   */
+  boolean isValid(BitSet deleted) {
+    return true;
+  }
 }

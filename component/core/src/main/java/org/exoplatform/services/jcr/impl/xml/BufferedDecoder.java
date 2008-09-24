@@ -71,7 +71,8 @@ public class BufferedDecoder extends Base64.Decoder {
   }
 
   /**
-   * @param bufferSize - buffer size.
+   * @param bufferSize
+   *          - buffer size.
    */
   public BufferedDecoder(int bufferSize) {
     super(bufferSize);
@@ -81,7 +82,8 @@ public class BufferedDecoder extends Base64.Decoder {
 
   /**
    * @return - input stream.
-   * @throws IOException - unknown output stream.
+   * @throws IOException
+   *           - unknown output stream.
    */
   public InputStream getInputStream() throws IOException {
     flush();
@@ -99,7 +101,8 @@ public class BufferedDecoder extends Base64.Decoder {
   /**
    * Remove buffer.
    * 
-   * @throws IOException if file cannot be removed.
+   * @throws IOException
+   *           if file cannot be removed.
    */
   public void remove() throws IOException {
     if ((fileBuffer != null) && fileBuffer.exists()) {
@@ -144,7 +147,8 @@ public class BufferedDecoder extends Base64.Decoder {
   /**
    * Swap in-memory buffer with file.
    * 
-   * @exception IOException if an I/O error occurs.
+   * @exception IOException
+   *              if an I/O error occurs.
    */
   private void swapBuffers() throws IOException {
     byte[] data = ((ByteArrayOutputStream) out).toByteArray();
@@ -155,13 +159,17 @@ public class BufferedDecoder extends Base64.Decoder {
   }
 
   /**
-   * Writes <code>length</code> bytes from the specified byte array starting
-   * at offset <code>start</code> to this byte array output stream.
+   * Writes <code>length</code> bytes from the specified byte array starting at offset
+   * <code>start</code> to this byte array output stream.
    * 
-   * @param buffer the data.
-   * @param start the start offset in the data.
-   * @param length the number of bytes to write. 
-   * @exception IOException if an I/O error occurs.
+   * @param buffer
+   *          the data.
+   * @param start
+   *          the start offset in the data.
+   * @param length
+   *          the number of bytes to write.
+   * @exception IOException
+   *              if an I/O error occurs.
    */
   protected void writeBuffer(byte[] buffer, int start, int length) throws IOException {
     if (out instanceof ByteArrayOutputStream) {

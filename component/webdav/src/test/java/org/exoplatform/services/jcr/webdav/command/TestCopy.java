@@ -29,22 +29,21 @@ import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS Author : Dmytro Katayev
- * work.visor.ck@gmail.com Aug 13, 2008
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
  */
 public class TestCopy extends TestCase {
 
-  private final String fileName = TestUtils.getFileName();
+  private final String            fileName     = TestUtils.getFileName();
 
-  private final String srcFileName = TestUtils.getFullWorkSpacePath() + "/" + fileName;
+  private final String            srcFileName  = TestUtils.getFullWorkSpacePath() + "/" + fileName;
 
-  private final String testFolder = TestUtils.getFullUri() + "/test";
+  private final String            testFolder   = TestUtils.getFullUri() + "/test";
 
-  private final String destFileName = testFolder + "/" + TestUtils.getFileName();
+  private final String            destFileName = testFolder + "/" + TestUtils.getFileName();
 
-  private final String fileContent = "TEST FILE CONTENT...";
+  private final String            fileContent  = "TEST FILE CONTENT...";
 
-  private HTTPConnection connection;
+  private HTTPConnection          connection;
 
   private InstalledLocalContainer container;
 

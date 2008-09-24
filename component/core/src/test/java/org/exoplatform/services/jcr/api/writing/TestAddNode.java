@@ -223,17 +223,13 @@ public class TestAddNode extends JcrAPIBaseTest {
     assertEquals(1, testNode.getNodes().getSize());
     testNode.addNode("folder");
     session.save();
-    
+
     assertEquals(2, testNode.getNodes().getSize());
     testNode.addNode("folder", "nt:folder");
     session.save();
-    
-    
+
     testNode.remove();
     session.save();
-    
-    
-    
-    
+
   }
 }

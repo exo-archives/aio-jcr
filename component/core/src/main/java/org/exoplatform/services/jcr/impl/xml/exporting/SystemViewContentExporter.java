@@ -72,9 +72,9 @@ public class SystemViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -92,20 +92,17 @@ public class SystemViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
     try {
       // set name and type of property
       AttributesImpl atts = new AttributesImpl();
-      atts.addAttribute(getSvNamespaceUri(),
-                        "name",
-                        "sv:name",
-                        "CDATA",
-                        getExportName(property, false));
+      atts.addAttribute(getSvNamespaceUri(), "name", "sv:name", "CDATA", getExportName(property,
+                                                                                       false));
       atts.addAttribute(getSvNamespaceUri(),
                         "type",
                         "sv:type",
@@ -133,9 +130,9 @@ public class SystemViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
@@ -150,9 +147,9 @@ public class SystemViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {

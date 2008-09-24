@@ -42,7 +42,7 @@ public class RepositoryEntry {
 
   private String                    authenticationPolicy;
 
-  private long                    sessionTimeOut;
+  private long                      sessionTimeOut;
 
   public RepositoryEntry() {
     workspaces = new ArrayList<WorkspaceEntry>();
@@ -68,7 +68,8 @@ public class RepositoryEntry {
   /**
    * Set system workspace name.
    * 
-   * @param systemWorkspace The systemWorkspace to set.
+   * @param systemWorkspace
+   *          The systemWorkspace to set.
    */
   public void setSystemWorkspaceName(String systemWorkspace) {
     this.systemWorkspaceName = systemWorkspace;
@@ -99,7 +100,8 @@ public class RepositoryEntry {
   /**
    * Set access control.
    * 
-   * @param accessControl The accessControl to set.
+   * @param accessControl
+   *          The accessControl to set.
    */
   public void setAccessControl(String accessControl) {
     this.accessControl = accessControl;
@@ -117,7 +119,8 @@ public class RepositoryEntry {
   /**
    * Set security domain.
    * 
-   * @param securityDomain The securityDomain to set.
+   * @param securityDomain
+   *          The securityDomain to set.
    */
   public void setSecurityDomain(String securityDomain) {
     this.securityDomain = securityDomain;
@@ -135,7 +138,8 @@ public class RepositoryEntry {
   /**
    * Set authentication policy.
    * 
-   * @param authenticationPolicy The authenticationPolicy to set.
+   * @param authenticationPolicy
+   *          The authenticationPolicy to set.
    */
   public void setAuthenticationPolicy(String authenticationPolicy) {
     this.authenticationPolicy = authenticationPolicy;
@@ -153,7 +157,8 @@ public class RepositoryEntry {
   /**
    * Set default workspace name.
    * 
-   * @param defaultWorkspaceName The defaultWorkspaceName to set.
+   * @param defaultWorkspaceName
+   *          The defaultWorkspaceName to set.
    */
   public void setDefaultWorkspaceName(String defaultWorkspaceName) {
     this.defaultWorkspaceName = defaultWorkspaceName;

@@ -57,11 +57,13 @@ public class AccessContextTest extends BaseStandaloneTest {
   }
 
   private void setContextAction() {
-    SessionActionCatalog catalog = (SessionActionCatalog) container
-        .getComponentInstanceOfType(SessionActionCatalog.class);
-    ActionConfiguration ac = new ActionConfiguration(
-        "org.exoplatform.services.jcr.ext.access.SetAccessControlContextAction",
-        "addProperty,changeProperty,removeProperty,read", null, true, null,null);
+    SessionActionCatalog catalog = (SessionActionCatalog) container.getComponentInstanceOfType(SessionActionCatalog.class);
+    ActionConfiguration ac = new ActionConfiguration("org.exoplatform.services.jcr.ext.access.SetAccessControlContextAction",
+                                                     "addProperty,changeProperty,removeProperty,read",
+                                                     null,
+                                                     true,
+                                                     null,
+                                                     null);
     List actionsList = new ArrayList();
     ActionsConfig actions = new ActionsConfig();
     actions.setActions(actionsList);
@@ -90,7 +92,6 @@ public class AccessContextTest extends BaseStandaloneTest {
     session.save();
   }
 
-
   public void testDenyAccessMenager() throws RepositoryException {
     Node tNode = root.addNode("testNode");
     tNode.setProperty("deny", "value");
@@ -110,7 +111,7 @@ public class AccessContextTest extends BaseStandaloneTest {
   }
 
   public void testAccessMenedgerContextMultiThread() throws RepositoryException,
-      InterruptedException {
+                                                    InterruptedException {
 
     Node multiACTNode = root.addNode("testMultiACT");
 
@@ -166,13 +167,13 @@ public class AccessContextTest extends BaseStandaloneTest {
     private int         errorsCount;
 
     private Log         log = ExoLogger.getLogger("jcr.JCRClient4AccessContextTest");
-    
+
     public JCRClient4AccessContext() {
       try {
 
         systemSession = repository.getSystemSession();
         adminSession = repository.getSystemSession();
-        userSession = (SessionImpl)repository.login(credentials,"ws");
+        userSession = (SessionImpl) repository.login(credentials, "ws");
         log.debug("Thread created");
       } catch (Exception e) {
         e.printStackTrace();
@@ -184,10 +185,10 @@ public class AccessContextTest extends BaseStandaloneTest {
       Node adminNode = adminSession.getRootNode().getNode("testMultiACT");
       Node userNode = userSession.getRootNode().getNode("testMultiACT");
 
-      if (sysNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS+1) {
+      if (sysNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS + 1) {
         errorsCount++;
       }
-      if (adminNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS+1) {
+      if (adminNode.getProperties().getSize() != MULTI_THIARD_OPERATIONS + 1) {
         errorsCount++;
       }
 
@@ -248,7 +249,7 @@ public class AccessContextTest extends BaseStandaloneTest {
         e.printStackTrace();
         log.error("Error");
       }
-      if(errorsCount>0){
+      if (errorsCount > 0) {
         log.info("errorsCount = " + errorsCount);
       }
     }

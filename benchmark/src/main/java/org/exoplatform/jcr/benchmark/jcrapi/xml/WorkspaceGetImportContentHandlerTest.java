@@ -19,16 +19,18 @@ import com.sun.japex.TestCase;
  */
 
 public class WorkspaceGetImportContentHandlerTest extends AbstractGetItemNameTest {
-  
+
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     parent.addNode(context.generateUniqueName("node"));
     addName(parent.getPath());
   }
-  
+
   @Override
-  public void doRun(TestCase tc, JCRTestContext context) throws Exception {       
-    context.getSession().getWorkspace().getImportContentHandler(nextName(), ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);    
+  public void doRun(TestCase tc, JCRTestContext context) throws Exception {
+    context.getSession()
+           .getWorkspace()
+           .getImportContentHandler(nextName(), ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
   }
 
 }

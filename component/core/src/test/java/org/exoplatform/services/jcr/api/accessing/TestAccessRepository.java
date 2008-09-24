@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.accessing;
 
-
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
@@ -29,10 +28,10 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 
 /**
  * Created y the eXo platform team
+ * 
  * @author Benjamin Mestrallet
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestAccessRepository.java 12049 2008-03-18 12:22:03Z gazarenkov $
- * See 6.1.1
+ * @version $Id: TestAccessRepository.java 12049 2008-03-18 12:22:03Z gazarenkov $ See 6.1.1
  */
 public class TestAccessRepository extends JcrAPIBaseTest {
 
@@ -45,17 +44,19 @@ public class TestAccessRepository extends JcrAPIBaseTest {
   }
 
   /**
-   * 6.1.2 If credentials is null, it is assumed that authentication is handled by a mechanism external to the
-   * repository itself (for example, through the JAAS framework) and that the repository implementation exists
-   * within a context (for example, an application server) that allows it to handle authorization of the request
-   * for access to the specified workspace 
+   * 6.1.2 If credentials is null, it is assumed that authentication is handled by a mechanism
+   * external to the repository itself (for example, through the JAAS framework) and that the
+   * repository implementation exists within a context (for example, an application server) that
+   * allows it to handle authorization of the request for access to the specified workspace
    */
-  public void testExternalLogin() throws NoSuchWorkspaceException, LoginException, RepositoryException {
+  public void testExternalLogin() throws NoSuchWorkspaceException,
+                                 LoginException,
+                                 RepositoryException {
 
-    // make sure for this thread the user is "exo" 
+    // make sure for this thread the user is "exo"
     Credentials cred = new CredentialsImpl("exo", "exo".toCharArray());
     Session session1 = repository.login(cred, WORKSPACE);
-    
+
     // new session with the same credentials
     Session session = repository.login(WORKSPACE);
     assertNotNull(session);
@@ -64,29 +65,30 @@ public class TestAccessRepository extends JcrAPIBaseTest {
     assertFalse(session1.equals(session));
   }
 
-
   /**
-   * 6.1.2 If workspaceName is null, a default workspace is automatically selected by the repository implementation.
-   * This may, for example, be the �home workspace� of the user whose credentials were passed, though this is entirely
-   * up to the configuration and implementation of the repository. Alternatively it may be a null workspace that serves
-   * only to provide the method
+   * 6.1.2 If workspaceName is null, a default workspace is automatically selected by the repository
+   * implementation. This may, for example, be the �home workspace� of the user whose
+   * credentials were passed, though this is entirely up to the configuration and implementation of
+   * the repository. Alternatively it may be a null workspace that serves only to provide the method
    */
-  public void testLoginToDefaultWorkspace() throws NoSuchWorkspaceException, LoginException, RepositoryException {
+  public void testLoginToDefaultWorkspace() throws NoSuchWorkspaceException,
+                                           LoginException,
+                                           RepositoryException {
     Credentials cred = new CredentialsImpl("exo", "exo".toCharArray());
     Session session = repository.login(cred);
     assertNotNull(session);
     assertEquals(WORKSPACE, session.getWorkspace().getName());
   }
 
+  public void testExternalLoginToDefaultWorkspace() throws NoSuchWorkspaceException,
+                                                   LoginException,
+                                                   RepositoryException {
 
-  public void testExternalLoginToDefaultWorkspace() throws NoSuchWorkspaceException, LoginException, RepositoryException {
-
-//    PortalContainer.getInstance().
-//        createSessionContainer("my-session", "gena").
-//        setClientInfo(new DummyClientInfo("gena"));
-//    container.createSessionContainer("my-session", "gena").
-//    setClientInfo(new DummyClientInfo("gena"));
-
+    // PortalContainer.getInstance().
+    // createSessionContainer("my-session", "gena").
+    // setClientInfo(new DummyClientInfo("gena"));
+    // container.createSessionContainer("my-session", "gena").
+    // setClientInfo(new DummyClientInfo("gena"));
 
     Session session = repository.login();
     assertNotNull(session);
@@ -104,7 +106,7 @@ public class TestAccessRepository extends JcrAPIBaseTest {
 
   public void testWrongWorkspace() throws Exception {
     Credentials cred = this.credentials;
-      //new CredentialsImpl("user", "psw".toCharArray());
+    // new CredentialsImpl("user", "psw".toCharArray());
     try {
       repository.login(cred, "wrong_workspace");
       fail("Exception should have been thrown");
@@ -113,7 +115,7 @@ public class TestAccessRepository extends JcrAPIBaseTest {
   }
 
   public void testDescriptors() throws Exception {
-    assertTrue(repository.getDescriptorKeys().length>=6);
+    assertTrue(repository.getDescriptorKeys().length >= 6);
     assertNotNull(repository.getDescriptor(Repository.REP_NAME_DESC));
   }
 }

@@ -28,8 +28,8 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
  */
 
 public class SimpleFileValueStorage extends FileValueStorage {
-  
-  /** 
+
+  /**
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#openIOChannel()
    */
   public ValueIOChannel openIOChannel() throws IOException {

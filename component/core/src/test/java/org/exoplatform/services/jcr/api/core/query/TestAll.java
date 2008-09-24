@@ -29,43 +29,40 @@ import org.exoplatform.services.jcr.api.core.query.lucene.hits.ArrayHitsTest;
  */
 public class TestAll extends TestCase {
 
-    /**
-     * Returns a <code>Test</code> suite that executes all tests inside this
-     * package.
-     *
-     * @return a <code>Test</code> suite that executes all tests inside this
-     *         package.
-     */
-    public static Test suite() {
-        TestSuite suite = new TestSuite("Search tests");
-        
-        suite.addTestSuite(SimpleQueryTest.class);
-        suite.addTestSuite(FulltextQueryTest.class);
-        suite.addTestSuite(SelectClauseTest.class);
-        suite.addTestSuite(SQLTest.class);
-        suite.addTestSuite(OrderByTest.class);
-        suite.addTestSuite(XPathAxisTest.class);
-        suite.addTestSuite(SkipDeletedNodesTest.class);
-        suite.addTestSuite(MixinTest.class);
-        suite.addTestSuite(DerefTest.class);
-        suite.addTestSuite(VersionStoreQueryTest.class);
-        suite.addTestSuite(UpperLowerCaseQueryTest.class);
-        
-        suite.addTestSuite(ChildAxisQueryTest.class);
-        
-        suite.addTestSuite(FnNameQueryTest.class);
-        suite.addTestSuite(PathQueryNodeTest.class);
-        
-        suite.addTestSuite(SynonymProviderTest.class);
-        suite.addTestSuite(ArrayHitsTest.class);
+  /**
+   * Returns a <code>Test</code> suite that executes all tests inside this package.
+   * 
+   * @return a <code>Test</code> suite that executes all tests inside this package.
+   */
+  public static Test suite() {
+    TestSuite suite = new TestSuite("Search tests");
 
-        
-        // exclude long running tests per default
-        suite.addTestSuite(QueryResultTest.class);        
-        suite.addTestSuite(MassiveRangeTest.class);
-        //suite.addTestSuite(ConcurrentQueryTest.class);
-        suite.addTestSuite(MassiveWildcardTest.class);
+    suite.addTestSuite(SimpleQueryTest.class);
+    suite.addTestSuite(FulltextQueryTest.class);
+    suite.addTestSuite(SelectClauseTest.class);
+    suite.addTestSuite(SQLTest.class);
+    suite.addTestSuite(OrderByTest.class);
+    suite.addTestSuite(XPathAxisTest.class);
+    suite.addTestSuite(SkipDeletedNodesTest.class);
+    suite.addTestSuite(MixinTest.class);
+    suite.addTestSuite(DerefTest.class);
+    suite.addTestSuite(VersionStoreQueryTest.class);
+    suite.addTestSuite(UpperLowerCaseQueryTest.class);
 
-        return suite;
-    }
+    suite.addTestSuite(ChildAxisQueryTest.class);
+
+    suite.addTestSuite(FnNameQueryTest.class);
+    suite.addTestSuite(PathQueryNodeTest.class);
+
+    suite.addTestSuite(SynonymProviderTest.class);
+    suite.addTestSuite(ArrayHitsTest.class);
+
+    // exclude long running tests per default
+    suite.addTestSuite(QueryResultTest.class);
+    suite.addTestSuite(MassiveRangeTest.class);
+    // suite.addTestSuite(ConcurrentQueryTest.class);
+    suite.addTestSuite(MassiveWildcardTest.class);
+
+    return suite;
+  }
 }

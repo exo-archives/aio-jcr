@@ -24,7 +24,8 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.rest.transformer.OutputEntityTransformer;
 
 /**
- * Created by The eXo Platform SAS .<br/> 
+ * Created by The eXo Platform SAS .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -33,16 +34,15 @@ public class XMLOutputTransformer extends OutputEntityTransformer {
 
   @Override
   public void writeTo(Object obj, OutputStream out) throws IOException {
-    if(!(obj instanceof HierarchicalProperty)) {
-      throw new ClassCastException ("HierarchicalProperty object expected, found "
-          +obj.getClass().getName());
+    if (!(obj instanceof HierarchicalProperty)) {
+      throw new ClassCastException("HierarchicalProperty object expected, found "
+          + obj.getClass().getName());
     }
-    
+
     HierarchicalProperty prop = (HierarchicalProperty) obj;
-    
+
     // TODO write the property here
 
-    
   }
 
 }

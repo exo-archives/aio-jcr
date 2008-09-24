@@ -49,8 +49,7 @@ public class GetNodesCommand extends AbstractCliCommand {
           output += node.getPath() + "\n";
         }
       } else {
-        output += "Current item is property: "
-            + ((Property) ctx.getCurrentItem()).getName() + "\n";
+        output += "Current item is property: " + ((Property) ctx.getCurrentItem()).getName() + "\n";
       }
     } catch (Exception e) {
       output = "Can't execute command - " + e.getMessage() + "\n";

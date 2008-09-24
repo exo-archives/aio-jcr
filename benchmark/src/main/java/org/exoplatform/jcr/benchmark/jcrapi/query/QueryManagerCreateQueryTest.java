@@ -23,11 +23,11 @@ import org.exoplatform.jcr.benchmark.JCRTestContext;
 import com.sun.japex.TestCase;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 28.03.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: QueryManagerCreateQueryTest.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class QueryManagerCreateQueryTest extends AbstractQueryTest {

@@ -24,34 +24,31 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.Identity;
 
-
 /**
  * Created by The eXo Platform SAS
  * 
  * @deprecated for back compatibility
  * 
- * Author : Tuan Nguyen
- *          tuan.nguyen@exoplatform.com
- * May 17, 2007  
+ *             Author : Tuan Nguyen tuan.nguyen@exoplatform.com May 17, 2007
  * 
  * @version $Id: JCRAuthenticationListener.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 public class JCRAuthenticationListener extends Listener<ConversationRegistry, Identity> {
-  
-  private Log      log = ExoLogger.getLogger("kernel.JCRAuthenticationListener");
-  
-  public void onEvent(Event<ConversationRegistry, Identity> event)  {
-//    Identity identity = event.getData() ;
-//    String username = identity.getUserId();
-//    Subject subject = identity.getSubject() ;
-//    Set<String> temp = subject.getPrivateCredentials(String.class);
-//    if (temp.size() == 1)
-//      subject.getPublicCredentials().add(new CredentialsImpl(username,
-//          temp.iterator().next().toCharArray()));
-//    else
-//      log.warn("Could not obtain the password credentials from AuthenticationService."
-//          + "JCR Credentials will not be created.");
-//    
+
+  private Log log = ExoLogger.getLogger("kernel.JCRAuthenticationListener");
+
+  public void onEvent(Event<ConversationRegistry, Identity> event) {
+    // Identity identity = event.getData() ;
+    // String username = identity.getUserId();
+    // Subject subject = identity.getSubject() ;
+    // Set<String> temp = subject.getPrivateCredentials(String.class);
+    // if (temp.size() == 1)
+    // subject.getPublicCredentials().add(new CredentialsImpl(username,
+    // temp.iterator().next().toCharArray()));
+    // else
+    // log.warn("Could not obtain the password credentials from AuthenticationService."
+    // + "JCR Credentials will not be created.");
+    //    
     if (log.isDebugEnabled())
       log.debug("Call JCRAuthenticationListener");
   }

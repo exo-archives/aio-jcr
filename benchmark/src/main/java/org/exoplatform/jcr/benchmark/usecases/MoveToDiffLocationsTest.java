@@ -32,57 +32,57 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 11.09.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class MoveToDiffLocationsTest extends AbstractMoveUsecaseTest {
-  
+
   protected static Log LOG = ExoLogger.getLogger("MoveToDiffDirectionsTest");
-  
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     NodeIterator testNodes = nextNode().getNodes();
     while (testNodes.hasNext()) {
       Node nodeToMove = testNodes.nextNode();
-      
+
       // prepare destenation location
       Calendar fileDate = nodeToMove.getProperty("jcr:content/jcr:lastModified").getDate();
       String year = String.valueOf(fileDate.get(Calendar.YEAR));
       String month = String.valueOf(fileDate.get(Calendar.MONTH));
-      String day = String.valueOf(fileDate.get(Calendar.DAY_OF_MONTH));    
-      
+      String day = String.valueOf(fileDate.get(Calendar.DAY_OF_MONTH));
+
       Node catalog = rootNode.getNode("catalog");
       Node y;
       Node m;
       Node d;
-      
+
       try {
         y = catalog.getNode(year);
-      } catch(PathNotFoundException e) {
+      } catch (PathNotFoundException e) {
         y = catalog.addNode(year);
       }
-      
+
       try {
         m = y.getNode(month);
-      } catch(PathNotFoundException e) {
+      } catch (PathNotFoundException e) {
         m = y.addNode(month);
       }
-      
+
       try {
         d = m.getNode(day);
-      } catch(PathNotFoundException e) {
+      } catch (PathNotFoundException e) {
         d = m.addNode(day);
       }
-      
+
       // move using Session.move
       long start = System.currentTimeMillis();
       String src = nodeToMove.getPath();
-      String dest = d.getPath() + "/" + nodeToMove.getName(); 
-      rootNode.getSession().move(src, dest);
-      rootNode.save();
-      //rootNode.getSession().getWorkspace().move(src, dest);
-      
+      String dest = d.getPath() + "/" + nodeToMove.getName();
+      // rootNode.getSession().move(src, dest);
+      // rootNode.save();
+      rootNode.getSession().getWorkspace().move(src, dest);
+
       LOG.info(src + " --> " + dest + " -- " + (System.currentTimeMillis() - start) + "ms");
     }
   }

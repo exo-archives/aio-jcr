@@ -20,10 +20,10 @@ import javax.jcr.Repository;
 
 import com.sun.japex.Params;
 
-
 /**
- * Created by The eXo Platform SAS .
- * Abstract class encapsulates mechanizm of repository initialization
+ * Created by The eXo Platform SAS . Abstract class encapsulates mechanizm of repository
+ * initialization
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -34,6 +34,7 @@ public abstract class JCRInitializer {
 
   /**
    * Initializes repository
+   * 
    * @param params
    */
   public abstract void initialize(Params params);

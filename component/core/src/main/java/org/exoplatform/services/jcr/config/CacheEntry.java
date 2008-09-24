@@ -45,7 +45,8 @@ public class CacheEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * @param enabled The enabled to set.
+   * @param enabled
+   *          The enabled to set.
    */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;

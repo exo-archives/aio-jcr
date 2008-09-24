@@ -20,8 +20,9 @@ public class NodeSetStringTypedPropertyTest extends AbstractAddItemEmptyContentT
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    nextParent().setProperty(context.generateUniqueName("property"), "testValue",
-        PropertyType.STRING);
+    nextParent().setProperty(context.generateUniqueName("property"),
+                             "testValue",
+                             PropertyType.STRING);
   }
 
 }

@@ -1,6 +1,5 @@
 package org.exoplatform.services.jcr.api.nodetypes;
 
-
 import javax.jcr.Node;
 import javax.jcr.nodetype.NodeType;
 
@@ -9,7 +8,7 @@ import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestDiscoveringNodeTypeDefinition.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -56,34 +55,34 @@ public class TestDiscoveringNodeTypeDefinition extends JcrAPIBaseTest {
     NodeType type = node.getPrimaryNodeType();
     assertFalse(type.canAddChildNode("jcr:anyNode"));
     assertFalse(type.canAddChildNode("jcr:anyNode", "nt:base"));
-    //assertTrue(type.canSetProperty("jcr:data", new BinaryValue("test")));
-    assertFalse(type.canSetProperty("jcr:data", new BinaryValue[] {new BinaryValue("test")}));
+    // assertTrue(type.canSetProperty("jcr:data", new BinaryValue("test")));
+    assertFalse(type.canSetProperty("jcr:data", new BinaryValue[] { new BinaryValue("test") }));
     assertFalse(type.canSetProperty("jcr:notFound", new BinaryValue("test")));
     // [PN] 06.03.06 Row below commented
-    //assertFalse(type.canSetProperty("jcr:data", new StringValue("test")));
+    // assertFalse(type.canSetProperty("jcr:data", new StringValue("test")));
     assertFalse(type.canRemoveItem("jcr:data"));
     assertFalse(type.canRemoveItem("jcr:notFound"));
 
     node = root.addNode("node2", "nt:file");
     type = node.getPrimaryNodeType();
-    //    does not work - TODO
-    //assertTrue(type.canAddChildNode("jcr:content"));
+    // does not work - TODO
+    // assertTrue(type.canAddChildNode("jcr:content"));
     assertTrue(type.canAddChildNode("jcr:content", "nt:unstructured"));
     assertFalse(type.canAddChildNode("jcr:othernode"));
     assertTrue(type.canAddChildNode("jcr:content", "nt:unstructured"));
     assertFalse(type.canAddChildNode("jcr:content", "mix:referenceable"));
 
-//    root.getNode("node2").remove();
+    // root.getNode("node2").remove();
     node = root.addNode("node3", "nt:folder");
     type = node.getPrimaryNodeType();
-    // Residual, 
-    // 6.7.22.8 nt:folder, ChildNodeDefinition, Name * RequiredPrimaryType[nt:hierarchyNode] 
+    // Residual,
+    // 6.7.22.8 nt:folder, ChildNodeDefinition, Name * RequiredPrimaryType[nt:hierarchyNode]
     assertTrue(type.canAddChildNode("jcr:content", "nt:hierarchyNode"));
     assertFalse(type.canAddChildNode("jcr:othernode"));
 
-    //    does not work - TODO
-    //assertTrue(type.canAddChildNode("jcr:content", "nt:unstructured"));
-    //assertTrue(type.canAddChildNode("jcr:content", "mix:referenceable"));
+    // does not work - TODO
+    // assertTrue(type.canAddChildNode("jcr:content", "nt:unstructured"));
+    // assertTrue(type.canAddChildNode("jcr:content", "mix:referenceable"));
 
   }
 }

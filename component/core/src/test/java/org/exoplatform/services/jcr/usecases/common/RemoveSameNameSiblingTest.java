@@ -13,15 +13,13 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SAS
- * 27.04.2006
+ * Created by The eXo Platform SAS 27.04.2006
  * 
- * TODO
- * Transient reindex of same-name siblings must be visible to a whole subtree of the reindexed nodes. 
- * Currently only targeted node changes the siblings index properly. 
- * After the session save all sub-nodes has right paths (and indexes). 
- * The problem has place only till the session reindex (result of remove) is not saved.
- 
+ * TODO Transient reindex of same-name siblings must be visible to a whole subtree of the reindexed
+ * nodes. Currently only targeted node changes the siblings index properly. After the session save
+ * all sub-nodes has right paths (and indexes). The problem has place only till the session reindex
+ * (result of remove) is not saved.
+ * 
  * See http://jira.exoplatform.org/browse/JCR-340
  * 
  * @version $Id: RemoveSameNameSiblingTest.java 11907 2008-03-13 15:36:21Z ksm $
@@ -29,7 +27,8 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
 
   public void testRemoveSameNameSibling() throws RepositoryException {
-    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                       WORKSPACE);
     Node root = session.getRootNode();
 
     Node subRoot = root.addNode("u");
@@ -59,7 +58,8 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
   }
 
   public void testRemoveSameNameSiblingReindex() throws RepositoryException {
-    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                       WORKSPACE);
     Node root = session.getRootNode();
 
     Node subRoot = root.addNode("u1");
@@ -86,7 +86,8 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
   }
 
   public void testRemoveSameNameSiblingReindexGetChilds() throws Exception {
-    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                       WORKSPACE);
     Node root = session.getRootNode();
 
     Node subRoot = root.addNode("u1");
@@ -108,7 +109,9 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
     n2.remove(); // reindex child[3] --> child[2]
     // root.save();
 
-    assertEquals("Same-name siblings path must be reindexed", "/u1/child[2]/n1/n2", n3_n1n2.getPath());
+    assertEquals("Same-name siblings path must be reindexed",
+                 "/u1/child[2]/n1/n2",
+                 n3_n1n2.getPath());
 
     try {
       NodeIterator chns = n3_n1n2.getNodes();
@@ -116,12 +119,14 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
         Node chn = chns.nextNode();
         assertTrue("Node path must be reindexed ", chn.getPath().startsWith("/u1/child[2]"));
       }
-      
-      assertEquals("Ids must be same", n3id, ((NodeImpl) root.getNode("u1/child[2]")).getData().getIdentifier());
-      
+
+      assertEquals("Ids must be same",
+                   n3id,
+                   ((NodeImpl) root.getNode("u1/child[2]")).getData().getIdentifier());
+
       try {
         root.getNode("u1/child[3]");
-      } catch(PathNotFoundException e) {
+      } catch (PathNotFoundException e) {
         // ok
       }
     } catch (PathNotFoundException e) {
@@ -130,15 +135,16 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
       try {
         root.getNode("u1").remove();
         session.save();
-      } catch(Exception e) {
+      } catch (Exception e) {
         log.error("Erroro of remove " + e, e);
-        throw new Exception(e);  
+        throw new Exception(e);
       }
     }
   }
 
   public void testSearchByJcrPathSQL() throws RepositoryException {
-    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                       WORKSPACE);
     Node root = session.getRootNode();
 
     Node subRoot = root.addNode("u1");
@@ -160,16 +166,20 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
     root.save();
 
     try {
-      Query query = session.getWorkspace().getQueryManager().createQuery(
-          "select * from nt:base where jcr:path like '/u1/child[3]/%'", Query.SQL);
+      Query query = session.getWorkspace()
+                           .getQueryManager()
+                           .createQuery("select * from nt:base where jcr:path like '/u1/child[3]/%'",
+                                        Query.SQL);
       QueryResult queryResult = query.execute();
       NodeIterator iterator = queryResult.getNodes();
       while (iterator.hasNext()) {
         fail("No nodes should exists");
       }
 
-      query = session.getWorkspace().getQueryManager().createQuery(
-          "select * from nt:base where jcr:path like '/u1/child[2]/%'", Query.SQL);
+      query = session.getWorkspace()
+                     .getQueryManager()
+                     .createQuery("select * from nt:base where jcr:path like '/u1/child[2]/%'",
+                                  Query.SQL);
       queryResult = query.execute();
       iterator = queryResult.getNodes();
       while (iterator.hasNext()) {
@@ -182,7 +192,8 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
   }
 
   public void testSearchByJcrPathXPath() throws RepositoryException {
-    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                       WORKSPACE);
     Node root = session.getRootNode();
 
     Node subRoot = root.addNode("u1");
@@ -204,16 +215,18 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
     root.save();
 
     try {
-      Query query = session.getWorkspace().getQueryManager().createQuery("/jcr:root/u1/child[3]//element(*, nt:base)",
-          Query.XPATH);
+      Query query = session.getWorkspace()
+                           .getQueryManager()
+                           .createQuery("/jcr:root/u1/child[3]//element(*, nt:base)", Query.XPATH);
       QueryResult queryResult = query.execute();
       NodeIterator iterator = queryResult.getNodes();
       while (iterator.hasNext()) {
         fail("No nodes should exists");
       }
 
-      query = session.getWorkspace().getQueryManager().createQuery("/jcr:root/u1/child[2]//element(*, nt:base)",
-          Query.XPATH);
+      query = session.getWorkspace()
+                     .getQueryManager()
+                     .createQuery("/jcr:root/u1/child[2]//element(*, nt:base)", Query.XPATH);
       queryResult = query.execute();
       iterator = queryResult.getNodes();
       while (iterator.hasNext()) {
@@ -224,9 +237,10 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
       fail(e.getMessage());
     }
   }
-  
+
   public void testDeleteRollback() throws RepositoryException {
-    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                       WORKSPACE);
     Node root = session.getRootNode();
 
     Node subRoot = root.addNode("u1");
@@ -246,21 +260,24 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
     String n2id = ((NodeImpl) n2).getData().getIdentifier();
     log.debug(">>>> SAME NAME start " + n2.getPath() + " " + n2.getIndex());
     n2.remove(); // reindex child[3] --> child[2]
-    
+
     try {
       root.refresh(false);
-      
-      assertEquals("Ids must be same", n2id, ((NodeImpl) root.getNode("u1/child[2]")).getData().getIdentifier());
-      
+
+      assertEquals("Ids must be same",
+                   n2id,
+                   ((NodeImpl) root.getNode("u1/child[2]")).getData().getIdentifier());
+
       root.getNode("u1/child[3]");
-      
+
     } catch (RepositoryException e) {
       fail(e.getMessage());
     }
   }
-  
+
   public void testDeleteRofresh() throws RepositoryException {
-    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), WORKSPACE);
+    Session session = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                       WORKSPACE);
     Node root = session.getRootNode();
 
     Node subRoot = root.addNode("u1");
@@ -280,51 +297,53 @@ public class RemoveSameNameSiblingTest extends BaseUsecasesTest {
     String n3id = ((NodeImpl) n3).getData().getIdentifier();
     log.debug(">>>> SAME NAME start " + n2.getPath() + " " + n2.getIndex());
     n2.remove(); // reindex child[3] --> child[2]
-    
+
     try {
       root.refresh(true);
-      
-      assertEquals("Ids must be same", n3id, ((NodeImpl) root.getNode("u1/child[2]")).getData().getIdentifier());
-      
+
+      assertEquals("Ids must be same",
+                   n3id,
+                   ((NodeImpl) root.getNode("u1/child[2]")).getData().getIdentifier());
+
       try {
         root.getNode("u1/child[3]");
-      } catch(PathNotFoundException e) {
+      } catch (PathNotFoundException e) {
         // ok
       }
-      
+
     } catch (RepositoryException e) {
       fail(e.getMessage());
     }
   }
-  
+
   public void testRemoveSameNameSiblings() throws Exception {
-    
+
     Node testRoot = root.addNode("snsRemoveTest");
     session.save();
-    
+
     try {
-    
+
       Node node1 = testRoot.addNode("_node");
       node1.setProperty("prop", "_data1");
       Node node2 = testRoot.addNode("_node");
       node2.setProperty("prop", "_data2");
       Node node3 = node2.addNode("node3");
       testRoot.save();
-      
+
       try {
-        assertEquals("/snsRemoveTest/_node[2]/node3",node2.getNode("node3").getPath());
+        assertEquals("/snsRemoveTest/_node[2]/node3", node2.getNode("node3").getPath());
         node1.remove(); // /snsRemoveTest/_node[2] -> /snsRemoveTest/_node[1]
-        
-        // check  
+
+        // check
         String n2p = node2.getProperty("prop").getString();
         assertEquals("A property must be same ", "_data2", n2p);
-        
+
         // TODO there is a problem, we can't see deep subtree of reindexed same-name-siblings now.
-        // after save it will be ok. 
+        // after save it will be ok.
         // See http://jira.exoplatform.org/browse/JCR-340
         assertEquals("/snsRemoveTest/_node/node3", node2.getNode("node3").getPath());
-        
-      } catch(RepositoryException e) {
+
+      } catch (RepositoryException e) {
         e.printStackTrace();
         fail("A property must exists on the node /snsRemoveTest/_node[1] " + e);
       }

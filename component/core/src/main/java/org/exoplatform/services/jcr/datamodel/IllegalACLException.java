@@ -17,14 +17,13 @@
 package org.exoplatform.services.jcr.datamodel;
 
 /**
- * Created by The eXo Platform SAS 
- * Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 29.01.2008
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 29.01.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: IllegalACLException.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class IllegalACLException extends Exception{
+public class IllegalACLException extends Exception {
 
   public IllegalACLException() {
     super();

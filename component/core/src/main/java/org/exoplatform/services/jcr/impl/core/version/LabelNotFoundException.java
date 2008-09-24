@@ -19,8 +19,7 @@ package org.exoplatform.services.jcr.impl.core.version;
 import javax.jcr.version.VersionException;
 
 /**
- * Created by The eXo Platform SAS
- * 11.12.2006
+ * Created by The eXo Platform SAS 11.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko </a>
  * @version $Id: LabelNotFoundException.java 11907 2008-03-13 15:36:21Z ksm $
@@ -30,7 +29,7 @@ public class LabelNotFoundException extends VersionException {
   LabelNotFoundException(String message) {
     super(message);
   }
-  
+
   LabelNotFoundException(String message, Throwable e) {
     super(message, e);
   }

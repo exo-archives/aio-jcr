@@ -21,29 +21,27 @@ import com.sun.japex.TestCase;
 
 public class WorkspaceCopyFromAnotherWorkspaceTest extends AbstractItemsInDifferentWorkspacesTest {
 
-  private List<String> ws1AbsPaths  = new ArrayList<String>();
+  private List<String> ws1AbsPaths = new ArrayList<String>();
 
   private List<String> ws2AbsPaths = new ArrayList<String>();
-  
+
   @Override
-  protected void ws1CreateContent(Node parent, TestCase tc, JCRTestContext context)
-      throws Exception {
+  protected void ws1CreateContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     String ws1AbsPath = parent.getPath() + "/" + context.generateUniqueName("dest");
     ws1AbsPaths.add(ws1AbsPath);
   }
 
   @Override
-  protected void ws2CreateContent(Node parent, TestCase tc, JCRTestContext context)
-      throws Exception {
+  protected void ws2CreateContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     String ws2AbsPath = parent.addNode(context.generateUniqueName("src")).getPath();
     ws2AbsPaths.add(ws2AbsPath);
   }
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    //Currently logged into WS1 (collaboration).
-    //Will be copied from WS2 (system) into WS1 (collaboration).
-    context.getSession().getWorkspace().copy(WS2, ws2AbsPaths.remove(0), ws1AbsPaths.remove(0));    
+    // Currently logged into WS1 (collaboration).
+    // Will be copied from WS2 (system) into WS1 (collaboration).
+    context.getSession().getWorkspace().copy(WS2, ws2AbsPaths.remove(0), ws1AbsPaths.remove(0));
   }
 
 }

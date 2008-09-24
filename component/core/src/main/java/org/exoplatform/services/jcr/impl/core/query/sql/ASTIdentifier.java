@@ -18,12 +18,11 @@ package org.exoplatform.services.jcr.impl.core.query.sql;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
-
 public class ASTIdentifier extends SimpleNode {
 
-    private InternalQName name;
+  private InternalQName name;
 
-    public ASTIdentifier(int id) {
+  public ASTIdentifier(int id) {
     super(id);
   }
 
@@ -31,20 +30,20 @@ public class ASTIdentifier extends SimpleNode {
     super(p, id);
   }
 
-    public void setName(InternalQName name) {
-        this.name = name;
-    }
+  public void setName(InternalQName name) {
+    this.name = name;
+  }
 
-    public InternalQName getName() {
-        return name;
-    }
+  public InternalQName getName() {
+    return name;
+  }
 
   /** Accept the visitor. **/
   public Object jjtAccept(JCRSQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
 
-    public String toString() {
-        return super.toString() + ": " + name;
-    }
+  public String toString() {
+    return super.toString() + ": " + name;
+  }
 }

@@ -20,19 +20,19 @@ package org.exoplatform.services.jcr.core;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 
 /**
- * Created by The eXo Platform SAS        .<br/>
- * An entry point to the implementation, used for extending functionality
+ * Created by The eXo Platform SAS .<br/> An entry point to the implementation, used for extending
+ * functionality
  * 
  * @author Gennady Azarenkov
  * @version $Id:$
  */
 
 public final class WorkspaceContainerFacade {
-  
-  private final String workspaceName;
-   
+
+  private final String             workspaceName;
+
   private final WorkspaceContainer container;
-  
+
   /**
    * @param workspaceName
    * @param container
@@ -41,33 +41,34 @@ public final class WorkspaceContainerFacade {
     this.workspaceName = workspaceName;
     this.container = container;
   }
-  
+
   /**
    * @return workspace name
    */
   public final String getWorkspaceName() {
     return this.workspaceName;
   }
-  
+
   /**
-   * @param key - an internal key of internal component
+   * @param key
+   *          - an internal key of internal component
    * @return the component
    */
   public Object getComponent(Object key) {
     if (key instanceof Class)
-      return container.getComponentInstanceOfType((Class)key);
-    else 
+      return container.getComponentInstanceOfType((Class) key);
+    else
       return container.getComponentInstance(key);
-  }  
-  
+  }
+
   public void addComponent(Object component) {
     if (component instanceof Class)
-      container.registerComponentImplementation((Class)component);
-    else 
+      container.registerComponentImplementation((Class) component);
+    else
       container.registerComponentInstance(component);
-  }  
-  
+  }
+
   public void addComponent(Object key, Object component) {
     container.registerComponentInstance(key, component);
-  }  
+  }
 }

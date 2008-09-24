@@ -32,7 +32,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS .
- *
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -85,13 +85,13 @@ public class JCRDriver extends JapexDriverBase {
   @Override
   public void prepare(final TestCase tc) {
     try {
-      //System.out.println("Start...");
+      // System.out.println("Start...");
       initContext(tc, context);
-      //System.out.println("initContext done...");
+      // System.out.println("initContext done...");
       test = testInstance(tc);
-      //System.out.println("testInstance done...");
+      // System.out.println("testInstance done...");
       test.doPrepare(tc, context);
-      //System.out.println("doPrepare done...");
+      // System.out.println("doPrepare done...");
     } catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -106,10 +106,10 @@ public class JCRDriver extends JapexDriverBase {
       e.printStackTrace();
       try {
         Session s = context.getSession();
-        if(s != null)
+        if (s != null)
           s.refresh(false);
       } catch (RepositoryException e1) {
-        System.err.println("Can not refresh test session. Reason: "+e1.getMessage());
+        System.err.println("Can not refresh test session. Reason: " + e1.getMessage());
       }
     }
   }
@@ -141,16 +141,15 @@ public class JCRDriver extends JapexDriverBase {
   }
 
   private synchronized JCRTestContext initContext(TestCase tc, JCRTestContext context) {
-    //context.setSession(oneSession);
+    // context.setSession(oneSession);
 
     if (!hasParam("jcr.sessionPolicy"))
       throw new RuntimeException("<jcr.sessionPolicy> parameter required");
     String sessionPolicy = getParam("jcr.sessionPolicy");
-    if (sessionPolicy.equalsIgnoreCase("single")){
+    if (sessionPolicy.equalsIgnoreCase("single")) {
       context.setSession(oneSession);
       context.setCredentials(credentials);
-    }
-    else if (sessionPolicy.equalsIgnoreCase("multiple"))
+    } else if (sessionPolicy.equalsIgnoreCase("multiple"))
       try {
         context.setSession(repository.login(credentials, workspace));
         context.setCredentials(credentials);
@@ -160,8 +159,8 @@ public class JCRDriver extends JapexDriverBase {
         throw new RuntimeException(e);
       }
     else
-      throw new RuntimeException(
-          "<sessionPolicy> parameter expects 'single' or 'multiple' values. Found " + sessionPolicy);
+      throw new RuntimeException("<sessionPolicy> parameter expects 'single' or 'multiple' values. Found "
+          + sessionPolicy);
 
     return context;
   }

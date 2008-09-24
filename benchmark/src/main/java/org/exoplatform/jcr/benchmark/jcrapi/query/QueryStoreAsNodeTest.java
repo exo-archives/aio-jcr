@@ -29,15 +29,15 @@ import com.sun.japex.TestCase;
  */
 public class QueryStoreAsNodeTest extends AbstractQueryTest {
 
-  private Query query = null;
-  
-  private String path = null;
+  private Query  query = null;
+
+  private String path  = null;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
     query = queryManager.createQuery(SQL_QUERY_STATEMENT, Query.SQL);
-    path = root.getPath() + "/"; //no save
+    path = root.getPath() + "/"; // no save
   }
 
   @Override

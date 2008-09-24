@@ -21,19 +21,19 @@ import java.io.IOException;
 import org.exoplatform.services.ftp.FtpConst;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdList extends FtpCommandImpl {
 
   public CmdList() {
-    commandName = FtpConst.Commands.CMD_LIST; 
+    commandName = FtpConst.Commands.CMD_LIST;
   }
-  
-  public void run(String []params) throws IOException {
+
+  public void run(String[] params) throws IOException {
     SendFileList(params);
   }
-  
+
 }

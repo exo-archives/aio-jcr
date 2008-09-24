@@ -62,9 +62,6 @@ public class TestFuzzyQuery extends JcrImplBaseTest {
     assertEquals(0, executeSQLQuery("select * from nt:base where contains(field, 'xxxxx~')"));
     assertEquals(3, executeSQLQuery("select * from nt:base where contains(field, 'aaaac~')"));
     assertEquals(1, executeSQLQuery("select * from nt:base where contains(field, 'ddddX~')"));
-    
-    
-    
 
   }
 

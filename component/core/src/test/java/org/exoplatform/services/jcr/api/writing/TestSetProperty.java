@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.writing;
 
-
 import java.io.ByteArrayInputStream;
 import java.util.GregorianCalendar;
 
@@ -36,20 +35,21 @@ import org.exoplatform.services.jcr.impl.core.value.NameValue;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestSetProperty.java 14508 2008-05-20 10:07:45Z ksm $
  */
 public class TestSetProperty extends JcrAPIBaseTest {
 
-  static protected String TEST_MULTIVALUED = "testMultivalued"; 
-  
-  protected Node testMultivalued = null;
-  
+  static protected String TEST_MULTIVALUED = "testMultivalued";
+
+  protected Node          testMultivalued  = null;
+
   public void initRepository() throws RepositoryException {
     Node root = session.getRootNode();
     Node propDef = root.addNode("propertyDefNode", "nt:propertyDefinition");
-    propDef.setProperty("jcr:name", valueFactory.createValue("test", PropertyType.NAME)); 
-    
+    propDef.setProperty("jcr:name", valueFactory.createValue("test", PropertyType.NAME));
+
     propDef.setProperty("jcr:autoCreated", false);
     propDef.setProperty("jcr:mandatory", false);
     propDef.setProperty("jcr:onParentVersion", OnParentVersionAction.ACTIONNAME_COPY);
@@ -57,51 +57,53 @@ public class TestSetProperty extends JcrAPIBaseTest {
     propDef.setProperty("jcr:requiredType", PropertyType.TYPENAME_STRING.toUpperCase());
     propDef.setProperty("jcr:multiple", false);
     // Unknown Property Type. Should set something!
-    Value[] defVals = {session.getValueFactory().createValue("testString")};
+    Value[] defVals = { session.getValueFactory().createValue("testString") };
     propDef.setProperty("jcr:defaultValues", defVals);
-    
+
     Node childNodeDefNode = root.addNode("childNodeDefNode", "nt:childNodeDefinition");
     childNodeDefNode.setProperty("jcr:name", valueFactory.createValue("test"), PropertyType.NAME);
     childNodeDefNode.setProperty("jcr:autoCreated", false);
     childNodeDefNode.setProperty("jcr:mandatory", false);
     childNodeDefNode.setProperty("jcr:onParentVersion", OnParentVersionAction.ACTIONNAME_COPY);
     childNodeDefNode.setProperty("jcr:protected", false);
-    childNodeDefNode.setProperty("jcr:requiredPrimaryTypes", new NameValue[] {(NameValue)valueFactory.createValue("nt:base", PropertyType.NAME)});
+    childNodeDefNode.setProperty("jcr:requiredPrimaryTypes",
+                                 new NameValue[] { (NameValue) valueFactory.createValue("nt:base",
+                                                                                        PropertyType.NAME) });
     childNodeDefNode.setProperty("jcr:sameNameSiblings", false);
-  
+
     root.addNode("unstructured", "nt:unstructured");
-    
+
     testMultivalued = root.addNode(TEST_MULTIVALUED);
-    
+
     session.save();
   }
 
   public void tearDown() throws Exception {
-    
+
     try {
-      //testMultivalued.getSession().refresh(false);
+      // testMultivalued.getSession().refresh(false);
       testMultivalued.remove();
       testMultivalued.getSession().save();
-    } catch(RepositoryException e) {
+    } catch (RepositoryException e) {
       log.error("Error delete '" + TEST_MULTIVALUED + "' node", e);
     }
-    
+
     session = (SessionImpl) repository.login(credentials, WORKSPACE);
     Node root = session.getRootNode();
     root.getNode("unstructured").remove();
 
-//    session.getItem("/propertyDefNode").remove();
+    // session.getItem("/propertyDefNode").remove();
     root.getNode("propertyDefNode").remove();
     root.getNode("childNodeDefNode").remove();
     session.save();
-    
+
     super.tearDown();
   }
 
   public void testSetPropertyNameValue() throws RepositoryException {
     Node root = session.getRootNode();
     Node node = root.getNode("propertyDefNode");
-//    Node node = (Node)session.getItem("/propertyDefNode");
+    // Node node = (Node)session.getItem("/propertyDefNode");
 
     try {
       node.setProperty("jcr:multiple", valueFactory.createValue(20l));
@@ -116,7 +118,9 @@ public class TestSetProperty extends JcrAPIBaseTest {
     Node node = root.getNode("propertyDefNode");
 
     session.refresh(false);
-    node.setProperty("jcr:defaultValues", new Value[] {valueFactory.createValue(10l)} ); //, PropertyType.LONG
+    node.setProperty("jcr:defaultValues", new Value[] { valueFactory.createValue(10l) }); // ,
+    // PropertyType
+    // .LONG
     assertEquals(PropertyType.LONG, node.getProperty("jcr:defaultValues").getValues()[0].getType());
     assertEquals(10, node.getProperty("jcr:defaultValues").getValues()[0].getLong());
     node.save();
@@ -128,19 +132,21 @@ public class TestSetProperty extends JcrAPIBaseTest {
   public void testSetPropertyNameValuesType() throws RepositoryException {
     Node root = session.getRootNode();
     Node node = root.getNode("childNodeDefNode");
-    Value[] values = {session.getValueFactory().createValue("not"), session.getValueFactory().createValue("in")};
+    Value[] values = { session.getValueFactory().createValue("not"),
+        session.getValueFactory().createValue("in") };
 
     // it converts to required !
-    //node.setProperty("jcr:requiredPrimaryTypes", values, PropertyType.LONG);
+    // node.setProperty("jcr:requiredPrimaryTypes", values, PropertyType.LONG);
     node.setProperty("jcr:requiredPrimaryTypes", values, PropertyType.NAME);
 
     try {
       Property prop = node.setProperty("jcr:onParentVersion", values, PropertyType.STRING);
-      fail("exception should have been thrown "+prop.getString());
+      fail("exception should have been thrown " + prop.getString());
     } catch (ValueFormatException e) {
     }
 
-    Value[] nameValues = {valueFactory.createValue("jcr:unstructured", PropertyType.NAME), valueFactory.createValue("jcr:base", PropertyType.NAME)};
+    Value[] nameValues = { valueFactory.createValue("jcr:unstructured", PropertyType.NAME),
+        valueFactory.createValue("jcr:base", PropertyType.NAME) };
     node.setProperty("jcr:requiredPrimaryTypes", nameValues, PropertyType.NAME);
     node.save();
 
@@ -155,7 +161,7 @@ public class TestSetProperty extends JcrAPIBaseTest {
 
     session.refresh(false);
 
-    node.setProperty("jcr:defaultValues", new Value[]{valueFactory.createValue((long)10)});
+    node.setProperty("jcr:defaultValues", new Value[] { valueFactory.createValue((long) 10) });
     assertEquals(PropertyType.LONG, node.getProperty("jcr:defaultValues").getValues()[0].getType());
     assertEquals(10, node.getProperty("jcr:defaultValues").getValues()[0].getLong());
     node.save();
@@ -165,31 +171,32 @@ public class TestSetProperty extends JcrAPIBaseTest {
   }
 
   public void testSetPropertyNameStringValuesType() throws RepositoryException {
-      Node root = session.getRootNode();
-      Node node = root.getNode("childNodeDefNode");
-      String[] values = {"not", "in"};
-      try {
-        // it converts to required !
-        node.setProperty("jcr:requiredPrimaryTypes", values, PropertyType.LONG);
-      } catch (ValueFormatException e) {
-      }
-      try {
-        node.setProperty("jcr:onParentVersion", values, PropertyType.STRING);
-        fail("exception should have been thrown");
-      } catch (ValueFormatException e) {
-      }
-  
-      Value[] nameValues = {valueFactory.createValue("jcr:unstructured", PropertyType.NAME), valueFactory.createValue("jcr:base", PropertyType.NAME)};
-      node.setProperty("jcr:requiredPrimaryTypes", nameValues, PropertyType.NAME);
-      node.save();
-  
-      session = (SessionImpl) repository.login(credentials, WORKSPACE);
-      node = session.getRootNode().getNode("childNodeDefNode");
-      assertEquals(2, node.getProperty("jcr:requiredPrimaryTypes").getValues().length);
+    Node root = session.getRootNode();
+    Node node = root.getNode("childNodeDefNode");
+    String[] values = { "not", "in" };
+    try {
+      // it converts to required !
+      node.setProperty("jcr:requiredPrimaryTypes", values, PropertyType.LONG);
+    } catch (ValueFormatException e) {
+    }
+    try {
+      node.setProperty("jcr:onParentVersion", values, PropertyType.STRING);
+      fail("exception should have been thrown");
+    } catch (ValueFormatException e) {
     }
 
+    Value[] nameValues = { valueFactory.createValue("jcr:unstructured", PropertyType.NAME),
+        valueFactory.createValue("jcr:base", PropertyType.NAME) };
+    node.setProperty("jcr:requiredPrimaryTypes", nameValues, PropertyType.NAME);
+    node.save();
+
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
+    node = session.getRootNode().getNode("childNodeDefNode");
+    assertEquals(2, node.getProperty("jcr:requiredPrimaryTypes").getValues().length);
+  }
+
   public void testSetPropertyMultivaluedString() throws RepositoryException {
-    String[] values = {"binary string 1", "binary string 2"};
+    String[] values = { "binary string 1", "binary string 2" };
     Property mvp1 = null;
     try {
       mvp1 = testMultivalued.setProperty("Multivalued Property", values, PropertyType.BINARY);
@@ -202,20 +209,22 @@ public class TestSetProperty extends JcrAPIBaseTest {
     } catch (RepositoryException e) {
       fail("Error of 'Multivalued Property' length reading. Error: " + e.getMessage());
     }
-    
+
     SessionImpl newSession = (SessionImpl) repository.login(credentials, WORKSPACE);
     Node test = (Node) newSession.getItem(testMultivalued.getPath());
-    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2", 2, 
-        test.getProperty("Multivalued Property").getValues().length);
+    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2",
+                 2,
+                 test.getProperty("Multivalued Property").getValues().length);
     test = newSession.getRootNode().getNode(TEST_MULTIVALUED);
-    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2", 2, 
-        test.getProperty("Multivalued Property").getValues().length);
+    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2",
+                 2,
+                 test.getProperty("Multivalued Property").getValues().length);
   }
 
   public void testSetPropertyMultivaluedBinary() throws RepositoryException {
     Value[] values = {
-        valueFactory.createValue(new ByteArrayInputStream("binary string 1".getBytes())), 
-        valueFactory.createValue(new ByteArrayInputStream("binary string 2".getBytes()))};
+        valueFactory.createValue(new ByteArrayInputStream("binary string 1".getBytes())),
+        valueFactory.createValue(new ByteArrayInputStream("binary string 2".getBytes())) };
     Property mvp1 = null;
     try {
       mvp1 = testMultivalued.setProperty("Multivalued Property", values, PropertyType.BINARY);
@@ -228,46 +237,50 @@ public class TestSetProperty extends JcrAPIBaseTest {
     } catch (RepositoryException e) {
       fail("Error of 'Multivalued Property' length reading. Error: " + e.getMessage());
     }
-    
+
     SessionImpl newSession = (SessionImpl) repository.login(credentials, WORKSPACE);
     Node test = (Node) newSession.getItem(testMultivalued.getPath());
-    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2", 2, 
-        test.getProperty("Multivalued Property").getValues().length);
+    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2",
+                 2,
+                 test.getProperty("Multivalued Property").getValues().length);
     test = newSession.getRootNode().getNode(TEST_MULTIVALUED);
-    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2", 2, 
-        test.getProperty("Multivalued Property").getValues().length);
+    assertEquals("Node '" + TEST_MULTIVALUED + "' must have values length 2",
+                 2,
+                 test.getProperty("Multivalued Property").getValues().length);
   }
 
   public void testSetPropertyNameTypedValue() throws RepositoryException {
     Node root = session.getRootNode();
     Node node = root.getNode("propertyDefNode");
 
-    node.setProperty("jcr:defaultValues", new Value[] {valueFactory.createValue("default")});
-    node.setProperty("jcr:defaultValues", new Value[] {valueFactory.createValue(new ByteArrayInputStream(new String("default").getBytes()))});
-    node.setProperty("jcr:defaultValues", new Value[] {valueFactory.createValue(true)});
-    node.setProperty("jcr:defaultValues", new Value[] {valueFactory.createValue(new GregorianCalendar())});
-    node.setProperty("jcr:defaultValues", new Value[] {valueFactory.createValue(20D)});
-    node.setProperty("jcr:defaultValues", new Value[] {valueFactory.createValue(20L)});
+    node.setProperty("jcr:defaultValues", new Value[] { valueFactory.createValue("default") });
+    node.setProperty("jcr:defaultValues",
+                     new Value[] { valueFactory.createValue(new ByteArrayInputStream(new String("default").getBytes())) });
+    node.setProperty("jcr:defaultValues", new Value[] { valueFactory.createValue(true) });
+    node.setProperty("jcr:defaultValues",
+                     new Value[] { valueFactory.createValue(new GregorianCalendar()) });
+    node.setProperty("jcr:defaultValues", new Value[] { valueFactory.createValue(20D) });
+    node.setProperty("jcr:defaultValues", new Value[] { valueFactory.createValue(20L) });
 
     try {
       node.setProperty("jcr:multiple", 20D);
       fail("exception should have been thrown");
-    } catch (ValueFormatException e) {        
+    } catch (ValueFormatException e) {
     }
   }
 
   public void testSetPathProperty() throws RepositoryException {
     Node root = session.getRootNode();
     Node node1 = root.addNode("node1", "nt:unstructured");
-    node1.setProperty("pathValue",valueFactory.createValue("/root-node/node_1", PropertyType.PATH));
+    node1.setProperty("pathValue", valueFactory.createValue("/root-node/node_1", PropertyType.PATH));
     assertNotNull(session.getItem("/node1/pathValue"));
-    assertEquals("/root-node/node_1", ((Property)session.getItem("/node1/pathValue")).getString());
+    assertEquals("/root-node/node_1", ((Property) session.getItem("/node1/pathValue")).getString());
     root.save();
     assertNotNull(session.getItem("/node1/pathValue"));
-    assertEquals("/root-node/node_1", ((Property)session.getItem("/node1/pathValue")).getString());
+    assertEquals("/root-node/node_1", ((Property) session.getItem("/node1/pathValue")).getString());
     node1.remove();
     root.save();
-    //node1.save();//impossible
+    // node1.save();//impossible
   }
 
   public void testInvalidItemStateException() throws RepositoryException {

@@ -17,73 +17,75 @@
 package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 /**
- * <code>ScoreNode</code> implements a simple container which holds a mapping
- * of {@link NodeId} to a score value.
+ * <code>ScoreNode</code> implements a simple container which holds a mapping of {@link NodeId} to a
+ * score value.
  */
 final class ScoreNode {
 
-    /**
-     * The id of a node.
-     */
-    private final String id;
+  /**
+   * The id of a node.
+   */
+  private final String id;
 
-    /**
-     * The score of the node.
-     */
-    private final float score;
+  /**
+   * The score of the node.
+   */
+  private final float  score;
 
-    /**
-     * Creates a new <code>ScoreNode</code>.
-     *
-     * @param id    the node id.
-     * @param score the score value.
-     */
-    ScoreNode(String id, float score) {
-        this.id = id;
-        this.score = score;
-    }
+  /**
+   * Creates a new <code>ScoreNode</code>.
+   * 
+   * @param id
+   *          the node id.
+   * @param score
+   *          the score value.
+   */
+  ScoreNode(String id, float score) {
+    this.id = id;
+    this.score = score;
+  }
 
-    /**
-     * @return the node id for this <code>ScoreNode</code>.
-     */
-    public String getNodeId() {
-        return id;
-    }
+  /**
+   * @return the node id for this <code>ScoreNode</code>.
+   */
+  public String getNodeId() {
+    return id;
+  }
 
-    /**
-     * @return the score for this <code>ScoreNode</code>.
-     */
-    public float getScore() {
-        return score;
-    }
+  /**
+   * @return the score for this <code>ScoreNode</code>.
+   */
+  public float getScore() {
+    return score;
+  }
 
-    @Override
-    public int hashCode() {
-      return id.hashCode();
-    }
+  @Override
+  public int hashCode() {
+    return id.hashCode();
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null) {
-        return false;
-      }
-      if (getClass() != obj.getClass()) {
-        return false;
-      }
-      ScoreNode other = (ScoreNode) obj;
-      if (id == null) {
-        if (other.id != null) {
-          return false;
-        }
-      } else if (!id.equals(other.id)) {
-        return false;
-      }
-      if (Float.floatToIntBits(score) != Float.floatToIntBits(other.score)) {
-        return false;
-      }
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
     }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ScoreNode other = (ScoreNode) obj;
+    if (id == null) {
+      if (other.id != null) {
+        return false;
+      }
+    } else if (!id.equals(other.id)) {
+      return false;
+    }
+    if (Float.floatToIntBits(score) != Float.floatToIntBits(other.score)) {
+      return false;
+    }
+    return true;
+  }
 }

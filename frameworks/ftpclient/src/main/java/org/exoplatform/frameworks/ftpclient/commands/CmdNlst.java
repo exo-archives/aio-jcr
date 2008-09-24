@@ -24,31 +24,32 @@ import org.exoplatform.frameworks.ftpclient.data.FtpDataTransiver;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public class CmdNlst extends FtpCommandImpl {
 
-  private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdNlst");
-  
-  protected String path = "";
-  
-  protected ArrayList<String> names = new ArrayList<String>(); 
-  
+  private static Log          log   = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdNlst");
+
+  protected String            path  = "";
+
+  protected ArrayList<String> names = new ArrayList<String>();
+
   public CmdNlst() {
   }
-  
+
   public CmdNlst(String path) {
     this.path = path;
   }
-  
+
   public ArrayList<String> getNames() {
-    return names; 
+    return names;
   }
-  
-  public int execute() {    
+
+  public int execute() {
     try {
       String req = "";
       if (!"".equals(path)) {
@@ -57,31 +58,31 @@ public class CmdNlst extends FtpCommandImpl {
         req = FtpConst.Commands.CMD_NLST;
       }
       sendCommand(req);
-      
+
       int reply = getReply();
-      
+
       if (reply == FtpConst.Replyes.REPLY_125) {
         FtpDataTransiver dataTransiver = clientSession.getDataTransiver();
-        
+
         for (int i = 0; i < 15; i++) {
           if (!dataTransiver.isConnected()) {
             Thread.sleep(1000);
           }
-        }        
-        
-        byte []data = dataTransiver.receive();
+        }
+
+        byte[] data = dataTransiver.receive();
         dataTransiver.close();
-        
+
         String dd = "";
         for (int i = 0; i < data.length; i++) {
-          dd += (char)data[i];
+          dd += (char) data[i];
         }
-        
-        String []lines = dd.split("\r\n");
+
+        String[] lines = dd.split("\r\n");
         for (int i = 0; i < lines.length; i++) {
-          names.add(lines[i]);          
+          names.add(lines[i]);
         }
-        
+
         reply = getReply();
       }
 
@@ -89,8 +90,8 @@ public class CmdNlst extends FtpCommandImpl {
     } catch (Exception exc) {
       log.info(FtpConst.EXC_MSG + exc.getMessage(), exc);
     }
-    
+
     return -1;
   }
-  
+
 }

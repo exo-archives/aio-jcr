@@ -20,27 +20,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS.<br/>
- * NodeType value object
+ * Created by The eXo Platform SAS.<br/> NodeType value object
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: NodeTypeValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class NodeTypeValue {
 
-  protected String name;
+  protected String                        name;
 
-  protected boolean mixin;
+  protected boolean                       mixin;
 
-  protected boolean orderableChild;
+  protected boolean                       orderableChild;
 
-  protected String primaryItemName;
+  protected String                        primaryItemName;
 
-  protected List<String> declaredSupertypeNames;
+  protected List<String>                  declaredSupertypeNames;
 
   protected List<PropertyDefinitionValue> declaredPropertyDefinitionValues;
 
-  protected List<NodeDefinitionValue> declaredChildNodeDefinitionValues;
+  protected List<NodeDefinitionValue>     declaredChildNodeDefinitionValues;
 
   public NodeTypeValue() {
   }
@@ -131,8 +131,7 @@ public class NodeTypeValue {
    * @param declaredChildNodeDefinitionNames
    *          The declaredChildNodeDefinitionNames to set.
    */
-  public void setDeclaredChildNodeDefinitionValues(
-      List<NodeDefinitionValue> declaredChildNodeDefinitionValues) {
+  public void setDeclaredChildNodeDefinitionValues(List<NodeDefinitionValue> declaredChildNodeDefinitionValues) {
     this.declaredChildNodeDefinitionValues = declaredChildNodeDefinitionValues;
   }
 
@@ -147,8 +146,7 @@ public class NodeTypeValue {
    * @param declaredPropertyDefinitionNames
    *          The declaredPropertyDefinitionNames to set.
    */
-  public void setDeclaredPropertyDefinitionValues(
-      List<PropertyDefinitionValue> declaredPropertyDefinitionValues) {
+  public void setDeclaredPropertyDefinitionValues(List<PropertyDefinitionValue> declaredPropertyDefinitionValues) {
     this.declaredPropertyDefinitionValues = declaredPropertyDefinitionValues;
   }
 
@@ -240,19 +238,20 @@ public class NodeTypeValue {
         if (p.getRequiredNodeTypeNames() != null) {
           fixStringsList(p.getRequiredNodeTypeNames());
           if (p.getRequiredNodeTypeNames().size() == 0) {
-            // Fixing field requiredNodeTypeNames according the specefication (6.7.14) for NodeDefinition
+            // Fixing field requiredNodeTypeNames according the specefication (6.7.14) for
+            // NodeDefinition
             List<String> defNotEmptyArray = new ArrayList<String>();
             defNotEmptyArray.add("nt:base");
             p.setRequiredNodeTypeNames(defNotEmptyArray);
           }
         }
-        if (p.getDefaultNodeTypeName() != null) {          
+        if (p.getDefaultNodeTypeName() != null) {
           if (p.getDefaultNodeTypeName().length() <= 0) {
-            p.setDefaultNodeTypeName(null);            
+            p.setDefaultNodeTypeName(null);
           }
         }
       }
     }
   }
-  
+
 }

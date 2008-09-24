@@ -20,5 +20,5 @@ public class SessionSaveTest extends AbstractGetSessionTest {
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     nextSession().save();
   }
-  
+
 }

@@ -23,27 +23,27 @@ import org.exoplatform.services.ftp.data.FtpDataChannelManager;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public interface FtpServer {
-  
+
   boolean start();
-  
+
   boolean stop();
 
   boolean unRegisterClient(FtpClientSession clientSession);
-  
+
   FtpConfig getConfiguration();
-  
+
   FtpDataChannelManager getDataChannelManager();
-  
+
   int getClientsCount();
-  
+
   ManageableRepository getRepository();
-  
+
   FtpCommand getCommand(String commandName);
-  
+
 }

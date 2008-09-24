@@ -70,7 +70,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
- * Restores workspace from ready backupset. <br/> Should be configured with restore-path parameter. The path to a backup result file.
+ * Restores workspace from ready backupset. <br/> Should be configured with restore-path parameter.
+ * The path to a backup result file.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -80,8 +81,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
   public static final String          RESTORE_PATH_PARAMETER = "restore-path";
 
-  protected static final Log          log                    =
-                                                                 ExoLogger.getLogger("jcr.WorkspaceInitializer");
+  protected static final Log          log                    = ExoLogger.getLogger("jcr.WorkspaceInitializer");
 
   protected final String              workspaceName;
 
@@ -235,8 +235,8 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
       } else if (tmpFile == null
           && (((TempOutputStream) buff).getSize() + buffer.length) > maxBufferSize) {
         // spool to file
-        FileOutputStream fout =
-            new FileOutputStream(tmpFile = File.createTempFile("jcrrestorewi", ".tmp"));
+        FileOutputStream fout = new FileOutputStream(tmpFile = File.createTempFile("jcrrestorewi",
+                                                                                   ".tmp"));
         fout.write(((TempOutputStream) buff).getBuffer());
         buff.close();
         buff = fout; // use file
@@ -323,9 +323,12 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
    * @param dataManager
    * @param namespaceRegistry
    * @param locationFactory
-   * @param nodeTypeManager TODO remove it
-   * @param valueFactory TODO remove it
-   * @param accessManager TODO remove it
+   * @param nodeTypeManager
+   *          TODO remove it
+   * @param valueFactory
+   *          TODO remove it
+   * @param accessManager
+   *          TODO remove it
    * @throws RepositoryConfigurationException
    * @throws PathNotFoundException
    * @throws RepositoryException
@@ -338,8 +341,8 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                                      NodeTypeManagerImpl nodeTypeManager,
                                      ValueFactoryImpl valueFactory,
                                      AccessManager accessManager) throws RepositoryConfigurationException,
-                                                                 PathNotFoundException,
-                                                                 RepositoryException {
+      PathNotFoundException,
+      RepositoryException {
 
     this.workspaceName = config.getName();
 
@@ -349,13 +352,13 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
     this.locationFactory = locationFactory;
 
     this.fileCleaner = new FileCleaner(false); // cleaner should be started!
-    this.maxBufferSize =
-        config.getContainer().getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
-                                                  WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+    this.maxBufferSize = config.getContainer()
+                               .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                    WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
 
-    this.restorePath =
-        config.getInitializer()
-              .getParameterValue(RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER, null);
+    this.restorePath = config.getInitializer()
+                             .getParameterValue(RestoreWorkspaceInitializer.RESTORE_PATH_PARAMETER,
+                                                null);
     if (this.restorePath == null)
       throw new RepositoryConfigurationException("Workspace (" + workspaceName
           + ") RestoreIntializer should have mandatory parameter "
@@ -426,7 +429,7 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
 
       PlainChangesLog changes = new PlainChangesLogImpl();
 
-      //SVNodeData currentNode = null;
+      // SVNodeData currentNode = null;
       Stack<SVNodeData> parents = new Stack<SVNodeData>();
 
       SVPropertyData currentProperty = null;
@@ -487,8 +490,11 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                   }
                 }
 
-                SVNodeData currentNode =
-                    new SVNodeData(currentPath, exoId, parentId, 0, orderNumber);
+                SVNodeData currentNode = new SVNodeData(currentPath,
+                                                        exoId,
+                                                        parentId,
+                                                        0,
+                                                        orderNumber);
 
                 // push current node as parent
                 parents.push(currentNode);
@@ -512,9 +518,9 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
               if (svName != null && svType != null && exoId != null) {
                 if (parents.size() > 0) {
                   SVNodeData parent = parents.peek();
-                  QPath currentPath =
-                      QPath.makeChildPath(parent.getQPath(), locationFactory.parseJCRName(svName)
-                                                                            .getInternalName());
+                  QPath currentPath = QPath.makeChildPath(parent.getQPath(),
+                                                          locationFactory.parseJCRName(svName)
+                                                                         .getInternalName());
                   try {
                     propertyType = PropertyType.valueFromName(svType);
                   } catch (IllegalArgumentException e) {
@@ -522,16 +528,17 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                   }
 
                   // exo:multivalued optional, assigned for multivalued properties only
-                  String exoMultivalued =
-                      reader.getAttributeValue(exoURI, Constants.EXO_MULTIVALUED);
+                  String exoMultivalued = reader.getAttributeValue(exoURI,
+                                                                   Constants.EXO_MULTIVALUED);
 
-                  currentProperty =
-                      new SVPropertyData(currentPath,
-                                         exoId,
-                                         0,
-                                         propertyType,
-                                         parent.getIdentifier(),
-                                         ("true".equals(exoMultivalued) ? true : false));
+                  currentProperty = new SVPropertyData(currentPath,
+                                                       exoId,
+                                                       0,
+                                                       propertyType,
+                                                       parent.getIdentifier(),
+                                                       ("true".equals(exoMultivalued)
+                                                           ? true
+                                                           : false));
                 } else
                   log.warn("Property can'b be first name=" + svName + " type=" + svType + " id="
                       + exoId + ". Node should be prior. Context node "
@@ -581,15 +588,15 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                 } else if (currentProperty.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
                   InternalQName[] mixins = new InternalQName[currentProperty.getValues().size()];
                   for (int i = 0; i < currentProperty.getValues().size(); i++) {
-                    mixins[i] =
-                        InternalQName.parse(new String(currentProperty.getValues()
-                                                                      .get(i)
-                                                                      .getAsByteArray()));
+                    mixins[i] = InternalQName.parse(new String(currentProperty.getValues()
+                                                                              .get(i)
+                                                                              .getAsByteArray()));
                   }
                   parent.setMixinTypeNames(mixins);
                 }
 
-                // add property, no event fire, persisted, internally created, root is ancestor to save
+                // add property, no event fire, persisted, internally created, root is ancestor to
+                // save
                 changes.add(new ItemState(currentProperty,
                                           ItemState.ADDED,
                                           false,
@@ -607,13 +614,11 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
               propertyValue.close();
               TransientValueData vdata;
               if (propertyType == PropertyType.NAME) {
-                vdata =
-                    new TransientValueData(locationFactory.parseJCRName(propertyValue.getText())
-                                                          .getInternalName());
+                vdata = new TransientValueData(locationFactory.parseJCRName(propertyValue.getText())
+                                                              .getInternalName());
               } else if (propertyType == PropertyType.PATH) {
-                vdata =
-                    new TransientValueData(locationFactory.parseJCRPath(propertyValue.getText())
-                                                          .getInternalPath());
+                vdata = new TransientValueData(locationFactory.parseJCRPath(propertyValue.getText())
+                                                              .getInternalPath());
               } else if (propertyType == PropertyType.DATE) {
                 vdata = new TransientValueData(JCRDateFormat.parse(propertyValue.getText()));
               } else if (propertyType == PropertyType.BINARY) {
@@ -622,21 +627,26 @@ public class RestoreWorkspaceInitializer implements WorkspaceInitializer {
                 else {
                   File pfile = propertyValue.getFile();
                   if (pfile != null) {
-                    vdata =
-                        new TransientValueData(0,
-                                               null,
-                                               null,
-                                               pfile,
-                                               fileCleaner,
-                                               maxBufferSize,
-                                               null,
-                                               true);
-                    //fileCleaner.addFile(pfile); // add manually, cleaner should be started!
+                    vdata = new TransientValueData(0,
+                                                   null,
+                                                   null,
+                                                   pfile,
+                                                   fileCleaner,
+                                                   maxBufferSize,
+                                                   null,
+                                                   true);
+                    // fileCleaner.addFile(pfile); // add manually, cleaner should be started!
                   } else
-                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {})); // empty data, should never occurs!
+                    vdata = new TransientValueData(new ByteArrayInputStream(new byte[] {})); // empty
+                  // data
+                  // ,
+                  // should
+                  // never
+                  // occurs
+                  // !
                 }
               } else {
-                vdata = new TransientValueData(propertyValue.getText()); // other like String 
+                vdata = new TransientValueData(propertyValue.getText()); // other like String
               }
 
               vdata.setOrderNumber(currentProperty.getValues().size());

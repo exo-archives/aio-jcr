@@ -46,7 +46,6 @@ public class AuditAction implements Action {
     else
       node = item.getParent();
 
-
     if (node.isNodeType(AuditService.EXO_AUDITABLE)) {
       AuditService auditService = (AuditService) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(AuditService.class);
 

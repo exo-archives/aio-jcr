@@ -20,18 +20,19 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: SystemDataContainerHolder.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class SystemDataContainerHolder {
-    private WorkspaceDataContainer dataContainer;
-    
-    public SystemDataContainerHolder(WorkspaceDataContainer dataContainer) {
-      this.dataContainer = dataContainer;
-    }
-    
-    public WorkspaceDataContainer getContainer() {
-      return dataContainer;
-    }
+  private WorkspaceDataContainer dataContainer;
+
+  public SystemDataContainerHolder(WorkspaceDataContainer dataContainer) {
+    this.dataContainer = dataContainer;
+  }
+
+  public WorkspaceDataContainer getContainer() {
+    return dataContainer;
+  }
 }

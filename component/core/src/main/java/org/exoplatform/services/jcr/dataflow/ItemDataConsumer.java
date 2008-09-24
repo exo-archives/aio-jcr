@@ -31,13 +31,13 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: ItemDataConsumer.java 11907 2008-03-13 15:36:21Z ksm $
  * 
- * Basic (Level 1) data flow inmemory operations  
- *  
- * Common Rule for Read : If there is some storage in this manager �
- * try to get the data from here first, if not found � call super.someMethod
+ *          Basic (Level 1) data flow inmemory operations
+ * 
+ *          Common Rule for Read : If there is some storage in this manager � try to get the data
+ *          from here first, if not found � call super.someMethod
  */
 public interface ItemDataConsumer {
-  
+
   /**
    * @param parent
    * @param name
@@ -54,24 +54,26 @@ public interface ItemDataConsumer {
 
   /**
    * @param parentIdentifier
-   * @return children data 
+   * @return children data
    */
-  List <NodeData> getChildNodesData(NodeData parent) throws RepositoryException;
+  List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException;
 
   /**
    * @param parentIdentifier
-   * @return children data 
+   * @return children data
    */
-  List <PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException;
-  
+  List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException;
+
   List<PropertyData> listChildPropertiesData(final NodeData nodeData) throws RepositoryException;
-  
+
   /**
-   * @param identifier - referenceable id
-   * @param skipVersionStorage - if true references will be returned according the JSR-170 spec, 
-   * without items from version storage
+   * @param identifier
+   *          - referenceable id
+   * @param skipVersionStorage
+   *          - if true references will be returned according the JSR-170 spec, without items from
+   *          version storage
    * @return - list of REFERENCE properties
    * @throws RepositoryException
    */
-  List <PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException;
+  List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException;
 }

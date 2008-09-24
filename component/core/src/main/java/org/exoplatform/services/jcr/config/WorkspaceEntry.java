@@ -16,35 +16,33 @@
  */
 package org.exoplatform.services.jcr.config;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov
- *         </a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov </a>
  * @version $Id: WorkspaceEntry.java 13991 2008-05-08 11:07:05Z pnedonosko $
  */
 public class WorkspaceEntry {
 
-  private String             name;
+  private String                    name;
 
-  private String             autoInitializedRootNt;
+  private String                    autoInitializedRootNt;
 
-  private ContainerEntry     container;
+  private ContainerEntry            container;
 
-  private QueryHandlerEntry  queryHandler;
+  private QueryHandlerEntry         queryHandler;
 
-  private CacheEntry         cache;
+  private CacheEntry                cache;
 
-  private String             uniqueName;
+  private String                    uniqueName;
 
-  private AccessManagerEntry accessManager;
+  private AccessManagerEntry        accessManager;
 
-  private LockManagerEntry   lockManager;
-  
-  private WorkspaceInitializerEntry   initializer;
+  private LockManagerEntry          lockManager;
 
-  private String             autoInitPermissions;
+  private WorkspaceInitializerEntry initializer;
+
+  private String                    autoInitPermissions;
 
   public WorkspaceEntry() {
 
@@ -73,7 +71,8 @@ public class WorkspaceEntry {
   }
 
   /**
-   * @param autoInitializedRootNt The autoInitializedRootNt to set.
+   * @param autoInitializedRootNt
+   *          The autoInitializedRootNt to set.
    */
   @Deprecated
   public void setAutoInitializedRootNt(String autoInitializedRootNt) {
@@ -88,7 +87,8 @@ public class WorkspaceEntry {
   }
 
   /**
-   * @param container The container to set.
+   * @param container
+   *          The container to set.
    */
   public void setContainer(ContainerEntry container) {
     this.container = container;
@@ -102,7 +102,8 @@ public class WorkspaceEntry {
   }
 
   /**
-   * @param cache The cache to set.
+   * @param cache
+   *          The cache to set.
    */
   public void setCache(CacheEntry cache) {
     this.cache = cache;
@@ -116,7 +117,8 @@ public class WorkspaceEntry {
   }
 
   /**
-   * @param uniqueName The uniqueName to set.
+   * @param uniqueName
+   *          The uniqueName to set.
    */
   public void setUniqueName(String uniqueName) {
     this.uniqueName = uniqueName;

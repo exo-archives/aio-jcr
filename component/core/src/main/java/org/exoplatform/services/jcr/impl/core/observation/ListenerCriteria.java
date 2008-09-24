@@ -18,31 +18,36 @@ package org.exoplatform.services.jcr.impl.core.observation;
 
 import javax.jcr.RepositoryException;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: ListenerCriteria.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class ListenerCriteria {
 
-  private int eventTypes;
+  private int      eventTypes;
 
-  private String absPath;
-  
-  private boolean deep;
+  private String   absPath;
+
+  private boolean  deep;
 
   private String[] identifier;
 
   private String[] nodeTypeName;
 
-  private boolean noLocal;
-  
-  private String sessionId;
+  private boolean  noLocal;
 
-  public ListenerCriteria(int eventTypes, String absPath, boolean isDeep,
-      String[] identifier, String[] nodeTypeName, boolean noLocal, String sessionId) throws RepositoryException {
+  private String   sessionId;
+
+  public ListenerCriteria(int eventTypes,
+                          String absPath,
+                          boolean isDeep,
+                          String[] identifier,
+                          String[] nodeTypeName,
+                          boolean noLocal,
+                          String sessionId) throws RepositoryException {
     this.eventTypes = eventTypes;
     this.absPath = absPath;
     this.deep = isDeep;
@@ -79,5 +84,5 @@ public class ListenerCriteria {
   public String getSessionId() {
     return this.sessionId;
   }
-  
+
 }

@@ -38,10 +38,9 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 26.09.2006 VARNING! This test change data
- * container database data directly in tables JCR_XCONTAINER: version switched
- * to 1.0 value. And then try update container to actual data in
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 26.09.2006 VARNING! This test change data container database data directly in tables
+ * JCR_XCONTAINER: version switched to 1.0 value. And then try update container to actual data in
  * StorageUpdateManager.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
@@ -76,8 +75,7 @@ public class StorageUpdateTest extends JcrImplBaseTest {
     if (exoContainer == null)
       fail("This test can be executed by user with ADMIN rights only");
 
-    dataContainer = (JDBCWorkspaceDataContainer) exoContainer
-        .getComponentInstanceOfType(WorkspaceDataContainer.class);
+    dataContainer = (JDBCWorkspaceDataContainer) exoContainer.getComponentInstanceOfType(WorkspaceDataContainer.class);
     if (dataContainer == null)
       fail("This test can be executed on JDBCWorkspaceDataContainer instance only");
 
@@ -98,8 +96,8 @@ public class StorageUpdateTest extends JcrImplBaseTest {
     content.setProperty("anyNumb", 123.321d);
 
     content.setProperty("anyBinary",
-        "11111111111111<=Any binary=>11111111111111111",
-        PropertyType.BINARY);
+                        "11111111111111<=Any binary=>11111111111111111",
+                        PropertyType.BINARY);
 
     content.addNode("anyNode1").setProperty("_some_double", 1234.4321d);
     content.addNode("anyNode2").setProperty("_some_long", 123456789L);
@@ -135,9 +133,12 @@ public class StorageUpdateTest extends JcrImplBaseTest {
     // =============================================================
     PropertyData jcrUuid = (PropertyData) ((PropertyImpl) node_V.getProperty("jcr:uuid")).getData();
 
-    TransientPropertyData bugData = new TransientPropertyData(jcrUuid.getQPath(), jcrUuid
-        .getIdentifier(), jcrUuid.getPersistedVersion(), jcrUuid.getType(), jcrUuid
-        .getParentIdentifier(), jcrUuid.isMultiValued());
+    TransientPropertyData bugData = new TransientPropertyData(jcrUuid.getQPath(),
+                                                              jcrUuid.getIdentifier(),
+                                                              jcrUuid.getPersistedVersion(),
+                                                              jcrUuid.getType(),
+                                                              jcrUuid.getParentIdentifier(),
+                                                              jcrUuid.isMultiValued());
     // Set a uuid of source node in Workspace.copy()
     bugData.setValue(new TransientValueData(node_R.getProperty("jcr:uuid").getString()));
 
@@ -148,18 +149,20 @@ public class StorageUpdateTest extends JcrImplBaseTest {
       conn.update(bugData);
       jdbcConn.getJdbcConnection().commit();
 
-      NodeData parent = (NodeData) session.getTransientNodesManager().getTransactManager()
-          .getItemData(jcrUuid.getParentIdentifier());
+      NodeData parent = (NodeData) session.getTransientNodesManager()
+                                          .getTransactManager()
+                                          .getItemData(jcrUuid.getParentIdentifier());
       QPathEntry[] qentry = bugData.getQPath().getEntries();
       PropertyData persistedBugData = (PropertyData) conn.getItemData(parent,
-          qentry[qentry.length - 1]);
+                                                                      qentry[qentry.length - 1]);
       log.info("node_V node BUG uuid: " + node_V.getUUID() + ", jcr:uuid: "
           + new String(persistedBugData.getValues().get(0).getAsByteArray()));
 
       // =================== remove version record ===================
       Statement smnt = jdbcConn.getJdbcConnection().createStatement();
       log.info("Update container version records: "
-          + smnt.executeUpdate("update JCR_"+(isDefaultWsMultiDb?"M":"S")+"CONTAINER set VERSION='1.0'"));
+          + smnt.executeUpdate("update JCR_" + (isDefaultWsMultiDb ? "M" : "S")
+              + "CONTAINER set VERSION='1.0'"));
       jdbcConn.getJdbcConnection().commit();
 
       conn.commit();

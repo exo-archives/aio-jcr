@@ -63,7 +63,6 @@ public final class ArtifactDescriptor implements Descriptor {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.ext.maven.Descriptor#getAsString()
    */
   public String getAsString() {
@@ -73,18 +72,18 @@ public final class ArtifactDescriptor implements Descriptor {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.ext.maven.Descriptor#getAsPath()
    */
   public String getAsPath() {
     // is that correct?
-    if(StringUtils.isBlank(artifactId) || StringUtils.isBlank(versionId))
-      return groupId.getAsString(); //do not replace dots "." at the tail, as a version id 
+    if (StringUtils.isBlank(artifactId) || StringUtils.isBlank(versionId))
+      return groupId.getAsString(); // do not replace dots "." at the tail, as a version id
     return groupId.getAsPath() + "/" + artifactId + "/" + versionId;
   }
 
   public static ArtifactDescriptor createFromPomfile(File pomfile) throws SAXException,
-      ParserConfigurationException, IOException {
+                                                                  ParserConfigurationException,
+                                                                  IOException {
     DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     Document doc = docBuilder.parse(pomfile);
 

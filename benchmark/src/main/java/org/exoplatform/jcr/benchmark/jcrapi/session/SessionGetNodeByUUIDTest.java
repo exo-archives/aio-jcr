@@ -13,13 +13,14 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class SessionGetNodeByUUIDTest extends JCRTestBase {
-  
+
   private String uuid = "";
-  
+
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     Node node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
     node.addMixin("mix:referenceable");

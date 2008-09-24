@@ -46,313 +46,324 @@ import org.exoplatform.services.jcr.impl.core.query.lucene.hits.HitsIntersection
 import org.exoplatform.services.jcr.impl.core.query.lucene.hits.ScorerHits;
 
 /**
- * Implements a lucene <code>Query</code> which returns the child nodes of the
- * nodes selected by another <code>Query</code>.
+ * Implements a lucene <code>Query</code> which returns the child nodes of the nodes selected by
+ * another <code>Query</code>.
  */
 class ChildAxisQuery extends Query {
 
-    /**
-     * The item state manager containing persistent item states.
-     */
-    private final ItemDataConsumer itemMgr;
+  /**
+   * The item state manager containing persistent item states.
+   */
+  private final ItemDataConsumer itemMgr;
+
+  /**
+   * The context query
+   */
+  private Query                  contextQuery;
+
+  /**
+   * The nameTest to apply on the child axis, or <code>null</code> if all child nodes should be
+   * selected.
+   */
+  private final String           nameTest;
+
+  /**
+   * The context position for the selected child node, or {@link LocationStepQueryNode#NONE} if no
+   * position is specified.
+   */
+  private final int              position;
+
+  /**
+   * The scorer of the context query
+   */
+  private Scorer                 contextScorer;
+
+  /**
+   * The scorer of the name test query
+   */
+  private Scorer                 nameTestScorer;
+
+  /**
+   * Creates a new <code>ChildAxisQuery</code> based on a <code>context</code> query.
+   * 
+   * @param itemMgr
+   *          the item state manager.
+   * @param context
+   *          the context for this query.
+   * @param nameTest
+   *          a name test or <code>null</code> if any child node is selected.
+   */
+  ChildAxisQuery(ItemDataConsumer itemMgr, Query context, String nameTest) {
+    this(itemMgr, context, nameTest, LocationStepQueryNode.NONE);
+  }
+
+  /**
+   * Creates a new <code>ChildAxisQuery</code> based on a <code>context</code> query.
+   * 
+   * @param itemMgr
+   *          the item state manager.
+   * @param context
+   *          the context for this query.
+   * @param nameTest
+   *          a name test or <code>null</code> if any child node is selected.
+   * @param position
+   *          the context position of the child node to select. If <code>position</code> is
+   *          {@link LocationStepQueryNode#NONE}, the context position of the child node is not
+   *          checked.
+   */
+  ChildAxisQuery(ItemDataConsumer itemMgr, Query context, String nameTest, int position) {
+    this.itemMgr = itemMgr;
+    this.contextQuery = context;
+    this.nameTest = nameTest;
+    this.position = position;
+  }
+
+  /**
+   * Creates a <code>Weight</code> instance for this query.
+   * 
+   * @param searcher
+   *          the <code>Searcher</code> instance to use.
+   * @return a <code>ChildAxisWeight</code>.
+   */
+  protected Weight createWeight(Searcher searcher) {
+    return new ChildAxisWeight(searcher);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void extractTerms(Set terms) {
+    contextQuery.extractTerms(terms);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Query rewrite(IndexReader reader) throws IOException {
+    Query cQuery = contextQuery.rewrite(reader);
+    if (cQuery == contextQuery) {
+      return this;
+    } else {
+      return new ChildAxisQuery(itemMgr, cQuery, nameTest, position);
+    }
+  }
+
+  /**
+   * Always returns 'ChildAxisQuery'.
+   * 
+   * @param field
+   *          the name of a field.
+   * @return 'ChildAxisQuery'.
+   */
+  public String toString(String field) {
+    return "(ChildAxisQuery " + contextQuery.toString() + " position:" + position + " nameTest:"
+        + nameTest + ")";
+  }
+
+  // -------------------< ChildAxisWeight >------------------------------------
+
+  /**
+   * The <code>Weight</code> implementation for this <code>ChildAxisQuery</code>.
+   */
+  private class ChildAxisWeight implements Weight {
 
     /**
-     * The context query
+     * The searcher in use
      */
-    private Query contextQuery;
+    private final Searcher searcher;
 
     /**
-     * The nameTest to apply on the child axis, or <code>null</code> if all
-     * child nodes should be selected.
+     * Creates a new <code>ChildAxisWeight</code> instance using <code>searcher</code>.
+     * 
+     * @param searcher
+     *          a <code>Searcher</code> instance.
      */
-    private final String nameTest;
-
-    /**
-     * The context position for the selected child node, or
-     * {@link LocationStepQueryNode#NONE} if no position is specified.
-     */
-    private final int position;
-
-    /**
-     * The scorer of the context query
-     */
-    private Scorer contextScorer;
-
-    /**
-     * The scorer of the name test query
-     */
-    private Scorer nameTestScorer;
-
-    /**
-     * Creates a new <code>ChildAxisQuery</code> based on a <code>context</code>
-     * query.
-     *
-     * @param itemMgr the item state manager.
-     * @param context the context for this query.
-     * @param nameTest a name test or <code>null</code> if any child node is
-     * selected.
-     */
-    ChildAxisQuery(ItemDataConsumer itemMgr, Query context, String nameTest) {
-        this(itemMgr, context, nameTest, LocationStepQueryNode.NONE);
+    private ChildAxisWeight(Searcher searcher) {
+      this.searcher = searcher;
     }
 
     /**
-     * Creates a new <code>ChildAxisQuery</code> based on a <code>context</code>
-     * query.
-     *
-     * @param itemMgr the item state manager.
-     * @param context the context for this query.
-     * @param nameTest a name test or <code>null</code> if any child node is
-     * selected.
-     * @param position the context position of the child node to select. If
-     * <code>position</code> is {@link LocationStepQueryNode#NONE}, the context
-     * position of the child node is not checked.
+     * Returns this <code>ChildAxisQuery</code>.
+     * 
+     * @return this <code>ChildAxisQuery</code>.
      */
-    ChildAxisQuery(ItemDataConsumer itemMgr, Query context, String nameTest, int position) {
-        this.itemMgr = itemMgr;
-        this.contextQuery = context;
-        this.nameTest = nameTest;
-        this.position = position;
-    }
-
-    /**
-     * Creates a <code>Weight</code> instance for this query.
-     *
-     * @param searcher the <code>Searcher</code> instance to use.
-     * @return a <code>ChildAxisWeight</code>.
-     */
-    protected Weight createWeight(Searcher searcher) {
-        return new ChildAxisWeight(searcher);
+    public Query getQuery() {
+      return ChildAxisQuery.this;
     }
 
     /**
      * {@inheritDoc}
      */
-    public void extractTerms(Set terms) {
-        contextQuery.extractTerms(terms);
+    public float getValue() {
+      return 1.0f;
     }
 
     /**
      * {@inheritDoc}
      */
-    public Query rewrite(IndexReader reader) throws IOException {
-        Query cQuery = contextQuery.rewrite(reader);
-        if (cQuery == contextQuery) {
-            return this;
+    public float sumOfSquaredWeights() throws IOException {
+      return 1.0f;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void normalize(float norm) {
+    }
+
+    /**
+     * Creates a scorer for this <code>ChildAxisQuery</code>.
+     * 
+     * @param reader
+     *          a reader for accessing the index.
+     * @return a <code>ChildAxisScorer</code>.
+     * @throws IOException
+     *           if an error occurs while reading from the index.
+     */
+    public Scorer scorer(IndexReader reader) throws IOException {
+      contextScorer = contextQuery.weight(searcher).scorer(reader);
+      if (nameTest != null) {
+        nameTestScorer = new TermQuery(new Term(FieldNames.LABEL, nameTest)).weight(searcher)
+                                                                            .scorer(reader);
+      }
+      return new ChildAxisScorer(searcher.getSimilarity(), reader);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Explanation explain(IndexReader reader, int doc) throws IOException {
+      return new Explanation();
+    }
+  }
+
+  // ----------------------< ChildAxisScorer >---------------------------------
+
+  /**
+   * Implements a <code>Scorer</code> for this <code>ChildAxisQuery</code>.
+   */
+  private class ChildAxisScorer extends Scorer {
+
+    /**
+     * An <code>IndexReader</code> to access the index.
+     */
+    private final IndexReader reader;
+
+    /**
+     * The next document id to return
+     */
+    private int               nextDoc = -1;
+
+    /**
+     * A <code>Hits</code> instance containing all hits
+     */
+    private Hits              hits;
+
+    /**
+     * Creates a new <code>ChildAxisScorer</code>.
+     * 
+     * @param similarity
+     *          the <code>Similarity</code> instance to use.
+     * @param reader
+     *          for index access.
+     */
+    protected ChildAxisScorer(Similarity similarity, IndexReader reader) {
+      super(similarity);
+      this.reader = reader;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean next() throws IOException {
+      calculateChildren();
+      do {
+        nextDoc = hits.next();
+      } while (nextDoc > -1 && !indexIsValid(nextDoc));
+
+      return nextDoc > -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int doc() {
+      return nextDoc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public float score() throws IOException {
+      return 1.0f;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean skipTo(int target) throws IOException {
+      calculateChildren();
+      nextDoc = hits.skipTo(target);
+      while (nextDoc > -1 && !indexIsValid(nextDoc))
+        next();
+      return nextDoc > -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @throws UnsupportedOperationException
+     *           this implementation always throws an <code>UnsupportedOperationException</code>.
+     */
+    public Explanation explain(int doc) throws IOException {
+      throw new UnsupportedOperationException();
+    }
+
+    private void calculateChildren() throws IOException {
+      if (hits == null) {
+
+        // collect all context nodes
+        List uuids = new ArrayList();
+        final Hits contextHits = new AdaptingHits();
+        contextScorer.score(new HitCollector() {
+          public void collect(int doc, float score) {
+            contextHits.set(doc);
+          }
+        });
+
+        // read the uuids of the context nodes
+        int i = contextHits.next();
+        while (i > -1) {
+          String uuid = reader.document(i).get(FieldNames.UUID);
+          uuids.add(uuid);
+          i = contextHits.next();
+        }
+
+        // collect all children of the context nodes
+        Hits childrenHits = new AdaptingHits();
+
+        TermDocs docs = reader.termDocs();
+        try {
+          for (Iterator it = uuids.iterator(); it.hasNext();) {
+            docs.seek(new Term(FieldNames.PARENT, (String) it.next()));
+            while (docs.next()) {
+              childrenHits.set(docs.doc());
+            }
+          }
+        } finally {
+          docs.close();
+        }
+
+        if (nameTestScorer != null) {
+          hits = new HitsIntersection(childrenHits, new ScorerHits(nameTestScorer));
         } else {
-            return new ChildAxisQuery(itemMgr, cQuery, nameTest, position);
+          hits = childrenHits;
         }
+      }
     }
 
-    /**
-     * Always returns 'ChildAxisQuery'.
-     *
-     * @param field the name of a field.
-     * @return 'ChildAxisQuery'.
-     */
-    public String toString(String field) {
-        return "(ChildAxisQuery "+contextQuery.toString()+" position:"+position+" nameTest:"+nameTest+")";
-    }
-
-    //-------------------< ChildAxisWeight >------------------------------------
-
-    /**
-     * The <code>Weight</code> implementation for this <code>ChildAxisQuery</code>.
-     */
-    private class ChildAxisWeight implements Weight {
-
-        /**
-         * The searcher in use
-         */
-        private final Searcher searcher;
-
-        /**
-         * Creates a new <code>ChildAxisWeight</code> instance using
-         * <code>searcher</code>.
-         *
-         * @param searcher a <code>Searcher</code> instance.
-         */
-        private ChildAxisWeight(Searcher searcher) {
-            this.searcher = searcher;
-        }
-
-        /**
-         * Returns this <code>ChildAxisQuery</code>.
-         *
-         * @return this <code>ChildAxisQuery</code>.
-         */
-        public Query getQuery() {
-            return ChildAxisQuery.this;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public float getValue() {
-            return 1.0f;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public float sumOfSquaredWeights() throws IOException {
-            return 1.0f;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public void normalize(float norm) {
-        }
-
-        /**
-         * Creates a scorer for this <code>ChildAxisQuery</code>.
-         *
-         * @param reader a reader for accessing the index.
-         * @return a <code>ChildAxisScorer</code>.
-         * @throws IOException if an error occurs while reading from the index.
-         */
-        public Scorer scorer(IndexReader reader) throws IOException {
-            contextScorer = contextQuery.weight(searcher).scorer(reader);
-            if (nameTest != null) {
-                nameTestScorer = new TermQuery(new Term(FieldNames.LABEL, nameTest)).weight(searcher).scorer(reader);
-            }
-            return new ChildAxisScorer(searcher.getSimilarity(), reader);
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public Explanation explain(IndexReader reader, int doc) throws IOException {
-            return new Explanation();
-        }
-    }
-
-    //----------------------< ChildAxisScorer >---------------------------------
-
-    /**
-     * Implements a <code>Scorer</code> for this <code>ChildAxisQuery</code>.
-     */
-    private class ChildAxisScorer extends Scorer {
-
-        /**
-         * An <code>IndexReader</code> to access the index.
-         */
-        private final IndexReader reader;
-
-        /**
-         * The next document id to return
-         */
-        private int nextDoc = -1;
-
-        /**
-         * A <code>Hits</code> instance containing all hits
-         */
-        private Hits hits;
-
-        /**
-         * Creates a new <code>ChildAxisScorer</code>.
-         *
-         * @param similarity the <code>Similarity</code> instance to use.
-         * @param reader     for index access.
-         */
-        protected ChildAxisScorer(Similarity similarity, IndexReader reader) {
-            super(similarity);
-            this.reader = reader;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean next() throws IOException {
-            calculateChildren();
-            do {
-                nextDoc = hits.next();
-            } while (nextDoc > -1 && !indexIsValid(nextDoc));
-            
-            return nextDoc > -1;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public int doc() {
-            return nextDoc;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public float score() throws IOException {
-            return 1.0f;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        public boolean skipTo(int target) throws IOException {
-            calculateChildren();
-            nextDoc = hits.skipTo(target);
-            while (nextDoc > -1 && !indexIsValid(nextDoc))
-                next();
-            return nextDoc > -1;            
-        }
-
-        /**
-         * {@inheritDoc}
-         *
-         * @throws UnsupportedOperationException this implementation always
-         *                                       throws an <code>UnsupportedOperationException</code>.
-         */
-        public Explanation explain(int doc) throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-        private void calculateChildren() throws IOException {
-            if (hits == null) {
-                
-                // collect all context nodes
-                List uuids = new ArrayList();
-                final Hits contextHits = new AdaptingHits();
-                contextScorer.score(new HitCollector() {
-                    public void collect(int doc, float score) {
-                        contextHits.set(doc);
-                    }
-                });
-
-                // read the uuids of the context nodes
-                int i = contextHits.next();
-                while (i > -1) {
-                    String uuid = reader.document(i).get(FieldNames.UUID);
-                    uuids.add(uuid);
-                    i = contextHits.next();
-                }
-                
-                // collect all children of the context nodes
-                Hits childrenHits = new AdaptingHits();
-
-                TermDocs docs = reader.termDocs();
-                try {
-                    for (Iterator it = uuids.iterator(); it.hasNext();) {
-                        docs.seek(new Term(FieldNames.PARENT, (String) it.next()));
-                        while (docs.next()) {
-                            childrenHits.set(docs.doc());
-                        }
-                    }
-                } finally {
-                    docs.close();
-                }
-                
-                if (nameTestScorer != null) {
-                    hits = new HitsIntersection(childrenHits, new ScorerHits(nameTestScorer));
-                } else {
-                    hits = childrenHits;
-                }
-            }
-        }
-
-        private boolean indexIsValid(int i) throws IOException {
-            if (position != LocationStepQueryNode.NONE) {
+    private boolean indexIsValid(int i) throws IOException {
+      if (position != LocationStepQueryNode.NONE) {
         Document node = reader.document(i);
         String parentId = node.get(FieldNames.PARENT);
         String id = node.get(FieldNames.UUID);

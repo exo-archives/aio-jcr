@@ -20,15 +20,15 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class FtpTextUtils {
-  
+
   private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpTextUtils");
-  
+
   public static String getStrached(String strVal, int reqLen) {
     try {
       String datka = "";
@@ -50,13 +50,13 @@ public class FtpTextUtils {
     }
     return resStr;
   }
-  
+
   public static String getStrachedAtStart(String strVal, int reqLen) {
     String result = strVal;
     while (result.length() < reqLen) {
       result = " " + result;
     }
     return result;
-  }  
-  
+  }
+
 }

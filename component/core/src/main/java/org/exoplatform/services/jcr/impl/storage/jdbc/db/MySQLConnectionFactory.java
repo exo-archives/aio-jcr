@@ -28,39 +28,52 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 16.03.2007
- *
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: MySQLConnectionFactory.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class MySQLConnectionFactory extends GenericConnectionFactory {
 
-  public MySQLConnectionFactory (
-      String dbDriver,
-      String dbUrl, 
-      String dbUserName, 
-      String dbPassword, 
-      String containerName, 
-      boolean multiDb, 
-      ValueStoragePluginProvider valueStorageProvider, 
-      int maxBufferSize, 
-      File swapDirectory, 
-      FileCleaner swapCleaner) throws RepositoryException {
-    
-    super(dbDriver, dbUrl, dbUserName, dbPassword, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);
+  public MySQLConnectionFactory(String dbDriver,
+                                String dbUrl,
+                                String dbUserName,
+                                String dbPassword,
+                                String containerName,
+                                boolean multiDb,
+                                ValueStoragePluginProvider valueStorageProvider,
+                                int maxBufferSize,
+                                File swapDirectory,
+                                FileCleaner swapCleaner) throws RepositoryException {
+
+    super(dbDriver,
+          dbUrl,
+          dbUserName,
+          dbPassword,
+          containerName,
+          multiDb,
+          valueStorageProvider,
+          maxBufferSize,
+          swapDirectory,
+          swapCleaner);
   }
-  
-  public MySQLConnectionFactory (
-      DataSource dbDataSource, 
-      String containerName, 
-      boolean multiDb, 
-      ValueStoragePluginProvider valueStorageProvider, 
-      int maxBufferSize, 
-      File swapDirectory, 
-      FileCleaner swapCleaner) {
-    
-    super(dbDataSource, containerName, multiDb, valueStorageProvider, maxBufferSize, swapDirectory, swapCleaner);    
+
+  public MySQLConnectionFactory(DataSource dbDataSource,
+                                String containerName,
+                                boolean multiDb,
+                                ValueStoragePluginProvider valueStorageProvider,
+                                int maxBufferSize,
+                                File swapDirectory,
+                                FileCleaner swapCleaner) {
+
+    super(dbDataSource,
+          containerName,
+          multiDb,
+          valueStorageProvider,
+          maxBufferSize,
+          swapDirectory,
+          swapCleaner);
   }
 
   @Override
@@ -68,28 +81,24 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
     try {
 
       if (multiDb) {
-        return new MySQLMultiDbJDBCConnection(
-            getJdbcConnection(), 
-            containerName, 
-            valueStorageProvider, 
-            maxBufferSize, 
-            swapDirectory, 
-            swapCleaner);
+        return new MySQLMultiDbJDBCConnection(getJdbcConnection(),
+                                              containerName,
+                                              valueStorageProvider,
+                                              maxBufferSize,
+                                              swapDirectory,
+                                              swapCleaner);
       }
-      
-      return new MySQLSingleDbJDBCConnection(
-          getJdbcConnection(), 
-          containerName, 
-          valueStorageProvider, 
-          maxBufferSize, 
-          swapDirectory, 
-          swapCleaner);
+
+      return new MySQLSingleDbJDBCConnection(getJdbcConnection(),
+                                             containerName,
+                                             valueStorageProvider,
+                                             maxBufferSize,
+                                             swapDirectory,
+                                             swapCleaner);
 
     } catch (SQLException e) {
       throw new RepositoryException(e);
     }
   }
 
-  
-  
 }

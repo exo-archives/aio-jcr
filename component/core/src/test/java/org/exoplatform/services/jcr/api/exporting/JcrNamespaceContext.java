@@ -30,15 +30,16 @@ import javax.xml.namespace.NamespaceContext;
  */
 public class JcrNamespaceContext implements NamespaceContext {
   private final Session session;
+
   public JcrNamespaceContext(Session session) {
     super();
     this.session = session;
   }
 
   public String getNamespaceURI(String prefix) {
-    
+
     try {
-      return session.getNamespaceURI(prefix); 
+      return session.getNamespaceURI(prefix);
     } catch (NamespaceException e) {
     } catch (RepositoryException e) {
     }

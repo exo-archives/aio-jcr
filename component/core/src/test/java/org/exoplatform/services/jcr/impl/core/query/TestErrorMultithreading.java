@@ -83,7 +83,7 @@ public class TestErrorMultithreading extends BaseQueryTest {
         try {
           Node root = sess.getRootNode();
           for (int i = 0; i < 100000; i++) {
-            
+
             IdGenerator obj;
             String fileName = IdGenerator.generate();// + "_" + i;
             NodeImpl node = (NodeImpl) root.addNode(fileName, "nt:file");
@@ -125,7 +125,7 @@ public class TestErrorMultithreading extends BaseQueryTest {
     while (it.hasNext()) {
       it.next().join();
     }
-    
+
   }
 
   private void fillRepo() throws Exception {
@@ -138,8 +138,8 @@ public class TestErrorMultithreading extends BaseQueryTest {
       Writer(String name, Session s) {
         this.name = name;
         this.sess = s;
-        
-        super.setName(this.name); // super.getName() + ", " + 
+
+        super.setName(this.name); // super.getName() + ", " +
       }
 
       public void run() {

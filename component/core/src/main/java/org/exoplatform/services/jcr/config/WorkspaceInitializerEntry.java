@@ -17,13 +17,13 @@
 package org.exoplatform.services.jcr.config;
 
 /**
- * Created by The eXo Platform SAS.<br/> 
+ * Created by The eXo Platform SAS.<br/>
  * 
  * Date: 05.05.2008 <br/>
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: WorkspaceInitializerEntry.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class WorkspaceInitializerEntry extends MappedParametrizedObjectEntry {
-    
+
 }

@@ -26,8 +26,7 @@ import javax.jcr.Node;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SimpleGetDataTest.java 11907 2008-03-13 15:36:21Z ksm $ JCR
- *          Use Case test sample
+ * @version $Id: SimpleGetDataTest.java 11907 2008-03-13 15:36:21Z ksm $ JCR Use Case test sample
  */
 
 public class SimpleGetDataTest extends BaseUsecasesTest {
@@ -42,20 +41,29 @@ public class SimpleGetDataTest extends BaseUsecasesTest {
     Node testLocalSmallFiles = root.addNode("testLocalSmallFiles");
     Node localSmallFile = testLocalSmallFiles.addNode("smallFile", "nt:file");
     Node contentNode = localSmallFile.addNode("jcr:content", "nt:resource");
-    //byte[] data = new byte[32];
+    // byte[] data = new byte[32];
     // Need to copy a file named test.txt to resources folder
     InputStream is = SimpleGetDataTest.class.getResourceAsStream("/test.txt");
-    byte[] byteContent = new byte[is.available()] ;
-    is.read(byteContent) ;
-    
+    byte[] byteContent = new byte[is.available()];
+    is.read(byteContent);
+
     contentNode.setProperty("jcr:data", new ByteArrayInputStream(byteContent));
     contentNode.setProperty("jcr:mimeType", "text/html");
     contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
     session.save();
-    assertNotNull(session.getRootNode().getNode("testLocalSmallFiles").getNode("smallFile").getNode(
-    "jcr:content").getProperty("jcr:data").getValue());
-    
-    System.out.println("value === " + session.getRootNode().getNode("testLocalSmallFiles").getNode("smallFile").getNode(
-    "jcr:content").getProperty("jcr:data").getString()) ;
+    assertNotNull(session.getRootNode()
+                         .getNode("testLocalSmallFiles")
+                         .getNode("smallFile")
+                         .getNode("jcr:content")
+                         .getProperty("jcr:data")
+                         .getValue());
+
+    System.out.println("value === "
+        + session.getRootNode()
+                 .getNode("testLocalSmallFiles")
+                 .getNode("smallFile")
+                 .getNode("jcr:content")
+                 .getProperty("jcr:data")
+                 .getString());
   }
 }

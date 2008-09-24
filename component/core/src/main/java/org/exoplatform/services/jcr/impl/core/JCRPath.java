@@ -36,25 +36,27 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class JCRPath {
 
-  public final static String ROOT_PATH = "/";
-  public final static String ROOT_NAME = "";
-  
-  public final static String THIS_RELPATH = ".";
+  public final static String ROOT_PATH      = "/";
+
+  public final static String ROOT_NAME      = "";
+
+  public final static String THIS_RELPATH   = ".";
+
   public final static String PARENT_RELPATH = "..";
-  
-  protected static Log log = ExoLogger.getLogger("jcr.JCRPath");
-  
-  protected PathElement[] names;
+
+  protected static Log       log            = ExoLogger.getLogger("jcr.JCRPath");
+
+  protected PathElement[]    names;
 
   JCRPath() {
     this.names = new PathElement[0];
   }
-  
+
   public boolean isAbsolute() {
     if (names.length > 0) {
       PathElement first = names[0];
       if (first.getName().equals(ROOT_NAME)) {
-        return true; 
+        return true;
       }
     }
     return false;
@@ -63,7 +65,7 @@ public class JCRPath {
   JCRPath addEntry(String namespace, String name, String prefix, int index) {
     if (name.equals(THIS_RELPATH))
       return this;
-    
+
     if (name.equals(PARENT_RELPATH)) {
       return addEntry(new MoveUpElement());
     }
@@ -72,10 +74,11 @@ public class JCRPath {
   }
 
   JCRPath addEntry(PathElement entry) {
-    if (names.length > 0 && entry instanceof MoveUpElement && !(names[names.length - 1] instanceof MoveUpElement)) {
+    if (names.length > 0 && entry instanceof MoveUpElement
+        && !(names[names.length - 1] instanceof MoveUpElement)) {
       return removeLastEntry();
     }
-    
+
     PathElement[] newNames = new PathElement[names.length + 1];
     for (int i = 0; i < names.length; i++)
       newNames[i] = names[i];
@@ -83,14 +86,14 @@ public class JCRPath {
     names = newNames;
     return this;
   }
-  
+
   JCRPath removeLastEntry() {
-    
+
     if (names.length <= 0) {
       log.warn("Wrong relative path. Can't move up in path hierarhy. " + getAsString(true));
       return this;
     }
-    
+
     PathElement[] newNames = new PathElement[names.length - 1];
     for (int i = 0; i < newNames.length; i++)
       newNames[i] = names[i];
@@ -103,8 +106,7 @@ public class JCRPath {
   }
 
   /**
-   * Makes ancestor path by relative degree (For ex relativeDegree == 1 means
-   * parent path etc)
+   * Makes ancestor path by relative degree (For ex relativeDegree == 1 means parent path etc)
    * 
    * @param relativeDegree
    * @return
@@ -117,47 +119,46 @@ public class JCRPath {
       path.addEntry(names[i]);
     return path;
   }
-  
+
   public PathElement[] getRelPath(int relativeDegree) {
     ArrayList<PathElement> entries = new ArrayList<PathElement>();
-    for (int i = names.length - relativeDegree; i <names.length ; i++)
+    for (int i = names.length - relativeDegree; i < names.length; i++)
       entries.add(names[i]);
     PathElement[] relPath = new PathElement[entries.size()];
-    for(int i=0; i<relPath.length; i++)
+    for (int i = 0; i < relPath.length; i++)
       relPath[i] = entries.get(i);
     return relPath;
   }
 
   public QPath getInternalPath() {
 
-    
-    QPathEntry[] entries = new QPathEntry[names.length]; 
-    
+    QPathEntry[] entries = new QPathEntry[names.length];
+
     for (int i = 0; i < names.length; i++)
-      entries[i] = new QPathEntry(names[i].getNamespace(), names[i].getName(), names[i].getIndex()); 
-    
+      entries[i] = new QPathEntry(names[i].getNamespace(), names[i].getName(), names[i].getIndex());
+
     QPath qpath = new QPath(entries);
     return qpath;
   }
-  
+
   public String getAsString(boolean showIndex) {
-    
+
     // [PN] 27.06.07
     String path = "";
     if (isAbsolute()) {
       if (size() == 1)
         return "/";
-      
+
       for (int i = 1; i < names.length; i++) {
         path += "/" + names[i].getAsString(showIndex);
-      } 
-    } else { 
+      }
+    } else {
       // relative
       for (int i = 0; i < names.length; i++) {
         path += i > 0 ? "/" + names[i].getAsString(showIndex) : names[i].getAsString(showIndex);
       }
     }
-    
+
     return path;
   }
 
@@ -178,7 +179,7 @@ public class JCRPath {
     }
     return true;
   }
-  
+
   public boolean isAncestorOf(JCRPath descendantLocation, boolean childOnly) {
     return descendantLocation.isDescendantOf(this, childOnly);
   }
@@ -190,7 +191,7 @@ public class JCRPath {
   public JCRName getName() {
     if (size() > 0)
       return names[size() - 1];
-    
+
     return new ThisElement();
   }
 
@@ -223,33 +224,34 @@ public class JCRPath {
     }
     return false;
   }
-  
+
   PathElement[] getEntries() {
     return names;
   }
-  
+
   public class ThisElement extends PathElement {
-    
+
     ThisElement() {
       super(Constants.NS_DEFAULT_URI, THIS_RELPATH, Constants.NS_EMPTY_PREFIX, -1);
     }
   }
-  
+
   public class MoveUpElement extends PathElement {
-    
+
     MoveUpElement() {
       super(Constants.NS_DEFAULT_URI, PARENT_RELPATH, Constants.NS_EMPTY_PREFIX, -1);
     }
   }
-  
+
   public class PathElement extends JCRName {
 
-    private final int index;
+    private final int     index;
+
     private final boolean indexSetExplicitly;
 
     public PathElement(String namespace, String name, String prefix, int index) {
       super(namespace, name, prefix);
-      if(index == -1) {
+      if (index == -1) {
         this.index = 1;
         this.indexSetExplicitly = false;
       } else {
@@ -261,7 +263,7 @@ public class JCRPath {
     public PathElement clone(int newIndex) {
       return new PathElement(this.namespace, this.name, this.prefix, newIndex);
     }
-    
+
     public int getIndex() {
       return index;
     }
@@ -272,14 +274,14 @@ public class JCRPath {
 
       return super.equals(obj) && index == ((PathElement) obj).getIndex();
     }
-    
+
     public String getAsString(boolean showIndex) {
       String indexStr;
       if (showIndex || getIndex() > 1)
         indexStr = "[" + getIndex() + "]";
       else
         indexStr = "";
-      return (super.getAsString() + indexStr); 
+      return (super.getAsString() + indexStr);
     }
 
     public boolean isIndexSetExplicitly() {

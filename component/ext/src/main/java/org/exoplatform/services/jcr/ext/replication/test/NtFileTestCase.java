@@ -29,13 +29,16 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.RepositoryService;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 19.05.2008
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 19.05.2008
  */
 public class NtFileTestCase extends BaseReplicationTestCase {
-  
-  public NtFileTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+
+  public NtFileTestCase(RepositoryService repositoryService,
+                        String reposytoryName,
+                        String workspaceName,
+                        String userName,
+                        String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
     log.info("NtFileTestCase inited");
   }
@@ -55,9 +58,9 @@ public class NtFileTestCase extends BaseReplicationTestCase {
       for (int i = 0; i < buf.length; i++)
         buf[i] = (byte) (i % 255);
 
-      for (long i = 0; i < fileSize/BUFFER_SIZE; i++)
+      for (long i = 0; i < fileSize / BUFFER_SIZE; i++)
         fos.write(buf);
-      fos.write(buf, 0, (int)(fileSize%BUFFER_SIZE));
+      fos.write(buf, 0, (int) (fileSize % BUFFER_SIZE));
       fos.close();
 
       start = System.currentTimeMillis(); // to get the time of start
@@ -67,8 +70,8 @@ public class NtFileTestCase extends BaseReplicationTestCase {
       contentNode.setProperty("jcr:encoding", "UTF-8");
       contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
       contentNode.setProperty("jcr:mimeType", "application/octet-stream");
-      contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-          Calendar.getInstance()));
+      contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
 
       session.save();
 
@@ -91,19 +94,19 @@ public class NtFileTestCase extends BaseReplicationTestCase {
 
     String normalizePath = getNormalizePath(repoPath);
     try {
-      Node checkNode = (Node)session.getItem(normalizePath);
-      
+      Node checkNode = (Node) session.getItem(normalizePath);
+
       Node ntFile = checkNode.getNode(fileName);
-      
+
       InputStream stream = ntFile.getNode("jcr:content").getProperty("jcr:data").getStream();
-      
+
       byte buf[] = new byte[BUFFER_SIZE];
       long length = 0;
       int lenReads = 0;
-      while ((lenReads = stream.read(buf)) > 0) 
-        length+=lenReads;
-      
-      if (length == fileSize) 
+      while ((lenReads = stream.read(buf)) > 0)
+        length += lenReads;
+
+      if (length == fileSize)
         sb.append("ok");
       else
         sb.append("fail");

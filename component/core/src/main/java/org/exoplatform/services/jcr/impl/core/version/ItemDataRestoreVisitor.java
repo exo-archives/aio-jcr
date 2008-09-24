@@ -80,8 +80,8 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
   protected final SessionChangesLog      changes;
 
   /**
-   * Usecase of Workspace.restore(Version[], boolean), for not existing
-   * versionable nodes in the target workspace.
+   * Usecase of Workspace.restore(Version[], boolean), for not existing versionable nodes in the
+   * target workspace.
    */
   protected final SessionChangesLog      delegatedChanges;
 
@@ -219,9 +219,9 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
         if (sameIdentifierNode != null) {
           QPath sameIdentifierPath = sameIdentifierNode.getQPath();
           if (sameIdentifierPath.makeParentPath().equals(nodePath.makeParentPath()) && // same
-                                                                                        // parent
+              // parent
               sameIdentifierPath.getName().equals(nodePath.getName())) { // same
-                                                                          // name
+            // name
 
             if (sameIdentifierPath.getIndex() != nodePath.getIndex())
               // but different index, see below... fix it
@@ -342,8 +342,9 @@ public class ItemDataRestoreVisitor extends ItemDataTraversingVisitor {
     // create restored version of the node
     NodeData restoredData = new TransientNodeData(nodePath,
                                                   fidentifier,
-                                                  (existing != null ? existing.getPersistedVersion()
-                                                                   : -1),
+                                                  (existing != null
+                                                      ? existing.getPersistedVersion()
+                                                      : -1),
                                                   ptName,
                                                   mixins == null ? new InternalQName[0] : mixins,
                                                   0,

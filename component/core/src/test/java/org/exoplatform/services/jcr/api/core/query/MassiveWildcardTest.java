@@ -27,29 +27,29 @@ import javax.jcr.query.QueryResult;
  */
 public class MassiveWildcardTest extends AbstractQueryTest {
 
-    /**
-     * Executes a wildcard query covering 2'000 different property values.
-     */
-    public void testWildcardQuery() throws RepositoryException {
-        int count = 0;
-        for (int i = 0; i < 20; i++) {
-            Node child = testRootNode.addNode("node" + i);
-            for (int j = 0; j < 100; j++) {
-                Node n = child.addNode("node" + j);
-                n.setProperty("foo", "" + count + "foo");
-                n.setProperty("bar", "bar" + count++);
-            }
-            // save every 100 nodes
-            testRootNode.save();
-        }
-
-        QueryManager qm = superuser.getWorkspace().getQueryManager();
-        String stmt = testPath + "//*[jcr:contains(., '*foo')]";
-        QueryResult res = qm.createQuery(stmt, Query.XPATH).execute();
-        checkResult(res, 2000);
-
-        stmt = testPath + "//*[jcr:contains(., 'bar*')]";
-        res = qm.createQuery(stmt, Query.XPATH).execute();
-        checkResult(res, 2000);
+  /**
+   * Executes a wildcard query covering 2'000 different property values.
+   */
+  public void testWildcardQuery() throws RepositoryException {
+    int count = 0;
+    for (int i = 0; i < 20; i++) {
+      Node child = testRootNode.addNode("node" + i);
+      for (int j = 0; j < 100; j++) {
+        Node n = child.addNode("node" + j);
+        n.setProperty("foo", "" + count + "foo");
+        n.setProperty("bar", "bar" + count++);
+      }
+      // save every 100 nodes
+      testRootNode.save();
     }
+
+    QueryManager qm = superuser.getWorkspace().getQueryManager();
+    String stmt = testPath + "//*[jcr:contains(., '*foo')]";
+    QueryResult res = qm.createQuery(stmt, Query.XPATH).execute();
+    checkResult(res, 2000);
+
+    stmt = testPath + "//*[jcr:contains(., 'bar*')]";
+    res = qm.createQuery(stmt, Query.XPATH).execute();
+    checkResult(res, 2000);
+  }
 }

@@ -33,10 +33,13 @@ import org.exoplatform.frameworks.jcr.command.JCRAppContext;
 
 public class GetNodeCommand implements Command {
 
-  private String pathKey = DefaultKeys.PATH;
-  private String workspaceKey = DefaultKeys.WORKSPACE;
+  private String pathKey        = DefaultKeys.PATH;
+
+  private String workspaceKey   = DefaultKeys.WORKSPACE;
+
   private String currentNodeKey = DefaultKeys.CURRENT_NODE;
-  private String resultKey = DefaultKeys.RESULT;
+
+  private String resultKey      = DefaultKeys.RESULT;
 
   public boolean execute(Context context) throws Exception {
 
@@ -46,8 +49,7 @@ public class GetNodeCommand implements Command {
     Session session = ((JCRAppContext) context).getSession();
     String relPath = (String) context.get(pathKey);
 
-    Node parentNode = (Node) session.getItem((String) context
-        .get(currentNodeKey));
+    Node parentNode = (Node) session.getItem((String) context.get(currentNodeKey));
 
     context.put(resultKey, parentNode.getNode(relPath));
     return false;

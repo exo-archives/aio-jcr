@@ -35,22 +35,21 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Here is tests of openenig and creation files
  * 
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  */
 
 public class testOpenFile extends BaseStandaloneTest {
   protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testOpenFile");
 
-  protected String servername;
+  protected String     servername;
 
   public void setUp() throws Exception {
     super.setUp();
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName() : serv.getConfiguration()
-        .getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
   }
 
   /**
@@ -63,10 +62,8 @@ public class testOpenFile extends BaseStandaloneTest {
   public void testOpenExistFile() throws Exception {
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     Node root = s.getRootNode();
@@ -89,8 +86,7 @@ public class testOpenFile extends BaseStandaloneTest {
     // done
     s.save();
 
-    SmbFile recfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        filename); // TRANS2_QUERY_PATH
+    SmbFile recfile = new SmbFile("smb://" + user + servername + "/ws/" + filename); // TRANS2_QUERY_PATH
     // 101 used here
     // not NT_CREATE
 
@@ -115,8 +111,7 @@ public class testOpenFile extends BaseStandaloneTest {
    */
   public void testOpenUnExistFile() throws Exception {
 
-    SmbFile recfile = new SmbFile("smb://" + user + servername +
-        "/ws/unexists.txt"); // TRANS2_QUERY_PATH
+    SmbFile recfile = new SmbFile("smb://" + user + servername + "/ws/unexists.txt"); // TRANS2_QUERY_PATH
     // 101 used here
     // not NT_CREATE
 
@@ -141,10 +136,8 @@ public class testOpenFile extends BaseStandaloneTest {
   public void testOpenExistFolder() throws Exception {
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
 
     s.refresh(false);
     Node root = s.getRootNode();
@@ -156,8 +149,7 @@ public class testOpenFile extends BaseStandaloneTest {
 
     s.save();
 
-    SmbFile folder = new SmbFile("smb://" + user + servername + "/ws/" +
-        foldername); // TRANS2_QUERY_PATH
+    SmbFile folder = new SmbFile("smb://" + user + servername + "/ws/" + foldername); // TRANS2_QUERY_PATH
 
     assertTrue(folder.exists());
     assertTrue(folder.isDirectory());

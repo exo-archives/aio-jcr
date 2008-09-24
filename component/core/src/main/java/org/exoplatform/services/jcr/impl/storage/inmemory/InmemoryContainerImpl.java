@@ -36,23 +36,24 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
 
   private static Log log = ExoLogger.getLogger("jcr.InmemoryContainerImpl");
 
-  private String name;
+  private String     name;
 
-  public InmemoryContainerImpl(WorkspaceEntry wsEntry)
-      throws RepositoryException {
+  public InmemoryContainerImpl(WorkspaceEntry wsEntry) throws RepositoryException {
 
     this.name = wsEntry.getUniqueName();
     log.debug("ContainerImpl() name: " + name);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getName()
    */
   public String getName() {
     return name;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getInfo()
    */
   public String getInfo() {
@@ -61,13 +62,14 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
     return str;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#openConnection()
    */
   public WorkspaceStorageConnection openConnection() {
     return new InmemoryStorageConnection(name);
   }
-  
+
   public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
     return openConnection();
   }
@@ -75,6 +77,5 @@ public class InmemoryContainerImpl extends WorkspaceDataContainerBase {
   public String getStorageVersion() {
     return "1.0";
   }
-  
 
 }

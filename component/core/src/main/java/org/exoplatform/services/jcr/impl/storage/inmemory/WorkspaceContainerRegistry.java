@@ -22,44 +22,44 @@ import java.util.TreeMap;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: WorkspaceContainerRegistry.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class WorkspaceContainerRegistry {
 
-    /*# private WorkspaceContainerRegistry _workspaceRegistry; */
-    private static WorkspaceContainerRegistry instance = null;
+  /* # private WorkspaceContainerRegistry _workspaceRegistry; */
+  private static WorkspaceContainerRegistry instance = null;
 
-  //map that contain a map of items
-    private Map workspaces;
-    private String defaultWorkspace;
+  // map that contain a map of items
+  private Map                               workspaces;
 
-    protected WorkspaceContainerRegistry() {
-       workspaces = new HashMap();
+  private String                            defaultWorkspace;
+
+  protected WorkspaceContainerRegistry() {
+    workspaces = new HashMap();
+  }
+
+  public static WorkspaceContainerRegistry getInstance() {
+    if (instance == null) {
+      instance = new WorkspaceContainerRegistry();
     }
+    return instance;
+  }
 
-    public static WorkspaceContainerRegistry getInstance() {
-        if (instance == null) {
-            instance = new WorkspaceContainerRegistry ();
-        }
-        return instance;
-    }
+  public TreeMap getWorkspaceContainer(String name) {
 
+    if (workspaces.get(name) == null)
+      initWorkspaceContainer(name);
 
-    public TreeMap getWorkspaceContainer(String name) {
+    return (TreeMap) workspaces.get(name);
+  }
 
-        if(workspaces.get(name) == null)
-            initWorkspaceContainer(name);
+  private void initWorkspaceContainer(String name) {
 
-        return (TreeMap)workspaces.get(name);
-    }
+    TreeMap workspace = new TreeMap();
+    workspaces.put(name, workspace);
 
-     private void initWorkspaceContainer(String name) {
-
-        TreeMap workspace = new TreeMap();
-        workspaces.put(name, workspace);
-
-    }
+  }
 
 }

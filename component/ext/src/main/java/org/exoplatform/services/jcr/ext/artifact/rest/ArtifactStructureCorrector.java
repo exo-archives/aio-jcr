@@ -70,9 +70,9 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
   private SessionProvider   sessionProvider;
 
-  public ArtifactStructureCorrector(InitParams initParams, RepositoryService repoService,
-                                    Authenticator authenticator)
-      throws Exception {
+  public ArtifactStructureCorrector(InitParams initParams,
+                                    RepositoryService repoService,
+                                    Authenticator authenticator) throws Exception {
 
     this.repoService = repoService;
 
@@ -88,8 +88,8 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     rootNodePath = props.getProperty("rootNode");
     String username = props.getProperty("username");
     String password = props.getProperty("password");
-    String userId = authenticator.validateUser(new Credential[] {new UsernameCredential(username),
-        new PasswordCredential(password)});
+    String userId = authenticator.validateUser(new Credential[] { new UsernameCredential(username),
+        new PasswordCredential(password) });
 
     sessionProvider = new SessionProvider(new ConversationState(authenticator.createIdentity(userId)));
 
@@ -99,7 +99,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
   @URITemplate("/corrector/")
   public Response correctStructure() throws RepositoryException {
     new Thread(new ChecksumGenerator(currentSession(sessionProvider)),
-        "Correct jcr struct, Append checksums to artifacts").start();
+               "Correct jcr struct, Append checksums to artifacts").start();
     return Response.Builder.ok().build();
   }
 
@@ -140,26 +140,22 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         Node node = nodeIterator.nextNode();
 
         if (!node.isNodeType("nt:file")) { // not a resource
-          /*if (node.canAddMixin("exo:groupId"))
-            node.addMixin("exo:groupId");*/
+          /*
+           * if (node.canAddMixin("exo:groupId")) node.addMixin("exo:groupId");
+           */
           _jcrSpaning(node);
         } else {
           // jcr structure
 
-          /*Node versionNode = node.getParent();
-          Node artifactNode = versionNode.getParent();
-
-          if (versionNode.canAddMixin("exo:versionId")) {
-            versionNode.removeMixin("exo:groupId");
-            versionNode.addMixin("exo:versionId");
-            session.save();
-          }
-          if (artifactNode.canAddMixin("exo:artifactId")) {
-            LOGGER.info("Set exo:artifactId mixin to : " + artifactNode.getName());
-            artifactNode.removeMixin("exo:groupId");
-            artifactNode.addMixin("exo:artifactId");
-            session.save();
-          }*/
+          /*
+           * Node versionNode = node.getParent(); Node artifactNode = versionNode.getParent(); if
+           * (versionNode.canAddMixin("exo:versionId")) { versionNode.removeMixin("exo:groupId");
+           * versionNode.addMixin("exo:versionId"); session.save(); } if
+           * (artifactNode.canAddMixin("exo:artifactId")) {
+           * LOGGER.info("Set exo:artifactId mixin to : " + artifactNode.getName());
+           * artifactNode.removeMixin("exo:groupId"); artifactNode.addMixin("exo:artifactId");
+           * session.save(); }
+           */
 
           // checksum
           String path = node.getPath();
@@ -188,7 +184,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     }
 
     private void addChecksumNode(Node src) throws RepositoryException {
-      
+
       Node parent = src.getParent();
       Node content = src.getNode("jcr:content");
       Property data = content.getProperty("jcr:data");
@@ -219,7 +215,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     }
 
     protected String getChecksum(InputStream in, String algo) throws NoSuchAlgorithmException,
-        IOException {
+                                                             IOException {
       ChecksumObserver checksum = null;
       try {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

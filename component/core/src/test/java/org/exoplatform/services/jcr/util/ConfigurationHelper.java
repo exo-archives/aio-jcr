@@ -159,9 +159,9 @@ public class ConfigurationHelper {
     QueryHandlerEntry qEntry = new QueryHandlerEntry("org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex",
                                                      qParams);
 
-    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null ? wsName
-                                                                     : IdGenerator.generate(),
-                                                       "nt:unstructured");
+    WorkspaceEntry workspaceEntry = new WorkspaceEntry(wsName != null
+        ? wsName
+        : IdGenerator.generate(), "nt:unstructured");
     workspaceEntry.setContainer(containerEntry);
 
     ArrayList cacheParams = new ArrayList();

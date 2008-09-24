@@ -24,50 +24,52 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.impl.proccess.WorkerThread;
 import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: FileCleaner.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class FileCleaner extends WorkerThread {
-  
-  protected static final long DEFAULT_TIMEOUT = 30000;
-  
-  protected static Log log = ExoLogger.getLogger("jcr.FileCleaner");
 
-  protected Set<File> files = new LinkedHashSet<File> ();
-  
+  protected static final long DEFAULT_TIMEOUT = 30000;
+
+  protected static Log        log             = ExoLogger.getLogger("jcr.FileCleaner");
+
+  protected Set<File>         files           = new LinkedHashSet<File>();
+
   public FileCleaner() {
     this(DEFAULT_TIMEOUT);
   }
-  
+
   public FileCleaner(long timeout) {
     this(timeout, true);
   }
-  
+
   public FileCleaner(boolean start) {
     this(DEFAULT_TIMEOUT, start);
   }
-  
+
   public FileCleaner(long timeout, boolean start) {
     super(timeout);
     setName("FileCleaner " + getId());
     setDaemon(true);
     setPriority(Thread.MIN_PRIORITY);
-    
+
     if (start)
       start();
-    
+
     registerShutdownHook();
-    log.info("FileCleaner instantiated name= "+getName()+" timeout= "+timeout);
+    log.info("FileCleaner instantiated name= " + getName() + " timeout= " + timeout);
   }
-  
+
   /**
    * @param file
    */
   public synchronized void addFile(File file) {
-    if (file.exists()) { 
+    if (file.exists()) {
       files.add(file);
     }
   }
@@ -75,14 +77,15 @@ public class FileCleaner extends WorkerThread {
   public void halt() {
     try {
       callPeriodically();
-    } catch (Exception e) {}
-    
+    } catch (Exception e) {
+    }
+
     if (files != null && files.size() > 0)
-      log.warn("There are uncleared files: "+files.size());
-      
+      log.warn("There are uncleared files: " + files.size());
+
     super.halt();
   }
-  
+
   /**
    * @see org.exoplatform.services.jcr.impl.proccess.WorkerThread#callPeriodically()
    */
@@ -92,15 +95,16 @@ public class FileCleaner extends WorkerThread {
       files = new LinkedHashSet<File>();
       for (File file : oldFiles) {
         if (file.exists()) {
-          if(!file.delete()) {
-            log.warn("Could not delete " + (file.isDirectory() ? "directory" : "file") + 
-                ". Will try next time: " + file.getAbsolutePath());
-            
+          if (!file.delete()) {
+            log.warn("Could not delete " + (file.isDirectory() ? "directory" : "file")
+                + ". Will try next time: " + file.getAbsolutePath());
+
             // [PN] 08.10.07 should use same file (i.e. SpoolFile instance)
-            //files.add(new File(file.getAbsolutePath())); 
+            // files.add(new File(file.getAbsolutePath()));
             files.add(file);
           } else if (log.isDebugEnabled()) {
-            log.debug((file.isDirectory() ? "Directory" : "File") + " deleted : " + file.getAbsolutePath());
+            log.debug((file.isDirectory() ? "Directory" : "File") + " deleted : "
+                + file.getAbsolutePath());
           }
         }
       }
@@ -113,7 +117,7 @@ public class FileCleaner extends WorkerThread {
       Runtime.getRuntime().addShutdownHook(new Thread() {
         public void run() {
           Set<File> oldFiles = files;
-          files = null; 
+          files = null;
           // synchronize on the list before iterating over it in order
           // to avoid ConcurrentModificationException (JCR-549)
           // @see java.lang.util.Collections.synchronizedList(java.util.List)

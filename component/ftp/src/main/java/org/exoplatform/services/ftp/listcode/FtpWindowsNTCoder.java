@@ -19,8 +19,8 @@ package org.exoplatform.services.ftp.listcode;
 import org.exoplatform.services.ftp.FtpTextUtils;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
@@ -38,8 +38,8 @@ public class FtpWindowsNTCoder implements FtpSystemCoder {
       dir = FtpTextUtils.getStrached("", 5);
       size = FtpTextUtils.getStrachedAtStart(String.format("%s", fileInfo.getSize()), 9);
     }
-    
+
     return date + time + dir + size + " " + fileInfo.getName();
   }
-  
+
 }

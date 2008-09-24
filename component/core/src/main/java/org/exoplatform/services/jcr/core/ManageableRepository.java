@@ -42,17 +42,18 @@ public interface ManageableRepository extends Repository {
   /**
    * Add the items persistence listener to the named workspace.
    * 
-   * @param workspaceName - name of workspace
+   * @param workspaceName
+   *          - name of workspace
    * @param listener
-   * @deprecated 
+   * @deprecated
    */
   void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener);
-  
 
   /**
    * Indicates if workspace with name workspaceName can be removed.
    * 
-   * @param workspaceName - name of workspace
+   * @param workspaceName
+   *          - name of workspace
    * @return if workspace with name workspaceName can be removed
    * @throws NoSuchWorkspaceException
    */
@@ -61,7 +62,8 @@ public interface ManageableRepository extends Repository {
   /**
    * Add new workspace configuration.
    * 
-   * @param wsConfig - configuration of workspace
+   * @param wsConfig
+   *          - configuration of workspace
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
@@ -71,7 +73,8 @@ public interface ManageableRepository extends Repository {
   /**
    * Create new workspace with name workspaceName.
    * 
-   * @param workspaceName - name of workspace
+   * @param workspaceName
+   *          - name of workspace
    * @throws RepositoryException
    */
   void createWorkspace(String workspaceName) throws RepositoryException;
@@ -92,7 +95,8 @@ public interface ManageableRepository extends Repository {
   ExtendedNodeTypeManager getNodeTypeManager();
 
   /**
-   * @param workspaceName - name of workspace
+   * @param workspaceName
+   *          - name of workspace
    * @return the System session (session with SYSTEM identity)
    * @throws RepositoryException
    */
@@ -104,32 +108,34 @@ public interface ManageableRepository extends Repository {
   String[] getWorkspaceNames();
 
   /**
-   * Create new workspace with name workspaceName and import data from exported
-   * XML.
+   * Create new workspace with name workspaceName and import data from exported XML.
    * 
-   * @param workspaceName - name of workspace
-   * @param xmlSource - InputStream with content of workspace
+   * @param workspaceName
+   *          - name of workspace
+   * @param xmlSource
+   *          - InputStream with content of workspace
    * @throws RepositoryException
    */
   void importWorkspace(String workspaceName, InputStream xmlSource) throws RepositoryException,
                                                                    IOException;
 
-//  /**
-//   * Initializes workspace.
-//   * 
-//   * Use configWorkspace/createWorkspace methods pair instead.
-//   * 
-//   * @param workspaceName - name of workspace
-//   * @param rootNodeType - node type of root node
-//   * @throws RepositoryException
-//   */
-//  @Deprecated
-//  void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException;
-  
+  // /**
+  // * Initializes workspace.
+  // *
+  // * Use configWorkspace/createWorkspace methods pair instead.
+  // *
+  // * @param workspaceName - name of workspace
+  // * @param rootNodeType - node type of root node
+  // * @throws RepositoryException
+  // */
+  // @Deprecated
+  // void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException;
+
   /**
    * Check if workspace is initialized.
    * 
-   * @param workspaceName - name of workspace
+   * @param workspaceName
+   *          - name of workspace
    * @return true if workspace is initialized and false otherwise
    * @throws RepositoryException
    */
@@ -138,17 +144,17 @@ public interface ManageableRepository extends Repository {
   /**
    * Remove workspace with name workspaceName.
    * 
-   * @param workspaceName - name of workspace
+   * @param workspaceName
+   *          - name of workspace
    * @throws RepositoryException
    */
   void removeWorkspace(String workspaceName) throws RepositoryException;
-  
+
   /**
    * Returns an entry point of workspace managing objects.
    * 
    * @return workspace serving container
    */
   WorkspaceContainerFacade getWorkspaceContainer(String workspaceName);
-    
-  
+
 }

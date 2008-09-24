@@ -58,10 +58,10 @@ public class StringNumberParserTest extends TestCase {
 
   public void testParseNumber() {
     assertEquals(10.27d, StringNumberParser.parseNumber("10.27").doubleValue());
-    
+
     assertEquals(233.4 * 1024 * 1024, StringNumberParser.parseNumber("233.4m").doubleValue());
   }
-  
+
   public void testParseTime() {
     assertEquals(63l * 1000, StringNumberParser.parseTime("63"));
 

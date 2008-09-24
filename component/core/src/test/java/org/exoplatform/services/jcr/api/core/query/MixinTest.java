@@ -38,8 +38,7 @@ public class MixinTest extends AbstractQueryTest {
         + "<supertypes>"
         + "     <supertype>mix:referenceable</supertype>"
         + "</supertypes>"
-        + "</nodeType>"
-        +"</nodeTypes>";
+        + "</nodeType>" + "</nodeTypes>";
 
     manager.registerNodeTypes(new ByteArrayInputStream(cnd.getBytes()),
                               ExtendedNodeTypeManager.IGNORE_IF_EXISTS);

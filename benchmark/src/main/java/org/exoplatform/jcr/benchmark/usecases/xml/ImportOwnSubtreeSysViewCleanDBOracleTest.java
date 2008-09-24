@@ -42,17 +42,17 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
   /*
-   * This test measures performance of exporting mechanism using docview method,
-   * each thread has own node subtree of nodes
+   * This test measures performance of exporting mechanism using docview method, each thread has own
+   * node subtree of nodes
    */
 
-  public static Log                        log                        = ExoLogger
-                                                                          .getLogger("jcr.benchmark");
+  public static Log                        log                        = ExoLogger.getLogger("jcr.benchmark");
 
   public static WorkspaceStorageConnection workspaceStorageConnection = null;
 
@@ -87,7 +87,9 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
     rootNode.addNode(name2);
     context.getSession().save();
     InputStream is = new FileInputStream(destFile);
-    context.getSession().importXML("/" + name + "/" + name2, is, ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+    context.getSession().importXML("/" + name + "/" + name2,
+                                   is,
+                                   ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
   }
 
   @Override
@@ -101,14 +103,12 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
       if (!dataBaseDropped) {
         Connection dbConnection;
         JDBCStorageConnection storageConnection;
-        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context
-            .getSession()).getContainer().getComponentInstanceOfType(
-            JDBCWorkspaceDataContainer.class);
+        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context.getSession()).getContainer()
+                                                                                                                             .getComponentInstanceOfType(JDBCWorkspaceDataContainer.class);
         if (workspaceStorageConnection == null) {
           workspaceStorageConnection = workspaceDataContainer.openConnection();
         } else {
-          workspaceStorageConnection = workspaceDataContainer
-              .reuseConnection(workspaceStorageConnection);
+          workspaceStorageConnection = workspaceDataContainer.reuseConnection(workspaceStorageConnection);
         }
         storageConnection = (JDBCStorageConnection) workspaceStorageConnection;
         dbConnection = storageConnection.getJdbcConnection();
@@ -130,7 +130,7 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
         dataBaseDropped = true;
         // ============DELETING TEMP FOLDER=============
         boolean successfullyDeleted = deleteDir(new File("../temp"));
-        if (successfullyDeleted){
+        if (successfullyDeleted) {
           log.info("Folder 'temp' successfully deleted");
         }
       }
@@ -153,5 +153,5 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
     }
     // The directory is now empty so delete it
     return dir.delete();
-  } 
+  }
 }

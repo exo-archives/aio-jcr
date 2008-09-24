@@ -33,13 +33,14 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class ExportOwnSubtreeSysViewTest extends JCRTestBase {
   /*
-   * This test measures performance of exporting mechanism using docview method,
-   * each thread has own node subtree of nodes
+   * This test measures performance of exporting mechanism using docview method, each thread has own
+   * node subtree of nodes
    */
 
   public static Log log      = ExoLogger.getLogger("jcr.benchmark");
@@ -61,8 +62,8 @@ public class ExportOwnSubtreeSysViewTest extends JCRTestBase {
     content.setProperty("jcr:lastModified", Calendar.getInstance());
     context.getSession().save();
     destFile = File.createTempFile(name, ".xml");
-    destFile.deleteOnExit(); 
-    //log.info(destFile.getAbsolutePath());
+    destFile.deleteOnExit();
+    // log.info(destFile.getAbsolutePath());
   }
 
   @Override

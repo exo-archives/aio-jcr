@@ -18,51 +18,49 @@
 package org.exoplatform.services.jcr.webdav;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class WebDavHeaders {
-  
-  public static final String DEPTH = "depth";
-  
-  public static final String ACCEPT_RANGES = "Accept-Ranges";
-  
-  public static final String ALLOW = "Allow";
-  
-  public static final String AUTHORIZATION = "Authorization";
-  
-  public static final String CONTENTLENGTH = "Content-Length";
-  
-  public static final String CONTENTRANGE = "Content-Range";
-  
-  public static final String CONTENTTYPE = "Content-type";
-  
-  public static final String DAV = "DAV";
-  
-  public static final String DASL = "DASL";
-  
-  public static final String MSAUTHORVIA = "MS-Author-Via";
-  
-  public static final String NODETYPE = "NodeType";
-  
-  public static final String RANGE = "Range";
-  
-  public static final String DESTINATION = "Destination";
-  
-  public static final String MIXTYPE = "MixType";
-  
-  public static final String LOCKTOKEN = "lock-token";
-  
-  public static final String IF = "If";
-  
-  public static final String TIMEOUT = "Timeout";
-  
-  public static final String MULTIPART_BYTERANGES
-      = "multipart/byteranges; boundary=";
-  
-  public static final String OVERWRITE = "Overwrite";
+
+  public static final String DEPTH                = "depth";
+
+  public static final String ACCEPT_RANGES        = "Accept-Ranges";
+
+  public static final String ALLOW                = "Allow";
+
+  public static final String AUTHORIZATION        = "Authorization";
+
+  public static final String CONTENTLENGTH        = "Content-Length";
+
+  public static final String CONTENTRANGE         = "Content-Range";
+
+  public static final String CONTENTTYPE          = "Content-type";
+
+  public static final String DAV                  = "DAV";
+
+  public static final String DASL                 = "DASL";
+
+  public static final String MSAUTHORVIA          = "MS-Author-Via";
+
+  public static final String NODETYPE             = "NodeType";
+
+  public static final String RANGE                = "Range";
+
+  public static final String DESTINATION          = "Destination";
+
+  public static final String MIXTYPE              = "MixType";
+
+  public static final String LOCKTOKEN            = "lock-token";
+
+  public static final String IF                   = "If";
+
+  public static final String TIMEOUT              = "Timeout";
+
+  public static final String MULTIPART_BYTERANGES = "multipart/byteranges; boundary=";
+
+  public static final String OVERWRITE            = "Overwrite";
 
 }
-

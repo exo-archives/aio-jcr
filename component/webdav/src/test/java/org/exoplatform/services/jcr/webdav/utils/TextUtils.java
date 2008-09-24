@@ -24,19 +24,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 19, 2008  
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 19, 2008
  */
 public class TextUtils {
-  
-  public static Document getXmlFromString(String string) throws Exception{
-    
+
+  public static Document getXmlFromString(String string) throws Exception {
+
     DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
     InputStream inputStream = new ByteArrayInputStream(string.getBytes());
     return builderFactory.newDocumentBuilder().parse(inputStream);
-    
+
   }
 
 }

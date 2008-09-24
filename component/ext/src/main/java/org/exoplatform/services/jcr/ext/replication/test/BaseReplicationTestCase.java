@@ -32,13 +32,13 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 19.05.2008
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 19.05.2008
  */
 public abstract class BaseReplicationTestCase {
-  protected static Log log = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
-  
-  protected final int BUFFER_SIZE = 1024;
+  protected static Log log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
+
+  protected final int  BUFFER_SIZE = 1024;
 
   protected Session    session;
 
@@ -47,9 +47,12 @@ public abstract class BaseReplicationTestCase {
   private Credentials  credentials;
 
   protected Repository repository;
-  
-  public BaseReplicationTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+
+  public BaseReplicationTestCase(RepositoryService repositoryService,
+                                 String reposytoryName,
+                                 String workspaceName,
+                                 String userName,
+                                 String password) {
     try {
       credentials = new CredentialsImpl(userName, password.toCharArray());
 
@@ -78,19 +81,19 @@ public abstract class BaseReplicationTestCase {
 
     return resultNode;
   }
-  
+
   protected String getNormalizePath(String repoPath) {
-   return repoPath.replaceAll("[:][:]", "/"); 
+    return repoPath.replaceAll("[:][:]", "/");
   }
-  
+
   protected void compareStream(InputStream etalon, InputStream data) throws Exception {
-      compareStream(etalon, data, 0, 0, -1);
+    compareStream(etalon, data, 0, 0, -1);
   }
 
   /**
-   * Compare etalon stream with data stream begining from the offset in etalon
-   * and position in data. Length bytes will be readed and compared. if length
-   * is lower 0 then compare streams till one of them will be read.
+   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
+   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of
+   * them will be read.
    * 
    * @param etalon
    * @param data
@@ -131,15 +134,9 @@ public abstract class BaseReplicationTestCase {
           byte eb = ebuff[i];
           byte db = dbuff[i];
           if (eb != db)
-            throw new Exception("Streams is not equals. Wrong byte stored at position "
-                + dindex
-                + " of data stream. Expected 0x"
-                + Integer.toHexString(eb)
-                + " '"
-                + new String(new byte[] { eb })
-                + "' but found 0x"
-                + Integer.toHexString(db)
-                + " '"
+            throw new Exception("Streams is not equals. Wrong byte stored at position " + dindex
+                + " of data stream. Expected 0x" + Integer.toHexString(eb) + " '"
+                + new String(new byte[] { eb }) + "' but found 0x" + Integer.toHexString(db) + " '"
                 + new String(new byte[] { db }) + "'");
 
           erindex++;

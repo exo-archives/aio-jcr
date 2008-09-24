@@ -47,13 +47,12 @@ public class CheckoutActionInfo extends ActionInfo {
 
   @Override
   public void tearDown(Context ctx) throws RepositoryException {
-   
+
     Node node = (Node) ctx.get("node");
-    if(node.isCheckedOut()){
+    if (node.isCheckedOut()) {
       node.checkin();
     }
     super.tearDown(ctx);
   }
-  
-  
+
 }

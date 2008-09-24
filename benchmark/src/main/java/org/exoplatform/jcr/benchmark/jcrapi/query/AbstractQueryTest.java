@@ -23,7 +23,7 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractQueryTest extends JCRTestBase {
 
-  private static final String[] CONTENT = new String[] {
+  private static final String[] CONTENT             = new String[] {
       "If the current session does not have sufficient permissions to perform the operation, then an AccessDeniedException is thrown",
       "If the specified srcWorkspace does not exist, a NoSuchWorkspaceException is thrown",
       "An InvalidItemStateException is thrown if this Session (not necessarily this Node) has pending unsaved changes",
@@ -33,21 +33,20 @@ public abstract class AbstractQueryTest extends JCRTestBase {
       "A MergeException is thrown if bestEffort is false and a versionable node is encountered whose corresponding node's base version",
       "If this node is not versionable, an UnsupportedRepositoryOperationException is thrown",
       "If there are unsaved changes pending on this node, an InvalidItemStateException is thrown",
-      "If this node is already checked-in, this method has no effect but returns the current base version of this node"
-  };
-  
-  protected Node root;
-  
-  protected Node node;
-  
-  protected QueryManager queryManager;
-  
-  protected final String SQL_QUERY_STATEMENT = "select * from nt:resource where jcr:data like '%merge%'";
-  
+      "If this node is already checked-in, this method has no effect but returns the current base version of this node" };
+
+  protected Node                root;
+
+  protected Node                node;
+
+  protected QueryManager        queryManager;
+
+  protected final String        SQL_QUERY_STATEMENT = "select * from nt:resource where jcr:data like '%merge%'";
+
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     super.doFinish(tc, context);
-    
+
     root.remove();
     context.getSession().save();
   }
@@ -55,23 +54,23 @@ public abstract class AbstractQueryTest extends JCRTestBase {
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
-    
+
     queryManager = context.getSession().getWorkspace().getQueryManager();
-    
+
     root = context.getSession().getRootNode().addNode(context.generateUniqueName("testRoot"));
-    
+
     node = root.addNode(context.generateUniqueName("testNode"));
     node.addMixin("mix:referenceable");
     context.getSession().save();
-    
-    for (int i = 0; i<CONTENT.length; i++) {
+
+    for (int i = 0; i < CONTENT.length; i++) {
       Node ntfile = node.addNode(context.generateUniqueName("ntfile"), "nt:file");
       Node jctContent = ntfile.addNode("jcr:content", "nt:resource");
       jctContent.setProperty("jcr:data", CONTENT[i]);
       jctContent.setProperty("jcr:mimeType", "text/plain");
       jctContent.setProperty("jcr:lastModified", Calendar.getInstance());
     }
-    
+
     root.save();
   }
 

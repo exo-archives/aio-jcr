@@ -27,50 +27,53 @@ import java.util.TimeZone;
 
 import javax.xml.namespace.QName;
 
-
 /**
- * Created by The eXo Platform SAS .<br/> 
- * DOM - like (but lighter) webdav property representation
+ * Created by The eXo Platform SAS .<br/> DOM - like (but lighter) webdav property representation
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class HierarchicalProperty {
-	
-	protected List<HierarchicalProperty> children;
-	protected QName name;
-	protected String value;
-	
-	protected HashMap<String , String> attributes = new HashMap<String, String>();
-	
-	/**
-	 * Constructor accepting String as property name, both 
-	 * prefixed (i.e. prefix:local) and not (i.e. local) are accepted
-	 * @param name property name
-	 * @param value property value (can be null)
-	 */
-	public HierarchicalProperty(String name, String value) {
-		String[] tmp = name.split(":");
-		if(tmp.length > 1 ) {
-		  this.name = new QName(tmp[0], tmp[1]);
-		} else {
-		  this.name = new QName(tmp[0]);
-		}
-		this.value = value;
-		this.children = new ArrayList<HierarchicalProperty>();
-	}
-	
-	/**
-	 * @param name
-	 * @param value
-	 */
-	public HierarchicalProperty(QName name, String value) {
-		this.name = name;
-		this.value = value;
-		this.children = new ArrayList<HierarchicalProperty>();
-	}
-	
-	
+
+  protected List<HierarchicalProperty> children;
+
+  protected QName                      name;
+
+  protected String                     value;
+
+  protected HashMap<String, String>    attributes = new HashMap<String, String>();
+
+  /**
+   * Constructor accepting String as property name, both prefixed (i.e. prefix:local) and not (i.e.
+   * local) are accepted
+   * 
+   * @param name
+   *          property name
+   * @param value
+   *          property value (can be null)
+   */
+  public HierarchicalProperty(String name, String value) {
+    String[] tmp = name.split(":");
+    if (tmp.length > 1) {
+      this.name = new QName(tmp[0], tmp[1]);
+    } else {
+      this.name = new QName(tmp[0]);
+    }
+    this.value = value;
+    this.children = new ArrayList<HierarchicalProperty>();
+  }
+
+  /**
+   * @param name
+   * @param value
+   */
+  public HierarchicalProperty(QName name, String value) {
+    this.name = name;
+    this.value = value;
+    this.children = new ArrayList<HierarchicalProperty>();
+  }
+
   /**
    * @param name
    * @param dateValue
@@ -79,103 +82,107 @@ public class HierarchicalProperty {
   public HierarchicalProperty(QName name, Calendar dateValue, String formatPattern) {
     this(name, null);
     SimpleDateFormat dateFormat = new SimpleDateFormat(formatPattern, Locale.ENGLISH);
-    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));   
-    this.value = dateFormat.format(dateValue.getTime());       
+    dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    this.value = dateFormat.format(dateValue.getTime());
   }
 
-	
-	/**
-	 * Shortcut for XMLProperty(name, null)
-	 * @param name
-	 */
-	public HierarchicalProperty(QName name) {
-		this(name, null);
-	}
+  /**
+   * Shortcut for XMLProperty(name, null)
+   * 
+   * @param name
+   */
+  public HierarchicalProperty(QName name) {
+    this(name, null);
+  }
 
-		
-	/**
-	 * adds prop as a children to this property
-	 * @param prop
-	 * @return added property
-	 */
-	public HierarchicalProperty addChild(HierarchicalProperty prop) {
-		children.add(prop);
-		return prop;
-	}
-	
-	/**
-	 * @return child properties of this property
-	 */
-	public List<HierarchicalProperty> getChildren() {
-		return this.children;
-	}
-	
-	/**
-	 * retrieves children property by name
-	 * @param name
-	 * @return property or null if not found
-	 */
-	public HierarchicalProperty getChild(QName name) {
-		for(HierarchicalProperty child:children) {
-			if(child.getName().equals(name))
-				return child;
-		}
-		return null;
-	}
-	
-	/**
-	 * retrieves children property by 0 based index
-	 * @param index
-	 * @return
-	 */
-	public HierarchicalProperty getChild(int index) {
-		return children.get(index);
-	}
+  /**
+   * adds prop as a children to this property
+   * 
+   * @param prop
+   * @return added property
+   */
+  public HierarchicalProperty addChild(HierarchicalProperty prop) {
+    children.add(prop);
+    return prop;
+  }
 
-	/**
-	 * @return property name
-	 */
-	public QName getName() {
-		return name;
-	}
+  /**
+   * @return child properties of this property
+   */
+  public List<HierarchicalProperty> getChildren() {
+    return this.children;
+  }
 
-	/**
-	 * @return property value
-	 */
-	public String getValue() {
-		return value;
-	}
-	
-	/**
-	 * sets the property value
-	 * @param value
-	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
-	
-	/**
-	 * sets the attribute
-	 * @param attributeName
-	 * @param attributeValue
-	 */
-	public void setAttribute(String attributeName, String attributeValue) {
-	  attributes.put(attributeName, attributeValue);
-	}
-	
-	/**
-	 * @param attributeName
-	 * @return attribute
-	 */
-	public String getAttribute(String attributeName) {
-	  return attributes.get(attributeName);
-	}
-	
-	/**
-	 * @return all attributes
-	 */
-	public HashMap<String, String> getAttributes() {
-	  return attributes;
-	}
-	
+  /**
+   * retrieves children property by name
+   * 
+   * @param name
+   * @return property or null if not found
+   */
+  public HierarchicalProperty getChild(QName name) {
+    for (HierarchicalProperty child : children) {
+      if (child.getName().equals(name))
+        return child;
+    }
+    return null;
+  }
+
+  /**
+   * retrieves children property by 0 based index
+   * 
+   * @param index
+   * @return
+   */
+  public HierarchicalProperty getChild(int index) {
+    return children.get(index);
+  }
+
+  /**
+   * @return property name
+   */
+  public QName getName() {
+    return name;
+  }
+
+  /**
+   * @return property value
+   */
+  public String getValue() {
+    return value;
+  }
+
+  /**
+   * sets the property value
+   * 
+   * @param value
+   */
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  /**
+   * sets the attribute
+   * 
+   * @param attributeName
+   * @param attributeValue
+   */
+  public void setAttribute(String attributeName, String attributeValue) {
+    attributes.put(attributeName, attributeValue);
+  }
+
+  /**
+   * @param attributeName
+   * @return attribute
+   */
+  public String getAttribute(String attributeName) {
+    return attributes.get(attributeName);
+  }
+
+  /**
+   * @return all attributes
+   */
+  public HashMap<String, String> getAttributes() {
+    return attributes;
+  }
+
 }

@@ -68,29 +68,33 @@ public class TestNodeTypeRegister extends BaseUsecasesTest {
     }
 
   }
-  
-  
+
   public void testRegisterNodeType2() throws Exception {
     Session session = repository.getSystemSession(repository.getSystemWorkspaceName());
-    
+
     SimpleListener listener = new SimpleListener("testSessionOpen", log, 0);
-    session.getWorkspace().getObservationManager().addEventListener(listener, Event.NODE_ADDED, root.getPath(), false, null, null, false);
-    
-    
-    
+    session.getWorkspace().getObservationManager().addEventListener(listener,
+                                                                    Event.NODE_ADDED,
+                                                                    root.getPath(),
+                                                                    false,
+                                                                    null,
+                                                                    null,
+                                                                    false);
+
     NodeTypeManager nodeTypeManager = session.getWorkspace().getNodeTypeManager();
     NodeTypeValue nodeTypeValue = new NodeTypeValue();
 
-    nodeTypeValue.setName("exo:testNodeType2");    
-    nodeTypeValue.setMixin(false) ;
-    nodeTypeValue.setOrderableChild(false) ;
-    nodeTypeValue.setPrimaryItemName("") ;
+    nodeTypeValue.setName("exo:testNodeType2");
+    nodeTypeValue.setMixin(false);
+    nodeTypeValue.setOrderableChild(false);
+    nodeTypeValue.setPrimaryItemName("");
     List<String> superTypeNames = new ArrayList<String>();
-    superTypeNames.add("nt:base") ;
+    superTypeNames.add("nt:base");
     nodeTypeValue.setDeclaredSupertypeNames(superTypeNames);
     nodeTypeValue.setPrimaryItemName("");
-    
-    ExtendedNodeTypeManager extNodeTypeManager = repositoryService.getRepository().getNodeTypeManager();
+
+    ExtendedNodeTypeManager extNodeTypeManager = repositoryService.getRepository()
+                                                                  .getNodeTypeManager();
     try {
       nodeTypeManager.getNodeType("exo:testNodeType2");
       fail("Node Type is registed");
@@ -107,7 +111,7 @@ public class TestNodeTypeRegister extends BaseUsecasesTest {
     }
 
     session.save();
-    
+
     try {
       NodeType nodeType = nodeTypeManager.getNodeType("exo:testNodeType2");
       assertNotNull(nodeType);

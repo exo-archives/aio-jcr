@@ -33,7 +33,6 @@ public class MavenFileFilter implements FilenameFilter {
 
   /*
    * (non-Javadoc)
-   * 
    * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
    */
   private List<String> list = new ArrayList<String>();
@@ -50,7 +49,7 @@ public class MavenFileFilter implements FilenameFilter {
   public boolean accept(File dir, String name) {
     // TODO Auto-generated method stub
     String ext = FilenameUtils.getExtension(name);
-    return true;//list.contains(ext);
+    return true;// list.contains(ext);
   }
 
 }

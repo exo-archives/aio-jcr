@@ -17,41 +17,41 @@
 package org.exoplatform.services.ftp.config;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public interface FtpConfig {
 
   int getCommandPort();
-  
+
   int getDataMinPort();
-  
+
   int getDataMaxPort();
-  
+
   String getSystemType();
-  
+
   String getClientSideEncoding();
-  
+
   String getDefFolderNodeType();
-  
+
   String getDefFileNodeType();
-  
+
   String getDefFileMimeType();
-  
+
   String getCacheFolderName();
-  
+
   boolean isNeedSlowUpLoad();
-  
+
   int getUpLoadSpeed();
-  
+
   boolean isNeedSlowDownLoad();
-  
+
   int getDownLoadSpeed();
-  
+
   boolean isNeedTimeOut();
-  
+
   int getTimeOut();
-  
+
 }

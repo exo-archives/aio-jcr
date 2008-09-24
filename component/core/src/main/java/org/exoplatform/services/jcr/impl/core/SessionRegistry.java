@@ -35,10 +35,9 @@ public final class SessionRegistry implements Startable {
   private final Map<String, SessionImpl> sessionsMap;
 
   // 1 min
-  public final static int             DEFAULT_CLEANER_TIMEOUT = 60 * 1000;
+  public final static int                DEFAULT_CLEANER_TIMEOUT = 60 * 1000;
 
-  protected static Log                   log                     = ExoLogger
-                                                                     .getLogger("jcr.SessionRegistry");
+  protected static Log                   log                     = ExoLogger.getLogger("jcr.SessionRegistry");
 
   private SessionCleaner                 sessionCleaner;
 
@@ -47,7 +46,7 @@ public final class SessionRegistry implements Startable {
   public SessionRegistry(RepositoryEntry entry) {
     sessionsMap = new WeakHashMap<String, SessionImpl>();
     if (entry != null) {
-      this.timeOut = entry.getSessionTimeOut()>0 ? entry.getSessionTimeOut() : 0;
+      this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut() : 0;
     }
   }
 
@@ -66,27 +65,25 @@ public final class SessionRegistry implements Startable {
   public SessionImpl getSession(String sessionId) {
     return sessionsMap.get(sessionId);
   }
-  
 
-  
-  public boolean isInUse(String workspaceName){
-    if (workspaceName == null){
-      log.info("Session in use "+sessionsMap.size());
+  public boolean isInUse(String workspaceName) {
+    if (workspaceName == null) {
+      log.info("Session in use " + sessionsMap.size());
       return sessionsMap.size() > 0;
     }
     for (SessionImpl session : sessionsMap.values()) {
-      if (session.getWorkspace().getName().equals(workspaceName)){
-        log.info("Session for workspace "+workspaceName+" in use." +
-        		" Session id:"+session.getId()+ " user: "+session.getUserID());
+      if (session.getWorkspace().getName().equals(workspaceName)) {
+        log.info("Session for workspace " + workspaceName + " in use." + " Session id:"
+            + session.getId() + " user: " + session.getUserID());
         return true;
       }
     }
     return false;
   }
-  
+
   public void start() {
     sessionsMap.clear();
-    
+
     if (timeOut > 0)
       sessionCleaner = new SessionCleaner(DEFAULT_CLEANER_TIMEOUT, timeOut);
   }
@@ -108,7 +105,7 @@ public final class SessionRegistry implements Startable {
       setPriority(Thread.MIN_PRIORITY);
       setDaemon(true);
       start();
-      
+
       log.info("SessionCleaner instantiated name= " + getName() + " workTime= " + workTime
           + " sessionTimeOut=" + sessionTimeOut);
     }

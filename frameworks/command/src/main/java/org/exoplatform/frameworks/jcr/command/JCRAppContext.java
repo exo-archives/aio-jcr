@@ -47,6 +47,5 @@ public interface JCRAppContext extends Context {
    * @throws NoSuchWorkspaceException
    * @throws RepositoryException
    */
-  Session getSession() throws LoginException, NoSuchWorkspaceException,
-      RepositoryException;
+  Session getSession() throws LoginException, NoSuchWorkspaceException, RepositoryException;
 }

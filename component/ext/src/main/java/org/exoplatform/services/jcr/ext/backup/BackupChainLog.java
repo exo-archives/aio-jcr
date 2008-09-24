@@ -61,18 +61,20 @@ public class BackupChainLog {
   private final List<JobEntryInfo> jobEntries;
 
   private LogWriter                logWriter;
-  
+
   private LogReader                logReader;
-  
+
   private BackupConfig             config;
 
-  public BackupChainLog(File logDir, BackupConfig config, String fullBackupType, 
-      String incrementalBackupType) throws BackupOperationException {
+  public BackupChainLog(File logDir,
+                        BackupConfig config,
+                        String fullBackupType,
+                        String incrementalBackupType) throws BackupOperationException {
     try {
       this.log = File.createTempFile(PREFIX, SUFFIX, logDir);
       this.config = config;
       this.jobEntries = new ArrayList<JobEntryInfo>();
-  
+
       // write config info here
       logWriter = new LogWriter(log);
       logWriter.write(config, fullBackupType, incrementalBackupType);
@@ -87,12 +89,12 @@ public class BackupChainLog {
 
   public BackupChainLog(File log) throws BackupOperationException {
     this.log = log;
-    
+
     try {
       logReader = new LogReader(log);
       logReader.readLogFile();
       logReader.jobEntrysNormalize();
-      
+
       config = logReader.getBackupConfig();
       jobEntries = logReader.getJobEntryInfoNormalizeList();
     } catch (FileNotFoundException e) {
@@ -103,7 +105,7 @@ public class BackupChainLog {
       throw new BackupOperationException(e);
     } catch (MalformedURLException e) {
       throw new BackupOperationException(e);
-    }    
+    }
   }
 
   public void addJobEntry(BackupJob job) {
@@ -114,10 +116,10 @@ public class BackupChainLog {
       info.setType(job.getType());
       info.setState(job.getState());
       info.setURL(job.getStorageURL());
-      
+
       logWriter.write(info);
     } catch (Exception e) {
-      logger.error("Can't add job",e);
+      logger.error("Can't add job", e);
     }
   }
 
@@ -140,18 +142,17 @@ public class BackupChainLog {
     }
     return infos.values();
   }
-  
+
   public BackupConfig getBackupConfig() {
     return config;
   }
-  
+
   public String getLogFilePath() {
     return log.getAbsolutePath();
   }
-  
-  
+
   class LogReader {
-    protected Log       logger = ExoLogger.getLogger("ext.LogWriter");
+    protected Log              logger = ExoLogger.getLogger("ext.LogWriter");
 
     private File               logFile;
 
@@ -160,25 +161,27 @@ public class BackupChainLog {
     private BackupConfig       config;
 
     private List<JobEntryInfo> jobEntries;
-      
+
     private List<JobEntryInfo> jobEntriesNormalize;
 
-    public LogReader(File logFile) throws FileNotFoundException, XMLStreamException, FactoryConfigurationError {
+    public LogReader(File logFile) throws FileNotFoundException,
+        XMLStreamException,
+        FactoryConfigurationError {
       this.logFile = logFile;
       jobEntries = new ArrayList<JobEntryInfo>();
 
-      reader = XMLInputFactory.newInstance().createXMLStreamReader(
-          new FileInputStream(this.logFile));
+      reader = XMLInputFactory.newInstance()
+                              .createXMLStreamReader(new FileInputStream(this.logFile));
     }
-    
+
     public BackupConfig getBackupConfig() {
       return config;
     }
-    
+
     public List<JobEntryInfo> getJobEntryInfoList() {
       return jobEntries;
     }
-    
+
     public List<JobEntryInfo> getJobEntryInfoNormalizeList() {
       return jobEntriesNormalize;
     }
@@ -287,16 +290,16 @@ public class BackupChainLog {
 
           if (name.equals("backup-dir"))
             conf.setBackupDir(new File(readContent()));
-          
+
           if (name.equals("repository"))
             conf.setRepository(readContent());
-          
+
           if (name.equals("workspace"))
             conf.setWorkspace(readContent());
-          
+
           if (name.equals("incremental-job-period"))
-            conf.setIncrementalJobPeriod(Long.valueOf(readContent()).longValue());  
-          
+            conf.setIncrementalJobPeriod(Long.valueOf(readContent()).longValue());
+
           break;
 
         case StartElement.END_ELEMENT:
@@ -324,72 +327,74 @@ public class BackupChainLog {
 
     public void jobEntrysNormalize() {
       jobEntriesNormalize = new ArrayList<JobEntryInfo>();
-      
+
       for (int i = 0; i < jobEntries.size(); i++) {
         JobEntryInfo entryInfo = jobEntries.get(i);
-        
+
         boolean alreadyExist = false;
-        
-        for (int j = 0; j < jobEntriesNormalize.size(); j++) 
+
+        for (int j = 0; j < jobEntriesNormalize.size(); j++)
           if (jobEntriesNormalize.get(j).getURL().toString().equals(entryInfo.getURL().toString()))
             alreadyExist = true;
-        
+
         if (!alreadyExist)
           jobEntriesNormalize.add(entryInfo);
       }
     }
   }
-  
-  
+
   class LogWriter {
 
-    protected Log logger = ExoLogger.getLogger("ext.LogWriter");
+    protected Log   logger = ExoLogger.getLogger("ext.LogWriter");
 
-    private File         logFile;
+    private File    logFile;
 
-    XMLStreamWriter      writer;
+    XMLStreamWriter writer;
 
-    public LogWriter(File logFile) throws FileNotFoundException, XMLStreamException, FactoryConfigurationError {
+    public LogWriter(File logFile) throws FileNotFoundException,
+        XMLStreamException,
+        FactoryConfigurationError {
       this.logFile = logFile;
 
-      writer = XMLOutputFactory.newInstance().createXMLStreamWriter(
-          new FileOutputStream(this.logFile));
+      writer = XMLOutputFactory.newInstance()
+                               .createXMLStreamWriter(new FileOutputStream(this.logFile));
 
       writer.writeStartDocument();
       writer.writeStartElement("backup-cain-log");
       writer.flush();
     }
 
-    public synchronized void write(BackupConfig config, String fullBackupType, 
-        String incrementalBackupType) throws XMLStreamException {
+    public synchronized void write(BackupConfig config,
+                                   String fullBackupType,
+                                   String incrementalBackupType) throws XMLStreamException {
       writer.writeStartElement("backup-config");
 
-        writer.writeStartElement("full-backup-type");
-        writer.writeCharacters(fullBackupType);
-        writer.writeEndElement();
-      
-        writer.writeStartElement("incremental-backup-type");
-        writer.writeCharacters(incrementalBackupType);
-        writer.writeEndElement();
+      writer.writeStartElement("full-backup-type");
+      writer.writeCharacters(fullBackupType);
+      writer.writeEndElement();
+
+      writer.writeStartElement("incremental-backup-type");
+      writer.writeCharacters(incrementalBackupType);
+      writer.writeEndElement();
 
       if (config.getBackupDir() != null) {
         writer.writeStartElement("backup-dir");
         writer.writeCharacters(config.getBackupDir().getAbsolutePath());
         writer.writeEndElement();
       }
-      
+
       if (config.getRepository() != null) {
         writer.writeStartElement("repository");
         writer.writeCharacters(config.getRepository());
         writer.writeEndElement();
       }
-      
+
       if (config.getWorkspace() != null) {
         writer.writeStartElement("workspace");
         writer.writeCharacters(config.getWorkspace());
         writer.writeEndElement();
       }
-      
+
       writer.writeStartElement("incremental-job-period");
       writer.writeCharacters(Long.toString(config.getIncrementalJobPeriod()));
       writer.writeEndElement();
@@ -409,15 +414,15 @@ public class BackupChainLog {
       writer.writeStartElement("state");
       writer.writeCharacters(getState(info.getState()));
       writer.writeEndElement();
-      
+
       writer.writeStartElement("url");
       writer.writeCharacters(info.getURL().toString());
       writer.writeEndElement();
-      
+
       writer.writeStartElement("date");
       writer.writeCharacters(info.getDate().getTime().toString());
       writer.writeEndElement();
-      
+
       writer.writeEndElement();
 
       writer.flush();
@@ -429,12 +434,12 @@ public class BackupChainLog {
         writer.writeEndDocument();
         writer.flush();
       } catch (Exception e) {
-        logger.error("Can't write log",e);
+        logger.error("Can't write log", e);
       }
     }
 
     private String getState(int iState) {
-      String sState = ""+iState;
+      String sState = "" + iState;
       switch (iState) {
       case BackupJob.FINISHED:
         sState = "FINISHED";

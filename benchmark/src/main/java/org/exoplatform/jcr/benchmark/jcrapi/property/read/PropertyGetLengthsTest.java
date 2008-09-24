@@ -15,22 +15,23 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class PropertyGetLengthsTest extends AbstractRootNodeTest {
-  
+
   private Property property = null;
-  
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
     ValueFactory valueFactory = context.getSession().getValueFactory();
-    Value[] values = {valueFactory.createValue("testValue")};
+    Value[] values = { valueFactory.createValue("testValue") };
     property = node.setProperty("testProperty", values);
     context.getSession().save();
   }
-  
+
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     property.getLengths();

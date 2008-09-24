@@ -21,29 +21,30 @@ import org.exoplatform.frameworks.ftpclient.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public class CmdUser extends FtpCommandImpl {
 
   private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdUser");
-  
-  protected String userName;
-  
+
+  protected String   userName;
+
   public CmdUser(String userName) {
     this.userName = userName;
   }
-  
+
   public int execute() {
     try {
       sendCommand(String.format("%s %s", FtpConst.Commands.CMD_USER, userName));
       return getReply();
     } catch (Exception exc) {
       log.info(FtpConst.EXC_MSG + exc.getMessage(), exc);
-    }    
+    }
     return -1;
   }
-  
+
 }

@@ -39,10 +39,9 @@ import org.exoplatform.services.transaction.TransactionService;
 
 public class SessionFactory {
 
-  protected static Log                   log               = ExoLogger
-                                                               .getLogger("jcr.SessionFactory");
+  protected static Log                   log               = ExoLogger.getLogger("jcr.SessionFactory");
 
-  //private OrganizationService            organizationService;
+  // private OrganizationService organizationService;
 
   private ExoContainer                   container;
 
@@ -59,8 +58,8 @@ public class SessionFactory {
    * @param containerContext
    */
   public SessionFactory(TransactionService tService,
-      WorkspaceEntry config,
-      ExoContainerContext containerContext) {
+                        WorkspaceEntry config,
+                        ExoContainerContext containerContext) {
 
     this.container = containerContext.getContainer();
     this.workspaceName = config.getName();
@@ -73,35 +72,31 @@ public class SessionFactory {
    * @param config
    * @param containerContext
    */
-  public SessionFactory(WorkspaceEntry config,
-      ExoContainerContext containerContext) {
-    this((TransactionService)null, config, containerContext);
+  public SessionFactory(WorkspaceEntry config, ExoContainerContext containerContext) {
+    this((TransactionService) null, config, containerContext);
   }
 
   /**
    * Creates Session object by given Credentials
    * 
    * @param credentials
-   * @return XASessionImpl if TransactionService present or SessionImpl
-   *         otherwice
+   * @return XASessionImpl if TransactionService present or SessionImpl otherwice
    * @throws RepositoryException
    */
   SessionImpl createSession(ConversationState user) throws RepositoryException, LoginException {
 
- 
-      // Check privilegies to access workspace first?
-      // ....
-    
+    // Check privilegies to access workspace first?
+    // ....
+
     if (tService == null)
       return new SessionImpl(workspaceName, user, container);
 
     XASessionImpl xaSession = new XASessionImpl(workspaceName,
-        user,
-        container,
-        tService,
-        txResourceManager);
-    
-    
+                                                user,
+                                                container,
+                                                tService,
+                                                txResourceManager);
+
     try {
       xaSession.enlistResource();
 

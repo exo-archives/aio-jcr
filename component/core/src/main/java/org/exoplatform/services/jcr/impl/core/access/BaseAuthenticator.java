@@ -32,42 +32,41 @@ import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 
 /**
- * Created by The eXo Platform SAS.<br/>
- * Abstract implementation of AuthenticationPolicy interface
+ * Created by The eXo Platform SAS.<br/> Abstract implementation of AuthenticationPolicy interface
  * 
  * @author eXo Platform
  * @version $Id: BaseAuthenticator.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 abstract public class BaseAuthenticator implements AuthenticationPolicy {
- 
-  protected static Log log = ExoLogger.getLogger("jcr.BaseAuthenticator");
-  protected RepositoryEntry config;
-  
+
+  protected static Log       log = ExoLogger.getLogger("jcr.BaseAuthenticator");
+
+  protected RepositoryEntry  config;
+
   protected IdentityRegistry identityRegistry;
- 
 
   public BaseAuthenticator(RepositoryEntry config, IdentityRegistry identityRegistry) {
     this.config = config;
     this.identityRegistry = identityRegistry;
   }
 
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.access.AuthenticationPolicy#authenticate()
    */
-   public ConversationState authenticate() throws LoginException {
+  public ConversationState authenticate() throws LoginException {
 
-     ConversationState state = ConversationState.getCurrent();
-       
-     if (state == null) {
-       log.warn("No current identity found, ANONIMOUS one will be used");
-       return new ConversationState(new Identity(SystemIdentity.ANONIM, new HashSet<MembershipEntry>()));
-     }
-     
-     ConversationState.setCurrent(state);
-     return state;
-     
-   }
-  
+    ConversationState state = ConversationState.getCurrent();
+
+    if (state == null) {
+      log.warn("No current identity found, ANONIMOUS one will be used");
+      return new ConversationState(new Identity(SystemIdentity.ANONIM,
+                                                new HashSet<MembershipEntry>()));
+    }
+
+    ConversationState.setCurrent(state);
+    return state;
+
+  }
 
 }

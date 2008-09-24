@@ -20,22 +20,22 @@ package org.exoplatform.services.jcr.ext.resource;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-
 public interface NodeRepresentationFactory {
-  
+
   /**
    * creates new NodeRepresentation instance
+   * 
    * @param node
    * @param mediaTypeHint
    * @return
    */
   NodeRepresentation createNodeRepresentation(Node node, String mediaTypeHint);
-  
 
   /**
    * @return node type name
@@ -43,4 +43,3 @@ public interface NodeRepresentationFactory {
   String getNodeType();
 
 }
-

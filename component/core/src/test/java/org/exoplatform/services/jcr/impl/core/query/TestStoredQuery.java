@@ -24,8 +24,7 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
@@ -38,16 +37,16 @@ public class TestStoredQuery extends BaseQueryTest {
     root.save();
   }
 
-  public void tearDown() throws Exception{
+  public void tearDown() throws Exception {
     root.getNode("vassya").remove();
     super.tearDown();
   }
-  
+
   public void testSaveQueryAsNode() throws Exception {
-  
+
     QueryManager qman = this.workspace.getQueryManager();
     Query q = qman.createQuery("SELECT * FROM nt:unstructured WHERE jcr:path LIKE '/vassya'",
-        Query.SQL);
+                               Query.SQL);
 
     QueryResult res = q.execute();
 
@@ -57,11 +56,11 @@ public class TestStoredQuery extends BaseQueryTest {
     this.root.save();
     assertNotNull(node);
   }
-  
+
   public void testGetQueryFromNode() throws Exception {
     QueryManager qman = this.workspace.getQueryManager();
     Query q = qman.createQuery("SELECT * FROM nt:unstructured WHERE jcr:path LIKE '/vassya'",
-        Query.SQL);
+                               Query.SQL);
 
     QueryResult res = q.execute();
 

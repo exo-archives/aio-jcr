@@ -17,39 +17,45 @@
 package org.exoplatform.services.jcr.impl.dataflow.persistent;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 24.06.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class CacheStatistic {
 
   protected final long miss;
-  
+
   protected final long hits;
-  
+
   protected final long size;
-  
+
   protected final long nodesSize;
-  
+
   protected final long propertiesSize;
-  
+
   protected final long totalGetTime;
-  
-  
+
   // configuration
-  
+
   protected final long maxSize;
-  
+
   protected final long liveTime;
-  
-  CacheStatistic(long miss, long hits, long size, long nodesSize, long propertiesSize, long maxSize, long liveTime, long totalGetTime) {
+
+  CacheStatistic(long miss,
+                 long hits,
+                 long size,
+                 long nodesSize,
+                 long propertiesSize,
+                 long maxSize,
+                 long liveTime,
+                 long totalGetTime) {
     this.maxSize = maxSize;
-    this.liveTime  = liveTime;
+    this.liveTime = liveTime;
     this.totalGetTime = totalGetTime;
-    
+
     this.miss = miss;
     this.hits = hits;
     this.size = size;
@@ -88,5 +94,5 @@ public class CacheStatistic {
   public long getTotalGetTime() {
     return totalGetTime;
   }
-  
+
 }

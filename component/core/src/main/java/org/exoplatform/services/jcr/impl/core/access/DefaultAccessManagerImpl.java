@@ -24,17 +24,17 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: DefaultAccessManagerImpl.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 
 public class DefaultAccessManagerImpl extends AccessManager {
 
-  public DefaultAccessManagerImpl(RepositoryEntry config, WorkspaceEntry wsConfig
-      ) throws RepositoryException {
+  public DefaultAccessManagerImpl(RepositoryEntry config, WorkspaceEntry wsConfig) throws RepositoryException {
     super(config, wsConfig);
   }
-  
+
   public DefaultAccessManagerImpl(RepositoryEntry config) throws RepositoryException {
     super(config, null);
   }

@@ -26,38 +26,36 @@ import org.apache.commons.logging.Log;
 import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * 22 Sep 2008  
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com 22 Sep 2008
  */
 public class BaseWebDavTest extends TestCase {
-  
-  protected static Log log = ExoLogger.getLogger("jcr.WebDavTest");
-  
+
+  protected static Log              log = ExoLogger.getLogger("jcr.WebDavTest");
+
   protected InstalledLocalContainer container;
-  protected HTTPConnection connection;
-  
+
+  protected HTTPConnection          connection;
+
   @Override
   protected void setUp() throws Exception {
-    
+
     container = ContainerStarter.cargoContainerStart(WebDav.PORT_STRING, null);
     assertTrue(container.getState().isStarted());
-    
-    CookieModule.setCookiePolicyHandler(null);    
+
+    CookieModule.setCookiePolicyHandler(null);
     connection = TestUtils.GetAuthConnection();
 
     super.setUp();
   }
-  
+
   @Override
   protected void tearDown() throws Exception {
 
     // TODO Auto-generated method stub
-    
+
     ContainerStarter.cargoContainerStop(container);
     assertTrue(container.getState().isStopped());
-    
+
     super.tearDown();
   }
 

@@ -48,16 +48,18 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     // testRoot = (NodeImpl)root.createChildNode(TEST_ROOT, "nt:unstructured",
     // true, true);
     TransientNodeData data = TransientNodeData.createNodeData(root.nodeData(),
-        new InternalQName(null, TEST_ROOT),
-        new InternalQName(Constants.NS_NT_URI, "unstructured"));
+                                                              new InternalQName(null, TEST_ROOT),
+                                                              new InternalQName(Constants.NS_NT_URI,
+                                                                                "unstructured"));
     testRoot = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), false);
     TransientPropertyData prop = TransientPropertyData.createPropertyData(data,
-        new InternalQName(Constants.NS_JCR_URI, "primaryType"),
-        PropertyType.NAME,
-        false);
+                                                                          new InternalQName(Constants.NS_JCR_URI,
+                                                                                            "primaryType"),
+                                                                          PropertyType.NAME,
+                                                                          false);
     prop.setValue(new TransientValueData(new InternalQName(Constants.NS_NT_URI, "unstructured")));
-    PropertyImpl prop1 = (PropertyImpl) modificationManager
-        .update(ItemState.createAddedState(prop), false);
+    PropertyImpl prop1 = (PropertyImpl) modificationManager.update(ItemState.createAddedState(prop),
+                                                                   false);
 
     // System.out.println("Test root >>>>>> "+testRoot+" "+prop1);
 
@@ -93,8 +95,11 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     NodeData parent = (NodeData) testRoot.getData();
 
-    TransientNodeData data = TransientNodeData.createNodeData(parent, new InternalQName(null,
-        "testItemReferencePool1"), new InternalQName(Constants.NS_NT_URI, "unstructured"));
+    TransientNodeData data = TransientNodeData.createNodeData(parent,
+                                                              new InternalQName(null,
+                                                                                "testItemReferencePool1"),
+                                                              new InternalQName(Constants.NS_NT_URI,
+                                                                                "unstructured"));
 
     String uuid = data.getIdentifier();
 
@@ -108,9 +113,10 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertEquals(node1, pool.get(node1));
 
     // add one more node
-    data = TransientNodeData.createNodeData(parent, new InternalQName(null,
-        "testItemReferencePool2"), new InternalQName(Constants.NS_NT_URI, "unstructured"));
-    
+    data = TransientNodeData.createNodeData(parent,
+                                            new InternalQName(null, "testItemReferencePool2"),
+                                            new InternalQName(Constants.NS_NT_URI, "unstructured"));
+
     NodeImpl node2 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
 
     List<NodeImpl> nodes = new ArrayList<NodeImpl>();
@@ -123,11 +129,12 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     // ... add property
     TransientPropertyData prop = TransientPropertyData.createPropertyData(parent,
-        new InternalQName(null, "testItemReferencePoolProp1"),
-        PropertyType.STRING,
-        false);
-    PropertyImpl prop1 = (PropertyImpl) modificationManager
-        .update(ItemState.createAddedState(prop), true);
+                                                                          new InternalQName(null,
+                                                                                            "testItemReferencePoolProp1"),
+                                                                          PropertyType.STRING,
+                                                                          false);
+    PropertyImpl prop1 = (PropertyImpl) modificationManager.update(ItemState.createAddedState(prop),
+                                                                   true);
     List<PropertyImpl> props = new ArrayList<PropertyImpl>();
     props.add(prop1);
     List<PropertyImpl> testProps = pool.getProperties(props);
@@ -155,15 +162,18 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     NodeData parent = (NodeData) testRoot.getData();
 
-    TransientNodeData data = TransientNodeData.createNodeData(parent, new InternalQName(null,
-        "testSessionChangesLogN1"), new InternalQName(Constants.NS_NT_URI, "unstructured"));
+    TransientNodeData data = TransientNodeData.createNodeData(parent,
+                                                              new InternalQName(null,
+                                                                                "testSessionChangesLogN1"),
+                                                              new InternalQName(Constants.NS_NT_URI,
+                                                                                "unstructured"));
 
     NodeImpl node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
     assertEquals(1, changesLog.getAllStates().size());
     assertNotNull(changesLog.getItemState(node1.getInternalIdentifier()));
     assertNotNull(changesLog.getItemState(node1.getInternalPath()));
     assertTrue(changesLog.getItemState(node1.getInternalIdentifier()).isAdded());
-    
+
     // System.out.println(" > !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after
     // testSessionChangesLog> "+modificationManager.dump());
 
@@ -173,7 +183,6 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     List<ItemState> lst = changesLog.getItemStates(data.getIdentifier());
     assertEquals(2, lst.size());
     assertTrue(changesLog.getItemState(data.getIdentifier()).isDeleted());
-    
 
     // System.out.println(" > 2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after
     // testSessionChangesLog> "+modificationManager.dump());
@@ -183,19 +192,21 @@ public class TestSessionDataManager extends JcrImplBaseTest {
     assertEquals(3, changesLog.getItemStates(data.getIdentifier()).size());
     assertTrue(changesLog.getItemState(data.getIdentifier()).isAdded());
 
-
     assertEquals(3, changesLog.getAllStates().size());
 
     // System.out.println(" > 3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! after
     // testSessionChangesLog> "+modificationManager.dump());
 
     // ... add property to the node1
-    TransientPropertyData prop = TransientPropertyData.createPropertyData((NodeData) node1
-        .getData(), new InternalQName(null, "testSessionChangesLogP1"), PropertyType.STRING, false);
+    TransientPropertyData prop = TransientPropertyData.createPropertyData((NodeData) node1.getData(),
+                                                                          new InternalQName(null,
+                                                                                            "testSessionChangesLogP1"),
+                                                                          PropertyType.STRING,
+                                                                          false);
     TransientValueData vData = new TransientValueData(false);
     prop.setValue(vData);
-    PropertyImpl prop1 = (PropertyImpl) modificationManager
-        .update(ItemState.createAddedState(prop), true);
+    PropertyImpl prop1 = (PropertyImpl) modificationManager.update(ItemState.createAddedState(prop),
+                                                                   true);
 
     assertTrue(changesLog.getItemState(node1.getInternalIdentifier()).isAdded());
     assertTrue(changesLog.getItemState(prop.getIdentifier()).isAdded());
@@ -210,37 +221,42 @@ public class TestSessionDataManager extends JcrImplBaseTest {
   public void testReadMethods() throws Exception {
 
     NodeData parent = (NodeData) testRoot.getData();
-    TransientNodeData someData = TransientNodeData.createNodeData(parent, new InternalQName(null,
-        "testReadMethodsN1"), new InternalQName(Constants.NS_NT_URI, "unstructured"));
+    TransientNodeData someData = TransientNodeData.createNodeData(parent,
+                                                                  new InternalQName(null,
+                                                                                    "testReadMethodsN1"),
+                                                                  new InternalQName(Constants.NS_NT_URI,
+                                                                                    "unstructured"));
     // NodeImpl node1 =
     // (NodeImpl)modificationManager.update(ItemState.createAddedState(data),
     // true);
 
     // add one more node
-    TransientNodeData data = TransientNodeData.createNodeData(parent, new InternalQName(null,
-        "testReadMethodsN2"), new InternalQName(Constants.NS_NT_URI, "unstructured"));
+    TransientNodeData data = TransientNodeData.createNodeData(parent,
+                                                              new InternalQName(null,
+                                                                                "testReadMethodsN2"),
+                                                              new InternalQName(Constants.NS_NT_URI,
+                                                                                "unstructured"));
     NodeImpl node2 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data), true);
 
     // ... add property
     TransientPropertyData prop = TransientPropertyData.createPropertyData(parent,
-        new InternalQName(null, "testReadMethodsP1"),
-        PropertyType.STRING,
-        false);
+                                                                          new InternalQName(null,
+                                                                                            "testReadMethodsP1"),
+                                                                          PropertyType.STRING,
+                                                                          false);
     TransientValueData vData = new TransientValueData(false);
     prop.setValue(vData);
-    PropertyImpl prop1 = (PropertyImpl) modificationManager
-        .update(ItemState.createAddedState(prop), true);
+    PropertyImpl prop1 = (PropertyImpl) modificationManager.update(ItemState.createAddedState(prop),
+                                                                   true);
 
     assertNotNull(modificationManager.getItemData(data.getQPath()));
-    assertEquals(data.getIdentifier(), modificationManager.getItemData(data.getQPath()).getIdentifier());
+    assertEquals(data.getIdentifier(), modificationManager.getItemData(data.getQPath())
+                                                          .getIdentifier());
 
-    
-    
     assertEquals(node2, modificationManager.getItem(data.getQPath(), true));
-    
 
-    
-    assertEquals(prop.getIdentifier(), modificationManager.getItemData(prop.getIdentifier()).getIdentifier());
+    assertEquals(prop.getIdentifier(), modificationManager.getItemData(prop.getIdentifier())
+                                                          .getIdentifier());
     assertEquals(prop1, modificationManager.getItemByIdentifier(prop.getIdentifier(), true));
 
     assertTrue(modificationManager.hasPendingChanges(data.getQPath()));
@@ -270,13 +286,17 @@ public class TestSessionDataManager extends JcrImplBaseTest {
   public void testCommitAndRefresh() throws Exception {
 
     NodeData parent = (NodeData) testRoot.getData();
-    TransientNodeData data1 = TransientNodeData.createNodeData(parent, new InternalQName(null,
-        "testCommitAndRefreshN1"), new InternalQName(Constants.NS_NT_URI, "unstructured"));
+    TransientNodeData data1 = TransientNodeData.createNodeData(parent,
+                                                               new InternalQName(null,
+                                                                                 "testCommitAndRefreshN1"),
+                                                               new InternalQName(Constants.NS_NT_URI,
+                                                                                 "unstructured"));
     NodeImpl node1 = (NodeImpl) modificationManager.update(ItemState.createAddedState(data1), true);
     TransientPropertyData nt = TransientPropertyData.createPropertyData(data1,
-        new InternalQName(Constants.NS_JCR_URI, "primaryType"),
-        PropertyType.NAME,
-        false);
+                                                                        new InternalQName(Constants.NS_JCR_URI,
+                                                                                          "primaryType"),
+                                                                        PropertyType.NAME,
+                                                                        false);
     nt.setValue(new TransientValueData(new InternalQName(Constants.NS_NT_URI, "unstructured")));
     modificationManager.update(ItemState.createAddedState(nt), true);
     assertEquals(1, modificationManager.getChildPropertiesData(data1).size());
@@ -292,32 +312,36 @@ public class TestSessionDataManager extends JcrImplBaseTest {
 
     // ... add property
     TransientPropertyData prop = TransientPropertyData.createPropertyData(parent,
-        new InternalQName(null, "testCommitAndRefreshP1"),
-        PropertyType.STRING,
-        false);
+                                                                          new InternalQName(null,
+                                                                                            "testCommitAndRefreshP1"),
+                                                                          PropertyType.STRING,
+                                                                          false);
     prop.setValue(new TransientValueData("test"));
     modificationManager.update(ItemState.createAddedState(prop), true);
-    assertEquals("test", ((PropertyImpl) modificationManager.getItem(prop.getQPath(), true))
-        .getString());
+    assertEquals("test",
+                 ((PropertyImpl) modificationManager.getItem(prop.getQPath(), true)).getString());
   }
 
   @SuppressWarnings("deprecation")
   public void testGetItem() throws RepositoryException, IllegalNameException {
     // get non-existent data by getItemData(NodeData parent, QPathEntry name)
     assertNull(modificationManager.getItemData((NodeData) ((NodeImpl) root).getData(),
-        new QPathEntry("", "testgetitemNode", 0)));
+                                               new QPathEntry("", "testgetitemNode", 0)));
     // get non-existent data by ItemData getItemData(QPath path)
     assertNull(modificationManager.getItemData(QPath.makeChildPath(((NodeImpl) root).getData()
-        .getQPath(), new InternalQName("", "testgetitemNode"))));
-    
+                                                                                    .getQPath(),
+                                                                   new InternalQName("",
+                                                                                     "testgetitemNode"))));
+
     NodeImpl testNode = (NodeImpl) root.addNode("testgetitemNode");
-    
-    
+
     // get data by getItemData(NodeData parent, QPathEntry name)
     assertNotNull(modificationManager.getItemData((NodeData) ((NodeImpl) root).getData(),
-        new QPathEntry("", "testgetitemNode", 0)));
+                                                  new QPathEntry("", "testgetitemNode", 0)));
     // get data by ItemData getItemData(QPath path)
     assertNotNull(modificationManager.getItemData(QPath.makeChildPath(((NodeImpl) root).getData()
-        .getQPath(), new InternalQName("", "testgetitemNode"))));
+                                                                                       .getQPath(),
+                                                                      new InternalQName("",
+                                                                                        "testgetitemNode"))));
   }
 }

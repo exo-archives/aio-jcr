@@ -28,20 +28,27 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 20.03.2007
- *
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: MySQLMultiDbJDBCConnection.java 12813 2008-04-07 08:04:26Z pnedonosko $
  */
 public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
 
   public MySQLMultiDbJDBCConnection(Connection dbConnection,
-      String containerName, ValueStoragePluginProvider valueStorageProvider,
-      int maxBufferSize, File swapDirectory, FileCleaner swapCleaner) throws SQLException {
-  
-    super(dbConnection, containerName, valueStorageProvider, 
-        maxBufferSize, swapDirectory, swapCleaner);
+                                    String containerName,
+                                    ValueStoragePluginProvider valueStorageProvider,
+                                    int maxBufferSize,
+                                    File swapDirectory,
+                                    FileCleaner swapCleaner) throws SQLException {
+
+    super(dbConnection,
+          containerName,
+          valueStorageProvider,
+          maxBufferSize,
+          swapDirectory,
+          swapCleaner);
   }
 
   @Override
@@ -50,7 +57,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
     if (data.getParentIdentifier() != null) {
       ResultSet item = findItemByIdentifier(data.getParentIdentifier());
       try {
-        if(!item.next())
+        if (!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);
       } finally {
         item.close();
@@ -65,7 +72,7 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
     if (data.getParentIdentifier() != null) {
       ResultSet item = findItemByIdentifier(data.getParentIdentifier());
       try {
-        if(!item.next())
+        if (!item.next())
           throw new SQLException("Parent is not found. Behaviour of " + JCR_FK_ITEM_PARENT);
       } finally {
         item.close();
@@ -74,5 +81,4 @@ public class MySQLMultiDbJDBCConnection extends MultiDbJDBCConnection {
     return super.addPropertyRecord(data);
   }
 
-  
 }

@@ -34,21 +34,20 @@ import junit.framework.TestCase;
 import org.exoplatform.services.jcr.util.SIDGenerator;
 
 /**
- * Created by The eXo Platform SAS
- * 10.07.2007
- *
+ * Created by The eXo Platform SAS 10.07.2007
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestFSReadWrite.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestFSReadWrite extends TestCase {
 
-  private static Logger log = Logger.getLogger("org.exoplatform.services.jcr.impl.storage.fs");
+  private static Logger   log         = Logger.getLogger("org.exoplatform.services.jcr.impl.storage.fs");
 
   public static final int FILES_COUNT = 50000;
 
-  protected File testRoot = null;
+  protected File          testRoot    = null;
 
-  protected List<File> files = null;
+  protected List<File>    files       = null;
 
   static {
     try {
@@ -67,7 +66,8 @@ public class TestFSReadWrite extends TestCase {
   protected class NameFilter implements FilenameFilter {
 
     private final String name;
-    private final File dir;
+
+    private final File   dir;
 
     protected String getName() {
       return name;
@@ -105,7 +105,7 @@ public class TestFSReadWrite extends TestCase {
 
     if (testRoot.exists()) {
       deleteDir(testRoot);
-      //deleteFiles(files);
+      // deleteFiles(files);
       testRoot.delete();
       log.info("Tear down of " + getName() + ",\t" + (System.currentTimeMillis() - time));
     }
@@ -114,7 +114,7 @@ public class TestFSReadWrite extends TestCase {
   }
 
   protected void deleteFiles(List<File> filesList) {
-    for (File f: filesList) {
+    for (File f : filesList) {
       f.delete();
       deleteFileParent(new File(f.getParent()));
     }
@@ -124,8 +124,8 @@ public class TestFSReadWrite extends TestCase {
     if (fp.getAbsolutePath().startsWith(testRoot.getAbsolutePath()))
       if (fp.isDirectory()) {
         String[] ls = fp.list();
-        if (ls.length<=0) {
-          //log.info("del " + fp.getAbsolutePath());
+        if (ls.length <= 0) {
+          // log.info("del " + fp.getAbsolutePath());
           fp.delete();
           deleteFileParent(new File(fp.getParent()));
         }
@@ -139,7 +139,7 @@ public class TestFSReadWrite extends TestCase {
       log.log(Level.WARNING, "Dir not found " + dir.getAbsolutePath());
       fail("Dir not found " + dir.getAbsolutePath());
     }
-    for (String fn: ls) {
+    for (String fn : ls) {
       File f = new File(dir.getAbsolutePath() + File.separator + fn);
       if (f.isDirectory()) {
         deleteDir(f);
@@ -151,10 +151,10 @@ public class TestFSReadWrite extends TestCase {
 
   protected List<File> createPlainCase() {
     List<File> files = new ArrayList<File>();
-    for (int i=0; i<FILES_COUNT; i++) {
+    for (int i = 0; i < FILES_COUNT; i++) {
       File f = new File(testRoot.getAbsolutePath() + File.separator + SIDGenerator.generate());
       try {
-        //f.createNewFile();
+        // f.createNewFile();
         FileOutputStream fos = new FileOutputStream(f);
         try {
           fos.write(("File content " + f.getAbsolutePath()).getBytes());
@@ -171,13 +171,13 @@ public class TestFSReadWrite extends TestCase {
 
   protected List<File> createTreeXCase() {
     List<File> files = new ArrayList<File>();
-    for (int i=0; i<FILES_COUNT; i++) {
+    for (int i = 0; i < FILES_COUNT; i++) {
       String fileName = SIDGenerator.generate();
       File dir = new File(testRoot.getAbsolutePath() + buildPathX(fileName));
       dir.mkdirs();
       File f = new File(dir.getAbsolutePath() + File.separator + fileName);
       try {
-        //f.createNewFile();
+        // f.createNewFile();
         FileOutputStream fos = new FileOutputStream(f);
         try {
           fos.write(("File content " + f.getAbsolutePath()).getBytes());
@@ -195,7 +195,7 @@ public class TestFSReadWrite extends TestCase {
   protected String buildPathX(String fileName) {
     char[] chs = fileName.toCharArray();
     String path = "";
-    for (char ch: chs) {
+    for (char ch : chs) {
       path += File.separator + ch;
     }
     return path;
@@ -203,13 +203,13 @@ public class TestFSReadWrite extends TestCase {
 
   protected List<File> createTreeXXCase() {
     List<File> files = new ArrayList<File>();
-    for (int i=0; i<FILES_COUNT; i++) {
+    for (int i = 0; i < FILES_COUNT; i++) {
       String fileName = SIDGenerator.generate();
       File dir = new File(testRoot.getAbsolutePath() + buildPathXX(fileName));
       dir.mkdirs();
       File f = new File(dir.getAbsolutePath() + File.separator + fileName);
       try {
-        //f.createNewFile();
+        // f.createNewFile();
         FileOutputStream fos = new FileOutputStream(f);
         try {
           fos.write(("File content " + f.getAbsolutePath()).getBytes());
@@ -228,7 +228,7 @@ public class TestFSReadWrite extends TestCase {
     char[] chs = fileName.toCharArray();
     String path = "";
     boolean block = true;
-    for (char ch: chs) {
+    for (char ch : chs) {
       path += block ? File.separator + ch : ch;
       block = !block;
     }
@@ -237,15 +237,16 @@ public class TestFSReadWrite extends TestCase {
 
   protected List<File> createTreePrefixXCase() {
     List<File> files = new ArrayList<File>();
-    for (int i=0; i<FILES_COUNT; i++) {
+    for (int i = 0; i < FILES_COUNT; i++) {
       String fileName = SIDGenerator.generate();
       String prefix = fileName.substring(0, 24); // time + addr hash prefix
       String rnd = fileName.substring(24); // random name
-      File dir = new File(testRoot.getAbsolutePath() + File.separator + prefix + File.separator + buildPathX(rnd));
+      File dir = new File(testRoot.getAbsolutePath() + File.separator + prefix + File.separator
+          + buildPathX(rnd));
       dir.mkdirs();
       File f = new File(dir.getAbsolutePath() + File.separator + fileName);
       try {
-        //f.createNewFile();
+        // f.createNewFile();
         FileOutputStream fos = new FileOutputStream(f);
         try {
           fos.write(("File content " + f.getAbsolutePath()).getBytes());
@@ -259,21 +260,21 @@ public class TestFSReadWrite extends TestCase {
     }
     return this.files = files;
   }
-  
+
   protected String buildPathX8(String fileName) {
     char[] chs = fileName.toCharArray();
     String path = "";
     final int xLength = 8;
-    for (int i=0; i<xLength; i++) {
+    for (int i = 0; i < xLength; i++) {
       path += File.separator + chs[i];
     }
-    path += File.separator + fileName.substring(xLength); 
+    path += File.separator + fileName.substring(xLength);
     return path;
   }
-  
+
   protected List<File> createTreeX8Case() {
     List<File> files = new ArrayList<File>();
-    for (int i=0; i<FILES_COUNT; i++) {
+    for (int i = 0; i < FILES_COUNT; i++) {
       String fileName = SIDGenerator.generate();
       File dir = new File(testRoot.getAbsolutePath() + File.separator + buildPathX8(fileName));
       dir.mkdirs();
@@ -298,11 +299,11 @@ public class TestFSReadWrite extends TestCase {
   }
 
   protected void readFiles(File root, NameFilter filter) {
-    //long time = System.currentTimeMillis();
-    //log.info(">>> Step into directory " + root.getAbsolutePath() +
-    //    (filter != null ? ", searched file " + filter.getName() : ""));
+    // long time = System.currentTimeMillis();
+    // log.info(">>> Step into directory " + root.getAbsolutePath() +
+    // (filter != null ? ", searched file " + filter.getName() : ""));
     String[] ls = filter != null ? root.list(filter) : root.list();
-    for (String file: ls) {
+    for (String file : ls) {
       File f = new File(testRoot.getAbsolutePath() + File.separator + file);
       if (f.isDirectory()) {
         // dir
@@ -319,7 +320,8 @@ public class TestFSReadWrite extends TestCase {
         }
       }
     }
-    //log.info("<<< Exit from directory " + root.getAbsolutePath() + ",\t" + (System.currentTimeMillis() - time));
+    // log.info("<<< Exit from directory " + root.getAbsolutePath() + ",\t" +
+    // (System.currentTimeMillis() - time));
   }
 
   protected void readTreeXFiles(NameFilter filter) {
@@ -335,7 +337,7 @@ public class TestFSReadWrite extends TestCase {
       fail("Dir not found " + dir.getAbsolutePath());
     }
 
-    for (String file: ls) {
+    for (String file : ls) {
       File f = new File(dir.getAbsolutePath() + File.separator + file);
       if (f.isDirectory()) {
         // dir
@@ -353,7 +355,7 @@ public class TestFSReadWrite extends TestCase {
       }
     }
   }
-  
+
   protected void readTreeX8Files(File root, NameFilter filter) {
     String dirPath = root.getAbsolutePath() + buildPathX8(filter.getName());
     File dir = new File(dirPath);
@@ -363,7 +365,7 @@ public class TestFSReadWrite extends TestCase {
       fail("Dir not found " + dir.getAbsolutePath());
     }
 
-    for (String file: ls) {
+    for (String file : ls) {
       File f = new File(dir.getAbsolutePath() + File.separator + file);
       if (f.isDirectory()) {
         // dir
@@ -395,7 +397,7 @@ public class TestFSReadWrite extends TestCase {
       fail("Dir not found " + dir.getAbsolutePath());
     }
 
-    for (String file: ls) {
+    for (String file : ls) {
       File f = new File(dir.getAbsolutePath() + File.separator + file);
       if (f.isDirectory()) {
         // dir
@@ -422,14 +424,15 @@ public class TestFSReadWrite extends TestCase {
     String fileName = filter.getName();
     String prefix = fileName.substring(0, 24); // time + addr hash prefix
     String rnd = fileName.substring(24); // random name
-    File dir = new File(testRoot.getAbsolutePath() + File.separator + prefix + File.separator + buildPathX(rnd));
+    File dir = new File(testRoot.getAbsolutePath() + File.separator + prefix + File.separator
+        + buildPathX(rnd));
     String[] ls = filter != null ? dir.list(filter) : dir.list();
     if (ls == null) {
       log.log(Level.WARNING, "Dir not found " + dir.getAbsolutePath());
       fail("Dir not found " + dir.getAbsolutePath());
     }
 
-    for (String file: ls) {
+    for (String file : ls) {
       File f = new File(dir.getAbsolutePath() + File.separator + file);
       if (f.isDirectory()) {
         // dir
@@ -459,10 +462,10 @@ public class TestFSReadWrite extends TestCase {
   public void _testPlainReadName() {
     List<File> files = createPlainCase();
 
-    //readFiles(new NameFilter(files.get(FILES_COUNT - (FILES_COUNT>>1)).getAbsolutePath()));
+    // readFiles(new NameFilter(files.get(FILES_COUNT - (FILES_COUNT>>1)).getAbsolutePath()));
 
     long time = System.currentTimeMillis();
-    for (File f: files) {
+    for (File f : files) {
       readFiles(new NameFilter(f.getName()));
     }
     log.info(getName() + " -- " + (System.currentTimeMillis() - time));
@@ -472,7 +475,7 @@ public class TestFSReadWrite extends TestCase {
     List<File> files = createTreeXCase();
 
     long time = System.currentTimeMillis();
-    for (File f: files) {
+    for (File f : files) {
       readTreeXFiles(new NameFilter(f.getName()));
     }
     log.info(getName() + " -- " + (System.currentTimeMillis() - time));
@@ -486,7 +489,7 @@ public class TestFSReadWrite extends TestCase {
     List<File> files = createTreeXXCase();
 
     long time = System.currentTimeMillis();
-    for (File f: files) {
+    for (File f : files) {
       readTreeXXFiles(new NameFilter(f.getName()));
     }
     log.info(getName() + " -- " + (System.currentTimeMillis() - time));
@@ -500,7 +503,7 @@ public class TestFSReadWrite extends TestCase {
     List<File> files = createTreePrefixXCase();
 
     long time = System.currentTimeMillis();
-    for (File f: files) {
+    for (File f : files) {
       readTreePrefixXFiles(new NameFilter(f.getName()));
     }
     log.info(getName() + " -- " + (System.currentTimeMillis() - time));
@@ -509,14 +512,14 @@ public class TestFSReadWrite extends TestCase {
     deleteFiles(files);
     log.info("Delete -- " + (System.currentTimeMillis() - time));
   }
-  
+
   public void testHierarchyTreeX8ReadName() {
     long time = System.currentTimeMillis();
     List<File> files = createTreeX8Case();
     log.info(getName() + " ADD -- " + (System.currentTimeMillis() - time));
-    
+
     time = System.currentTimeMillis();
-    for (File f: files) {
+    for (File f : files) {
       readTreeX8Files(testRoot, new NameFilter(f.getName()));
     }
     log.info(getName() + " READ -- " + (System.currentTimeMillis() - time));

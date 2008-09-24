@@ -25,59 +25,62 @@ import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class LockRequestEntity {
-  
-  private final static Log log = ExoLogger.getLogger("jcr.LockRequestEntity");
-	
-	private QName lockScope;
-	private QName lockType;
-	private String owner;
 
-	public LockRequestEntity(HierarchicalProperty input) {
-	  if (input == null) {
-	    lockScope = PropertyConstants.EXCLUSIVE;
-	    lockType = PropertyConstants.WRITE;
-	    return;
-	  }
-	  
-	  for(HierarchicalProperty prop : input.getChildren()) {
-	    if(prop.getName().equals(PropertyConstants.LOCKSCOPE)) {
-	      QName scope = prop.getChild(0).getName();
-	      if(!scope.equals(PropertyConstants.EXCLUSIVE)) {
-	        // should we throw PreconditionException here?
-	        log.warn("Lock is converted to exclusive scope, requested "+scope.getLocalPart());
-	      }
-	      lockScope = PropertyConstants.EXCLUSIVE;
-	    } else if(prop.getName().equals(PropertyConstants.LOCKTYPE)) {
-        QName type = prop.getChild(0).getName();
-        if(!type.equals(PropertyConstants.WRITE)) {
+  private final static Log log = ExoLogger.getLogger("jcr.LockRequestEntity");
+
+  private QName            lockScope;
+
+  private QName            lockType;
+
+  private String           owner;
+
+  public LockRequestEntity(HierarchicalProperty input) {
+    if (input == null) {
+      lockScope = PropertyConstants.EXCLUSIVE;
+      lockType = PropertyConstants.WRITE;
+      return;
+    }
+
+    for (HierarchicalProperty prop : input.getChildren()) {
+      if (prop.getName().equals(PropertyConstants.LOCKSCOPE)) {
+        QName scope = prop.getChild(0).getName();
+        if (!scope.equals(PropertyConstants.EXCLUSIVE)) {
           // should we throw PreconditionException here?
-          log.warn("Lock is converted to exclusive scope, requested "+type.getLocalPart());
+          log.warn("Lock is converted to exclusive scope, requested " + scope.getLocalPart());
+        }
+        lockScope = PropertyConstants.EXCLUSIVE;
+      } else if (prop.getName().equals(PropertyConstants.LOCKTYPE)) {
+        QName type = prop.getChild(0).getName();
+        if (!type.equals(PropertyConstants.WRITE)) {
+          // should we throw PreconditionException here?
+          log.warn("Lock is converted to exclusive scope, requested " + type.getLocalPart());
         }
         lockScope = PropertyConstants.WRITE;
-	    } else if(prop.getName().equals(PropertyConstants.OWNER)) {
-	      // <D:href>value</D:href>
-	      if (prop.getChildren().size() > 0) {
-	        owner = prop.getChild(0).getValue();
-	      }
-	    }
-	  }
-	}
+      } else if (prop.getName().equals(PropertyConstants.OWNER)) {
+        // <D:href>value</D:href>
+        if (prop.getChildren().size() > 0) {
+          owner = prop.getChild(0).getValue();
+        }
+      }
+    }
+  }
 
-	public QName getLockScope() {
-	  return lockScope;
-	}
-	
-	public String getOwner() {
-	  return owner;  
-	}
+  public QName getLockScope() {
+    return lockScope;
+  }
 
-	public QName getLockType() {
-	  return lockType;
-	}
+  public String getOwner() {
+    return owner;
+  }
+
+  public QName getLockType() {
+    return lockType;
+  }
 }

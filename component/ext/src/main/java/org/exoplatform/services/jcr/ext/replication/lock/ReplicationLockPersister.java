@@ -45,19 +45,19 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
   private final Log                log = ExoLogger.getLogger("ext.ReplicationLockPersister");
 
   private Thread                   delayStarterThread;
-  
+
   public ReplicationLockPersister(WorkspacePersistentDataManager dataManager,
-      WorkspaceEntry config, ReplicationService service) throws RepositoryConfigurationException,
+                                  WorkspaceEntry config,
+                                  ReplicationService service) throws RepositoryConfigurationException,
       RepositoryException {
     super(dataManager, config);
     log.info("init");
 
     replicationService = service;
   }
-  
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister#start()
    */
   public void start() {
@@ -73,7 +73,6 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister#stop()
    */
   public void stop() {

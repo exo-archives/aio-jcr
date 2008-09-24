@@ -46,8 +46,7 @@ import org.jgroups.View;
  * @version $Id: ConectionFailDetector.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ConnectionFailDetector implements ChannelListener, MembershipListener, MemberListener {
-  private static Log                    log          = ExoLogger
-                                                         .getLogger("ext.ConnectionFailDetector");
+  private static Log                    log          = ExoLogger.getLogger("ext.ConnectionFailDetector");
 
   private final ChannelManager          channelManager;
 
@@ -74,8 +73,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
   private final AbstractPriorityChecker priorityChecker;
 
   public ConnectionFailDetector(ChannelManager channelManager,
-      WorkspaceDataContainer dataContainer, RecoveryManager recoveryManager, int ownPriority,
-      List<String> otherParticipants, String ownName, String priprityType) {
+                                WorkspaceDataContainer dataContainer,
+                                RecoveryManager recoveryManager,
+                                int ownPriority,
+                                List<String> otherParticipants,
+                                String ownName,
+                                String priprityType) {
     this.channelManager = channelManager;
     this.channelManager.setChannelListener(this);
 
@@ -88,11 +91,15 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     this.otherPartisipants = new ArrayList<String>(otherParticipants);
 
     if (priprityType.equals(ReplicationService.PRIORITY_STATIC_TYPE))
-      priorityChecker = new StaticPriorityChecker(channelManager, ownPriority, ownName,
-          otherParticipants);
+      priorityChecker = new StaticPriorityChecker(channelManager,
+                                                  ownPriority,
+                                                  ownName,
+                                                  otherParticipants);
     else
-      priorityChecker = new DynamicPriorityChecker(channelManager, ownPriority, ownName,
-          otherParticipants);
+      priorityChecker = new DynamicPriorityChecker(channelManager,
+                                                   ownPriority,
+                                                   ownName,
+                                                   otherParticipants);
 
     priorityChecker.setMemberListener(this);
   }
@@ -152,9 +159,8 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       log.debug("priorityChecker.isAllOnline()   == " + priorityChecker.isAllOnline());
       log.debug("priorityChecker.isMaxOnline()   == " + priorityChecker.isMaxOnline());
       log.debug("reconectTtread == null          == " + reconectTtread == null);
-      log
-          .debug("priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1 == "
-              + (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1));
+      log.debug("priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1 == "
+          + (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1));
     }
 
     if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {

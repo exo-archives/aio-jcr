@@ -32,46 +32,45 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
  * @version $Id: TestSessionCleaner.java 14508 2008-05-20 10:07:45Z ksm $
  */
 public class TestSessionCleaner extends JcrImplBaseTest {
-  private final static int AGENT_COUNT = 10;
+  private final static int  AGENT_COUNT          = 10;
 
-  private SessionRegistry  sessionRegistry;
-  
-  private long oldTimeOut;
-  
-  private final static long TEST_SESSION_TIMEOUT  = 20000;
+  private SessionRegistry   sessionRegistry;
+
+  private long              oldTimeOut;
+
+  private final static long TEST_SESSION_TIMEOUT = 20000;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    sessionRegistry = (SessionRegistry) session.getContainer().getComponentInstanceOfType(SessionRegistry.class);
+    sessionRegistry = (SessionRegistry) session.getContainer()
+                                               .getComponentInstanceOfType(SessionRegistry.class);
     oldTimeOut = sessionRegistry.timeOut;
     sessionRegistry.timeOut = TEST_SESSION_TIMEOUT;
     sessionRegistry.stop();
     Thread.yield();
     sessionRegistry.start();
   }
-  
 
   @Override
   protected void tearDown() throws Exception {
     super.tearDown();
-    sessionRegistry.stop();    
+    sessionRegistry.stop();
     sessionRegistry.timeOut = oldTimeOut;
     Thread.yield();
     sessionRegistry.start();
   }
 
-
   public void testSessionRemove() throws LoginException,
-      NoSuchWorkspaceException,
-      RepositoryException,
-      InterruptedException {
+                                 NoSuchWorkspaceException,
+                                 RepositoryException,
+                                 InterruptedException {
     SessionImpl session2 = (SessionImpl) repository.login(credentials, "ws");
     assertTrue(session2.isLive());
 
-    
     assertNotNull(sessionRegistry);
-   
-    Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT+20);
+
+    Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT + 20);
 
     assertFalse(session2.isLive());
   }
@@ -95,28 +94,23 @@ public class TestSessionCleaner extends JcrImplBaseTest {
           Node rootNode = session2.getRootNode();
           rootNode.addNode("test");
           assertTrue(session2.isLive());
-          
-
 
           if (active) {
             log.info("start active session");
             long startTime = System.currentTimeMillis();
             while (startTime + sessionRegistry.timeOut * 2 < System.currentTimeMillis()) {
-              Node root2  = session2.getRootNode();
+              Node root2 = session2.getRootNode();
               Node testNode = root2.getNode("test");
-              testNode.setProperty("prop1","value");
-              Thread.sleep(sessionRegistry.timeOut /2);
+              testNode.setProperty("prop1", "value");
+              Thread.sleep(sessionRegistry.timeOut / 2);
             }
             result = session2.isLive();
-          }else{
+          } else {
             log.info("start pasive session");
-            Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT+20);
+            Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT + 20);
             result = !session2.isLive();
           }
 
-
-          
-          
         } catch (InterruptedException e) {
         } catch (LoginException e) {
         } catch (NoSuchWorkspaceException e) {

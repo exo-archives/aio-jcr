@@ -34,15 +34,17 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
   protected WorkspaceDataTransmitter dataTransmitter;
 
-  public BasePriorityTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+  public BasePriorityTestCase(RepositoryService repositoryService,
+                              String reposytoryName,
+                              String workspaceName,
+                              String userName,
+                              String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
 
-    WorkspaceContainerFacade wContainer = ((RepositoryImpl) repository)
-        .getWorkspaceContainer(session.getWorkspace().getName());
+    WorkspaceContainerFacade wContainer = ((RepositoryImpl) repository).getWorkspaceContainer(session.getWorkspace()
+                                                                                                     .getName());
 
-    dataTransmitter = (WorkspaceDataTransmitter) wContainer
-        .getComponent(WorkspaceDataTransmitter.class);
+    dataTransmitter = (WorkspaceDataTransmitter) wContainer.getComponent(WorkspaceDataTransmitter.class);
   }
 
   public StringBuffer disconnectClusterNode() {
@@ -99,15 +101,15 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
 
     return sb;
   }
-  
+
   public StringBuffer allowConnectForced() {
     StringBuffer sb = new StringBuffer();
     try {
       ChannelManager channelManager = dataTransmitter.getChannelManager();
       channelManager.setAllowConnect(true);
-      
+
       channelManager.closeChannel();
-      
+
       channelManager.init();
       channelManager.connect();
 
@@ -124,14 +126,11 @@ public class BasePriorityTestCase extends BaseReplicationTestCase {
     StringBuffer sb = new StringBuffer();
     try {
 
-      WorkspaceContainerFacade wsFacade = ((RepositoryImpl) repository)
-          .getWorkspaceContainer(workspaceName);
-      WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade
-          .getComponent(WorkspaceDataContainer.class);
-      
-      
-      if(!dataContainer.isReadOnly())
-        throw new Exception("The workspace '"+ dataContainer.getName() +"' was not read-only");
+      WorkspaceContainerFacade wsFacade = ((RepositoryImpl) repository).getWorkspaceContainer(workspaceName);
+      WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
+
+      if (!dataContainer.isReadOnly())
+        throw new Exception("The workspace '" + dataContainer.getName() + "' was not read-only");
 
       sb.append("ok");
     } catch (Exception e) {

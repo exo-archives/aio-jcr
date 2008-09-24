@@ -37,19 +37,23 @@ import org.exoplatform.services.rest.Response;
  */
 public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
-  private Node testRoot;
-  private ResourceBinder binder;
+  private Node               testRoot;
+
+  private ResourceBinder     binder;
+
   private ResourceDispatcher dispatcher;
-  
-  private Node scriptFile;
-  private Node script;
-  
-  /* (non-Javadoc)
+
+  private Node               scriptFile;
+
+  private Node               script;
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.BaseStandaloneTest#setUp()
    */
   public void setUp() throws Exception {
     super.setUp();
-    
+
     binder = (ResourceBinder) container.getComponentInstanceOfType(ResourceBinder.class);
     binder.clear();
     dispatcher = (ResourceDispatcher) container.getComponentInstanceOfType(ResourceDispatcher.class);
@@ -60,16 +64,17 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     script.setProperty("exo:autoload", true);
     script.setProperty("jcr:mimeType", "text/groovy");
     script.setProperty("jcr:lastModified", Calendar.getInstance());
-    script.setProperty("jcr:data", Thread.currentThread().getContextClassLoader()
-        .getResourceAsStream("test1.groovy"));
-  
+    script.setProperty("jcr:data", Thread.currentThread()
+                                         .getContextClassLoader()
+                                         .getResourceAsStream("test1.groovy"));
+
     session.save();
   }
-  
+
   public void testStartQuery() throws Exception {
-    String xpath = "//element(*, " + GroovyScript2RestLoader.DEFAULT_NODETYPE + ")[@exo:autoload='true']";
-    Query query = session.getWorkspace().getQueryManager().createQuery(
-        xpath, Query.XPATH);
+    String xpath = "//element(*, " + GroovyScript2RestLoader.DEFAULT_NODETYPE
+        + ")[@exo:autoload='true']";
+    Query query = session.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
     QueryResult result = query.execute();
     assertEquals(1, result.getNodes().getSize());
 
@@ -78,43 +83,49 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     result = query.execute();
     assertEquals(0, result.getNodes().getSize());
   }
-  
+
   public void testBindScripts() throws Exception {
     // one script should be binded from start
     assertEquals(1, binder.getAllDescriptors().size());
-    
+
     script.setProperty("exo:autoload", false);
     session.save();
     assertEquals(0, binder.getAllDescriptors().size());
 
-    //  bind script again
+    // bind script again
     script.setProperty("exo:autoload", true);
     session.save();
     assertEquals(1, binder.getAllDescriptors().size());
   }
-  
+
   public void testDispatchScript() throws Exception {
     assertEquals(1, binder.getAllDescriptors().size());
-    Request request = new Request(null, new ResourceIdentifier("/test/groovy1/test/"),
-        "GET", new MultivaluedMetadata(), new MultivaluedMetadata());
+    Request request = new Request(null,
+                                  new ResourceIdentifier("/test/groovy1/test/"),
+                                  "GET",
+                                  new MultivaluedMetadata(),
+                                  new MultivaluedMetadata());
     Response response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
     assertEquals("Hello from groovy to test!", response.getEntity());
-    
+
     // change script source code
-    script.setProperty("jcr:data", Thread.currentThread().getContextClassLoader()
-        .getResourceAsStream("test2.groovy"));
+    script.setProperty("jcr:data", Thread.currentThread()
+                                         .getContextClassLoader()
+                                         .getResourceAsStream("test2.groovy"));
     session.save();
-    
+
     // must be rebounded , not created other one
     assertEquals(1, binder.getAllDescriptors().size());
     // relative URI changed
-    request = new Request(null, new ResourceIdentifier("/test/groovy2/test/"),
-        "GET", new MultivaluedMetadata(), new MultivaluedMetadata());
+    request = new Request(null,
+                          new ResourceIdentifier("/test/groovy2/test/"),
+                          "GET",
+                          new MultivaluedMetadata(),
+                          new MultivaluedMetadata());
     response = dispatcher.dispatch(request);
     assertEquals(200, response.getStatus());
     assertEquals("Hello from groovy to >>>>> test!", response.getEntity());
   }
 
 }
-

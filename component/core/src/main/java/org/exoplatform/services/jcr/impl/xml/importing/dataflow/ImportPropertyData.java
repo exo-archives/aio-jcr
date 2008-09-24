@@ -40,14 +40,22 @@ public class ImportPropertyData extends TransientPropertyData implements ImportI
   public ImportPropertyData() {
 
   }
+
   /**
    * Full constructor.
-   * @param path - property path.
-   * @param identifier - identifier
-   * @param version - version
-   * @param type - property type
-   * @param parentIdentifier - parent node identifier 
-   * @param multiValued - is property multivalued
+   * 
+   * @param path
+   *          - property path.
+   * @param identifier
+   *          - identifier
+   * @param version
+   *          - version
+   * @param type
+   *          - property type
+   * @param parentIdentifier
+   *          - parent node identifier
+   * @param multiValued
+   *          - is property multivalued
    */
   public ImportPropertyData(QPath path,
                             String identifier,
@@ -61,7 +69,8 @@ public class ImportPropertyData extends TransientPropertyData implements ImportI
   /**
    * Set parent identifier.
    * 
-   * @param identifer - identifier
+   * @param identifer
+   *          - identifier
    */
   public void setParentIdentifer(String identifer) {
     this.parentIdentifier = identifer;
@@ -70,7 +79,8 @@ public class ImportPropertyData extends TransientPropertyData implements ImportI
   /**
    * Set path of item.
    * 
-   * @param path - property path.
+   * @param path
+   *          - property path.
    */
   public void setQPath(QPath path) {
     this.qpath = path;

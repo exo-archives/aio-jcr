@@ -29,7 +29,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * CAS IO support covers some work will be produced in target FileIOChannels to make them CASeable.<br/> - add value - delete value -
+ * CAS IO support covers some work will be produced in target FileIOChannels to make them
+ * CASeable.<br/> - add value - delete value -
  * 
  * Date: 15.07.2008
  * 
@@ -52,9 +53,11 @@ public class CASableIOSupport {
   }
 
   /**
-   * Open digester output.<br/> Digester output will write into given file and calc hash for a content.
+   * Open digester output.<br/> Digester output will write into given file and calc hash for a
+   * content.
    * 
-   * @param file - destenation file
+   * @param file
+   *          - destenation file
    * @return - digester output stream
    * @throws IOException
    */
@@ -73,9 +76,12 @@ public class CASableIOSupport {
   /**
    * Save content of digester output to storage and record hash id in address database.
    * 
-   * @param propertyId - proeprty id
-   * @param orderNumber - value number
-   * @param dout - digester write output (File writter)
+   * @param propertyId
+   *          - proeprty id
+   * @param orderNumber
+   *          - value number
+   * @param dout
+   *          - digester write output (File writter)
    * @throws IOException
    * @throws RecordAlreadyExistsException
    */
@@ -94,7 +100,7 @@ public class CASableIOSupport {
       // remove file if same exists
       dout.getFile().delete(); // should be ok without file cleaner
     else if (!dout.getFile().renameTo(vcasFile)) // rename propetynamed file to hashnamed one
-      throw new VCASException("File " + dout.getFile().getAbsolutePath() + " can't be renamed to VCAS-named "
-          + vcasFile.getAbsolutePath());
+      throw new VCASException("File " + dout.getFile().getAbsolutePath()
+          + " can't be renamed to VCAS-named " + vcasFile.getAbsolutePath());
   }
 }

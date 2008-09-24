@@ -20,26 +20,28 @@ public class EditableValueData extends TransientValueData {
 
   protected final int maxIOBuffSize;
 
-  public EditableValueData(byte[] bytes, int orderNumber,
-      FileCleaner fileCleaner, int maxBufferSize, File tempDirectory)
-      throws IOException {
+  public EditableValueData(byte[] bytes,
+                           int orderNumber,
+                           FileCleaner fileCleaner,
+                           int maxBufferSize,
+                           File tempDirectory) throws IOException {
 
     // send bytes to super.<init>
-    super(orderNumber, bytes, null, null, fileCleaner, maxBufferSize,
-        tempDirectory, true);
+    super(orderNumber, bytes, null, null, fileCleaner, maxBufferSize, tempDirectory, true);
 
     this.maxIOBuffSize = calcMaxIOSize();
 
     this.spooled = true;
   }
 
-  public EditableValueData(File spoolFile, int orderNumber,
-      FileCleaner fileCleaner, int maxBufferSize, File tempDirectory)
-      throws IOException {
+  public EditableValueData(File spoolFile,
+                           int orderNumber,
+                           FileCleaner fileCleaner,
+                           int maxBufferSize,
+                           File tempDirectory) throws IOException {
 
     // don't send any data there (no stream, no bytes)
-    super(orderNumber, null, null, null, fileCleaner, maxBufferSize,
-        tempDirectory, true);
+    super(orderNumber, null, null, null, fileCleaner, maxBufferSize, tempDirectory, true);
 
     this.maxIOBuffSize = calcMaxIOSize();
 
@@ -79,8 +81,7 @@ public class EditableValueData extends TransientValueData {
   }
 
   protected int calcMaxIOSize() {
-    return maxBufferSize < 1024 ? 1024
-        : maxBufferSize < (250 * 1024) ? maxBufferSize : 250 * 1024;
+    return maxBufferSize < 1024 ? 1024 : maxBufferSize < (250 * 1024) ? maxBufferSize : 250 * 1024;
   }
 
   protected int calcBuffSize(long length) {
@@ -102,8 +103,14 @@ public class EditableValueData extends TransientValueData {
         spoolChannel.force(false);
 
         InputStream thisStream = getAsStream();
-        TransientValueData copy = new TransientValueData(orderNumber, null,
-            thisStream, null, fileCleaner, maxBufferSize, tempDirectory, true);
+        TransientValueData copy = new TransientValueData(orderNumber,
+                                                         null,
+                                                         thisStream,
+                                                         null,
+                                                         fileCleaner,
+                                                         maxBufferSize,
+                                                         tempDirectory,
+                                                         true);
         copy.getSpoolFile(); // read now, till the source isn't changed
         thisStream.close();
 
@@ -115,15 +122,14 @@ public class EditableValueData extends TransientValueData {
   }
 
   /**
-   * Update with <code>length</code> bytes from the specified
-   * <code>stream</code> to this value data at <code>position</code>.
+   * Update with <code>length</code> bytes from the specified <code>stream</code> to this value data
+   * at <code>position</code>.
    * 
-   * If <code>position</code> is lower 0 the IOException exception will be
-   * thrown.
+   * If <code>position</code> is lower 0 the IOException exception will be thrown.
    * 
-   * If <code>position</code> is higher of current Value length the Value
-   * length will be increased before to <code>position</code> size and
-   * <code>length</code> bytes will be added after the <code>position</code>.
+   * If <code>position</code> is higher of current Value length the Value length will be increased
+   * before to <code>position</code> size and <code>length</code> bytes will be added after the
+   * <code>position</code>.
    * 
    * @param stream
    *          the data.
@@ -134,16 +140,13 @@ public class EditableValueData extends TransientValueData {
    * 
    * @throws IOException
    */
-  public void update(InputStream stream, long length, long position)
-      throws IOException {
+  public void update(InputStream stream, long length, long position) throws IOException {
 
     if (position < 0)
-      throw new IOException("Position must be higher or equals 0. But given " +
-          position);
+      throw new IOException("Position must be higher or equals 0. But given " + position);
 
     if (length < 0)
-      throw new IOException("Length must be higher or equals 0. But given " +
-          length);
+      throw new IOException("Length must be higher or equals 0. But given " + length);
 
     if (isByteArray()) {
       // edit bytes
@@ -151,8 +154,8 @@ public class EditableValueData extends TransientValueData {
       long updateSize = position + length;
 
       long newSize = updateSize > data.length ? updateSize : data.length;
-      if ((newSize <= maxBufferSize && newSize <= Integer.MAX_VALUE) ||
-          maxBufferSize <= 0 || tempDirectory == null) {
+      if ((newSize <= maxBufferSize && newSize <= Integer.MAX_VALUE) || maxBufferSize <= 0
+          || tempDirectory == null) {
         // bytes
         byte[] newBytes = new byte[(int) newSize];
 
@@ -160,8 +163,7 @@ public class EditableValueData extends TransientValueData {
 
         if ((newIndex = (int) position) > 0) {
           // begin from the existed bytes
-          System.arraycopy(data, 0, newBytes, 0,
-              newIndex < data.length ? newIndex : data.length);
+          System.arraycopy(data, 0, newBytes, 0, newIndex < data.length ? newIndex : data.length);
         }
 
         // write new data
@@ -180,8 +182,7 @@ public class EditableValueData extends TransientValueData {
 
         if (newIndex < data.length)
           // write the rest of existed data
-          System.arraycopy(data, newIndex, newBytes, newIndex, data.length -
-              newIndex);
+          System.arraycopy(data, newIndex, newBytes, newIndex, data.length - newIndex);
 
         this.data = newBytes;
 
@@ -200,18 +201,15 @@ public class EditableValueData extends TransientValueData {
           chch = new RandomAccessFile(chf, "rw").getChannel();
 
           // allocate the space for whole file
-          MappedByteBuffer bb = chch.map(FileChannel.MapMode.READ_WRITE,
-              position + length, 0);
+          MappedByteBuffer bb = chch.map(FileChannel.MapMode.READ_WRITE, position + length, 0);
           bb.force();
           bb = null;
 
-          ReadableByteChannel bch = Channels
-              .newChannel(new ByteArrayInputStream(this.data));
+          ReadableByteChannel bch = Channels.newChannel(new ByteArrayInputStream(this.data));
 
           if ((newIndex = (int) position) > 0) {
             // begin from the existed bytes
-            chch.transferFrom(bch, 0, newIndex < data.length ? newIndex
-                : data.length);
+            chch.transferFrom(bch, 0, newIndex < data.length ? newIndex : data.length);
             bch.close();
           }
 
@@ -244,8 +242,7 @@ public class EditableValueData extends TransientValueData {
         this.data = null;
       }
     } else {
-      MappedByteBuffer bb = spoolChannel.map(FileChannel.MapMode.READ_WRITE,
-          position, length);
+      MappedByteBuffer bb = spoolChannel.map(FileChannel.MapMode.READ_WRITE, position, length);
 
       ReadableByteChannel ch = Channels.newChannel(stream);
       ch.read(bb);
@@ -262,8 +259,8 @@ public class EditableValueData extends TransientValueData {
    * 
    * This operation can be used both for extend and for truncate the Value size.
    * 
-   * This method used internally in update operation in case of extending the
-   * size to the given position.
+   * This method used internally in update operation in case of extending the size to the given
+   * position.
    * 
    * @param size
    * @throws IOException
@@ -271,15 +268,15 @@ public class EditableValueData extends TransientValueData {
   public void setLength(long size) throws IOException {
 
     if (size < 0)
-      throw new IOException("Size must be higher or equals 0. But given " +
-          size);
+      throw new IOException("Size must be higher or equals 0. But given " + size);
 
     if (isByteArray()) {
       if (size < maxBufferSize || maxBufferSize <= 0 || tempDirectory == null) {
         // use bytes
         byte[] newBytes = new byte[(int) size];
-        System.arraycopy(data, 0, newBytes, 0,
-            (data.length < newBytes.length) ? data.length : newBytes.length);
+        System.arraycopy(data, 0, newBytes, 0, (data.length < newBytes.length)
+            ? data.length
+            : newBytes.length);
         this.data = newBytes;
       } else {
         // switch from bytes to file/channel
@@ -289,15 +286,13 @@ public class EditableValueData extends TransientValueData {
           chf = File.createTempFile("jcrvdedit", null, tempDirectory);
           chch = new RandomAccessFile(chf, "rw").getChannel();
 
-          ReadableByteChannel bch = Channels
-              .newChannel(new ByteArrayInputStream(this.data));
+          ReadableByteChannel bch = Channels.newChannel(new ByteArrayInputStream(this.data));
           chch.transferFrom(bch, 0, this.data.length); // get all
           bch.close();
 
           if (chch.size() < size) {
             // extend length
-            MappedByteBuffer bb = chch.map(FileChannel.MapMode.READ_WRITE,
-                size, 0);
+            MappedByteBuffer bb = chch.map(FileChannel.MapMode.READ_WRITE, size, 0);
             bb.force();
           }
         } catch (final IOException e) {
@@ -306,8 +301,7 @@ public class EditableValueData extends TransientValueData {
             chf.delete();
           } catch (Exception e1) {
           }
-          throw new IOException("setLength(" + size + ") error. " +
-              e.getMessage()) {
+          throw new IOException("setLength(" + size + ") error. " + e.getMessage()) {
             @Override
             public Throwable getCause() {
               return e;
@@ -343,9 +337,8 @@ public class EditableValueData extends TransientValueData {
           log.info("Could not remove file. Add to fileCleaner " + spoolFile);
           fileCleaner.addFile(spoolFile);
         } else {
-          log
-              .warn("Could not remove temporary file on switch to bytes, fileCleaner not found. " +
-                  spoolFile.getAbsolutePath());
+          log.warn("Could not remove temporary file on switch to bytes, fileCleaner not found. "
+              + spoolFile.getAbsolutePath());
         }
       }
 
@@ -355,8 +348,7 @@ public class EditableValueData extends TransientValueData {
     } else {
       if (spoolChannel.size() < size) {
         // extend file
-        MappedByteBuffer bb = spoolChannel.map(FileChannel.MapMode.READ_WRITE,
-            size, 0);
+        MappedByteBuffer bb = spoolChannel.map(FileChannel.MapMode.READ_WRITE, size, 0);
         bb.force();
       } else {
         // truncate file

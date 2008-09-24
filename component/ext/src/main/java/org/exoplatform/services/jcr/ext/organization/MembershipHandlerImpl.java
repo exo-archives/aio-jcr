@@ -27,29 +27,30 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * TODO seems nodetypes and/or existing interfaces of API don't relate one to other.
  * 
  * Date: 24.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: MembershipHandler.java 111 2008-11-11 11:11:11Z peterit $
  */
-public class MembershipHandlerImpl implements org.exoplatform.services.organization.MembershipHandler {
+public class MembershipHandlerImpl implements
+    org.exoplatform.services.organization.MembershipHandler {
 
-  protected final JCROrganizationServiceImpl service;
-  
-  protected final List<MembershipEventListener> listeners  = new ArrayList<MembershipEventListener>();
-  
+  protected final JCROrganizationServiceImpl    service;
+
+  protected final List<MembershipEventListener> listeners = new ArrayList<MembershipEventListener>();
+
   MembershipHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
-  
+
   public void addMembershipEventListener(MembershipEventListener listener) {
     listeners.add(listener);
   }
-  
+
   public void removeMembershipEventListener(MembershipEventListener listener) {
     listeners.remove(listener);
   }

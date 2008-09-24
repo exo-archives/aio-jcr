@@ -19,19 +19,20 @@ package org.exoplatform.frameworks.ftpclient.commands;
 import org.exoplatform.frameworks.ftpclient.client.FtpClientSession;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public interface FtpCommand {
 
   int run(FtpClientSession clientSession);
-  
+
   int execute();
-  
+
   int getReply() throws Exception;
-  
+
   String getDescription();
-  
+
 }

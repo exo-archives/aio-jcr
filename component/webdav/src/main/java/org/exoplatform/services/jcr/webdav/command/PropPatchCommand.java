@@ -37,42 +37,50 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class PropPatchCommand {
-  
+
   protected final NullResourceLocksHolder lockHolder;
-  
+
   public PropPatchCommand(NullResourceLocksHolder lockHolder) {
     this.lockHolder = lockHolder;
   }
-  
-  public Response propPatch(Session session, String path, HierarchicalProperty body, List<String> tokens, String baseURI) {
-    try {      
-     
+
+  public Response propPatch(Session session,
+                            String path,
+                            HierarchicalProperty body,
+                            List<String> tokens,
+                            String baseURI) {
+    try {
+
       lockHolder.checkLock(session, path, tokens);
 
-      Node node = (Node)session.getItem(path);
+      Node node = (Node) session.getItem(path);
 
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
-      
+
       List<HierarchicalProperty> setList = Collections.emptyList();
-      if (body.getChild(new QName("DAV:", "set")) != null){
+      if (body.getChild(new QName("DAV:", "set")) != null) {
         setList = setList(body);
       }
 
       List<HierarchicalProperty> removeList = Collections.emptyList();
-      if (body.getChild(new QName("DAV:", "remove")) != null){
+      if (body.getChild(new QName("DAV:", "remove")) != null) {
         removeList = removeList(body);
       }
-      
-      PropPatchResponseEntity entity = new PropPatchResponseEntity(nsContext, node, uri, setList, removeList);
+
+      PropPatchResponseEntity entity = new PropPatchResponseEntity(nsContext,
+                                                                   node,
+                                                                   uri,
+                                                                   setList,
+                                                                   removeList);
       return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(entity).build();
-      
+
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
     } catch (LockException exc) {
@@ -80,21 +88,21 @@ public class PropPatchCommand {
     } catch (Exception exc) {
       return Response.Builder.serverError().build();
     }
-    
+
   }
-  
+
   public List<HierarchicalProperty> setList(HierarchicalProperty request) {
     HierarchicalProperty set = request.getChild(new QName("DAV:", "set"));
     HierarchicalProperty prop = set.getChild(new QName("DAV:", "prop"));
     List<HierarchicalProperty> setList = prop.getChildren();
     return setList;
   }
-  
+
   public List<HierarchicalProperty> removeList(HierarchicalProperty request) {
     HierarchicalProperty remove = request.getChild(new QName("DAV:", "remove"));
     HierarchicalProperty prop = remove.getChild(new QName("DAV:", "prop"));
     List<HierarchicalProperty> removeList = prop.getChildren();
-    return removeList;    
+    return removeList;
   }
 
 }

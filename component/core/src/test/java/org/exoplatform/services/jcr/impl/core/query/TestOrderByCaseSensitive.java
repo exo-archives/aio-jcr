@@ -52,7 +52,7 @@ public class TestOrderByCaseSensitive extends BaseQueryTest {
     c2.set(2002, 5, 20, 14, 35, 14);
     Calendar c3 = Calendar.getInstance();
     c3.set(2003, 4, 20, 14, 35, 13);
-    
+
     Node testRoot = root.addNode("testRoot");
     Node node1 = testRoot.addNode("node1");
     node1.setProperty("date", c1);
@@ -66,13 +66,13 @@ public class TestOrderByCaseSensitive extends BaseQueryTest {
     Query query = qm.createQuery(sql, Query.SQL);
     QueryResult result = query.execute();
     NodeIterator nodes = result.getNodes();
-    assertEquals(3,nodes.getSize());
-    assertEquals("node3",nodes.nextNode().getName());
-    assertEquals("node2",nodes.nextNode().getName());
-    assertEquals("node1",nodes.nextNode().getName());
-
+    assertEquals(3, nodes.getSize());
+    assertEquals("node3", nodes.nextNode().getName());
+    assertEquals("node2", nodes.nextNode().getName());
+    assertEquals("node1", nodes.nextNode().getName());
 
   }
+
   public void testOrderByUpperCase() throws Exception {
     Calendar c1 = Calendar.getInstance();
     c1.set(2001, 4, 20, 14, 35, 14);
@@ -80,7 +80,7 @@ public class TestOrderByCaseSensitive extends BaseQueryTest {
     c2.set(2002, 5, 20, 14, 35, 14);
     Calendar c3 = Calendar.getInstance();
     c3.set(2003, 4, 20, 14, 35, 13);
-    
+
     Node testRoot = root.addNode("testRoot");
     Node node1 = testRoot.addNode("node1");
     node1.setProperty("date", c1);
@@ -94,14 +94,13 @@ public class TestOrderByCaseSensitive extends BaseQueryTest {
     Query query = qm.createQuery(sql, Query.SQL);
     QueryResult result = query.execute();
     NodeIterator nodes = result.getNodes();
-    assertEquals(3,nodes.getSize());
-    assertEquals("node3",nodes.nextNode().getName());
-    assertEquals("node2",nodes.nextNode().getName());
-    assertEquals("node1",nodes.nextNode().getName());
-
+    assertEquals(3, nodes.getSize());
+    assertEquals("node3", nodes.nextNode().getName());
+    assertEquals("node2", nodes.nextNode().getName());
+    assertEquals("node1", nodes.nextNode().getName());
 
   }
-  
+
   public void testDESCUpperCase() throws Exception {
     Calendar c1 = Calendar.getInstance();
     c1.set(2001, 4, 20, 14, 35, 14);
@@ -109,7 +108,7 @@ public class TestOrderByCaseSensitive extends BaseQueryTest {
     c2.set(2002, 5, 20, 14, 35, 14);
     Calendar c3 = Calendar.getInstance();
     c3.set(2003, 4, 20, 14, 35, 13);
-    
+
     Node testRoot = root.addNode("testRoot");
     Node node1 = testRoot.addNode("node1");
     node1.setProperty("date", c1);
@@ -123,12 +122,11 @@ public class TestOrderByCaseSensitive extends BaseQueryTest {
     Query query = qm.createQuery(sql, Query.SQL);
     QueryResult result = query.execute();
     NodeIterator nodes = result.getNodes();
-    
-    assertEquals(3,nodes.getSize());
-    assertEquals("node3",nodes.nextNode().getName());
-    assertEquals("node2",nodes.nextNode().getName());
-    assertEquals("node1",nodes.nextNode().getName());
 
+    assertEquals(3, nodes.getSize());
+    assertEquals("node3", nodes.nextNode().getName());
+    assertEquals("node2", nodes.nextNode().getName());
+    assertEquals("node1", nodes.nextNode().getName());
 
   }
 }

@@ -27,8 +27,8 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaliy Obmanjuk
- * vitaliy.obmanjuk@exoplatform.com.ua 20.07.2006
+ * Created by The eXo Platform SAS Author : Vitaliy Obmanjuk vitaliy.obmanjuk@exoplatform.com.ua
+ * 20.07.2006
  * 
  * @version $Id: TestPerformance.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -93,12 +93,12 @@ public class TestPerformance extends JcrAPIBaseTest {
 
   public void testAddMixReferenceableToNodeOfTypeNtBaseShortSession() throws Exception {
     float time = 0;
-    Node testAddMixReferenceableToNodeOfTypeNtBase = testRoot.addNode(
-        "testAddMixReferenceableToNodeOfTypeNtBase", "nt:unstructured");
+    Node testAddMixReferenceableToNodeOfTypeNtBase = testRoot.addNode("testAddMixReferenceableToNodeOfTypeNtBase",
+                                                                      "nt:unstructured");
     ArrayList<Node> nodesList = new ArrayList<Node>();
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       Node tmpNode = testAddMixReferenceableToNodeOfTypeNtBase.addNode("NodeOfTypeNtBase#" + i,
-          "nt:base");
+                                                                       "nt:base");
       nodesList.add(tmpNode);
     }
     long startTime = System.currentTimeMillis();
@@ -115,7 +115,7 @@ public class TestPerformance extends JcrAPIBaseTest {
   public void testSaveNodesShortSession() throws Exception {
     float time = 0;
     Node testSaveNodesShortSession = testRoot.addNode("testSaveNodesShortSession",
-        "nt:unstructured");
+                                                      "nt:unstructured");
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       testSaveNodesShortSession.addNode("NodeOfTypeNtBase#" + i, "nt:base");
     }
@@ -147,7 +147,7 @@ public class TestPerformance extends JcrAPIBaseTest {
   public void testSavePropertiesShortSession() throws Exception {
     float time = 0;
     Node testSavePropertiesShortSession = testRoot.addNode("testSavePropertiesShortSession",
-        "nt:unstructured");
+                                                           "nt:unstructured");
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       testSavePropertiesShortSession.setProperty("testProperty" + i, IdGenerator.generate());
     }
@@ -163,7 +163,7 @@ public class TestPerformance extends JcrAPIBaseTest {
   public void testSavePropertiesLongSession() throws Exception {
     float time = 0;
     Node testSavePropertiesLongSession = testRoot.addNode("testSavePropertiesLongSession",
-        "nt:unstructured");
+                                                          "nt:unstructured");
     for (int i = 1; i < NODES_COUNT_LONG_SESSION; i++) {
       testSavePropertiesLongSession.setProperty("testProperty" + i, IdGenerator.generate());
     }
@@ -219,7 +219,7 @@ public class TestPerformance extends JcrAPIBaseTest {
     session.save();
     log.info("[7.1 checkin short session                   ] average time: " + time + "ms");
   }
-  
+
   public void testCheckoutShortSession() throws Exception {
     float time = 0;
     Node testCheckout = testRoot.addNode("testCheckout", "nt:unstructured");
@@ -242,7 +242,7 @@ public class TestPerformance extends JcrAPIBaseTest {
     session.save();
     log.info("[8.1 checkout short session                  ] average time: " + time + "ms");
   }
-  
+
   public void testRemoveNodesShortSession() throws Exception {
     float time = 0;
     Node testRemoveNodes = testRoot.addNode("testRemoveNodes", "nt:unstructured");
@@ -269,7 +269,7 @@ public class TestPerformance extends JcrAPIBaseTest {
     ArrayList<Node> nodesList = new ArrayList<Node>();
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       Node tmpNode = testRemoveProperties.addNode("NodeOfTypeNtUnstructured#" + i,
-          "nt:unstructured");
+                                                  "nt:unstructured");
       tmpNode.setProperty("testProperty", IdGenerator.generate());
       nodesList.add(tmpNode);
     }
@@ -291,7 +291,7 @@ public class TestPerformance extends JcrAPIBaseTest {
     ArrayList<Node> nodesList = new ArrayList<Node>();
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       Node tmpNode = testSaveRemovedNodes.addNode("NodeOfTypeNtUnstructured#" + i,
-          "nt:unstructured");
+                                                  "nt:unstructured");
       nodesList.add(tmpNode);
     }
     session.save();
@@ -313,7 +313,7 @@ public class TestPerformance extends JcrAPIBaseTest {
     ArrayList<Node> nodesList = new ArrayList<Node>();
     for (int i = 1; i < NODES_COUNT_SHORT_SESSION; i++) {
       Node tmpNode = testSaveRemovedNodes.addNode("NodeOfTypeNtUnstructured#" + i,
-          "nt:unstructured");
+                                                  "nt:unstructured");
       tmpNode.setProperty("testProperty", IdGenerator.generate());
       nodesList.add(tmpNode);
     }
@@ -329,7 +329,7 @@ public class TestPerformance extends JcrAPIBaseTest {
     session.save();
     log.info("[10.2 save removed properties short session  ] average time: " + time + "ms");
   }
-  
+
   public void testLockShortSession() throws Exception {
     float time = 0;
     Node testLock = testRoot.addNode("testLock", "nt:unstructured");
@@ -377,12 +377,12 @@ public class TestPerformance extends JcrAPIBaseTest {
     session.save();
     log.info("[12.1 unlock short session                   ] average time: " + time + "ms");
   }
-  
+
   public void testComplexOperationsAddNtFilePlusNtResource() throws Exception {
     // variables for the execution time
     int FILE_SIZE = 100;// 100 K
     Node testAddNtFilePlusNtResource = testRoot.addNode("testAddNtFilePlusNtResource",
-        "nt:unstructured");
+                                                        "nt:unstructured");
     TEST_FILE = createBLOBTempFile(FILE_SIZE).getAbsolutePath();
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < NODES_COUNT_SHORT_SESSION; i++) {
@@ -393,8 +393,8 @@ public class TestPerformance extends JcrAPIBaseTest {
       InputStream is = new FileInputStream(TEST_FILE);
       contentNode.setProperty("jcr:data", is);
       contentNode.setProperty("jcr:mimeType", "text/plain");
-      contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-          Calendar.getInstance()));
+      contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
       is.close();
     }
     long endTime = System.currentTimeMillis();
@@ -404,7 +404,7 @@ public class TestPerformance extends JcrAPIBaseTest {
       startTime = System.currentTimeMillis();
       session.save();
       endTime = System.currentTimeMillis();
-    log.info("[13.2 saving nt:file                         ] average time: "
+      log.info("[13.2 saving nt:file                         ] average time: "
           + ((float) ((endTime - startTime)) / NODES_COUNT_SHORT_SESSION) + "ms");
     } catch (Exception e) {
       log.error(e);
@@ -413,7 +413,7 @@ public class TestPerformance extends JcrAPIBaseTest {
     testAddNtFilePlusNtResource.remove();
     session.save();
   }
-  
+
   public void testGetNodeOfTypeNtBaseShortSession() throws Exception {
     float time = 0;
     Node testAddNodeOfTypeNtBase = testRoot.addNode("testAddNodeOfTypeNtBase", "nt:unstructured");
@@ -449,25 +449,25 @@ public class TestPerformance extends JcrAPIBaseTest {
   }
 
   // jcr 1.5 case
-//  protected File createBLOBTempFile(int sizeInKb) throws IOException {
-//    return createBLOBTempFile("exo_jcr_test_temp_file_", sizeInKb);
-//  }
-//
-//  protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
-//    // create test file
-//    int BUFFER_SIZE = 1024; // 1KB
-//    byte SYMBOL = 65; // symbol A
-//    byte[] data = new byte[BUFFER_SIZE]; // 1KB
-//    Arrays.fill(data, (byte) SYMBOL); // symbol A
-//    File testFile = File.createTempFile(prefix, ".tmp");
-//    FileOutputStream tempOut = new FileOutputStream(testFile);
-//    for (int i = 0; i < sizeInKb; i++) {
-//      tempOut.write(data);
-//    }
-//    tempOut.close();
-//    testFile.deleteOnExit(); // delete on test exit
-//    log.info("Temp file created: " + testFile.getAbsolutePath() + " size: " + testFile.length());
-//    return testFile;
-//  }
+  // protected File createBLOBTempFile(int sizeInKb) throws IOException {
+  // return createBLOBTempFile("exo_jcr_test_temp_file_", sizeInKb);
+  // }
+  //
+  // protected File createBLOBTempFile(String prefix, int sizeInKb) throws IOException {
+  // // create test file
+  // int BUFFER_SIZE = 1024; // 1KB
+  // byte SYMBOL = 65; // symbol A
+  // byte[] data = new byte[BUFFER_SIZE]; // 1KB
+  // Arrays.fill(data, (byte) SYMBOL); // symbol A
+  // File testFile = File.createTempFile(prefix, ".tmp");
+  // FileOutputStream tempOut = new FileOutputStream(testFile);
+  // for (int i = 0; i < sizeInKb; i++) {
+  // tempOut.write(data);
+  // }
+  // tempOut.close();
+  // testFile.deleteOnExit(); // delete on test exit
+  // log.info("Temp file created: " + testFile.getAbsolutePath() + " size: " + testFile.length());
+  // return testFile;
+  // }
 
 }

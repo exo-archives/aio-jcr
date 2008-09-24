@@ -34,24 +34,21 @@ import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS .<br/> Servlet Filter for initialization
- * PortalContainer instance in following way: - try to get current
- * PortalContainer instance using
- * ExoContainerContext.getContainerByName(contextName) - if not found try to get
- * RootContainer instance using ExoContainerContext.getTopContainer() and then
- * create PortalContainer after it - if neither Portal nor Root Container found
- * (possible if there is instantiated StandaloneContainer) throws
- * ServletException
+ * Created by The eXo Platform SAS .<br/> Servlet Filter for initialization PortalContainer instance
+ * in following way: - try to get current PortalContainer instance using
+ * ExoContainerContext.getContainerByName(contextName) - if not found try to get RootContainer
+ * instance using ExoContainerContext.getTopContainer() and then create PortalContainer after it -
+ * if neither Portal nor Root Container found (possible if there is instantiated
+ * StandaloneContainer) throws ServletException
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public class PortalContainerInitializedFilter implements Filter {
 
   private static Log log = ExoLogger.getLogger("PortatContainerInitializedFilter");
 
-  private String contextName;
+  private String     contextName;
 
   public void init(FilterConfig config) throws ServletException {
     contextName = config.getServletContext().getServletContextName();
@@ -60,13 +57,12 @@ public class PortalContainerInitializedFilter implements Filter {
   /**
    * initializes PortalContainer instance.
    * 
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-   *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
+   *      javax.servlet.FilterChain)
    */
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
-    PortalContainer pcontainer =
-      (PortalContainer)ExoContainerContext.getContainerByName(contextName);
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+                                                                                           ServletException {
+    PortalContainer pcontainer = (PortalContainer) ExoContainerContext.getContainerByName(contextName);
     log.debug("get-by-name");
     if (pcontainer == null) {
       log.info("get-from-root");
@@ -76,15 +72,14 @@ public class PortalContainerInitializedFilter implements Filter {
         log.debug("PortalContainer is created after RootContainer");
       }
     }
-    if(pcontainer == null)  {
+    if (pcontainer == null) {
       throw new ServletException("Could not initialize PortalContainer."
-      + "Current ExoContainer is: "
-      + ExoContainerContext.getCurrentContainer());
+          + "Current ExoContainer is: " + ExoContainerContext.getCurrentContainer());
     }
     ExoContainerContext.setCurrentContainer(pcontainer);
     log.debug("Curent Container: " + ExoContainerContext.getCurrentContainer());
     PortalContainer.setInstance(pcontainer);
-    
+
     chain.doFilter(request, response);
   }
 

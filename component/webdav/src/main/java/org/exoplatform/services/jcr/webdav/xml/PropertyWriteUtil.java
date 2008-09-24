@@ -28,89 +28,90 @@ import javax.xml.stream.XMLStreamWriter;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class PropertyWriteUtil {
 
-  public static void writePropStats(XMLStreamWriter xmlStreamWriter, Map<String, Set<HierarchicalProperty>> propStatuses) throws XMLStreamException {
-    for (Map.Entry<String, Set<HierarchicalProperty>> stat : propStatuses.entrySet()) {    
+  public static void writePropStats(XMLStreamWriter xmlStreamWriter,
+                                    Map<String, Set<HierarchicalProperty>> propStatuses) throws XMLStreamException {
+    for (Map.Entry<String, Set<HierarchicalProperty>> stat : propStatuses.entrySet()) {
       xmlStreamWriter.writeStartElement("DAV:", "propstat");
-      
-        xmlStreamWriter.writeStartElement("DAV:", "prop");
-        for(HierarchicalProperty prop : propStatuses.get(stat.getKey())) {
-           writeProperty(xmlStreamWriter, prop);
-        }
-        xmlStreamWriter.writeEndElement();
-        
-        xmlStreamWriter.writeStartElement("DAV:", "status");
-        xmlStreamWriter.writeCharacters(stat.getKey());
-        xmlStreamWriter.writeEndElement();
-  
+
+      xmlStreamWriter.writeStartElement("DAV:", "prop");
+      for (HierarchicalProperty prop : propStatuses.get(stat.getKey())) {
+        writeProperty(xmlStreamWriter, prop);
+      }
+      xmlStreamWriter.writeEndElement();
+
+      xmlStreamWriter.writeStartElement("DAV:", "status");
+      xmlStreamWriter.writeCharacters(stat.getKey());
+      xmlStreamWriter.writeEndElement();
+
       // D:propstat
       xmlStreamWriter.writeEndElement();
     }
   }
 
-  public static void writeProperty(XMLStreamWriter xmlStreamWriter, HierarchicalProperty prop) throws XMLStreamException {   
-    String uri = prop.getName().getNamespaceURI();    
-    
-    String prefix = xmlStreamWriter.getNamespaceContext().getPrefix(uri); 
-    
+  public static void writeProperty(XMLStreamWriter xmlStreamWriter, HierarchicalProperty prop) throws XMLStreamException {
+    String uri = prop.getName().getNamespaceURI();
+
+    String prefix = xmlStreamWriter.getNamespaceContext().getPrefix(uri);
+
     if (prefix == null) {
       prefix = "";
     }
-    
+
     String local = prop.getName().getLocalPart();
-    
+
     if (prop.getValue() == null) {
-      
-      if (prop.getChildren().size() != 0) {        
-        xmlStreamWriter.writeStartElement(prefix, local, uri);        
+
+      if (prop.getChildren().size() != 0) {
+        xmlStreamWriter.writeStartElement(prefix, local, uri);
         if (!uri.equalsIgnoreCase("DAV:")) {
           xmlStreamWriter.writeNamespace(prefix, uri);
         }
-        
+
         writeAttributes(xmlStreamWriter, prop);
-        
+
         for (int i = 0; i < prop.getChildren().size(); i++) {
           HierarchicalProperty property = prop.getChildren().get(i);
           writeProperty(xmlStreamWriter, property);
         }
-        xmlStreamWriter.writeEndElement();        
-      } else {        
+        xmlStreamWriter.writeEndElement();
+      } else {
         xmlStreamWriter.writeEmptyElement(prefix, local, uri);
         if (!uri.equalsIgnoreCase("DAV:")) {
           xmlStreamWriter.writeNamespace(prefix, uri);
         }
-        
+
         writeAttributes(xmlStreamWriter, prop);
       }
-      
+
     } else {
       xmlStreamWriter.writeStartElement(prefix, local, uri);
-      
+
       if (!uri.equalsIgnoreCase("DAV:")) {
         xmlStreamWriter.writeNamespace(prefix, uri);
       }
-      
+
       writeAttributes(xmlStreamWriter, prop);
-      
+
       xmlStreamWriter.writeCharacters(prop.getValue());
       xmlStreamWriter.writeEndElement();
     }
   }
 
-  public static void writeAttributes(XMLStreamWriter xmlStreamWriter, HierarchicalProperty property) throws XMLStreamException {   
-    HashMap<String, String> attributes = property.getAttributes();    
+  public static void writeAttributes(XMLStreamWriter xmlStreamWriter, HierarchicalProperty property) throws XMLStreamException {
+    HashMap<String, String> attributes = property.getAttributes();
     Iterator<String> keyIter = attributes.keySet().iterator();
     while (keyIter.hasNext()) {
       String attrName = keyIter.next();
       String attrValue = attributes.get(attrName);
       xmlStreamWriter.writeAttribute(attrName, attrValue);
     }
-  }   
-  
+  }
+
 }

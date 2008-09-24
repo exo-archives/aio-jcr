@@ -101,13 +101,14 @@ public class DocumentViewStreamExporter extends StreamExporter {
             continue;
           }
           strValue += MULTI_VALUE_DELIMITER
-              + (property.getType() == PropertyType.BINARY ? strVal
-                                                          : StringConverter.normalizeString(strVal,
-                                                                                            true));
+              + (property.getType() == PropertyType.BINARY
+                  ? strVal
+                  : StringConverter.normalizeString(strVal, true));
         }
 
-        writer.writeAttribute(getExportName(property, true),
-                              strValue.length() > 0 ? strValue.substring(1) : strValue);
+        writer.writeAttribute(getExportName(property, true), strValue.length() > 0
+            ? strValue.substring(1)
+            : strValue);
 
       }
     } catch (IllegalStateException e) {
@@ -120,16 +121,16 @@ public class DocumentViewStreamExporter extends StreamExporter {
 
   }
 
-/**
- * 
- * {@inheritDoc}
- */
+  /**
+   * 
+   * {@inheritDoc}
+   */
   protected void leaving(NodeData node, int level) throws RepositoryException {
 
     try {
       if (!node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
         List<NodeData> nodes = dataManager.getChildNodesData(node);
-        if (nodes.size() > 0) { 
+        if (nodes.size() > 0) {
           writer.writeEndElement();
         }
 

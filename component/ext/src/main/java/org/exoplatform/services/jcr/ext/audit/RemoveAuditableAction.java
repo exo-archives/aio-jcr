@@ -42,12 +42,12 @@ public class RemoveAuditableAction implements Action {
       node = (Node) item;
     else
       node = item.getParent();
-    
+
     AuditService auditService = (AuditService) ((ExoContainer) context.get("exocontainer")).getComponentInstanceOfType(AuditService.class);
     RemoveAuditableVisitor removeVisitor = new RemoveAuditableVisitor(auditService);
-    
+
     node.accept(removeVisitor);
-    
+
     return false;
   }
 

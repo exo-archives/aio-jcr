@@ -39,13 +39,14 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class AddNtFileWithMetadataTestCleanDBOracle extends JCRTestBase {
   /*
-   * This test calculates the time (ms or tps) of adding of one nodes of type
-   * nt:file (including addNode(), setProperty(), addMixin(), save() methods).
+   * This test calculates the time (ms or tps) of adding of one nodes of type nt:file (including
+   * addNode(), setProperty(), addMixin(), save() methods).
    */
 
   public static WorkspaceStorageConnection workspaceStorageConnection = null;
@@ -73,7 +74,7 @@ public class AddNtFileWithMetadataTestCleanDBOracle extends JCRTestBase {
       is.close();
     }
     rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
-        "nt:unstructured");
+                                                          "nt:unstructured");
     context.getSession().save();
   }
 
@@ -98,14 +99,12 @@ public class AddNtFileWithMetadataTestCleanDBOracle extends JCRTestBase {
       if (!dataBaseDropped) {
         Connection dbConnection;
         JDBCStorageConnection storageConnection;
-        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context
-            .getSession()).getContainer().getComponentInstanceOfType(
-            JDBCWorkspaceDataContainer.class);
+        JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context.getSession()).getContainer()
+                                                                                                                             .getComponentInstanceOfType(JDBCWorkspaceDataContainer.class);
         if (workspaceStorageConnection == null) {
           workspaceStorageConnection = workspaceDataContainer.openConnection();
         } else {
-          workspaceStorageConnection = workspaceDataContainer
-              .reuseConnection(workspaceStorageConnection);
+          workspaceStorageConnection = workspaceDataContainer.reuseConnection(workspaceStorageConnection);
         }
         storageConnection = (JDBCStorageConnection) workspaceStorageConnection;
         dbConnection = storageConnection.getJdbcConnection();

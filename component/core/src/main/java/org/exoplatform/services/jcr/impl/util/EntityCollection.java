@@ -38,22 +38,21 @@ import javax.jcr.query.RowIterator;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionIterator;
 
-
- 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: EntityCollection.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class EntityCollection
-    implements NodeIterator, PropertyIterator, 
-    NodeTypeIterator, EventIterator, EventListenerIterator, RowIterator, VersionIterator {
+public class EntityCollection implements NodeIterator, PropertyIterator, NodeTypeIterator,
+    EventIterator, EventListenerIterator, RowIterator, VersionIterator {
 
   private Iterator iter;
-  private List list;
-  private long pos;
+
+  private List     list;
+
+  private long     pos;
 
   public EntityCollection(Collection col) {
     this(new ArrayList(col));
@@ -74,11 +73,10 @@ public class EntityCollection
     this.iter = list.iterator();
     this.pos = 0;
   }
-  
+
   public void reverse() {
     Collections.reverse(list);
   }
-
 
   /**
    * @see NodeIterator#nextNode()
@@ -99,9 +97,8 @@ public class EntityCollection
   }
 
   /**
-   * Returns the number of elements in the iterator.
-   * If this information is unavailable, returns -1.
-   *
+   * Returns the number of elements in the iterator. If this information is unavailable, returns -1.
+   * 
    * @return a long
    */
   public long getSize() {
@@ -109,13 +106,11 @@ public class EntityCollection
   }
 
   /**
-   * Returns the current position within the iterator. The number
-   * returned is the 0-based index of the next element in the iterator,
-   * i.e. the one that will be returned on the subsequent <code>next</code> call.
-   * <p/>
-   * Note that this method does not check if there is a next element,
+   * Returns the current position within the iterator. The number returned is the 0-based index of
+   * the next element in the iterator, i.e. the one that will be returned on the subsequent
+   * <code>next</code> call. <p/> Note that this method does not check if there is a next element,
    * i.e. an empty iterator will always return 0.
-   *
+   * 
    * @return a long
    */
   public long getPosition() {
@@ -154,16 +149,15 @@ public class EntityCollection
 
   /**
    * Returns the next <code>String</code> in the iteration.
-   *
+   * 
    * @return the next <code>String</code> in the iteration.
    * @throws java.util.NoSuchElementException
-   *          if iteration has no more <code>String</code>s.
+   *           if iteration has no more <code>String</code>s.
    */
   public String nextString() {
     pos++;
     return (String) iter.next();
   }
-
 
   /**
    *
@@ -173,16 +167,14 @@ public class EntityCollection
     return (NodeType) iter.next();
   }
 
-
   /**
    *@see javax.jcr.query.RowIterator#nextRow()
    */
 
-  public Row nextRow(){
-      pos++;
-      return (Row) iter.next();
+  public Row nextRow() {
+    pos++;
+    return (Row) iter.next();
   }
-
 
   /**
    *
@@ -199,16 +191,16 @@ public class EntityCollection
     pos++;
     return (EventListener) iter.next();
   }
-  
+
   /**
   *
   */
- public Version nextVersion() {
-   pos++;
-   return (Version) iter.next();
- }
+  public Version nextVersion() {
+    pos++;
+    return (Version) iter.next();
+  }
 
- public void add(Object obj) {
+  public void add(Object obj) {
     pos = 0;
     list.add(obj);
     iter = list.iterator();

@@ -27,8 +27,7 @@ import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 
 /**
- * Implements the <code>RepositoryStub</code> for the JCR Reference
- * Implementation.
+ * Implements the <code>RepositoryStub</code> for the JCR Reference Implementation.
  */
 public class ExoRepositoryStub extends RepositoryStub {
 
@@ -36,32 +35,30 @@ public class ExoRepositoryStub extends RepositoryStub {
    * Property for the repository name (used for jndi lookup)
    */
 
-  public static final String PROP_REPOSITORY_NAME = "org.apache.jackrabbit.repository.name";
+  public static final String   PROP_REPOSITORY_NAME   = "org.apache.jackrabbit.repository.name";
 
   /**
-   * Property for the repository configuration file (used for repository
-   * instantiation)
+   * Property for the repository configuration file (used for repository instantiation)
    */
-  public static final String PROP_REPOSITORY_CONFIG = "org.apache.jackrabbit.repository.config";
+  public static final String   PROP_REPOSITORY_CONFIG = "org.apache.jackrabbit.repository.config";
 
   /**
-   * Property for the repository home directory (used for repository
-   * instantiation)
+   * Property for the repository home directory (used for repository instantiation)
    */
-  public static final String PROP_REPOSITORY_HOME = "org.apache.jackrabbit.repository.home";
+  public static final String   PROP_REPOSITORY_HOME   = "org.apache.jackrabbit.repository.home";
 
   /**
    * Property for the jaas config path. If the system property
-   * <code>java.security.auth.login.config</code> is not set this repository
-   * stub will try to read this property from the environment and use the value
-   * retrieved as the value for the system property.
+   * <code>java.security.auth.login.config</code> is not set this repository stub will try to read
+   * this property from the environment and use the value retrieved as the value for the system
+   * property.
    */
-  public static final String PROP_JAAS_CONFIG = "org.apache.jackrabbit.repository.jaas.config";
+  public static final String   PROP_JAAS_CONFIG       = "org.apache.jackrabbit.repository.jaas.config";
 
   /**
    * The name of the jaas config system property.
    */
-  private static final String SYS_JAAS_CONFIG = "java.security.auth.login.config";
+  private static final String  SYS_JAAS_CONFIG        = "java.security.auth.login.config";
 
   /**
    * The repository instance
@@ -70,7 +67,7 @@ public class ExoRepositoryStub extends RepositoryStub {
 
   /**
    * Constructor as required by the JCR TCK.
-   *
+   * 
    * @param env
    *          environment properties.
    */
@@ -87,8 +84,9 @@ public class ExoRepositoryStub extends RepositoryStub {
     // System.out.println("GET REP >>>>>>>>>>>>>>>>>> >>> "+repository);
     if (repository == null) {
       try {
-        
-        String containerConf = ExoRepositoryStub.class.getResource(System.getProperty("jcr.test.configuration.file")).toString();
+
+        String containerConf = ExoRepositoryStub.class.getResource(System.getProperty("jcr.test.configuration.file"))
+                                                      .toString();
         String loginConf = ExoRepositoryStub.class.getResource("/login.conf").toString();
 
         StandaloneContainer.addConfigurationURL(containerConf);
@@ -97,24 +95,17 @@ public class ExoRepositoryStub extends RepositoryStub {
         if (System.getProperty("java.security.auth.login.config") == null)
           System.setProperty("java.security.auth.login.config", loginConf);
 
-        RepositoryService repositoryService = (RepositoryService) servicesManager
-            .getComponentInstanceOfType(RepositoryService.class);
+        RepositoryService repositoryService = (RepositoryService) servicesManager.getComponentInstanceOfType(RepositoryService.class);
 
         repository = repositoryService.getRepository("db1tck");
-/*
-        try {
-          repository.getNamespaceRegistry().getURI("test");
-        } catch (NamespaceException e) {
-          repository.getNamespaceRegistry().registerNamespace("test",
-              "http://www.apache.org/jackrabbit/test");
-        }
-
-        ExtendedNodeTypeManager ntManager = repository.getNodeTypeManager();
-        InputStream inXml = ExoRepositoryStub.class
-            .getResourceAsStream("/test/nodetypes-tck.xml");
-        ntManager.registerAllNodeTypes(inXml,
-            ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-*/
+        /*
+         * try { repository.getNamespaceRegistry().getURI("test"); } catch (NamespaceException e) {
+         * repository.getNamespaceRegistry().registerNamespace("test",
+         * "http://www.apache.org/jackrabbit/test"); } ExtendedNodeTypeManager ntManager =
+         * repository.getNodeTypeManager(); InputStream inXml = ExoRepositoryStub.class
+         * .getResourceAsStream("/test/nodetypes-tck.xml"); ntManager.registerAllNodeTypes(inXml,
+         * ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+         */
 
       } catch (Exception ex) {
         ex.printStackTrace();

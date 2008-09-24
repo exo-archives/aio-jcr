@@ -32,8 +32,8 @@ public class InternalQName extends QName {
   }
 
   /**
-   * Parse qname in form of eXo-JCR names conversion string, e.g.
-   * [name_space]item_name, [http://www.jcp.org/jcr/nt/1.0]:base
+   * Parse qname in form of eXo-JCR names conversion string, e.g. [name_space]item_name,
+   * [http://www.jcp.org/jcr/nt/1.0]:base
    * 
    * @param qName
    * @return
@@ -42,30 +42,28 @@ public class InternalQName extends QName {
   public static InternalQName parse(String qName) throws IllegalNameException {
 
     if (!qName.startsWith("["))
-      throw new IllegalNameException("Invalid Internal QName '" + qName
-          + "' Should start of '['");
+      throw new IllegalNameException("Invalid Internal QName '" + qName + "' Should start of '['");
     int uriStart = 0;
     int uriFinish = qName.indexOf("]", uriStart);
     if (uriFinish == -1)
-      throw new IllegalNameException("Invalid Internal QName '" + qName
-          + "' No closed ']'");
+      throw new IllegalNameException("Invalid Internal QName '" + qName + "' No closed ']'");
     String uri = qName.substring(uriStart + 1, uriFinish);
     String localName = qName.substring(uriFinish + 1, qName.length());
     return new InternalQName(uri, localName);
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (o == this)
       return true;
-    
+
     if (o == null)
-      return false;    
-    
+      return false;
+
     if (!(o instanceof InternalQName))
       return false;
-    
+
     return hashCode == o.hashCode();
-  }  
+  }
 
 }

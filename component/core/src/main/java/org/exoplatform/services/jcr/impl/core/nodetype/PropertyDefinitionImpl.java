@@ -47,16 +47,16 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
   // protected int hashCode;
 
   public PropertyDefinitionImpl(String name,
-      NodeType declaringNodeType,
-      int requiredType,
-      String[] valueConstraints,
-      Value[] defaultValues,
-      boolean autoCreate,
-      boolean mandatory,
-      int onVersion,
-      boolean readOnly,
-      boolean multiple,
-      InternalQName qName) {
+                                NodeType declaringNodeType,
+                                int requiredType,
+                                String[] valueConstraints,
+                                Value[] defaultValues,
+                                boolean autoCreate,
+                                boolean mandatory,
+                                int onVersion,
+                                boolean readOnly,
+                                boolean multiple,
+                                InternalQName qName) {
 
     super(name, declaringNodeType, autoCreate, onVersion, readOnly, mandatory, qName);
 
@@ -64,7 +64,7 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
     this.valueConstraints = valueConstraints;
     this.defaultValues = defaultValues;
     this.multiple = multiple;
-    this.hashCode = (31 * this.hashCode + requiredType)*31 + (multiple ? 0 : 31);
+    this.hashCode = (31 * this.hashCode + requiredType) * 31 + (multiple ? 0 : 31);
   }
 
   /**
@@ -99,23 +99,25 @@ public class PropertyDefinitionImpl extends ItemDefinitionImpl implements Proper
   }
 
   /**
-   * @param defaultValues The defaultValues to set.
+   * @param defaultValues
+   *          The defaultValues to set.
    */
   public void setDefaultValues(Value[] defaultValues) {
     this.defaultValues = defaultValues;
   }
 
   /**
-   * @param valueConstraints The valueConstraints to set.
+   * @param valueConstraints
+   *          The valueConstraints to set.
    */
   public void setValueConstraints(String[] valueConstraints) {
     this.valueConstraints = valueConstraints;
   }
 
   /**
-   * Compare property definitions for equality by name, required type and
-   * miltiplicity flag. NOTE: UNDEFINED is equals to UNDEFINED only. NOTE: PD
-   * without name is equals to PD without name (TODO: but where to use it?)
+   * Compare property definitions for equality by name, required type and miltiplicity flag. NOTE:
+   * UNDEFINED is equals to UNDEFINED only. NOTE: PD without name is equals to PD without name
+   * (TODO: but where to use it?)
    */
   public boolean equals(Object obj) {
     if (obj == null)

@@ -21,45 +21,46 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 18.06.2008
  * 
- * <br/>
- * For use with JiBX binding in eXo configuration.
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/> For use with JiBX binding in eXo configuration.
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class ConfigurationFormat {
 
   private static final Log LOG = ExoLogger.getLogger("jcr.ConfigurationFormat");
-  
+
   public static int parseInt(String text) {
     try {
       return StringNumberParser.parseInt(text);
-    } catch(Throwable e) {
+    } catch (Throwable e) {
       LOG.warn("Unparseable int '" + text + "'. Check StringNumberParser.parseInt for details.", e);
       return 0;
     }
   }
-  
+
   public static long parseLong(String text) {
     try {
       return StringNumberParser.parseLong(text);
-    } catch(Throwable e) {
-      LOG.warn("Unparseable long '" + text + "'. Check StringNumberParser.parseLong for details.", e);
+    } catch (Throwable e) {
+      LOG.warn("Unparseable long '" + text + "'. Check StringNumberParser.parseLong for details.",
+               e);
       return 0l;
     }
   }
-  
+
   public static long parseTime(String text) {
     try {
       return StringNumberParser.parseTime(text);
-    } catch(Throwable e) {
-      LOG.warn("Unparseable time (as long) '" + text + "'. Check StringNumberParser.parseTime for details.", e);
+    } catch (Throwable e) {
+      LOG.warn("Unparseable time (as long) '" + text
+          + "'. Check StringNumberParser.parseTime for details.", e);
       return 0l;
     }
   }
-  
+
 }

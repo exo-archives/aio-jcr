@@ -73,14 +73,14 @@ public abstract class BaseStandaloneTest extends TestCase {
 
     StandaloneContainer.addConfigurationURL(containerConf);
     container = StandaloneContainer.getInstance();
-    
+
     if (System.getProperty("java.security.auth.login.config") == null)
       System.setProperty("java.security.auth.login.config", loginConf);
 
     credentials = new CredentialsImpl("exo", "exo".toCharArray());
 
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-    //container.start();
+    // container.start();
     repository = (RepositoryImpl) repositoryService.getDefaultRepository();
 
     session = (SessionImpl) repository.login(credentials, "ws");
@@ -100,7 +100,8 @@ public abstract class BaseStandaloneTest extends TestCase {
           // clean test root
           for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
             Node node = children.nextNode();
-            if (!node.getPath().startsWith("/jcr:system") && !node.getPath().startsWith("/exo:audit") ) {
+            if (!node.getPath().startsWith("/jcr:system")
+                && !node.getPath().startsWith("/exo:audit")) {
               // log.info("DELETing ------------- "+node.getPath());
               node.remove();
             }
@@ -114,7 +115,7 @@ public abstract class BaseStandaloneTest extends TestCase {
         session.logout();
       }
     }
-    
+
     super.tearDown();
     // log.info("tearDown() END " + getClass().getName() + "." + getName());
   }
@@ -183,9 +184,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   /**
-   * Compare etalon stream with data stream begining from the offset in etalon
-   * and position in data. Length bytes will be readed and compared. if length
-   * is lower 0 then compare streams till one of them will be read.
+   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
+   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of
+   * them will be read.
    * 
    * @param etalon
    * @param data

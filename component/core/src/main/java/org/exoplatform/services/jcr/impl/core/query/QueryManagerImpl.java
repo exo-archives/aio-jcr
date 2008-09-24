@@ -34,85 +34,81 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  */
 public class QueryManagerImpl implements QueryManager {
 
-    /**
-     * Defines all supported query languages
-     */
-    private static final String[] SUPPORTED_QUERIES = QueryTreeBuilderRegistry.getSupportedLanguages();
+  /**
+   * Defines all supported query languages
+   */
+  private static final String[]    SUPPORTED_QUERIES      = QueryTreeBuilderRegistry.getSupportedLanguages();
 
-    /**
-     * List of all supported query languages
-     */
-    private static final List SUPPORTED_QUERIES_LIST
-            = Collections.unmodifiableList(Arrays.asList(SUPPORTED_QUERIES));
+  /**
+   * List of all supported query languages
+   */
+  private static final List        SUPPORTED_QUERIES_LIST = Collections.unmodifiableList(Arrays.asList(SUPPORTED_QUERIES));
 
-    /**
-     * The <code>Session</code> for this QueryManager.
-     */
-    private final SessionImpl session;
+  /**
+   * The <code>Session</code> for this QueryManager.
+   */
+  private final SessionImpl        session;
 
-    /**
-     * The <code>ItemManager</code> of for item retrieval in search results
-     */
-    private final SessionDataManager itemMgr;
+  /**
+   * The <code>ItemManager</code> of for item retrieval in search results
+   */
+  private final SessionDataManager itemMgr;
 
-    /**
-     * The <code>SearchManager</code> holding the search index.
-     */
-    private final SearchManager searchMgr;
+  /**
+   * The <code>SearchManager</code> holding the search index.
+   */
+  private final SearchManager      searchMgr;
 
-    /**
-     * Creates a new <code>QueryManagerImpl</code> for the passed
-     * <code>session</code>
-     *
-     * @param session
-     * @param itemMgr
-     * @param searchMgr
-     */
-    public QueryManagerImpl(SessionImpl session,
-                            SessionDataManager itemMgr,
-                            SearchManager searchMgr) {
-        this.session = session;
-        this.itemMgr = itemMgr;
-        this.searchMgr = searchMgr;
+  /**
+   * Creates a new <code>QueryManagerImpl</code> for the passed <code>session</code>
+   * 
+   * @param session
+   * @param itemMgr
+   * @param searchMgr
+   */
+  public QueryManagerImpl(SessionImpl session, SessionDataManager itemMgr, SearchManager searchMgr) {
+    this.session = session;
+    this.itemMgr = itemMgr;
+    this.searchMgr = searchMgr;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Query createQuery(String statement, String language) throws InvalidQueryException,
+                                                             RepositoryException {
+    sanityCheck();
+    return searchMgr.createQuery(session, itemMgr, statement, language);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Query getQuery(Node node) throws InvalidQueryException, RepositoryException {
+    sanityCheck();
+    return searchMgr.createQuery(session, itemMgr, node);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String[] getSupportedQueryLanguages() throws RepositoryException {
+    return (String[]) SUPPORTED_QUERIES_LIST.toArray(new String[SUPPORTED_QUERIES.length]);
+  }
+
+  // ---------------------------< internal >-----------------------------------
+
+  /**
+   * Checks if this <code>QueryManagerImpl</code> instance is still usable, otherwise throws a
+   * {@link javax.jcr.RepositoryException}.
+   * 
+   * @throws RepositoryException
+   *           if this query manager is not usable anymore, e.g. the corresponding session is
+   *           closed.
+   */
+  private void sanityCheck() throws RepositoryException {
+    if (!session.isLive()) {
+      throw new RepositoryException("corresponding session has been closed");
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Query createQuery(String statement, String language)
-            throws InvalidQueryException, RepositoryException {
-        sanityCheck();
-        return searchMgr.createQuery(session, itemMgr, statement, language);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Query getQuery(Node node)
-            throws InvalidQueryException, RepositoryException {
-        sanityCheck();
-        return searchMgr.createQuery(session, itemMgr, node);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String[] getSupportedQueryLanguages() throws RepositoryException {
-        return (String[]) SUPPORTED_QUERIES_LIST.toArray(new String[SUPPORTED_QUERIES.length]);
-    }
-
-    //---------------------------< internal >-----------------------------------
-
-    /**
-     * Checks if this <code>QueryManagerImpl</code> instance is still usable,
-     * otherwise throws a {@link javax.jcr.RepositoryException}.
-     *
-     * @throws RepositoryException if this query manager is not usable anymore,
-     *                             e.g. the corresponding session is closed.
-     */
-    private void sanityCheck() throws RepositoryException {
-        if (!session.isLive()) {
-            throw new RepositoryException("corresponding session has been closed");
-        }
-    }
+  }
 }

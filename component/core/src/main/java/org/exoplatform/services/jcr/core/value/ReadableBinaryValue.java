@@ -30,17 +30,20 @@ import javax.jcr.RepositoryException;
 public interface ReadableBinaryValue extends ExtendedValue {
 
   /**
-   * Read <code>length</code> bytes from the binary value at <code>position</code>
-   * to the <code>stream</code>. 
+   * Read <code>length</code> bytes from the binary value at <code>position</code> to the
+   * <code>stream</code>.
    * 
-   * @param stream - destenation OutputStream
-   * @param length - data length to be read
-   * @param position - position in value data from which the read will be performed 
-   * @return - The number of bytes, possibly zero,
-   *          that were actually transferred
+   * @param stream
+   *          - destenation OutputStream
+   * @param length
+   *          - data length to be read
+   * @param position
+   *          - position in value data from which the read will be performed
+   * @return - The number of bytes, possibly zero, that were actually transferred
    * @throws IOException
    * @throws RepositoryException
    */
-  long read(OutputStream stream, long length, long position) throws IOException, RepositoryException ;
-  
+  long read(OutputStream stream, long length, long position) throws IOException,
+                                                            RepositoryException;
+
 }

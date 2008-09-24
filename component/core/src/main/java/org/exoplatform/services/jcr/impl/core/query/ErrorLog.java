@@ -36,9 +36,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * All changes that must be in index but interrupted by IOException are here.
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * All changes that must be in index but interrupted by IOException are here. Created by The eXo
+ * Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
@@ -104,8 +103,10 @@ public class ErrorLog {
   /**
    * Appends an action to the log.
    * 
-   * @param action the action to append.
-   * @throws IOException if the node cannot be written to the redo log.
+   * @param action
+   *          the action to append.
+   * @throws IOException
+   *           if the node cannot be written to the redo log.
    */
   public void append(String action, String uuid) throws IOException {
     initOut();
@@ -115,7 +116,8 @@ public class ErrorLog {
   /**
    * Flushes all pending writes to the underlying file.
    * 
-   * @throws IOException if an error occurs while writing.
+   * @throws IOException
+   *           if an error occurs while writing.
    */
   public void flush() throws IOException {
     if (out != null) {
@@ -126,7 +128,8 @@ public class ErrorLog {
   /**
    * Clears the redo log.
    * 
-   * @throws IOException if the redo log cannot be cleared.
+   * @throws IOException
+   *           if the redo log cannot be cleared.
    */
   public void clear() throws IOException {
     if (out != null) {
@@ -143,7 +146,8 @@ public class ErrorLog {
   /**
    * Initializes the {@link #out} stream if it is not yet set.
    * 
-   * @throws IOException if an error occurs while creating the output stream.
+   * @throws IOException
+   *           if an error occurs while creating the output stream.
    */
   private void initOut() throws IOException {
     if (out == null) {
@@ -155,7 +159,8 @@ public class ErrorLog {
   /**
    * Reads the log file .
    * 
-   * @throws IOException if an error occurs while reading from the log file.
+   * @throws IOException
+   *           if an error occurs while reading from the log file.
    */
   public List<String> readList() throws IOException {
     InputStream in = new FileInputStream(logFile);

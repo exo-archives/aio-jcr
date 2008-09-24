@@ -21,41 +21,41 @@ import java.util.HashMap;
 import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS. 
+ * Created by The eXo Platform SAS.
  * 
  * Date: 17.04.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestHashMapUse.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class TestHashMapUse extends TestCase {
 
-  private HashMap<String, Object> cache; 
-  
+  private HashMap<String, Object> cache;
+
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    
+
     cache = new HashMap<String, Object>(CacheTestConstants.CACHE_SIZE + 10000);
   }
 
   @Override
   protected void tearDown() throws Exception {
     super.tearDown();
-    
+
     cache.clear();
   }
 
   /**
-   * Test if CacheManager creates and contains empty caches list.  
-   * Test if we can add custome cache etc. 
+   * Test if CacheManager creates and contains empty caches list. Test if we can add custome cache
+   * etc.
    * 
    * @throws Exception
    */
   public void testGetCacheNames() throws Exception {
-    
+
   }
-  
+
   /**
    * Put lot of Strings into cache and getting them back for speed test.
    * 
@@ -63,59 +63,64 @@ public class TestHashMapUse extends TestCase {
    */
   public void testPutGetStrings() throws Exception {
     final int cnt = CacheTestConstants.CACHE_SIZE;
-    
+
     // put 1M
     long start = System.currentTimeMillis();
-    for (int i=1; i<=cnt; i++) {
+    for (int i = 1; i <= cnt; i++) {
       cache.put(CacheTestConstants.KEY_PREFIX + i, "value" + i);
     }
     long time = System.currentTimeMillis() - start;
-    double perItem = time * 1d/ cnt;
-    System.out.println(getName() + "\tPut\t" + cnt + " strings in " + time + "ms. Avg " + perItem + "ms per one string.");
-    
+    double perItem = time * 1d / cnt;
+    System.out.println(getName() + "\tPut\t" + cnt + " strings in " + time + "ms. Avg " + perItem
+        + "ms per one string.");
+
     // get 1M
     start = System.currentTimeMillis();
-    for (int i=1; i<=cnt; i++) {
+    for (int i = 1; i <= cnt; i++) {
       Object value = cache.get(CacheTestConstants.KEY_PREFIX + i);
       assertNotNull("The element '$key" + i + "' should not be null", value);
     }
     time = System.currentTimeMillis() - start;
-    perItem = time * 1d/ cnt;
-    System.out.println(getName() + "\tGet\t" + cnt + " strings in " + time + "ms. Avg " + perItem + "ms per one string.");
-    
+    perItem = time * 1d / cnt;
+    System.out.println(getName() + "\tGet\t" + cnt + " strings in " + time + "ms. Avg " + perItem
+        + "ms per one string.");
+
     // check if we have all keys/values same as just write
-    for (int i=1; i<=cnt; i++) {
+    for (int i = 1; i <= cnt; i++) {
       Object value = cache.get(CacheTestConstants.KEY_PREFIX + i);
       assertNotNull("The element '$key" + i + "' should not be a null", value);
-      assertEquals("The element '$key" + i + "' value should be of a String class", String.class, value.getClass());
+      assertEquals("The element '$key" + i + "' value should be of a String class",
+                   String.class,
+                   value.getClass());
       assertEquals("The element '$key" + i + "' value is wrong", "value" + i, (String) value);
     }
   }
-  
+
   public void testPutGetRemove() {
     final int cnt = CacheTestConstants.CACHE_SIZE;
-    
+
     // put 1M
-    for (int i=1; i<=cnt; i++) {
+    for (int i = 1; i <= cnt; i++) {
       cache.put(CacheTestConstants.KEY_PREFIX + i, "value" + i);
     }
-    
+
     // get 1M
-    for (int i=1; i<=cnt; i++) {
+    for (int i = 1; i <= cnt; i++) {
       Object value = cache.get(CacheTestConstants.KEY_PREFIX + i);
       assertNotNull("The element '$key" + i + "' should not be null", value);
     }
-    
+
     long start = System.currentTimeMillis();
-    
-    for (int i=cnt; i>=1; i--) {
+
+    for (int i = cnt; i >= 1; i--) {
       cache.remove(CacheTestConstants.KEY_PREFIX + i);
     }
-    
+
     long time = System.currentTimeMillis() - start;
-    double perItem = time * 1d/ cnt;
-    System.out.println(getName() + "\tRemove\t" + cnt + " strings in " + time + "ms. Avg " + perItem + "ms per one string.");
-    
+    double perItem = time * 1d / cnt;
+    System.out.println(getName() + "\tRemove\t" + cnt + " strings in " + time + "ms. Avg "
+        + perItem + "ms per one string.");
+
   }
-  
+
 }

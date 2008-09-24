@@ -18,22 +18,22 @@ package org.exoplatform.services.jcr.core.nodetype;
 
 import java.util.List;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: PropertyDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class PropertyDefinitionValue extends ItemDefinitionValue {
-  
-  private int requiredType;
+
+  private int          requiredType;
 
   private List<String> valueConstraints;
 
   private List<String> defaultValueStrings;
 
-  private boolean multiple;
+  private boolean      multiple;
 
   public PropertyDefinitionValue() {
   }
@@ -44,44 +44,55 @@ public class PropertyDefinitionValue extends ItemDefinitionValue {
   public List<String> getDefaultValueStrings() {
     return defaultValueStrings;
   }
+
   /**
-   * @param defaultValues The defaultValues to set.
+   * @param defaultValues
+   *          The defaultValues to set.
    */
   public void setDefaultValueStrings(List<String> defaultValues) {
     this.defaultValueStrings = defaultValues;
   }
+
   /**
    * @return Returns the multiple.
    */
   public boolean isMultiple() {
     return multiple;
   }
+
   /**
-   * @param multiple The multiple to set.
+   * @param multiple
+   *          The multiple to set.
    */
   public void setMultiple(boolean multiple) {
     this.multiple = multiple;
   }
+
   /**
    * @return Returns the requiredType.
    */
   public int getRequiredType() {
     return requiredType;
   }
+
   /**
-   * @param requiredType The requiredType to set.
+   * @param requiredType
+   *          The requiredType to set.
    */
   public void setRequiredType(int requiredType) {
     this.requiredType = requiredType;
   }
+
   /**
    * @return Returns the valueConstraints.
    */
   public List<String> getValueConstraints() {
     return valueConstraints;
   }
+
   /**
-   * @param valueConstraints The valueConstraints to set.
+   * @param valueConstraints
+   *          The valueConstraints to set.
    */
   public void setValueConstraints(List<String> valueConstraints) {
     this.valueConstraints = valueConstraints;

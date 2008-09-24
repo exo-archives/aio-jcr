@@ -33,52 +33,59 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.log.ExoLogger;
 
-
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 22.06.2007
  * 
- * Traverse through all versions in the version history and check if visited child histories isn't used in repository.
- * If the child version isn't used it will be removed immediately.
- *
+ * Traverse through all versions in the version history and check if visited child histories isn't
+ * used in repository. If the child version isn't used it will be removed immediately.
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ChildVersionRemoveVisitor.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class ChildVersionRemoveVisitor extends ItemDataTraversingVisitor {
 
-  private final Log log = ExoLogger.getLogger("jcr.ChildVersionRemoveVisitor");
-  
-  protected final Stack<NodeData> parents = new Stack<NodeData>();
+  private final Log                   log     = ExoLogger.getLogger("jcr.ChildVersionRemoveVisitor");
+
+  protected final Stack<NodeData>     parents = new Stack<NodeData>();
+
   protected final NodeTypeManagerImpl ntManager;
-  protected final QPath ancestorToSave;
-  protected final QPath containingHistory;
-  protected final SessionImpl userSession;
-  
-  public ChildVersionRemoveVisitor(SessionImpl userSession, QPath containingHistory, QPath ancestorToSave) throws RepositoryException {
+
+  protected final QPath               ancestorToSave;
+
+  protected final QPath               containingHistory;
+
+  protected final SessionImpl         userSession;
+
+  public ChildVersionRemoveVisitor(SessionImpl userSession,
+                                   QPath containingHistory,
+                                   QPath ancestorToSave) throws RepositoryException {
     super(userSession.getTransientNodesManager());
 
     this.ancestorToSave = ancestorToSave;
     this.containingHistory = containingHistory;
-    this.userSession = userSession; 
+    this.userSession = userSession;
     this.ntManager = userSession.getWorkspace().getNodeTypeManager();
   }
-  
+
   protected SessionDataManager dataManager() {
     return (SessionDataManager) dataManager;
   }
-  
+
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
-    if (property.getQPath().getName().equals(Constants.JCR_CHILDVERSIONHISTORY) 
-        && ntManager.isNodeType(Constants.NT_VERSIONEDCHILD, parents.peek().getPrimaryTypeName(), parents.peek().getMixinTypeNames())) {
+    if (property.getQPath().getName().equals(Constants.JCR_CHILDVERSIONHISTORY)
+        && ntManager.isNodeType(Constants.NT_VERSIONEDCHILD,
+                                parents.peek().getPrimaryTypeName(),
+                                parents.peek().getMixinTypeNames())) {
 
       // check and remove child VH
       try {
         String vhID = new String(property.getValues().get(0).getAsByteArray());
-  
+
         dataManager().removeVersionHistory(vhID, containingHistory, ancestorToSave);
-      } catch(IOException e) {
+      } catch (IOException e) {
         throw new RepositoryException("Child version history UUID read error " + e, e);
       }
     }

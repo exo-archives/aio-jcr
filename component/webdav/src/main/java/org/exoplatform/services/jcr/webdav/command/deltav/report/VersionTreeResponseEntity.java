@@ -37,25 +37,25 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class VersionTreeResponseEntity implements SerializableEntity {
-  
-  protected XMLStreamWriter xmlStreamWriter;
-  
+
+  protected XMLStreamWriter              xmlStreamWriter;
+
   protected final WebDavNamespaceContext namespaceContext;
-  
-  private Set<VersionResource> versions;
-  
-  private Set<QName> properties;
-  
+
+  private Set<VersionResource>           versions;
+
+  private Set<QName>                     properties;
+
   public VersionTreeResponseEntity(WebDavNamespaceContext namespaceContext,
-      VersionedResource versionedResource,
-      Set<QName> properties) 
-      throws RepositoryException, IllegalResourceTypeException {
+                                   VersionedResource versionedResource,
+                                   Set<QName> properties) throws RepositoryException,
+      IllegalResourceTypeException {
     this.namespaceContext = namespaceContext;
     this.properties = properties;
     versions = versionedResource.getVersionHistory().getVersions();
@@ -64,38 +64,40 @@ public class VersionTreeResponseEntity implements SerializableEntity {
   public void writeObject(OutputStream outputStream) throws IOException {
     try {
       this.xmlStreamWriter = XMLOutputFactory.newInstance()
-          .createXMLStreamWriter(outputStream, Constants.DEFAULT_ENCODING);
+                                             .createXMLStreamWriter(outputStream,
+                                                                    Constants.DEFAULT_ENCODING);
       xmlStreamWriter.setNamespaceContext(namespaceContext);
       xmlStreamWriter.setDefaultNamespace("DAV:");
 
       xmlStreamWriter.writeStartDocument();
       xmlStreamWriter.writeStartElement("D", "multistatus", "DAV:");
       xmlStreamWriter.writeNamespace("D", "DAV:");
-      
+
       xmlStreamWriter.writeAttribute("xmlns:b", "urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/");
-  
+
       Iterator<VersionResource> versionIterator = versions.iterator();
       while (versionIterator.hasNext()) {
-        VersionResource versionResource = versionIterator.next();        
+        VersionResource versionResource = versionIterator.next();
         xmlStreamWriter.writeStartElement("DAV:", "response");
-        
+
         xmlStreamWriter.writeStartElement("DAV:", "href");
         xmlStreamWriter.writeCharacters(versionResource.getIdentifier().toASCIIString());
         xmlStreamWriter.writeEndElement();
 
-        PropstatGroupedRepresentation propstat = 
-          new PropstatGroupedRepresentation(versionResource, properties, false);
+        PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(versionResource,
+                                                                                   properties,
+                                                                                   false);
         PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
-        
+
         xmlStreamWriter.writeEndElement();
       }
-      
+
       xmlStreamWriter.writeEndElement();
       xmlStreamWriter.writeEndDocument();
     } catch (Exception e) {
       e.printStackTrace();
       throw new IOException(e.getMessage());
-    } 
+    }
   }
 
 }

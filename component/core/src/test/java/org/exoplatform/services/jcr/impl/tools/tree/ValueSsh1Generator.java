@@ -41,9 +41,9 @@ public class ValueSsh1Generator extends ItemDataTraversingVisitor {
 
   private final MessageDigest md;
 
-  private final byte[]        space   = " ".getBytes();
-  
-  public ValueSsh1Generator(ItemDataConsumer dataManager,OutputStream  ssh1ChecksumStream) throws NoSuchAlgorithmException {
+  private final byte[]        space = " ".getBytes();
+
+  public ValueSsh1Generator(ItemDataConsumer dataManager, OutputStream ssh1ChecksumStream) throws NoSuchAlgorithmException {
     super(dataManager);
     this.ssh1ChecksumStream = ssh1ChecksumStream;
     this.md = MessageDigest.getInstance("SHA");
@@ -60,11 +60,11 @@ public class ValueSsh1Generator extends ItemDataTraversingVisitor {
         ssh1ChecksumStream.write(Integer.toString(valueData.getOrderNumber()).getBytes());
         ssh1ChecksumStream.write(space);
         ssh1ChecksumStream.write(Base64.encode(md.digest()).getBytes());
-//        ssh1ChecksumStream.write(space);
-//        for (byte b : md.digest()) {
-//          ssh1ChecksumStream.write(Integer.toHexString(b & 0xff ).getBytes());
-//        }
-        //ssh1ChecksumStream.write(newLine);
+        // ssh1ChecksumStream.write(space);
+        // for (byte b : md.digest()) {
+        // ssh1ChecksumStream.write(Integer.toHexString(b & 0xff ).getBytes());
+        // }
+        // ssh1ChecksumStream.write(newLine);
       } catch (IllegalStateException e) {
         throw new RepositoryException(e);
       } catch (IOException e) {
@@ -73,8 +73,6 @@ public class ValueSsh1Generator extends ItemDataTraversingVisitor {
 
     }
   }
-
-  
 
   @Override
   protected void entering(NodeData arg0, int arg1) throws RepositoryException {

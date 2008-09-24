@@ -29,8 +29,7 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SAS Author : Anh Nguyen ntuananh.vn@gmail.com Nov
- * 15, 2007
+ * Created by The eXo Platform SAS Author : Anh Nguyen ntuananh.vn@gmail.com Nov 15, 2007
  */
 
 public class TestI18NSQLQuery extends BaseUsecasesTest {

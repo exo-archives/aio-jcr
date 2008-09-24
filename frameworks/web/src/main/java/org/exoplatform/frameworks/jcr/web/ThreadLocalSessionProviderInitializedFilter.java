@@ -37,23 +37,21 @@ import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS . <br/> Checks out if there are
- * SessionProvider istance in current thread using
- * ThreadLocalSessionProviderService, if no, initializes it getting current
- * credentials from AuthenticationService and initializing
- * ThreadLocalSessionProviderService with newly created SessionProvider
+ * Created by The eXo Platform SAS . <br/> Checks out if there are SessionProvider istance in
+ * current thread using ThreadLocalSessionProviderService, if no, initializes it getting current
+ * credentials from AuthenticationService and initializing ThreadLocalSessionProviderService with
+ * newly created SessionProvider
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
-  private ConversationRegistry stateRegistry;
+  private ConversationRegistry   stateRegistry;
 
   private SessionProviderService providerService;
 
-  private static final Log log = ExoLogger
-      .getLogger("jcr.ThreadLocalSessionProviderInitializedFilter");
+  private static final Log       log = ExoLogger.getLogger("jcr.ThreadLocalSessionProviderInitializedFilter");
 
   /*
    * (non-Javadoc)
@@ -64,18 +62,16 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
 
   /*
    * (non-Javadoc)
-   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest,
-   *      javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse,
+   * javax.servlet.FilterChain)
    */
-  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-      throws IOException, ServletException {
+  public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+                                                                                           ServletException {
 
     ExoContainer container = ExoContainerContext.getCurrentContainer();
 
-    providerService = (SessionProviderService) container
-        .getComponentInstanceOfType(SessionProviderService.class);
-    stateRegistry = (ConversationRegistry) container
-        .getComponentInstanceOfType(ConversationRegistry.class);
+    providerService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
+    stateRegistry = (ConversationRegistry) container.getComponentInstanceOfType(ConversationRegistry.class);
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
 
@@ -85,12 +81,12 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     // NOTE not create new HTTP session, if session is not created yet
     // this means some settings is incorrect, see web.xml for filter
     // org.exoplatform.services.security.web.SetCurrentIdentityFilter
-    HttpSession httpsession = httpRequest.getSession(false); 
+    HttpSession httpsession = httpRequest.getSession(false);
     if (state == null) {
       if (log.isDebugEnabled())
         log.debug("Current conversation state is not set");
-      
-      if (httpsession != null) { 
+
+      if (httpsession != null) {
         String httpsessionId = httpsession.getId();
         // initialize thread local SessionProvider
         state = stateRegistry.getState(httpsessionId);
@@ -111,13 +107,13 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
     if (ConversationState.getCurrent() != null)
       ConversationState.getCurrent().setAttribute(SessionProvider.SESSION_PROVIDER, provider);
     providerService.setSessionProvider(null, provider);
-    
+
     chain.doFilter(request, response);
-    
+
     // remove SessionProvider
     if (ConversationState.getCurrent() != null)
       ConversationState.getCurrent().removeAttribute(SessionProvider.SESSION_PROVIDER);
-    
+
     providerService.removeSessionProvider(null);
   }
 

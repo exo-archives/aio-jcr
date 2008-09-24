@@ -36,20 +36,18 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * The class visits each node, all subnodes and all of them properties. It
- * transfer as parameter of a method <code>ItemData.visits()</code>. During
- * visiting the class forms the <b>itemAddStates</b> list of
- * <code>List&lt;ItemState&gt;</code> for copying new nodes and their
- * properties and <b>itemDeletedStates</b> for deleting existing nodes and
- * properties.
+ * The class visits each node, all subnodes and all of them properties. It transfer as parameter of
+ * a method <code>ItemData.visits()</code>. During visiting the class forms the <b>itemAddStates</b>
+ * list of <code>List&lt;ItemState&gt;</code> for copying new nodes and their properties and
+ * <b>itemDeletedStates</b> for deleting existing nodes and properties.
  * 
  * @version $Id: ItemDataMoveVisitor.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
+public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
   /**
    * The list of added item states
    */
-  protected List<ItemState> itemDeletedStates = new ArrayList<ItemState>();
+  protected List<ItemState>     itemDeletedStates = new ArrayList<ItemState>();
 
   /**
    * Destination node name
@@ -64,11 +62,11 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
   /**
    * The list of added item states
    */
-  protected List<ItemState>     itemAddStates = new ArrayList<ItemState>();
+  protected List<ItemState>     itemAddStates     = new ArrayList<ItemState>();
 
   /**
-   * The variable shows necessity of preservation <code>Identifier</code>, not
-   * generate new one, at transformation of <code>Item</code>.
+   * The variable shows necessity of preservation <code>Identifier</code>, not generate new one, at
+   * transformation of <code>Item</code>.
    */
   protected boolean             keepIdentifiers;
 
@@ -77,20 +75,28 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
    */
   protected NodeTypeManagerImpl ntManager;
 
-  
-  protected QPath ancestorToSave = null;
+  protected QPath               ancestorToSave    = null;
+
   /**
    * Creates an instance of this class.
    * 
-   * @param parent - The parent node
-   * @param dstNodeName Destination node name
-   * @param nodeTypeManager - The NodeTypeManager
-   * @param srcDataManager - Source data manager
-   * @param keepIdentifiers - Is it necessity to keep <code>Identifiers</code>
+   * @param parent
+   *          - The parent node
+   * @param dstNodeName
+   *          Destination node name
+   * @param nodeTypeManager
+   *          - The NodeTypeManager
+   * @param srcDataManager
+   *          - Source data manager
+   * @param keepIdentifiers
+   *          - Is it necessity to keep <code>Identifiers</code>
    */
 
-  public ItemDataMoveVisitor(NodeData parent, InternalQName dstNodeName,
-      NodeTypeManagerImpl nodeTypeManager, SessionDataManager srcDataManager, boolean keepIdentifiers) {
+  public ItemDataMoveVisitor(NodeData parent,
+                             InternalQName dstNodeName,
+                             NodeTypeManagerImpl nodeTypeManager,
+                             SessionDataManager srcDataManager,
+                             boolean keepIdentifiers) {
     super(srcDataManager);
     this.keepIdentifiers = keepIdentifiers;
     this.ntManager = nodeTypeManager;
@@ -102,13 +108,13 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
-    
-    if (ancestorToSave == null){
-      ancestorToSave = QPath.getCommonAncestorPath(curParent().getQPath(),node.getQPath());
+
+    if (ancestorToSave == null) {
+      ancestorToSave = QPath.getCommonAncestorPath(curParent().getQPath(), node.getQPath());
     }
 
     NodeData parent = curParent();
-    
+
     InternalQName qname = null;
 
     List<NodeData> existedChilds = dataManager.getChildNodesData(parent);
@@ -116,7 +122,7 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
     if (level == 0) {
       qname = destNodeName;
       // [PN] 12.01.07 Calculate SNS index for dest root
-      for(NodeData child: existedChilds) {
+      for (NodeData child : existedChilds) {
         if (child.getQPath().getName().equals(qname)) {
           newIndex++; // next sibling index
         }
@@ -124,30 +130,36 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
     } else {
       qname = node.getQPath().getName();
       newIndex = node.getQPath().getIndex();
-    }    
-    
+    }
+
     // [PN] 05.01.07 Calc order number if parent supports orderable nodes...
     // If ordering is supported by the node type of the parent node of the new location, then the
     // newly moved node is appended to the end of the child node list.
     int orderNum = 0;
-    if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(), parent.getMixinTypeNames())) {
+    if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(),
+                                                 parent.getMixinTypeNames())) {
       if (existedChilds.size() > 0)
-        orderNum = existedChilds.get(existedChilds.size() - 1).getOrderNumber() + 1;  
-    } else 
-      orderNum = node.getOrderNumber(); // has no matter    
+        orderNum = existedChilds.get(existedChilds.size() - 1).getOrderNumber() + 1;
+    } else
+      orderNum = node.getOrderNumber(); // has no matter
 
     String id = keepIdentifiers ? node.getIdentifier() : IdGenerator.generate();
-    
+
     QPath qpath = QPath.makeChildPath(parent.getQPath(), qname, newIndex);
-    
-    TransientNodeData newNode = new TransientNodeData(
-        qpath, id, -1, node.getPrimaryTypeName(),
-        node.getMixinTypeNames(), orderNum, parent.getIdentifier(), node.getACL());
-        
+
+    TransientNodeData newNode = new TransientNodeData(qpath,
+                                                      id,
+                                                      -1,
+                                                      node.getPrimaryTypeName(),
+                                                      node.getMixinTypeNames(),
+                                                      orderNum,
+                                                      parent.getIdentifier(),
+                                                      node.getACL());
+
     parents.push(newNode);
-    
+
     // ancestorToSave is a parent node
-    //if level == 0 set internal createt as false for validating on save
+    // if level == 0 set internal createt as false for validating on save
     itemAddStates.add(new ItemState(newNode,
                                     ItemState.RENAMED,
                                     level == 0,
@@ -168,10 +180,10 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
     InternalQName qname = property.getQPath().getName();
 
     List<ValueData> values;
-    
+
     if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
-        curParent().getPrimaryTypeName(),
-        curParent().getMixinTypeNames())
+                             curParent().getPrimaryTypeName(),
+                             curParent().getMixinTypeNames())
         && qname.equals(Constants.JCR_UUID)) {
 
       values = new ArrayList<ValueData>(1);
@@ -179,15 +191,17 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
     } else {
       values = property.getValues();
     }
-    
-    TransientPropertyData newProperty = new TransientPropertyData(QPath
-        .makeChildPath(curParent().getQPath(), qname),
-        keepIdentifiers ? property.getIdentifier() : IdGenerator.generate(),
-        -1,
-        property.getType(),
-        curParent().getIdentifier(),
-        property.isMultiValued());
-    
+
+    TransientPropertyData newProperty = new TransientPropertyData(QPath.makeChildPath(curParent().getQPath(),
+                                                                                      qname),
+                                                                  keepIdentifiers
+                                                                      ? property.getIdentifier()
+                                                                      : IdGenerator.generate(),
+                                                                  -1,
+                                                                  property.getType(),
+                                                                  curParent().getIdentifier(),
+                                                                  property.isMultiValued());
+
     newProperty.setValues(values);
     itemAddStates.add(new ItemState(newProperty,
                                     ItemState.RENAMED,
@@ -195,10 +209,10 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
                                     ancestorToSave,
                                     false,
                                     false));
-    
+
     // get last from super.entering(property, level)
-    //ItemState copy = itemAddStates.get(itemAddStates.size() - 1);
-    
+    // ItemState copy = itemAddStates.get(itemAddStates.size() - 1);
+
     itemDeletedStates.add(new ItemState(property,
                                         ItemState.DELETED,
                                         false,
@@ -206,13 +220,13 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
                                         false,
                                         false));
   }
-  
+
   public List<ItemState> getAllStates() {
-    List<ItemState> list  = getItemDeletedStates(true);
+    List<ItemState> list = getItemDeletedStates(true);
     list.addAll(getItemAddStates());
     return list;
   }
-  
+
   /**
    * Returns the list of item deleted states
    */
@@ -222,6 +236,7 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
     }
     return itemDeletedStates;
   }
+
   /**
    * Returns the current parent node
    */
@@ -237,6 +252,7 @@ public class ItemDataMoveVisitor   extends ItemDataTraversingVisitor{
   protected void leaving(NodeData node, int level) throws RepositoryException {
     parents.pop();
   }
+
   /**
    * Returns the list of item add states
    */

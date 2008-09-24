@@ -16,24 +16,27 @@
  */
 package org.exoplatform.services.jcr.dataflow.persistent;
 
-
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: WorkspaceStorageCacheConfiguration.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public interface WorkspaceStorageCacheConfiguration {
-  
+
   boolean isEnabled();
+
   void setEnabled(boolean enabled);
-  
+
   int getMaxSize();
+
   void setMaxSize(int maxSize);
-  
+
   long getLiveTime();
+
   void setLiveTime(long liveTime);
-  
+
   int getOnChangePolicy();
+
   void setOnChangePolicy(int policy);
 }

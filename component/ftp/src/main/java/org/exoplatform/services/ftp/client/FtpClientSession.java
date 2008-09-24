@@ -26,61 +26,61 @@ import org.exoplatform.services.ftp.FtpServer;
 import org.exoplatform.services.ftp.data.FtpDataTransiver;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public interface FtpClientSession {
 
   FtpServer getFtpServer();
-  
+
   Socket getClientSocket();
-  
-  void reply(String replyString) throws IOException;  
-  
+
+  void reply(String replyString) throws IOException;
+
   String getServerIp();
-  
+
   boolean isLogged();
-  
+
   void logout();
-  
+
   String getUserName();
-  
+
   String getUserPassword();
-  
+
   void setUserName(String userName);
-  
+
   void setPassword(String userPass);
-  
+
   FtpDataTransiver getDataTransiver();
-  
+
   void setDataTransiver(FtpDataTransiver newTransiver);
-  
+
   void closeDataTransiver();
-  
+
   String getPrevCommand();
-  
+
   String getPrevParams();
-  
+
   String getPrevParamsEx();
 
   void setPrevCommand(String prevCommand);
-  
+
   void setPrevParams(String prevParams);
-  
-  void setPrevParamsEx(String prevParams);  
-  
+
+  void setPrevParamsEx(String prevParams);
+
   String changePath(String resPath);
-  
+
   ArrayList<String> getPath();
-  
+
   ArrayList<String> getFullPath(String resPath);
-  
+
   String getRepoPath(ArrayList<String> repoPath);
-  
+
   Session getSession(String workspaceName) throws Exception;
-  
+
   void refreshTimeOut();
-  
+
 }

@@ -24,55 +24,59 @@ import org.exoplatform.services.jcr.RepositoryService;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class DeleteTestCase extends BaseReplicationTestCase {
 
-  public DeleteTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+  public DeleteTestCase(RepositoryService repositoryService,
+                        String reposytoryName,
+                        String workspaceName,
+                        String userName,
+                        String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
     log.info("DeleteTestCase inited");
   }
-  
+
   public StringBuffer delete(String repoPath, String nodeName) {
     StringBuffer sb = new StringBuffer();
 
     try {
-      
+
       String normalizedPath = getNormalizePath(repoPath);
-      
-      Node needDeleteNode = (Node)session.getItem(normalizedPath);
+
+      Node needDeleteNode = (Node) session.getItem(normalizedPath);
       needDeleteNode.getNode(nodeName).remove();
-      
+
       session.save();
-    
+
       sb.append("ok");
     } catch (Exception e) {
       log.error("Can't save nt:file : ", e);
       sb.append("fail");
-    } 
+    }
 
     return sb;
   }
-  
+
   public StringBuffer checkDelete(String repoPath, String nodeName) {
     StringBuffer sb = new StringBuffer();
 
     String normalizedPath = null;
-    
+
     try {
       normalizedPath = getNormalizePath(repoPath) + "/" + nodeName;
-      
-      Node needDeleteNode = (Node)session.getItem(normalizedPath);
-      
+
+      Node needDeleteNode = (Node) session.getItem(normalizedPath);
+
       sb.append("fail");
       log.error("The node has not been deleted : " + normalizedPath);
     } catch (PathNotFoundException e) {
       sb.append("ok");
     } catch (RepositoryException e) {
       log.error("Has not checked : " + normalizedPath, e);
-    } 
+    }
 
     return sb;
   }

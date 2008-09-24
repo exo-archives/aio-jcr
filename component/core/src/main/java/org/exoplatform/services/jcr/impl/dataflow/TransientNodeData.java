@@ -45,105 +45,125 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
-public class TransientNodeData extends TransientItemData implements Comparable,
-    MutableNodeData, Externalizable  {
-  
-  private static final long serialVersionUID = -8675118546441306180L;
+public class TransientNodeData extends TransientItemData implements Comparable, MutableNodeData,
+    Externalizable {
+
+  private static final long   serialVersionUID = -8675118546441306180L;
 
   protected AccessControlList acl;
-  
-  protected InternalQName primaryTypeName;
 
-  protected InternalQName[] mixinTypeNames;
+  protected InternalQName     primaryTypeName;
 
-  protected int orderNum;
-  
-  public TransientNodeData(QPath path, String identifier, int version,
-      InternalQName primaryTypeName, InternalQName[] mixinTypeNames,
-      int orderNum, String parentIdentifier, AccessControlList acl) {
+  protected InternalQName[]   mixinTypeNames;
+
+  protected int               orderNum;
+
+  public TransientNodeData(QPath path,
+                           String identifier,
+                           int version,
+                           InternalQName primaryTypeName,
+                           InternalQName[] mixinTypeNames,
+                           int orderNum,
+                           String parentIdentifier,
+                           AccessControlList acl) {
     super(path, identifier, version, parentIdentifier);
     this.primaryTypeName = primaryTypeName;
     this.mixinTypeNames = mixinTypeNames;
-    this.orderNum = orderNum;    
+    this.orderNum = orderNum;
     this.acl = acl;
   }
 
-  
   // --------------- ItemData ------------
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#isNode()
    */
   public boolean isNode() {
     return true;
   }
-  
-  //---------------- NodeData -------------
-  
-  /* (non-Javadoc)
+
+  // ---------------- NodeData -------------
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getOrderNumber()
    */
   public int getOrderNumber() {
     return orderNum;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getPrimaryTypeName()
    */
   public InternalQName getPrimaryTypeName() {
     return primaryTypeName;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getMixinTypeNames()
    */
   public InternalQName[] getMixinTypeNames() {
     return mixinTypeNames;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.NodeData#getACL()
    */
   public AccessControlList getACL() {
     return acl;
   }
-  //---------------- MutableNodeData 
 
-  /* (non-Javadoc)
+  // ---------------- MutableNodeData
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setOrderNumber(int)
    */
   public void setOrderNumber(int orderNum) {
     this.orderNum = orderNum;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setMixinTypeNames(org.exoplatform.services.jcr.datamodel.InternalQName[])
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.datamodel.MutableNodeData#setMixinTypeNames(org.exoplatform.services
+   * .jcr.datamodel.InternalQName[])
    */
   public void setMixinTypeNames(InternalQName[] mixinTypeNames) {
     this.mixinTypeNames = mixinTypeNames;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setId(java.lang.String)
    */
   public void setIdentifier(String identifier) {
     this.identifier = identifier;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.MutableNodeData#setACL(org.exoplatform.services.jcr.access.AccessControlList)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.datamodel.MutableNodeData#setACL(org.exoplatform.services.jcr.
+   * access.AccessControlList)
    */
   public void setACL(AccessControlList acl) {
     this.acl = acl;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow.ItemDataVisitor)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow
+   * .ItemDataVisitor)
    */
   public void accept(ItemDataVisitor visitor) throws RepositoryException {
     visitor.visit(this);
   }
 
-  
   /**
    * Factory method
    * 
@@ -153,15 +173,21 @@ public class TransientNodeData extends TransientItemData implements Comparable,
    * @return
    */
   public static TransientNodeData createNodeData(NodeData parent,
-      InternalQName name, InternalQName primaryTypeName) {
+                                                 InternalQName name,
+                                                 InternalQName primaryTypeName) {
     TransientNodeData nodeData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
     nodeData = new TransientNodeData(path,
-        IdGenerator.generate(), -1, primaryTypeName, 
-        new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
+                                     IdGenerator.generate(),
+                                     -1,
+                                     primaryTypeName,
+                                     new InternalQName[0],
+                                     0,
+                                     parent.getIdentifier(),
+                                     parent.getACL());
     return nodeData;
   }
-    
+
   /**
    * Factory method
    * 
@@ -171,15 +197,22 @@ public class TransientNodeData extends TransientItemData implements Comparable,
    * @return
    */
   public static TransientNodeData createNodeData(NodeData parent,
-      InternalQName name, InternalQName primaryTypeName, int index) {
+                                                 InternalQName name,
+                                                 InternalQName primaryTypeName,
+                                                 int index) {
     TransientNodeData nodeData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name, index);
     nodeData = new TransientNodeData(path,
-        IdGenerator.generate(), -1, primaryTypeName, 
-        new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
+                                     IdGenerator.generate(),
+                                     -1,
+                                     primaryTypeName,
+                                     new InternalQName[0],
+                                     0,
+                                     parent.getIdentifier(),
+                                     parent.getACL());
     return nodeData;
   }
-  
+
   /**
    * Factory method
    * 
@@ -189,52 +222,59 @@ public class TransientNodeData extends TransientItemData implements Comparable,
    * @return
    */
   public static TransientNodeData createNodeData(NodeData parent,
-      InternalQName name, InternalQName primaryTypeName, String identifier) {
+                                                 InternalQName name,
+                                                 InternalQName primaryTypeName,
+                                                 String identifier) {
     TransientNodeData nodeData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
     nodeData = new TransientNodeData(path,
-        identifier, -1, primaryTypeName, 
-        new InternalQName[0], 0, parent.getIdentifier(), parent.getACL());
+                                     identifier,
+                                     -1,
+                                     primaryTypeName,
+                                     new InternalQName[0],
+                                     0,
+                                     parent.getIdentifier(),
+                                     parent.getACL());
     return nodeData;
   }
-  
-  // ------------- Comparable  /////
+
+  // ------------- Comparable /////
 
   public int compareTo(Object obj) {
     return ((NodeData) obj).getOrderNumber() - orderNum;
   }
-  
-//Need for Externalizable
-//------------------ [ BEGIN ] ------------------
+
+  // Need for Externalizable
+  // ------------------ [ BEGIN ] ------------------
   public TransientNodeData() {
     super();
     this.acl = new AccessControlList();
   }
-  
+
   public void writeExternal(ObjectOutput out) throws IOException {
     super.writeExternal(out);
-    
+
     out.writeInt(orderNum);
-    
+
     out.writeInt(primaryTypeName.getAsString().getBytes().length);
     out.write(primaryTypeName.getAsString().getBytes());
-    
+
     out.writeInt(mixinTypeNames.length);
-    for(int i = 0; i < mixinTypeNames.length; i++){
+    for (int i = 0; i < mixinTypeNames.length; i++) {
       out.writeInt(mixinTypeNames[i].getAsString().getBytes().length);
       out.write(mixinTypeNames[i].getAsString().getBytes());
     }
-    
+
     acl.writeExternal(out);
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     super.readExternal(in);
-     
+
     orderNum = in.readInt();
-    
+
     byte[] buf;
-    
+
     try {
       buf = new byte[in.readInt()];
       in.read(buf);
@@ -243,17 +283,18 @@ public class TransientNodeData extends TransientItemData implements Comparable,
     } catch (final IllegalNameException e) {
       throw new IOException(e.getMessage()) {
         private static final long serialVersionUID = 3489809179234435267L;
+
         @Override
         public Throwable getCause() {
           return e;
         }
       };
     }
-    
+
     int count = in.readInt();
-    
+
     mixinTypeNames = new InternalQName[count];
-    
+
     for (int i = 0; i < count; i++) {
       try {
         buf = new byte[in.readInt()];
@@ -263,6 +304,7 @@ public class TransientNodeData extends TransientItemData implements Comparable,
       } catch (final IllegalNameException e) {
         throw new IOException(e.getMessage()) {
           private static final long serialVersionUID = 3489809179234435268L; // eclipse gen
+
           @Override
           public Throwable getCause() {
             return e;
@@ -270,48 +312,50 @@ public class TransientNodeData extends TransientItemData implements Comparable,
         };
       }
     }
-    
+
     acl.readExternal(in);
   }
-  //------------------ [  END  ] ------------------
-  
+
+  // ------------------ [ END ] ------------------
+
   // ------------ Cloneable ------------------
-  
+
   @Override
   public TransientNodeData clone() {
-    TransientNodeData dataCopy = new TransientNodeData(
-        getQPath(), 
-        getIdentifier(), 
-        getPersistedVersion(),
-        getPrimaryTypeName(), 
-        getMixinTypeNames(),
-        getOrderNumber(),
-        getParentIdentifier() != null ? getParentIdentifier() : null,
-        getACL());
-        
+    TransientNodeData dataCopy = new TransientNodeData(getQPath(),
+                                                       getIdentifier(),
+                                                       getPersistedVersion(),
+                                                       getPrimaryTypeName(),
+                                                       getMixinTypeNames(),
+                                                       getOrderNumber(),
+                                                       getParentIdentifier() != null
+                                                           ? getParentIdentifier()
+                                                           : null,
+                                                       getACL());
+
     return dataCopy;
   }
-  
-  public TransientNodeData cloneAsSibling(int index) throws PathNotFoundException, IllegalPathException {
-    
-    QPath siblingPath = QPath.makeChildPath(
-        getQPath().makeParentPath(),
-        getQPath().getName(),
-        index);
-    
-    TransientNodeData dataCopy = new TransientNodeData(
-        siblingPath, 
-        getIdentifier(), 
-        getPersistedVersion(),
-        getPrimaryTypeName(), 
-        getMixinTypeNames(),
-        getOrderNumber(),
-        getParentIdentifier() != null ? getParentIdentifier() : null,
-        getACL());
-      
+
+  public TransientNodeData cloneAsSibling(int index) throws PathNotFoundException,
+                                                    IllegalPathException {
+
+    QPath siblingPath = QPath.makeChildPath(getQPath().makeParentPath(),
+                                            getQPath().getName(),
+                                            index);
+
+    TransientNodeData dataCopy = new TransientNodeData(siblingPath,
+                                                       getIdentifier(),
+                                                       getPersistedVersion(),
+                                                       getPrimaryTypeName(),
+                                                       getMixinTypeNames(),
+                                                       getOrderNumber(),
+                                                       getParentIdentifier() != null
+                                                           ? getParentIdentifier()
+                                                           : null,
+                                                       getACL());
+
     return dataCopy;
   }
-  
+
   // -----------------------------------------
 }
-

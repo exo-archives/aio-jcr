@@ -23,7 +23,8 @@ import org.exoplatform.services.jcr.ext.replication.Packet;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: MasterPriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class StaticPriorityChecker extends AbstractPriorityChecker {
@@ -35,19 +36,25 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
    * @param ownName
    * @param otherParticipants
    */
-  public StaticPriorityChecker(ChannelManager channelManagerpu, int ownPriority,
-      String ownName, List<String> otherParticipants) {
+  public StaticPriorityChecker(ChannelManager channelManagerpu,
+                               int ownPriority,
+                               String ownName,
+                               List<String> otherParticipants) {
     super(channelManagerpu, ownPriority, ownName, otherParticipants);
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.replication.priority.PriorityChecker#receive(org.exoplatform.services.jcr.ext.replication.Packet)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.replication.priority.PriorityChecker#receive(org.exoplatform
+   * .services.jcr.ext.replication.Packet)
    */
   @Override
   public void receive(Packet packet) {
     {
       if (log.isDebugEnabled())
-        log.debug(" ------->>> receive from " + packet.getOwnerName() + ", byte == " + packet.getByteArray().length);
+        log.debug(" ------->>> receive from " + packet.getOwnerName() + ", byte == "
+            + packet.getByteArray().length);
 
       try {
 
@@ -55,28 +62,33 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
           switch (packet.getPacketType()) {
 
           case Packet.PacketType.GET_ALL_PRIORITY:
-            Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY, ownName,
-                (long) ownPriority, packet.getIdentifier());
+            Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY,
+                                              ownName,
+                                              (long) ownPriority,
+                                              packet.getIdentifier());
             channelManager.sendPacket(pktMyPriority);
             break;
 
           case Packet.PacketType.OWN_PRIORITY:
             if (identifier.equals(packet.getIdentifier())) {
-              currentPartisipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
-              
+              currentPartisipants.put(packet.getOwnerName(),
+                                      Integer.valueOf((int) packet.getSize()));
+
               if (log.isDebugEnabled()) {
-                log.debug(channelManager.getChannel().getClusterName() + " : " + identifier + " : added member :");
-                log.debug("   +" + packet.getOwnerName() + ":" + currentPartisipants.get(packet.getOwnerName()));
+                log.debug(channelManager.getChannel().getClusterName() + " : " + identifier
+                    + " : added member :");
+                log.debug("   +" + packet.getOwnerName() + ":"
+                    + currentPartisipants.get(packet.getOwnerName()));
               }
-              
-              if (otherPartisipants.size() == currentPartisipants.size()) 
+
+              if (otherPartisipants.size() == currentPartisipants.size())
                 memberListener.memberRejoin();
             }
-            
+
             if (log.isDebugEnabled())
               printOnlineMembers();
 
-              break;
+            break;
           }
       } catch (Exception e) {
         log.error("An error in processing packet : ", e);

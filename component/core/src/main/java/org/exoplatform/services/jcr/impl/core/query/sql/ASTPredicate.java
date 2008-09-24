@@ -18,18 +18,17 @@ package org.exoplatform.services.jcr.impl.core.query.sql;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
-
 public class ASTPredicate extends SimpleNode {
 
-    private int operationType;
+  private int           operationType;
 
-    private boolean negate = false;
+  private boolean       negate = false;
 
-    private InternalQName identifier;
+  private InternalQName identifier;
 
-    private String identifierOperand;
+  private String        identifierOperand;
 
-    private String escapeString;
+  private String        escapeString;
 
   public ASTPredicate(int id) {
     super(id);
@@ -39,52 +38,52 @@ public class ASTPredicate extends SimpleNode {
     super(p, id);
   }
 
-    public void setOperationType(int type) {
-        this.operationType = type;
-    }
+  public void setOperationType(int type) {
+    this.operationType = type;
+  }
 
-    public int getOperationType() {
-        return operationType;
-    }
+  public int getOperationType() {
+    return operationType;
+  }
 
-    public void setNegate(boolean b) {
-        this.negate = b;
-    }
+  public void setNegate(boolean b) {
+    this.negate = b;
+  }
 
-    public boolean isNegate() {
-        return this.negate;
-    }
+  public boolean isNegate() {
+    return this.negate;
+  }
 
-    public void setIdentifier(InternalQName identifier) {
-        this.identifier = identifier;
-    }
+  public void setIdentifier(InternalQName identifier) {
+    this.identifier = identifier;
+  }
 
-    public InternalQName getIdentifier() {
-        return identifier;
-    }
+  public InternalQName getIdentifier() {
+    return identifier;
+  }
 
-    public void setIdentifierOperand(String identifier) {
-        this.identifierOperand = identifier;
-    }
+  public void setIdentifierOperand(String identifier) {
+    this.identifierOperand = identifier;
+  }
 
-    public String getIdentifierOperand() {
-        return identifierOperand;
-    }
+  public String getIdentifierOperand() {
+    return identifierOperand;
+  }
 
-    public void setEscapeString(String esc) {
-        this.escapeString = esc;
-    }
+  public void setEscapeString(String esc) {
+    this.escapeString = esc;
+  }
 
-    public String getEscapeString() {
-        return escapeString;
-    }
+  public String getEscapeString() {
+    return escapeString;
+  }
 
   /** Accept the visitor. **/
   public Object jjtAccept(JCRSQLParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
 
-    public String toString() {
-        return super.toString() + " type: " + operationType + " negate: " + negate;
-    }
+  public String toString() {
+    return super.toString() + " type: " + operationType + " negate: " + negate;
+  }
 }

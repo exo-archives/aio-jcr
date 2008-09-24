@@ -35,35 +35,37 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS       .
+ * Created by The eXo Platform SAS .
  * 
  * @author Gennady Azarenkov
  * @version $Id$
  */
 
 public abstract class FileIOChannel implements ValueIOChannel {
-  
-  private static Log log = ExoLogger.getLogger("jcr.FileIOChannel");
-  
-  public static final int IOBUFFER_SIZE = 32 * 1024; // 32 K
-  
-  protected final File rootDir;
+
+  private static Log          log           = ExoLogger.getLogger("jcr.FileIOChannel");
+
+  public static final int     IOBUFFER_SIZE = 32 * 1024;                               // 32 K
+
+  protected final File        rootDir;
+
   protected final FileCleaner cleaner;
-  protected String storageId;
-  
+
+  protected String            storageId;
+
   public FileIOChannel(File rootDir, FileCleaner cleaner, String storageId) {
     this.rootDir = rootDir;
     this.cleaner = cleaner;
     this.storageId = storageId;
   }
-  
+
   /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#delete(java.lang.String)
    */
-  public boolean delete(String propertyId)  throws IOException {
+  public boolean delete(String propertyId) throws IOException {
     boolean result = true;
-    for(File valueFile: getFiles(propertyId)) {
-      if(!valueFile.delete()) {
+    for (File valueFile : getFiles(propertyId)) {
+      if (!valueFile.delete()) {
         result = false;
         cleaner.addFile(valueFile);
       }
@@ -76,7 +78,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
    */
   public void close() {
   }
-  
+
   /**
    * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#read(java.lang.String, int, int)
    */
@@ -85,21 +87,22 @@ public abstract class FileIOChannel implements ValueIOChannel {
   }
 
   /**
-   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String, org.exoplatform.services.jcr.datamodel.ValueData)
+   * @see org.exoplatform.services.jcr.storage.value.ValueIOChannel#write(java.lang.String,
+   *      org.exoplatform.services.jcr.datamodel.ValueData)
    */
   public void write(String propertyId, ValueData value) throws IOException {
     writeValue(getFile(propertyId, value.getOrderNumber()), value);
   }
-  
+
   /**
    * Makes storage file path by propertyId and order number.<br/>
    * 
    * @param propertyId
    * @param orderNumber
-   * @return String with path 
+   * @return String with path
    */
   protected abstract String makeFilePath(String propertyId, int orderNumber);
-  
+
   /**
    * Creates storage file by propertyId and order number.<br/>
    * 
@@ -120,14 +123,17 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @return actual files on file system related to given propertyId
    */
   protected abstract File[] getFiles(String propertyId) throws IOException;
-  
+
   /**
    * Read value from file.
-   *   
+   * 
    * @param file
-   * @param orderNum - used in PersistedValueData logic
-   * @param maxBufferSize - threshold for spooling
-   * @param temp - temporary file flag
+   * @param orderNum
+   *          - used in PersistedValueData logic
+   * @param maxBufferSize
+   *          - threshold for spooling
+   * @param temp
+   *          - temporary file flag
    * @return
    * @throws IOException
    */
@@ -136,13 +142,13 @@ public abstract class FileIOChannel implements ValueIOChannel {
     FileChannel channel = is.getChannel();
     try {
       int size = (int) channel.size();
-      
+
       if (size > maxBufferSize) {
         return new FileStreamPersistedValueData(file, orderNum, temp);
       } else {
         ByteBuffer buf = ByteBuffer.allocate(size);
         int numRead = channel.read(buf);
-        byte[] arr = new byte[numRead]; 
+        byte[] arr = new byte[numRead];
         buf.rewind();
         buf.get(arr);
         return new ByteArrayPersistedValueData(arr, orderNum);
@@ -160,14 +166,14 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @param value
    * @throws IOException
    */
-  protected void writeValue(File file, ValueData value)  throws IOException {
-    //OutputStream out = openOutput(file);//TODO
+  protected void writeValue(File file, ValueData value) throws IOException {
+    // OutputStream out = openOutput(file);//TODO
     OutputStream out = new FileOutputStream(file);
     writeOutput(out, value);
-    //closeOutput(out);
+    // closeOutput(out);
     out.close();
   }
-  
+
   /**
    * Stream value data to the output.
    * 
@@ -175,7 +181,7 @@ public abstract class FileIOChannel implements ValueIOChannel {
    * @param value
    * @throws IOException
    */
-  protected void writeOutput(OutputStream out, ValueData value)  throws IOException {
+  protected void writeOutput(OutputStream out, ValueData value) throws IOException {
     if (value.isByteArray()) {
       byte[] buff = value.getAsByteArray();
       out.write(buff);
@@ -191,27 +197,27 @@ public abstract class FileIOChannel implements ValueIOChannel {
   public String getStorageId() {
     return storageId;
   }
-  
-//  /**
-//   * Prepare OutputStream to write operation. <br/>
-//   * 
-//   * @param file - destenation File
-//   * @return OutputStream
-//   * @throws IOException
-//   */
-//  protected OutputStream openOutput(File file) throws IOException {
-//    return new FileOutputStream(file);
-//  }
-//  
-//  /**
-//   * Perform post-write operations.<br/>
-//   * In most cases just close OutputStream after a write operation. <br/>
-//   * 
-//   * @param out
-//   * @throws IOException
-//   */
-//  protected void closeOutput(OutputStream out) throws IOException {
-//    out.close();
-//  }
-  
+
+  // /**
+  // * Prepare OutputStream to write operation. <br/>
+  // *
+  // * @param file - destenation File
+  // * @return OutputStream
+  // * @throws IOException
+  // */
+  // protected OutputStream openOutput(File file) throws IOException {
+  // return new FileOutputStream(file);
+  // }
+  //  
+  // /**
+  // * Perform post-write operations.<br/>
+  // * In most cases just close OutputStream after a write operation. <br/>
+  // *
+  // * @param out
+  // * @throws IOException
+  // */
+  // protected void closeOutput(OutputStream out) throws IOException {
+  // out.close();
+  // }
+
 }

@@ -75,9 +75,7 @@ public class NeutralImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
-   *      int, int)
+   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
     if (contentImporter == null) {
@@ -88,9 +86,8 @@ public class NeutralImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   *      java.lang.String, java.lang.String)
+   * java.lang.String, java.lang.String)
    */
   public void endElement(String uri, String localName, String qName) throws RepositoryException {
     if (contentImporter == null) {
@@ -108,9 +105,8 @@ public class NeutralImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java.lang.String,
-   *      java.lang.String, java.lang.String, java.util.Map)
+   * java.lang.String, java.lang.String, java.util.Map)
    */
   public void startElement(String namespaceURI,
                            String localName,

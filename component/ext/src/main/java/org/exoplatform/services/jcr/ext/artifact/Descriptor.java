@@ -18,5 +18,6 @@ package org.exoplatform.services.jcr.ext.artifact;
 
 public interface Descriptor {
   String getAsString();
+
   String getAsPath();
 }

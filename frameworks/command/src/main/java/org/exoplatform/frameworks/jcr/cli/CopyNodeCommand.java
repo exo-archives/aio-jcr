@@ -34,8 +34,7 @@ public class CopyNodeCommand extends AbstractCliCommand {
       String destAbsPath = ctx.getParameter(1);
       Workspace workspace = ctx.getSession().getWorkspace();
       workspace.copy(srcAbsPath, destAbsPath);
-      output = "Node [" + srcAbsPath + "] has been copied to [" + destAbsPath
-          + "] successfully \n";
+      output = "Node [" + srcAbsPath + "] has been copied to [" + destAbsPath + "] successfully \n";
     } catch (Exception e) {
       output = "Can't execute command - " + e.getMessage() + "\n";
     }

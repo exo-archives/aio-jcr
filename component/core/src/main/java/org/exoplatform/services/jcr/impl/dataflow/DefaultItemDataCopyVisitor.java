@@ -35,11 +35,9 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * The class visits each node, all subnodes and all of them properties. It
- * transfer as parameter of a method <code>ItemData.visits()</code>. During
- * visiting the class forms the <b>itemAddStates</b> list of
- * <code>List&lt;ItemState&gt;</code> for copying new nodes and their
- * properties.
+ * The class visits each node, all subnodes and all of them properties. It transfer as parameter of
+ * a method <code>ItemData.visits()</code>. During visiting the class forms the <b>itemAddStates</b>
+ * list of <code>List&lt;ItemState&gt;</code> for copying new nodes and their properties.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: DefaultItemDataCopyVisitor.java 12306 2008-03-24 10:25:55Z ksm $
@@ -50,7 +48,7 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   /**
    * Destination node name
    */
-  protected InternalQName         destNodeName;
+  protected InternalQName       destNodeName;
 
   /**
    * The stack. In the top it contains a parent node.
@@ -63,8 +61,8 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   protected List<ItemState>     itemAddStates  = new ArrayList<ItemState>();
 
   /**
-   * The variable shows necessity of preservation <code>Identifier</code>,
-   * not generate new one, at transformation of <code>Item</code>.
+   * The variable shows necessity of preservation <code>Identifier</code>, not generate new one, at
+   * transformation of <code>Item</code>.
    */
   protected boolean             keepIdentifiers;
 
@@ -78,11 +76,16 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   /**
    * Creates an instance of this class.
    * 
-   * @param parent - The parent node
-   * @param destNodeName - Destination node name
-   * @param nodeTypeManager - The NodeTypeManager
-   * @param dataManager - Source data manager
-   * @param keepIdentifiers - Is it necessity to keep <code>Identifier</code>
+   * @param parent
+   *          - The parent node
+   * @param destNodeName
+   *          - Destination node name
+   * @param nodeTypeManager
+   *          - The NodeTypeManager
+   * @param dataManager
+   *          - Source data manager
+   * @param keepIdentifiers
+   *          - Is it necessity to keep <code>Identifier</code>
    */
 
   public DefaultItemDataCopyVisitor(NodeData parent,
@@ -102,9 +105,9 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
@@ -126,8 +129,9 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
 
     TransientPropertyData newProperty = new TransientPropertyData(QPath.makeChildPath(curParent().getQPath(),
                                                                                       qname),
-                                                                  keepIdentifiers ? property.getIdentifier()
-                                                                                 : IdGenerator.generate(),
+                                                                  keepIdentifiers
+                                                                      ? property.getIdentifier()
+                                                                      : IdGenerator.generate(),
                                                                   -1,
                                                                   property.getType(),
                                                                   curParent().getIdentifier(),
@@ -139,9 +143,9 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -150,7 +154,7 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
       ancestorToSave = curParent().getQPath();
     }
     NodeData parent = curParent();
-    QPath qpath = calculateNewNodePath(node,level);
+    QPath qpath = calculateNewNodePath(node, level);
     // [PN] 05.01.07 Calc order number if parent supports orderable nodes...
     // If ordering is supported by the node type of the parent node of the new
     // location, then the
@@ -182,9 +186,9 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
@@ -193,9 +197,9 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {

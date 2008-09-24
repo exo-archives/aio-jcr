@@ -18,59 +18,60 @@ package org.exoplatform.services.jcr.core.nodetype;
 
 import javax.jcr.nodetype.PropertyDefinition;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: PropertyDefinitions.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class PropertyDefinitions {
-  
-  private PropertyDefinition multiDef = null;
+
+  private PropertyDefinition multiDef  = null;
+
   private PropertyDefinition singleDef = null;
 
   public PropertyDefinitions() {
     super();
   }
-  
+
   public void setDefinition(PropertyDefinition def) {
-    boolean residual = ((ExtendedItemDefinition)def).isResidualSet(); 
-    if(def.isMultiple()) {
-      if( (residual && multiDef == null) || !residual) 
+    boolean residual = ((ExtendedItemDefinition) def).isResidualSet();
+    if (def.isMultiple()) {
+      if ((residual && multiDef == null) || !residual)
         multiDef = def;
     } else {
-      if( (residual && singleDef == null) || !residual) 
+      if ((residual && singleDef == null) || !residual)
         singleDef = def;
     }
   }
-  
-  public PropertyDefinition getDefinition(boolean multiple) { 
+
+  public PropertyDefinition getDefinition(boolean multiple) {
 
     refresh();
-    
-    if(multiple && multiDef != null)
+
+    if (multiple && multiDef != null)
       return multiDef;
-    if(!multiple && singleDef != null)
+    if (!multiple && singleDef != null)
       return singleDef;
-    
+
     return null;
   }
-  
-  public PropertyDefinition getAnyDefinition() { 
+
+  public PropertyDefinition getAnyDefinition() {
 
     refresh();
-    
-    if(multiDef != null)
+
+    if (multiDef != null)
       return multiDef;
-    if(singleDef != null)
+    if (singleDef != null)
       return singleDef;
-    
+
     return null;
   }
-  
+
   private void refresh() {
-    // if both defined should be both either residual or not 
+    // if both defined should be both either residual or not
     if (multiDef != null && singleDef != null) {
       if (((ExtendedItemDefinition) multiDef).isResidualSet()
           && !((ExtendedItemDefinition) singleDef).isResidualSet())
@@ -81,10 +82,10 @@ public class PropertyDefinitions {
     }
 
   }
-  
+
   public String dump() {
-    return "Definitions single: "+((singleDef==null)?"N/D":singleDef.getName())+
-    ", multiple: "+((multiDef==null)?"N/D":multiDef.getName());
+    return "Definitions single: " + ((singleDef == null) ? "N/D" : singleDef.getName())
+        + ", multiple: " + ((multiDef == null) ? "N/D" : multiDef.getName());
   }
 
 }

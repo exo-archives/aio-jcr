@@ -25,26 +25,27 @@ import org.exoplatform.container.xml.ObjectParameter;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: AddActionsPlugin.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class AddActionsPlugin extends BaseComponentPlugin {
-  
+
   private ActionsConfig actionsConfig;
-  
+
   public AddActionsPlugin(InitParams params) {
     ObjectParameter param = params.getObjectParam("actions");
-    
+
     if (param != null) {
-      actionsConfig = (ActionsConfig)param.getObject();
+      actionsConfig = (ActionsConfig) param.getObject();
     }
   }
 
   public List<ActionConfiguration> getActions() {
     return actionsConfig.getActions();
   }
-  
+
   public static class ActionsConfig {
     private List<ActionConfiguration> actions = new ArrayList<ActionConfiguration>();
 
@@ -55,7 +56,7 @@ public class AddActionsPlugin extends BaseComponentPlugin {
     public void setActions(List<ActionConfiguration> actions) {
       this.actions = actions;
     }
-    
+
   }
-  
+
 }

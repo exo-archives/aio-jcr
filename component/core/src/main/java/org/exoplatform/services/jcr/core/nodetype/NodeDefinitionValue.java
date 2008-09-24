@@ -18,23 +18,21 @@ package org.exoplatform.services.jcr.core.nodetype;
 
 import java.util.List;
 
-
 /**
- * Created by The eXo Platform SAS.<br/>
- * NodeDefinition value object
+ * Created by The eXo Platform SAS.<br/> NodeDefinition value object
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: NodeDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class NodeDefinitionValue extends ItemDefinitionValue {
 
-  private String defaultNodeTypeName;
+  private String       defaultNodeTypeName;
 
   private List<String> requiredNodeTypeNames;
 
-  private boolean sameNameSiblings;
+  private boolean      sameNameSiblings;
 
-  
   public NodeDefinitionValue() {
   }
 
@@ -44,32 +42,40 @@ public class NodeDefinitionValue extends ItemDefinitionValue {
   public String getDefaultNodeTypeName() {
     return defaultNodeTypeName;
   }
+
   /**
-   * @param defaultNodeTypeName The defaultNodeTypeName to set.
+   * @param defaultNodeTypeName
+   *          The defaultNodeTypeName to set.
    */
   public void setDefaultNodeTypeName(String defaultNodeTypeName) {
     this.defaultNodeTypeName = defaultNodeTypeName;
   }
+
   /**
    * @return Returns the sameNameSiblings.
    */
   public boolean isSameNameSiblings() {
     return sameNameSiblings;
   }
+
   /**
-   * @param sameNameSiblings The sameNameSiblings to set.
+   * @param sameNameSiblings
+   *          The sameNameSiblings to set.
    */
   public void setSameNameSiblings(boolean multiple) {
     this.sameNameSiblings = multiple;
   }
+
   /**
    * @return Returns the requiredNodeTypeNames.
    */
   public List<String> getRequiredNodeTypeNames() {
     return requiredNodeTypeNames;
   }
+
   /**
-   * @param requiredNodeTypeNames The requiredNodeTypeNames to set.
+   * @param requiredNodeTypeNames
+   *          The requiredNodeTypeNames to set.
    */
   public void setRequiredNodeTypeNames(List<String> requiredNodeTypeNames) {
     this.requiredNodeTypeNames = requiredNodeTypeNames;

@@ -35,18 +35,18 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 public class CliAppContext extends BasicAppContext {
 
   protected final String currentItemKey = "CURRENT_ITEM";
-  protected final String parametersKey;
-  protected final String outputKey = "OUTPUT";
 
-  public CliAppContext(ManageableRepository rep, String parametersKey)
-      throws NamingException {
+  protected final String parametersKey;
+
+  protected final String outputKey      = "OUTPUT";
+
+  public CliAppContext(ManageableRepository rep, String parametersKey) throws NamingException {
     super(rep);
     this.parametersKey = parametersKey;
   }
 
   @Deprecated
-  public CliAppContext(ManageableRepository rep, String parametersKey,
-      Credentials cred) throws NamingException {
+  public CliAppContext(ManageableRepository rep, String parametersKey, Credentials cred) throws NamingException {
     super(rep);
     this.parametersKey = parametersKey;
   }
@@ -71,9 +71,8 @@ public class CliAppContext extends BasicAppContext {
   public String getParameter(int index) throws ParameterNotFoundException {
     List<String> params = getParameters();
     if (params.size() <= index)
-      throw new ParameterNotFoundException(
-          "Not enough number of parameters expected at least: " + (index + 1)
-              + " found: " + params.size());
+      throw new ParameterNotFoundException("Not enough number of parameters expected at least: "
+          + (index + 1) + " found: " + params.size());
     return params.get(index);
   }
 

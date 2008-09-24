@@ -17,10 +17,12 @@ import com.sun.japex.TestCase;
  */
 
 public class SessionImportXMLTest extends AbstractContentCreatorForImportTest {
-  
+
   @Override
-  public void doRun(TestCase tc, JCRTestContext context) throws Exception {       
-    context.getSession().importXML(nextPath(), nextInputStream(), ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);    
+  public void doRun(TestCase tc, JCRTestContext context) throws Exception {
+    context.getSession().importXML(nextPath(),
+                                   nextInputStream(),
+                                   ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
   }
 
 }

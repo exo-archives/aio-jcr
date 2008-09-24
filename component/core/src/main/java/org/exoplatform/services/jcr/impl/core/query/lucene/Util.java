@@ -30,39 +30,40 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class Util {
 
-    /**
-     * The logger instance for this class.
-     */
-    private static final Log log = ExoLogger.getLogger(Util.class);
+  /**
+   * The logger instance for this class.
+   */
+  private static final Log log = ExoLogger.getLogger(Util.class);
 
-    /**
-     * Disposes the document <code>old</code>. Closes any potentially open
-     * readers held by the document.
-     *
-     * @param old the document to dispose.
-     */
-    public static void disposeDocument(Document old) {
-        for (Enumeration e = old.fields(); e.hasMoreElements();) {
-            Field f = (Field) e.nextElement();
-            if (f.readerValue() != null) {
-                try {
-                    f.readerValue().close();
-                } catch (IOException ex) {
-                    log.warn("Exception while disposing index document: " + ex);
-                }
-            }
+  /**
+   * Disposes the document <code>old</code>. Closes any potentially open readers held by the
+   * document.
+   * 
+   * @param old
+   *          the document to dispose.
+   */
+  public static void disposeDocument(Document old) {
+    for (Enumeration e = old.fields(); e.hasMoreElements();) {
+      Field f = (Field) e.nextElement();
+      if (f.readerValue() != null) {
+        try {
+          f.readerValue().close();
+        } catch (IOException ex) {
+          log.warn("Exception while disposing index document: " + ex);
         }
+      }
     }
+  }
 
-    /**
-     * Returns <code>true</code> if the document is ready to be added to the
-     * index. That is all text extractors have finished their work.
-     *
-     * @param doc the document to check.
-     * @return <code>true</code> if the document is ready; <code>false</code>
-     *         otherwise.
-     */
-    public static boolean isDocumentReady(Document doc) {
-        return true;
-    }
+  /**
+   * Returns <code>true</code> if the document is ready to be added to the index. That is all text
+   * extractors have finished their work.
+   * 
+   * @param doc
+   *          the document to check.
+   * @return <code>true</code> if the document is ready; <code>false</code> otherwise.
+   */
+  public static boolean isDocumentReady(Document doc) {
+    return true;
+  }
 }

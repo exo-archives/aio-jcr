@@ -8,7 +8,6 @@ import org.exoplatform.jcr.benchmark.JCRTestContext;
 
 import com.sun.japex.TestCase;
 
-
 /**
  * Created by The eXo Platform SAS
  * 
@@ -21,5 +20,5 @@ public class NodeSetBooleanPropertyTest extends AbstractAddItemEmptyContentTest 
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     nextParent().setProperty(context.generateUniqueName("property"), true);
   }
-  
+
 }

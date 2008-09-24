@@ -22,17 +22,18 @@ import java.net.URL;
 import org.exoplatform.container.StandaloneContainer;
 
 /**
- * Its standalone server run implementation. Server run as a part of complete
- * standalone container, so other component runs too.
+ * Its standalone server run implementation. Server run as a part of complete standalone container,
+ * so other component runs too.
  * <p>
  * Created by The eXo Platform SAS Author : Karpenko Sergey
  */
 public class CIFSServerRun {
 
   /**
-   * This method used just for independent run server (without any applications
-   * server) Check the conf/cifs-configuration.xml, it may not exist.
-   * @param args 
+   * This method used just for independent run server (without any applications server) Check the
+   * conf/cifs-configuration.xml, it may not exist.
+   * 
+   * @param args
    */
   public static void main(final String[] args) {
     System.out.println("CIFS Server Test by Exo Platform");
@@ -40,11 +41,11 @@ public class CIFSServerRun {
 
     try {
 
-      URL configurationURL = Thread.currentThread().getContextClassLoader().getResource(
-          "conf/cifs-configuration.xml");
+      URL configurationURL = Thread.currentThread()
+                                   .getContextClassLoader()
+                                   .getResource("conf/cifs-configuration.xml");
       if (configurationURL == null)
-        throw new Exception(
-            "No configuration found. Check that \"conf/cifs-configuration.xml\" exists !");
+        throw new Exception("No configuration found. Check that \"conf/cifs-configuration.xml\" exists !");
 
       StandaloneContainer.addConfigurationURL(configurationURL.toString());
 

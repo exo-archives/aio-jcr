@@ -23,19 +23,21 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ItemDataVisitor.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface ItemDataVisitor {
-  
+
   /**
    * @return data manager wired data
    */
   ItemDataConsumer getDataManager();
-  
+
   /**
    * visit propertyData
+   * 
    * @param property
    * @throws RepositoryException
    */
@@ -43,6 +45,7 @@ public interface ItemDataVisitor {
 
   /**
    * visit NodeData
+   * 
    * @param node
    * @throws RepositoryException
    */

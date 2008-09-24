@@ -19,49 +19,51 @@ package org.exoplatform.services.jcr.webdav;
 import org.exoplatform.common.http.client.HTTPConnection;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 14, 2008  
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 14, 2008
  */
 public class TestUtils {
-  
-  public static final String HOST = "localhost";
-  public static final int PORT = 8088;
-  
-  //http://localhost:8081/rest/jcr/repository/production
-  
-  public static final String SERVLET_PATH = "/rest/jcr/repository";
-  public static final String WORKSPACE = "/production";
-  public static final String INAVLID_WORKSPACE = "/invalid";  
-  public static final String REALM = "eXo REST services";
-//  public static final String REALM = "exo-domain";
-  
-  public static final String ROOTID = "root";
-  public static final String ROOTPASS = "exo";
-  
+
+  public static final String HOST              = "localhost";
+
+  public static final int    PORT              = 8088;
+
+  // http://localhost:8081/rest/jcr/repository/production
+
+  public static final String SERVLET_PATH      = "/rest/jcr/repository";
+
+  public static final String WORKSPACE         = "/production";
+
+  public static final String INAVLID_WORKSPACE = "/invalid";
+
+  public static final String REALM             = "eXo REST services";
+
+  // public static final String REALM = "exo-domain";
+
+  public static final String ROOTID            = "root";
+
+  public static final String ROOTPASS          = "exo";
+
   public static HTTPConnection GetAuthConnection() {
     HTTPConnection connection = new HTTPConnection(HOST, PORT);
     connection.addBasicAuthorization(REALM, ROOTID, ROOTPASS);
-    
+
     return connection;
   }
-  
+
   public static String getFullWorkSpacePath() {
     return SERVLET_PATH + WORKSPACE;
   }
-  
-  public static String getFullUri(){
+
+  public static String getFullUri() {
     return "http://" + HOST + ":" + PORT + getFullWorkSpacePath();
   }
- 
+
   public static String getFolderName() {
     return "/test folder " + System.currentTimeMillis();
   }
-  
+
   public static String getFileName() {
     return "test file " + System.currentTimeMillis() + ".txt";
   }
-  
 
 }

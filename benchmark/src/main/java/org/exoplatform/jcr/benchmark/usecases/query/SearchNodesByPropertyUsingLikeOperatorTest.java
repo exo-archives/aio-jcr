@@ -31,18 +31,18 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class SearchNodesByPropertyUsingLikeOperatorTest extends JCRTestBase {
   /*
-   * This test calculates the time of query execution, dedicated structure has
-   * been created.
+   * This test calculates the time of query execution, dedicated structure has been created.
    */
 
   public static Log log          = ExoLogger.getLogger("jcr.benchmark");
 
-  private int       RESULT_NODES = 10; 
+  private int       RESULT_NODES = 10;
 
   private String    sqlQuery     = "select * from nt:base where dc:title like 'Exoplatf%'";
 

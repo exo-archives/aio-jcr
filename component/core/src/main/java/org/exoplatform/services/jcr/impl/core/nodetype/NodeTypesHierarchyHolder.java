@@ -26,41 +26,42 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: NodeTypesHierarchyHolder.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class NodeTypesHierarchyHolder {
 
-  private final Map <InternalQName, Set <InternalQName>> nodeTypes;
-  
+  private final Map<InternalQName, Set<InternalQName>> nodeTypes;
+
   public NodeTypesHierarchyHolder() {
-    nodeTypes = new HashMap <InternalQName, Set <InternalQName>>();
+    nodeTypes = new HashMap<InternalQName, Set<InternalQName>>();
   }
-  
+
   public boolean isNodeType(InternalQName testTypeName, InternalQName superTypeName) {
-    if(testTypeName.equals(superTypeName))
+    if (testTypeName.equals(superTypeName))
       return true;
     Set<InternalQName> testTypes = nodeTypes.get(testTypeName);
-    if(testTypes == null)
+    if (testTypes == null)
       return false;
     return testTypes.contains(superTypeName);
   }
-  
-  public Set <InternalQName> getSuperypes(InternalQName nodeTypeName) {
+
+  public Set<InternalQName> getSuperypes(InternalQName nodeTypeName) {
     return nodeTypes.get(nodeTypeName);
   }
-  
+
   void addNodeType(ExtendedNodeType nodeType) {
-    Set <InternalQName> stSet = new HashSet<InternalQName>();
+    Set<InternalQName> stSet = new HashSet<InternalQName>();
     fillSupertypes(stSet, nodeType);
     nodeTypes.put(nodeType.getQName(), stSet);
   }
-  
+
   private void fillSupertypes(Set<InternalQName> list, ExtendedNodeType subtype) {
     if (subtype.getDeclaredSupertypes() != null) {
       for (int i = 0; i < subtype.getDeclaredSupertypes().length; i++) {
-        ExtendedNodeType nt = (ExtendedNodeType)subtype.getDeclaredSupertypes()[i];
+        ExtendedNodeType nt = (ExtendedNodeType) subtype.getDeclaredSupertypes()[i];
         list.add(nt.getQName());
         fillSupertypes(list, nt);
       }

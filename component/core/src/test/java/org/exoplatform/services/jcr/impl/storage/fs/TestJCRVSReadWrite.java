@@ -43,45 +43,47 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * 10.07.2007
- *
+ * Created by The eXo Platform SAS 10.07.2007
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestJCRVSReadWrite.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestJCRVSReadWrite extends JcrImplBaseTest {
 
-  private static Log log = ExoLogger.getLogger("jcr.TestJCRVSReadWrite");
+  private static Log            log         = ExoLogger.getLogger("jcr.TestJCRVSReadWrite");
 
-  public static final int FILES_COUNT = 1000;
-  //public static final int FILE1_SIZE_KB = 1;
-  //public static final int FILE1_SIZE = FILE1_SIZE_KB * 1024;
-  public static int FILE1_SIZE = 0;
-  //public static final int FILE2_SIZE_KB = 2;
-  //public static final int FILE2_SIZE = FILE2_SIZE_KB * 1024;
-  public static int FILE2_SIZE = 0;
+  public static final int       FILES_COUNT = 1000;
 
-  protected Node testRoot = null;
+  // public static final int FILE1_SIZE_KB = 1;
+  // public static final int FILE1_SIZE = FILE1_SIZE_KB * 1024;
+  public static int             FILE1_SIZE  = 0;
 
-  protected List<String> properties = null;
+  // public static final int FILE2_SIZE_KB = 2;
+  // public static final int FILE2_SIZE = FILE2_SIZE_KB * 1024;
+  public static int             FILE2_SIZE  = 0;
 
-  protected BufferedInputStream fBLOB1 = null;
-  protected BufferedInputStream fBLOB2 = null;
+  protected Node                testRoot    = null;
+
+  protected List<String>        properties  = null;
+
+  protected BufferedInputStream fBLOB1      = null;
+
+  protected BufferedInputStream fBLOB2      = null;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
 
     if (fBLOB1 == null) {
-      //fBLOB1 = createBLOBTempFile("treeVSTest_", FILE1_SIZE_KB);
-      //fBLOB1.deleteOnExit();
+      // fBLOB1 = createBLOBTempFile("treeVSTest_", FILE1_SIZE_KB);
+      // fBLOB1.deleteOnExit();
       fBLOB1 = new BufferedInputStream(new ByteArrayInputStream("qazws".getBytes()));
-      FILE1_SIZE = fBLOB1.available(); 
+      FILE1_SIZE = fBLOB1.available();
     }
-    
+
     if (fBLOB2 == null) {
-      //fBLOB2 = createBLOBTempFile("treeVSTest_", FILE2_SIZE_KB);
-      //fBLOB2.deleteOnExit();
+      // fBLOB2 = createBLOBTempFile("treeVSTest_", FILE2_SIZE_KB);
+      // fBLOB2.deleteOnExit();
       fBLOB2 = new BufferedInputStream(new ByteArrayInputStream("qazwsxedcr".getBytes()));
       FILE2_SIZE = fBLOB2.available();
     }
@@ -98,7 +100,7 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
       testRoot.remove();
       root.save();
     }
-      
+
     log.info("Tear down of " + getName() + ",\t" + (System.currentTimeMillis() - time));
 
     super.tearDown();
@@ -109,16 +111,15 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
     String rootPath = testRoot.getPath();
     fBLOB1.mark(FILE1_SIZE);
     fBLOB2.mark(FILE2_SIZE);
-    for (int i=0; i<FILES_COUNT; i++) {
+    for (int i = 0; i < FILES_COUNT; i++) {
       try {
-        Node resource = testRoot.addNode("blob" + i, "nt:file")
-          .addNode("jcr:content", "nt:unstructured"); // , "nt:resource"
+        Node resource = testRoot.addNode("blob" + i, "nt:file").addNode("jcr:content",
+                                                                        "nt:unstructured"); // ,
+        // "nt:resource"
         String path = "";
         if (i % 10 == 0) {
-          Value[] vals = new Value[] {
-              session.getValueFactory().createValue(fBLOB1),
-              session.getValueFactory().createValue(fBLOB2),
-          };
+          Value[] vals = new Value[] { session.getValueFactory().createValue(fBLOB1),
+              session.getValueFactory().createValue(fBLOB2), };
           path = resource.setProperty("jcr:data", vals).getPath();
         } else
           path = resource.setProperty("jcr:data", fBLOB1).getPath();
@@ -127,7 +128,7 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
         testRoot.save();
 
         props.add(path.substring(rootPath.length() + 1));
-      } catch(RepositoryException e) {
+      } catch (RepositoryException e) {
         log.warn("Can't create test case, " + e);
         throw new Exception("Can't create test case, " + e, e);
       } finally {
@@ -139,65 +140,88 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
   }
 
   protected void deleteJCRAPICase() throws RepositoryException {
-    for (NodeIterator iter = testRoot.getNodes(); iter.hasNext(); ) {
+    for (NodeIterator iter = testRoot.getNodes(); iter.hasNext();) {
       iter.nextNode().remove();
     }
 
     testRoot.save();
   }
-  
+
   protected List<QPathEntry[]> createInternalAPICase() throws Exception {
-    DataManager dm = ((NodeImpl) testRoot).getSession().getTransientNodesManager().getTransactManager().getStorageDataManager();
-    
+    DataManager dm = ((NodeImpl) testRoot).getSession()
+                                          .getTransientNodesManager()
+                                          .getTransactManager()
+                                          .getStorageDataManager();
+
     List<QPathEntry[]> props = new ArrayList<QPathEntry[]>();
     NodeData rootData = (NodeData) ((NodeImpl) testRoot).getData();
     fBLOB1.mark(FILE1_SIZE);
     fBLOB2.mark(FILE2_SIZE);
-    for (int i=0; i<FILES_COUNT; i++) {
+    for (int i = 0; i < FILES_COUNT; i++) {
       try {
-        SessionChangesLog changes = new SessionChangesLog(((NodeImpl) testRoot).getSession().getId());
-        
-        TransientNodeData ntfile = TransientNodeData.createNodeData(
-            rootData, InternalQName.parse("[]blob" + i), Constants.NT_FILE);
+        SessionChangesLog changes = new SessionChangesLog(((NodeImpl) testRoot).getSession()
+                                                                               .getId());
+
+        TransientNodeData ntfile = TransientNodeData.createNodeData(rootData,
+                                                                    InternalQName.parse("[]blob"
+                                                                        + i),
+                                                                    Constants.NT_FILE);
         changes.add(ItemState.createAddedState(ntfile));
-        
-        TransientPropertyData ntfilePrimaryType = TransientPropertyData.createPropertyData(
-            ntfile, Constants.JCR_PRIMARYTYPE, PropertyType.NAME, false, new TransientValueData(Constants.NT_FILE));
+
+        TransientPropertyData ntfilePrimaryType = TransientPropertyData.createPropertyData(ntfile,
+                                                                                           Constants.JCR_PRIMARYTYPE,
+                                                                                           PropertyType.NAME,
+                                                                                           false,
+                                                                                           new TransientValueData(Constants.NT_FILE));
         changes.add(ItemState.createAddedState(ntfilePrimaryType));
-        
-        TransientNodeData res = TransientNodeData.createNodeData(
-            ntfile, Constants.JCR_CONTENT, Constants.NT_UNSTRUCTURED);
+
+        TransientNodeData res = TransientNodeData.createNodeData(ntfile,
+                                                                 Constants.JCR_CONTENT,
+                                                                 Constants.NT_UNSTRUCTURED);
         changes.add(ItemState.createAddedState(res));
-        
-        TransientPropertyData resPrimaryType = TransientPropertyData.createPropertyData(
-            res, Constants.JCR_PRIMARYTYPE, PropertyType.NAME, false, new TransientValueData(Constants.NT_UNSTRUCTURED));
+
+        TransientPropertyData resPrimaryType = TransientPropertyData.createPropertyData(res,
+                                                                                        Constants.JCR_PRIMARYTYPE,
+                                                                                        PropertyType.NAME,
+                                                                                        false,
+                                                                                        new TransientValueData(Constants.NT_UNSTRUCTURED));
         changes.add(ItemState.createAddedState(resPrimaryType));
-        
+
         List<ValueData> data = new ArrayList<ValueData>();
         if (i % 10 == 0) {
           data.add(new TransientValueData(fBLOB1));
           data.add(new TransientValueData(fBLOB2));
         } else
           data.add(new TransientValueData(fBLOB1));
-        
-        TransientPropertyData resData = TransientPropertyData.createPropertyData(
-            res, Constants.JCR_DATA, PropertyType.BINARY, data.size()>1, data);
+
+        TransientPropertyData resData = TransientPropertyData.createPropertyData(res,
+                                                                                 Constants.JCR_DATA,
+                                                                                 PropertyType.BINARY,
+                                                                                 data.size() > 1,
+                                                                                 data);
         changes.add(ItemState.createAddedState(resData));
-        
-        TransientPropertyData resMimeType = TransientPropertyData.createPropertyData(
-            res, Constants.JCR_MIMETYPE, PropertyType.STRING, false, new TransientValueData("application/x-octet-stream"));
+
+        TransientPropertyData resMimeType = TransientPropertyData.createPropertyData(res,
+                                                                                     Constants.JCR_MIMETYPE,
+                                                                                     PropertyType.STRING,
+                                                                                     false,
+                                                                                     new TransientValueData("application/x-octet-stream"));
         changes.add(ItemState.createAddedState(resMimeType));
-        
-        TransientPropertyData resLastModified = TransientPropertyData.createPropertyData(
-            res, Constants.JCR_LASTMODIFIED, PropertyType.DATE, false, new TransientValueData(Calendar.getInstance()));
+
+        TransientPropertyData resLastModified = TransientPropertyData.createPropertyData(res,
+                                                                                         Constants.JCR_LASTMODIFIED,
+                                                                                         PropertyType.DATE,
+                                                                                         false,
+                                                                                         new TransientValueData(Calendar.getInstance()));
         changes.add(ItemState.createAddedState(resLastModified));
-        
+
         QPath path = resData.getQPath();
-        
+
         dm.save(new TransactionChangesLog(changes));
-        
-        props.add(path.getRelPath(path.getEntries().length - rootData.getQPath().getEntries().length)); 
-      } catch(RepositoryException e) {
+
+        props.add(path.getRelPath(path.getEntries().length
+            - rootData.getQPath().getEntries().length));
+      } catch (RepositoryException e) {
         log.warn("Can't create test case, " + e);
         throw new Exception("Can't create test case, " + e, e);
       } finally {
@@ -207,30 +231,34 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
     }
     return props;
   }
-  
+
   protected void deleteInternalAPICase() throws RepositoryException {
-    final DataManager dm = ((NodeImpl) testRoot).getSession().getTransientNodesManager().getTransactManager().getStorageDataManager();
-    final SessionChangesLog changes = new SessionChangesLog(((NodeImpl) testRoot).getSession().getId());
-    
+    final DataManager dm = ((NodeImpl) testRoot).getSession()
+                                                .getTransientNodesManager()
+                                                .getTransactManager()
+                                                .getStorageDataManager();
+    final SessionChangesLog changes = new SessionChangesLog(((NodeImpl) testRoot).getSession()
+                                                                                 .getId());
+
     class Remover {
       void delete(NodeData node) throws RepositoryException {
-        for (NodeData nd: dm.getChildNodesData(node)) {
+        for (NodeData nd : dm.getChildNodesData(node)) {
           new Remover().delete(nd);
         }
-        for (PropertyData pd: dm.getChildPropertiesData(node)) {
-          changes.add(ItemState.createDeletedState(pd));  
+        for (PropertyData pd : dm.getChildPropertiesData(node)) {
+          changes.add(ItemState.createDeletedState(pd));
         }
         changes.add(ItemState.createDeletedState(node));
       }
     }
 
     NodeData rootData = (NodeData) ((NodeImpl) testRoot).getData();
-    
+
     new Remover().delete(rootData);
-    
+
     dm.save(new TransactionChangesLog(changes));
   }
-  
+
   // copied from SessionDataManager
   protected ItemData getItemData(DataManager manager, NodeData parent, QPathEntry[] relPathEntries) throws RepositoryException {
     ItemData item = parent;
@@ -248,9 +276,10 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
     return item;
   }
 
-   public void testname() throws Exception {
-    
+  public void testname() throws Exception {
+
   }
+
   public void _testReadWriteJCRAPI() throws Exception {
     long time = System.currentTimeMillis();
     List<String> props = createJCRAPICase();
@@ -259,14 +288,16 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
     time = System.currentTimeMillis();
     // read randomize
     Set<String> caseProps = new HashSet<String>(props);
-    for (String prop: caseProps) {
+    for (String prop : caseProps) {
       try {
         InputStream stream = testRoot.getProperty(prop).getStream();
         assertEquals("Value has wrong length", FILE1_SIZE, stream.available());
-      } catch(ValueFormatException e) {
+      } catch (ValueFormatException e) {
         Value[] vs = testRoot.getProperty(prop).getValues();
-        for (int i=0; i<vs.length; i++) {
-          assertEquals("Value has wrong length", i==0 ? FILE1_SIZE : FILE2_SIZE, vs[i].getStream().available());
+        for (int i = 0; i < vs.length; i++) {
+          assertEquals("Value has wrong length",
+                       i == 0 ? FILE1_SIZE : FILE2_SIZE,
+                       vs[i].getStream().available());
         }
       }
     }
@@ -276,12 +307,15 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
     deleteJCRAPICase();
     log.info(getName() + " DELETE -- " + (System.currentTimeMillis() - time));
   }
-  
+
   public void _testReadWriteInternalAPI() throws Exception {
-    
-    DataManager manager = ((NodeImpl) testRoot).getSession().getTransientNodesManager().getTransactManager().getStorageDataManager();
+
+    DataManager manager = ((NodeImpl) testRoot).getSession()
+                                               .getTransientNodesManager()
+                                               .getTransactManager()
+                                               .getStorageDataManager();
     NodeData parent = (NodeData) ((NodeImpl) testRoot).getData();
-    
+
     long time = System.currentTimeMillis();
     List<QPathEntry[]> props = createInternalAPICase();
     log.info(getName() + " ADD -- " + (System.currentTimeMillis() - time));
@@ -289,18 +323,20 @@ public class TestJCRVSReadWrite extends JcrImplBaseTest {
     time = System.currentTimeMillis();
     // read randomize
     Set<QPathEntry[]> caseProps = new HashSet<QPathEntry[]>(props);
-    for (QPathEntry[] prop: caseProps) {
+    for (QPathEntry[] prop : caseProps) {
       PropertyData p = (PropertyData) getItemData(manager, parent, prop);
       List<ValueData> vals = p.getValues();
-      for (int i=0; i<vals.size(); i++) {
-        assertEquals("Value has wrong length", i==0 ? FILE1_SIZE : FILE2_SIZE, vals.get(i).getAsStream().available());
+      for (int i = 0; i < vals.size(); i++) {
+        assertEquals("Value has wrong length", i == 0 ? FILE1_SIZE : FILE2_SIZE, vals.get(i)
+                                                                                     .getAsStream()
+                                                                                     .available());
       }
     }
     log.info(getName() + " READ -- " + (System.currentTimeMillis() - time));
 
-    //time = System.currentTimeMillis();
-    //deleteInternalAPICase();
-    //log.info(getName() + " DELETE -- " + (System.currentTimeMillis() - time));
+    // time = System.currentTimeMillis();
+    // deleteInternalAPICase();
+    // log.info(getName() + " DELETE -- " + (System.currentTimeMillis() - time));
   }
 
 }

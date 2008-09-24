@@ -19,9 +19,9 @@ package org.exoplatform.services.jcr.ext.actions;
 import org.apache.commons.chain.Context;
 import org.exoplatform.services.command.action.Action;
 
-
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: DummyAction.java 12004 2007-01-17 12:03:57Z geaz $
  */

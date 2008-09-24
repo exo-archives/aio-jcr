@@ -34,103 +34,110 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestExportImportAmongSessions.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class TestExportImportAmongSessions extends BaseUsecasesTest {
-  
-  static private String TEST_NODE = "testNode";
-  static private String TEST_NTFILE = "nt file 1";
-  
+
+  static private String TEST_NODE           = "testNode";
+
+  static private String TEST_NTFILE         = "nt file 1";
+
   static private byte[] TEST_BINARY_CONTENT = "Some text as binary value".getBytes();
-  
-  public void testExportImportDocView() throws Exception {        
-        
-    Session session1 = repository.getSystemSession(repository.getSystemWorkspaceName()) ;
+
+  public void testExportImportDocView() throws Exception {
+
+    Session session1 = repository.getSystemSession(repository.getSystemWorkspaceName());
     Node testNode = session1.getRootNode().addNode(TEST_NODE);
     Node testNtFile = testNode.addNode(TEST_NTFILE, "nt:file");
-    
+
     Node testNtFileContent = testNtFile.addNode("jcr:content", "nt:resource");
     testNtFileContent.setProperty("jcr:encoding", "UTF-8");
     testNtFileContent.setProperty("jcr:lastModified", Calendar.getInstance());
     testNtFileContent.setProperty("jcr:mimeType", "text/html");
     testNtFileContent.setProperty("jcr:data", new ByteArrayInputStream(TEST_BINARY_CONTENT));
-    session1.save();    
-    
+    session1.save();
+
     File outputFile = File.createTempFile("jcr_bin_test-", ".tmp");
     outputFile.deleteOnExit();
-    
+
     session1.exportDocumentView(testNode.getPath(), new FileOutputStream(outputFile), false, false);
-    
+
     testNode.remove();
     session1.save();
-    
+
     try {
-      session1.importXML("/", new FileInputStream(outputFile), ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+      session1.importXML("/",
+                         new FileInputStream(outputFile),
+                         ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
       session1.save();
-      
+
       testNode = session1.getRootNode().getNode(TEST_NODE);
       Node ntFile = testNode.getNode(TEST_NTFILE);
       InputStream storedData = ntFile.getProperty("jcr:content/jcr:data").getStream();
       assertTrue("AFTER EXPORT/IMPORT. Binary content must be same",
-          checkBinaryEquals(new ByteArrayInputStream(TEST_BINARY_CONTENT), storedData));
+                 checkBinaryEquals(new ByteArrayInputStream(TEST_BINARY_CONTENT), storedData));
     } catch (RepositoryException e) {
       fail("Node import failed: " + e);
     }
   }
-  
-  public void testExportImportDocViewCrossSession() throws Exception {        
-    
-    Session session1 = repository.getSystemSession(repository.getSystemWorkspaceName()) ;
+
+  public void testExportImportDocViewCrossSession() throws Exception {
+
+    Session session1 = repository.getSystemSession(repository.getSystemWorkspaceName());
     Node testNode = session1.getRootNode().addNode(TEST_NODE);
     Node testNtFile = testNode.addNode(TEST_NTFILE, "nt:file");
-    //testNtFile.setProperty("jcr:created", Calendar.getInstance());
-    
+    // testNtFile.setProperty("jcr:created", Calendar.getInstance());
+
     Node testNtFileContent = testNtFile.addNode("jcr:content", "nt:resource");
-    //testNtFileContent.setProperty("jcr:uuid", testNtFileContent.getUUID());
+    // testNtFileContent.setProperty("jcr:uuid", testNtFileContent.getUUID());
     testNtFileContent.setProperty("jcr:encoding", "UTF-8");
     testNtFileContent.setProperty("jcr:lastModified", Calendar.getInstance());
     testNtFileContent.setProperty("jcr:mimeType", "text/html");
     InputStream etalonData = new ByteArrayInputStream("Some text as binary value".getBytes());
     testNtFileContent.setProperty("jcr:data", etalonData);
-    session1.save();                                
-    
-    Session session2 = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), repository.getSystemWorkspaceName());
+    session1.save();
+
+    Session session2 = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                        repository.getSystemWorkspaceName());
     testNode = session1.getRootNode().getNode(TEST_NODE);
     Node ntFile = testNode.getNode(TEST_NTFILE);
     InputStream storedData = ntFile.getProperty("jcr:content/jcr:data").getStream();
-    assertTrue("BEFORE EXPORT/IMPORT. Binary content must be same",
-        checkBinaryEquals(etalonData, storedData)) ;
-    
+    assertTrue("BEFORE EXPORT/IMPORT. Binary content must be same", checkBinaryEquals(etalonData,
+                                                                                      storedData));
+
     File outputFile = File.createTempFile("jcr_bin_test", ".tmp");
     outputFile.deleteOnExit();
-    
+
     session2.exportDocumentView(testNode.getPath(), new FileOutputStream(outputFile), false, false);
-    
+
     testNode.remove();
     session2.save();
-    
+
     try {
-      session1.importXML("/", new FileInputStream(outputFile), ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
-      
+      session1.importXML("/",
+                         new FileInputStream(outputFile),
+                         ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW);
+
       testNode = session1.getRootNode().getNode(TEST_NODE);
       ntFile = testNode.getNode(TEST_NTFILE);
       storedData = ntFile.getProperty("jcr:content/jcr:data").getStream();
       assertTrue("AFTER EXPORT/IMPORT. Binary content must be same",
-          checkBinaryEquals(new ByteArrayInputStream(TEST_BINARY_CONTENT), storedData));
+                 checkBinaryEquals(new ByteArrayInputStream(TEST_BINARY_CONTENT), storedData));
     } catch (RepositoryException e) {
       fail("Node import (without save of result) failed. : " + e);
-    }    
-    
+    }
+
     try {
       session1.save();
-      
+
       testNode = session1.getRootNode().getNode(TEST_NODE);
       ntFile = testNode.getNode(TEST_NTFILE);
       storedData = ntFile.getProperty("jcr:content/jcr:data").getStream();
       assertTrue("AFTER EXPORT/IMPORT AFTER SAVE. Binary content must be same",
-          checkBinaryEquals(new ByteArrayInputStream(TEST_BINARY_CONTENT), storedData));
+                 checkBinaryEquals(new ByteArrayInputStream(TEST_BINARY_CONTENT), storedData));
     } catch (RepositoryException e) {
       fail("Node import (with save of result) failed. : " + e);
     }
@@ -138,7 +145,7 @@ public class TestExportImportAmongSessions extends BaseUsecasesTest {
 
   boolean checkBinaryEquals(InputStream etalon, InputStream subject) throws Exception {
     try {
-      boolean continueLoop = etalon.available()>0 && subject.available()>0;
+      boolean continueLoop = etalon.available() > 0 && subject.available() > 0;
       int etalonCounter = 0;
       int subjecCounter = 0;
       while (continueLoop) {
@@ -148,7 +155,7 @@ public class TestExportImportAmongSessions extends BaseUsecasesTest {
           if ((etalonByte & 0xF0) != (subjectByte & 0xF0)) {
             return false;
           }
-          continueLoop = etalon.available()>0 && subject.available()>0;
+          continueLoop = etalon.available() > 0 && subject.available() > 0;
           etalonCounter++;
           subjecCounter++;
         } else {
@@ -156,7 +163,7 @@ public class TestExportImportAmongSessions extends BaseUsecasesTest {
         }
       }
       return etalonCounter == subjecCounter;
-    } catch(IOException e) {
+    } catch (IOException e) {
       log.error("Error compare buinary streams", e);
       return false;
     }

@@ -37,20 +37,18 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Test of pdf file write
  * 
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
 
 public class testPDFFileWrite extends BaseStandaloneTest {
 
-  protected static Log logger = ExoLogger
-      .getLogger("jcr.JCRTest.testWriteFile");
+  protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testWriteFile");
 
-  protected String servername;
+  protected String     servername;
 
-  private File testPDFFile;
+  private File         testPDFFile;
 
   public void setUp() throws Exception {
     super.setUp();
@@ -58,9 +56,9 @@ public class testPDFFileWrite extends BaseStandaloneTest {
     testPDFFile = new File("src/test/resources/index/test_index.pdf");
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName() : serv.getConfiguration()
-        .getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
   }
 
   /**
@@ -74,8 +72,7 @@ public class testPDFFileWrite extends BaseStandaloneTest {
     assertTrue(file.exists());
     FileInputStream fis = new FileInputStream(file);
     String filename = file.getName();
-    SmbFile smbfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        filename);
+    SmbFile smbfile = new SmbFile("smb://" + user + servername + "/ws/" + filename);
     OutputStream os = smbfile.getOutputStream();
 
     byte[] b = new byte[0x4000];
@@ -91,17 +88,16 @@ public class testPDFFileWrite extends BaseStandaloneTest {
 
     // check changes in jcr;
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     Node root = s.getRootNode();
 
     // create nt:file node
-    Property createdNodeProp = root.getNode(filename).getNode("jcr:content")
-        .getProperty("jcr:data");
+    Property createdNodeProp = root.getNode(filename)
+                                   .getNode("jcr:content")
+                                   .getProperty("jcr:data");
     fis = new FileInputStream(file);
     InputStream jcris = createdNodeProp.getStream();
     long filesize = file.length();

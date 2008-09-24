@@ -31,29 +31,31 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
  * @version $Id: $
  */
 public class JcrURLConnectionTest extends BaseStandaloneTest {
-  
+
   private String fname;
+
   private String data;
-  private Node testRoot;
-  
+
+  private Node   testRoot;
+
   public void setUp() throws Exception {
     super.setUp();
-    
+
     assertNotNull(System.getProperty("java.protocol.handler.pkgs"));
-    
+
     fname = "" + System.currentTimeMillis();
-    data = "Test JCR urls " + fname; 
+    data = "Test JCR urls " + fname;
     testRoot = root.addNode("testRoot", "nt:unstructured");
-    
+
     Node file = testRoot.addNode(fname, "nt:file");
-    Node d = file.addNode("jcr:content", "nt:resource"); 
+    Node d = file.addNode("jcr:content", "nt:resource");
     d.setProperty("jcr:mimeType", "text/plain");
     d.setProperty("jcr:lastModified", Calendar.getInstance());
-    d.setProperty("jcr:data", new ByteArrayInputStream(data.getBytes()));    
+    d.setProperty("jcr:data", new ByteArrayInputStream(data.getBytes()));
     session.save();
-    
+
   }
-  
+
   public void testURL() throws Exception {
     // NOTE don't use this under web container (found problem with tomcat)
     // It looks like ClassLoader problem.
@@ -66,14 +68,14 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
     assertEquals("/ws/", url.getPath());
     assertEquals("/jcr:system/", url.getRef());
   }
-  
+
   public void testNodeRepresentation() throws Exception {
     // there is no node representation for nt:unstructured
     // default must work, by default work document view node representation.
     URL url = new URL("jcr://db1/ws/#/testRoot/");
     JcrURLConnection conn = (JcrURLConnection) url.openConnection();
     conn.setDoOutput(false);
-    Node content = (Node)conn.getContent();
+    Node content = (Node) conn.getContent();
     InputStream in = conn.getInputStream();
     assertEquals("text/xml", conn.getContentType());
     assertEquals("testRoot", content.getName());
@@ -83,7 +85,7 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
     in.close();
     log.info(new String(b));
   }
-  
+
   public void testNtFileNodeRepresentation() throws Exception {
     // should be work node representation for nt:file
     URL url = new URL("jcr://db1/ws/#/testRoot/" + fname + "/");
@@ -92,10 +94,8 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
 
     assertEquals("text/plain", conn.getContentType());
     log.info(conn.getLastModified());
-    compareStream(conn.getInputStream(),
-        new ByteArrayInputStream(data.getBytes()));
-    
+    compareStream(conn.getInputStream(), new ByteArrayInputStream(data.getBytes()));
+
   }
 
 }
-

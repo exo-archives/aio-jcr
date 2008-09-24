@@ -33,20 +33,20 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class HeadCommand {
-  
-  public Response head(Session session, String path, String baseURI) {    
+
+  public Response head(Session session, String path, String baseURI) {
     try {
-      Node node = (Node)session.getItem(path);
-      
+      Node node = (Node) session.getItem(path);
+
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
-      
+
       if (ResourceUtil.isFile(node)) {
         Resource resource = new FileResource(uri, node, nsContext);
 
@@ -54,16 +54,17 @@ public class HeadCommand {
         String contentType = resource.getProperty(PropertyConstants.GETCONTENTTYPE).getValue();
         String contentLength = resource.getProperty(PropertyConstants.GETCONTENTLENGTH).getValue();
 
-        return Response.Builder.ok().
-          header(WebDavConst.Headers.LASTMODIFIED, lastModified).
-          header(WebDavConst.Headers.CONTENTTYPE, contentType).
-          header(WebDavConst.Headers.CONTENTLENGTH, contentLength).build();        
+        return Response.Builder.ok()
+                               .header(WebDavConst.Headers.LASTMODIFIED, lastModified)
+                               .header(WebDavConst.Headers.CONTENTTYPE, contentType)
+                               .header(WebDavConst.Headers.CONTENTLENGTH, contentLength)
+                               .build();
       }
-      
+
       return Response.Builder.ok().build();
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
-      
+
     } catch (Exception exc) {
       return Response.Builder.serverError().build();
     }

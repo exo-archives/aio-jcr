@@ -25,6 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: JCRAPITest.java 12419 2008-03-26 16:47:49Z pnedonosko $
  */
@@ -33,23 +34,23 @@ public class JCRAPITest extends TestSuite {
    * Class logger.
    */
   private final Log log = ExoLogger.getLogger("jcr.JCRAPInew");
-  
+
   public static Test suite() throws InterruptedException {
-     return new JCRAPITest();
+    return new JCRAPITest();
   }
-  
+
   public JCRAPITest() {
-       
-        TestSuite suite = new TestSuite("javax.jcr init tests");
-        suite.addTestSuite(PrepareTestRepository.class);
-        addTest(suite);
-        
-        addTest(org.apache.jackrabbit.test.api.TestAll.suite());
-        addTest(org.apache.jackrabbit.test.api.query.TestAll.suite());
-        addTest(org.apache.jackrabbit.test.api.nodetype.TestAll.suite());
-        addTest(org.apache.jackrabbit.test.api.util.TestAll.suite());
-        addTest(org.apache.jackrabbit.test.api.lock.TestAll.suite());
-        addTest(org.apache.jackrabbit.test.api.version.TestAll.suite());
-        addTest(org.apache.jackrabbit.test.api.observation.TestAll.suite());
+
+    TestSuite suite = new TestSuite("javax.jcr init tests");
+    suite.addTestSuite(PrepareTestRepository.class);
+    addTest(suite);
+
+    addTest(org.apache.jackrabbit.test.api.TestAll.suite());
+    addTest(org.apache.jackrabbit.test.api.query.TestAll.suite());
+    addTest(org.apache.jackrabbit.test.api.nodetype.TestAll.suite());
+    addTest(org.apache.jackrabbit.test.api.util.TestAll.suite());
+    addTest(org.apache.jackrabbit.test.api.lock.TestAll.suite());
+    addTest(org.apache.jackrabbit.test.api.version.TestAll.suite());
+    addTest(org.apache.jackrabbit.test.api.observation.TestAll.suite());
   }
 }

@@ -52,10 +52,9 @@ public class NodeRepresentationService implements Startable {
 
   private Map<String, NodeRepresentationFactory> factories;
 
-  ExoContainerContext containerContext;
+  ExoContainerContext                            containerContext;
 
-  private static final Log log = ExoLogger
-      .getLogger("jcr.ext.resource.NodeRepresentationService");
+  private static final Log                       log = ExoLogger.getLogger("jcr.ext.resource.NodeRepresentationService");
 
   public NodeRepresentationService(ExoContainerContext containerContext) {
     this.factories = new HashMap<String, NodeRepresentationFactory>();
@@ -83,14 +82,13 @@ public class NodeRepresentationService implements Startable {
    *          the NodeRepresentationFactory.
    */
   public void addNodeRepresentationFactory(String nodeType,
-      NodeRepresentationFactory representationFactory) {
+                                           NodeRepresentationFactory representationFactory) {
     factories.put(nodeType, representationFactory);
   }
 
   /**
-   * Get NodeRepresentation for given node. String mediaTypeHint can be used as
-   * external information for representation. By default node will be
-   * represented as doc-view.
+   * Get NodeRepresentation for given node. String mediaTypeHint can be used as external information
+   * for representation. By default node will be represented as doc-view.
    * 
    * @param node
    *          the jcr node.
@@ -99,8 +97,7 @@ public class NodeRepresentationService implements Startable {
    * @return the NodeRepresentation.
    * @throws RepositoryException
    */
-  public NodeRepresentation getNodeRepresentation(Node node,
-      String mediaTypeHint) throws RepositoryException {
+  public NodeRepresentation getNodeRepresentation(Node node, String mediaTypeHint) throws RepositoryException {
 
     NodeRepresentationFactory factory = factory(node);
     if (factory != null)
@@ -108,42 +105,36 @@ public class NodeRepresentationService implements Startable {
     else
       return new DocViewNodeRepresentation(node);
   }
-  
-  public Collection <String> getNodeTypes() {
+
+  public Collection<String> getNodeTypes() {
     return factories.keySet();
   }
-  
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
     ExoContainer container = containerContext.getContainer();
-    List<NodeRepresentationFactory> list = container
-        .getComponentInstancesOfType(NodeRepresentationFactory.class);
+    List<NodeRepresentationFactory> list = container.getComponentInstancesOfType(NodeRepresentationFactory.class);
     for (NodeRepresentationFactory f : list) {
-      
+
       addNodeRepresentationFactory(f.getNodeType(), f);
-      log.info("NodeRepresentationFactory added "+f.getNodeType()+" "+f.getClass().getName());
+      log.info("NodeRepresentationFactory added " + f.getNodeType() + " " + f.getClass().getName());
     }
   }
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#stop()
    */
   public void stop() {
 
   }
 
+  private NodeRepresentationFactory factory(Node node) throws RepositoryException {
 
-  private NodeRepresentationFactory factory(Node node)
-      throws RepositoryException {
-
-    NodeRepresentationFactory f = factories.get(node.getPrimaryNodeType()
-        .getName());
+    NodeRepresentationFactory f = factories.get(node.getPrimaryNodeType().getName());
 
     if (f == null) {
       for (String nt : factories.keySet()) {
@@ -184,7 +175,6 @@ public class NodeRepresentationService implements Startable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getMediaType()
      */
     public String getMediaType() throws RepositoryException {
@@ -193,7 +183,6 @@ public class NodeRepresentationService implements Startable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getLastModified()
      */
     public long getLastModified() throws RepositoryException {
@@ -202,27 +191,24 @@ public class NodeRepresentationService implements Startable {
 
     /*
      * (non-Javadoc)
-     * 
-     * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
+     * @see
+     * org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
      */
-    public HierarchicalProperty getProperty(String name)
-        throws RepositoryException {
+    public HierarchicalProperty getProperty(String name) throws RepositoryException {
       return null;
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
+     * @see
+     * org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
      */
-    public Collection <HierarchicalProperty> getProperties(String name)
-        throws RepositoryException {
+    public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
       return null;
     }
-    
+
     /*
      * (non-Javadoc)
-     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()
      */
     public Collection<String> getPropertyNames() throws RepositoryException {
@@ -239,18 +225,15 @@ public class NodeRepresentationService implements Startable {
 
           /*
            * (non-Javadoc)
-           * 
            * @see java.lang.Thread#run()
            */
           public void run() {
             try {
-              node.getSession().exportDocumentView(node.getPath(), pout, false,
-                  false);
+              node.getSession().exportDocumentView(node.getPath(), pout, false, false);
             } catch (Exception e) {
               /*
-               * Nothing to do. Can give exception if nothing read from stream,
-               * this exception generated by
-               * XMLStreamWriterImpl#writeStartDocument.
+               * Nothing to do. Can give exception if nothing read from stream, this exception
+               * generated by XMLStreamWriterImpl#writeStartDocument.
                */
             } finally {
               try {
@@ -273,7 +256,6 @@ public class NodeRepresentationService implements Startable {
 
     /*
      * (non-Javadoc)
-     * 
      * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getNode()
      */
     public Node getNode() {

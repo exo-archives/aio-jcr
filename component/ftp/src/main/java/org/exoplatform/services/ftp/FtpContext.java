@@ -20,28 +20,29 @@ import org.apache.commons.chain.impl.ContextBase;
 import org.exoplatform.services.ftp.client.FtpClientSession;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
-public class FtpContext extends ContextBase  {
+public class FtpContext extends ContextBase {
 
   protected FtpClientSession clientSession;
-  protected String []params;
-  
-  public FtpContext(FtpClientSession clientSession, String []params) {
+
+  protected String[]         params;
+
+  public FtpContext(FtpClientSession clientSession, String[] params) {
     super();
     this.clientSession = clientSession;
     this.params = params;
   }
 
-  public String []getParams() {
+  public String[] getParams() {
     return params;
   }
-  
+
   public FtpClientSession getFtpClientSession() {
     return clientSession;
   }
-  
+
 }

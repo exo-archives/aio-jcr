@@ -29,12 +29,12 @@ import com.sun.japex.TestCase;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 11.09.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class MoveToSameLocationTest extends AbstractMoveUsecaseTest {
-  
+
   protected static Log LOG = ExoLogger.getLogger("MoveToSameLocationTest");
 
   @Override
@@ -42,17 +42,17 @@ public class MoveToSameLocationTest extends AbstractMoveUsecaseTest {
     NodeIterator testNodes = nextNode().getNodes();
     while (testNodes.hasNext()) {
       Node nodeToMove = testNodes.nextNode();
-      
+
       Node catalog = rootNode.getNode("catalog");
-      
+
       // move using Session.move
       long start = System.currentTimeMillis();
       String src = nodeToMove.getPath();
-      String dest = catalog.getPath() + "/" + nodeToMove.getName(); 
-      //rootNode.getSession().move(src, dest);
-      //rootNode.save();
+      String dest = catalog.getPath() + "/" + nodeToMove.getName();
+      // rootNode.getSession().move(src, dest);
+      // rootNode.save();
       rootNode.getSession().getWorkspace().move(src, dest);
-      
+
       LOG.info(src + " --> " + dest + " -- " + (System.currentTimeMillis() - start) + "ms");
     }
   }

@@ -24,49 +24,52 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: TestJcrSystemPropertyAmongSessions.java 11907 2008-03-13 15:36:21Z ksm $
  * 
- * Items under /jcr:system
+ *          Items under /jcr:system
  */
 
 public class TestJcrSystemPropertyAmongSessions extends BaseUsecasesTest {
-  
-  
+
   /**
-   * Check If Jcr System is referenceable from any Workspace
-   * NOTE: THIS is an implementation feature and NOT specified by JSR-170!
+   * Check If Jcr System is referenceable from any Workspace NOTE: THIS is an implementation feature
+   * and NOT specified by JSR-170!
    * 
-   * Sample test. An example how to make it 
+   * Sample test. An example how to make it
+   * 
    * @throws Exception
    */
-  public void testJCRSystemPropertyAmongSessions() throws Exception {        
-        
-    //Session session = repository.getSystemSession(repository.getSystemWorkspaceName()) ;
-    Session session = repository.getSystemSession(repository.getSystemWorkspaceName()) ;
+  public void testJCRSystemPropertyAmongSessions() throws Exception {
+
+    // Session session = repository.getSystemSession(repository.getSystemWorkspaceName()) ;
+    Session session = repository.getSystemSession(repository.getSystemWorkspaceName());
     Node testNode = session.getRootNode().addNode("jcr:system/TestNode");
     testNode.setProperty("p", "test");
-    session.save();                                
-    
-    Session session2 = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), repository.getSystemWorkspaceName());
-    testNode = session2.getRootNode().getNode("jcr:system/TestNode") ;
-    String value = testNode.getProperty("p").getValue().getString()  ;
-    assertEquals(value,"test") ;
-    
+    session.save();
+
+    Session session2 = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                        repository.getSystemWorkspaceName());
+    testNode = session2.getRootNode().getNode("jcr:system/TestNode");
+    String value = testNode.getProperty("p").getValue().getString();
+    assertEquals(value, "test");
+
     // you should change session to see both of session cann't use
-    //Session session3 = repository.getSystemSession(repository.getSystemWorkspaceName());    
-    Session session3 = repository.login(new SimpleCredentials("admin", "admin".toCharArray()), repository.getSystemWorkspaceName());
-    Node testNode2 = session3.getRootNode().getNode("jcr:system/TestNode") ;        
-    testNode2.setProperty("p","testModify") ;
-    session3.save() ;
-    testNode2 = session3.getRootNode().getNode("jcr:system/TestNode") ;
-    value = testNode2.getProperty("p").getValue().getString()  ;
-    assertEquals(value,"testModify") ;
-    
-    session2.refresh(true) ;
-    //session2.refresh(false) ;
-    testNode = session2.getRootNode().getNode("jcr:system/TestNode") ;
-    value = testNode.getProperty("p").getValue().getString()  ;
-    assertEquals(value,"testModify") ;
+    // Session session3 = repository.getSystemSession(repository.getSystemWorkspaceName());
+    Session session3 = repository.login(new SimpleCredentials("admin", "admin".toCharArray()),
+                                        repository.getSystemWorkspaceName());
+    Node testNode2 = session3.getRootNode().getNode("jcr:system/TestNode");
+    testNode2.setProperty("p", "testModify");
+    session3.save();
+    testNode2 = session3.getRootNode().getNode("jcr:system/TestNode");
+    value = testNode2.getProperty("p").getValue().getString();
+    assertEquals(value, "testModify");
+
+    session2.refresh(true);
+    // session2.refresh(false) ;
+    testNode = session2.getRootNode().getNode("jcr:system/TestNode");
+    value = testNode.getProperty("p").getValue().getString();
+    assertEquals(value, "testModify");
   }
 }

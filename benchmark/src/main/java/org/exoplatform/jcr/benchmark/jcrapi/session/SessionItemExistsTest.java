@@ -11,13 +11,14 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class SessionItemExistsTest extends JCRTestBase {
-  
+
   private String absPath = "";
-  
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     absPath = context.getSession().getRootNode().addNode("testNode").getPath();

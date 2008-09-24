@@ -25,7 +25,7 @@ import com.sun.japex.TestCase;
 public class VersionHistoryRemoveVersionLabelTest extends AbstractGetItemTest {
 
   private static final String LABEL = "ver.1";
-  
+
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
     Node vnode = parent.addNode(context.generateUniqueName("versionableNode"));
@@ -35,13 +35,13 @@ public class VersionHistoryRemoveVersionLabelTest extends AbstractGetItemTest {
     vnode.checkout();
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
     vnode.save();
-    
+
     VersionHistory vh = vnode.getVersionHistory();
     vh.addVersionLabel("1", LABEL, false);
     vh.addVersionLabel("1", LABEL + "A", false);
     vh.addVersionLabel("1", LABEL + "B", false);
-    
-    addNode(vnode.getVersionHistory());    
+
+    addNode(vnode.getVersionHistory());
   }
 
   @Override

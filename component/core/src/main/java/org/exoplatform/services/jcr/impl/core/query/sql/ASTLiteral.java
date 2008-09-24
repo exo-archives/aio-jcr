@@ -18,44 +18,42 @@ package org.exoplatform.services.jcr.impl.core.query.sql;
 
 public class ASTLiteral extends SimpleNode {
 
-    private String value;
+  private String value;
 
-    private int type;
+  private int    type;
 
+  public ASTLiteral(int id) {
+    super(id);
+  }
 
-    public ASTLiteral(int id) {
-        super(id);
-    }
+  public ASTLiteral(JCRSQLParser p, int id) {
+    super(p, id);
+  }
 
-    public ASTLiteral(JCRSQLParser p, int id) {
-        super(p, id);
-    }
+  public String getValue() {
+    return value;
+  }
 
-    public String getValue() {
-        return value;
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
+  public int getType() {
+    return type;
+  }
 
-    public int getType() {
-        return type;
-    }
+  public void setType(int type) {
+    this.type = type;
+  }
 
-    public void setType(int type) {
-        this.type = type;
-    }
+  /**
+   * Accept the visitor. *
+   */
+  public Object jjtAccept(JCRSQLParserVisitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
 
-
-    /**
-     * Accept the visitor. *
-     */
-    public Object jjtAccept(JCRSQLParserVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
-
-    public String toString() {
-        return super.toString() + ": " + value + " type:" + type;
-    }
+  public String toString() {
+    return super.toString() + ": " + value + " type:" + type;
+  }
 }

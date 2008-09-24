@@ -44,96 +44,101 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS <br/> 
+ * Created by The eXo Platform SAS <br/>
  * 
- * Author : Vitaly Guly
- * <gavrik-vetal@ukr.net/mail.ru>
+ * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
  * @version $Id: $
  */
 
 public class PropFindCommand {
-  
-	/**
-	 * @param session
-	 * @param path
-	 * @param body
-	 * @param depth
-	 * @param baseURI
-	 * @return
-	 */
-	public Response propfind(Session session, String path, HierarchicalProperty body, int depth, String baseURI) {
-		Node node;
-		try {
-			node = (Node)session.getItem(path);
-		} catch (PathNotFoundException e) {
-			return Response.Builder.withStatus(WebDavStatus.NOT_FOUND).build(); 
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			return Response.Builder.serverError().errorMessage(e.getMessage()).build();
-		}
-		
-		WebDavNamespaceContext nsContext;
-		Resource resource;
-		try {
-			nsContext = new WebDavNamespaceContext(session);
-			
-			resource = null;
-			URI uri;
-			if ("/".equals(node.getPath())) {
-			  uri = new URI(TextUtil.escape(baseURI, '%', true));
-			} else {
-			  uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
-			}
-			
-			if (ResourceUtil.isVersioned(node)) {
-			  if (ResourceUtil.isFile(node)) {
-			    resource = new VersionedFileResource(uri, node, nsContext);
-			  } else {
-			    resource = new VersionedCollectionResource(uri, node, nsContext);
-			  }
-			} else {
-	      if (ResourceUtil.isFile(node)) {
-	        resource = new FileResource(uri , node, nsContext);
-	      } else {
-	        resource = new CollectionResource(uri , node, nsContext);
-	      }			  
-			}
-			
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			return Response.Builder.serverError().errorMessage(e1.getMessage()).build();
-		} 
-		
-		PropFindRequestEntity request = new PropFindRequestEntity(body);
-		PropFindResponseEntity response;
-		
-    if(request.getType().equalsIgnoreCase("allprop")) {
-      response = new PropFindResponseEntity(depth, resource, null, false);
-    } else if(request.getType().equalsIgnoreCase("propname")) {
-      response = new PropFindResponseEntity(depth, resource, null, true);
-    } else if(request.getType().equalsIgnoreCase("prop")) {      
-      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false);
-    } else {
-      return Response.Builder.badRequest().errorMessage("Unexpected property name "+request.getType()).build();
+
+  /**
+   * @param session
+   * @param path
+   * @param body
+   * @param depth
+   * @param baseURI
+   * @return
+   */
+  public Response propfind(Session session,
+                           String path,
+                           HierarchicalProperty body,
+                           int depth,
+                           String baseURI) {
+    Node node;
+    try {
+      node = (Node) session.getItem(path);
+    } catch (PathNotFoundException e) {
+      return Response.Builder.withStatus(WebDavStatus.NOT_FOUND).build();
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
 
-		return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(
-				response, "text/xml").build();
-	}
+    WebDavNamespaceContext nsContext;
+    Resource resource;
+    try {
+      nsContext = new WebDavNamespaceContext(session);
 
-	private Set<QName> propertyNames(HierarchicalProperty body) {
-	  HashSet<QName> names = new HashSet<QName>();
-		
-		HierarchicalProperty propBody = body.getChild(0);
-		
-		List<HierarchicalProperty> properties = propBody.getChildren();
-		Iterator<HierarchicalProperty> propIter = properties.iterator();
-		while (propIter.hasNext()) {
-		  HierarchicalProperty property = propIter.next();
-		  names.add(property.getName());
-		}
-		
-		return names;
-	}
+      resource = null;
+      URI uri;
+      if ("/".equals(node.getPath())) {
+        uri = new URI(TextUtil.escape(baseURI, '%', true));
+      } else {
+        uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
+      }
+
+      if (ResourceUtil.isVersioned(node)) {
+        if (ResourceUtil.isFile(node)) {
+          resource = new VersionedFileResource(uri, node, nsContext);
+        } else {
+          resource = new VersionedCollectionResource(uri, node, nsContext);
+        }
+      } else {
+        if (ResourceUtil.isFile(node)) {
+          resource = new FileResource(uri, node, nsContext);
+        } else {
+          resource = new CollectionResource(uri, node, nsContext);
+        }
+      }
+
+    } catch (Exception e1) {
+      e1.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e1.getMessage()).build();
+    }
+
+    PropFindRequestEntity request = new PropFindRequestEntity(body);
+    PropFindResponseEntity response;
+
+    if (request.getType().equalsIgnoreCase("allprop")) {
+      response = new PropFindResponseEntity(depth, resource, null, false);
+    } else if (request.getType().equalsIgnoreCase("propname")) {
+      response = new PropFindResponseEntity(depth, resource, null, true);
+    } else if (request.getType().equalsIgnoreCase("prop")) {
+      response = new PropFindResponseEntity(depth, resource, propertyNames(body), false);
+    } else {
+      return Response.Builder.badRequest().errorMessage("Unexpected property name "
+          + request.getType()).build();
+    }
+
+    return Response.Builder.withStatus(WebDavStatus.MULTISTATUS)
+                           .entity(response, "text/xml")
+                           .build();
+  }
+
+  private Set<QName> propertyNames(HierarchicalProperty body) {
+    HashSet<QName> names = new HashSet<QName>();
+
+    HierarchicalProperty propBody = body.getChild(0);
+
+    List<HierarchicalProperty> properties = propBody.getChildren();
+    Iterator<HierarchicalProperty> propIter = properties.iterator();
+    while (propIter.hasNext()) {
+      HierarchicalProperty property = propIter.next();
+      names.add(property.getName());
+    }
+
+    return names;
+  }
 }

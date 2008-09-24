@@ -22,24 +22,24 @@ import com.sun.japex.TestCase;
 public abstract class AbstractRootNodeTest extends JCRTestBase {
 
   protected Node node;
-  
+
   protected Item item;
-  
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
-    
+
     node = context.getSession().getRootNode().addNode(context.generateUniqueName("testNode"));
     item = node;
-    context.getSession().save();    
+    context.getSession().save();
   }
-  
+
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     super.doFinish(tc, context);
-    
+
     node.remove();
     context.getSession().save();
-  }  
+  }
 
 }

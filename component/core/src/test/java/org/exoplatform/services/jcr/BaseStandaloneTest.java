@@ -190,9 +190,9 @@ public abstract class BaseStandaloneTest extends TestCase {
   }
 
   /**
-   * Compare etalon stream with data stream begining from the offset in etalon
-   * and position in data. Length bytes will be readed and compared. if length
-   * is lower 0 then compare streams till one of them will be read.
+   * Compare etalon stream with data stream begining from the offset in etalon and position in data.
+   * Length bytes will be readed and compared. if length is lower 0 then compare streams till one of
+   * them will be read.
    * 
    * @param etalon
    * @param data

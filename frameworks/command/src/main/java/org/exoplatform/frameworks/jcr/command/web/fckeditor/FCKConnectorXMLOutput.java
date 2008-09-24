@@ -41,9 +41,10 @@ public class FCKConnectorXMLOutput extends AbstractFCKConnector {
 
   protected Element rootElement;
 
-  protected void initRootElement(String commandStr, String typeStr,
-      String currentPath, String currentUrl)
-      throws ParserConfigurationException {
+  protected void initRootElement(String commandStr,
+                                 String typeStr,
+                                 String currentPath,
+                                 String currentUrl) throws ParserConfigurationException {
 
     Document doc = null;
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

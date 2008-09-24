@@ -27,15 +27,15 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPass;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CWDTest extends TestCase {
-  
+
   private static Log log = new Log("CWDTest");
-  
+
   public void testCWD() throws Exception {
     log.info("Test...");
 
@@ -51,31 +51,29 @@ public class CWDTest extends TestCase {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-    
+
     {
       CmdCwd cmdCwd = new CmdCwd("");
-      assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdCwd));      
+      assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdCwd));
     }
-    
+
     {
       CmdCwd cmdCwd = new CmdCwd("NotExistFolder");
-      assertEquals(FtpConst.Replyes.REPLY_550, client.executeCommand(cmdCwd));      
+      assertEquals(FtpConst.Replyes.REPLY_550, client.executeCommand(cmdCwd));
     }
-    
+
     {
       CmdCwd cmdCwd = new CmdCwd("production");
-      assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(cmdCwd));      
+      assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(cmdCwd));
     }
-    
+
     client.close();
-    log.info("Complete.\r\n");                
+    log.info("Complete.\r\n");
   }
-  
 
 }
-

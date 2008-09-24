@@ -40,28 +40,39 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @version $Id: TransientPropertyData.java 13962 2008-05-07 16:00:48Z pnedonosko $
  */
 
-public class TransientPropertyData extends TransientItemData implements MutablePropertyData, Externalizable {
-  
-  private static final long serialVersionUID = -8224902483861330191L;
-  
-  protected final static int NULL_VALUES = -1; 
-  
-  protected List<ValueData> values;
+public class TransientPropertyData extends TransientItemData implements MutablePropertyData,
+    Externalizable {
 
-  protected int             type;
+  private static final long  serialVersionUID = -8224902483861330191L;
 
-  protected boolean         multiValued = false;
+  protected final static int NULL_VALUES      = -1;
+
+  protected List<ValueData>  values;
+
+  protected int              type;
+
+  protected boolean          multiValued      = false;
 
   /**
-   * @param path qpath
-   * @param identifier id
-   * @param version persisted version
-   * @param type property type
-   * @param parentIdentifier parentId
-   * @param multiValued multi-valued state
+   * @param path
+   *          qpath
+   * @param identifier
+   *          id
+   * @param version
+   *          persisted version
+   * @param type
+   *          property type
+   * @param parentIdentifier
+   *          parentId
+   * @param multiValued
+   *          multi-valued state
    */
-  public TransientPropertyData(QPath path, String identifier, int version, int type,
-      String parentIdentifier, boolean multiValued) {
+  public TransientPropertyData(QPath path,
+                               String identifier,
+                               int version,
+                               int type,
+                               String parentIdentifier,
+                               boolean multiValued) {
     super(path, identifier, version, parentIdentifier);
     this.type = type;
     this.multiValued = multiValued;
@@ -69,7 +80,6 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#isNode()
    */
   public boolean isNode() {
@@ -78,7 +88,6 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#getType()
    */
   public int getType() {
@@ -87,7 +96,6 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#getValues()
    */
   public List<ValueData> getValues() {
@@ -96,7 +104,6 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#isMultiValued()
    */
   public boolean isMultiValued() {
@@ -105,7 +112,6 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.MutablePropertyData#setValues(java.util.List)
    */
   public void setValues(List<ValueData> values) {
@@ -114,7 +120,6 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.MutablePropertyData#setType(int)
    */
   public void setType(int type) {
@@ -131,25 +136,37 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     values.add(value);
   }
 
-  public static TransientPropertyData createPropertyData(NodeData parent, InternalQName name,
-      int type, boolean multiValued) {
+  public static TransientPropertyData createPropertyData(NodeData parent,
+                                                         InternalQName name,
+                                                         int type,
+                                                         boolean multiValued) {
     TransientPropertyData propData = null;
     QPath path = QPath.makeChildPath(parent.getQPath(), name);
-    propData = new TransientPropertyData(path, IdGenerator.generate(), -1, type,
-        parent.getIdentifier(), multiValued);
+    propData = new TransientPropertyData(path,
+                                         IdGenerator.generate(),
+                                         -1,
+                                         type,
+                                         parent.getIdentifier(),
+                                         multiValued);
 
     return propData;
   }
 
-  public static TransientPropertyData createPropertyData(NodeData parent, InternalQName name,
-      int type, boolean multiValued, ValueData value) {
+  public static TransientPropertyData createPropertyData(NodeData parent,
+                                                         InternalQName name,
+                                                         int type,
+                                                         boolean multiValued,
+                                                         ValueData value) {
     TransientPropertyData propData = createPropertyData(parent, name, type, multiValued);
     propData.setValue(value);
     return propData;
   }
 
-  public static TransientPropertyData createPropertyData(NodeData parent, InternalQName name,
-      int type, boolean multiValued, List<ValueData> values) {
+  public static TransientPropertyData createPropertyData(NodeData parent,
+                                                         InternalQName name,
+                                                         int type,
+                                                         boolean multiValued,
+                                                         List<ValueData> values) {
     TransientPropertyData propData = createPropertyData(parent, name, type, multiValued);
     propData.setValues(values);
     return propData;
@@ -159,35 +176,34 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     visitor.visit(this);
   }
 
-// ------------ Cloneable ------------------
-  
+  // ------------ Cloneable ------------------
+
   /**
    * Clone node data without value data!!!
    */
   @Override
   public TransientPropertyData clone() {
-    TransientPropertyData dataCopy = new TransientPropertyData(
-        getQPath(), 
-        getIdentifier(), 
-        getPersistedVersion(),
-        getType(), 
-        getParentIdentifier(),
-        isMultiValued());
-    
-    List<ValueData> copyValues = new ArrayList<ValueData>(); 
+    TransientPropertyData dataCopy = new TransientPropertyData(getQPath(),
+                                                               getIdentifier(),
+                                                               getPersistedVersion(),
+                                                               getType(),
+                                                               getParentIdentifier(),
+                                                               isMultiValued());
+
+    List<ValueData> copyValues = new ArrayList<ValueData>();
     try {
-      for (ValueData vdata: getValues()) {
+      for (ValueData vdata : getValues()) {
         copyValues.add(((TransientValueData) vdata).createTransientCopy());
       }
     } catch (RepositoryException e) {
       throw new RuntimeException(e);
     }
     dataCopy.setValues(copyValues);
-    
+
     return dataCopy;
   }
-  
-// ----------------- Externalizable
+
+  // ----------------- Externalizable
   public TransientPropertyData() {
     super();
   }
@@ -201,7 +217,7 @@ public class TransientPropertyData extends TransientItemData implements MutableP
     if (values != null) {
       int listSize = values.size();
       out.writeInt(listSize);
-      for (int i = 0; i < listSize; i++) 
+      for (int i = 0; i < listSize; i++)
         out.writeObject(values.get(i));
     } else {
       out.writeInt(NULL_VALUES);
@@ -210,13 +226,13 @@ public class TransientPropertyData extends TransientItemData implements MutableP
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     super.readExternal(in);
-        
+
     type = in.readInt();
-    
+
     multiValued = in.readBoolean();
 
     int listSize = in.readInt();
-    if (listSize  != NULL_VALUES) {
+    if (listSize != NULL_VALUES) {
       values = new ArrayList<ValueData>();
       for (int i = 0; i < listSize; i++)
         values.add((ValueData) in.readObject());

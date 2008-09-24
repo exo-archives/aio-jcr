@@ -38,8 +38,7 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceDataImporter.java 14100 2008-05-12 10:53:47Z
- *          gazarenkov $
+ * @version $Id: WorkspaceDataImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 public class WorkspaceDataImporter extends StreamImporter {
   private final Log log = ExoLogger.getLogger("jcr.WorkspaceDataImporter");
@@ -77,10 +76,10 @@ public class WorkspaceDataImporter extends StreamImporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.StreamImporter#createContentImporter(org.exoplatform.services.jcr.impl.core.NodeImpl,
-   *      int, org.exoplatform.services.jcr.impl.xml.XmlSaveType,
-   *      org.exoplatform.services.ext.action.InvocationContext)
+   * @seeorg.exoplatform.services.jcr.impl.xml.importing.StreamImporter#createContentImporter(org.
+   * exoplatform.services.jcr.impl.core.NodeImpl, int,
+   * org.exoplatform.services.jcr.impl.xml.XmlSaveType,
+   * org.exoplatform.services.ext.action.InvocationContext)
    */
   @Override
   public ContentImporter createContentImporter(NodeData parent,

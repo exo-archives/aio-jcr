@@ -28,10 +28,11 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 
 /**
  * Created by The eXo Platform SAS. <br/>
- *
+ * 
  * Helper to make ValueData conversion in one place.
  * 
- * Convert bytes to types <ul> 
+ * Convert bytes to types
+ * <ul>
  * <li>String</li>
  * <li>Long</li>
  * <li>Double</li>
@@ -39,34 +40,51 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
  * <li>Boolean</li>
  * </ul>
  * 
- * To make conversion to Name or Path use ValueFactory which covers conversion using LocationFactory. 
+ * To make conversion to Name or Path use ValueFactory which covers conversion using
+ * LocationFactory.
  * 
  * Candidate to ValueDataFactory.
  * 
  * Date: 13.05.2008 <br/>
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ValueDataConvertor.java 14464 2008-05-19 11:05:20Z pnedonosko $
  */
 public class ValueDataConvertor {
 
-  public static String readString(ValueData value) throws UnsupportedEncodingException, IllegalStateException, IOException {
+  public static String readString(ValueData value) throws UnsupportedEncodingException,
+                                                  IllegalStateException,
+                                                  IOException {
     return new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING);
   }
-  
-  public static Calendar readDate(ValueData value) throws UnsupportedEncodingException, IllegalStateException, IOException, ValueFormatException {
-    return new JCRDateFormat().deserialize(new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING));
+
+  public static Calendar readDate(ValueData value) throws UnsupportedEncodingException,
+                                                  IllegalStateException,
+                                                  IOException,
+                                                  ValueFormatException {
+    return new JCRDateFormat().deserialize(new String(value.getAsByteArray(),
+                                                      Constants.DEFAULT_ENCODING));
   }
-  
-  public static long readLong(ValueData value) throws NumberFormatException, UnsupportedEncodingException, IllegalStateException, IOException {
+
+  public static long readLong(ValueData value) throws NumberFormatException,
+                                              UnsupportedEncodingException,
+                                              IllegalStateException,
+                                              IOException {
     return Long.valueOf(new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING)).longValue();
   }
-  
-  public static double readDouble(ValueData value) throws NumberFormatException, UnsupportedEncodingException, IllegalStateException, IOException {
-    return Double.valueOf(new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING)).doubleValue();
+
+  public static double readDouble(ValueData value) throws NumberFormatException,
+                                                  UnsupportedEncodingException,
+                                                  IllegalStateException,
+                                                  IOException {
+    return Double.valueOf(new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING))
+                 .doubleValue();
   }
-  
-  public static boolean readBoolean(ValueData value) throws UnsupportedEncodingException, IllegalStateException, IOException {
-    return Boolean.valueOf(new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING)).booleanValue();
+
+  public static boolean readBoolean(ValueData value) throws UnsupportedEncodingException,
+                                                    IllegalStateException,
+                                                    IOException {
+    return Boolean.valueOf(new String(value.getAsByteArray(), Constants.DEFAULT_ENCODING))
+                  .booleanValue();
   }
 }

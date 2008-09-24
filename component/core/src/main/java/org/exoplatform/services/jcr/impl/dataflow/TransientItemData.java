@@ -36,20 +36,23 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public abstract class TransientItemData implements MutableItemData, Externalizable {
 
-  protected QPath qpath;
+  protected QPath  qpath;
 
   protected String identifier;
 
   protected String parentIdentifier;
 
-  protected int persistedVersion;
-   
+  protected int    persistedVersion;
 
   /**
-   * @param path QPath
-   * @param identifier id
-   * @param version persisted version
-   * @param parentIdentifier parentId
+   * @param path
+   *          QPath
+   * @param identifier
+   *          id
+   * @param version
+   *          persisted version
+   * @param parentIdentifier
+   *          parentId
    */
   TransientItemData(QPath path, String identifier, int version, String parentIdentifier) {
     this.parentIdentifier = parentIdentifier != null ? parentIdentifier : null;
@@ -60,7 +63,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
    */
   public QPath getQPath() {
@@ -69,7 +71,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getIdentifier()
    */
   public String getIdentifier() {
@@ -78,7 +79,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getPersistedVersion()
    */
   public int getPersistedVersion() {
@@ -87,7 +87,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentUUID()
    */
   public String getParentIdentifier() {
@@ -96,7 +95,6 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.datamodel.MutableItemData#increasePersistedVersion()
    */
   public void increasePersistedVersion() {
@@ -105,24 +103,23 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
   /*
    * (non-Javadoc)
-   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
   public boolean equals(Object obj) {
     if (obj == this)
       return true;
-    
+
     if (obj == null)
       return false;
 
     if (obj instanceof ItemData) {
       return getIdentifier().hashCode() == ((ItemData) obj).getIdentifier().hashCode();
-    } 
+    }
 
     return false;
   }
-  
+
   /**
    * @return Qname - shortcut for getQPath().getName();
    */
@@ -130,7 +127,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     return qpath.getName();
   }
 
-//  serializable --------------
+  // serializable --------------
   TransientItemData() {
   }
 
@@ -161,7 +158,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
     buf = new byte[in.readInt()];
     in.read(buf);
-    identifier = new String(buf , Constants.DEFAULT_ENCODING);
+    identifier = new String(buf, Constants.DEFAULT_ENCODING);
 
     buf = new byte[in.readInt()];
     in.read(buf);

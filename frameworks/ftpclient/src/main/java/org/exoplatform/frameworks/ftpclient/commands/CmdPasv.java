@@ -23,39 +23,41 @@ import org.exoplatform.frameworks.ftpclient.data.FtpDataTransiverImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public class CmdPasv extends FtpCommandImpl {
 
-  private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdPasv");
-  
-  protected String host = "";
-  protected int port = 0;
-  
+  private static Log log  = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdPasv");
+
+  protected String   host = "";
+
+  protected int      port = 0;
+
   public int execute() {
     try {
       sendCommand(FtpConst.Commands.CMD_PASV);
-      
+
       int reply = getReply();
-      
-      if (FtpConst.Replyes.REPLY_227 != reply) {        
+
+      if (FtpConst.Replyes.REPLY_227 != reply) {
         return reply;
       }
-      
+
       String descrVal = getDescription();
       descrVal = descrVal.substring(descrVal.indexOf("(") + 1, descrVal.indexOf(")"));
-      
-      String []addrValues = descrVal.split(",");
+
+      String[] addrValues = descrVal.split(",");
 
       host = "";
       for (int i = 0; i < 3; i++) {
         host += addrValues[i] + ".";
       }
       host += addrValues[3];
-      
+
       port = new Integer(addrValues[4]) * 256 + new Integer(addrValues[5]);
 
       if (FtpConst.Replyes.REPLY_227 == reply) {
@@ -63,7 +65,7 @@ public class CmdPasv extends FtpCommandImpl {
         dataTransiver.OpenPassive(host, port);
         clientSession.setDataTransiver(dataTransiver);
       }
-      
+
       return reply;
     } catch (Exception exc) {
       log.info("unhandled ecxeption. " + exc.getMessage(), exc);
@@ -71,13 +73,13 @@ public class CmdPasv extends FtpCommandImpl {
     log.info("SOME ERRORS");
     return -1;
   }
- 
+
   public String getHost() {
     return host;
   }
-  
+
   public int getPort() {
     return port;
   }
-  
+
 }

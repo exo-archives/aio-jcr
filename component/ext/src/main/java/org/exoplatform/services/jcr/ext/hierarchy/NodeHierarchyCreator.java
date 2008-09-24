@@ -22,22 +22,20 @@ import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dang Van Minh
- *          minh.dang@exoplatform.com
- * Nov 15, 2007 10:10:10 AM
+ * Created by The eXo Platform SAS Author : Dang Van Minh minh.dang@exoplatform.com Nov 15, 2007
+ * 10:10:10 AM
  */
 public interface NodeHierarchyCreator {
 
   public String getJcrPath(String alias);
-  
-  public void init(String repository) throws Exception ;
-  
-  public Node getUserNode(SessionProvider sessionProvider, String userName) throws Exception ;
-  
-  public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception ;
-  
-  public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception ;
-  
-  public void addPlugin(ComponentPlugin plugin) ;
+
+  public void init(String repository) throws Exception;
+
+  public Node getUserNode(SessionProvider sessionProvider, String userName) throws Exception;
+
+  public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception;
+
+  public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception;
+
+  public void addPlugin(ComponentPlugin plugin);
 }

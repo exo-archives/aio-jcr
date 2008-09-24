@@ -30,15 +30,14 @@ import org.exoplatform.services.rest.transformer.InputEntityTransformer;
  */
 public class RegistryEntryInputTransformer extends InputEntityTransformer {
 
-	public RegistryEntry readFrom(InputStream entityDataStream)
-			throws IOException {
-		try {
-			return RegistryEntry.parse(entityDataStream);
-		} catch (ParserConfigurationException pce) {
-			throw new IOException("Can't read from input stream " + pce);
-		} catch (SAXException saxe) {
-			throw new IOException("Can't read from input stream " + saxe);
-		}
-	}
+  public RegistryEntry readFrom(InputStream entityDataStream) throws IOException {
+    try {
+      return RegistryEntry.parse(entityDataStream);
+    } catch (ParserConfigurationException pce) {
+      throw new IOException("Can't read from input stream " + pce);
+    } catch (SAXException saxe) {
+      throw new IOException("Can't read from input stream " + saxe);
+    }
+  }
 
 }

@@ -15,9 +15,10 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.services.jcr.dataflow;
+
 /**
- * Created by The eXo Platform SAS.<br/>
- * Changes log containined other changes logs inside
+ * Created by The eXo Platform SAS.<br/> Changes log containined other changes logs inside
+ * 
  * @author Gennady Azarenkov
  * @version $Id: CompositeChangesLog.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -26,16 +27,18 @@ public interface CompositeChangesLog extends ItemStateChangesLog {
 
   /**
    * creates new ChangesLogIterator
+   * 
    * @return
    */
   ChangesLogIterator getLogIterator();
-  
+
   /**
    * adds new PlainChangesLog
+   * 
    * @param log
    */
   void addLog(PlainChangesLog log);
-  
+
   /**
    * @return systemId
    */

@@ -61,20 +61,23 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   private TransientPropertyData propertyData;
 
-  PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException, ConstraintViolationException {
+  PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException,
+      ConstraintViolationException {
     super(data, session);
     loadData(data);
   }
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform.services.jcr.datamodel.ItemData)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform.services.jcr.datamodel
+   * .ItemData)
    */
   void loadData(ItemData data) throws RepositoryException, ConstraintViolationException {
 
     if (!(data instanceof TransientPropertyData))
-      throw new RepositoryException("Load data: TransientPropertyData is expected, but have " + data);
+      throw new RepositoryException("Load data: TransientPropertyData is expected, but have "
+          + data);
 
     this.data = data;
     this.propertyData = (TransientPropertyData) data;
@@ -99,7 +102,8 @@ public class PropertyImpl extends ItemImpl implements Property {
     if (propertyData.getValues() != null && propertyData.getValues().size() == 0)
       throw new ValueFormatException("The single valued property " + getPath() + " is empty");
 
-    return valueFactory.loadValue((TransientValueData) propertyData.getValues().get(0), propertyData.getType());
+    return valueFactory.loadValue((TransientValueData) propertyData.getValues().get(0),
+                                  propertyData.getType());
 
   }
 
@@ -229,7 +233,8 @@ public class PropertyImpl extends ItemImpl implements Property {
     checkValid();
 
     if (propertyDef == null) {
-      throw new RepositoryException("FATAL: property definition is NULL " + getPath() + " " + propertyData.getValues());
+      throw new RepositoryException("FATAL: property definition is NULL " + getPath() + " "
+          + propertyData.getValues());
     }
 
     return propertyDef;
@@ -240,7 +245,8 @@ public class PropertyImpl extends ItemImpl implements Property {
    * @throws RepositoryException
    * @throws ConstraintViolationException
    */
-  private void initDefinitions(boolean multiple) throws RepositoryException, ConstraintViolationException {
+  private void initDefinitions(boolean multiple) throws RepositoryException,
+                                                ConstraintViolationException {
 
     PropertyDefinitions definitions = null;
     InternalQName pname = getData().getQPath().getName();
@@ -263,7 +269,8 @@ public class PropertyImpl extends ItemImpl implements Property {
    * @throws RepositoryException
    * @throws ConstraintViolationException
    */
-  private void initDefinitions_Old(boolean multiple) throws RepositoryException, ConstraintViolationException {
+  private void initDefinitions_Old(boolean multiple) throws RepositoryException,
+                                                    ConstraintViolationException {
 
     NodeType[] nodeTypes = parent().getAllNodeTypes();
     PropertyDefinitions defs = null;
@@ -318,8 +325,9 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @return multiValued property of data field (PropertyData) it's a life-state property field which contains multiple-valued flag for value(s) data. Can be
-   *         set in property creation time or from persistent storage.
+   * @return multiValued property of data field (PropertyData) it's a life-state property field
+   *         which contains multiple-valued flag for value(s) data. Can be set in property creation
+   *         time or from persistent storage.
    */
   public boolean isMultiValued() {
     return ((PropertyData) data).isMultiValued();
@@ -477,7 +485,8 @@ public class PropertyImpl extends ItemImpl implements Property {
 
     Value[] values = new Value[propertyData.getValues().size()];
     for (int i = 0; i < values.length; i++) {
-      values[i] = valueFactory.loadValue((TransientValueData) propertyData.getValues().get(i), propertyData.getType());
+      values[i] = valueFactory.loadValue((TransientValueData) propertyData.getValues().get(i),
+                                         propertyData.getType());
     }
     return values;
   }
@@ -486,7 +495,8 @@ public class PropertyImpl extends ItemImpl implements Property {
     String vals = "Property " + getPath() + " values: ";
     try {
       for (int i = 0; i < getValueArray().length; i++) {
-        vals += new String(((BaseValue) getValueArray()[i]).getInternalData().getAsByteArray()) + ";";
+        vals += new String(((BaseValue) getValueArray()[i]).getInternalData().getAsByteArray())
+            + ";";
       }
     } catch (Exception e) {
       e.printStackTrace();

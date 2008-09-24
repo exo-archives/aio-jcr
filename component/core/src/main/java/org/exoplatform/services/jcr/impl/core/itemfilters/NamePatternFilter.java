@@ -25,7 +25,7 @@ import javax.jcr.RepositoryException;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: NamePatternFilter.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -45,10 +45,10 @@ public class NamePatternFilter implements ItemFilter {
 
   public boolean accept(Item item) throws RepositoryException {
     String name = item.getName();
-    //boolean result = false;
+    // boolean result = false;
     for (int i = 0; i < expressions.size(); i++) {
       String expr = (String) expressions.get(i);
-      if(estimate(name, expr))
+      if (estimate(name, expr))
         return true;
     }
     return false;
@@ -60,5 +60,5 @@ public class NamePatternFilter implements ItemFilter {
     String regexp = expr.replaceAll("\\*", ".*");
     return Pattern.compile(regexp).matcher(name).matches();
   }
-  
+
 }

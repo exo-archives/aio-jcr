@@ -19,38 +19,45 @@ package org.exoplatform.services.jcr.ext.app;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
- * Created by The eXo Platform SAS        .<br/>
- * SessionProviderService implementation where SessionProviders are stored in Thread Local.
- * In this implementation the KEY make no sense, null value can be passed as a key.   
+ * Created by The eXo Platform SAS .<br/> SessionProviderService implementation where
+ * SessionProviders are stored in Thread Local. In this implementation the KEY make no sense, null
+ * value can be passed as a key.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ThreadLocalSessionProviderService.java 13869 2008-05-05 08:40:10Z pnedonosko $
  */
 
 public class ThreadLocalSessionProviderService implements SessionProviderService {
 
+  private static ThreadLocal<SessionProvider> sessionProviderKeeper;
 
-  private static ThreadLocal <SessionProvider> sessionProviderKeeper;
-  private static ThreadLocal <SessionProvider> systemSessionProviderKeeper;
-  
+  private static ThreadLocal<SessionProvider> systemSessionProviderKeeper;
+
   public ThreadLocalSessionProviderService() {
-    sessionProviderKeeper = new ThreadLocal <SessionProvider>();
-    systemSessionProviderKeeper = new ThreadLocal <SessionProvider>();
+    sessionProviderKeeper = new ThreadLocal<SessionProvider>();
+    systemSessionProviderKeeper = new ThreadLocal<SessionProvider>();
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.app.SessionProviderService#getSessionProvider(java.lang.Object)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.app.SessionProviderService#getSessionProvider(java.lang.Object
+   * )
    */
   public SessionProvider getSessionProvider(Object key) {
-    if(sessionProviderKeeper.get() != null)
+    if (sessionProviderKeeper.get() != null)
       return sessionProviderKeeper.get();
     return null;
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.app.SessionProviderService#getSystemSessionProvider(java.lang.Object)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.app.SessionProviderService#getSystemSessionProvider(java.lang
+   * .Object)
    */
   public SessionProvider getSystemSessionProvider(Object key) {
-    if(systemSessionProviderKeeper.get() != null) {
+    if (systemSessionProviderKeeper.get() != null) {
       return systemSessionProviderKeeper.get();
     } else {
       final SessionProvider ssp = SessionProvider.createSystemProvider();
@@ -59,20 +66,26 @@ public class ThreadLocalSessionProviderService implements SessionProviderService
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.app.SessionProviderService#setSessionProvider(java.lang.Object, org.exoplatform.services.jcr.ext.common.SessionProvider)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.app.SessionProviderService#setSessionProvider(java.lang.Object
+   * , org.exoplatform.services.jcr.ext.common.SessionProvider)
    */
   public void setSessionProvider(Object key, SessionProvider sessionProvider) {
     sessionProviderKeeper.set(sessionProvider);
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.app.SessionProviderService#removeSessionProvider(java.lang.Object)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.app.SessionProviderService#removeSessionProvider(java.lang
+   * .Object)
    */
   public void removeSessionProvider(Object key) {
     getSessionProvider(key).close();
     sessionProviderKeeper.set(null);
-    
+
     if (systemSessionProviderKeeper.get() != null) {
       systemSessionProviderKeeper.get().close();
       systemSessionProviderKeeper.set(null);

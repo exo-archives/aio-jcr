@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 
 /**
  * Created by The eXo Platform SAS .
- *
+ * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
  * @version $Id: JcrRMIDemo.java 11126 2006-12-12 17:15:02Z vetal_ok $
  */

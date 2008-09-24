@@ -37,8 +37,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 public class JCRDriverTest extends BaseStandaloneTest {
 
-  //private RepositoryService repositoryService = null;
-
+  // private RepositoryService repositoryService = null;
 
   public void testCreateNode_File() throws Exception {
 
@@ -48,14 +47,12 @@ public class JCRDriverTest extends BaseStandaloneTest {
 
     Session s = null;
 
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
 
     if (repositoryService == null)
       throw new Exception("repositoryService is NULL!!!");
 
-    s = (SessionImpl) (repositoryService.getRepository("db1").login(
-        credentials, "ws"));
+    s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials, "ws"));
 
     JCRDriver.createNode(s, "/subfolder/exp_test1.txt", true);
 
@@ -76,10 +73,8 @@ public class JCRDriverTest extends BaseStandaloneTest {
     Session s = null;
 
     try {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(
-          credentials, "ws"));
+      Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;
@@ -109,17 +104,15 @@ public class JCRDriverTest extends BaseStandaloneTest {
   }
 
   /**
-   * Here is the test correct file (not directory) creation and suppose to be
-   * check correct file attributes, date/time, and other setup.
+   * Here is the test correct file (not directory) creation and suppose to be check correct file
+   * attributes, date/time, and other setup.
    */
   public void testCreateFile_CorrectFile() {
     Session s = null;
 
     try {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(
-          credentials, "ws"));
+      Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;
@@ -128,8 +121,7 @@ public class JCRDriverTest extends BaseStandaloneTest {
     TreeConnection conn = new TreeConnection(null);
     conn.setSession(s);
 
-    int access = AccessMode.DenyWrite + AccessMode.DenyRead
-        + AccessMode.ReadWrite;
+    int access = AccessMode.DenyWrite + AccessMode.DenyRead + AccessMode.ReadWrite;
     int srchAttr = 0; // not used
     int fileAttr = FileAttribute.Normal;
     int crTime = 0; // not used
@@ -176,8 +168,14 @@ public class JCRDriverTest extends BaseStandaloneTest {
     SMBDate crDateTime = null;
     crDateTime = new SMBDate(crDate, crTime);
 
-    FileOpenParams params = new FileOpenParams(fileName, stream, openFunc,
-        access, srchAttr, fileAttr, allocSiz, crDateTime.getTime());
+    FileOpenParams params = new FileOpenParams(fileName,
+                                               stream,
+                                               openFunc,
+                                               access,
+                                               srchAttr,
+                                               fileAttr,
+                                               allocSiz,
+                                               crDateTime.getTime());
 
     try {
       JCRDriver.createFile(conn, params);
@@ -200,17 +198,15 @@ public class JCRDriverTest extends BaseStandaloneTest {
   }
 
   /**
-   * Here is the test correct directory creation and suppose to be check correct
-   * file attributes, date/time, and other setup.
+   * Here is the test correct directory creation and suppose to be check correct file attributes,
+   * date/time, and other setup.
    */
   public void testCreateFile_CorrectDir() {
     Session s = null;
 
     try {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(
-          credentials, "ws"));
+      Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;
@@ -219,8 +215,7 @@ public class JCRDriverTest extends BaseStandaloneTest {
     TreeConnection conn = new TreeConnection(null);
     conn.setSession(s);
 
-    int access = AccessMode.DenyWrite + AccessMode.DenyRead
-        + AccessMode.ReadWrite;
+    int access = AccessMode.DenyWrite + AccessMode.DenyRead + AccessMode.ReadWrite;
     int srchAttr = 0; // not used
     int fileAttr = FileAttribute.Directory;
     int crTime = 0; // not used
@@ -267,8 +262,14 @@ public class JCRDriverTest extends BaseStandaloneTest {
     SMBDate crDateTime = null;
     crDateTime = new SMBDate(crDate, crTime);
 
-    FileOpenParams params = new FileOpenParams(fileName, stream, openFunc,
-        access, srchAttr, fileAttr, allocSiz, crDateTime.getTime());
+    FileOpenParams params = new FileOpenParams(fileName,
+                                               stream,
+                                               openFunc,
+                                               access,
+                                               srchAttr,
+                                               fileAttr,
+                                               allocSiz,
+                                               crDateTime.getTime());
 
     try {
       JCRDriver.createFile(conn, params);
@@ -291,17 +292,15 @@ public class JCRDriverTest extends BaseStandaloneTest {
   }
 
   /**
-   * Here is the test correct directory creation and suppose to be checking
-   * correct file attributes, date/time, and other setup.
+   * Here is the test correct directory creation and suppose to be checking correct file attributes,
+   * date/time, and other setup.
    */
   public void testCreateFile_ExistingFile_fail() {
     Session s = null;
 
     try {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      s = (SessionImpl) (repositoryService.getRepository("db1").login(
-          credentials, "ws"));
+      Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+      s = (SessionImpl) (repositoryService.getRepository("db1").login(credentials, "ws"));
     } catch (Exception e) {
       fail();
       return;
@@ -330,8 +329,7 @@ public class JCRDriverTest extends BaseStandaloneTest {
     conn.setSession(s);
 
     // make COM_OPEN_ANDX request simulation
-    int access = AccessMode.DenyWrite + AccessMode.DenyRead
-        + AccessMode.ReadWrite;
+    int access = AccessMode.DenyWrite + AccessMode.DenyRead + AccessMode.ReadWrite;
     int srchAttr = 0; // not used
     int fileAttr = FileAttribute.Directory;
     int crTime = 0; // not used
@@ -378,8 +376,14 @@ public class JCRDriverTest extends BaseStandaloneTest {
     SMBDate crDateTime = null;
     crDateTime = new SMBDate(crDate, crTime);
 
-    FileOpenParams params = new FileOpenParams(fileName, stream, openFunc,
-        access, srchAttr, fileAttr, allocSiz, crDateTime.getTime());
+    FileOpenParams params = new FileOpenParams(fileName,
+                                               stream,
+                                               openFunc,
+                                               access,
+                                               srchAttr,
+                                               fileAttr,
+                                               allocSiz,
+                                               crDateTime.getTime());
 
     try {
       JCRDriver.createFile(conn, params);
@@ -402,16 +406,14 @@ public class JCRDriverTest extends BaseStandaloneTest {
   }
 
   /**
-   * There is test for JCRDriver.getFileInformation(Node) which test's getting
-   * correct FileInfo object for simple file
+   * There is test for JCRDriver.getFileInformation(Node) which test's getting correct FileInfo
+   * object for simple file
    */
   public void testGetFileInfo_normal_file() {
     Session s = null;
     try {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      s = (SessionImpl) (repositoryService.getDefaultRepository().login(
-          credentials, "ws"));
+      Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+      s = (SessionImpl) (repositoryService.getDefaultRepository().login(credentials, "ws"));
 
     } catch (Exception e) {
       fail();
@@ -447,22 +449,20 @@ public class JCRDriverTest extends BaseStandaloneTest {
       fail();
 
     assertEquals("getnode.dat", inf.getFileName());
-    assertTrue((FileAttribute.NTNormal & inf.getFileAttributes())>0);
+    assertTrue((FileAttribute.NTNormal & inf.getFileAttributes()) > 0);
 
     // TODO date time check
   }
 
   /**
-   * There is test for JCRDriver.getFileInformation(Node), which test's getting
-   * correct FileInfo object for directory "jcr:system"
+   * There is test for JCRDriver.getFileInformation(Node), which test's getting correct FileInfo
+   * object for directory "jcr:system"
    */
   public void testGetFileInfo_directory() {
     Session s = null;
     try {
-      Credentials credentials = new CredentialsImpl("admin", "admin"
-          .toCharArray());
-      s = (SessionImpl) (repositoryService.getDefaultRepository().login(
-          credentials, "ws"));
+      Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+      s = (SessionImpl) (repositoryService.getDefaultRepository().login(credentials, "ws"));
 
     } catch (Exception e) {
       fail();
@@ -492,15 +492,10 @@ public class JCRDriverTest extends BaseStandaloneTest {
   public void open() {
     // crea
     /*
-     * Node nd; try{ nd= s.getRootNode().addNode("sub");
-     * 
-     * nd.addNode("file_create.txt", "nt:file"); Node dataNode =
-     * nd.addNode("jcr:content","nt:resource");
-     * 
-     * MimeTypeResolver mimetypeResolver = new MimeTypeResolver();
-     * mimetypeResolver.setDefaultMimeType("application/zip"); String mimeType =
-     * mimetypeResolver.getMimeType("file_create.txt");
-     * 
+     * Node nd; try{ nd= s.getRootNode().addNode("sub"); nd.addNode("file_create.txt", "nt:file");
+     * Node dataNode = nd.addNode("jcr:content","nt:resource"); MimeTypeResolver mimetypeResolver =
+     * new MimeTypeResolver(); mimetypeResolver.setDefaultMimeType("application/zip"); String
+     * mimeType = mimetypeResolver.getMimeType("file_create.txt");
      * dataNode.setProperty("jcr:mimeType",mimeType);
      * dataNode.setProperty("jcr:lastModified",Calendar.getInstance());
      * dataNode.setProperty("jcr:data",""); } catch(Exception e){ fail(); }

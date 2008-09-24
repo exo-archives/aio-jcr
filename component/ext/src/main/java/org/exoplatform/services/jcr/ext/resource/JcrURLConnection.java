@@ -25,27 +25,29 @@ import java.net.URLConnection;
 import javax.jcr.Node;
 import javax.jcr.Session;
 
-
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class JcrURLConnection extends URLConnection {
 
-  private Session session;
+  private Session                   session;
+
   private NodeRepresentationService nodeRepresentationService;
-  private UnifiedNodeReference nodeReference;
 
-  private NodeRepresentation nodeRepresentation;
+  private UnifiedNodeReference      nodeReference;
 
-  public JcrURLConnection(UnifiedNodeReference nodeReference, Session session,
-      NodeRepresentationService nodeRepresentationService) throws MalformedURLException {
-    
+  private NodeRepresentation        nodeRepresentation;
+
+  public JcrURLConnection(UnifiedNodeReference nodeReference,
+                          Session session,
+                          NodeRepresentationService nodeRepresentationService) throws MalformedURLException {
+
     super(nodeReference.getURL());
     this.session = session;
     this.nodeReference = nodeReference;
     this.nodeRepresentationService = nodeRepresentationService;
-    
+
     doOutput = false;
     allowUserInteraction = false;
     useCaches = false;
@@ -85,9 +87,9 @@ public class JcrURLConnection extends URLConnection {
    */
   @Override
   public InputStream getInputStream() throws IOException {
-    if (!connected) 
+    if (!connected)
       connect();
-    
+
     try {
       return nodeRepresentation.getInputStream();
     } catch (Exception e) {
@@ -127,7 +129,7 @@ public class JcrURLConnection extends URLConnection {
     try {
       if (!connected)
         connect();
-      
+
       return nodeRepresentation.getMediaType();
     } catch (Exception e) {
       e.printStackTrace();
@@ -172,14 +174,14 @@ public class JcrURLConnection extends URLConnection {
     try {
       if (!connected)
         connect();
-      
+
       return nodeRepresentation.getContentEncoding();
     } catch (Exception e) {
       e.printStackTrace();
     }
     return null;
   }
-  
+
   /*
    * (non-Javadoc)
    * @see java.net.URLConnection#getLastModified()
@@ -229,8 +231,7 @@ public class JcrURLConnection extends URLConnection {
 
   /*
    * (non-Javadoc)
-   * @see java.net.URLConnection#setRequestProperty(java.lang.String,
-   *      java.lang.String)
+   * @see java.net.URLConnection#setRequestProperty(java.lang.String, java.lang.String)
    */
   @Override
   public void addRequestProperty(String key, String value) {
@@ -239,12 +240,11 @@ public class JcrURLConnection extends URLConnection {
 
   /*
    * (non-Javadoc)
-   * @see java.net.URLConnection#setRequestProperty(java.lang.String,
-   *      java.lang.String)
+   * @see java.net.URLConnection#setRequestProperty(java.lang.String, java.lang.String)
    */
   @Override
   public void setRequestProperty(String key, String value) {
     throw new UnsupportedOperationException("protocol doesn't support request properties!");
   }
-  
+
 }

@@ -24,15 +24,13 @@ import org.apache.lucene.index.memory.SynonymMap;
 import org.exoplatform.services.jcr.impl.core.query.lucene.SynonymProvider;
 
 /**
- * <code>WordNetSynonyms</code> implements a {@link SynonymProvider} that is
- * backed by the WordNet prolog file <a
- * href="http://www.cogsci.princeton.edu/2.0/WNprolog-2.0.tar.gz">wn_s.pl</a>.
+ * <code>WordNetSynonyms</code> implements a {@link SynonymProvider} that is backed by the WordNet
+ * prolog file <a href="http://www.cogsci.princeton.edu/2.0/WNprolog-2.0.tar.gz">wn_s.pl</a>.
  */
 public class WordNetSynonyms implements SynonymProvider {
 
   /**
-   * The synonym map or <code>null</code> if an error occurred while reading
-   * the prolog file.
+   * The synonym map or <code>null</code> if an error occurred while reading the prolog file.
    */
   private SynonymMap SYNONYM_MAP;
 

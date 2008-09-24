@@ -30,14 +30,15 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 public class JDBCHWDCTest extends JcrImplBaseTest {
 
   protected JDBCWorkspaceDataContainer wdContainer = null;
-  
-  protected List<ItemData> cleanUpList = new ArrayList<ItemData>();
-  
+
+  protected List<ItemData>             cleanUpList = new ArrayList<ItemData>();
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    
-    wdContainer = (JDBCWorkspaceDataContainer) session.getContainer().getComponentInstanceOfType(JDBCWorkspaceDataContainer.class);
+
+    wdContainer = (JDBCWorkspaceDataContainer) session.getContainer()
+                                                      .getComponentInstanceOfType(JDBCWorkspaceDataContainer.class);
   }
 
   @Override
@@ -45,16 +46,16 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
     SessionDataManager sdm = session.getTransientNodesManager();
     TransactionableDataManager trm = sdm.getTransactManager();
     WorkspaceStorageDataManagerProxy wdm = trm.getStorageDataManager();
-  
+
     CompositeChangesLog clog = new TransactionChangesLog();
     PlainChangesLogImpl changes = new PlainChangesLogImpl();
-    for (int i=cleanUpList.size(); i>0;) {
+    for (int i = cleanUpList.size(); i > 0;) {
       changes.add(ItemState.createDeletedState(cleanUpList.get(--i)));
     }
-    
+
     clog.addLog(changes);
     wdm.save(clog);
-    
+
     super.tearDown();
   }
 
@@ -62,39 +63,44 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
     SessionDataManager sdm = session.getTransientNodesManager();
     TransactionableDataManager trm = sdm.getTransactManager();
     WorkspaceStorageDataManagerProxy wdm = trm.getStorageDataManager();
-    
+
     NodeData rootData = (NodeData) wdm.getItemData(Constants.ROOT_UUID);
-    
+
     InternalQName nodeName = InternalQName.parse("[]testNode");
     QPath path = QPath.makeChildPath(rootData.getQPath(), nodeName, 1);
-    
-    AccessControlList acl = rootData.getACL(); 
 
-    TransientNodeData nodeData = new TransientNodeData(
-        path, 
-        IdGenerator.generate(), 
-        -1, 
-        Constants.NT_UNSTRUCTURED,
-        new InternalQName[0], 
-        0, 
-        rootData.getIdentifier(), 
-        acl);
-    
+    AccessControlList acl = rootData.getACL();
+
+    TransientNodeData nodeData = new TransientNodeData(path,
+                                                       IdGenerator.generate(),
+                                                       -1,
+                                                       Constants.NT_UNSTRUCTURED,
+                                                       new InternalQName[0],
+                                                       0,
+                                                       rootData.getIdentifier(),
+                                                       acl);
+
     // jcr:primaryType
-    TransientPropertyData ptData = TransientPropertyData.createPropertyData(nodeData, 
-        Constants.JCR_PRIMARYTYPE, 
-        PropertyType.NAME, false, new TransientValueData(Constants.NT_UNSTRUCTURED));
-    
+    TransientPropertyData ptData = TransientPropertyData.createPropertyData(nodeData,
+                                                                            Constants.JCR_PRIMARYTYPE,
+                                                                            PropertyType.NAME,
+                                                                            false,
+                                                                            new TransientValueData(Constants.NT_UNSTRUCTURED));
+
     // jcr:mixinTypes
-    TransientPropertyData mtData = TransientPropertyData.createPropertyData(nodeData, 
-        Constants.JCR_MIXINTYPES, PropertyType.NAME, 
-        true, new TransientValueData(Constants.MIX_REFERENCEABLE));
-        
+    TransientPropertyData mtData = TransientPropertyData.createPropertyData(nodeData,
+                                                                            Constants.JCR_MIXINTYPES,
+                                                                            PropertyType.NAME,
+                                                                            true,
+                                                                            new TransientValueData(Constants.MIX_REFERENCEABLE));
+
     // jcr:uuid
-    TransientPropertyData uuidData = TransientPropertyData.createPropertyData(nodeData, 
-        Constants.JCR_UUID, PropertyType.STRING, 
-        false, new TransientValueData(nodeData.getIdentifier()));
-    
+    TransientPropertyData uuidData = TransientPropertyData.createPropertyData(nodeData,
+                                                                              Constants.JCR_UUID,
+                                                                              PropertyType.STRING,
+                                                                              false,
+                                                                              new TransientValueData(nodeData.getIdentifier()));
+
     // add
     WorkspaceStorageConnection con = wdContainer.openConnection();
     try {
@@ -103,7 +109,7 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
       con.add(mtData);
       con.add(uuidData);
       con.commit();
-    } catch(Exception e) {
+    } catch (Exception e) {
       con.rollback();
       throw e;
     } finally {
@@ -112,58 +118,62 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
       cleanUpList.add(mtData);
       cleanUpList.add(uuidData);
     }
-    
+
     // get
     con = wdContainer.openConnection();
     try {
       NodeData storedNode = (NodeData) con.getItemData(rootData, new QPathEntry(nodeName, 1));
       assertEquals(path, storedNode.getQPath());
-    } catch(Exception e) {
+    } catch (Exception e) {
       throw e;
     } finally {
       con.rollback();
     }
-    
-    
+
   }
-  
+
   public void testItemAdd_DataManager() throws Exception {
     SessionDataManager sdm = session.getTransientNodesManager();
     TransactionableDataManager trm = sdm.getTransactManager();
     WorkspaceStorageDataManagerProxy wdm = trm.getStorageDataManager();
-    
+
     NodeData rootData = (NodeData) wdm.getItemData(Constants.ROOT_UUID);
-    
+
     InternalQName nodeName = InternalQName.parse("[]testNode");
     QPath path = QPath.makeChildPath(rootData.getQPath(), nodeName, 1);
-    
-    AccessControlList acl = rootData.getACL(); 
 
-    TransientNodeData nodeData = new TransientNodeData(
-        path, 
-        IdGenerator.generate(), 
-        -1, 
-        Constants.NT_UNSTRUCTURED,
-        new InternalQName[0], 
-        0, 
-        rootData.getIdentifier(), 
-        acl);
-    
+    AccessControlList acl = rootData.getACL();
+
+    TransientNodeData nodeData = new TransientNodeData(path,
+                                                       IdGenerator.generate(),
+                                                       -1,
+                                                       Constants.NT_UNSTRUCTURED,
+                                                       new InternalQName[0],
+                                                       0,
+                                                       rootData.getIdentifier(),
+                                                       acl);
+
     // jcr:primaryType
-    TransientPropertyData ptData = TransientPropertyData.createPropertyData(nodeData, 
-        Constants.JCR_PRIMARYTYPE, 
-        PropertyType.NAME, false, new TransientValueData(Constants.NT_UNSTRUCTURED));
-    
+    TransientPropertyData ptData = TransientPropertyData.createPropertyData(nodeData,
+                                                                            Constants.JCR_PRIMARYTYPE,
+                                                                            PropertyType.NAME,
+                                                                            false,
+                                                                            new TransientValueData(Constants.NT_UNSTRUCTURED));
+
     // jcr:mixinTypes
-    TransientPropertyData mtData = TransientPropertyData.createPropertyData(nodeData, 
-        Constants.JCR_MIXINTYPES, PropertyType.NAME, 
-        true, new TransientValueData(Constants.MIX_REFERENCEABLE));
-        
+    TransientPropertyData mtData = TransientPropertyData.createPropertyData(nodeData,
+                                                                            Constants.JCR_MIXINTYPES,
+                                                                            PropertyType.NAME,
+                                                                            true,
+                                                                            new TransientValueData(Constants.MIX_REFERENCEABLE));
+
     // jcr:uuid
-    TransientPropertyData uuidData = TransientPropertyData.createPropertyData(nodeData, 
-        Constants.JCR_UUID, PropertyType.STRING, 
-        false, new TransientValueData(nodeData.getIdentifier()));
-    
+    TransientPropertyData uuidData = TransientPropertyData.createPropertyData(nodeData,
+                                                                              Constants.JCR_UUID,
+                                                                              PropertyType.STRING,
+                                                                              false,
+                                                                              new TransientValueData(nodeData.getIdentifier()));
+
     // add
     CompositeChangesLog clog = new TransactionChangesLog();
     PlainChangesLogImpl changes = new PlainChangesLogImpl();
@@ -180,12 +190,12 @@ public class JDBCHWDCTest extends JcrImplBaseTest {
       cleanUpList.add(mtData);
       cleanUpList.add(uuidData);
     }
-    
+
     // get
     try {
       NodeData storedNode = (NodeData) wdm.getItemData(rootData, new QPathEntry(nodeName, 1));
       assertEquals(path, storedNode.getQPath());
-    } catch(Exception e) {
+    } catch (Exception e) {
       throw e;
     }
   }

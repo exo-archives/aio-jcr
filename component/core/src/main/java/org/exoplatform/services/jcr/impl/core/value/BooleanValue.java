@@ -33,8 +33,8 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 public class BooleanValue extends BaseValue {
 
   public static final int TYPE = PropertyType.BOOLEAN;
-  
-  public BooleanValue(boolean bool)  throws IOException {
+
+  public BooleanValue(boolean bool) throws IOException {
     super(TYPE, new TransientValueData(bool));
   }
 
@@ -42,21 +42,24 @@ public class BooleanValue extends BaseValue {
     super(TYPE, data);
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getDate()
    */
   public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
     throw new ValueFormatException("conversion to date failed: inconvertible types");
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getLong()
    */
   public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
     throw new ValueFormatException("conversion to long failed: inconvertible types");
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getDouble()
    */
   public double getDouble() throws ValueFormatException, IllegalStateException, RepositoryException {

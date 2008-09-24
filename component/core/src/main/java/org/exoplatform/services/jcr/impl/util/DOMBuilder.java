@@ -28,7 +28,7 @@ import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: DOMBuilder.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -42,13 +42,13 @@ public class DOMBuilder {
     return docBuilder.newDocument();
   }
 
-  public static Document createDocument(InputStream is)
-      throws IOException, SAXException, ParserConfigurationException {
+  public static Document createDocument(InputStream is) throws IOException,
+                                                       SAXException,
+                                                       ParserConfigurationException {
     DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
     dfactory.setNamespaceAware(true);
     DocumentBuilder docBuilder = dfactory.newDocumentBuilder();
     return docBuilder.parse(is);
   }
-
 
 }

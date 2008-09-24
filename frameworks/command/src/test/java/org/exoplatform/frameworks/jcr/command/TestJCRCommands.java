@@ -43,8 +43,12 @@ public class TestJCRCommands extends TestCase {
 
   public void setUp() throws Exception {
 
-    String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml").toString();
-    String loginConf = Thread.currentThread().getContextClassLoader().getResource("login.conf").toString();
+    String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml")
+                                     .toString();
+    String loginConf = Thread.currentThread()
+                             .getContextClassLoader()
+                             .getResource("login.conf")
+                             .toString();
 
     if (System.getProperty("java.security.auth.login.config") == null)
       System.setProperty("java.security.auth.login.config", loginConf);
@@ -58,7 +62,8 @@ public class TestJCRCommands extends TestCase {
 
     // login via Authenticator
     Authenticator authr = (Authenticator) container.getComponentInstanceOfType(Authenticator.class);
-    String validUser = authr.validateUser(new Credential[] { new UsernameCredential("root"), new PasswordCredential("exo") });
+    String validUser = authr.validateUser(new Credential[] { new UsernameCredential("root"),
+        new PasswordCredential("exo") });
     Identity id = authr.createIdentity(validUser);
     ConversationState s = new ConversationState(id);
     ConversationState.setCurrent(s);

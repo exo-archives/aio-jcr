@@ -32,42 +32,45 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.<br/>
- * Proxy of WorkspaceDataManager for "proxy" mode of replication
- * to let replicator not to make persistent changes but replicate
- * cache, indexes etc instead. This is the case if persistent replication
- * is done with some external way (by repliucation enabled RDB or AS etc)    
+ * Created by The eXo Platform SAS.<br/> Proxy of WorkspaceDataManager for "proxy" mode of
+ * replication to let replicator not to make persistent changes but replicate cache, indexes etc
+ * instead. This is the case if persistent replication is done with some external way (by
+ * repliucation enabled RDB or AS etc)
+ * 
  * @author Gennady Azarenkov
  * @version $Id$
  */
 
 public class WorkspaceDataManagerProxy implements ItemDataKeeper {
 
-  protected static Log log = ExoLogger.getLogger("jcr.WorkspaceDataManagerProxy");
+  protected static Log                   log = ExoLogger.getLogger("jcr.WorkspaceDataManagerProxy");
 
-  private List <ItemsPersistenceListener> listeners;
+  private List<ItemsPersistenceListener> listeners;
 
   public WorkspaceDataManagerProxy(CacheableWorkspaceDataManager dataManager,
-      SearchManager searchIndex, LockManagerImpl lockManager) {
-    this.listeners = new ArrayList <ItemsPersistenceListener>();
+                                   SearchManager searchIndex,
+                                   LockManagerImpl lockManager) {
+    this.listeners = new ArrayList<ItemsPersistenceListener>();
     listeners.add(dataManager.getCache());
-    if(searchIndex != null)
+    if (searchIndex != null)
       listeners.add(searchIndex);
-    if(lockManager != null)
+    if (lockManager != null)
       listeners.add(lockManager);
     log.info("WorkspaceDataManagerProxy is instantiated");
   }
-  
+
   /**
    * calls onSaveItems on all registered listeners
+   * 
    * @param changesLog
    */
   public void save(ItemStateChangesLog changesLog) throws InvalidItemStateException,
-  UnsupportedOperationException, RepositoryException {
-    for(ItemsPersistenceListener listener:listeners) {
+                                                  UnsupportedOperationException,
+                                                  RepositoryException {
+    for (ItemsPersistenceListener listener : listeners) {
       listener.onSaveItems(changesLog);
     }
-    if(log.isDebugEnabled()) 
-      log.debug("ChangesLog sent to "+listeners);
+    if (log.isDebugEnabled())
+      log.debug("ChangesLog sent to " + listeners);
   }
 }

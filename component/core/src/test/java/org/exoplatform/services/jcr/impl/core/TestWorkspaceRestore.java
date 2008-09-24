@@ -57,7 +57,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
   private boolean                   isDefaultWsMultiDb;
 
   public void _testRestore() throws Exception {
-    Session defSession = repository.login(this.credentials /*session.getCredentials()*/, "defWs");
+    Session defSession = repository.login(this.credentials /* session.getCredentials() */, "defWs");
     Node defRoot = defSession.getRootNode();
 
     Node node1 = defRoot.addNode("node1");
@@ -104,7 +104,8 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
       WorkspaceEntry workspaceEntry = null;
       workspaceEntry = helper.getNewWs("defWs",
                                        isDefaultWsMultiDb,
-                                       wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                       wsEntry.getContainer()
+                                              .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                        null,
                                        wsEntry.getContainer());
       helper.createWorkspace(workspaceEntry, container);
@@ -115,7 +116,8 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
   public void testRestore() throws RepositoryConfigurationException, Exception {
     WorkspaceEntry workspaceEntry = helper.getNewWs("testResotore",
                                                     isDefaultWsMultiDb,
-                                                    wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                     null,
                                                     wsEntry.getContainer());
 
@@ -129,7 +131,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
   }
 
   public void testRestoreBadXml() throws Exception {
-    Session defSession = repository.login(this.credentials /*session.getCredentials()*/, "defWs");
+    Session defSession = repository.login(this.credentials /* session.getCredentials() */, "defWs");
     Node defRoot = defSession.getRootNode();
 
     Node node1 = defRoot.addNode("node1");
@@ -145,7 +147,8 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
     WorkspaceEntry workspaceEntry = null;
     workspaceEntry = helper.getNewWs("testRestoreBadXml",
                                      isDefaultWsMultiDb,
-                                     wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                     wsEntry.getContainer()
+                                            .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                      null,
                                      wsEntry.getContainer());
     assertNotNull(workspaceEntry);

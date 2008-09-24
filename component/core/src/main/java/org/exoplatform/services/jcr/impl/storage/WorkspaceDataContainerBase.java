@@ -16,34 +16,32 @@
  */
 package org.exoplatform.services.jcr.impl.storage;
 
-
 import java.util.Calendar;
 import java.util.Date;
 
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
-
 /**
  * Created by The eXo Platform SAS.
- *
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: WorkspaceDataContainerBase.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 abstract public class WorkspaceDataContainerBase implements WorkspaceDataContainer {
-  
+
   protected boolean readOnly = false;
-  
+
   public Calendar getCurrentTime() {
     Calendar cal = Calendar.getInstance();
     cal.setTime(new Date());
     return cal;
   }
-  
+
   public boolean isReadOnly() {
     return readOnly;
   }
-  
+
   public void setReadOnly(boolean status) {
     this.readOnly = status;
   }

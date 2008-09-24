@@ -33,60 +33,68 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class VersionHistoryResource extends GenericResource {
-	
-	protected final VersionHistory versionHistory;
-	
-	//protected final URI versionedResourceID;
-	protected final VersionedResource versionedResource;
-	
-	public VersionHistoryResource(final URI identifier, VersionHistory versionHistory,
-			//final URI versionedResourceID,
-	    final VersionedResource versionedResource,
-			final WebDavNamespaceContext namespaceContext) 
-	throws IllegalResourceTypeException, RepositoryException {
-		super(VERSION_HISTORY, identifier, namespaceContext);
-		this.versionHistory = versionHistory;
-		this.versionedResource = versionedResource;
-	}
 
-	public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
-			AccessDeniedException, RepositoryException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  protected final VersionHistory    versionHistory;
 
-	public final boolean isCollection() {
-		return false;
-	}
+  // protected final URI versionedResourceID;
+  protected final VersionedResource versionedResource;
 
-	public Set <VersionResource> getVersions() throws RepositoryException,
-	IllegalResourceTypeException {
-		Set <VersionResource> resources = new HashSet <VersionResource>();
-		VersionIterator versions = versionHistory.getAllVersions();
-		while(versions.hasNext()) {
-			Version version = versions.nextVersion();
-			if ("jcr:rootVersion".equals(version.getName())) {
-			  
-			  continue;
-			}
-			resources.add(new VersionResource(versionURI(version.getName()), versionedResource, version, namespaceContext));
-		}
-		return resources;
-	}
-	
-	public VersionResource getVersion(String name) throws RepositoryException,
-	IllegalResourceTypeException {
-		return new VersionResource(versionURI(name), versionedResource, versionHistory.getVersion(name), namespaceContext);
-	}
+  public VersionHistoryResource(final URI identifier, VersionHistory versionHistory,
+  // final URI versionedResourceID,
+                                final VersionedResource versionedResource,
+                                final WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
+      RepositoryException {
+    super(VERSION_HISTORY, identifier, namespaceContext);
+    this.versionHistory = versionHistory;
+    this.versionedResource = versionedResource;
+  }
 
-	protected final URI versionURI(String versionName) {
-		return URI.create(versionedResource.getIdentifier().toASCIIString() + "?version=" + versionName);
-	}
-	
+  public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
+                                                     AccessDeniedException,
+                                                     RepositoryException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public final boolean isCollection() {
+    return false;
+  }
+
+  public Set<VersionResource> getVersions() throws RepositoryException,
+                                           IllegalResourceTypeException {
+    Set<VersionResource> resources = new HashSet<VersionResource>();
+    VersionIterator versions = versionHistory.getAllVersions();
+    while (versions.hasNext()) {
+      Version version = versions.nextVersion();
+      if ("jcr:rootVersion".equals(version.getName())) {
+
+        continue;
+      }
+      resources.add(new VersionResource(versionURI(version.getName()),
+                                        versionedResource,
+                                        version,
+                                        namespaceContext));
+    }
+    return resources;
+  }
+
+  public VersionResource getVersion(String name) throws RepositoryException,
+                                                IllegalResourceTypeException {
+    return new VersionResource(versionURI(name),
+                               versionedResource,
+                               versionHistory.getVersion(name),
+                               namespaceContext);
+  }
+
+  protected final URI versionURI(String versionName) {
+    return URI.create(versionedResource.getIdentifier().toASCIIString() + "?version=" + versionName);
+  }
+
 }

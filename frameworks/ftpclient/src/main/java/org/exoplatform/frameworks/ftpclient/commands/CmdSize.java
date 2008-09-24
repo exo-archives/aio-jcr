@@ -22,26 +22,28 @@ import org.exoplatform.frameworks.ftpclient.FtpConst.Commands;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
-* Created by The eXo Platform SAS        .
-* @author Vitaly Guly
-* @version $Id: $
-*/
+ * Created by The eXo Platform SAS .
+ * 
+ * @author Vitaly Guly
+ * @version $Id: $
+ */
 
 public class CmdSize extends FtpCommandImpl {
 
-  public static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdSize");
-  
-  protected String path;
-  protected int size = 0;
-  
+  public static Log log  = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdSize");
+
+  protected String  path;
+
+  protected int     size = 0;
+
   public CmdSize(String path) {
     this.path = path;
   }
-  
+
   public int getSize() {
     return size;
   }
-  
+
   public int execute() {
     try {
       // for tests only
@@ -49,13 +51,13 @@ public class CmdSize extends FtpCommandImpl {
         sendCommand(FtpConst.Commands.CMD_SIZE);
         return getReply();
       }
-      
+
       sendCommand(String.format("%s %s", FtpConst.Commands.CMD_SIZE, path));
 
       int reply = getReply();
-      
+
       if (reply == FtpConst.Replyes.REPLY_213) {
-        String descr = getDescription(); 
+        String descr = getDescription();
         String sizeVal = descr.substring(descr.indexOf(" ") + 1);
         size = new Integer(sizeVal);
       }
@@ -65,5 +67,5 @@ public class CmdSize extends FtpCommandImpl {
     }
     return -1;
   }
-  
+
 }

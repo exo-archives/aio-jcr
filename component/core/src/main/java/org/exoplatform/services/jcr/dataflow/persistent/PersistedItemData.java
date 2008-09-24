@@ -29,12 +29,15 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  */
 
 public abstract class PersistedItemData implements ItemData {
-  
+
   protected final String id;
-  protected final QPath qpath;
-  protected final String parentId; 
-  protected final int version;
-  
+
+  protected final QPath  qpath;
+
+  protected final String parentId;
+
+  protected final int    version;
+
   public PersistedItemData(String id, QPath qpath, String parentId, int version) {
     this.id = id;
     this.qpath = qpath;
@@ -42,49 +45,53 @@ public abstract class PersistedItemData implements ItemData {
     this.version = version;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getQPath()
    */
   public QPath getQPath() {
     return qpath;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getIdentifier()
    */
   public String getIdentifier() {
     return id;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getPersistedVersion()
    */
   public int getPersistedVersion() {
     return version;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#getParentIdentifier()
    */
   public String getParentIdentifier() {
     return parentId;
   }
-  
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object obj) {
     if (obj == this)
       return true;
-    
+
     if (obj == null)
       return false;
 
     if (obj instanceof ItemData) {
       return getIdentifier().hashCode() == ((ItemData) obj).getIdentifier().hashCode();
-    } 
+    }
 
     return false;
-  }  
+  }
 }

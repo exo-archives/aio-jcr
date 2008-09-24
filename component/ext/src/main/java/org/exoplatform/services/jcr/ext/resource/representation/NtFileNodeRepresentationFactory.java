@@ -28,41 +28,43 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class NtFileNodeRepresentationFactory implements
-    NodeRepresentationFactory {
-  
+public class NtFileNodeRepresentationFactory implements NodeRepresentationFactory {
+
   protected NodeRepresentationService nodeRepresentationService;
-  
+
   public NtFileNodeRepresentationFactory(NodeRepresentationService nodeRepresentationService) {
     this.nodeRepresentationService = nodeRepresentationService;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#createNodeRepresentation(
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#createNodeRepresentation(
    * javax.jcr.Node, java.lang.String)
    */
-  public NodeRepresentation createNodeRepresentation(Node node,
-      String mediaTypeHint) {
+  public NodeRepresentation createNodeRepresentation(Node node, String mediaTypeHint) {
 
     try {
 
-      NodeRepresentation content = nodeRepresentationService.getNodeRepresentation(node.getNode("jcr:content"), mediaTypeHint);
-      
-      //return nodeRepresentationService.getNodeRepresentation(node.getNode("jcr:content"), mediaTypeHint);
+      NodeRepresentation content = nodeRepresentationService.getNodeRepresentation(node.getNode("jcr:content"),
+                                                                                   mediaTypeHint);
+
+      // return nodeRepresentationService.getNodeRepresentation(node.getNode("jcr:content"),
+      // mediaTypeHint);
       return new NtFileNodeRepresentation(node, content);
-      
+
     } catch (RepositoryException e) {
       e.printStackTrace();
     }
     return null;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#getNodeType()
    */
   public String getNodeType() {
     return "nt:file";
   }
 
-  
 }

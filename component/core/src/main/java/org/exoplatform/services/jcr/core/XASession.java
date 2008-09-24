@@ -19,28 +19,31 @@ package org.exoplatform.services.jcr.core;
 import javax.jcr.Session;
 import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
+
 /**
- * Created by The eXo Platform SAS.<br/>
- * XASession
+ * Created by The eXo Platform SAS.<br/> XASession
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: XASession.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface XASession extends Session {
-  
+
   /**
    * @return XAResource
    */
   XAResource getXAResource();
-  
+
   /**
    * Enlists XAResource in TM.
+   * 
    * @throws XAException
    */
   void enlistResource() throws XAException;
-  
+
   /**
    * Delists XAResource in TM.
+   * 
    * @throws XAException
    */
   void delistResource() throws XAException;

@@ -23,115 +23,124 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  */
 public interface QueryNodeFactory {
 
-    /**
-     * Creates a {@link NodeTypeQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @param nodeType the name of the node type.
-     * @return a {@link NodeTypeQueryNode}.
-     */
-    public NodeTypeQueryNode createNodeTypeQueryNode(
-            QueryNode parent, InternalQName nodeType);
+  /**
+   * Creates a {@link NodeTypeQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @param nodeType
+   *          the name of the node type.
+   * @return a {@link NodeTypeQueryNode}.
+   */
+  public NodeTypeQueryNode createNodeTypeQueryNode(QueryNode parent, InternalQName nodeType);
 
-    /**
-     * Creates a {@link AndQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @return a {@link AndQueryNode}.
-     */
-    public AndQueryNode createAndQueryNode(
-            QueryNode parent);
+  /**
+   * Creates a {@link AndQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @return a {@link AndQueryNode}.
+   */
+  public AndQueryNode createAndQueryNode(QueryNode parent);
 
-    /**
-     * Creates a {@link LocationStepQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @return a {@link LocationStepQueryNode}.
-     */
-    public LocationStepQueryNode createLocationStepQueryNode(
-            QueryNode parent);
+  /**
+   * Creates a {@link LocationStepQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @return a {@link LocationStepQueryNode}.
+   */
+  public LocationStepQueryNode createLocationStepQueryNode(QueryNode parent);
 
-    /**
-     * Creates a {@link DerefQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @param nameTest the name test on the referenced target node.
-     * @param descendants if the axis is //
-     * @return a {@link DerefQueryNode}.
-     */
-    public DerefQueryNode createDerefQueryNode(
-            QueryNode parent, InternalQName nameTest, boolean descendants);
+  /**
+   * Creates a {@link DerefQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @param nameTest
+   *          the name test on the referenced target node.
+   * @param descendants
+   *          if the axis is //
+   * @return a {@link DerefQueryNode}.
+   */
+  public DerefQueryNode createDerefQueryNode(QueryNode parent,
+                                             InternalQName nameTest,
+                                             boolean descendants);
 
-    /**
-     * Creates a {@link NotQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @return a {@link NotQueryNode}.
-     */
-    public NotQueryNode createNotQueryNode(
-            QueryNode parent);
+  /**
+   * Creates a {@link NotQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @return a {@link NotQueryNode}.
+   */
+  public NotQueryNode createNotQueryNode(QueryNode parent);
 
-    /**
-     * Creates a {@link OrQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @return a {@link OrQueryNode}.
-     */
-    public OrQueryNode createOrQueryNode(
-            QueryNode parent);
+  /**
+   * Creates a {@link OrQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @return a {@link OrQueryNode}.
+   */
+  public OrQueryNode createOrQueryNode(QueryNode parent);
 
-    /**
-     * Creates a {@link RelationQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @param operation the operation type.
-     * @return a {@link RelationQueryNode}.
-     */
-    public RelationQueryNode createRelationQueryNode(
-            QueryNode parent, int operation);
+  /**
+   * Creates a {@link RelationQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @param operation
+   *          the operation type.
+   * @return a {@link RelationQueryNode}.
+   */
+  public RelationQueryNode createRelationQueryNode(QueryNode parent, int operation);
 
-    /**
-     * Creates a {@link PathQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @return a {@link PathQueryNode}.
-     */
-    public PathQueryNode createPathQueryNode(
-            QueryNode parent);
+  /**
+   * Creates a {@link PathQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @return a {@link PathQueryNode}.
+   */
+  public PathQueryNode createPathQueryNode(QueryNode parent);
 
-    /**
-     * Creates a {@link OrderQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @return a {@link OrderQueryNode}.
-     */
-    public OrderQueryNode createOrderQueryNode(
-            QueryNode parent);
+  /**
+   * Creates a {@link OrderQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @return a {@link OrderQueryNode}.
+   */
+  public OrderQueryNode createOrderQueryNode(QueryNode parent);
 
-    /**
-     * Creates a {@link PropertyFunctionQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @param functionName the name of the function.
-     * @return a {@link PropertyFunctionQueryNode}.
-     */
-    public PropertyFunctionQueryNode createPropertyFunctionQueryNode(
-            QueryNode parent, String functionName);
+  /**
+   * Creates a {@link PropertyFunctionQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @param functionName
+   *          the name of the function.
+   * @return a {@link PropertyFunctionQueryNode}.
+   */
+  public PropertyFunctionQueryNode createPropertyFunctionQueryNode(QueryNode parent,
+                                                                   String functionName);
 
-    /**
-     * Creates a {@link QueryRootNode} instance.
-     *
-     * @return a {@link QueryRootNode}.
-     */
-    public QueryRootNode createQueryRootNode();
+  /**
+   * Creates a {@link QueryRootNode} instance.
+   * 
+   * @return a {@link QueryRootNode}.
+   */
+  public QueryRootNode createQueryRootNode();
 
-    /**
-     * Creates a {@link TextsearchQueryNode} instance.
-     *
-     * @param parent the parent node.
-     * @param query the textsearch statement.
-     * @return a {@link TextsearchQueryNode}.
-     */
-    public TextsearchQueryNode createTextsearchQueryNode(
-            QueryNode parent, String query);
+  /**
+   * Creates a {@link TextsearchQueryNode} instance.
+   * 
+   * @param parent
+   *          the parent node.
+   * @param query
+   *          the textsearch statement.
+   * @return a {@link TextsearchQueryNode}.
+   */
+  public TextsearchQueryNode createTextsearchQueryNode(QueryNode parent, String query);
 }

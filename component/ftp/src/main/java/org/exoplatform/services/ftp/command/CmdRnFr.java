@@ -27,39 +27,39 @@ import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdRnFr extends FtpCommandImpl {
-  
+
   private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdRnFr");
-  
+
   public CmdRnFr() {
-    commandName = FtpConst.Commands.CMD_RNFR; 
+    commandName = FtpConst.Commands.CMD_RNFR;
   }
 
-  public void run(String []params) throws IOException {
+  public void run(String[] params) throws IOException {
     if (params.length < 2) {
       reply(String.format(FtpConst.Replyes.REPLY_500_PARAMREQUIRED, FtpConst.Commands.CMD_RNFR));
       return;
     }
-    
+
     String resName = params[1];
     clientSession().setPrevParamsEx(null);
 
     try {
       ArrayList<String> newPath = clientSession().getFullPath(resName);
-      
+
       Session curSession = clientSession().getSession(newPath.get(0));
-      
+
       String repoPath = clientSession().getRepoPath(newPath);
-      
+
       curSession.getItem(repoPath);
-      
+
       clientSession().setPrevParamsEx(repoPath);
-      
+
       reply(FtpConst.Replyes.REPLY_350);
       return;
     } catch (RepositoryException rexc) {
@@ -68,5 +68,5 @@ public class CmdRnFr extends FtpCommandImpl {
     }
     reply(String.format(FtpConst.Replyes.REPLY_550, resName));
   }
-  
+
 }

@@ -29,39 +29,34 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.security.ConversationState;
 import org.w3c.dom.Document;
 
+public class RegistryTest extends BaseStandaloneTest {
 
+  private ThreadLocalSessionProviderService sessionProviderService;
 
+  // private ConversationRegistry registry;
 
-public class RegistryTest extends BaseStandaloneTest{
-  
-	private ThreadLocalSessionProviderService sessionProviderService;
-	
-	//private ConversationRegistry registry;
+  private static final String               SERVICE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                                                            + "<exo_service xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" jcr:primaryType=\"exo:registryEntry\"/>";
 
-	
-	private static final String SERVICE_XML="<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
-   "<exo_service xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" jcr:primaryType=\"exo:registryEntry\"/>";
-	
-	private static final String NAV_XML="<?xml version=\"1.0\" encoding=\"UTF-8\"?>"+
-	"<node-navigation><owner-type>portal</owner-type><owner-id>portalone</owner-id>"+
-	"<access-permissions>*:/guest</access-permissions><page-nodes><node>"+
-	"<uri>portalone::home</uri><name>home</name><label>Home</label>"+
-	"<page-reference>portal::portalone::content</page-reference></node>"+ 
-	"<node><uri>portalone::register</uri><name>register</name><label>Register</label>"+
-	"<page-reference>portal::portalone::register</page-reference></node>"+
-	"</page-nodes></node-navigation>";
+  private static final String               NAV_XML     = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                                                            + "<node-navigation><owner-type>portal</owner-type><owner-id>portalone</owner-id>"
+                                                            + "<access-permissions>*:/guest</access-permissions><page-nodes><node>"
+                                                            + "<uri>portalone::home</uri><name>home</name><label>Home</label>"
+                                                            + "<page-reference>portal::portalone::content</page-reference></node>"
+                                                            + "<node><uri>portalone::register</uri><name>register</name><label>Register</label>"
+                                                            + "<page-reference>portal::portalone::register</page-reference></node>"
+                                                            + "</page-nodes></node-navigation>";
 
- 
   @Override
   public void setUp() throws Exception {
 
     super.setUp();
-    this.sessionProviderService =
-        (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
-//    this.registry = (ConversationRegistry)
-//    container.getComponentInstanceOfType(ConversationRegistry.class);
-    sessionProviderService.setSessionProvider(null, new SessionProvider(ConversationState.getCurrent()));
-    //sessionProviderService.setSessionProvider(null, new SessionProvider(credentials));
+    this.sessionProviderService = (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
+    // this.registry = (ConversationRegistry)
+    // container.getComponentInstanceOfType(ConversationRegistry.class);
+    sessionProviderService.setSessionProvider(null,
+                                              new SessionProvider(ConversationState.getCurrent()));
+    // sessionProviderService.setSessionProvider(null, new SessionProvider(credentials));
   }
 
   public void testInit() throws Exception {
@@ -89,18 +84,19 @@ public class RegistryTest extends BaseStandaloneTest{
     RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
 
     try {
-      regService.getEntry(sessionProviderService.getSessionProvider(null), RegistryService.EXO_USERS + "/exo_service");
+      regService.getEntry(sessionProviderService.getSessionProvider(null),
+                          RegistryService.EXO_USERS + "/exo_service");
       fail("ItemNotFoundException should have been thrown");
     } catch (PathNotFoundException e) {
       // ok
     }
-    
+
     regService.createEntry(sessionProviderService.getSessionProvider(null),
                            RegistryService.EXO_USERS,
                            RegistryEntry.parse(new ByteArrayInputStream(SERVICE_XML.getBytes())));
 
-    RegistryEntry entry =
-        regService.getEntry(sessionProviderService.getSessionProvider(null), RegistryService.EXO_USERS + "/exo_service");
+    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
+                                              RegistryService.EXO_USERS + "/exo_service");
     PassthroughOutputTransformer transformer = new PassthroughOutputTransformer();
     transformer.writeTo(entry.getAsInputStream(), System.out);
 
@@ -108,10 +104,12 @@ public class RegistryTest extends BaseStandaloneTest{
                              RegistryService.EXO_USERS,
                              RegistryEntry.parse(new ByteArrayInputStream(SERVICE_XML.getBytes())));
 
-    regService.removeEntry(sessionProviderService.getSessionProvider(null), RegistryService.EXO_USERS + "/exo_service");
+    regService.removeEntry(sessionProviderService.getSessionProvider(null),
+                           RegistryService.EXO_USERS + "/exo_service");
 
     try {
-      regService.getEntry(sessionProviderService.getSessionProvider(null), RegistryService.EXO_USERS + "/exo_service");
+      regService.getEntry(sessionProviderService.getSessionProvider(null),
+                          RegistryService.EXO_USERS + "/exo_service");
       fail("ItemNotFoundException should have been thrown");
     } catch (PathNotFoundException e) {
       // ok
@@ -126,16 +124,20 @@ public class RegistryTest extends BaseStandaloneTest{
     String entryName = "testEntry";
 
     try {
-      regService.getEntry(sessionProviderService.getSessionProvider(null), groupPath + "/" + entryName);
+      regService.getEntry(sessionProviderService.getSessionProvider(null), groupPath + "/"
+          + entryName);
       fail("ItemNotFoundException should have been thrown");
     } catch (PathNotFoundException e) {
       // OK
     }
 
     // group path should have been created along with entry
-    regService.createEntry(sessionProviderService.getSessionProvider(null), groupPath, new RegistryEntry(entryName));
+    regService.createEntry(sessionProviderService.getSessionProvider(null),
+                           groupPath,
+                           new RegistryEntry(entryName));
 
-    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null), groupPath + "/" + entryName);
+    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
+                                              groupPath + "/" + entryName);
 
     assertNotNull(entry);
     assertEquals(entryName, entry.getName());
@@ -148,9 +150,12 @@ public class RegistryTest extends BaseStandaloneTest{
 
     String groupPath = RegistryService.EXO_USERS + "/testRegisterFromXMLStream";
 
-    regService.createEntry(sessionProviderService.getSessionProvider(null), groupPath, RegistryEntry.parse(NAV_XML.getBytes()));
+    regService.createEntry(sessionProviderService.getSessionProvider(null),
+                           groupPath,
+                           RegistryEntry.parse(NAV_XML.getBytes()));
 
-    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null), groupPath + "/node-navigation");
+    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
+                                              groupPath + "/node-navigation");
 
     assertEquals("node-navigation", entry.getName());
 
@@ -166,9 +171,12 @@ public class RegistryTest extends BaseStandaloneTest{
     DocumentBuilder db = dbf.newDocumentBuilder();
     Document document = db.parse(new ByteArrayInputStream(NAV_XML.getBytes()));
 
-    regService.createEntry(sessionProviderService.getSessionProvider(null), groupPath, new RegistryEntry(document));
+    regService.createEntry(sessionProviderService.getSessionProvider(null),
+                           groupPath,
+                           new RegistryEntry(document));
 
-    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null), groupPath + "/node-navigation");
+    RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
+                                              groupPath + "/node-navigation");
 
     assertEquals("node-navigation", entry.getName());
 

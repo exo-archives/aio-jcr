@@ -22,43 +22,49 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ValueIOChannel.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 
 public interface ValueIOChannel {
-  
+
   /**
    * reads values
+   * 
    * @param propertyId
-   * @param maxBufferSize - maximum size when value will be read to memory buffer
+   * @param maxBufferSize
+   *          - maximum size when value will be read to memory buffer
    * @return List of ValueData
    * @throws IOException
    */
   ValueData read(String propertyId, int orderNumber, int maxBufferSize) throws IOException;
-  
+
   /**
    * writes values
+   * 
    * @param propertyId
-   * @param data - list of ValueData
+   * @param data
+   *          - list of ValueData
    * @throws IOException
    */
   void write(String propertyId, ValueData data) throws IOException;
 
   /**
    * deletes values
+   * 
    * @param propertyId
    * @throws IOException
    */
   boolean delete(String propertyId) throws IOException;
 
   /**
-   * closes channel 
+   * closes channel
    */
   void close();
-  
+
   /**
-   * Return this value storage id. 
+   * Return this value storage id.
    */
   String getStorageId();
 }

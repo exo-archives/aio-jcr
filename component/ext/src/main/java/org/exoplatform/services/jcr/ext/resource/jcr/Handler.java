@@ -44,71 +44,72 @@ import org.picocontainer.Startable;
 public class Handler extends URLStreamHandler implements Startable {
 
   /*
-   * This is implements as Startable to be independent from other services.
-   * It should be guaranty created, and set special system property. 
+   * This is implements as Startable to be independent from other services. It should be guaranty
+   * created, and set special system property.
    */
-  
-  private static final String protocolPathPkg = "org.exoplatform.services.jcr.ext.resource";
 
-  private static Authenticator authenticator_;
-  private static RepositoryService repositoryService_;
-  private static NodeRepresentationService nodeRepresentationService_;
-  
-  private static ThreadLocal<SessionProvider> sessionProviderKeeper =
-    new ThreadLocal<SessionProvider>();
-  
+  private static final String                 protocolPathPkg       = "org.exoplatform.services.jcr.ext.resource";
+
+  private static Authenticator                authenticator_;
+
+  private static RepositoryService            repositoryService_;
+
+  private static NodeRepresentationService    nodeRepresentationService_;
+
+  private static ThreadLocal<SessionProvider> sessionProviderKeeper = new ThreadLocal<SessionProvider>();
+
   public Handler(Authenticator authenticator,
-      RepositoryService repositoryService , NodeRepresentationService nodeRepresentationService) {
+                 RepositoryService repositoryService,
+                 NodeRepresentationService nodeRepresentationService) {
     authenticator_ = authenticator;
     repositoryService_ = repositoryService;
     nodeRepresentationService_ = nodeRepresentationService;
   }
-  
+
   public Handler() {
     // this constructor will be used by java.net.URL
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see java.net.URLStreamHandler#openConnection(java.net.URL)
    */
   @Override
   protected URLConnection openConnection(URL url) throws IOException {
     try {
       UnifiedNodeReference nodeReference = new UnifiedNodeReference(url);
-      
+
       SessionProvider sp = sessionProviderKeeper.get();
-      
+
       ConversationState conversationState = ConversationState.getCurrent();
       if (sp == null && conversationState != null) {
-        sp = (SessionProvider) conversationState.getAttribute(
-            SessionProvider.SESSION_PROVIDER);
+        sp = (SessionProvider) conversationState.getAttribute(SessionProvider.SESSION_PROVIDER);
       }
-      
+
       if (sp == null) {
         Credential[] cred = parseCredentials(nodeReference.getUserInfo());
         if (cred == null) {
           if (conversationState == null)
             sp = SessionProvider.createAnonimProvider();
-          else 
+          else
             sp = new SessionProvider(conversationState);
-        }
-        else {
+        } else {
           String userId = authenticator_.validateUser(cred);
           sp = new SessionProvider(new ConversationState(authenticator_.createIdentity(userId)));
         }
       }
-      
+
       ManageableRepository repository;
       String repositoryName = nodeReference.getRepository();
       if (repositoryName == null || repositoryName.length() == 0)
         repository = sp.getCurrentRepository();
-      else 
+      else
         repository = repositoryService_.getRepository(repositoryName);
 
       String workspaceName = nodeReference.getWorkspace();
       if (workspaceName == null || workspaceName.length() == 0)
         workspaceName = sp.getCurrentWorkspace();
-      
+
       Session ses = sp.getSession(workspaceName, repository);
       JcrURLConnection conn = new JcrURLConnection(nodeReference, ses, nodeRepresentationService_);
       return conn;
@@ -118,8 +119,9 @@ public class Handler extends URLStreamHandler implements Startable {
       throw new IOException("Open connection to URL '" + url.toString() + "' failed!");
     }
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
@@ -127,47 +129,50 @@ public class Handler extends URLStreamHandler implements Startable {
     if (existingProtocolPathPkgs == null)
       System.setProperty("java.protocol.handler.pkgs", protocolPathPkg);
     else if (existingProtocolPathPkgs.indexOf(protocolPathPkg) == -1)
-      System.setProperty("java.protocol.handler.pkgs", existingProtocolPathPkgs
-          + "|" + protocolPathPkg);
+      System.setProperty("java.protocol.handler.pkgs", existingProtocolPathPkgs + "|"
+          + protocolPathPkg);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see org.picocontainer.Startable#stop()
    */
   public void stop() {
     // nothing to do!
   }
-  
+
   /**
-   * Set session provider, it useful on startup time and for update script, when there is no any users.
-   * @param sp the SessionProvider.
+   * Set session provider, it useful on startup time and for update script, when there is no any
+   * users.
+   * 
+   * @param sp
+   *          the SessionProvider.
    */
   public void setSessionProvider(SessionProvider sessionProvider) {
     sessionProviderKeeper.set(sessionProvider);
   }
-  
+
   /**
-   * Close session. 
+   * Close session.
    */
   public void removeSessionProvider() {
     sessionProviderKeeper.get().close();
     sessionProviderKeeper.remove();
   }
-  
+
   private static Credential[] parseCredentials(String userInfo) {
     if (userInfo == null)
       return null;
-    
+
     int colon = userInfo.indexOf(':');
-    
+
     if (colon > 0)
       return new Credential[] { new UsernameCredential(userInfo.substring(0, colon)),
-        new PasswordCredential(userInfo.substring(colon + 1)) };
-    if (colon < 0) 
-      return new Credential[] { new UsernameCredential(userInfo) }; 
-    
-    return null;
-  }  
-  
-}
+          new PasswordCredential(userInfo.substring(colon + 1)) };
+    if (colon < 0)
+      return new Credential[] { new UsernameCredential(userInfo) };
 
+    return null;
+  }
+
+}

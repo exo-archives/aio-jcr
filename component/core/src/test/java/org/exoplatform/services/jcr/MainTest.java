@@ -15,20 +15,20 @@ import org.exoplatform.services.log.ExoLogger;
 public class MainTest extends TestCase {
 
   private Log log = ExoLogger.getLogger("jcr.Test");
-  
+
   public static void main(String args[]) {
     TestRunner.run(suite());
   }
 
   public static Test suite() {
 
-//    System.setProperty("test.repository", "db1");
+    // System.setProperty("test.repository", "db1");
     TestSuite suite = new TestSuite("javax.jcr tests");
-    
-//    suite
-//        .addTestSuite(org.exoplatform.services.jcr.api.accessing.TestAccessRepository.class);
-//suite
-//.addTestSuite(org.exoplatform.services.jcr.api.version.TestVersionHistory.class);
+
+    // suite
+    // .addTestSuite(org.exoplatform.services.jcr.api.accessing.TestAccessRepository.class);
+    // suite
+    // .addTestSuite(org.exoplatform.services.jcr.api.version.TestVersionHistory.class);
 
     suite.addTestSuite(MainTest.class);
 

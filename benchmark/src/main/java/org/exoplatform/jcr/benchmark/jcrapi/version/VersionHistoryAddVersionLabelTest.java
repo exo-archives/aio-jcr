@@ -32,10 +32,10 @@ public class VersionHistoryAddVersionLabelTest extends AbstractGetItemTest {
     vnode.save();
     vnode.checkin(); // v.2
     vnode.checkout();
-    
+
     VersionHistory vh = vnode.getVersionHistory();
     vh.addVersionLabel("2", "v.2", false);
-    addNode(vnode.getVersionHistory());    
+    addNode(vnode.getVersionHistory());
   }
 
   @Override

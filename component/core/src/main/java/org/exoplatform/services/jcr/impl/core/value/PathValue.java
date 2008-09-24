@@ -29,72 +29,68 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
- *  a <code>PATH</code> value impl (an
- * absolute or relative workspace path).
+ * a <code>PATH</code> value impl (an absolute or relative workspace path).
  * 
- * @author Gennady Azarenkov 
+ * @author Gennady Azarenkov
  */
 public class PathValue extends BaseValue {
 
-  public static final int TYPE = PropertyType.PATH;
-  
+  public static final int       TYPE = PropertyType.PATH;
+
   private final LocationFactory locationFactory;
-  
+
   public PathValue(QPath path, LocationFactory locationFactory) throws IOException {
     super(TYPE, new TransientValueData(path));
     this.locationFactory = locationFactory;
   }
-  
-  public PathValue(TransientValueData data, LocationFactory locationFactory)
-      throws IOException, RepositoryException {
+
+  public PathValue(TransientValueData data, LocationFactory locationFactory) throws IOException,
+      RepositoryException {
     super(TYPE, data);
     this.locationFactory = locationFactory;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getString()
    */
-  public String getString() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public String getString() throws ValueFormatException, IllegalStateException, RepositoryException {
     JCRPath path = locationFactory.createJCRPath(getQPath());
     return path.getAsString(false);
   }
 
-
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getDate()
    */
-  public Calendar getDate() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
-     throw new ValueFormatException(
-        "conversion to date failed: inconvertible types");
+  public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("conversion to date failed: inconvertible types");
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getLong()
    */
-  public long getLong() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
-    throw new ValueFormatException(
-        "conversion to long failed: inconvertible types");
+  public long getLong() throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("conversion to long failed: inconvertible types");
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getBoolean()
    */
   public boolean getBoolean() throws ValueFormatException,
-      IllegalStateException, RepositoryException {
-    throw new ValueFormatException(
-        "conversion to boolean failed: inconvertible types");
+                             IllegalStateException,
+                             RepositoryException {
+    throw new ValueFormatException("conversion to boolean failed: inconvertible types");
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.impl.core.value.BaseValue#getDouble()
    */
-  public double getDouble() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
-    throw new ValueFormatException(
-        "conversion to double failed: inconvertible types");
+  public double getDouble() throws ValueFormatException, IllegalStateException, RepositoryException {
+    throw new ValueFormatException("conversion to double failed: inconvertible types");
   }
 
   /**
@@ -103,8 +99,7 @@ public class PathValue extends BaseValue {
    * @throws IllegalStateException
    * @throws RepositoryException
    */
-  public QPath getQPath() throws ValueFormatException, IllegalStateException,
-    RepositoryException {
+  public QPath getQPath() throws ValueFormatException, IllegalStateException, RepositoryException {
     return QPath.parse(getInternalString());
   }
 }

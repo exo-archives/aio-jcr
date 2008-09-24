@@ -23,46 +23,46 @@ import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 13, 2008  
+ * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
  */
 public class TestPut extends BaseWebDavTest {
-  
-  private final String fileName = TestUtils.getFullWorkSpacePath() + "/" +TestUtils.getFileName();
-  private final String fileSubName = TestUtils.getFullWorkSpacePath() + "/sub/" +TestUtils.getFileName();  
+
+  private final String fileName    = TestUtils.getFullWorkSpacePath() + "/"
+                                       + TestUtils.getFileName();
+
+  private final String fileSubName = TestUtils.getFullWorkSpacePath() + "/sub/"
+                                       + TestUtils.getFileName();
+
   private final String fileContent = "TEST FILE CONTENT...";
-  
+
   @Override
   protected void setUp() throws Exception {
-    
+
     super.setUp();
-   
-    CookieModule.setCookiePolicyHandler(null);    
+
+    CookieModule.setCookiePolicyHandler(null);
     connection = TestUtils.GetAuthConnection();
 
   }
-  
+
   @Override
   protected void tearDown() throws Exception {
-  
+
     super.tearDown();
-    
+
   }
-  
- 
+
   public void testSimplePut() throws Exception {
-   
+
     HTTPResponse response = connection.Put(fileName, fileContent);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
-        
+
     response = connection.Delete(fileName);
     assertEquals(HTTPStatus.NO_CONTENT, response.getStatusCode());
-    
+
     response = connection.Put(fileSubName, fileContent);
     assertEquals(HTTPStatus.CONFLICT, response.getStatusCode());
-    
+
   }
-  
+
 }

@@ -380,10 +380,9 @@ public class TestExportImport extends ExportBase {
   }
 
   public void testname() throws Exception {
-    
+
   }
-  
-  
+
   private void doVersionTests(Node testNode) throws RepositoryException {
     assertTrue(testNode.isNodeType("mix:lockable"));
     assertTrue(testNode.isNodeType("mix:referenceable"));

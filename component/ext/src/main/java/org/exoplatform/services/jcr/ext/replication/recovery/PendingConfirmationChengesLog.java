@@ -24,7 +24,8 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class PendingConfirmationChengesLog {
@@ -38,8 +39,9 @@ public class PendingConfirmationChengesLog {
 
   private String              identifier;
 
-  public PendingConfirmationChengesLog(ItemStateChangesLog changesLog, Calendar timeStamp,
-      String identifier) {
+  public PendingConfirmationChengesLog(ItemStateChangesLog changesLog,
+                                       Calendar timeStamp,
+                                       String identifier) {
     this.confirmationList = new ArrayList<String>();
     this.changesLog = changesLog;
     this.timeStamp = timeStamp;

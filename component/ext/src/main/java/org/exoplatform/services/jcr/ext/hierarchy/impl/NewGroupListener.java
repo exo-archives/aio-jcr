@@ -37,122 +37,140 @@ import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 
 /**
- * Created by The eXo Platform SARL
- * Author : Dang Van Minh
- *          minh.dang@exoplatform.com
- * Nov 15, 2007 11:13:25 AM
+ * Created by The eXo Platform SARL Author : Dang Van Minh minh.dang@exoplatform.com Nov 15, 2007
+ * 11:13:25 AM
  */
 public class NewGroupListener extends GroupEventListener {
-  
-  private HierarchyConfig config_;
-  private RepositoryService jcrService_;
-  
-  private String groupsPath_ ;
-  final static String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
-  
-  final static private String GROUPS_PATH = "groupsPath";
-  
+
+  private HierarchyConfig     config_;
+
+  private RepositoryService   jcrService_;
+
+  private String              groupsPath_;
+
+  final static String         NT_UNSTRUCTURED = "nt:unstructured".intern();
+
+  final static private String GROUPS_PATH     = "groupsPath";
+
   public NewGroupListener(RepositoryService jcrService,
-      NodeHierarchyCreator nodeHierarchyCreatorService, 
-      InitParams params) throws Exception {
+                          NodeHierarchyCreator nodeHierarchyCreatorService,
+                          InitParams params) throws Exception {
     jcrService_ = jcrService;
     config_ = (HierarchyConfig) params.getObjectParamValues(HierarchyConfig.class).get(0);
-    groupsPath_ = nodeHierarchyCreatorService.getJcrPath(GROUPS_PATH) ; 
+    groupsPath_ = nodeHierarchyCreatorService.getJcrPath(GROUPS_PATH);
   }
-  
+
   @SuppressWarnings("unused")
-  public void preSave(Group group, boolean isNew) throws Exception { 
-    String  groupId = null ;
-    String parentId = group.getParentId() ;
-    if(parentId == null || parentId.length() == 0) groupId = "/" + group.getGroupName() ;
-    else groupId = parentId + "/" + group.getGroupName() ;
-    List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations() ;
-    for(RepositoryEntry repo : repositories) {
+  public void preSave(Group group, boolean isNew) throws Exception {
+    String groupId = null;
+    String parentId = group.getParentId();
+    if (parentId == null || parentId.length() == 0)
+      groupId = "/" + group.getGroupName();
+    else
+      groupId = parentId + "/" + group.getGroupName();
+    List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations();
+    for (RepositoryEntry repo : repositories) {
       buildGroupStructure(repo.getName(), groupId);
     }
   }
-  
+
   public void preDelete(Group group) throws Exception {
-    String  groupId = null ;
-    String parentId = group.getParentId() ;
-    if(parentId == null || parentId.length() == 0) groupId = "/" + group.getGroupName() ;
-    else groupId = parentId + "/" + group.getGroupName() ;
-    List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations() ;
-    for(RepositoryEntry repo : repositories) {
+    String groupId = null;
+    String parentId = group.getParentId();
+    if (parentId == null || parentId.length() == 0)
+      groupId = "/" + group.getGroupName();
+    else
+      groupId = parentId + "/" + group.getGroupName();
+    List<RepositoryEntry> repositories = jcrService_.getConfig().getRepositoryConfigurations();
+    for (RepositoryEntry repo : repositories) {
       try {
         removeGroup(repo.getName(), groupId);
-      } catch(Exception e) {
-        continue ;
+      } catch (Exception e) {
+        continue;
       }
     }
   }
-  
+
   private void removeGroup(String repoName, String groupId) throws Exception {
-    ManageableRepository manageableRepository = jcrService_.getRepository(repoName) ;
-    String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName() ;
-    Session session = manageableRepository.getSystemSession(systemWorkspace);           
+    ManageableRepository manageableRepository = jcrService_.getRepository(repoName);
+    String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
+    Session session = manageableRepository.getSystemSession(systemWorkspace);
     Node groupsHome = (Node) session.getItem(groupsPath_);
-    Node groupNode = (Node) session.getItem(groupsPath_ + groupId) ;
-    groupNode.remove() ;
-    //groupsHome.save() ;
-    session.save() ;
-    session.logout() ;
-  }
-  
-  @SuppressWarnings("unchecked")
-  private void buildGroupStructure(String repository, String groupId) throws Exception {           
-    ManageableRepository manageableRepository = jcrService_.getRepository(repository) ;
-    String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName() ;
-    Session session = manageableRepository.getSystemSession(systemWorkspace);           
-    Node groupsHome = (Node) session.getItem(groupsPath_);
-    Node groupNode = null ;
-    try {
-      groupNode = (Node) session.getItem(groupsPath_ + groupId) ;
-    } catch(PathNotFoundException e) {
-      groupNode = groupsHome.addNode(groupId.substring(1, groupId.length())) ;
-    }
-    List jcrPaths = config_.getJcrPaths() ;
-    for(JcrPath jcrPath : (List<JcrPath>)jcrPaths) {
-      createNode(groupNode, jcrPath.getPath(), jcrPath.getNodeType(), jcrPath.getMixinTypes(), 
-          getPermissions(jcrPath.getPermissions(),groupId)) ;
-    }
-    //groupsHome.save();
+    Node groupNode = (Node) session.getItem(groupsPath_ + groupId);
+    groupNode.remove();
+    // groupsHome.save() ;
     session.save();
     session.logout();
   }
-  
+
   @SuppressWarnings("unchecked")
-  private void createNode(Node rootNode, String path, String nodeType, List<String> mixinTypes, 
-      Map permissions) throws Exception {    
-    Node node = rootNode ;
+  private void buildGroupStructure(String repository, String groupId) throws Exception {
+    ManageableRepository manageableRepository = jcrService_.getRepository(repository);
+    String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
+    Session session = manageableRepository.getSystemSession(systemWorkspace);
+    Node groupsHome = (Node) session.getItem(groupsPath_);
+    Node groupNode = null;
+    try {
+      groupNode = (Node) session.getItem(groupsPath_ + groupId);
+    } catch (PathNotFoundException e) {
+      groupNode = groupsHome.addNode(groupId.substring(1, groupId.length()));
+    }
+    List jcrPaths = config_.getJcrPaths();
+    for (JcrPath jcrPath : (List<JcrPath>) jcrPaths) {
+      createNode(groupNode,
+                 jcrPath.getPath(),
+                 jcrPath.getNodeType(),
+                 jcrPath.getMixinTypes(),
+                 getPermissions(jcrPath.getPermissions(), groupId));
+    }
+    // groupsHome.save();
+    session.save();
+    session.logout();
+  }
+
+  @SuppressWarnings("unchecked")
+  private void createNode(Node rootNode,
+                          String path,
+                          String nodeType,
+                          List<String> mixinTypes,
+                          Map permissions) throws Exception {
+    Node node = rootNode;
     for (String token : path.split("/")) {
       try {
-        node = node.getNode(token) ;
-      } catch(PathNotFoundException e) {
-        if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
+        node = node.getNode(token);
+      } catch (PathNotFoundException e) {
+        if (nodeType == null || nodeType.length() == 0)
+          nodeType = NT_UNSTRUCTURED;
         node = node.addNode(token, nodeType);
-        if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
-        if(permissions != null && !permissions.isEmpty()) ((ExtendedNode)node).setPermissions(permissions);
-        if(mixinTypes.size() > 0) {
-          for(String mixin : mixinTypes) {
-            if(node.canAddMixin(mixin)) node.addMixin(mixin) ;
+        if (node.canAddMixin("exo:privilegeable"))
+          node.addMixin("exo:privilegeable");
+        if (permissions != null && !permissions.isEmpty())
+          ((ExtendedNode) node).setPermissions(permissions);
+        if (mixinTypes.size() > 0) {
+          for (String mixin : mixinTypes) {
+            if (node.canAddMixin(mixin))
+              node.addMixin(mixin);
           }
         }
-      }      
+      }
     }
   }
-  
-  private Map getPermissions(List<Permission> permissions,String groupId) {
+
+  private Map getPermissions(List<Permission> permissions, String groupId) {
     Map<String, String[]> permissionsMap = new HashMap<String, String[]>();
     String groupIdentity = "*:".concat(groupId);
-    permissionsMap.put(groupIdentity,PermissionType.ALL);
-    for(Permission permission : permissions) {
-      StringBuilder strPer = new StringBuilder() ;
-      if("true".equals(permission.getRead())) strPer.append(PermissionType.READ) ;
-      if("true".equals(permission.getAddNode())) strPer.append(",").append(PermissionType.ADD_NODE) ;
-      if("true".equals(permission.getSetProperty())) strPer.append(",").append(PermissionType.SET_PROPERTY) ;
-      if("true".equals(permission.getRemove())) strPer.append(",").append(PermissionType.REMOVE) ;
-      permissionsMap.put(permission.getIdentity(), strPer.toString().split(",")) ;
+    permissionsMap.put(groupIdentity, PermissionType.ALL);
+    for (Permission permission : permissions) {
+      StringBuilder strPer = new StringBuilder();
+      if ("true".equals(permission.getRead()))
+        strPer.append(PermissionType.READ);
+      if ("true".equals(permission.getAddNode()))
+        strPer.append(",").append(PermissionType.ADD_NODE);
+      if ("true".equals(permission.getSetProperty()))
+        strPer.append(",").append(PermissionType.SET_PROPERTY);
+      if ("true".equals(permission.getRemove()))
+        strPer.append(",").append(PermissionType.REMOVE);
+      permissionsMap.put(permission.getIdentity(), strPer.toString().split(","));
     }
     return permissionsMap;
   }

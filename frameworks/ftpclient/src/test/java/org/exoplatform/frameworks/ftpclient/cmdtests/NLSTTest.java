@@ -28,39 +28,39 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPasv;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class NLSTTest extends TestCase {
-  
+
   private static Log log = new Log("NLSTTest");
-  
+
   public void testNLST() throws Exception {
     log.info("Test...");
 
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
-    
+
     {
       CmdNlst cmdNlst = new CmdNlst();
       assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdNlst));
     }
-    
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-    
+
     {
       CmdNlst cmdNlst = new CmdNlst();
-      assertEquals(FtpConst.Replyes.REPLY_425, client.executeCommand(cmdNlst));      
+      assertEquals(FtpConst.Replyes.REPLY_425, client.executeCommand(cmdNlst));
     }
 
     {
@@ -68,31 +68,30 @@ public class NLSTTest extends TestCase {
         CmdPasv cmdPasv = new CmdPasv();
         assertEquals(FtpConst.Replyes.REPLY_227, client.executeCommand(cmdPasv));
       }
-      
+
       {
         CmdNlst cmdNlst = new CmdNlst("NotExistFolder");
-        assertEquals(FtpConst.Replyes.REPLY_450, client.executeCommand(cmdNlst));      
-      }    
+        assertEquals(FtpConst.Replyes.REPLY_450, client.executeCommand(cmdNlst));
+      }
     }
-    
+
     {
       {
         CmdPasv cmdPasv = new CmdPasv();
         assertEquals(FtpConst.Replyes.REPLY_227, client.executeCommand(cmdPasv));
       }
-      
+
       // Normal executing replies sequence 125..226
       // 125 used in NLst command inside
       {
         CmdNlst cmdNlst = new CmdNlst();
-        assertEquals(FtpConst.Replyes.REPLY_226, client.executeCommand(cmdNlst));      
-      }    
+        assertEquals(FtpConst.Replyes.REPLY_226, client.executeCommand(cmdNlst));
+      }
     }
-    
+
     client.close();
-    
+
     log.info("Complete.\r\n");
-  }  
+  }
 
 }
-

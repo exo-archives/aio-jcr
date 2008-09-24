@@ -34,7 +34,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 
-public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob implements ItemsPersistenceListener {
+public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob implements
+    ItemsPersistenceListener {
 
   private static Log                        log = ExoLogger.getLogger("ext.IncrementalBackupJob");
 
@@ -43,7 +44,7 @@ public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob imp
   public AbstractIncrementalBackupJob() {
     this.suspendBuffer = new ArrayList<ItemStateChangesLog>();
     this.id = 1;
-    
+
     notifyListeners();
   }
 
@@ -70,17 +71,17 @@ public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob imp
    * @see java.lang.Runnable#run()
    */
   public final void run() {
-    // TODO [PN] listener was added but never will be removed    
+    // TODO [PN] listener was added but never will be removed
     repository.addItemPersistenceListener(workspaceName, this);
     state = WORKING;
-    
+
     notifyListeners();
   }
 
   public final void suspend() {
     state = WAITING;
     id++;
-    
+
     notifyListeners();
   }
 
@@ -92,7 +93,7 @@ public abstract class AbstractIncrementalBackupJob extends AbstractBackupJob imp
       }
       suspendBuffer.clear();
       state = WORKING;
-      
+
       notifyListeners();
     } catch (FileNotFoundException e) {
       log.error("Incremental backup: resume failed ", e);

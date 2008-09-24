@@ -31,35 +31,38 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class SearchCommand {
-  
+
   public Response search(Session session, HierarchicalProperty body, String baseURI) {
     try {
       SearchRequestEntity requestEntity = new SearchRequestEntity(body);
-      
-      Query query = session.getWorkspace().getQueryManager().
-        createQuery(requestEntity.getQuery(), requestEntity.getQueryLanguage());
+
+      Query query = session.getWorkspace()
+                           .getQueryManager()
+                           .createQuery(requestEntity.getQuery(), requestEntity.getQueryLanguage());
       QueryResult queryResult = query.execute();
-      
+
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
-      SearchResultResponseEntity searchResult = new SearchResultResponseEntity(queryResult, nsContext, baseURI);
-      
-      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(searchResult).build();      
+      SearchResultResponseEntity searchResult = new SearchResultResponseEntity(queryResult,
+                                                                               nsContext,
+                                                                               baseURI);
+
+      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(searchResult).build();
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
-      
+
     } catch (UnsupportedQueryException exc) {
       return Response.Builder.badRequest().build();
-      
+
     } catch (Exception exc) {
       return Response.Builder.serverError().build();
     }
-    
+
   }
 
 }

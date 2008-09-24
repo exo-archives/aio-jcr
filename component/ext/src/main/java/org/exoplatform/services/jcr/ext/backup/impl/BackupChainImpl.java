@@ -68,8 +68,12 @@ public class BackupChainImpl implements BackupChain {
 
   private Set<BackupJobListener>       listeners = new LinkedHashSet<BackupJobListener>();
 
-  public BackupChainImpl(BackupConfig config, File logDirectory, ManageableRepository repository, String fullBackupType, 
-      String incrementalBackupType) throws BackupOperationException, BackupConfigurationException {
+  public BackupChainImpl(BackupConfig config,
+                         File logDirectory,
+                         ManageableRepository repository,
+                         String fullBackupType,
+                         String incrementalBackupType) throws BackupOperationException,
+      BackupConfigurationException {
     this.config = config;
     this.jobs = new ArrayList<BackupJob>();
     this.chainLog = new BackupChainLog(logDirectory, config, fullBackupType, incrementalBackupType);
@@ -84,18 +88,19 @@ public class BackupChainImpl implements BackupChain {
 
     if (config.getBuckupType() == BackupManager.FULL_AND_INCREMENTAL) {
       try {
-        this.incrementalBackup = (AbstractIncrementalBackupJob) Class.forName(incrementalBackupType).newInstance();
+        this.incrementalBackup = (AbstractIncrementalBackupJob) Class.forName(incrementalBackupType)
+                                                                     .newInstance();
       } catch (Exception e) {
         throw new BackupConfigurationException("IncrementalBackupType error, " + e, e);
       }
       incrementalBackup.init(repository, config.getWorkspace(), config, timeStamp);
 
-      periodConroller = new PeriodConroller(config.getIncrementalJobPeriod() * 1000); //sec --> ms
+      periodConroller = new PeriodConroller(config.getIncrementalJobPeriod() * 1000); // sec --> ms
     }
     this.state = INITIALIZED;
-    this.timer =
-        new Timer("BackupChain_" + getBackupConfig().getRepository() + "@" + getBackupConfig().getWorkspace() + "_PeriodTimer_"
-            + new SimpleDateFormat("yyyyMMdd.HHmmss.SSS").format(new Date()), true);
+    this.timer = new Timer("BackupChain_" + getBackupConfig().getRepository() + "@"
+        + getBackupConfig().getWorkspace() + "_PeriodTimer_"
+        + new SimpleDateFormat("yyyyMMdd.HHmmss.SSS").format(new Date()), true);
   }
 
   /**
@@ -154,7 +159,8 @@ public class BackupChainImpl implements BackupChain {
 
     addJobListeners(fullBackup);
 
-    Thread fexecutor = new Thread(fullBackup, config.getRepository() + "@" + config.getWorkspace() + "-" + fullBackup.getId());
+    Thread fexecutor = new Thread(fullBackup, config.getRepository() + "@" + config.getWorkspace()
+        + "-" + fullBackup.getId());
     fexecutor.start();
     state |= FULL_WORKING;
     chainLog.addJobEntry(fullBackup);
@@ -163,8 +169,8 @@ public class BackupChainImpl implements BackupChain {
     if (incrementalBackup != null) {
       addJobListeners(incrementalBackup);
 
-      Thread iexecutor =
-          new Thread(incrementalBackup, config.getRepository() + "@" + config.getWorkspace() + "-" + incrementalBackup.getId());
+      Thread iexecutor = new Thread(incrementalBackup, config.getRepository() + "@"
+          + config.getWorkspace() + "-" + incrementalBackup.getId());
       iexecutor.start();
       state |= INCREMENTAL_WORKING;
       chainLog.addJobEntry(incrementalBackup);
@@ -201,7 +207,7 @@ public class BackupChainImpl implements BackupChain {
     chainLog.addJobEntry(incrementalBackup);
 
     // [PN] 05.02.2008 don't add same job
-    //jobs.add(incrementalBackup);
+    // jobs.add(incrementalBackup);
   }
 
   public BackupConfig getBackupConfig() {

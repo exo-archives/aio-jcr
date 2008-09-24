@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataManager {
 
-  private static Log                          log = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
+  private static Log                            log = ExoLogger.getLogger("jcr.ACLInheritanceSupportedWorkspaceDataManager");
 
   protected final CacheableWorkspaceDataManager persistentManager;
 
@@ -53,7 +53,8 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
    * Traverse items parents in persistent storage for ACL containing parent. Same work is made in
    * SessionDataManager.getItemData(NodeData, QPathEntry[]) but for session scooped items.
    * 
-   * @param node - item
+   * @param node
+   *          - item
    * @return - parent or null
    * @throws RepositoryException
    */
@@ -74,8 +75,10 @@ public class ACLInheritanceSupportedWorkspaceDataManager implements SharedDataMa
   }
 
   /**
-   * @param parent - a parent, can be null (get item by id)
-   * @param data - an item data
+   * @param parent
+   *          - a parent, can be null (get item by id)
+   * @param data
+   *          - an item data
    * @return - an item data with ACL was initialized
    * @throws RepositoryException
    */

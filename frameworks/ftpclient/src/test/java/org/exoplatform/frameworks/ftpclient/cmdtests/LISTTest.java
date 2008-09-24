@@ -28,39 +28,39 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPasv;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class LISTTest extends TestCase {
-  
+
   private static Log log = new Log("LISTTest");
-  
+
   public void testLIST() throws Exception {
     log.info("Test...");
 
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
-    
+
     {
       CmdList cmdList = new CmdList();
       assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdList));
     }
-    
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-    
+
     {
       CmdList cmdList = new CmdList();
-      assertEquals(FtpConst.Replyes.REPLY_425, client.executeCommand(cmdList));      
+      assertEquals(FtpConst.Replyes.REPLY_425, client.executeCommand(cmdList));
     }
 
     {
@@ -71,10 +71,10 @@ public class LISTTest extends TestCase {
 
       {
         CmdList cmdList = new CmdList("NotExistFolder");
-        assertEquals(FtpConst.Replyes.REPLY_450, client.executeCommand(cmdList));      
-      }          
+        assertEquals(FtpConst.Replyes.REPLY_450, client.executeCommand(cmdList));
+      }
     }
-    
+
     {
       {
         CmdPasv cmdPasv = new CmdPasv();
@@ -85,14 +85,13 @@ public class LISTTest extends TestCase {
       // 125 used in List command inside
       {
         CmdList cmdList = new CmdList();
-        assertEquals(FtpConst.Replyes.REPLY_226, client.executeCommand(cmdList));      
-      }          
+        assertEquals(FtpConst.Replyes.REPLY_226, client.executeCommand(cmdList));
+      }
     }
-    
+
     client.close();
-    
+
     log.info("Complete.\r\n");
-  }  
+  }
 
 }
-

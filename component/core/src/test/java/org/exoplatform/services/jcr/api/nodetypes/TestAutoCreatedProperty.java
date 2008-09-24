@@ -33,20 +33,18 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Alex Reshetnyak
- *          alex.reshetnyak@exoplatform.com.ua
- *          reshetnyak.alex@gmail.com		
- * 13.03.2007 18:00:03 
- * @version $Id: TestAutoCreatedProperty.java 13.03.2007 18:00:03 rainfox 
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * reshetnyak.alex@gmail.com 13.03.2007 18:00:03
+ * 
+ * @version $Id: TestAutoCreatedProperty.java 13.03.2007 18:00:03 rainfox
  */
-public class TestAutoCreatedProperty  extends JcrImplBaseTest{
-  
+public class TestAutoCreatedProperty extends JcrImplBaseTest {
+
   private NodeTypeManagerImpl ntManager = null;
-  
+
   public void setUp() throws Exception {
     super.setUp();
-    
+
     byte[] xmlData = readXmlContent("/org/exoplatform/services/jcr/api/nodetypes/nodetypes-api-test.xml");
     ByteArrayInputStream xmlInput = new ByteArrayInputStream(xmlData);
     ntManager = (NodeTypeManagerImpl) session.getWorkspace().getNodeTypeManager();
@@ -55,54 +53,66 @@ public class TestAutoCreatedProperty  extends JcrImplBaseTest{
     assertNotNull(ntManager.getNodeType("exo:refRoot"));
     assertNotNull(ntManager.getNodeType("exo:autoCreate2"));
   }
-  
-  public void testAutoCreated() throws ItemExistsException, PathNotFoundException, NoSuchNodeTypeException, LockException, VersionException, ConstraintViolationException, RepositoryException{
-    Node autoCreated = root.addNode("NODE","exo:autoCreate");
+
+  public void testAutoCreated() throws ItemExistsException,
+                               PathNotFoundException,
+                               NoSuchNodeTypeException,
+                               LockException,
+                               VersionException,
+                               ConstraintViolationException,
+                               RepositoryException {
+    Node autoCreated = root.addNode("NODE", "exo:autoCreate");
     autoCreated.setProperty("jcr:data", "123123123");
     session.save();
-    
+
     Node dest = root.getNode("NODE");
-    
+
     String prop = null;
-    
+
     try {
       prop = dest.getProperty("jcr:autoCreateProperty").getString();
       fail("Error: 'jcr:autoCreateProperty' ...");
     } catch (PathNotFoundException e) {
-      //ok
+      // ok
       assertNull(prop);
     }
-    
+
     String data = dest.getProperty("jcr:data").getString();
     assertEquals(data, "123123123");
   }
-  
-  public void testAutoCreated2() throws ItemExistsException, PathNotFoundException, NoSuchNodeTypeException, LockException, VersionException, ConstraintViolationException, RepositoryException{
-    Node autoCreated = root.addNode("NODE2","exo:autoCreate2");
+
+  public void testAutoCreated2() throws ItemExistsException,
+                                PathNotFoundException,
+                                NoSuchNodeTypeException,
+                                LockException,
+                                VersionException,
+                                ConstraintViolationException,
+                                RepositoryException {
+    Node autoCreated = root.addNode("NODE2", "exo:autoCreate2");
     autoCreated.setProperty("jcr:data", "123123123");
     session.save();
-    
+
     Node dest = root.getNode("NODE2");
-    
+
     String prop = null;
-    
+
     try {
       prop = dest.getProperty("jcr:autoCreateProperty").getString();
       fail("Error: 'jcr:autoCreateProperty2' ...");
     } catch (PathNotFoundException e) {
-      //ok
+      // ok
       assertNull(prop);
     }
-    
+
     String data = dest.getProperty("jcr:data").getString();
     assertEquals(data, "123123123");
   }
-  
+
   private byte[] readXmlContent(String fileName) {
     try {
       InputStream is = TestValueConstraints.class.getResourceAsStream(fileName);
       ByteArrayOutputStream output = new ByteArrayOutputStream();
-        int r = is.available();
+      int r = is.available();
       byte[] bs = new byte[r];
       while (r > 0) {
         r = is.read(bs);
@@ -118,5 +128,5 @@ public class TestAutoCreatedProperty  extends JcrImplBaseTest{
       return null;
     }
   }
- 
+
 }

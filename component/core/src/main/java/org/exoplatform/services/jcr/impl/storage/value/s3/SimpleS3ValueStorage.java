@@ -25,15 +25,18 @@ import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
  * @version $Id: SimpleS3ValueStorage.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class SimpleS3ValueStorage extends S3ValueStorage {
-  
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.storage.value.ValueStoragePlugin#openIOChannel()
    */
   public ValueIOChannel openIOChannel() throws IOException {
-    return new SimpleS3IOChannel(bucket, awsAccessKey,
-        awsSecretAccessKey, s3SwapDirectory, cleaner, getId());
+    return new SimpleS3IOChannel(bucket,
+                                 awsAccessKey,
+                                 awsSecretAccessKey,
+                                 s3SwapDirectory,
+                                 cleaner,
+                                 getId());
   }
 
 }

@@ -39,11 +39,10 @@ import org.exoplatform.services.jcr.load.blob.thread.ReadThread;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 19.10.2006 Subjetc of the test it's to
- * test BLOB data storing in eXo JCR with/without swap/binary.temp storages in
- * concurent environment. Also can be used for test eXo JCR without values
- * storage.
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 19.10.2006 Subjetc of the test it's to test BLOB data storing in eXo JCR with/without
+ * swap/binary.temp storages in concurent environment. Also can be used for test eXo JCR without
+ * values storage.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestConcurrentItems.java 11962 2008-03-16 16:31:14Z gazarenkov $
@@ -118,7 +117,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
   public void _testReadSame() throws Exception {
     // creators
-    Session csession = repository.login(this.credentials /*session.getCredentials()*/, "ws1");
+    Session csession = repository.login(this.credentials /* session.getCredentials() */, "ws1");
     String nodeName = IdGenerator.generate();
     InputStream dataStream = null;
     try {
@@ -144,7 +143,10 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
     log.info("Begin readers...");
     for (int i = 0; i < 10; i++) {
-      ReadThread readed = new ReadThread(repository.login(this.credentials /*session.getCredentials()*/, "ws1"));
+      ReadThread readed = new ReadThread(repository.login(this.credentials /*
+                                                                            * session.getCredentials(
+                                                                            * )
+                                                                            */, "ws1"));
       readed.start();
       readers.add(readed);
       try {
@@ -194,7 +196,10 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
   public void _testReadWriteSet() throws Exception {
     // creators
-    CreateThread creator = new CreateThread(repository.login(this.credentials /*session.getCredentials()*/, "ws1"));
+    CreateThread creator = new CreateThread(repository.login(this.credentials /*
+                                                                               * session.getCredentials
+                                                                               * ()
+                                                                               */, "ws1"));
     creator.start();
     try {
       log.info("Wait 20 sec. for CreateThread");
@@ -207,7 +212,10 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
     log.info("Begin readers...");
     for (int i = 0; i < 5; i++) {
-      ReadThread readed = new ReadThread(repository.login(this.credentials /*session.getCredentials()*/, "ws1"));
+      ReadThread readed = new ReadThread(repository.login(this.credentials /*
+                                                                            * session.getCredentials(
+                                                                            * )
+                                                                            */, "ws1"));
       readed.start();
       readers.add(readed);
       try {
@@ -218,7 +226,10 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
     }
 
     log.info("Begin cleaner...");
-    DeleteThread cleaner = new DeleteThread(repository.login(this.credentials /*session.getCredentials()*/, "ws1"));
+    DeleteThread cleaner = new DeleteThread(repository.login(this.credentials /*
+                                                                               * session.getCredentials
+                                                                               * ()
+                                                                               */, "ws1"));
     cleaner.start();
 
     log.info("<<<<<<<<<<<<<<<<<<<< Wait cycle >>>>>>>>>>>>>>>>>>>>>");
@@ -349,7 +360,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
   public void _testAddNtBig() throws Exception {
     // creators
-    Session csession = repository.login(this.credentials /*session.getCredentials()*/, "ws1");
+    Session csession = repository.login(this.credentials /* session.getCredentials() */, "ws1");
     String nodeName = IdGenerator.generate();
     InputStream dataStream = null;
     try {

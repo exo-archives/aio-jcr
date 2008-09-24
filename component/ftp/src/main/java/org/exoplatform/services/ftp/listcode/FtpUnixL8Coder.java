@@ -19,8 +19,8 @@ package org.exoplatform.services.ftp.listcode;
 import org.exoplatform.services.ftp.FtpTextUtils;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
@@ -36,10 +36,16 @@ public class FtpUnixL8Coder implements FtpSystemCoder {
     day = FtpTextUtils.getStrachedAtStart(day, 2);
     String time = fileInfo.getTime();
     String name = fileInfo.getName();
-    
+
     return String.format("%s %s %s %s %s %s %s %s",
-        attr, subFolders, ftpDescr,
-        size, month, day, time, name);
+                         attr,
+                         subFolders,
+                         ftpDescr,
+                         size,
+                         month,
+                         day,
+                         time,
+                         name);
   }
-  
+
 }

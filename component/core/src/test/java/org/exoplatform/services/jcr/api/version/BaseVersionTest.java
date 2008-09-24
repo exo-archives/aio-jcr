@@ -33,8 +33,8 @@ import javax.jcr.version.VersionHistory;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 24.02.2006
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 24.02.2006
  */
 public class BaseVersionTest extends JcrAPIBaseTest {
 
@@ -47,10 +47,11 @@ public class BaseVersionTest extends JcrAPIBaseTest {
   protected Node    nonVersionableNode = null;
 
   class BaseVersionFinder {
-    
-    private Version baseVersion = null;
+
+    private Version baseVersion      = null;
+
     private boolean baseVersionFound = false;
-    
+
     BaseVersionFinder(Version baseVersion) {
       this.baseVersion = baseVersion;
     }
@@ -58,11 +59,12 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     public Version getBaseVersion() {
       return baseVersion;
     }
-    
+
     public boolean check(Version someVersion) throws RepositoryException {
-      
-      if (baseVersionFound) return false;
-      
+
+      if (baseVersionFound)
+        return false;
+
       baseVersionFound = baseVersion.isSame(someVersion);
       return baseVersionFound;
     }
@@ -70,8 +72,8 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     public boolean isBaseVersionFound() {
       return baseVersionFound;
     }
-  }  
-  
+  }
+
   public void setUp() throws Exception {
     super.setUp();
 
@@ -79,11 +81,13 @@ public class BaseVersionTest extends JcrAPIBaseTest {
 
     // build persistent versionable and non-versionable nodes
     try {
-      versionableNode = prepareVersionableNode(root, "versionableFolder1", ntManager.getNodeType("nt:folder"));
+      versionableNode = prepareVersionableNode(root,
+                                               "versionableFolder1",
+                                               ntManager.getNodeType("nt:folder"));
     } catch (RepositoryException e) {
       fail("Failed to create versionable test node." + e.getMessage());
     }
-    
+
     try {
       nonVersionableNode = root.addNode("nonVersionableFolder1", "nt:unstructured");
       root.save();
@@ -92,8 +96,7 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     }
   }
 
-  protected Node prepareVersionableNode(Node parent, String name, NodeType nodetype)
-      throws RepositoryException {
+  protected Node prepareVersionableNode(Node parent, String name, NodeType nodetype) throws RepositoryException {
     Node versionable = parent.addNode(name, nodetype.getName());
     if (!nodetype.isNodeType("mix:versionable")) {
       versionable.addMixin("mix:versionable");
@@ -102,84 +105,84 @@ public class BaseVersionTest extends JcrAPIBaseTest {
 
     return versionable;
   }
-  
+
   protected void checkNotExisted(String nodeRelPath) throws RepositoryException {
     try {
       Node doc = versionableNode.getNode(nodeRelPath);
-      fail("A child node '"+nodeRelPath+"' must not be found");      
-    } catch(PathNotFoundException e) {
+      fail("A child node '" + nodeRelPath + "' must not be found");
+    } catch (PathNotFoundException e) {
       // success
-    } 
+    }
   }
-  
+
   protected Node checkExisted(String nodeRelPath) throws RepositoryException {
     return checkExisted(nodeRelPath, null);
   }
-  
+
   protected Node checkExisted(String nodeRelPath, String[] properties) throws RepositoryException {
     try {
       Node doc = versionableNode.getNode(nodeRelPath);
-      //PropertyIterator pi = doc1.getProperties();
-      //NodeIterator ni = doc1.getNodes();
-      log.info("Node '"+nodeRelPath+"' found in versionable node: " + versionableNode.getPath());
+      // PropertyIterator pi = doc1.getProperties();
+      // NodeIterator ni = doc1.getNodes();
+      log.info("Node '" + nodeRelPath + "' found in versionable node: " + versionableNode.getPath());
       if (properties != null) {
-        for (String p: properties) {
+        for (String p : properties) {
           try {
-            String pValue = doc.getProperty(p).getString();        
-            log.info("Node '"+nodeRelPath+"' property "+p+": " + pValue);
-          } catch(PathNotFoundException e) {
-            fail("A child node's '"+nodeRelPath+"' property '"+p+"' must be found");
+            String pValue = doc.getProperty(p).getString();
+            log.info("Node '" + nodeRelPath + "' property " + p + ": " + pValue);
+          } catch (PathNotFoundException e) {
+            fail("A child node's '" + nodeRelPath + "' property '" + p + "' must be found");
           }
         }
       }
       return doc;
-    } catch(PathNotFoundException e) {
-      fail("A child node '"+nodeRelPath+"' must be found");
+    } catch (PathNotFoundException e) {
+      fail("A child node '" + nodeRelPath + "' must be found");
     }
     return null;
   }
-  
+
   protected void makeVersionable(Node anNode) throws RepositoryException {
     if (!anNode.isNodeType("mix:versionable")) {
       anNode.addMixin("mix:versionable");
     }
   }
-  
+
   // [PN] 06.05.06
   protected void checkVersionHistory(Node versionable, int versionCount) throws RepositoryException {
-    
+
     VersionHistory vHistory = versionable.getVersionHistory();
     Version rootVersion = vHistory.getRootVersion();
     log.info("rootVersion " + rootVersion.getPath());
     Version baseVersion = versionable.getBaseVersion();
     log.info("baseVersion " + baseVersion.getPath());
-    
-    BaseVersionFinder baseVersionFinder = new BaseVersionFinder(baseVersion); 
-    
+
+    BaseVersionFinder baseVersionFinder = new BaseVersionFinder(baseVersion);
+
     List<Value> refs = traverseVersionSubTree(rootVersion, baseVersionFinder, vHistory, "  --");
     if (refs.size() != versionCount) {
-      fail("Version history contains not all versions for node " + versionable.getPath() 
-          + ", expected:" + versionCount + " was:" + refs.size());    
+      fail("Version history contains not all versions for node " + versionable.getPath()
+          + ", expected:" + versionCount + " was:" + refs.size());
     }
     if (!baseVersionFinder.isBaseVersionFound()) {
-      fail("Base version not founded in version history tree for node " + versionable.getPath() 
+      fail("Base version not founded in version history tree for node " + versionable.getPath()
           + ", but exists if call versionable.getBaseVersion() " + baseVersion.getPath());
     }
   }
-  
+
   protected void showVersionable(Node versionable) throws RepositoryException {
-    
+
     VersionHistory vHistory = versionable.getVersionHistory();
     Version baseVersion = versionable.getBaseVersion();
-    
-    BaseVersionFinder baseVersionFinder = new BaseVersionFinder(baseVersion); 
-    
+
+    BaseVersionFinder baseVersionFinder = new BaseVersionFinder(baseVersion);
+
     String vinfo = "";
     // show prececessors
     try {
       Property predecessors = versionable.getProperty("jcr:predecessors");
       String pstr = "";
-      for (Value p: predecessors.getValues()) {
+      for (Value p : predecessors.getValues()) {
         pstr += "\n    -- ";
         Version pv = (Version) session.getNodeByUUID(p.getString());
         if (baseVersionFinder.check(pv))
@@ -187,18 +190,18 @@ public class BaseVersionTest extends JcrAPIBaseTest {
         else
           pstr += pv.getPath();
         String[] pvls = vHistory.getVersionLabels(pv);
-        for (String pvl: pvls)
+        for (String pvl : pvls)
           pstr += ", " + pvl;
       }
       vinfo += "\n  jcr:predecessors " + pstr;
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
     }
-    
+
     // show successors
     try {
       Property sucessors = versionable.getProperty("jcr:successors");
       String pstr = "";
-      for (Value s: sucessors.getValues()) {
+      for (Value s : sucessors.getValues()) {
         pstr += "\n    -- ";
         Version sv = (Version) session.getNodeByUUID(s.getString());
         if (baseVersionFinder.check(sv))
@@ -206,38 +209,45 @@ public class BaseVersionTest extends JcrAPIBaseTest {
         else
           pstr += sv.getPath();
         String[] svls = vHistory.getVersionLabels(sv);
-        for (String svl: svls)
+        for (String svl : svls)
           pstr += ", " + svl;
       }
       vinfo += "\n  jcr:successors " + pstr;
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
     }
-    
-    log.info("versionable " + versionable.getPath() + "\n  jcr:baseVersion " + baseVersion.getPath() + vinfo);
+
+    log.info("versionable " + versionable.getPath() + "\n  jcr:baseVersion "
+        + baseVersion.getPath() + vinfo);
   }
-  
-  protected List<Value> traverseVersionSubTree(Version ver, BaseVersionFinder baseVersionFinder, VersionHistory vHistory, String outPrefix) throws RepositoryException {
-    
+
+  protected List<Value> traverseVersionSubTree(Version ver,
+                                               BaseVersionFinder baseVersionFinder,
+                                               VersionHistory vHistory,
+                                               String outPrefix) throws RepositoryException {
+
     List<Value> successorsRefs = new ArrayList<Value>();
     String vlInfo = "";
     String[] versionLabels = vHistory.getVersionLabels(ver);
-    for (String vl: versionLabels) {
+    for (String vl : versionLabels) {
       vlInfo += (vlInfo.length() > 0 ? ", " + vl : vl);
     }
     if (baseVersionFinder.check(ver)) {
       // this is a base version
-      vlInfo = (vlInfo.length()>0 ? " [" + vlInfo + "]" : "") + " >>>Base version<<<  ";  
+      vlInfo = (vlInfo.length() > 0 ? " [" + vlInfo + "]" : "") + " >>>Base version<<<  ";
     } else {
-      vlInfo = (vlInfo.length()>0 ? " [" + vlInfo + "]" : "");
+      vlInfo = (vlInfo.length() > 0 ? " [" + vlInfo + "]" : "");
     }
     log.info(outPrefix + " " + ver.getName() + vlInfo);
     Value[] versionSuccessors = getSucessors(ver);
     if (versionSuccessors != null) {
-      for (Value sv: versionSuccessors) {
+      for (Value sv : versionSuccessors) {
         Version successor = (Version) session.getNodeByUUID(sv.getString());
         if (successor != null) {
           successorsRefs.add(sv);
-          List<Value> successorSuccessors = traverseVersionSubTree(successor, baseVersionFinder, vHistory, "  " + outPrefix);
+          List<Value> successorSuccessors = traverseVersionSubTree(successor,
+                                                                   baseVersionFinder,
+                                                                   vHistory,
+                                                                   "  " + outPrefix);
           if (successorSuccessors != null) {
             successorsRefs.addAll(successorSuccessors);
           }
@@ -248,41 +258,41 @@ public class BaseVersionTest extends JcrAPIBaseTest {
     }
     return successorsRefs;
   }
-  
+
   protected Value[] showSucessors(Version ver, String outPrefix) throws RepositoryException {
     String vp = (outPrefix != null ? outPrefix : " ? ");
     try {
       Value[] refs = getSucessors(ver);
-      for (Value ref: refs) {
+      for (Value ref : refs) {
         log.info(vp + " sucessor: " + ref.getString());
       }
       return refs;
     } catch (PathNotFoundException e) {
-      //fail("Property jcr:successors must exists for " + vp);
+      // fail("Property jcr:successors must exists for " + vp);
       return null;
-    }    
+    }
   }
-  
+
   protected Value[] getSucessors(Version ver) throws RepositoryException {
     try {
       Property successors = ver.getProperty("jcr:successors");
       return successors.getValues();
     } catch (PathNotFoundException e) {
-      //fail("Property jcr:successors must exists for " + vp);
+      // fail("Property jcr:successors must exists for " + vp);
       return null;
-    }    
+    }
   }
-  
+
   protected void tearDown() throws Exception {
     try {
       versionableNode.checkout();
       versionableNode.remove();
       nonVersionableNode.remove();
       root.save();
-    } catch(InvalidItemStateException e) {
-      log.error("Error of tear down: " + e);    
+    } catch (InvalidItemStateException e) {
+      log.error("Error of tear down: " + e);
     }
-    
+
     super.tearDown();
   }
 }

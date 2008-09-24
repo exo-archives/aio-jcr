@@ -27,24 +27,24 @@ import javax.jcr.query.QueryResult;
  */
 public class MassiveRangeTest extends AbstractQueryTest {
 
-    /**
-     * Executes a range query covering 2'000 different property values.
-     */
-    public void testRangeQuery() throws RepositoryException {
-        int count = 0;
-        for (int i = 0; i < 20; i++) {
-            Node child = testRootNode.addNode("node" + i);
-            for (int j = 0; j < 100; j++) {
-                Node n = child.addNode("node" + j);
-                n.setProperty("foo", count++);
-            }
-            // save every 100 nodes
-            testRootNode.save();
-        }
-
-        QueryManager qm = superuser.getWorkspace().getQueryManager();
-        String stmt = testPath + "//*[@foo >= 0]";
-        QueryResult res = qm.createQuery(stmt, Query.XPATH).execute();
-        checkResult(res, 2000);
+  /**
+   * Executes a range query covering 2'000 different property values.
+   */
+  public void testRangeQuery() throws RepositoryException {
+    int count = 0;
+    for (int i = 0; i < 20; i++) {
+      Node child = testRootNode.addNode("node" + i);
+      for (int j = 0; j < 100; j++) {
+        Node n = child.addNode("node" + j);
+        n.setProperty("foo", count++);
+      }
+      // save every 100 nodes
+      testRootNode.save();
     }
+
+    QueryManager qm = superuser.getWorkspace().getQueryManager();
+    String stmt = testPath + "//*[@foo >= 0]";
+    QueryResult res = qm.createQuery(stmt, Query.XPATH).execute();
+    checkResult(res, 2000);
+  }
 }

@@ -24,6 +24,7 @@ package org.exoplatform.frameworks.jcr.command.web.fckeditor;
  */
 
 public interface AppConstants {
-  public static String DIGITAL_ASSETS_PROP = "org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsWorkspace";
+  public static String DIGITAL_ASSETS_PROP       = "org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsWorkspace";
+
   public static String DEFAULT_DIGITAL_ASSETS_WS = "digital-assets";
 }

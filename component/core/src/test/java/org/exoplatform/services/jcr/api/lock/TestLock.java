@@ -29,8 +29,8 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko
- * peter.nedonosko@exoplatform.com.ua 21.09.2006
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 21.09.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestLock.java 11908 2008-03-13 16:00:12Z ksm $
@@ -44,21 +44,20 @@ public class TestLock extends JcrAPIBaseTest {
     super.setUp();
 
     if (lockedNode == null)
-    try {
-      lockedNode = root.addNode("locked node");
-      if (lockedNode.canAddMixin("mix:lockable"))
-        lockedNode.addMixin("mix:lockable");
-      root.save();
-    } catch (RepositoryException e) {
-      fail("Child node must be accessible and readable. But error occurs: " + e);
-    }
+      try {
+        lockedNode = root.addNode("locked node");
+        if (lockedNode.canAddMixin("mix:lockable"))
+          lockedNode.addMixin("mix:lockable");
+        root.save();
+      } catch (RepositoryException e) {
+        fail("Child node must be accessible and readable. But error occurs: " + e);
+      }
   }
 
   /**
-   * Check 
-   * 1. if locked node can't be changed.
-   * 2. if session with lock tocked able to change locked property
-   *  
+   * Check 1. if locked node can't be changed. 2. if session with lock tocked able to change locked
+   * property
+   * 
    * @throws RepositoryException
    */
   public void testLock() throws RepositoryException {
@@ -70,7 +69,7 @@ public class TestLock extends JcrAPIBaseTest {
     assertTrue(nodeToLockSession1.isLocked());
     nodeToLockSession1.setProperty("property #1", "1");
     session1.save();
-    
+
     // try change property from another session
     Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
     Node nodeToLockSession2 = session2.getRootNode().getNode("testLockSesssionScoped");
@@ -81,9 +80,9 @@ public class TestLock extends JcrAPIBaseTest {
         nodeToLockSession2.setProperty("property #1", "2");
         fail("Node locked. An exception should be thrown on set property but doesn't");
       } catch (LockException e) {
-        // ok 
+        // ok
       }
-      
+
       // add lock tocken try again
       session2.addLockToken(lock.getLockToken());
       try {
@@ -91,7 +90,7 @@ public class TestLock extends JcrAPIBaseTest {
         // ok
       } catch (LockException e) {
         e.printStackTrace();
-        fail("Session has lock tocken. But an exception was thrown on set property. " + e); 
+        fail("Session has lock tocken. But an exception was thrown on set property. " + e);
       }
       // lock
     } finally {
@@ -99,12 +98,11 @@ public class TestLock extends JcrAPIBaseTest {
       session1.logout();
     }
   }
-  
+
   /**
-   * Check if session scoped lock
-   * 1. Will disallow another session to change the node till the lock session live
-   * 2. Will allow the lock after the session will be logouted
-   *  
+   * Check if session scoped lock 1. Will disallow another session to change the node till the lock
+   * session live 2. Will allow the lock after the session will be logouted
+   * 
    * @throws RepositoryException
    */
   public void testLockSesssionScoped() throws RepositoryException {
@@ -116,7 +114,7 @@ public class TestLock extends JcrAPIBaseTest {
     assertTrue(nodeToLockSession1.isLocked());
     nodeToLockSession1.setProperty("property #1", "1");
     session1.save();
-    
+
     // try change property from another session
     Session session2 = repository.login(new CredentialsImpl("john", "exo".toCharArray()), "ws");
     Node nodeToLockSession2 = session2.getRootNode().getNode("testLockSesssionScoped");
@@ -126,23 +124,23 @@ public class TestLock extends JcrAPIBaseTest {
       nodeToLockSession2.setProperty("property #1", "2");
       fail("Node locked. An exception should be thrown on set property but doesn't");
     } catch (LockException e) {
-      // ok 
+      // ok
     } finally {
       session1.logout();
     }
-    
+
     try {
       // trying again...
-      // session was logouted and session scoped lock was released 
+      // session was logouted and session scoped lock was released
       nodeToLockSession2.setProperty("property #1", "2");
       // ok
     } catch (LockException e) {
-      fail("There no lock should found. But an exception was thrown on set property. " + e); 
+      fail("There no lock should found. But an exception was thrown on set property. " + e);
     } finally {
       session2.logout();
     }
   }
-  
+
   public void testLockByOwner() throws RepositoryException {
 
     try {
@@ -171,7 +169,8 @@ public class TestLock extends JcrAPIBaseTest {
       lockedNode.addNode("foo");
       session.save();
       lockedNode.lock(true, true);
-      lockedNode.getNode("foo").setProperty("bar", "bar"); // throws LockException "Node /node/foo is locked"
+      lockedNode.getNode("foo").setProperty("bar", "bar"); // throws LockException
+      // "Node /node/foo is locked"
       lockedNode.save();
       lockedNode.unlock();
     } catch (RepositoryException e) {
@@ -195,7 +194,7 @@ public class TestLock extends JcrAPIBaseTest {
     Node nodeToLockSession2 = session2.getRootNode().getNode("nodeToLockSession1");
     assertEquals(true, nodeToLockSession2.isLocked());
     session2.addLockToken(lockToken);
-    //make sure you made this operation, otherwise you can't do unlock
+    // make sure you made this operation, otherwise you can't do unlock
     try {
       nodeToLockSession2.unlock();
       assertFalse(nodeToLockSession2.isLocked());
@@ -203,39 +202,41 @@ public class TestLock extends JcrAPIBaseTest {
       fail("unlock() method should pass ok, as admin is lockOwner, but error occurs: " + e);
     }
   }
-  
+
   public void testCreateAfterLockWithFile() throws RepositoryException {
     String lockToken = "";
     String nodeName = "nodeToLockAndDelete" + System.currentTimeMillis();
     //
     try {
       {
-        Session localSession = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), "ws");
-  
-        Node folder1 = localSession.getRootNode().addNode(nodeName, "nt:folder");      
+        Session localSession = repository.login(new CredentialsImpl("admin", "admin".toCharArray()),
+                                                "ws");
+
+        Node folder1 = localSession.getRootNode().addNode(nodeName, "nt:folder");
         localSession.save();
 
         Node file1 = folder1.addNode(nodeName, "nt:file");
-        
+
         Node resourceNode = file1.addNode("jcr:content", "nt:resource");
         resourceNode.setProperty("jcr:mimeType", "text/xml");
         resourceNode.setProperty("jcr:lastModified", Calendar.getInstance());
-        resourceNode.setProperty("jcr:data", new ByteArrayInputStream("VETAL_OK".getBytes()));        
-        
+        resourceNode.setProperty("jcr:data", new ByteArrayInputStream("VETAL_OK".getBytes()));
+
         localSession.save();
-        
+
         file1.addMixin("mix:lockable");
         localSession.save();
-        
-        Lock lock = file1.lock(true, false);      
+
+        Lock lock = file1.lock(true, false);
         assertTrue(file1.isLocked());
-  
+
         lockToken = lock.getLockToken();
-        localSession.logout();      
+        localSession.logout();
       }
-      
+
       {
-        Session localSession = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), "ws");
+        Session localSession = repository.login(new CredentialsImpl("admin", "admin".toCharArray()),
+                                                "ws");
         Node folder1 = localSession.getRootNode().getNode(nodeName);
         Node file1 = folder1.getNode(nodeName);
         assertTrue(file1.isLocked());
@@ -243,28 +244,29 @@ public class TestLock extends JcrAPIBaseTest {
         localSession.save();
         localSession.logout();
       }
-  
+
       {
-        Session localSession = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), "ws");
-        
-        Node folder1 = localSession.getRootNode().getNode(nodeName);      
+        Session localSession = repository.login(new CredentialsImpl("admin", "admin".toCharArray()),
+                                                "ws");
+
+        Node folder1 = localSession.getRootNode().getNode(nodeName);
 
         Node file1 = folder1.addNode(nodeName, "nt:file");
-        
+
         Node resourceNode = file1.addNode("jcr:content", "nt:resource");
         resourceNode.setProperty("jcr:mimeType", "text/xml");
         resourceNode.setProperty("jcr:lastModified", Calendar.getInstance());
-        resourceNode.setProperty("jcr:data", new ByteArrayInputStream("VETAL_OK".getBytes()));        
-        
-        localSession.save();        
-        localSession.logout();      
+        resourceNode.setProperty("jcr:data", new ByteArrayInputStream("VETAL_OK".getBytes()));
+
+        localSession.save();
+        localSession.logout();
       }
     } catch (Exception e) {
       e.printStackTrace();
       fail("error while adding same name node: " + e);
     }
-  }  
-  
+  }
+
   public void testCopyLockedNode() throws Exception {
     Session session1 = repository.login(new CredentialsImpl("admin", "admin".toCharArray()), "ws");
     Node nodeToCopyLock = session1.getRootNode().addNode("node2testCopyLockedNode");
@@ -274,64 +276,66 @@ public class TestLock extends JcrAPIBaseTest {
     Lock lock = nodeToCopyLock.lock(true, false);// boolean isSessionScoped
     // in ECM we are using lock(true, true) without saving lockToken
     assertTrue(nodeToCopyLock.isLocked());
-    
+
     Session session2 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()), "ws");
-    
-    Node lockedNode = session2.getRootNode().getNode("node2testCopyLockedNode"); 
-    
+
+    Node lockedNode = session2.getRootNode().getNode("node2testCopyLockedNode");
+
     assertTrue(nodeToCopyLock.isLocked());
-    
-    Node destParent =  session2.getRootNode().addNode("destParent");
+
+    Node destParent = session2.getRootNode().addNode("destParent");
     session2.save();
-    session2.getWorkspace().copy(lockedNode.getPath(),destParent.getPath()+"/"+lockedNode.getName());
-    Node destCopyNode  = destParent.getNode("node2testCopyLockedNode");
-    
+    session2.getWorkspace().copy(lockedNode.getPath(),
+                                 destParent.getPath() + "/" + lockedNode.getName());
+    Node destCopyNode = destParent.getNode("node2testCopyLockedNode");
+
     assertFalse(destCopyNode.isLocked());
     try {
-      destCopyNode.lock(true,true);
+      destCopyNode.lock(true, true);
     } catch (RepositoryException e) {
       fail("to lock node");
     }
     assertTrue(destCopyNode.isLocked());
-    
+
     destCopyNode.unlock();
     nodeToCopyLock.unlock();
   }
-  
+
   public void testRemoveMixLockable() {
     try {
       lockedNode.removeMixin("mix:lockable");
       root.save();
-    } catch(RepositoryException e) {
+    } catch (RepositoryException e) {
       e.printStackTrace();
       fail("removeMixin(\"mix:lockable\") impossible due to error " + e.getMessage());
     }
   }
-  
+
   public void testRemoveMixLockableLocked() throws Exception {
-    
+
     lockedNode.lock(true, false);
-    
+
     try {
       lockedNode.removeMixin("mix:lockable");
       root.save();
-    } catch(RepositoryException e) {
+    } catch (RepositoryException e) {
       e.printStackTrace();
       fail("removeMixin(\"mix:lockable\") impossible due to error " + e.getMessage());
     }
   }
-  
+
   public void testRemoveMixLockableLockedWithoutToken() throws Exception {
-    
+
     lockedNode.lock(true, false);
-    
+
     try {
-      Session s1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()), session.getWorkspace().getName());
+      Session s1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()),
+                                    session.getWorkspace().getName());
       s1.getRootNode().getNode("locked node").removeMixin("mix:lockable");
       s1.save();
-      
+
       fail("removeMixin(\"mix:lockable\") should throw LockException if use hasn't lock token");
-    } catch(LockException e) {
+    } catch (LockException e) {
       // ok
     }
   }

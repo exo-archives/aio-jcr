@@ -45,41 +45,43 @@ public class CreateFolderCommand extends FCKConnectorXMLOutput implements Comman
     if (type == null)
       type = "";
 
-    ////  To limit browsing set Servlet init param "digitalAssetsPath"
-    //    // with desired JCR path
-    //    String rootFolderStr = (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    // // To limit browsing set Servlet init param "digitalAssetsPath"
+    // // with desired JCR path
+    // String rootFolderStr =
+    // (String)context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath"
+    // );
     //    
-    //    if(rootFolderStr == null)
-    //      rootFolderStr = "/";
+    // if(rootFolderStr == null)
+    // rootFolderStr = "/";
     //
-    //    // set current folder
-    //    String currentFolderStr = (String)context.get("CurrentFolder");
-    //    if(currentFolderStr == null)
-    //      currentFolderStr = "";
-    //    else if(currentFolderStr.length() < rootFolderStr.length())
-    //      currentFolderStr = rootFolderStr;
+    // // set current folder
+    // String currentFolderStr = (String)context.get("CurrentFolder");
+    // if(currentFolderStr == null)
+    // currentFolderStr = "";
+    // else if(currentFolderStr.length() < rootFolderStr.length())
+    // currentFolderStr = rootFolderStr;
     //
-    //    String folderName = (String)context.get("NewFolderName");
-    //    if(folderName == null)
-    //      throw new Exception("NewFolderName not defined");
+    // String folderName = (String)context.get("NewFolderName");
+    // if(folderName == null)
+    // throw new Exception("NewFolderName not defined");
     //    
-    //    String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
-    //    if(jcrMapping == null)
-    //      jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
+    // String jcrMapping = (String)context.get(GenericWebAppContext.JCR_CONTENT_MAPPING);
+    // if(jcrMapping == null)
+    // jcrMapping = DisplayResourceCommand.DEFAULT_MAPPING;
     //    
-    //    String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
-    //    if(digitalWS == null)
-    //      digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
+    // String digitalWS = (String)webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
+    // if(digitalWS == null)
+    // digitalWS = AppConstants.DEFAULT_DIGITAL_ASSETS_WS;
     //    
-    //    webCtx.setCurrentWorkspace(digitalWS);
+    // webCtx.setCurrentWorkspace(digitalWS);
     //    
-    //    Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
-    //    Node newFolder = currentFolder.addNode(folderName, "nt:folder");
-    //    currentFolder.save();
+    // Node currentFolder = (Node) webCtx.getSession().getItem(currentFolderStr);
+    // Node newFolder = currentFolder.addNode(folderName, "nt:folder");
+    // currentFolder.save();
     //    
-    //    String url = request.getContextPath()+jcrMapping+"?"+
-    //    "workspace="+digitalWS+
-    //    "&path="+currentFolderStr;
+    // String url = request.getContextPath()+jcrMapping+"?"+
+    // "workspace="+digitalWS+
+    // "&path="+currentFolderStr;
 
     String workspace = (String) webCtx.get(AppConstants.DIGITAL_ASSETS_PROP);
     if (workspace == null)
@@ -97,8 +99,9 @@ public class CreateFolderCommand extends FCKConnectorXMLOutput implements Comman
     Node newFolder = currentFolder.addNode(folderName, "nt:folder");
     currentFolder.save();
 
-    String repoName = ((ManageableRepository) webCtx.getSession().getRepository()).getConfiguration().getName();
-    
+    String repoName = ((ManageableRepository) webCtx.getSession().getRepository()).getConfiguration()
+                                                                                  .getName();
+
     String url = request.getContextPath() + makeRESTPath(repoName, workspace, currentFolderStr);
 
     initRootElement("CreateFolder", type, newFolder.getPath() + "/", url);

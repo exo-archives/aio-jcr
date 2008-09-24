@@ -30,8 +30,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.<br>
- * Helper for creating namespace mapping dependent entities like JCR path, name,
- * uuid
+ * Helper for creating namespace mapping dependent entities like JCR path, name, uuid
  * 
  * @author Gennady Azarenkov
  * @version $Id: LocationFactory.java 11907 2008-03-13 15:36:21Z ksm $
@@ -53,10 +52,12 @@ public class LocationFactory {
   /**
    * Creates JCRPath from parent path and relPath
    * 
-   * @param parentLoc parent path
-   * @param relPath related path
-   * @param setIndexIfNotDefined if necessary to set index = 1 if not defined
-   *          (usable for node's path only)
+   * @param parentLoc
+   *          parent path
+   * @param relPath
+   *          related path
+   * @param setIndexIfNotDefined
+   *          if necessary to set index = 1 if not defined (usable for node's path only)
    * @return
    * @throws RepositoryException
    */

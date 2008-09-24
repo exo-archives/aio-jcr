@@ -30,16 +30,14 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
- * 22.10.2007  
- *
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 22.10.2007
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestBinarySearch.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestBinarySearch extends JcrAPIBaseTest {
-  
+
   public void testSearchBinaryContent() throws Exception {
     Node rootNode = session.getRootNode();
     Node queryNode = rootNode.addNode("queryNode", "nt:unstructured");
@@ -74,8 +72,8 @@ public class TestBinarySearch extends JcrAPIBaseTest {
     SessionImpl querySession = (SessionImpl) repository.login(credentials, "ws");
     String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/%' ";
     QueryManager manager = querySession.getWorkspace().getQueryManager();
-    Query query = manager.createQuery(sqlQuery, Query.SQL);    
-    
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+
     QueryResult queryResult = query.execute();
     NodeIterator iter = queryResult.getNodes();
 
@@ -83,22 +81,24 @@ public class TestBinarySearch extends JcrAPIBaseTest {
     while (iter.hasNext()) {
       assertNotNull(iter.nextNode());
     }
-    
+
     sqlQuery = "//*[jcr:contains(., 'ABBA')]";
     query = manager.createQuery(sqlQuery, Query.XPATH);
-    
+
     queryResult = query.execute();
     iter = queryResult.getNodes();
 
     assertEquals("Result nodes count is wrong", 1, iter.getSize());
     while (iter.hasNext()) {
-      assertEquals("Content must be equals", "ABBA AAAA", iter.nextNode().getProperty("jcr:data").getString());
+      assertEquals("Content must be equals", "ABBA AAAA", iter.nextNode()
+                                                              .getProperty("jcr:data")
+                                                              .getString());
     }
   }
-  
+
   public void testSearchBinaryContentAnotherSessionQueryManader() throws Exception {
     SessionImpl querySession = (SessionImpl) repository.login(credentials, "ws");
-    
+
     Node rootNode = session.getRootNode();
     Node queryNode = rootNode.addNode("queryNode", "nt:unstructured");
 
@@ -132,8 +132,8 @@ public class TestBinarySearch extends JcrAPIBaseTest {
 
     String sqlQuery = "SELECT * FROM rma:record WHERE jcr:path LIKE '/queryNode/%' ";
     QueryManager manager = querySession.getWorkspace().getQueryManager();
-    Query query = manager.createQuery(sqlQuery, Query.SQL);    
-    
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+
     QueryResult queryResult = query.execute();
     NodeIterator iter = queryResult.getNodes();
 
@@ -141,18 +141,19 @@ public class TestBinarySearch extends JcrAPIBaseTest {
     while (iter.hasNext()) {
       assertNotNull(iter.nextNode());
     }
-    
+
     sqlQuery = "//*[jcr:contains(., 'ABBA')]";
     query = manager.createQuery(sqlQuery, Query.XPATH);
-    
+
     queryResult = query.execute();
     iter = queryResult.getNodes();
 
     assertEquals("Result nodes count is wrong", 1, iter.getSize());
     while (iter.hasNext()) {
-      assertEquals("Content must be equals", "ABBA AAAA", iter.nextNode().getProperty("jcr:data").getString());
+      assertEquals("Content must be equals", "ABBA AAAA", iter.nextNode()
+                                                              .getProperty("jcr:data")
+                                                              .getString());
     }
   }
-  
+
 }
- 

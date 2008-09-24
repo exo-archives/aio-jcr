@@ -21,21 +21,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public interface FtpDataTransiver {
 
   int getDataPort();
-  
+
   boolean isConnected();
-  
+
   void close();
-  
+
   InputStream getInputStream() throws IOException;
-  
+
   OutputStream getOutputStream() throws IOException;
-  
+
 }

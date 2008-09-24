@@ -23,28 +23,29 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 
-  public ProxyWorkspaceDataReceiver( CacheableWorkspaceDataManager dataManager, LockManagerImpl lockManager)
-  throws RepositoryConfigurationException {
+  public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
+                                    LockManagerImpl lockManager) throws RepositoryConfigurationException {
     this(dataManager, null, lockManager);
   }
-  
-  public ProxyWorkspaceDataReceiver( CacheableWorkspaceDataManager dataManager, SearchManager searchManager)
-  throws RepositoryConfigurationException {
+
+  public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
+                                    SearchManager searchManager) throws RepositoryConfigurationException {
     this(dataManager, searchManager, null);
   }
-  
-  public ProxyWorkspaceDataReceiver( CacheableWorkspaceDataManager dataManager)
-  throws RepositoryConfigurationException {
+
+  public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
     this(dataManager, null, null);
   }
-  
-  public ProxyWorkspaceDataReceiver( CacheableWorkspaceDataManager dataManager, SearchManager searchManager, LockManagerImpl lockManager)
-      throws RepositoryConfigurationException {
+
+  public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
+                                    SearchManager searchManager,
+                                    LockManagerImpl lockManager) throws RepositoryConfigurationException {
     dataKeeper = new WorkspaceDataManagerProxy(dataManager, searchManager, lockManager);
   }
 }

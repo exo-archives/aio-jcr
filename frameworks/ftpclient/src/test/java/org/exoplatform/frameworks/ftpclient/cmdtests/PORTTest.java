@@ -27,15 +27,15 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPort;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class PORTTest extends TestCase {
-  
+
   private static Log log = new Log("PORTTest");
-  
+
   public void testPORT() throws Exception {
     log.info("Test...");
 
@@ -44,14 +44,14 @@ public class PORTTest extends TestCase {
 
     {
       CmdPort cmdPort = new CmdPort("127.0.0.1", 80);
-      assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdPort));      
+      assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdPort));
     }
-    
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
@@ -59,22 +59,22 @@ public class PORTTest extends TestCase {
 
     {
       CmdPort cmdPort = new CmdPort(null, 80);
-      assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdPort));            
+      assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdPort));
     }
-    
+
     {
       CmdPort cmdPort = new CmdPort("invalidhost", 80);
-      assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdPort));            
+      assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdPort));
     }
 
     {
       CmdPort cmdPort = new CmdPort("127,0,0,1", 80);
-      assertEquals(FtpConst.Replyes.REPLY_200, client.executeCommand(cmdPort));            
-    }    
-    
+      assertEquals(FtpConst.Replyes.REPLY_200, client.executeCommand(cmdPort));
+    }
+
     client.close();
-    
+
     log.info("Complete.\r\n");
-  }  
+  }
 
 }

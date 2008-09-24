@@ -22,25 +22,27 @@ import java.io.InputStream;
 import javax.jcr.RepositoryException;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
- * Sep 7, 2007  
- *
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua Sep
+ * 7, 2007
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableBinaryValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public interface EditableBinaryValue extends ReadableBinaryValue {
   /**
-   * Update with <code>length</code> bytes from the specified InputStream
-   * <code>stream</code> to this binary value at <code>position</code>
+   * Update with <code>length</code> bytes from the specified InputStream <code>stream</code> to
+   * this binary value at <code>position</code>
    * 
-   * @param   stream     the data.
-   * @param   length   the number of bytes from buffer to write.
-   * @param   position position in file to write data  
+   * @param stream
+   *          the data.
+   * @param length
+   *          the number of bytes from buffer to write.
+   * @param position
+   *          position in file to write data
    * */
-  void update(InputStream stream, long length, long position) throws IOException, RepositoryException ;
- 
+  void update(InputStream stream, long length, long position) throws IOException,
+                                                             RepositoryException;
+
   /**
    * Truncates binary value to <code> size </code>
    * 
@@ -49,4 +51,3 @@ public interface EditableBinaryValue extends ReadableBinaryValue {
    */
   void setLength(long size) throws IOException, RepositoryException;
 }
- 

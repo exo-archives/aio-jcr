@@ -27,24 +27,25 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public interface NodeRepresentation {
-  
+
   /**
    * @return Mimetype for this representation.
    */
   String getMediaType() throws RepositoryException;
-  
+
   /**
-   * @return the content length or -1 if content length unknown 
+   * @return the content length or -1 if content length unknown
    * @throws RepositoryException
    */
   long getContentLenght() throws RepositoryException;
-  
+
   /**
    * @return the content encoding or null if it unknown.
    */
@@ -56,36 +57,38 @@ public interface NodeRepresentation {
    * @throws RepositoryException
    */
   InputStream getInputStream() throws IOException, RepositoryException;
-  
+
   /**
    * @return the collection of node properties name.
    */
-  Collection <String> getPropertyNames () throws RepositoryException;
-  
+  Collection<String> getPropertyNames() throws RepositoryException;
+
   /**
-   * @param name the name of properties. 
-   * @return the property with specified name. 
-   * Note that there can be multiple same name properties, in this case any one will be returned.
+   * @param name
+   *          the name of properties.
+   * @return the property with specified name. Note that there can be multiple same name properties,
+   *         in this case any one will be returned.
    */
   HierarchicalProperty getProperty(String name) throws RepositoryException;
-  
+
   /**
-   * @param name the name of properties. 
+   * @param name
+   *          the name of properties.
    * @return the properties with specified name.
    */
-  Collection <HierarchicalProperty> getProperties(String name) throws RepositoryException;
-  
+  Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException;
+
   /**
    * Get date of last modified if available.
+   * 
    * @return the date of last modified.
    * @throws RepositoryException
    */
   long getLastModified() throws RepositoryException;
-  
+
   /**
    * @return the underlying node.
    */
   Node getNode();
-  
-}
 
+}

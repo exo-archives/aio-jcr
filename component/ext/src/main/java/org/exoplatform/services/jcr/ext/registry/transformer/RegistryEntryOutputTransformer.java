@@ -31,18 +31,16 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
  */
 public class RegistryEntryOutputTransformer extends OutputEntityTransformer {
 
-  
-	@Override
-	public void writeTo(Object entity, OutputStream entityDataStream)
-			throws IOException {
-		
-		RegistryEntry regEntry = (RegistryEntry) entity;
-		PassthroughOutputTransformer transformer = new PassthroughOutputTransformer();
-		try {
-			transformer.writeTo(regEntry.getAsInputStream(), entityDataStream);
-		} catch (TransformerException tre) {
-			throw new IOException("Can't get RegistryEntry as stream " + tre);
-		}
-	}
+  @Override
+  public void writeTo(Object entity, OutputStream entityDataStream) throws IOException {
+
+    RegistryEntry regEntry = (RegistryEntry) entity;
+    PassthroughOutputTransformer transformer = new PassthroughOutputTransformer();
+    try {
+      transformer.writeTo(regEntry.getAsInputStream(), entityDataStream);
+    } catch (TransformerException tre) {
+      throw new IOException("Can't get RegistryEntry as stream " + tre);
+    }
+  }
 
 }

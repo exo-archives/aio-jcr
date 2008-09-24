@@ -21,20 +21,20 @@ import java.io.IOException;
 import org.exoplatform.services.ftp.FtpConst;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdSyst extends FtpCommandImpl {
 
   public CmdSyst() {
-    commandName = FtpConst.Commands.CMD_SYST; 
+    commandName = FtpConst.Commands.CMD_SYST;
   }
-  
-  public void run(String []params) throws IOException {
+
+  public void run(String[] params) throws IOException {
     String systemType = clientSession().getFtpServer().getConfiguration().getSystemType();
     reply(String.format(FtpConst.Replyes.REPLY_215, systemType));
   }
-  
+
 }

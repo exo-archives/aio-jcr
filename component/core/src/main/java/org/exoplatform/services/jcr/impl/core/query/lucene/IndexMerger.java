@@ -69,8 +69,8 @@ class IndexMerger extends Thread implements IndexListener {
   private final Buffer            mergeTasks       = BufferUtils.blockingBuffer(new UnboundedFifoBuffer());
 
   /**
-   * List of id <code>Term</code> that identify documents that were deleted
-   * while a merge was running.
+   * List of id <code>Term</code> that identify documents that were deleted while a merge was
+   * running.
    */
   private final List<Term>        deletedDocuments = Collections.synchronizedList(new ArrayList<Term>());
 
@@ -93,7 +93,7 @@ class IndexMerger extends Thread implements IndexListener {
    * Mutex that is acquired when replacing indexes on MultiIndex.
    */
   private final Semaphore         indexReplacement = new Semaphore(1);
-  
+
   /**
    * When released, indicates that this index merger is idle.
    */
@@ -102,7 +102,8 @@ class IndexMerger extends Thread implements IndexListener {
   /**
    * Creates an <code>IndexMerger</code>.
    * 
-   * @param multiIndex the <code>MultiIndex</code>.
+   * @param multiIndex
+   *          the <code>MultiIndex</code>.
    */
   IndexMerger(MultiIndex multiIndex) {
     this.multiIndex = multiIndex;
@@ -119,8 +120,10 @@ class IndexMerger extends Thread implements IndexListener {
   /**
    * Informs the index merger that an index was added / created.
    * 
-   * @param name the name of the index.
-   * @param numDocs the number of documents it contains.
+   * @param name
+   *          the name of the index.
+   * @param numDocs
+   *          the number of documents it contains.
    */
   void indexAdded(String name, int numDocs) {
     if (numDocs < 0) {
@@ -200,9 +203,9 @@ class IndexMerger extends Thread implements IndexListener {
   }
 
   /**
-   * When the calling thread returns this index merger will be idle, that is
-   * there will be no merge tasks pending anymore. The method returns
-   * immediately if there are currently no tasks pending at all.
+   * When the calling thread returns this index merger will be idle, that is there will be no merge
+   * tasks pending anymore. The method returns immediately if there are currently no tasks pending
+   * at all.
    */
   void waitUntilIdle() throws InterruptedException {
     mergerIdle.acquire();
@@ -211,8 +214,7 @@ class IndexMerger extends Thread implements IndexListener {
   }
 
   /**
-   * Signals this <code>IndexMerger</code> to stop and waits until it has
-   * terminated.
+   * Signals this <code>IndexMerger</code> to stop and waits until it has terminated.
    */
   void dispose() {
     if (log.isDebugEnabled())
@@ -323,7 +325,7 @@ class IndexMerger extends Thread implements IndexListener {
           try {
             if (log.isDebugEnabled())
               log.debug("replace indexes");
-            
+
             multiIndex.replaceIndexes(names, index, deletedDocuments);
           } finally {
             indexReplacement.release();
@@ -371,9 +373,8 @@ class IndexMerger extends Thread implements IndexListener {
   // ------------------------------< internal >--------------------------------
 
   /**
-   * Implements a simple struct that holds the name of an index and how many
-   * document it contains. <code>Index</code> is comparable using the number
-   * of documents it contains.
+   * Implements a simple struct that holds the name of an index and how many document it contains.
+   * <code>Index</code> is comparable using the number of documents it contains.
    */
   private static final class Index implements Comparable {
 
@@ -390,8 +391,10 @@ class IndexMerger extends Thread implements IndexListener {
     /**
      * Creates a new index struct.
      * 
-     * @param name name of an index.
-     * @param numDocs number of documents it contains.
+     * @param name
+     *          name of an index.
+     * @param numDocs
+     *          number of documents it contains.
      */
     Index(String name, int numDocs) {
       this.name = name;
@@ -401,9 +404,10 @@ class IndexMerger extends Thread implements IndexListener {
     /**
      * Indexes are first ordered by {@link #numDocs} and then by {@link #name}.
      * 
-     * @param o the other <code>Index</code>.
-     * @return a negative integer, zero, or a positive integer as this Index is
-     *         less than, equal to, or greater than the specified Index.
+     * @param o
+     *          the other <code>Index</code>.
+     * @return a negative integer, zero, or a positive integer as this Index is less than, equal to,
+     *         or greater than the specified Index.
      */
     public int compareTo(Object o) {
       Index other = (Index) o;
@@ -431,10 +435,10 @@ class IndexMerger extends Thread implements IndexListener {
     private final Index[] indexes;
 
     /**
-     * Merge task, to merge <code>indexes</code> into a new index with
-     * <code>name</code>.
+     * Merge task, to merge <code>indexes</code> into a new index with <code>name</code>.
      * 
-     * @param indexes the indexes to merge.
+     * @param indexes
+     *          the indexes to merge.
      */
     Merge(Index[] indexes) {
       this.indexes = new Index[indexes.length];
@@ -443,9 +447,8 @@ class IndexMerger extends Thread implements IndexListener {
   }
 
   /**
-   * Implements a <code>List</code> with a document limit value. An
-   * <code>IndexBucket</code> contains {@link Index}es with documents less or
-   * equal the document limit of the bucket.
+   * Implements a <code>List</code> with a document limit value. An <code>IndexBucket</code>
+   * contains {@link Index}es with documents less or equal the document limit of the bucket.
    */
   private static final class IndexBucket extends ArrayList<Index> {
 
@@ -472,9 +475,12 @@ class IndexMerger extends Thread implements IndexListener {
     /**
      * Creates a new <code>IndexBucket</code>. Limits are both inclusive.
      * 
-     * @param lower document limit.
-     * @param upper document limit.
-     * @param allowMerge if indexes in this bucket can be merged.
+     * @param lower
+     *          document limit.
+     * @param upper
+     *          document limit.
+     * @param allowMerge
+     *          if indexes in this bucket can be merged.
      */
     IndexBucket(long lower, long upper, boolean allowMerge) {
       this.lower = lower;
@@ -483,10 +489,11 @@ class IndexMerger extends Thread implements IndexListener {
     }
 
     /**
-     * Returns <code>true</code> if the number of documents fit in this
-     * <code>IndexBucket</code>; otherwise <code>false</code>
+     * Returns <code>true</code> if the number of documents fit in this <code>IndexBucket</code>;
+     * otherwise <code>false</code>
      * 
-     * @param numDocs the number of documents.
+     * @param numDocs
+     *          the number of documents.
      * @return <code>true</code> if <code>numDocs</code> fit.
      */
     boolean fits(long numDocs) {

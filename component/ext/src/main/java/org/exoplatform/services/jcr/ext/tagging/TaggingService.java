@@ -26,28 +26,29 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author eXo Platform
  * @version $Id: $
  */
 
 public interface TaggingService {
 
-  void addTag(String name, URI uri, String description, String repository, String workspace) throws RepositoryException, RepositoryConfigurationException;
-  
-  Collection <Tag> getTags(String userId);
-  
-  Collection <Tag> getTags(URI uri);
-  
-  TagRate getRate(String tagName);
-  
-  Collection <TagRate> getRates();
-  
-  Collection <TagRate> getRates(Comparator comparator);
-  
-  TagURICrossrate getCrossrate(String tagName, URI uri);
-  
-  Collection <TagURICrossrate> getCrossrate(URI uri);
-  
-}
+  void addTag(String name, URI uri, String description, String repository, String workspace) throws RepositoryException,
+                                                                                            RepositoryConfigurationException;
 
+  Collection<Tag> getTags(String userId);
+
+  Collection<Tag> getTags(URI uri);
+
+  TagRate getRate(String tagName);
+
+  Collection<TagRate> getRates();
+
+  Collection<TagRate> getRates(Comparator comparator);
+
+  TagURICrossrate getCrossrate(String tagName, URI uri);
+
+  Collection<TagURICrossrate> getCrossrate(URI uri);
+
+}

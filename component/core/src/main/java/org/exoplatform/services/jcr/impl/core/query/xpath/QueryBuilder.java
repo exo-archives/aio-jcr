@@ -33,37 +33,37 @@ import org.exoplatform.services.jcr.impl.core.query.QueryTreeBuilder;
 public class QueryBuilder implements QueryTreeBuilder {
   static {
     Set<String> languages = new HashSet<String>();
-    }
-    /**
-     * @inheritDoc
-     */
-    public QueryRootNode createQueryTree(String statement,
-                                         LocationFactory resolver,
-                                         QueryNodeFactory factory)
-            throws InvalidQueryException {
-        return XPathQueryBuilder.createQuery(statement, resolver, factory);
-    }
+  }
 
-    /**
-     * @inheritDoc
-     */
-    public boolean canHandle(String language) {
-        return Query.XPATH.equals(language);
-    }
+  /**
+   * @inheritDoc
+   */
+  public QueryRootNode createQueryTree(String statement,
+                                       LocationFactory resolver,
+                                       QueryNodeFactory factory) throws InvalidQueryException {
+    return XPathQueryBuilder.createQuery(statement, resolver, factory);
+  }
 
-    /**
-     * This builder supports {@link Query#XPATH}.
-     * @inheritDoc
-     */
-    public String[] getSupportedLanguages() {
-        return new String[]{Query.XPATH};
-    }
+  /**
+   * @inheritDoc
+   */
+  public boolean canHandle(String language) {
+    return Query.XPATH.equals(language);
+  }
 
-    /**
-     * @inheritDoc
-     */
-    public String toString(QueryRootNode root, LocationFactory resolver)
-            throws InvalidQueryException {
-        return XPathQueryBuilder.toString(root, resolver);
-    }
+  /**
+   * This builder supports {@link Query#XPATH}.
+   * 
+   * @inheritDoc
+   */
+  public String[] getSupportedLanguages() {
+    return new String[] { Query.XPATH };
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public String toString(QueryRootNode root, LocationFactory resolver) throws InvalidQueryException {
+    return XPathQueryBuilder.toString(root, resolver);
+  }
 }

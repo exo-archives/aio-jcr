@@ -36,53 +36,65 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 
 public class PersistedPropertyData extends PersistedItemData implements PropertyData {
 
-  protected List <ValueData> values;
-  protected final int type;
-  protected final boolean multiValued;
-  
-  public PersistedPropertyData(String id, QPath qpath, String parentId, int version,
-      int type, boolean multiValued) {
+  protected List<ValueData> values;
+
+  protected final int       type;
+
+  protected final boolean   multiValued;
+
+  public PersistedPropertyData(String id,
+                               QPath qpath,
+                               String parentId,
+                               int version,
+                               int type,
+                               boolean multiValued) {
     super(id, qpath, parentId, version);
     this.values = null;
     this.type = type;
     this.multiValued = multiValued;
   }
 
-  
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#getType()
    */
   public int getType() {
     return type;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#getValues()
    */
   public List<ValueData> getValues() {
     return values;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.PropertyData#isMultiValued()
    */
   public boolean isMultiValued() {
     return multiValued;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.ItemData#isNode()
    */
   public boolean isNode() {
     return false;
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow.ItemDataVisitor)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.datamodel.ItemData#accept(org.exoplatform.services.jcr.dataflow
+   * .ItemDataVisitor)
    */
   public void accept(ItemDataVisitor visitor) throws RepositoryException {
     visitor.visit(this);
-  }  
+  }
 
   /**
    * @param type
@@ -96,7 +108,7 @@ public class PersistedPropertyData extends PersistedItemData implements Property
    * @throws RepositoryException
    */
   public void setValues(List values) throws RepositoryException {
-    if(this.values == null)
+    if (this.values == null)
       this.values = values;
     else
       throw new RuntimeException("The values can not be changed ");

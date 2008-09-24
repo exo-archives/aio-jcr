@@ -16,36 +16,38 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
-
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * The <code>NodeTypeRegistryListener</code> interface allows an implementing
- * object to be informed about node type (un)registration.
- *
+ * The <code>NodeTypeRegistryListener</code> interface allows an implementing object to be informed
+ * about node type (un)registration.
+ * 
  * @see NodeTypeRegistry#addListener(NodeTypeRegistryListener)
  * @see NodeTypeRegistry#removeListener(NodeTypeRegistryListener)
  */
 public interface NodeTypeManagerListener {
 
-    /**
-     * Called when a node type has been registered.
-     *
-     * @param ntName name of the node type that has been registered
-     */
-    void nodeTypeRegistered(InternalQName ntName);
+  /**
+   * Called when a node type has been registered.
+   * 
+   * @param ntName
+   *          name of the node type that has been registered
+   */
+  void nodeTypeRegistered(InternalQName ntName);
 
-    /**
-     * Called when a node type has been re-registered.
-     *
-     * @param ntName name of the node type that has been registered
-     */
-    void nodeTypeReRegistered(InternalQName ntName);
+  /**
+   * Called when a node type has been re-registered.
+   * 
+   * @param ntName
+   *          name of the node type that has been registered
+   */
+  void nodeTypeReRegistered(InternalQName ntName);
 
-    /**
-     * Called when a node type has been deregistered.
-     *
-     * @param ntName name of the node type that has been unregistered
-     */
-    void nodeTypeUnregistered(InternalQName ntName);
+  /**
+   * Called when a node type has been deregistered.
+   * 
+   * @param ntName
+   *          name of the node type that has been unregistered
+   */
+  void nodeTypeUnregistered(InternalQName ntName);
 }

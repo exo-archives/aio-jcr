@@ -27,15 +27,14 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
  * Created by The eXo Platform SAS 04.09.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ValueStoragePluginProvider.java 12843 2007-02-16 09:11:18Z
- *          peterit $
+ * @version $Id: ValueStoragePluginProvider.java 12843 2007-02-16 09:11:18Z peterit $
  */
 public interface ValueStoragePluginProvider {
 
   /**
    * @param property
-   * @return ValueIOChannel appropriate for this property (by path, id etc) or
-   *         null if no such channel found
+   * @return ValueIOChannel appropriate for this property (by path, id etc) or null if no such
+   *         channel found
    * @throws IOException
    */
   ValueIOChannel getApplicableChannel(PropertyData property, int valueOrderNumer) throws IOException;
@@ -46,8 +45,7 @@ public interface ValueStoragePluginProvider {
    * @throws IOException
    * @throws ValueDataNotFoundException
    */
-  ValueIOChannel getChannel(String storageId) throws IOException,
-      ValueDataNotFoundException;
+  ValueIOChannel getChannel(String storageId) throws IOException, ValueDataNotFoundException;
 
   /**
    * @return an iterator through all registered plugins

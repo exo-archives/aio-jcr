@@ -21,9 +21,8 @@ import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 02.03.2007
- * 17:38:10
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 02.03.2007 17:38:10
  * 
  * @version $Id: TestReplicationLock.java 02.03.2007 17:38:10 rainfox
  */
@@ -64,20 +63,20 @@ public class ReplicationLockTest extends BaseReplicationTest {
     Thread.sleep(4 * 1000);
 
     assertEquals(false, destNodeLocked.isLocked());
- 
-    //TODO
+
+    // TODO
     // unlock destination node
-//    lock = nodeLocked.lock(false, false);
-//    session.save();
-//
-//    Thread.sleep(4 * 1000);
-//
-//    assertEquals(true, destNodeLocked.isLocked());
-//    
-//    destNodeLocked.unlock();
-//
-//    Thread.sleep(4 * 1000);
-//
-//    assertEquals(false, nodeLocked.isLocked());
+    // lock = nodeLocked.lock(false, false);
+    // session.save();
+    //
+    // Thread.sleep(4 * 1000);
+    //
+    // assertEquals(true, destNodeLocked.isLocked());
+    //    
+    // destNodeLocked.unlock();
+    //
+    // Thread.sleep(4 * 1000);
+    //
+    // assertEquals(false, nodeLocked.isLocked());
   }
 }

@@ -27,13 +27,13 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdType;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class TYPETest extends TestCase {
-  
+
   private static Log log = new Log("TYPETest");
 
   public void testTYPE() throws Exception {
@@ -41,7 +41,7 @@ public class TYPETest extends TestCase {
 
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
-    
+
     {
       CmdType cmdType = new CmdType("");
       assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdType));
@@ -51,35 +51,34 @@ public class TYPETest extends TestCase {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-    
+
     {
-      CmdType cmdType = new CmdType("a");      
+      CmdType cmdType = new CmdType("a");
       assertEquals(FtpConst.Replyes.REPLY_200, client.executeCommand(cmdType));
     }
 
     {
-      CmdType cmdType = new CmdType("i");      
+      CmdType cmdType = new CmdType("i");
       assertEquals(FtpConst.Replyes.REPLY_200, client.executeCommand(cmdType));
     }
-    
+
     {
-      CmdType cmdType = new CmdType("any");      
+      CmdType cmdType = new CmdType("any");
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdType));
     }
 
     {
-      CmdType cmdType = new CmdType("");      
+      CmdType cmdType = new CmdType("");
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdType));
-    }    
-    
+    }
+
     client.close();
-    log.info("Complete.\r\n");    
-  }  
-  
-}
+    log.info("Complete.\r\n");
+  }
 
+}

@@ -45,24 +45,25 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: ActionLauncher.java 15072 2008-06-02 13:01:26Z pnedonosko $
  */
 public class ActionLauncher implements ItemsPersistenceListener {
 
-  public final int SKIP_EVENT = Integer.MIN_VALUE; 
-  
-  private final Log log = ExoLogger.getLogger("jcr.ActionLauncher");
+  public final int                             SKIP_EVENT = Integer.MIN_VALUE;
 
-  private final ObservationManagerRegistry observationRegistry;
+  private final Log                            log        = ExoLogger.getLogger("jcr.ActionLauncher");
+
+  private final ObservationManagerRegistry     observationRegistry;
 
   private final WorkspacePersistentDataManager workspaceDataManager;
-  
-  private final SessionRegistry sessionRegistry;
+
+  private final SessionRegistry                sessionRegistry;
 
   public ActionLauncher(ObservationManagerRegistry registry,
-      WorkspacePersistentDataManager workspaceDataManager,
-      SessionRegistry sessionRegistry) {
+                        WorkspacePersistentDataManager workspaceDataManager,
+                        SessionRegistry sessionRegistry) {
     this.observationRegistry = registry;
     this.workspaceDataManager = workspaceDataManager;
     this.sessionRegistry = sessionRegistry;
@@ -72,39 +73,39 @@ public class ActionLauncher implements ItemsPersistenceListener {
   public void onSaveItems(ItemStateChangesLog changesLog) {
     EventListenerIterator eventListeners = observationRegistry.getEventListeners();
 
-    while (eventListeners.hasNext()) { 
+    while (eventListeners.hasNext()) {
 
       EventListener listener = eventListeners.nextEventListener();
       ListenerCriteria criteria = observationRegistry.getListenerFilter(listener);
 
       EntityCollection events = new EntityCollection();
-      
-      ChangesLogIterator logIterator = ((CompositeChangesLog)changesLog).getLogIterator();
+
+      ChangesLogIterator logIterator = ((CompositeChangesLog) changesLog).getLogIterator();
       while (logIterator.hasNextLog()) {
-        
+
         PlainChangesLog subLog = logIterator.nextLog();
         String sessionId = subLog.getSessionId();
-        
+
         SessionImpl userSession = sessionRegistry.getSession(sessionId);
-        
+
         if (userSession != null)
           for (ItemState itemState : subLog.getAllStates()) {
             if (itemState.isEventFire()) {
-  
+
               ItemData item = itemState.getData();
               try {
                 int eventType = eventType(itemState);
-                if (eventType != SKIP_EVENT 
-                    && isTypeMatch(criteria, eventType)
-                    && isPathMatch(criteria, item, userSession) 
+                if (eventType != SKIP_EVENT && isTypeMatch(criteria, eventType)
+                    && isPathMatch(criteria, item, userSession)
                     && isIdentifierMatch(criteria, item)
                     && isNodeTypeMatch(criteria, item, userSession, subLog)
                     && isSessionMatch(criteria, sessionId)) {
-  
-                  String path = userSession.getLocationFactory().createJCRPath(
-                      item.getQPath()).getAsString(false);
-  
-                  events.add(new EventImpl(eventType, path, userSession.getUserID())); 
+
+                  String path = userSession.getLocationFactory()
+                                           .createJCRPath(item.getQPath())
+                                           .getAsString(false);
+
+                  events.add(new EventImpl(eventType, path, userSession.getUserID()));
                 }
               } catch (RepositoryException e) {
                 log.error("Can not fire ActionLauncher.onSaveItems() for "
@@ -114,7 +115,7 @@ public class ActionLauncher implements ItemsPersistenceListener {
           }
       }
       if (events.size() > 0) {
-        // TCK says, no events - no onEvent() action   
+        // TCK says, no events - no onEvent() action
         listener.onEvent(events);
       }
     }
@@ -160,16 +161,17 @@ public class ActionLauncher implements ItemsPersistenceListener {
     for (int i = 0; i < criteria.getIdentifier().length; i++) {
       if (item.isNode() && criteria.getIdentifier()[i].equals(item.getIdentifier()))
         return true;
-      else if (!item.isNode()
-          && criteria.getIdentifier()[i].equals(item.getParentIdentifier()))
+      else if (!item.isNode() && criteria.getIdentifier()[i].equals(item.getParentIdentifier()))
         return true;
     }
     return false;
 
   }
 
-  private boolean isNodeTypeMatch(ListenerCriteria criteria, ItemData item, SessionImpl userSession, PlainChangesLog changesLog)
-      throws RepositoryException {
+  private boolean isNodeTypeMatch(ListenerCriteria criteria,
+                                  ItemData item,
+                                  SessionImpl userSession,
+                                  PlainChangesLog changesLog) throws RepositoryException {
     if (criteria.getNodeTypeName() == null)
       return true;
 
@@ -184,36 +186,38 @@ public class ActionLauncher implements ItemsPersistenceListener {
           break;
         }
       }
-    
+
       if (node == null) {
-        log.warn("Item's " + item.getQPath().getAsString() +
-                 " associated parent (" + item.getParentIdentifier() + 
-                 ") can't be found nor in workspace nor in current changes. Nodetype filter is rejected.");
+        log.warn("Item's "
+            + item.getQPath().getAsString()
+            + " associated parent ("
+            + item.getParentIdentifier()
+            + ") can't be found nor in workspace nor in current changes. Nodetype filter is rejected.");
         return false;
       }
     }
-    
+
     NodeTypeManagerImpl ntManager = userSession.getWorkspace().getNodeTypeManager();
 
     for (int i = 0; i < criteria.getNodeTypeName().length; i++) {
       ExtendedNodeType criteriaNT = (ExtendedNodeType) ntManager.getNodeType(criteria.getNodeTypeName()[i]);
       InternalQName[] testQNames;
-      if(criteriaNT.isMixin()) {
+      if (criteriaNT.isMixin()) {
         testQNames = node.getMixinTypeNames();
       } else {
         testQNames = new InternalQName[1];
         testQNames[0] = node.getPrimaryTypeName();
       }
-      if(ntManager.isNodeType(criteriaNT.getQName(), testQNames))
+      if (ntManager.isNodeType(criteriaNT.getQName(), testQNames))
         return true;
     }
     return false;
   }
 
   private int eventType(ItemState state) throws RepositoryException {
-    
-    if(state.getData().isNode()) {
-      if (state.isAdded() || state.isRenamed() || state.isUpdated()) 
+
+    if (state.getData().isNode()) {
+      if (state.isAdded() || state.isRenamed() || state.isUpdated())
         return Event.NODE_ADDED;
       else if (state.isDeleted())
         return Event.NODE_REMOVED;
@@ -231,7 +235,8 @@ public class ActionLauncher implements ItemsPersistenceListener {
       else if (state.isUnchanged())
         return SKIP_EVENT;
     }
-    throw new RepositoryException("Unexpected ItemState for Node " + ItemState.nameFromValue(state.getState())
-         + " " + state.getData().getQPath().getAsString());
+    throw new RepositoryException("Unexpected ItemState for Node "
+        + ItemState.nameFromValue(state.getState()) + " "
+        + state.getData().getQPath().getAsString());
   }
 }

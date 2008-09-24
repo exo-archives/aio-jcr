@@ -20,8 +20,8 @@ import java.net.URL;
 import java.util.Calendar;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua Nov 28, 2007
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua Nov
+ * 28, 2007
  */
 public class JobEntryInfo {
   private int      type;
@@ -49,8 +49,8 @@ public class JobEntryInfo {
   public Calendar getDate() {
     return calendar;
   }
-  
-  public void setType(int type ) {
+
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -65,11 +65,11 @@ public class JobEntryInfo {
   public void setDate(Calendar calendar) {
     this.calendar = calendar;
   }
-  
+
   public void setID(Integer id) {
     this.id = id;
   }
-  
+
   public Integer getID() {
     return id;
   }

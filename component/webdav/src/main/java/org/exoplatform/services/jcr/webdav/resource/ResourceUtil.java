@@ -21,47 +21,47 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class ResourceUtil {
-	
-	public static boolean isFile(Node node) {
-		try {
-			if(!node.isNodeType("nt:file"))
-				return false;
-			if(!node.getNode("jcr:content").isNodeType("nt:resource"))
-				return false;
-			return true;
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-	
-	public static boolean isVersion(Node node) {
-		try {
-			if(node.isNodeType("nt:version"))
-				return true;
-			return false;
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
 
-	public static boolean isVersioned(Node node) {
-		try {
-			if(node.isNodeType("mix:versionable"))
-				return true;
-			return false;
-		} catch (RepositoryException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+  public static boolean isFile(Node node) {
+    try {
+      if (!node.isNodeType("nt:file"))
+        return false;
+      if (!node.getNode("jcr:content").isNodeType("nt:resource"))
+        return false;
+      return true;
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
 
+  public static boolean isVersion(Node node) {
+    try {
+      if (node.isNodeType("nt:version"))
+        return true;
+      return false;
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public static boolean isVersioned(Node node) {
+    try {
+      if (node.isNodeType("mix:versionable"))
+        return true;
+      return false;
+    } catch (RepositoryException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
 
 }

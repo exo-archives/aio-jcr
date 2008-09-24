@@ -53,8 +53,10 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
   protected MemberListener           memberListener;
 
-  public AbstractPriorityChecker(ChannelManager channelManager, int ownPriority,
-      String ownName, List<String> otherParticipants) {
+  public AbstractPriorityChecker(ChannelManager channelManager,
+                                 int ownPriority,
+                                 String ownName,
+                                 List<String> otherParticipants) {
 
     this.ownPriority = ownPriority;
     this.ownName = ownName;
@@ -73,8 +75,10 @@ public abstract class AbstractPriorityChecker implements PacketListener {
       identifier = IdGenerator.generate();
       currentPartisipants = new HashMap<String, Integer>();
 
-      Packet pktInformer = new Packet(Packet.PacketType.GET_ALL_PRIORITY, ownName,
-          (long) ownPriority, identifier);
+      Packet pktInformer = new Packet(Packet.PacketType.GET_ALL_PRIORITY,
+                                      ownName,
+                                      (long) ownPriority,
+                                      identifier);
       channelManager.sendPacket(pktInformer);
       Thread.sleep(1000);
     } catch (Exception e) {

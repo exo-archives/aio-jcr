@@ -82,12 +82,15 @@ public class BackupOperator {
    * Perform full backup and return backup task.
    * 
    * @return
-   * @throws RepositoryConfigurationException 
-   * @throws BackupConfigurationException 
-   * @throws BackupOperationException 
+   * @throws RepositoryConfigurationException
+   * @throws BackupConfigurationException
+   * @throws BackupOperationException
    * @throws Exception
    */
-  public Task fullBackup(String repository, String workspace) throws RepositoryException, BackupOperationException, BackupConfigurationException, RepositoryConfigurationException {
+  public Task fullBackup(String repository, String workspace) throws RepositoryException,
+                                                             BackupOperationException,
+                                                             BackupConfigurationException,
+                                                             RepositoryConfigurationException {
     // backup
     String tmpdir = System.getProperty("java.io.tmpdir");
     File backDir = new File(tmpdir, "syncservice-backup-tmpdir");
@@ -114,13 +117,13 @@ public class BackupOperator {
           // TODO
         }
       }
-    
+
       // stop fullBackup
       backupManager.stopBackup(bch);
-      
+
       return new Task(repository, workspace, backDir);
     } else {
-      //log.info("Can't get fullBackup chain");
+      // log.info("Can't get fullBackup chain");
       throw new RepositoryException("Can't get fullBackup chain");
     }
   }

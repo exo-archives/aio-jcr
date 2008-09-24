@@ -42,8 +42,10 @@ public abstract class ItemDataTraversingVisitor implements ItemDataVisitor {
   protected final ItemDataConsumer dataManager;
 
   /**
-   * @param dataManager - ItemDataConsumer.
-   * @param maxLevel - maximum level.
+   * @param dataManager
+   *          - ItemDataConsumer.
+   * @param maxLevel
+   *          - maximum level.
    */
   public ItemDataTraversingVisitor(ItemDataConsumer dataManager, int maxLevel) {
     this.maxLevel = maxLevel;
@@ -51,7 +53,8 @@ public abstract class ItemDataTraversingVisitor implements ItemDataVisitor {
   }
 
   /**
-   * @param dataManager - ItemDataConsumer
+   * @param dataManager
+   *          - ItemDataConsumer
    */
   public ItemDataTraversingVisitor(ItemDataConsumer dataManager) {
     this.maxLevel = -1;

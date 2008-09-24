@@ -57,16 +57,14 @@ public class GetContextInfoCommand extends AbstractCliCommand {
       output += "  autocreated:" + itemDefinition.isAutoCreated() + "\n";
       output += "  mandatory:" + itemDefinition.isMandatory() + "\n";
       output += "  protected:" + itemDefinition.isProtected() + "\n";
-      output += "  onparentversion:" + itemDefinition.getOnParentVersion()
-          + "\n";
+      output += "  onparentversion:" + itemDefinition.getOnParentVersion() + "\n";
       if (item.isNode() == false) {
         Property property = (Property) item;
         int propertyType = property.getValue().getType();
         if (propertyType != (PropertyType.BINARY)) {
           PropertyDefinition propertyDefinition = (PropertyDefinition) itemDefinition;
           if (propertyDefinition.isMultiple() == false) {
-            output += "property value:" + property.getValue().getString()
-                + "\n";
+            output += "property value:" + property.getValue().getString() + "\n";
           } else {
             output += "property value is multiple" + "\n";
           }
@@ -78,8 +76,7 @@ public class GetContextInfoCommand extends AbstractCliCommand {
       Iterator parametersIterator = ctx.getParameters().iterator();
       int i = 0;
       while (parametersIterator.hasNext()) {
-        output += "  [" + i + "]" + " : " + (String) parametersIterator.next()
-            + "\n";
+        output += "  [" + i + "]" + " : " + (String) parametersIterator.next() + "\n";
         i++;
       }
     } catch (Exception e) {

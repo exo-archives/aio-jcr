@@ -29,35 +29,35 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class CheckOutCommand {
-  
+
   public Response checkout(Session session, String path) {
-    try {      
+    try {
       Node node = session.getRootNode().getNode(TextUtil.relativizePath(path));
-      
+
       if (node.isCheckedOut()) {
         return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
       }
-      
+
       node.checkout();
-      return Response.Builder.ok().build();      
+      return Response.Builder.ok().build();
     } catch (UnsupportedRepositoryOperationException e) {
       return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
-      
+
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
 
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
-      
+
     } catch (RepositoryException exc) {
-      return Response.Builder.serverError().build();      
-    }    
+      return Response.Builder.serverError().build();
+    }
   }
 
 }

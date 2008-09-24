@@ -17,19 +17,19 @@
 package org.exoplatform.services.jcr.core.nodetype;
 
 /**
- * Created by The eXo Platform SAS.<br/>
- * ItemDefinition value object.
+ * Created by The eXo Platform SAS.<br/> ItemDefinition value object.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ItemDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public abstract class ItemDefinitionValue {
 
-  protected String name;
+  protected String  name;
 
   protected boolean autoCreate;
 
-  protected int onVersion;
+  protected int     onVersion;
 
   protected boolean readOnly;
 
@@ -44,14 +44,15 @@ public abstract class ItemDefinitionValue {
   public boolean isAutoCreate() {
     return autoCreate;
   }
-  
+
   /**
-   * @param autoCreate The autoCreate to set.
+   * @param autoCreate
+   *          The autoCreate to set.
    */
   public void setAutoCreate(boolean autoCreate) {
     this.autoCreate = autoCreate;
   }
-  
+
   /**
    * @return Returns the mandatory.
    */
@@ -60,7 +61,8 @@ public abstract class ItemDefinitionValue {
   }
 
   /**
-   * @param mandatory The mandatory to set.
+   * @param mandatory
+   *          The mandatory to set.
    */
   public void setMandatory(boolean mandatory) {
     this.mandatory = mandatory;
@@ -72,37 +74,40 @@ public abstract class ItemDefinitionValue {
   public String getName() {
     return name;
   }
-  
+
   /**
-   * @param name The name to set.
+   * @param name
+   *          The name to set.
    */
   public void setName(String name) {
     this.name = name;
   }
- 
+
   /**
    * @return Returns the onVersion.
    */
   public int getOnVersion() {
     return onVersion;
   }
-  
+
   /**
-   * @param onVersion The onVersion to set.
+   * @param onVersion
+   *          The onVersion to set.
    */
   public void setOnVersion(int onVersion) {
     this.onVersion = onVersion;
   }
-  
+
   /**
    * @return Returns the readOnly.
    */
   public boolean isReadOnly() {
     return readOnly;
   }
-  
+
   /**
-   * @param readOnly The readOnly to set.
+   * @param readOnly
+   *          The readOnly to set.
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;

@@ -47,11 +47,11 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.<br/> 
+ * Created by The eXo Platform SAS.<br/>
  * 
- * This cache implementation store item data and childs lists
- * of item data. And it implements OBJECTS cache - i.e. returns same java object that was cached
- * before. Same item data or list of childs will be returned from getXXX() calls.
+ * This cache implementation store item data and childs lists of item data. And it implements
+ * OBJECTS cache - i.e. returns same java object that was cached before. Same item data or list of
+ * childs will be returned from getXXX() calls.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -59,18 +59,18 @@ import org.exoplatform.services.log.ExoLogger;
 public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /**
-   * Maximum cache size. 
+   * Maximum cache size.
    */
-  static public final int                               MAX_CACHE_SIZE                      = 2048;                                                      // 2k
+  static public final int                               MAX_CACHE_SIZE                      = 2048;                                                      // 2
 
   /**
    * Maximum cache luve time in milliseconds.
    */
-  static public final long                              MAX_CACHE_LIVETIME                  = 600 * 1000;                                                // 10min,
+  static public final long                              MAX_CACHE_LIVETIME                  = 600 * 1000;                                                // 10
 
-  static public final long                              DEF_STATISTIC_PERIOD                = 5 * 60000;                                                 // 5min
+  static public final long                              DEF_STATISTIC_PERIOD                = 5 * 60000;                                                 // 5
 
-  static public final long                              DEF_CLEANER_PERIOD                  = 20 * 60000;                                                // 20min
+  static public final long                              DEF_CLEANER_PERIOD                  = 20 * 60000;                                                // 20
 
   static public final int                               DEF_BLOCKING_USERS_COUNT            = 0;
 
@@ -166,8 +166,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     }
 
     /**
-     * Remove in next reelase. Remove eldest item. <br/> Assuming that lock on write to C was
-     * placed in remove() which internaly call removeEldestEntry(). Synchronized by CP.
+     * Remove in next reelase. Remove eldest item. <br/> Assuming that lock on write to C was placed
+     * in remove() which internaly call removeEldestEntry(). Synchronized by CP.
      * 
      * @param item
      */
@@ -214,7 +214,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.util.LinkedHashMap#containsValue(java.lang.Object)
      */
     @Override
@@ -229,7 +228,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.util.LinkedHashMap#get(java.lang.Object)
      */
     @Override
@@ -264,7 +262,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.util.LinkedHashMap#containsValue(java.lang.Object)
      */
     @Override
@@ -285,7 +282,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.util.LinkedHashMap#get(java.lang.Object)
      */
     @Override
@@ -325,7 +321,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Thread#run()
      */
     @Override
@@ -421,7 +416,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   class StatisticCollector extends Worker {
     /*
      * (non-Javadoc)
-     * 
      * @see java.lang.Thread#run()
      */
     @Override
@@ -690,7 +684,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getSize()
    */
   public long getSize() {
@@ -703,8 +696,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#get(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#get(java.lang.String)
    */
   public ItemData get(final String identifier) {
     if (enabled && identifier != null) {
@@ -721,9 +714,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#get(java.lang.String,
-   *      org.exoplatform.services.jcr.datamodel.QPathEntry)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#get(java.lang.String,
+   * org.exoplatform.services.jcr.datamodel.QPathEntry)
    */
   public ItemData get(final String parentId, final QPathEntry name) {
     if (enabled && parentId != null && name != null) {
@@ -752,8 +745,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#put(org.exoplatform.services.jcr.datamodel.ItemData)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#put(org.exoplatform.
+   * services.jcr.datamodel.ItemData)
    */
   public void put(final ItemData item) {
     if (enabled && item != null) {
@@ -813,9 +807,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
                 newChilds.add(nodeData); // add
 
-                nodesCache.put(item.getParentIdentifier(), newChilds); // cache
-                // new
-                // list
+                nodesCache.put(item.getParentIdentifier(), newChilds); // cache new list
                 if (log.isDebugEnabled())
                   log.debug(name + ", put()    add child node  " + nodeData.getIdentifier());
               }
@@ -831,10 +823,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
                 int index = cachedParentChilds.indexOf(item);
                 if (index >= 0) {
                   // update already cached in list
-                  cachedParentChilds.set(index, (PropertyData) item); // replace
-                  // at
-                  // current
-                  // position
+                  cachedParentChilds.set(index, (PropertyData) item); // replace at current position
                   if (log.isDebugEnabled())
                     log.debug(name + ", put()    update child property  " + item.getIdentifier()
                         + "  at index #" + index);
@@ -846,9 +835,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
                     newChilds.add(cachedParentChilds.get(ci));
 
                   newChilds.add((PropertyData) item);
-                  propertiesCache.put(item.getParentIdentifier(), newChilds); // cache
-                  // new
-                  // list
+                  propertiesCache.put(item.getParentIdentifier(), newChilds); // cache new list
                   if (log.isDebugEnabled())
                     log.debug(name + ", put()    add child property  " + item.getIdentifier());
                 }
@@ -869,9 +856,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildProperties(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      java.util.List)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildProperties(org
+   * .exoplatform.services.jcr.datamodel.NodeData, java.util.List)
    */
   public void addChildProperties(final NodeData parentData, final List<PropertyData> childItems) {
     if (enabled && parentData != null && childItems != null) {
@@ -896,11 +883,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
         synchronized (childItems) {
           operName = "caching child properties list";
-          propertiesCache.put(parentData.getIdentifier(), childItems); // put
-          // childs
-          // in
-          // cache
-          // CP
+          propertiesCache.put(parentData.getIdentifier(), childItems); // put childs in cache CP
 
           operName = "caching child properties";
           // put childs in cache C
@@ -926,9 +909,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildPropertiesList(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      java.util.List)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildPropertiesList
+   * (org.exoplatform.services.jcr.datamodel.NodeData, java.util.List)
    */
   public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
     if (enabled && parentData != null && childItems != null) {
@@ -953,11 +936,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
         synchronized (childItems) {
           operName = "caching child properties list";
-          propertiesCache.put(parentData.getIdentifier(), childItems); // put
-          // childs
-          // in
-          // cache
-          // CP
+          propertiesCache.put(parentData.getIdentifier(), childItems); // put childs in cache CP
         }
       } catch (Exception e) {
         log.error(name + ", Error in addChildPropertiesList() " + operName + ": parent "
@@ -973,9 +952,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildNodes(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      java.util.List)
+   * @seeorg.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#addChildNodes(org.
+   * exoplatform.services.jcr.datamodel.NodeData, java.util.List)
    */
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
     if (enabled && parentData != null && childItems != null) {
@@ -1084,8 +1062,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
                 + ", getItem() "
                 + identifier
                 + " --> "
-                + (c != null ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier()
-                            : "[null]"));
+                + (c != null
+                    ? c.getQPath().getAsString() + " parent:" + c.getParentIdentifier()
+                    : "[null]"));
 
           hits++;
           return c;
@@ -1119,7 +1098,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   /**
    * Get item from cache C by item parent and name. Checks is it expired, calcs statistics.
    * 
-   * @param key a InternalQPath path of item cached
+   * @param key
+   *          a InternalQPath path of item cached
    */
   protected ItemData getItem(final String parentUuid, final QPathEntry qname) {
     long start = System.currentTimeMillis();
@@ -1166,8 +1146,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getChildNodes(org.exoplatform.services.jcr.datamodel.NodeData)
+   * @seeorg.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getChildNodes(org.
+   * exoplatform.services.jcr.datamodel.NodeData)
    */
   public List<NodeData> getChildNodes(final NodeData parentData) {
     if (enabled && parentData != null) {
@@ -1209,8 +1189,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getChildProperties(org.exoplatform.services.jcr.datamodel.NodeData)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#getChildProperties(org
+   * .exoplatform.services.jcr.datamodel.NodeData)
    */
   public List<PropertyData> getChildProperties(final NodeData parentData) {
     if (enabled && parentData != null) {
@@ -1235,8 +1216,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         }
 
         if (cp != null && cp.get(0).getValues().size() > 0) {
-          // don't return list of empty-valued props (but listChildProperties()
-          // can)
+          // don't return list of empty-valued props (but listChildProperties() can)
           hits++;
           return cp;
         } else
@@ -1254,8 +1234,9 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#listChildProperties(org.exoplatform.services.jcr.datamodel.NodeData)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#listChildProperties(
+   * org.exoplatform.services.jcr.datamodel.NodeData)
    */
   public List<PropertyData> listChildProperties(final NodeData parentData) {
     if (enabled && parentData != null) {
@@ -1294,7 +1275,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.dataflow.persistent.WorkspaceStorageCache#isEnabled()
    */
   public boolean isEnabled() {
@@ -1365,7 +1345,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
       }
     }
 
-    // removeSuccessors((NodeData) node); // TODO use here with writeLock
+    // removeSuccessors((NodeData) node); // use here with writeLock
   }
 
   /**
@@ -1461,8 +1441,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener#onSaveItems(org.exoplatform.services.jcr.dataflow.ItemStateChangesLog)
+   * @seeorg.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener#onSaveItems(org.
+   * exoplatform.services.jcr.dataflow.ItemStateChangesLog)
    */
   public void onSaveItems(final ItemStateChangesLog changesLog) {
 
@@ -1526,10 +1506,12 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * Deep remove of an item in all caches (C, CN, CP). Outside must be sinchronyzed by cache(C). If
    * forceDeep=true then it must be sinchronyzed by cache(CN,CP) too.
    * 
-   * @param item - ItemData of item removing
-   * @param forceDeep - if true then childs will be removed too, item's parent childs (nodes or
-   *          properties) will be removed also. if false - no actual deep remove will be done, the
-   *          item only and theirs 'phantom by identifier' if exists.
+   * @param item
+   *          - ItemData of item removing
+   * @param forceDeep
+   *          - if true then childs will be removed too, item's parent childs (nodes or properties)
+   *          will be removed also. if false - no actual deep remove will be done, the item only and
+   *          theirs 'phantom by identifier' if exists.
    */
   @Deprecated
   protected void removeDeep(final ItemData item, final boolean forceDeep) {
@@ -1562,13 +1544,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     try {
       if (item.isNode()) {
         // removing childs of the node
-        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // XXX
-          // deepDelete,
-          // was
-          // true
-          // TODO
-          // use
-          // true!
+        if (removeChildNodes(item.getIdentifier(), deepDelete) != null) { // XXX deepDelete, was
+          // true TODO use true!
           if (log.isDebugEnabled())
             log.debug(name + ", removeRelations() removeChildNodes() " + item.getIdentifier());
         }
@@ -1645,8 +1622,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   /**
    * Remove property by id if parent properties are cached in CP.
    * 
-   * @param parentIdentifier - parent id
-   * @param childIdentifier - property id
+   * @param parentIdentifier
+   *          - parent id
+   * @param childIdentifier
+   *          - property id
    * @return removed property or null if property not cached or parent properties are not cached
    * @throws Exception
    */
@@ -1672,8 +1651,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   /**
    * Remove child node by id if parent child nodes are cached in CN.
    * 
-   * @param parentIdentifier - parebt if
-   * @param childIdentifier - node id
+   * @param parentIdentifier
+   *          - parebt if
+   * @param childIdentifier
+   *          - node id
    * @return removed node or null if node not cached or parent child nodes are not cached
    * @throws Exception
    */
@@ -1723,8 +1704,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   }
 
   /**
-   * Remove expired item with its properties and child nodes.<br/> Used in {@link getItem()}.
-   * <br/> Aquire lock on-write to C.
+   * Remove expired item with its properties and child nodes.<br/> Used in {@link getItem()}. <br/>
+   * Aquire lock on-write to C.
    * 
    * @param item
    */

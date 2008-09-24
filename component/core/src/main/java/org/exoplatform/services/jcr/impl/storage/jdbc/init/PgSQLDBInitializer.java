@@ -22,30 +22,32 @@ import java.sql.SQLException;
 
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 26.03.2007
- *
+ * 
  * PgSQL convert all db object names to lower case, so respect it.
- *
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: PgSQLDBInitializer.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class PgSQLDBInitializer extends DBInitializer {
 
-  public PgSQLDBInitializer(String containerName, Connection connection, String scriptPath, boolean multiDb) throws IOException {
+  public PgSQLDBInitializer(String containerName,
+                            Connection connection,
+                            String scriptPath,
+                            boolean multiDb) throws IOException {
     super(containerName, connection, scriptPath, multiDb);
   }
 
   @Override
-  protected boolean isIndexExists(Connection conn, String tableName, String indexName)
-      throws SQLException {
-    return super.isIndexExists(conn, tableName.toUpperCase().toLowerCase(), indexName.toUpperCase().toLowerCase());
+  protected boolean isIndexExists(Connection conn, String tableName, String indexName) throws SQLException {
+    return super.isIndexExists(conn, tableName.toUpperCase().toLowerCase(), indexName.toUpperCase()
+                                                                                     .toLowerCase());
   }
 
   @Override
   protected boolean isTableExists(Connection conn, String tableName) throws SQLException {
     return super.isTableExists(conn, tableName.toUpperCase().toLowerCase());
   }
-  
-  
+
 }

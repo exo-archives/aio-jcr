@@ -19,17 +19,17 @@ package org.exoplatform.services.jcr.impl.storage.value.cas;
 import java.io.IOException;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 18.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class VCASException extends IOException {
 
   private final Throwable cause;
-  
+
   public VCASException(String message, Throwable cause) {
     super(message);
     this.cause = cause;

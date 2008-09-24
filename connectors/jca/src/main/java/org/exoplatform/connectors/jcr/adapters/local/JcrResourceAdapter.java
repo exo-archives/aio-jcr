@@ -32,7 +32,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS .
- *
+ * 
  * @author <a href="mailto:lautarul@gmail.com">Roman Pedchenko</a>
  * @version $Id: JcrResourceAdapter.java 7176 2006-07-19 07:59:47Z peterit $
  */
@@ -41,27 +41,30 @@ public class JcrResourceAdapter implements ResourceAdapter {
 
   private static Log log = ExoLogger.getLogger("jcr.JcrResourceAdapter");
 
-  String containerConfig;
+  String             containerConfig;
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.resource.spi.ResourceAdapter#start(javax.resource.spi.BootstrapContext)
    */
-  public synchronized void start(BootstrapContext ctx)
-      throws ResourceAdapterInternalException {
+  public synchronized void start(BootstrapContext ctx) throws ResourceAdapterInternalException {
 
-    System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.start(), " + containerConfig + " >>>>>>>>>>>>>>>>>>>");
+    System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.start(), " + containerConfig
+        + " >>>>>>>>>>>>>>>>>>>");
 
     log.info("Container config: " + containerConfig);
     Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     try {
 
-	  if (containerConfig != null) {
-	  String url = Thread.currentThread().getContextClassLoader().getResource(
-          containerConfig).toString();
-      StandaloneContainer.addConfigurationURL(url);
-     }
+      if (containerConfig != null) {
+        String url = Thread.currentThread()
+                           .getContextClassLoader()
+                           .getResource(containerConfig)
+                           .toString();
+        StandaloneContainer.addConfigurationURL(url);
+      }
     } catch (MalformedURLException e) {
-      log.warn("Invalid containerConfig URL, ignored: "+containerConfig);
+      log.warn("Invalid containerConfig URL, ignored: " + containerConfig);
       e.printStackTrace();
     }
 
@@ -73,11 +76,13 @@ public class JcrResourceAdapter implements ResourceAdapter {
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.resource.spi.ResourceAdapter#stop()
    */
   public void stop() {
-    System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.stop(), " + containerConfig + " >>>>>>>>>>>>>>>>>>>");
+    System.out.println("<<<<<<<<<<<<<<<<<< JcrResourceAdapter.stop(), " + containerConfig
+        + " >>>>>>>>>>>>>>>>>>>");
     try {
       StandaloneContainer sc = StandaloneContainer.getInstance();
       sc.stop();
@@ -87,26 +92,28 @@ public class JcrResourceAdapter implements ResourceAdapter {
     }
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see javax.resource.spi.ResourceAdapter#getXAResources(javax.resource.spi.ActivationSpec[])
    */
-  public XAResource[] getXAResources(ActivationSpec[] specs)
-      throws ResourceException {
+  public XAResource[] getXAResources(ActivationSpec[] specs) throws ResourceException {
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see javax.resource.spi.ResourceAdapter#endpointActivation(javax.resource.spi.endpoint.MessageEndpointFactory, javax.resource.spi.ActivationSpec)
+  /*
+   * (non-Javadoc)
+   * @seejavax.resource.spi.ResourceAdapter#endpointActivation(javax.resource.spi.endpoint.
+   * MessageEndpointFactory, javax.resource.spi.ActivationSpec)
    */
-  public void endpointActivation(MessageEndpointFactory endpointFactory,
-      ActivationSpec spec) throws ResourceException {
+  public void endpointActivation(MessageEndpointFactory endpointFactory, ActivationSpec spec) throws ResourceException {
   }
 
-  /* (non-Javadoc)
-   * @see javax.resource.spi.ResourceAdapter#endpointDeactivation(javax.resource.spi.endpoint.MessageEndpointFactory, javax.resource.spi.ActivationSpec)
+  /*
+   * (non-Javadoc)
+   * @seejavax.resource.spi.ResourceAdapter#endpointDeactivation(javax.resource.spi.endpoint.
+   * MessageEndpointFactory, javax.resource.spi.ActivationSpec)
    */
-  public void endpointDeactivation(MessageEndpointFactory endpointFactory,
-      ActivationSpec spec) {
+  public void endpointDeactivation(MessageEndpointFactory endpointFactory, ActivationSpec spec) {
   }
 
   public void setContainerConfig(String prop) {

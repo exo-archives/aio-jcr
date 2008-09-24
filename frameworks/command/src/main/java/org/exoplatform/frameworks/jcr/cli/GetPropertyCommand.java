@@ -37,8 +37,7 @@ public class GetPropertyCommand extends AbstractCliCommand {
       Property resultProperty = currentNode.getProperty(relPath);
       ctx.setCurrentItem(resultProperty);
       try {
-        output = "Current property value: "
-            + resultProperty.getValue().getString() + "\n";
+        output = "Current property value: " + resultProperty.getValue().getString() + "\n";
       } catch (Exception e) {
         output = "Can't display the property value";
       }

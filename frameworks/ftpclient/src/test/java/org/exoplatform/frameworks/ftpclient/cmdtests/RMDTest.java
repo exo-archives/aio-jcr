@@ -29,15 +29,15 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdRmd;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class RMDTest extends TestCase {
-  
+
   private static Log log = new Log("RMDTest");
-  
+
   public void testRMD() throws Exception {
     log.info("Test...");
 
@@ -48,12 +48,12 @@ public class RMDTest extends TestCase {
       CmdRmd cmdRmd = new CmdRmd("");
       assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdRmd));
     }
-    
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
@@ -68,24 +68,22 @@ public class RMDTest extends TestCase {
       CmdRmd cmdRmd = new CmdRmd("NotexistFolder");
       assertEquals(FtpConst.Replyes.REPLY_550, client.executeCommand(cmdRmd));
     }
-    
-    {      
+
+    {
       CmdCwd cmdCwd = new CmdCwd("production");
       assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(cmdCwd));
-      
+
       String folderName = "test_folder_" + System.currentTimeMillis();
-      
+
       CmdMkd cmdMkd = new CmdMkd(folderName);
       assertEquals(FtpConst.Replyes.REPLY_257, client.executeCommand(cmdMkd));
-      
+
       CmdRmd cmdRmd = new CmdRmd(folderName);
       assertEquals(FtpConst.Replyes.REPLY_250, client.executeCommand(cmdRmd));
     }
-    
+
     client.close();
-    log.info("Complete.\r\n");                
+    log.info("Complete.\r\n");
   }
-  
 
 }
-

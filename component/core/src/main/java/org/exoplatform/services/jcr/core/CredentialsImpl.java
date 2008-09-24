@@ -20,9 +20,9 @@ package org.exoplatform.services.jcr.core;
 import javax.jcr.Credentials;
 import javax.jcr.SimpleCredentials;
 
-
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: CredentialsImpl.java 12841 2007-02-16 08:58:38Z peterit $
  */
@@ -31,9 +31,9 @@ public class CredentialsImpl implements Credentials {
 
   private SimpleCredentials simpleCredentials;
 
-    public CredentialsImpl(String userID, char[] password) {
-      this.simpleCredentials = new SimpleCredentials(userID, password);
-    }	
+  public CredentialsImpl(String userID, char[] password) {
+    this.simpleCredentials = new SimpleCredentials(userID, password);
+  }
 
   /**
    * @param name
@@ -42,7 +42,7 @@ public class CredentialsImpl implements Credentials {
   public Object getAttribute(String name) {
     return simpleCredentials.getAttribute(name);
   }
-  
+
   /**
    * @return
    */
@@ -70,7 +70,7 @@ public class CredentialsImpl implements Credentials {
   public void removeAttribute(String name) {
     simpleCredentials.removeAttribute(name);
   }
-  
+
   /**
    * @param name
    * @param value

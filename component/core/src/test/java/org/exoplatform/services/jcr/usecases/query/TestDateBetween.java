@@ -28,14 +28,13 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 20.07.2007
- * 14:05:20
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
+ * reshetnyak.alex@gmail.com 20.07.2007 14:05:20
  * 
  * @version $Id: TestDateBetween.java 20.07.2007 14:05:20 rainfox
  */
 public class TestDateBetween extends JcrAPIBaseTest {
-  
+
   String date;
 
   public void setUp() throws Exception {
@@ -55,22 +54,25 @@ public class TestDateBetween extends JcrAPIBaseTest {
       contentNode.setProperty("jcr:data", "data _________________________________");
       contentNode.setProperty("jcr:mimeType", "text/plain");
       contentNode.setProperty("jcr:lastModified", valueFactory.createValue(dateList.get(i),
-          PropertyType.DATE));
+                                                                           PropertyType.DATE));
     }
-    
+
     session.save();
-    
-    date = rootNode.getNode("nnn1").getNode("jcr:content").getProperty("jcr:lastModified").getString();
-    
-    log.info("Date : " +date);
+
+    date = rootNode.getNode("nnn1")
+                   .getNode("jcr:content")
+                   .getProperty("jcr:lastModified")
+                   .getString();
+
+    log.info("Date : " + date);
 
   }
 
   public void testDateXPath() throws Exception {
 
     String xParhQuery = "//element(*,nt:resource)[@jcr:lastModified >= xs:dateTime('2006-08-19T10:11:38.281+02:00')]";
-    
-    log.info("QUERY : "+ xParhQuery);
+
+    log.info("QUERY : " + xParhQuery);
 
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(xParhQuery, Query.XPATH);
@@ -98,9 +100,9 @@ public class TestDateBetween extends JcrAPIBaseTest {
     sb.append("( jcr:lastModified <= '");
     sb.append("2008-06-04T15:34:15.917+02:00");
     sb.append("' )");
-    
+
     String sqlQuery = sb.toString();
-    log.info("QUERY : "+ sqlQuery);
+    log.info("QUERY : " + sqlQuery);
 
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
@@ -130,7 +132,7 @@ public class TestDateBetween extends JcrAPIBaseTest {
     sb.append("'");
 
     String sqlQuery = sb.toString();
-    log.info("QUERY : "+ sqlQuery);
+    log.info("QUERY : " + sqlQuery);
 
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
@@ -155,9 +157,9 @@ public class TestDateBetween extends JcrAPIBaseTest {
     sb.append("2005-01-19T15:34:15.917+02:00");
     sb.append(date);
     sb.append("'");
-    
+
     String sqlQuery = sb.toString();
-    log.info("QUERY : "+ sqlQuery);
+    log.info("QUERY : " + sqlQuery);
 
     QueryManager manager = session.getWorkspace().getQueryManager();
     Query query = manager.createQuery(sqlQuery, Query.SQL);
@@ -174,5 +176,5 @@ public class TestDateBetween extends JcrAPIBaseTest {
     }
 
   }
-  
+
 }

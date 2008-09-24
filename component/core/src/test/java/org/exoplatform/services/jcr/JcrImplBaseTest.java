@@ -16,20 +16,20 @@
  */
 package org.exoplatform.services.jcr;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: JcrImplBaseTest.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public abstract class JcrImplBaseTest extends BaseStandaloneTest {
-  
+
   protected final String getRepositoryName() {
     String repName = System.getProperty("test.repository");
-    if(repName == null)
-      throw new RuntimeException("Test repository is undefined. Set test.repository system property "+
-          "(For maven: in project.properties: maven.junit.sysproperties=test.repository\ntest.repository=<rep-name>)");
+    if (repName == null)
+      throw new RuntimeException("Test repository is undefined. Set test.repository system property "
+          + "(For maven: in project.properties: maven.junit.sysproperties=test.repository\ntest.repository=<rep-name>)");
     return repName;
   }
 

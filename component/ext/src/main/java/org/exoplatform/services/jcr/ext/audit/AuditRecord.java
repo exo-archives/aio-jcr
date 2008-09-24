@@ -85,22 +85,23 @@ public class AuditRecord implements Comparable<AuditRecord> {
    * 
    * Use Session.getNodeByUUID(String) to obtain the version Node instance. <br/>
    * 
-   * NOTE: Version UUID will has no sense if version will be removed. 
+   * NOTE: Version UUID will has no sense if version will be removed.
    * 
-   * @return String with version UUID or null if auditable node was not mix:versionable at the audit record time
+   * @return String with version UUID or null if auditable node was not mix:versionable at the audit
+   *         record time
    */
   public String getVersion() {
     return version;
   }
 
   /**
-   * Returns version name related to this audit record.
-   * Version name for information purpose only. <br/>
+   * Returns version name related to this audit record. Version name for information purpose only.
+   * <br/>
    * 
    * NOTE: Version name can be helpful after the version will be removed.
    * 
-   * @return String in format VERSION_NAME 'VERSION_LABEL_1' 'VERSION_LABEL_2' ... 'VERSION_LABEL_N' 
-   * or null if auditable node was not mix:versionable at the audit record time
+   * @return String in format VERSION_NAME 'VERSION_LABEL_1' 'VERSION_LABEL_2' ... 'VERSION_LABEL_N'
+   *         or null if auditable node was not mix:versionable at the audit record time
    */
   public String getVersionName() {
     return versionName;

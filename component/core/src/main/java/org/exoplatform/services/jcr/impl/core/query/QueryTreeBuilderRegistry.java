@@ -70,10 +70,11 @@ public class QueryTreeBuilderRegistry {
   /**
    * Returns the <code>QueryTreeBuilder</code> for <code>language</code>.
    * 
-   * @param language the language of the query statement.
+   * @param language
+   *          the language of the query statement.
    * @return the <code>QueryTreeBuilder</code> for <code>language</code>.
-   * @throws InvalidQueryException if there is no query tree builder for
-   *           <code>language</code>.
+   * @throws InvalidQueryException
+   *           if there is no query tree builder for <code>language</code>.
    */
   public static QueryTreeBuilder getQueryTreeBuilder(String language) throws InvalidQueryException {
     for (int i = 0; i < BUILDERS.size(); i++) {
@@ -86,8 +87,8 @@ public class QueryTreeBuilderRegistry {
   }
 
   /**
-   * Returns the set of query languages supported by all registered
-   * {@link QueryTreeBuilder} implementations.
+   * Returns the set of query languages supported by all registered {@link QueryTreeBuilder}
+   * implementations.
    * 
    * @return String array containing the names of the supported languages.
    */

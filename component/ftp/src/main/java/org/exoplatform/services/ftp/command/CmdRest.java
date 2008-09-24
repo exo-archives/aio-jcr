@@ -21,18 +21,18 @@ import java.io.IOException;
 import org.exoplatform.services.ftp.FtpConst;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdRest extends FtpCommandImpl {
 
   public CmdRest() {
-    commandName = FtpConst.Commands.CMD_REST; 
+    commandName = FtpConst.Commands.CMD_REST;
   }
-  
-  public void run(String []params) throws IOException {
+
+  public void run(String[] params) throws IOException {
     if (params.length < 2) {
       reply(String.format(FtpConst.Replyes.REPLY_500_PARAMREQUIRED, FtpConst.Commands.CMD_REST));
       return;
@@ -47,5 +47,5 @@ public class CmdRest extends FtpCommandImpl {
     }
     reply(String.format(FtpConst.Replyes.REPLY_500, FtpConst.Commands.CMD_REST));
   }
-  
+
 }

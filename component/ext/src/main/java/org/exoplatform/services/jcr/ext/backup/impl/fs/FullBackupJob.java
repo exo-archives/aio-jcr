@@ -34,29 +34,35 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua Nov 21, 2007
+ * Created by The eXo Platform SARL Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua Nov
+ * 21, 2007
  */
 public class FullBackupJob extends AbstractFullBackupJob {
 
   protected static Log log = ExoLogger.getLogger("ext.FullBackupJob");
-  
+
   private String       pathBackupFile;
 
   protected URL createStorage() throws FileNotFoundException, IOException {
 
-    FileNameProducer fnp = new FileNameProducer(config.getRepository(), config.getWorkspace(),
-        config.getBackupDir().getAbsolutePath(), super.timeStamp, true);
-    
+    FileNameProducer fnp = new FileNameProducer(config.getRepository(),
+                                                config.getWorkspace(),
+                                                config.getBackupDir().getAbsolutePath(),
+                                                super.timeStamp,
+                                                true);
+
     return new URL("file:" + fnp.getNextFile().getAbsolutePath());
   }
 
-  public void init(ManageableRepository repository, String workspaceName, BackupConfig config, Calendar timeStamp) {
+  public void init(ManageableRepository repository,
+                   String workspaceName,
+                   BackupConfig config,
+                   Calendar timeStamp) {
     this.repository = repository;
     this.workspaceName = workspaceName;
     this.config = config;
     this.timeStamp = timeStamp;
-    
+
     try {
       url = createStorage();
     } catch (FileNotFoundException e) {
@@ -88,10 +94,10 @@ public class FullBackupJob extends AbstractFullBackupJob {
     } catch (IOException e) {
       log.error("Full backup failed " + getStorageURL().getPath(), e);
       notifyError("Full backup failed", e);
-    } 
+    }
 
     state = FINISHED;
-    
+
     notifyListeners();
   }
 

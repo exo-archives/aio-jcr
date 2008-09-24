@@ -23,13 +23,16 @@ import javax.jcr.version.Version;
 import org.exoplatform.services.jcr.RepositoryService;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 30.06.2008
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 30.06.2008
  */
 public class VersionTestCase extends BaseReplicationTestCase {
 
-  public VersionTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+  public VersionTestCase(RepositoryService repositoryService,
+                         String reposytoryName,
+                         String workspaceName,
+                         String userName,
+                         String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
     log.info("NtFileTestCase inited");
   }
@@ -57,7 +60,7 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
     String normalizePath = getNormalizePath(repoPath);
     try {
-      Node destVersionNode = (Node)session.getItem(normalizePath);
+      Node destVersionNode = (Node) session.getItem(normalizePath);
       if (checkedValue.equals(destVersionNode.getProperty("jcr:data").getString()))
         sb.append("ok");
       else
@@ -76,7 +79,7 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
     String normalizePath = getNormalizePath(repoPath);
     try {
-      Node srcVersionNode = (Node)session.getItem(normalizePath);
+      Node srcVersionNode = (Node) session.getItem(normalizePath);
 
       srcVersionNode.checkin();
       session.save();
@@ -99,7 +102,7 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
     String normalizePath = getNormalizePath(repoPath);
     try {
-      Node srcVersionNode = (Node)session.getItem(normalizePath);
+      Node srcVersionNode = (Node) session.getItem(normalizePath);
 
       Version baseVersion = srcVersionNode.getBaseVersion();
       srcVersionNode.restore(baseVersion, true);
@@ -119,7 +122,7 @@ public class VersionTestCase extends BaseReplicationTestCase {
 
     String normalizePath = getNormalizePath(repoPath);
     try {
-      Node srcVersionNode = (Node)session.getItem(normalizePath);
+      Node srcVersionNode = (Node) session.getItem(normalizePath);
 
       Version baseVersion1 = srcVersionNode.getBaseVersion();
       Version[] predesessors = baseVersion1.getPredecessors();

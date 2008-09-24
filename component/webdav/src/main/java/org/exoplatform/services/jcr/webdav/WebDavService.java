@@ -23,21 +23,20 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
- * JCR WebDAV entry point. Defines WebDav protocol methods:
- * RFC-2518 HTTP Extensions for Distributed Authoring -- WEBDAV
- * RFC-3253 Versioning Extensions to WebDAV
- * RFC-3648: Web Distributed Authoring and Versioning (WebDAV)
- * Ordered Collections Protocol
+ * Created by The eXo Platform SARL .<br/> JCR WebDAV entry point. Defines WebDav protocol methods:
+ * RFC-2518 HTTP Extensions for Distributed Authoring -- WEBDAV RFC-3253 Versioning Extensions to
+ * WebDAV RFC-3648: Web Distributed Authoring and Versioning (WebDAV) Ordered Collections Protocol
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public interface WebDavService {
 
-	// WebDav: RFC-2518 HTTP Extensions for Distributed Authoring -- WEBDAV
-	/**
+  // WebDav: RFC-2518 HTTP Extensions for Distributed Authoring -- WEBDAV
+  /**
    * the GET method
+   * 
    * @param repoName
    * @param repoPath
    * @param auth
@@ -45,11 +44,11 @@ public interface WebDavService {
    * @param version
    * @return HTTP response
    */
-  Response get(String repoName, String repoPath,
-      String range, String version, String baseURI);
-  
+  Response get(String repoName, String repoPath, String range, String version, String baseURI);
+
   /**
    * the HEAD method
+   * 
    * @param repoName
    * @param repoPath
    * @param auth
@@ -69,10 +68,14 @@ public interface WebDavService {
    * @param mimeType
    * @return HTTP response
    */
-  Response put(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader,
-      String nodeTypeHeader, String mixinTypesHeader, String mimeType,
-      InputStream inputStream);
+  Response put(String repoName,
+               String repoPath,
+               String lockTokenHeader,
+               String ifHeader,
+               String nodeTypeHeader,
+               String mixinTypesHeader,
+               String mimeType,
+               InputStream inputStream);
 
   /**
    * @param repoName
@@ -82,9 +85,8 @@ public interface WebDavService {
    * @param ifHeader
    * @return HTTP response
    */
-  Response delete(String repoName, String repoPath,
-  		String lockTokenHeader, String ifHeader);
-  
+  Response delete(String repoName, String repoPath, String lockTokenHeader, String ifHeader);
+
   /**
    * @param repoName
    * @param repoPath
@@ -95,9 +97,15 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response copy(String repoName, String repoPath,
-      String destinationHeader, String lockTokenHeader, String ifHeader,
-      String depthHeader, String overwriteHeader, String baseURI, HierarchicalProperty body);
+  Response copy(String repoName,
+                String repoPath,
+                String destinationHeader,
+                String lockTokenHeader,
+                String ifHeader,
+                String depthHeader,
+                String overwriteHeader,
+                String baseURI,
+                HierarchicalProperty body);
 
   /**
    * @param repoName
@@ -109,9 +117,12 @@ public interface WebDavService {
    * @param mixinTypesHeader
    * @return HTTP response
    */
-  Response mkcol(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader, String nodeTypeHeader,
-      String mixinTypesHeader);  
+  Response mkcol(String repoName,
+                 String repoPath,
+                 String lockTokenHeader,
+                 String ifHeader,
+                 String nodeTypeHeader,
+                 String mixinTypesHeader);
 
   /**
    * @param repoName
@@ -123,15 +134,21 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response move(String repoName, String repoPath,
-      String destinationHeader, String lockTokenHeader, String ifHeader,
-      String depthHeader, String overwriteHeader, String baseURI, HierarchicalProperty body);
+  Response move(String repoName,
+                String repoPath,
+                String destinationHeader,
+                String lockTokenHeader,
+                String ifHeader,
+                String depthHeader,
+                String overwriteHeader,
+                String baseURI,
+                HierarchicalProperty body);
 
   /**
    * @return HTTP response
    */
   Response options(String repoName, HierarchicalProperty body);
-  
+
   /**
    * @param repoName
    * @param repoPath
@@ -140,35 +157,11 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response propfind(String repoName, String repoPath, String depthHeader,
-      String baseURI, HierarchicalProperty body);
-  
-  /**
-   * @param repoName
-   * @param repoPath
-   * @param auth
-   * @param lockTokenHeader
-   * @param ifHeader
-   * @param body
-   * @return HTTP response
-   */
-  Response proppatch(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader, String baseURI, 
-      HierarchicalProperty body);
-  
-  /**
-   * @param repoName
-   * @param repoPath
-   * @param auth
-   * @param lockTokenHeader
-   * @param ifHeader
-   * @param body
-   * @return HTTP response
-   */
-  Response lock(String repoName, String repoPath, 
-      String lockTokenHeader, String ifHeader,
-      String depth, String timeout,
-      HierarchicalProperty body);    
+  Response propfind(String repoName,
+                    String repoPath,
+                    String depthHeader,
+                    String baseURI,
+                    HierarchicalProperty body);
 
   /**
    * @param repoName
@@ -179,9 +172,45 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response unlock(String repoName,String repoPath, 
-      String lockTokenHeader, String ifHeader, HierarchicalProperty body);
-  
+  Response proppatch(String repoName,
+                     String repoPath,
+                     String lockTokenHeader,
+                     String ifHeader,
+                     String baseURI,
+                     HierarchicalProperty body);
+
+  /**
+   * @param repoName
+   * @param repoPath
+   * @param auth
+   * @param lockTokenHeader
+   * @param ifHeader
+   * @param body
+   * @return HTTP response
+   */
+  Response lock(String repoName,
+                String repoPath,
+                String lockTokenHeader,
+                String ifHeader,
+                String depth,
+                String timeout,
+                HierarchicalProperty body);
+
+  /**
+   * @param repoName
+   * @param repoPath
+   * @param auth
+   * @param lockTokenHeader
+   * @param ifHeader
+   * @param body
+   * @return HTTP response
+   */
+  Response unlock(String repoName,
+                  String repoPath,
+                  String lockTokenHeader,
+                  String ifHeader,
+                  HierarchicalProperty body);
+
   // DeltaV: RFC-3253 Versioning Extensions to WebDAV
   /**
    * @param repoName
@@ -192,8 +221,11 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response checkin(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader, HierarchicalProperty body);      
+  Response checkin(String repoName,
+                   String repoPath,
+                   String lockTokenHeader,
+                   String ifHeader,
+                   HierarchicalProperty body);
 
   /**
    * @param repoName
@@ -204,10 +236,12 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response checkout(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader,
-      HierarchicalProperty body);
-  
+  Response checkout(String repoName,
+                    String repoPath,
+                    String lockTokenHeader,
+                    String ifHeader,
+                    HierarchicalProperty body);
+
   /**
    * @param repoName
    * @param repoPath
@@ -215,8 +249,11 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response report(String repoName, String repoPath,
-      String depth, String baseURI, HierarchicalProperty body);
+  Response report(String repoName,
+                  String repoPath,
+                  String depth,
+                  String baseURI,
+                  HierarchicalProperty body);
 
   /**
    * @param repoName
@@ -227,9 +264,12 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response uncheckout(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader, HierarchicalProperty body);
-  
+  Response uncheckout(String repoName,
+                      String repoPath,
+                      String lockTokenHeader,
+                      String ifHeader,
+                      HierarchicalProperty body);
+
   /**
    * @param repoName
    * @param repoPath
@@ -238,10 +278,9 @@ public interface WebDavService {
    * @param ifHeader
    * @return HTTP response
    */
-  Response versionControl(String repoName, String repoPath,
-  		String lockTokenHeader, String ifHeader);
+  Response versionControl(String repoName, String repoPath, String lockTokenHeader, String ifHeader);
 
-  // Order: RFC-3648:            Web Distributed Authoring and Versioning (WebDAV)
+  // Order: RFC-3648: Web Distributed Authoring and Versioning (WebDAV)
   // Ordered Collections Protocol
 
   /**
@@ -253,8 +292,12 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response order(String repoName, String repoPath,
-      String lockTokenHeader, String ifHeader, String baseURI, HierarchicalProperty body);      
+  Response order(String repoName,
+                 String repoPath,
+                 String lockTokenHeader,
+                 String ifHeader,
+                 String baseURI,
+                 HierarchicalProperty body);
 
   // Search
   /**

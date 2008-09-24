@@ -45,12 +45,10 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/> Prerequisites: <value-storages>
- * <value-storage
- * class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage">
- * <properties> <property name="path" value="target/temp/values"/> </properties>
- * <filters> <filter property-type="Binary"/> </filters> </value-storage>
- * </value-storages>
+ * Created by The eXo Platform SAS. <br/> Prerequisites: <value-storages> <value-storage
+ * class="org.exoplatform.services.jcr.impl.storage.value.fs.SimpleFileValueStorage"> <properties>
+ * <property name="path" value="target/temp/values"/> </properties> <filters> <filter
+ * property-type="Binary"/> </filters> </value-storage> </value-storages>
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ValueStoragePluginTest.java 11907 2008-03-13 15:36:21Z ksm $

@@ -42,22 +42,24 @@ import org.exoplatform.services.security.ConversationState;
 
 public class TaggingServiceImpl implements TaggingService {
 
-  //private ConversationRegistry identityRegistry;
+  // private ConversationRegistry identityRegistry;
   private RepositoryService repoService;
-  private RegistryService registryService;
 
-  public TaggingServiceImpl(InitParams params, 
-      RegistryService registryService, RepositoryService repoService) {
+  private RegistryService   registryService;
 
-//    this.identityRegistry = registry;
+  public TaggingServiceImpl(InitParams params,
+                            RegistryService registryService,
+                            RepositoryService repoService) {
+
+    // this.identityRegistry = registry;
     this.repoService = repoService;
     this.registryService = registryService;
 
   }
 
-  public void addTag(String name, URI uri, String description,
-      String repository, String workspace) throws RepositoryException, RepositoryConfigurationException {
-    
+  public void addTag(String name, URI uri, String description, String repository, String workspace) throws RepositoryException,
+                                                                                                   RepositoryConfigurationException {
+
     String user = ConversationState.getCurrent().getIdentity().getUserId();
     Node root = root(repository, workspace, ConversationState.getCurrent());
 
@@ -93,8 +95,7 @@ public class TaggingServiceImpl implements TaggingService {
   // }
 
   public TagURICrossrate getCrossrate(String tagName, URI uri) {
-    
- 
+
     // TODO Auto-generated method stub
     return null;
   }
@@ -129,14 +130,12 @@ public class TaggingServiceImpl implements TaggingService {
     return null;
   }
 
-  private Node root(String repoName, String workspaceName, ConversationState state) throws RepositoryException, 
-  RepositoryConfigurationException {
+  private Node root(String repoName, String workspaceName, ConversationState state) throws RepositoryException,
+                                                                                   RepositoryConfigurationException {
     ManageableRepository repository = repoService.getRepository(repoName);
-    //Identity id = this.identityRegistry.getIdentity();
-    SessionProvider sp = (SessionProvider) state
-        .getAttribute(SessionProvider.SESSION_PROVIDER);
-    RegistryEntry re = registryService.getEntry(sp,
-        RegistryService.EXO_SERVICES + "/tagging");
+    // Identity id = this.identityRegistry.getIdentity();
+    SessionProvider sp = (SessionProvider) state.getAttribute(SessionProvider.SESSION_PROVIDER);
+    RegistryEntry re = registryService.getEntry(sp, RegistryService.EXO_SERVICES + "/tagging");
     //
     return sp.getSession(workspaceName, repository).getRootNode();
   }

@@ -31,13 +31,14 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class AddNtFileWithMetadataNoJapex {
   /*
-   * This test calculates the time (ms or tps) of adding of one nodes of type
-   * nt:file (including addNode(), setProperty(), addMixin(), save() methods).
+   * This test calculates the time (ms or tps) of adding of one nodes of type nt:file (including
+   * addNode(), setProperty(), addMixin(), save() methods).
    */
 
   private static final int NUMBER_OF_ITERATIONS = 500;
@@ -49,9 +50,10 @@ public class AddNtFileWithMetadataNoJapex {
       StandaloneContainer container = StandaloneContainer.getInstance();
       if (System.getProperty("java.security.auth.login.config") == null)
         System.setProperty("java.security.auth.login.config", Thread.currentThread()
-            .getContextClassLoader().getResource("login.conf").toString());
-      RepositoryService repositoryService = (RepositoryService) container
-          .getComponentInstanceOfType(RepositoryService.class);
+                                                                    .getContextClassLoader()
+                                                                    .getResource("login.conf")
+                                                                    .toString());
+      RepositoryService repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
       repository = repositoryService.getCurrentRepository();
       Credentials credentials = new SimpleCredentials("admin", "admin".toCharArray());
       Session session = (SessionImpl) repository.login(credentials, "collaboration");
@@ -61,16 +63,17 @@ public class AddNtFileWithMetadataNoJapex {
       for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
         Node nodeToAdd = rootNode.addNode("node" + i, "nt:file");
         Node contentNodeOfNodeToAdd = nodeToAdd.addNode("jcr:content", "nt:resource");
-        contentNodeOfNodeToAdd.setProperty("jcr:data", new FileInputStream(
-            "../resources/benchmark.pdf"));
+        contentNodeOfNodeToAdd.setProperty("jcr:data",
+                                           new FileInputStream("../resources/benchmark.pdf"));
         contentNodeOfNodeToAdd.setProperty("jcr:mimeType", "application/pdf");
         contentNodeOfNodeToAdd.setProperty("jcr:lastModified", Calendar.getInstance());
         session.save();
       }
-      long end = System.currentTimeMillis();      
+      long end = System.currentTimeMillis();
       rootNode.remove();
       session.save();
-      System.out.println("===AddNtFileWithMetadataNoJapex, TIME : " + (end - start)/NUMBER_OF_ITERATIONS + " ms");
+      System.out.println("===AddNtFileWithMetadataNoJapex, TIME : " + (end - start)
+          / NUMBER_OF_ITERATIONS + " ms");
     } catch (Exception e) {
       e.printStackTrace();
       System.exit(1);

@@ -40,15 +40,14 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. Per-workspace factory object for
- * ValueStoragePlugin
+ * Created by The eXo Platform SAS. Per-workspace factory object for ValueStoragePlugin
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: StandaloneStoragePluginProvider.java 13463 2007-03-16 09:17:29Z
- *          geaz $
+ * @version $Id: StandaloneStoragePluginProvider.java 13463 2007-03-16 09:17:29Z geaz $
  */
 
-public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugin> implements ValueStoragePluginProvider {
+public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugin> implements
+    ValueStoragePluginProvider {
 
   private static final long serialVersionUID = 4537116106932443262L;
 
@@ -58,26 +57,27 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
       IOException {
 
     List<ValueStorageEntry> storages = wsConfig.getContainer().getValueStorages();
-    
+
     // TODO ValueStorage plugins properties inherited from storage container
     // i.e. plugin properties will contains particular parameters and
     // parameters inherited from container in form of 'container.$PARAM_NAME=$PARAM_VALUE'.
     // JIRA http://jira.exoplatform.org/browse/JCR-473
-//    Properties containerProps = new Properties();
-//    List<SimpleParameterEntry> containerParamEntries = wsConfig.getContainer().getParameters();
-//    for (SimpleParameterEntry paramEntry : containerParamEntries) {
-//      containerProps.setProperty("container." + paramEntry.getName(), paramEntry.getValue());
-//    }
+    // Properties containerProps = new Properties();
+    // List<SimpleParameterEntry> containerParamEntries = wsConfig.getContainer().getParameters();
+    // for (SimpleParameterEntry paramEntry : containerParamEntries) {
+    // containerProps.setProperty("container." + paramEntry.getName(), paramEntry.getValue());
+    // }
 
     if (storages != null)
       for (ValueStorageEntry storageEntry : storages) {
-        
+
         // can be only one storage with given id
         for (ValueStoragePlugin vsp : this) {
           if (vsp.getId().equals(storageEntry.getId()))
-            throw new RepositoryConfigurationException("Value storage with ID '" + storageEntry.getId() + "' already exists");
+            throw new RepositoryConfigurationException("Value storage with ID '"
+                + storageEntry.getId() + "' already exists");
         }
-        
+
         Object o = null;
         try {
           o = Class.forName(storageEntry.getType()).newInstance();
@@ -95,9 +95,10 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
         ArrayList<ValuePluginFilter> filters = new ArrayList<ValuePluginFilter>();
         List<ValueStorageFilterEntry> filterEntries = storageEntry.getFilters();
         for (ValueStorageFilterEntry filterEntry : filterEntries) {
-          ValuePluginFilter filter = new ValuePluginFilter(
-              PropertyType.valueFromName(filterEntry.getPropertyType()), 
-              null, null, filterEntry.getMinValueSize());
+          ValuePluginFilter filter = new ValuePluginFilter(PropertyType.valueFromName(filterEntry.getPropertyType()),
+                                                           null,
+                                                           null,
+                                                           filterEntry.getMinValueSize());
           filters.add(filter);
         }
 
@@ -109,8 +110,8 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
         }
 
         // TODO see above
-        //props.putAll(containerProps);
-        
+        // props.putAll(containerProps);
+
         plugin.init(props);
         plugin.setId(storageEntry.getId());
         plugin.setFilters(filters);
@@ -122,8 +123,8 @@ public class StandaloneStoragePluginProvider extends ArrayList<ValueStoragePlugi
 
   /**
    * @param property
-   * @return ValueIOChannel appropriate for this property (by path, id etc) or
-   *         null if no such channel found
+   * @return ValueIOChannel appropriate for this property (by path, id etc) or null if no such
+   *         channel found
    * @throws IOException
    */
   public ValueIOChannel getApplicableChannel(PropertyData property, int valueOrderNumer) throws IOException {

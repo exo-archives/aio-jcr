@@ -40,8 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceSystemViewStreamExporter.java 13986 2008-05-08
- *          10:48:43Z pnedonosko $
+ * @version $Id: WorkspaceSystemViewStreamExporter.java 13986 2008-05-08 10:48:43Z pnedonosko $
  */
 public class WorkspaceSystemViewStreamExporter extends SystemViewStreamExporter {
   /**
@@ -61,9 +60,9 @@ public class WorkspaceSystemViewStreamExporter extends SystemViewStreamExporter 
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform
+   * .services.jcr.datamodel.NodeData, int)
    */
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -81,9 +80,9 @@ public class WorkspaceSystemViewStreamExporter extends SystemViewStreamExporter 
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform
+   * .services.jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {

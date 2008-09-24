@@ -22,9 +22,8 @@ import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
- * Acts as an argument for the {@link QueryHandler} to keep the interface
- * stable. This class provides access to the environment where the query handler
- * is running in.
+ * Acts as an argument for the {@link QueryHandler} to keep the interface stable. This class
+ * provides access to the environment where the query handler is running in.
  */
 public class QueryHandlerContext {
   /**
@@ -67,17 +66,22 @@ public class QueryHandlerContext {
   /**
    * Creates a new context instance.
    * 
-   * @param fs a {@link FileSystem} this <code>QueryHandler</code> may use to
-   *          store its index. If no <code>FileSystem</code> has been
-   *          configured <code>fs</code> is <code>null</code>.
-   * @param stateMgr provides persistent item states.
-   * @param rootId the id of the root node.
-   * @param ntRegistry the node type registry.
-   * @param nsRegistry the namespace registry.
-   * @param parentHandler the parent query handler or <code>null</code> it
-   *          there is no parent handler.
-   * @param excludedNodeId id of the node that should be excluded from indexing.
-   *          Any descendant of that node is also excluded from indexing.
+   * @param fs
+   *          a {@link FileSystem} this <code>QueryHandler</code> may use to store its index. If no
+   *          <code>FileSystem</code> has been configured <code>fs</code> is <code>null</code>.
+   * @param stateMgr
+   *          provides persistent item states.
+   * @param rootId
+   *          the id of the root node.
+   * @param ntRegistry
+   *          the node type registry.
+   * @param nsRegistry
+   *          the namespace registry.
+   * @param parentHandler
+   *          the parent query handler or <code>null</code> it there is no parent handler.
+   * @param excludedNodeId
+   *          id of the node that should be excluded from indexing. Any descendant of that node is
+   *          also excluded from indexing.
    */
   public QueryHandlerContext(ItemDataConsumer stateMgr,
                              String rootIdentifer,
@@ -98,11 +102,10 @@ public class QueryHandlerContext {
   }
 
   /**
-   * Returns the persistent {@link ItemStateManager} of the workspace this
-   * <code>QueryHandler</code> is based on.
+   * Returns the persistent {@link ItemStateManager} of the workspace this <code>QueryHandler</code>
+   * is based on.
    * 
-   * @return the persistent <code>ItemStateManager</code> of the current
-   *         workspace.
+   * @return the persistent <code>ItemStateManager</code> of the current workspace.
    */
   public ItemDataConsumer getItemStateManager() {
     return stateMgr;

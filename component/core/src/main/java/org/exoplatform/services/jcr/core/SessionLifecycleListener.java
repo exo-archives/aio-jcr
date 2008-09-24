@@ -16,14 +16,14 @@
  */
 package org.exoplatform.services.jcr.core;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: SessionLifecycleListener.java 12096 2008-03-19 11:42:40Z gazarenkov $
  */
 
 public interface SessionLifecycleListener {
-  
+
   void onCloseSession(ExtendedSession session);
 }

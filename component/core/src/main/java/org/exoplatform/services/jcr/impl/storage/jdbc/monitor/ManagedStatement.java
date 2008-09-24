@@ -28,25 +28,24 @@ import org.apache.commons.logging.Log;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 2-sep-08
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ManagedStatement.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class ManagedStatement implements Statement {
 
   protected final Statement jdbcStmt;
-  
-  protected final int interest;
-  
-  protected final Log log;
-  
-  ManagedStatement(Statement jdbcStmt, int interest, Log log)  {
+
+  protected final int       interest;
+
+  protected final Log       log;
+
+  ManagedStatement(Statement jdbcStmt, int interest, Log log) {
     this.jdbcStmt = jdbcStmt;
     this.interest = interest;
     this.log = log;
   }
-  
-  
+
   public void addBatch(String sql) throws SQLException {
     jdbcStmt.addBatch(sql);
   }
@@ -108,7 +107,7 @@ public class ManagedStatement implements Statement {
   }
 
   public Connection getConnection() throws SQLException {
-    return jdbcStmt.getConnection();//TODO
+    return jdbcStmt.getConnection();// TODO
   }
 
   public int getFetchDirection() throws SQLException {

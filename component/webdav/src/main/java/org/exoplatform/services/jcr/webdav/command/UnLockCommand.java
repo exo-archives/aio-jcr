@@ -29,29 +29,29 @@ import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class UnLockCommand {
-  
+
   protected final NullResourceLocksHolder nullResourceLocks;
-  
+
   public UnLockCommand(final NullResourceLocksHolder nullResourceLocks) {
     this.nullResourceLocks = nullResourceLocks;
   }
-  
+
   public Response unLock(Session session, String path, List<String> tokens) {
     try {
       try {
-        Node node = (Node)session.getItem(path);
-        
+        Node node = (Node) session.getItem(path);
+
         if (node.isLocked()) {
           node.unlock();
           session.save();
         }
-        
+
         return Response.Builder.noContent().build();
       } catch (PathNotFoundException exc) {
         if (nullResourceLocks.isLocked(session, path)) {
@@ -59,16 +59,16 @@ public class UnLockCommand {
           nullResourceLocks.removeLock(session, path);
           return Response.Builder.noContent().build();
         }
-        
+
         return Response.Builder.notFound().build();
       }
-      
+
     } catch (LockException exc) {
       return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
     } catch (Exception exc) {
       return Response.Builder.serverError().build();
     }
-    
+
   }
 
 }

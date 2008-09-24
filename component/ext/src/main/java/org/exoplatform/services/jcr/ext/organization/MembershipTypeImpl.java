@@ -21,11 +21,11 @@ import java.util.Date;
 import org.exoplatform.services.organization.MembershipType;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 24.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: MembershipTypeImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class MembershipTypeImpl implements MembershipType {

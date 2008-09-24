@@ -57,21 +57,23 @@ public class JCRBrowserFilter implements Filter {
 
   private static final Log LOG = ExoLogger.getLogger("jcr.JCRBrowserFilter");
 
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException,
-                                                                                                         ServletException {
+  public void doFilter(ServletRequest servletRequest,
+                       ServletResponse servletResponse,
+                       FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
     httpRequest.setCharacterEncoding("UTF-8");
 
     JCRBrowser jcrBrowser = (JCRBrowser) httpRequest.getSession().getAttribute("browser");
 
-    ExoContainer container = (ExoContainer) httpRequest.getSession().getServletContext().getAttribute(WebConstants.EXO_CONTAINER);
+    ExoContainer container = (ExoContainer) httpRequest.getSession()
+                                                       .getServletContext()
+                                                       .getAttribute(WebConstants.EXO_CONTAINER);
     if (container == null) {
       String portalName = httpRequest.getSession().getServletContext().getServletContextName();
       container = RootContainer.getInstance().getPortalContainer(portalName);
     }
 
-    SessionProviderService sessionProviderService =
-        (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
+    SessionProviderService sessionProviderService = (SessionProviderService) container.getComponentInstanceOfType(SessionProviderService.class);
 
     RepositoryService repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
 
@@ -84,14 +86,16 @@ public class JCRBrowserFilter implements Filter {
         String workspaceName = (String) httpRequest.getParameter("workspaceName");
 
         // check if browser related to repository/workspace given in attrs
-        if (repositoryName != null && !jcrBrowser.getRepository().getConfiguration().getName().equals(repositoryName)) {
+        if (repositoryName != null
+            && !jcrBrowser.getRepository().getConfiguration().getName().equals(repositoryName)) {
           // ask repositoryService and if not found lookup JNDI by given name
           try {
             jcrBrowser.setRepository(repositoryService.getRepository(repositoryName));
-          } catch(RepositoryException e) {
-            if (e.getMessage().indexOf("not found")>0) {
+          } catch (RepositoryException e) {
+            if (e.getMessage().indexOf("not found") > 0) {
               // check in JNDI
-              LOG.warn("Repository '" + repositoryName + "' is not local. Trying JNDI lookup with the name.");
+              LOG.warn("Repository '" + repositoryName
+                  + "' is not local. Trying JNDI lookup with the name.");
               ManageableRepository jndiRepo;
               try {
                 InitialContext ctx = new InitialContext();
@@ -112,8 +116,8 @@ public class JCRBrowserFilter implements Filter {
                 else
                   jcrBrowser.setRepository(jndiRepo);
               } catch (NamingException jndie) {
-                LOG.warn("Repository not bound in JNDI with one of names '" + repositoryName + 
-                         "', 'java:comp/env/" + repositoryName + "' or can't be connected.", jndie);
+                LOG.warn("Repository not bound in JNDI with one of names '" + repositoryName
+                    + "', 'java:comp/env/" + repositoryName + "' or can't be connected.", jndie);
                 try {
                   InitialContext ctx = new InitialContext();
                   Object obj = ctx.lookup("java:comp/env/jcr/" + repositoryName);
@@ -129,7 +133,8 @@ public class JCRBrowserFilter implements Filter {
                   } else
                     jcrBrowser.setRepository(jndiRepo);
                 } catch (NamingException jndie1) {
-                  LOG.warn("Repository not bound in JNDI with name 'java:comp/env/jcr/" + repositoryName + "' or can't be connected.", jndie1);
+                  LOG.warn("Repository not bound in JNDI with name 'java:comp/env/jcr/"
+                      + repositoryName + "' or can't be connected.", jndie1);
                   jcrBrowser.addError(e);
                   jcrBrowser.addError(jndie);
                   jcrBrowser.addError(jndie1);
@@ -140,12 +145,14 @@ public class JCRBrowserFilter implements Filter {
         }
 
         if (jcrBrowser.getRepository() != null) {
-        
-          if (workspaceName != null && !jcrBrowser.getSession().getWorkspace().getName().equals(workspaceName)) {
-            jcrBrowser.setSession(sessionProviderService.getSessionProvider(null).getSession(workspaceName,
-                                                                                             jcrBrowser.getRepository()));
+
+          if (workspaceName != null
+              && !jcrBrowser.getSession().getWorkspace().getName().equals(workspaceName)) {
+            jcrBrowser.setSession(sessionProviderService.getSessionProvider(null)
+                                                        .getSession(workspaceName,
+                                                                    jcrBrowser.getRepository()));
           }
-  
+
           String path = (String) httpRequest.getParameter("goParent");
           if (path != null) {
             jcrBrowser.setNode(jcrBrowser.getNode().getNode(path));
@@ -161,9 +168,10 @@ public class JCRBrowserFilter implements Filter {
 
         ManageableRepository repository = repositoryService.getDefaultRepository();
 
-        Session jcrSession =
-            sessionProviderService.getSessionProvider(null).getSession(repository.getConfiguration().getDefaultWorkspaceName(),
-                                                                       repository);
+        Session jcrSession = sessionProviderService.getSessionProvider(null)
+                                                   .getSession(repository.getConfiguration()
+                                                                         .getDefaultWorkspaceName(),
+                                                               repository);
 
         if (jcrBrowser == null) {
           jcrBrowser = new JCRBrowser();

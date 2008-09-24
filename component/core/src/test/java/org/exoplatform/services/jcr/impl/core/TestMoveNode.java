@@ -166,8 +166,8 @@ public class TestMoveNode extends JcrImplBaseTest {
     session.save();
 
     assertEquals("/node5/jcr:primaryType", root.getNode("node5")
-                 .getProperty("jcr:primaryType")
-                 .getPath());
+                                               .getProperty("jcr:primaryType")
+                                               .getPath());
 
     node5.remove();
     node3.remove();

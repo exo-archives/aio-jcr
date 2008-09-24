@@ -31,25 +31,23 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
 
 public class testDeleteFileFolder extends BaseStandaloneTest {
-  protected static Log logger = ExoLogger
-      .getLogger("jcr.JCRTest.testDeleteFileFolder");
+  protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testDeleteFileFolder");
 
-  protected String servername;
+  protected String     servername;
 
   public void setUp() throws Exception {
     super.setUp();
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName() : serv.getConfiguration()
-        .getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
   }
 
   /**
@@ -61,10 +59,8 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
 
     Session s = null;
 
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     String newname = "newfile.dat";
@@ -83,8 +79,7 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
     dataNode.setProperty("jcr:data", "");
     s.save();
 
-    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     assertTrue(newfile.exists());
 
@@ -105,8 +100,7 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
 
     String newname = "unexist.dat";
 
-    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     assertFalse(newfile.exists());
 
@@ -130,10 +124,8 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
 
     Session s = null;
 
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     String newname = "hhfolder";
@@ -145,8 +137,7 @@ public class testDeleteFileFolder extends BaseStandaloneTest {
 
     s.save();
 
-    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        newname + "/");
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" + newname + "/");
 
     assertTrue(newfile.exists());
 

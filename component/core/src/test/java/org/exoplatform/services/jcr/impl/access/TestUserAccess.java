@@ -28,23 +28,22 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 19.05.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestUserAccess.java 14464 2008-05-19 11:05:20Z pnedonosko $
  */
 public class TestUserAccess extends JcrImplBaseTest {
 
-
   private NodeImpl testRoot;
-  
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    
-    testRoot = (NodeImpl) root.addNode("testUserAccess");  
+
+    testRoot = (NodeImpl) root.addNode("testUserAccess");
     root.save();
   }
 
@@ -55,9 +54,9 @@ public class TestUserAccess extends JcrImplBaseTest {
     root.save();
     super.tearDown();
   }
-  
+
   /**
-   * Check if dedicated user has rights to a node with this user rights only. 
+   * Check if dedicated user has rights to a node with this user rights only.
    * 
    * @throws Exception
    */
@@ -71,23 +70,24 @@ public class TestUserAccess extends JcrImplBaseTest {
     }
     maryNode.removePermission(SystemIdentity.ANY);
     testRoot.save();
-    
+
     try {
-      Session marySession = repository.login(new CredentialsImpl("mary", "exo".toCharArray()), session.getWorkspace().getName());
+      Session marySession = repository.login(new CredentialsImpl("mary", "exo".toCharArray()),
+                                             session.getWorkspace().getName());
       NodeImpl myNode = (NodeImpl) marySession.getItem(maryNode.getPath());
       Node test = myNode.addNode("test");
       test.setProperty("property", "any data");
       myNode.save();
       test.remove();
       myNode.save();
-    } catch(AccessControlException e) {
+    } catch (AccessControlException e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
   }
 
   /**
-   * Check if admin user has rights to a node with this user rights only. 
+   * Check if admin user has rights to a node with this user rights only.
    * 
    * @throws Exception
    */
@@ -101,23 +101,24 @@ public class TestUserAccess extends JcrImplBaseTest {
     }
     rootNode.removePermission(SystemIdentity.ANY);
     testRoot.save();
-   
+
     try {
-      Session rootSession = repository.login(new CredentialsImpl("root", "exo".toCharArray()), session.getWorkspace().getName());
+      Session rootSession = repository.login(new CredentialsImpl("root", "exo".toCharArray()),
+                                             session.getWorkspace().getName());
       NodeImpl myNode = (NodeImpl) rootSession.getItem(rootNode.getPath());
       Node test = myNode.addNode("test");
       test.setProperty("property", "any data");
       myNode.save();
       test.remove();
       myNode.save();
-    } catch(AccessControlException e) {
+    } catch (AccessControlException e) {
       e.printStackTrace();
       fail(e.getMessage());
     }
   }
-  
+
   /**
-   * Check if root user has rights to a node with this user rights and rights for any to a read. 
+   * Check if root user has rights to a node with this user rights and rights for any to a read.
    * 
    * @throws Exception
    */
@@ -127,24 +128,25 @@ public class TestUserAccess extends JcrImplBaseTest {
     rootNode.addMixin("exo:privilegeable");
     if (!session.getUserID().equals("root"))
       rootNode.setPermission("root", PermissionType.ALL);
-    
+
     // set any to read only
     rootNode.setPermission(session.getUserID(), PermissionType.ALL); // temp all for current user
     rootNode.removePermission(SystemIdentity.ANY);
-    rootNode.setPermission(SystemIdentity.ANY, new String[] {PermissionType.READ});
+    rootNode.setPermission(SystemIdentity.ANY, new String[] { PermissionType.READ });
     rootNode.removePermission(session.getUserID()); // clean temp rights
-    
+
     testRoot.save();
-   
+
     try {
-      Session rootSession = repository.login(new CredentialsImpl("root", "exo".toCharArray()), session.getWorkspace().getName());
+      Session rootSession = repository.login(new CredentialsImpl("root", "exo".toCharArray()),
+                                             session.getWorkspace().getName());
       NodeImpl myNode = (NodeImpl) rootSession.getItem(rootNode.getPath());
       Node test = myNode.addNode("test");
       test.setProperty("property", "any data");
       myNode.save();
       test.remove();
       myNode.save();
-    } catch(AccessControlException e) {
+    } catch (AccessControlException e) {
       e.printStackTrace();
       fail(e.getMessage());
     }

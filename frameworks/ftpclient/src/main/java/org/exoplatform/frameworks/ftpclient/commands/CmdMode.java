@@ -10,28 +10,28 @@ import org.exoplatform.frameworks.ftpclient.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdMode extends FtpCommandImpl {
-  
+
   private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdMode");
-  
-  private String mode;
-  
+
+  private String     mode;
+
   public CmdMode(String mode) {
     this.mode = mode;
   }
-  
+
   public int execute() {
     try {
       sendCommand(String.format("%s %s", FtpConst.Commands.CMD_MODE, mode));
       return getReply();
     } catch (Exception exc) {
       log.info(FtpConst.EXC_MSG + exc.getMessage(), exc);
-    }    
+    }
     return -1;
   }
 

@@ -54,9 +54,9 @@ public class DecodedValue {
   }
 
   /**
-   * @return Base64 decoder. It is write decoded incoming data into the
-   *         temporary file.
-   * @exception IOException if an I/O error occurs.
+   * @return Base64 decoder. It is write decoded incoming data into the temporary file.
+   * @exception IOException
+   *              if an I/O error occurs.
    */
   public Decoder getBinaryDecoder() throws IOException {
     if (decoder == null) {
@@ -68,7 +68,8 @@ public class DecodedValue {
 
   /**
    * @return InputStream from decoded file.
-   * @exception IOException if an I/O error occurs.
+   * @exception IOException
+   *              if an I/O error occurs.
    */
   public InputStream getInputStream() throws IOException {
     if (decoder == null) {
@@ -88,7 +89,8 @@ public class DecodedValue {
   /**
    * Removes all temporary variables and files.
    * 
-   * @throws IOException if file can't be removed.
+   * @throws IOException
+   *           if file can't be removed.
    */
   public void remove() throws IOException {
 

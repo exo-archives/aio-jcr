@@ -23,11 +23,11 @@ import org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer
 import org.exoplatform.services.jcr.impl.storage.value.cas.JDBCValueContentAddressStorageImpl;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 19.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class TestCASableSimpleFileIOChannel extends CASableFileIOChannelTestBase {
@@ -35,24 +35,26 @@ public class TestCASableSimpleFileIOChannel extends CASableFileIOChannelTestBase
   @Override
   protected void initVCAS() throws Exception {
     Properties props = new Properties();
-    
+
     // find jdbc-source-name
     String jdbcSourceName = null;
     String jdbcDialect = null;
-    for (WorkspaceEntry wse: repository.getConfiguration().getWorkspaceEntries()) {
+    for (WorkspaceEntry wse : repository.getConfiguration().getWorkspaceEntries()) {
       if (wse.getName().equals(session.getWorkspace().getName())) {
-        jdbcSourceName = wse.getContainer().getParameterValue(JDBCWorkspaceDataContainer.SOURCE_NAME);
+        jdbcSourceName = wse.getContainer()
+                            .getParameterValue(JDBCWorkspaceDataContainer.SOURCE_NAME);
         jdbcDialect = wse.getContainer().getParameterValue(JDBCWorkspaceDataContainer.DB_DIALECT);
       }
     }
-    
+
     if (jdbcSourceName == null)
       fail(JDBCWorkspaceDataContainer.SOURCE_NAME + " required in workspace container config");
-    
+
     props.put(JDBCValueContentAddressStorageImpl.JDBC_SOURCE_NAME_PARAM, jdbcSourceName);
     props.put(JDBCValueContentAddressStorageImpl.JDBC_DIALECT_PARAM, jdbcDialect);
-    props.put(JDBCValueContentAddressStorageImpl.TABLE_NAME_PARAM, JDBCValueContentAddressStorageImpl.DEFAULT_TABLE_NAME + "_TEST");
-    
+    props.put(JDBCValueContentAddressStorageImpl.TABLE_NAME_PARAM,
+              JDBCValueContentAddressStorageImpl.DEFAULT_TABLE_NAME + "_TEST");
+
     vcas = new JDBCValueContentAddressStorageImpl();
     vcas.init(props);
   }
@@ -61,5 +63,5 @@ public class TestCASableSimpleFileIOChannel extends CASableFileIOChannelTestBase
   protected FileIOChannel openCASChannel(String digestType) throws Exception {
     return new CASableSimpleFileIOChannel(rootDir, fileCleaner, storageId, vcas, digestType);
   }
-  
+
 }

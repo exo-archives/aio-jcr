@@ -82,7 +82,7 @@ public class RepositoryContainer extends ExoContainer {
   private final Log                     log               = ExoLogger.getLogger("jcr.RepositoryContainer");
 
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
-                                                                         RepositoryConfigurationException {
+      RepositoryConfigurationException {
 
     super(new MX4JComponentAdapterFactory(), parent);
 
@@ -165,15 +165,16 @@ public class RepositoryContainer extends ExoContainer {
       // cache type
       try {
         String className = wsConfig.getCache().getType();
-        if (className != null && className.length()>0) {
+        if (className != null && className.length() > 0) {
           workspaceContainer.registerComponentImplementation(Class.forName(className));
         } else
           workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class);
       } catch (ClassNotFoundException e) {
-        log.warn("Workspace cache class not found " + wsConfig.getCache().getType() + ", will use default. Error : " + e);
+        log.warn("Workspace cache class not found " + wsConfig.getCache().getType()
+            + ", will use default. Error : " + e);
         workspaceContainer.registerComponentImplementation(LinkedWorkspaceStorageCacheImpl.class);
       }
-      
+
       workspaceContainer.registerComponentImplementation(CacheableWorkspaceDataManager.class);
       workspaceContainer.registerComponentImplementation(LocalWorkspaceDataManagerStub.class);
       workspaceContainer.registerComponentImplementation(ObservationManagerRegistry.class);
@@ -185,7 +186,9 @@ public class RepositoryContainer extends ExoContainer {
           workspaceContainer.registerComponentImplementation(lockPersister);
         } catch (ClassNotFoundException e) {
           throw new RepositoryConfigurationException("Class not found for workspace lock persister "
-              + wsConfig.getLockManager().getPersister().getType()  + ", container " + wsConfig.getUniqueName() + " : " + e);
+              + wsConfig.getLockManager().getPersister().getType()
+              + ", container "
+              + wsConfig.getUniqueName() + " : " + e);
         }
       }
       workspaceContainer.registerComponentImplementation(LockManagerImpl.class);
@@ -208,7 +211,10 @@ public class RepositoryContainer extends ExoContainer {
           workspaceContainer.registerComponentImplementation(am);
         } catch (ClassNotFoundException e) {
           throw new RepositoryConfigurationException("Class not found for workspace access manager "
-              + wsConfig.getAccessManager().getType() + ", container " + wsConfig.getUniqueName() + " : " + e);
+              + wsConfig.getAccessManager().getType()
+              + ", container "
+              + wsConfig.getUniqueName()
+              + " : " + e);
         }
       }
 
@@ -220,18 +226,18 @@ public class RepositoryContainer extends ExoContainer {
           initilizerType = Class.forName(wsConfig.getInitializer().getType());
         } catch (ClassNotFoundException e) {
           throw new RepositoryConfigurationException("Class not found for workspace initializer "
-              + wsConfig.getInitializer().getType() + ", container " + wsConfig.getUniqueName() + " : " + e);
+              + wsConfig.getInitializer().getType() + ", container " + wsConfig.getUniqueName()
+              + " : " + e);
         }
       } else {
         // use default
         initilizerType = ScratchWorkspaceInitializer.class;
       }
-      workspaceContainer.registerComponentImplementation(initilizerType);      
+      workspaceContainer.registerComponentImplementation(initilizerType);
       workspaceContainer.registerComponentImplementation(SessionFactory.class);
       workspaceContainer.registerComponentImplementation(WorkspaceFileCleanerHolder.class);
 
-      LocalWorkspaceDataManagerStub wsDataManager =
-          (LocalWorkspaceDataManagerStub) workspaceContainer.getComponentInstanceOfType(LocalWorkspaceDataManagerStub.class);
+      LocalWorkspaceDataManagerStub wsDataManager = (LocalWorkspaceDataManagerStub) workspaceContainer.getComponentInstanceOfType(LocalWorkspaceDataManagerStub.class);
 
       if (isSystem) {
         // system workspace
@@ -243,7 +249,7 @@ public class RepositoryContainer extends ExoContainer {
 
       if (!config.getWorkspaceEntries().contains(wsConfig))
         config.getWorkspaceEntries().add(wsConfig);
-      
+
     } catch (RuntimeException e) {
       int depth = 0;
       Throwable retval = e;
@@ -264,7 +270,6 @@ public class RepositoryContainer extends ExoContainer {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.defaults.DefaultPicoContainer#start()
    */
   @Override
@@ -292,7 +297,6 @@ public class RepositoryContainer extends ExoContainer {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.defaults.DefaultPicoContainer#stop()
    */
   @Override
@@ -351,8 +355,7 @@ public class RepositoryContainer extends ExoContainer {
     workspaceContainer.getComponentInstanceOfType(IdGenerator.class);
 
     // Init Root and jcr:system if workspace is system workspace
-    WorkspaceInitializer wsInitializer = 
-      (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
+    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
     wsInitializer.initWorkspace();
   }
 
@@ -366,7 +369,8 @@ public class RepositoryContainer extends ExoContainer {
     registerRepositoryComponents();
   }
 
-  private void registerRepositoryComponents() throws RepositoryConfigurationException, RepositoryException {
+  private void registerRepositoryComponents() throws RepositoryConfigurationException,
+                                             RepositoryException {
 
     registerComponentImplementation(IdGenerator.class);
 
@@ -389,17 +393,17 @@ public class RepositoryContainer extends ExoContainer {
 
     if (systemWsEntry != null && systemWsEntry.getQueryHandler() != null) {
       // registerComponentInstance(systemWsEntry.getQueryHandlerEntry());
-      //registerComponentInstance(systemWsEntry.getQueryHandlerEntry());
-      //registerComponentImplementation(SystemSearchManager.class);
-      SystemSearchManager systemSearchManager =
-          (SystemSearchManager) getWorkspaceContainer(systemWsname).getComponentInstanceOfType(SystemSearchManager.class);
+      // registerComponentInstance(systemWsEntry.getQueryHandlerEntry());
+      // registerComponentImplementation(SystemSearchManager.class);
+      SystemSearchManager systemSearchManager = (SystemSearchManager) getWorkspaceContainer(systemWsname).getComponentInstanceOfType(SystemSearchManager.class);
       registerComponentInstance(new SystemSearchManagerHolder(systemSearchManager));
     }
 
     try {
       registerComponentImplementation(Class.forName(config.getAuthenticationPolicy()));
     } catch (ClassNotFoundException e) {
-      throw new RepositoryConfigurationException("Class not found for repository authentication policy: " + e);
+      throw new RepositoryConfigurationException("Class not found for repository authentication policy: "
+          + e);
     }
 
     // Repository
@@ -408,7 +412,8 @@ public class RepositoryContainer extends ExoContainer {
 
   }
 
-  private void registerWorkspacesComponents() throws RepositoryException, RepositoryConfigurationException {
+  private void registerWorkspacesComponents() throws RepositoryException,
+                                             RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
     Collections.sort(wsEntries, new WorkspaceOrderComparator(config.getSystemWorkspaceName()));
     for (int i = 0; i < wsEntries.size(); i++) {
@@ -426,8 +431,7 @@ public class RepositoryContainer extends ExoContainer {
 
     WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
 
-    WorkspaceInitializer wsInitializer =
-        (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
+    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
 
     // start workspace
     // wsInitializer.start();

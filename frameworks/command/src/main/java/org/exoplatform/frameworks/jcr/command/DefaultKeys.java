@@ -27,17 +27,24 @@ public interface DefaultKeys {
 
   // public static final String COMMAND = "command";
 
-  public static final String PATH = "path";
-  public static final String WORKSPACE = "workspace";
-  public static final String NODE_TYPE = "nodeType";
-  public static final String RESULT = "result";
-  public static final String CURRENT_NODE = "currentNode";
-  public static final String NAME = "name";
-  public static final String PROPERTY_TYPE = "propertyType";
-  public static final String VALUES = "values";
-  public static final String MULTI_VALUED = "multiValued";
+  public static final String   PATH          = "path";
 
-  public static final String[] JCR_KEYS = { PATH, WORKSPACE, NODE_TYPE, RESULT,
-      CURRENT_NODE };
+  public static final String   WORKSPACE     = "workspace";
+
+  public static final String   NODE_TYPE     = "nodeType";
+
+  public static final String   RESULT        = "result";
+
+  public static final String   CURRENT_NODE  = "currentNode";
+
+  public static final String   NAME          = "name";
+
+  public static final String   PROPERTY_TYPE = "propertyType";
+
+  public static final String   VALUES        = "values";
+
+  public static final String   MULTI_VALUED  = "multiValued";
+
+  public static final String[] JCR_KEYS      = { PATH, WORKSPACE, NODE_TYPE, RESULT, CURRENT_NODE };
 
 }

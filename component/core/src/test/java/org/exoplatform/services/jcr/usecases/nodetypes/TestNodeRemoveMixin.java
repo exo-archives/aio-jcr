@@ -21,43 +21,40 @@ import javax.jcr.Node;
 import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Anh Nguyen
- *          ntuananh.vn@gmail.com
- * Nov 13, 2007  
+ * Created by The eXo Platform SAS Author : Anh Nguyen ntuananh.vn@gmail.com Nov 13, 2007
  */
 public class TestNodeRemoveMixin extends BaseUsecasesTest {
 
-  public void testNodeRemoveMixin() throws Exception{
-    
-    //Register Nodetypes - performed in configuration
+  public void testNodeRemoveMixin() throws Exception {
 
-    //Create Node
-    Node rootNode = session.getRootNode();    
-    Node testNode = rootNode.addNode("testMixinNode","exo:myType");
-    
-    //Add mixin to Node
+    // Register Nodetypes - performed in configuration
+
+    // Create Node
+    Node rootNode = session.getRootNode();
+    Node testNode = rootNode.addNode("testMixinNode", "exo:myType");
+
+    // Add mixin to Node
     testNode.addMixin("mix:versionable");
     testNode.addMixin("exo:archiveable");
-    
-    //Set a value to Node's Property
+
+    // Set a value to Node's Property
     String restorePath = "test/restore/path";
     testNode.setProperty("exo:restorePath", restorePath);
-    
+
     rootNode.save();
-    
+
     assertTrue(testNode.isNodeType("exo:archiveable"));
     assertNotNull(testNode.getProperty("exo:restorePath"));
-    
-    //Do remove Mixin from Node
+
+    // Do remove Mixin from Node
     testNode = rootNode.getNode("testMixinNode");
     assertNotNull(testNode.getProperties());
     testNode.removeMixin("exo:archiveable");
     session.save();
-    
-    //Error should not be here! // WRONG, node already has at least one property jcr:primaryType
-    //assertNotNull(testNode.getProperties());       
-    
+
+    // Error should not be here! // WRONG, node already has at least one property jcr:primaryType
+    // assertNotNull(testNode.getProperties());
+
     assertFalse(testNode.hasProperty("exo:restorePath"));
-  }  
+  }
 }

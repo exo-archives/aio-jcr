@@ -43,15 +43,13 @@ import org.exoplatform.services.security.MembershipEntry;
 
 public abstract class AccessManager {
 
-  protected static Log                          log           = ExoLogger
-                                                                  .getLogger("jcr.AccessManager");
+  protected static Log                          log           = ExoLogger.getLogger("jcr.AccessManager");
 
   protected final Map<String, String>           parameters;
 
   private static ThreadLocal<InvocationContext> contextHolder = new ThreadLocal<InvocationContext>();
 
-  protected AccessManager(RepositoryEntry config, WorkspaceEntry wsConfig)
-      throws RepositoryException {
+  protected AccessManager(RepositoryEntry config, WorkspaceEntry wsConfig) throws RepositoryException {
 
     this.parameters = new HashMap<String, String>();
     if (wsConfig != null && wsConfig.getAccessManager() != null) {
@@ -72,23 +70,28 @@ public abstract class AccessManager {
   /**
    * Has permission.
    * 
-   * @param acl access control list
-   * @param permission permission
-   * @param user user Identity
+   * @param acl
+   *          access control list
+   * @param permission
+   *          permission
+   * @param user
+   *          user Identity
    * @return boolean
    * @throws RepositoryException
    */
-  public final boolean hasPermission(AccessControlList acl, String permission, Identity user)
-      throws RepositoryException {
+  public final boolean hasPermission(AccessControlList acl, String permission, Identity user) throws RepositoryException {
     return hasPermission(acl, parseStringPermissions(permission), user);
   }
 
   /**
    * Has permission.
    * 
-   * @param acl access control list
-   * @param permission permissions array
-   * @param user user Identity
+   * @param acl
+   *          access control list
+   * @param permission
+   *          permissions array
+   * @param user
+   *          user Identity
    * @return boolean
    */
   public boolean hasPermission(AccessControlList acl, String[] permission, Identity user) {
@@ -148,7 +151,8 @@ public abstract class AccessManager {
   }
 
   private boolean isPermissionMatch(List<AccessControlEntry> existedPermission,
-      String testPermission, Identity user) {
+                                    String testPermission,
+                                    Identity user) {
     for (AccessControlEntry ace : existedPermission) {
       // match action
       if (ace.getPermission().equals(testPermission)) {

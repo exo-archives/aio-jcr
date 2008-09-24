@@ -23,20 +23,20 @@ import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class CmdCdUp extends FtpCommandImpl {
-  
+
   private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "CmdCdUp");
-  
+
   public CmdCdUp() {
-    commandName = FtpConst.Commands.CMD_CDUP; 
+    commandName = FtpConst.Commands.CMD_CDUP;
   }
 
-  public void run(String []params) throws IOException {
+  public void run(String[] params) throws IOException {
     try {
       reply(String.format(clientSession().changePath(".."), FtpConst.Commands.CMD_CDUP));
       return;
@@ -45,5 +45,5 @@ public class CmdCdUp extends FtpCommandImpl {
     }
     reply(String.format(FtpConst.Replyes.REPLY_550, FtpConst.Commands.CMD_CDUP));
   }
-  
+
 }

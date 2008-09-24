@@ -30,9 +30,8 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:zagrebin_v@mail.ru">Victor Zagrebin</a>
- * @version $Id: SlowListTest.java 11907 2008-03-13 15:36:21Z ksm $ The
- *          test for indexing an excel .xls file which contained within jcr:data
- *          property
+ * @version $Id: SlowListTest.java 11907 2008-03-13 15:36:21Z ksm $ The test for indexing an excel
+ *          .xls file which contained within jcr:data property
  */
 
 public class SlowListTest extends BaseUsecasesTest {
@@ -61,8 +60,8 @@ public class SlowListTest extends BaseUsecasesTest {
       contentNode.setProperty("jcr:encoding", "UTF-8");
       contentNode.setProperty("jcr:data", session.getValueFactory().createValue(new String(b)));
       contentNode.setProperty("jcr:mimeType", "application/excel");
-      contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-          Calendar.getInstance()));
+      contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
       assertNotNull("Can not create a cool node for indexing", cool);
       assertNotNull("Can not create a contentNode node for indexing", contentNode);
     }
@@ -121,6 +120,6 @@ public class SlowListTest extends BaseUsecasesTest {
     System.out.println("The time of getNodes() call 4 : " + ((end - start) / 1000) + " sec");
 
     // [PN] 21.07.06 hasn't fails that no fail
-    //fail("QUERY TEST"); // Only for the view of intermediate results
+    // fail("QUERY TEST"); // Only for the view of intermediate results
   }
 }

@@ -45,21 +45,21 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class SearchResultResponseEntity implements SerializableEntity {
-  
+
   private final WebDavNamespaceContext nsContext;
-  
-  private QueryResult queryResult;
-  
-  private String baseURI;
-  
-  private static Set<QName> properties = new HashSet<QName>();
-  
+
+  private QueryResult                  queryResult;
+
+  private String                       baseURI;
+
+  private static Set<QName>            properties = new HashSet<QName>();
+
   static {
     properties.add(new QName("DAV:", "displayname"));
     properties.add(new QName("DAV:", "resourcetype"));
@@ -67,8 +67,10 @@ public class SearchResultResponseEntity implements SerializableEntity {
     properties.add(new QName("DAV:", "getlastmodified"));
     properties.add(new QName("DAV:", "getcontentlength"));
   }
-  
-  public SearchResultResponseEntity(QueryResult queryResult, final WebDavNamespaceContext nsContext, String baseURI) {
+
+  public SearchResultResponseEntity(QueryResult queryResult,
+                                    final WebDavNamespaceContext nsContext,
+                                    String baseURI) {
     this.queryResult = queryResult;
     this.nsContext = nsContext;
     this.baseURI = baseURI;
@@ -77,21 +79,22 @@ public class SearchResultResponseEntity implements SerializableEntity {
   public void writeObject(OutputStream outStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
-      .createXMLStreamWriter(outStream, Constants.DEFAULT_ENCODING);
-    
+                                                        .createXMLStreamWriter(outStream,
+                                                                               Constants.DEFAULT_ENCODING);
+
       xmlStreamWriter.setNamespaceContext(nsContext);
       xmlStreamWriter.setDefaultNamespace("DAV:");
 
       xmlStreamWriter.writeStartDocument();
       xmlStreamWriter.writeStartElement("D", "multistatus", "DAV:");
       xmlStreamWriter.writeNamespace("D", "DAV:");
-      
+
       xmlStreamWriter.writeAttribute("xmlns:b", "urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/");
-      
+
       NodeIterator nodeIter = queryResult.getNodes();
       while (nodeIter.hasNext()) {
         Node nextNode = nodeIter.nextNode();
-        
+
         if (nextNode.isNodeType("nt:resource")) {
           if (nextNode.getParent().isNodeType("nt:file")) {
             nextNode = nextNode.getParent();
@@ -99,8 +102,8 @@ public class SearchResultResponseEntity implements SerializableEntity {
             // skipping
             continue;
           }
-        }        
-        
+        }
+
         URI uri = new URI(TextUtil.escape(baseURI + nextNode.getPath(), '%', true));
 
         Resource resource;
@@ -112,37 +115,38 @@ public class SearchResultResponseEntity implements SerializableEntity {
           }
         } else {
           if (ResourceUtil.isFile(nextNode)) {
-            resource = new FileResource(uri , nextNode, nsContext);
+            resource = new FileResource(uri, nextNode, nsContext);
           } else {
-            resource = new CollectionResource(uri , nextNode, nsContext);
-          }       
+            resource = new CollectionResource(uri, nextNode, nsContext);
+          }
         }
-        
+
         xmlStreamWriter.writeStartElement("DAV:", "response");
 
-        xmlStreamWriter.writeStartElement("DAV:", "href");    
+        xmlStreamWriter.writeStartElement("DAV:", "href");
         xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
         xmlStreamWriter.writeEndElement();
 
-        PropstatGroupedRepresentation propstat = 
-          new PropstatGroupedRepresentation(resource, properties, false);
+        PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
+                                                                                   properties,
+                                                                                   false);
 
         PropertyWriteUtil.writePropStats(xmlStreamWriter, propstat.getPropStats());
 
         xmlStreamWriter.writeEndElement();
-        
+
       }
-  
+
       // D:multistatus
       xmlStreamWriter.writeEndElement();
-      xmlStreamWriter.writeEndDocument();      
+      xmlStreamWriter.writeEndDocument();
     } catch (XMLStreamException exc) {
       throw new IOException(exc.getMessage());
     } catch (Exception exc) {
-      
+
       System.out.println("Unhandled Exception. " + exc.getMessage());
       exc.printStackTrace();
-      
+
       throw new IOException(exc.getMessage());
     }
   }

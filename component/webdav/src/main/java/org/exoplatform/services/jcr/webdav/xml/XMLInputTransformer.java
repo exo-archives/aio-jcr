@@ -33,53 +33,55 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.rest.transformer.InputEntityTransformer;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-public class XMLInputTransformer extends InputEntityTransformer{
-  
-	private Stack <HierarchicalProperty> curProperty = new Stack <HierarchicalProperty>();
-	private HierarchicalProperty rootProperty;
+public class XMLInputTransformer extends InputEntityTransformer {
 
-	@Override
-	public Object readFrom(InputStream stream) throws IOException {
-		try {
-			XMLInputFactory factory = XMLInputFactory.newInstance();
-			XMLEventReader reader = factory.createXMLEventReader(stream);
-			while (reader.hasNext()) {
-			  XMLEvent event = reader.nextEvent();
-			  switch (event.getEventType()) {
-			  
-			  case XMLEvent.START_ELEMENT:
-			    StartElement element = event.asStartElement();
-			    QName name = element.getName();			    
-			    HierarchicalProperty prop = new HierarchicalProperty(name);
-			    if(!curProperty.empty())
-			    	curProperty.peek().addChild(prop);
-			    else
-			    	rootProperty = prop;
-			    curProperty.push(prop);
-			    break;
-			  case XMLEvent.END_ELEMENT:
-			  	curProperty.pop();
-			    break;
-			  case XMLEvent.CHARACTERS:
-			    String chars = event.asCharacters().getData();
-			    curProperty.peek().setValue(chars);
-			    break;
-			  default:
-			    break;
-			  }
-			}
-			
-			return rootProperty;
-		} catch (FactoryConfigurationError e) {
-			throw new IOException(e.getMessage());
-		} catch (XMLStreamException e) {
-			return null;
-		}
-	}
+  private Stack<HierarchicalProperty> curProperty = new Stack<HierarchicalProperty>();
+
+  private HierarchicalProperty        rootProperty;
+
+  @Override
+  public Object readFrom(InputStream stream) throws IOException {
+    try {
+      XMLInputFactory factory = XMLInputFactory.newInstance();
+      XMLEventReader reader = factory.createXMLEventReader(stream);
+      while (reader.hasNext()) {
+        XMLEvent event = reader.nextEvent();
+        switch (event.getEventType()) {
+
+        case XMLEvent.START_ELEMENT:
+          StartElement element = event.asStartElement();
+          QName name = element.getName();
+          HierarchicalProperty prop = new HierarchicalProperty(name);
+          if (!curProperty.empty())
+            curProperty.peek().addChild(prop);
+          else
+            rootProperty = prop;
+          curProperty.push(prop);
+          break;
+        case XMLEvent.END_ELEMENT:
+          curProperty.pop();
+          break;
+        case XMLEvent.CHARACTERS:
+          String chars = event.asCharacters().getData();
+          curProperty.peek().setValue(chars);
+          break;
+        default:
+          break;
+        }
+      }
+
+      return rootProperty;
+    } catch (FactoryConfigurationError e) {
+      throw new IOException(e.getMessage());
+    } catch (XMLStreamException e) {
+      return null;
+    }
+  }
 
 }

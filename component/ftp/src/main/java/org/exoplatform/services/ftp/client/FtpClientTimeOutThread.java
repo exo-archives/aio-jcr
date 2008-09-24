@@ -12,35 +12,35 @@ import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class FtpClientTimeOutThread extends Thread {
-  
-  private static Log log = ExoLogger.getLogger("jcr.FtpClientTimeOutThread"); 
-  
+
+  private static Log       log   = ExoLogger.getLogger("jcr.FtpClientTimeOutThread");
+
   private FtpClientSession clientSession;
-  
-  private int timeOutValue;
-  
-  private int clock = 0;
-  
+
+  private int              timeOutValue;
+
+  private int              clock = 0;
+
   public FtpClientTimeOutThread(FtpClientSession clientSession) {
     this.clientSession = clientSession;
     timeOutValue = clientSession.getFtpServer().getConfiguration().getTimeOut();
   }
-  
+
   public void refreshTimeOut() {
     clock = 0;
   }
-  
+
   public void run() {
     while (true) {
       try {
         Thread.sleep(1000);
-        clock++;        
+        clock++;
         if (clock >= timeOutValue) {
           break;
         }
@@ -53,8 +53,8 @@ public class FtpClientTimeOutThread extends Thread {
       clientSession.reply(String.format(FtpConst.Replyes.REPLY_421, timeOutValue));
     } catch (IOException ioexc) {
       log.info("Unhandled exception. " + ioexc.getMessage(), ioexc);
-    }    
+    }
     clientSession.logout();
   }
-  
+
 }

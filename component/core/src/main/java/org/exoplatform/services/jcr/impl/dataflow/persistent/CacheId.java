@@ -19,13 +19,13 @@ package org.exoplatform.services.jcr.impl.dataflow.persistent;
 import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 10.06.2008
- *
+ * 
  * Cache record used to store item Id key.
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class CacheId extends CacheKey {
@@ -35,7 +35,7 @@ public class CacheId extends CacheKey {
    * <br/>So, this instance will prevent GC remove them from CN, CP.
    */
   private final String id;
-  
+
   CacheId(String id) {
     this.id = id;
   }
@@ -45,19 +45,19 @@ public class CacheId extends CacheKey {
     if (id.hashCode() == obj.hashCode() && obj instanceof CacheId)
       return id.equals(((CacheId) obj).id);
     return false;
-    
-    //return this.id.equals(obj);
+
+    // return this.id.equals(obj);
   }
 
   @Override
   public int hashCode() {
-    
+
     return this.id.hashCode();
   }
 
   @Override
   public String toString() {
-    
+
     return this.id.toString();
   }
 

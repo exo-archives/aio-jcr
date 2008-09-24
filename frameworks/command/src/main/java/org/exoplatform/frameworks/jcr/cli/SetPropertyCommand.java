@@ -42,12 +42,10 @@ public class SetPropertyCommand extends AbstractCliCommand {
         property = node.setProperty(propertyName, propertyValue);
       } else {
         int correctPropertyType = new Integer(propertyType);
-        property = node.setProperty(propertyName, propertyValue,
-            correctPropertyType);
+        property = node.setProperty(propertyName, propertyValue, correctPropertyType);
       }
       ctx.getSession().save();
-      output = "Property: " + propertyName + " , " + propertyValue
-          + " created succesfully \n";
+      output = "Property: " + propertyName + " , " + propertyValue + " created succesfully \n";
       ctx.setCurrentItem(property);
     } catch (Exception e) {
       output = "Can't execute command - " + e.getMessage() + "\n";

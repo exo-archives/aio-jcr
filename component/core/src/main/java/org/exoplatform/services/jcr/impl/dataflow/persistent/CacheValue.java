@@ -21,21 +21,21 @@ import java.io.Serializable;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 10.06.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class CacheValue implements Serializable {
 
   private final ItemData item;
-  
-  private final long expiredTime;
-  
-  private final long cacheTime;
-  
+
+  private final long     expiredTime;
+
+  private final long     cacheTime;
+
   CacheValue(ItemData item, long expiredTime) {
     this.item = item;
     this.expiredTime = expiredTime;

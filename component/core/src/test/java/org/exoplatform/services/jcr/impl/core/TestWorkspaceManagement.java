@@ -102,7 +102,8 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
     for (int i = 0; i < names.length; i++) {
       WorkspaceEntry workspaceEntry = helper.getNewWs(names[i],
                                                       isDefaultWsMultiDb,
-                                                      wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                      wsEntry.getContainer()
+                                                             .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                       null,
                                                       wsEntry.getContainer());
       assertNotNull(workspaceEntry);
@@ -124,7 +125,8 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
 
     WorkspaceEntry workspaceEntry = helper.getNewWs("WsInvalidVs",
                                                     isDefaultWsMultiDb,
-                                                    wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                     file.getAbsolutePath(),
                                                     wsEntry.getContainer());
     try {
@@ -143,7 +145,8 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
 
     WorkspaceEntry workspaceEntry = helper.getNewWs("WsValidVs",
                                                     isDefaultWsMultiDb,
-                                                    wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                     "target/temp/values/" + IdGenerator.generate(),
                                                     wsEntry.getContainer());
 
@@ -172,7 +175,8 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
 
     WorkspaceEntry workspaceEntry = helper.getNewWs("wsnoconfig",
                                                     isDefaultWsMultiDb,
-                                                    wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                     null,
                                                     wsEntry.getContainer());
     assertNotNull(workspaceEntry);
@@ -194,7 +198,8 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
     WorkspaceEntry workspaceEntry = null;
     workspaceEntry = helper.getNewWs("newws",
                                      isDefaultWsMultiDb,
-                                     wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                     wsEntry.getContainer()
+                                            .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                      null,
                                      wsEntry.getContainer());
     assertNotNull(workspaceEntry);
@@ -234,7 +239,8 @@ public class TestWorkspaceManagement extends JcrImplBaseTest {
 
     WorkspaceEntry workspaceEntry = helper.getNewWs("wsForRemove",
                                                     isDefaultWsMultiDb,
-                                                    wsEntry.getContainer().getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                                    wsEntry.getContainer()
+                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                                     "target/temp/values/" + IdGenerator.generate(),
                                                     wsEntry.getContainer());
 

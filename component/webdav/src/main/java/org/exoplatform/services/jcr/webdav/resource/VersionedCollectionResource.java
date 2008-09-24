@@ -29,55 +29,63 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
-public class VersionedCollectionResource extends CollectionResource implements
-		VersionedResource {
+public class VersionedCollectionResource extends CollectionResource implements VersionedResource {
 
-	public VersionedCollectionResource(URI identifier, Node node,
-			WebDavNamespaceContext namespaceContext)
-			throws IllegalResourceTypeException, RepositoryException {
-		super(VERSIONED_COLLECTION, identifier, node, namespaceContext);
-		if(!node.isNodeType("mix:versionable"))
-			throw new IllegalResourceTypeException("Node type is not applicable for Versioned FILE resource "+node.getPath());
-	}
+  public VersionedCollectionResource(URI identifier,
+                                     Node node,
+                                     WebDavNamespaceContext namespaceContext) throws IllegalResourceTypeException,
+      RepositoryException {
+    super(VERSIONED_COLLECTION, identifier, node, namespaceContext);
+    if (!node.isNodeType("mix:versionable"))
+      throw new IllegalResourceTypeException("Node type is not applicable for Versioned FILE resource "
+          + node.getPath());
+  }
 
-	public VersionHistoryResource getVersionHistory()  throws RepositoryException, 
-	IllegalResourceTypeException { 
-		return new VersionHistoryResource(versionHistoryURI(), node.getVersionHistory(), this, namespaceContext);
-	}
+  public VersionHistoryResource getVersionHistory() throws RepositoryException,
+                                                   IllegalResourceTypeException {
+    return new VersionHistoryResource(versionHistoryURI(),
+                                      node.getVersionHistory(),
+                                      this,
+                                      namespaceContext);
+  }
 
-	protected final URI versionHistoryURI() {
-		return URI.create(identifier.toASCIIString() + "?vh");
-	}
-	
+  protected final URI versionHistoryURI() {
+    return URI.create(identifier.toASCIIString() + "?vh");
+  }
+
   @Override
-  public HierarchicalProperty getProperty(QName name) throws PathNotFoundException, AccessDeniedException, RepositoryException {    
+  public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
+                                                     AccessDeniedException,
+                                                     RepositoryException {
     if (name.equals(ISVERSIONED)) {
       return new HierarchicalProperty(name, "1");
     } else if (name.equals(CHECKEDIN)) {
       if (node.isCheckedOut()) {
         throw new PathNotFoundException();
       }
-      
-      String checkedInHref = identifier.toASCIIString() + "?version=" + node.getBaseVersion().getName();    
-      HierarchicalProperty checkedIn = new HierarchicalProperty(name);      
-      checkedIn.addChild(new HierarchicalProperty(new QName("DAV:", "href"), checkedInHref));      
+
+      String checkedInHref = identifier.toASCIIString() + "?version="
+          + node.getBaseVersion().getName();
+      HierarchicalProperty checkedIn = new HierarchicalProperty(name);
+      checkedIn.addChild(new HierarchicalProperty(new QName("DAV:", "href"), checkedInHref));
       return checkedIn;
-    
+
     } else if (name.equals(CHECKEDOUT)) {
       if (!node.isCheckedOut()) {
         throw new PathNotFoundException();
-      }     
+      }
       return new HierarchicalProperty(name);
     } else if (name.equals(VERSIONNAME)) {
       return new HierarchicalProperty(name, node.getBaseVersion().getName());
     }
-    
+
     return super.getProperty(name);
-  }	
+  }
 
 }

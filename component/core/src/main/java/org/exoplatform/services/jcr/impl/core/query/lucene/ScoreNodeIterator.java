@@ -21,30 +21,28 @@ import javax.jcr.NodeIterator;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Extends the {@link javax.jcr.NodeIterator} interface by adding a {@link
- * #getScore()} method that returns the score for the node that is returned by
- * {@link javax.jcr.NodeIterator#nextNode()}.
+ * Extends the {@link javax.jcr.NodeIterator} interface by adding a {@link #getScore()} method that
+ * returns the score for the node that is returned by {@link javax.jcr.NodeIterator#nextNode()}.
  */
 public interface ScoreNodeIterator extends NodeIterator {
 
-    /**
-     * Returns the score of the node returned by {@link #nextNode()}. In other
-     * words, this method returns the score value of the next
-     * <code>Node</code>.
-     *
-     * @return the score of the node returned by {@link #nextNode()}.
-     * @throws java.util.NoSuchElementException
-     *          if there is no next node.
-     */
-    float getScore();
+  /**
+   * Returns the score of the node returned by {@link #nextNode()}. In other words, this method
+   * returns the score value of the next <code>Node</code>.
+   * 
+   * @return the score of the node returned by {@link #nextNode()}.
+   * @throws java.util.NoSuchElementException
+   *           if there is no next node.
+   */
+  float getScore();
 
-    /**
-     * Returns the next <code>Node</code> in the result set.
-     *
-     * @return the next <code>Node</code> in the result set.
-     * @throws java.util.NoSuchElementException
-     *          if iteration has no more <code>Node</code>s.
-     */
-    NodeImpl nextNodeImpl();
+  /**
+   * Returns the next <code>Node</code> in the result set.
+   * 
+   * @return the next <code>Node</code> in the result set.
+   * @throws java.util.NoSuchElementException
+   *           if iteration has no more <code>Node</code>s.
+   */
+  NodeImpl nextNodeImpl();
 
 }

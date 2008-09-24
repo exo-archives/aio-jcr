@@ -31,17 +31,16 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Implements a synonym provider based on a properties file. Each line in the
- * properties file is treated as a synonym definition. Example:
+ * Implements a synonym provider based on a properties file. Each line in the properties file is
+ * treated as a synonym definition. Example:
  * 
  * <pre>
  * A=B
  * B=C
  * </pre>
  * 
- * This synonym provider will return B as a synonym for A and vice versa. The
- * same applies to B and C. However A is not considered a synonym for C, nor C a
- * synonym for A.
+ * This synonym provider will return B as a synonym for A and vice versa. The same applies to B and
+ * C. However A is not considered a synonym for C, nor C a synonym for A.
  */
 public class PropertiesSynonymProvider implements SynonymProvider {
 
@@ -113,22 +112,21 @@ public class PropertiesSynonymProvider implements SynonymProvider {
   // ---------------------------------< internal >-----------------------------
 
   /**
-   * Checks if the synonym properties file has been updated and this provider
-   * should reload the synonyms. This method performs the actual check at most
-   * every {@link #CHECK_INTERVAL}. If reloading fails an error is logged and
-   * this provider will retry after {@link #CHECK_INTERVAL}.
+   * Checks if the synonym properties file has been updated and this provider should reload the
+   * synonyms. This method performs the actual check at most every {@link #CHECK_INTERVAL}. If
+   * reloading fails an error is logged and this provider will retry after {@link #CHECK_INTERVAL}.
    */
   private synchronized void checkConfigUpdated() {
   }
 
   /**
-   * Reads the synonym properties file and returns the contents as a synonym
-   * Map.
+   * Reads the synonym properties file and returns the contents as a synonym Map.
    * 
-   * @param config the synonym properties file.
+   * @param config
+   *          the synonym properties file.
    * @return a Map containing the synonyms.
-   * @throws IOException if an error occurs while reading from the file system
-   *           resource.
+   * @throws IOException
+   *           if an error occurs while reading from the file system resource.
    */
   private static Map getSynonyms(File config) throws IOException {
     FileInputStream in = new FileInputStream(config);
@@ -154,9 +152,12 @@ public class PropertiesSynonymProvider implements SynonymProvider {
   /**
    * Adds a synonym definition to the map.
    * 
-   * @param term the term
-   * @param synonym synonym for <code>term</code>.
-   * @param synonyms the Map containing the synonyms.
+   * @param term
+   *          the term
+   * @param synonym
+   *          synonym for <code>term</code>.
+   * @param synonyms
+   *          the Map containing the synonyms.
    */
   private static void addSynonym(String term, String synonym, Map synonyms) {
     term = term.toLowerCase();

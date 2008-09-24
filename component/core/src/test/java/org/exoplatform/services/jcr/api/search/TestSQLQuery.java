@@ -118,7 +118,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
 
     data = subnode.addNode("myData2", "nt:file");
     data.addNode("jcr:content", "nt:unstructured");
-    
+
     testRoot.save();
   }
 
@@ -141,10 +141,10 @@ public class TestSQLQuery extends JcrAPIBaseTest {
   public void testPathLike_Descendants() throws RepositoryException {
 
     try {
-      Query q =
-          session.getWorkspace()
-                 .getQueryManager()
-                 .createQuery("select * from nt:file where jcr:path like '/testSqlQuery/files/%'", Query.SQL);
+      Query q = session.getWorkspace()
+                       .getQueryManager()
+                       .createQuery("select * from nt:file where jcr:path like '/testSqlQuery/files/%'",
+                                    Query.SQL);
 
       QueryResult res = q.execute();
       assertEquals("Wrong nodes count in result set", 4, res.getNodes().getSize());
@@ -164,10 +164,10 @@ public class TestSQLQuery extends JcrAPIBaseTest {
   public void testPathLike_Descendants1() throws RepositoryException {
 
     try {
-      Query q =
-          session.getWorkspace()
-                 .getQueryManager()
-                 .createQuery("select * from nt:file where jcr:path like '%/files/%'", Query.SQL);
+      Query q = session.getWorkspace()
+                       .getQueryManager()
+                       .createQuery("select * from nt:file where jcr:path like '%/files/%'",
+                                    Query.SQL);
 
       QueryResult res = q.execute();
       assertEquals("Wrong nodes count in result set", 4, res.getNodes().getSize());
@@ -179,8 +179,7 @@ public class TestSQLQuery extends JcrAPIBaseTest {
 
   /**
    * Select all descendant nodes with part of path from two locations in the workspace.
-   * /testSqlQuery/files/draft
-   * /testSqlQuery/data/draft
+   * /testSqlQuery/files/draft /testSqlQuery/data/draft
    * 
    * <p>
    * select * from nt:unstructured where jcr:path like '%/draft/%'
@@ -188,24 +187,24 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * @throws InvalidQueryException
    * @throws RepositoryException
    */
-  public void testPathLike_FromDifferentLocations() throws InvalidQueryException, RepositoryException {
+  public void testPathLike_FromDifferentLocations() throws InvalidQueryException,
+                                                   RepositoryException {
 
-    Query q =
-        session.getWorkspace()
-               .getQueryManager()
-               .createQuery("select * from nt:unstructured where jcr:path like '%/draft/%'", Query.SQL);
+    Query q = session.getWorkspace()
+                     .getQueryManager()
+                     .createQuery("select * from nt:unstructured where jcr:path like '%/draft/%'",
+                                  Query.SQL);
 
     QueryResult res = q.execute();
     assertEquals("Wrong nodes count in result set", 3, res.getNodes().getSize());
-    
+
     for (NodeIterator nodes = res.getNodes(); nodes.hasNext();) {
       log.info(nodes.nextNode().getPath());
     }
   }
 
   /**
-   * Select all descendant nodes from two locations in the workspace.
-   * /testSqlQuery/files/draft
+   * Select all descendant nodes from two locations in the workspace. /testSqlQuery/files/draft
    * /testSqlQuery/data/draft
    * 
    * <p>
@@ -214,12 +213,13 @@ public class TestSQLQuery extends JcrAPIBaseTest {
    * @throws InvalidQueryException
    * @throws RepositoryException
    */
-  public void testPathLike_FromDifferentLocations1() throws InvalidQueryException, RepositoryException {
+  public void testPathLike_FromDifferentLocations1() throws InvalidQueryException,
+                                                    RepositoryException {
 
-    Query q =
-        session.getWorkspace()
-               .getQueryManager()
-               .createQuery("select * from nt:unstructured where jcr:path like '/testSqlQuery/%/draft/%'", Query.SQL);
+    Query q = session.getWorkspace()
+                     .getQueryManager()
+                     .createQuery("select * from nt:unstructured where jcr:path like '/testSqlQuery/%/draft/%'",
+                                  Query.SQL);
 
     QueryResult res = q.execute();
     assertEquals("Wrong nodes count in result set", 3, res.getNodes().getSize());
@@ -230,21 +230,21 @@ public class TestSQLQuery extends JcrAPIBaseTest {
   }
 
   /**
-   * Test query for child nodes only (without descendants). 
+   * Test query for child nodes only (without descendants).
    * <p>
-   * select * from nt:file where jcr:path like '/testSqlQuery/files/%' and not jcr:path like '/testSqlQuery/files/%/%'
-   *  
+   * select * from nt:file where jcr:path like '/testSqlQuery/files/%' and not jcr:path like
+   * '/testSqlQuery/files/%/%'
+   * 
    * @throws RepositoryException
    */
   public void testPathLike_ChildsOnly() throws RepositoryException {
 
     try {
-      Query q =
-          session.getWorkspace()
-                 .getQueryManager()
-                 .createQuery("select * from nt:file where jcr:path like '/testSqlQuery/files/%' and not "
-                                  + "jcr:path like '/testSqlQuery/files/%/%'",
-                              Query.SQL);
+      Query q = session.getWorkspace()
+                       .getQueryManager()
+                       .createQuery("select * from nt:file where jcr:path like '/testSqlQuery/files/%' and not "
+                                        + "jcr:path like '/testSqlQuery/files/%/%'",
+                                    Query.SQL);
 
       QueryResult res = q.execute();
       assertEquals("Wrong nodes count in result set", 2, res.getNodes().getSize());
@@ -257,19 +257,19 @@ public class TestSQLQuery extends JcrAPIBaseTest {
   /**
    * Test if we can select nodes by path pattern and by exact path.
    * <p>
-   * select * from nt:file where jcr:path like '/testSqlQuery/files/%/myFile1' or jcr:path = '/testSqlQuery/files/myFile1'
-   *  
+   * select * from nt:file where jcr:path like '/testSqlQuery/files/%/myFile1' or jcr:path =
+   * '/testSqlQuery/files/myFile1'
+   * 
    * @throws RepositoryException
    */
   public void testPathLike_DescendantsOrWithPath() throws RepositoryException {
 
     try {
-      Query q =
-          session.getWorkspace()
-                 .getQueryManager()
-                 .createQuery("select * from nt:file where jcr:path like '/testSqlQuery/files/%/myFile1' or "
-                                  + " jcr:path = '/testSqlQuery/files/myFile1'",
-                              Query.SQL);
+      Query q = session.getWorkspace()
+                       .getQueryManager()
+                       .createQuery("select * from nt:file where jcr:path like '/testSqlQuery/files/%/myFile1' or "
+                                        + " jcr:path = '/testSqlQuery/files/myFile1'",
+                                    Query.SQL);
 
       QueryResult res = q.execute();
       assertEquals("Wrong nodes count in result set", 3, res.getNodes().getSize());

@@ -43,13 +43,12 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS 19.12.2006 Helper class. Contains some
- * functions for a version history operations. Actually it's a wrapper for
- * NodeData with additional methods. For use instead a VersionHistoryImpl.
+ * Created by The eXo Platform SAS 19.12.2006 Helper class. Contains some functions for a version
+ * history operations. Actually it's a wrapper for NodeData with additional methods. For use instead
+ * a VersionHistoryImpl.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: VersionHistoryDataHelper.java 17564 2007-07-06 15:26:07Z
- *          peterit $
+ * @version $Id: VersionHistoryDataHelper.java 17564 2007-07-06 15:26:07Z peterit $
  */
 public class VersionHistoryDataHelper extends TransientNodeData {
 
@@ -57,14 +56,15 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
   protected final NodeTypeManagerImpl ntManager;
 
-  private final String versionHistoryIdentifier;
+  private final String                versionHistoryIdentifier;
 
-  private final String baseVersionIdentifier;
+  private final String                baseVersionIdentifier;
 
   /**
    * Create helper using existed version history node data
    * 
-   * @param source - existed version history node data
+   * @param source
+   *          - existed version history node data
    * @param dataManager
    * @param ntManager
    */
@@ -87,11 +87,13 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
 
   /**
-   * Create helper as we create a new version history. All changes will be
-   * placed into changes log. No persisted changes will be performed.
+   * Create helper as we create a new version history. All changes will be placed into changes log.
+   * No persisted changes will be performed.
    * 
-   * @param versionable - mix:versionable node data
-   * @param changes - changes log
+   * @param versionable
+   *          - mix:versionable node data
+   * @param changes
+   *          - changes log
    * @param dataManager
    * @param ntManager
    * @throws RepositoryException
@@ -100,17 +102,23 @@ public class VersionHistoryDataHelper extends TransientNodeData {
                                   PlainChangesLogImpl changes,
                                   ItemDataConsumer dataManager,
                                   NodeTypeManagerImpl ntManager) throws RepositoryException {
-    
-    this(versionable, changes, dataManager, ntManager, IdGenerator.generate(), IdGenerator
-        .generate());
+
+    this(versionable,
+         changes,
+         dataManager,
+         ntManager,
+         IdGenerator.generate(),
+         IdGenerator.generate());
   }
 
   /**
-   * Create helper as we create a new version history. All changes will be
-   * placed into changes log. No persisted changes will be performed.
+   * Create helper as we create a new version history. All changes will be placed into changes log.
+   * No persisted changes will be performed.
    * 
-   * @param versionable - mix:versionable node data
-   * @param changes - changes log
+   * @param versionable
+   *          - mix:versionable node data
+   * @param changes
+   *          - changes log
    * @param dataManager
    * @param ntManager
    * @throws RepositoryException
@@ -196,7 +204,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
 
   public NodeData getVersionData(InternalQName versionQName) throws VersionException,
-      RepositoryException {
+                                                            RepositoryException {
     return (NodeData) dataManager.getItemData(this, new QPathEntry(versionQName, 0));
   }
 
@@ -211,7 +219,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
 
   public NodeData getVersionDataByLabel(InternalQName labelQName) throws VersionException,
-      RepositoryException {
+                                                                 RepositoryException {
 
     List<PropertyData> labelsList = getVersionLabels();
     for (PropertyData prop : labelsList) {
@@ -233,14 +241,14 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
   private TransientNodeData init(NodeData versionable, PlainChangesLogImpl changes) throws RepositoryException {
 
-
     // ----- VERSION STORAGE nodes -----
     // ----- version history -----
     NodeData rootItem = (NodeData) dataManager.getItemData(Constants.SYSTEM_UUID);
 
     NodeData versionStorageData = (NodeData) dataManager.getItemData(rootItem,
                                                                      new QPathEntry(Constants.JCR_VERSIONSTORAGE,
-                                                                                    1)); // Constants.JCR_VERSION_STORAGE_PATH
+                                                                                    1)); //Constants.
+    // JCR_VERSION_STORAGE_PATH
 
     InternalQName vhName = new InternalQName(null, versionHistoryIdentifier);
 
@@ -315,7 +323,9 @@ public class VersionHistoryDataHelper extends TransientNodeData {
                                                                                false);
 
     // TODO Current time source was
-    // rvCreated.setValue(new TransientValueData(dataManager.getTransactManager().getStorageDataManager().getCurrentTime()));
+    // rvCreated.setValue(new
+    // TransientValueData(dataManager.getTransactManager().getStorageDataManager
+    // ().getCurrentTime()));
     rvCreated.setValue(new TransientValueData(Calendar.getInstance()));
 
     // ----- VERSIONABLE properties -----

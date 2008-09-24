@@ -31,8 +31,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Tuan Nguyen
- * tuan.nguyen@exoplatform.com 30.10.2007
+ * Created by The eXo Platform SAS Author : Tuan Nguyen tuan.nguyen@exoplatform.com 30.10.2007
  */
 public class testSameName extends BaseStandaloneTest {
   protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testCreateFileFolder");
@@ -43,8 +42,9 @@ public class testSameName extends BaseStandaloneTest {
     super.setUp();
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv.getConfiguration()
-        .getWin32ServerName() : serv.getConfiguration().getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
   }
 
   /**

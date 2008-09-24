@@ -27,150 +27,146 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.impl.core.query.QueryImpl;
 import org.exoplatform.services.jcr.impl.core.query.lucene.QueryResultImpl;
 
-
-
 public class LimitAndOffsetTest extends AbstractQueryTest {
 
-    private Node node1;
-    private Node node2;
-    private Node node3;
+  private Node      node1;
 
-    private QueryImpl query;
+  private Node      node2;
 
-    protected void setUp() throws Exception {
-        super.setUp();
+  private Node      node3;
 
-        node1 = testRootNode.addNode("foo");
-        node1.setProperty("name", "1");
-        node2 = testRootNode.addNode("foo");
-        node2.setProperty("name", "2");
-        node3 = testRootNode.addNode("foo");
-        node3.setProperty("name", "3");
+  private QueryImpl query;
 
-        testRootNode.save();
+  protected void setUp() throws Exception {
+    super.setUp();
 
-        query = createXPathQuery("/jcr:root" + testRoot + "/* order by @name");
-        
-    }
+    node1 = testRootNode.addNode("foo");
+    node1.setProperty("name", "1");
+    node2 = testRootNode.addNode("foo");
+    node2.setProperty("name", "2");
+    node3 = testRootNode.addNode("foo");
+    node3.setProperty("name", "3");
 
-    protected void tearDown() throws Exception {
-        node1 = null;
-        node2 = null;
-        node3 = null;
-        query = null;
-        super.tearDown();
-    }
+    testRootNode.save();
 
-    private QueryImpl createXPathQuery(String xpath)
-            throws InvalidQueryException, RepositoryException {
-        QueryManager queryManager = superuser.getWorkspace().getQueryManager();
-        return (QueryImpl) queryManager.createQuery(xpath, Query.XPATH);
-    }
+    query = createXPathQuery("/jcr:root" + testRoot + "/* order by @name");
 
-    protected void checkResult(QueryResult result, Node[] expectedNodes) throws RepositoryException {
-        assertEquals(expectedNodes.length, result.getNodes().getSize());
-    }
-    
-    public void testLimit() throws Exception {
-        query.setLimit(1);
-        QueryResult result = query.execute();
-        checkResult(result, new Node[] { node1 });
+  }
 
-        query.setLimit(2);
-        result = query.execute();
-        checkResult(result, new Node[] { node1, node2 });
+  protected void tearDown() throws Exception {
+    node1 = null;
+    node2 = null;
+    node3 = null;
+    query = null;
+    super.tearDown();
+  }
 
-        query.setLimit(3);
-        result = query.execute();
-        checkResult(result, new Node[] { node1, node2, node3 });
-    }
+  private QueryImpl createXPathQuery(String xpath) throws InvalidQueryException,
+                                                  RepositoryException {
+    QueryManager queryManager = superuser.getWorkspace().getQueryManager();
+    return (QueryImpl) queryManager.createQuery(xpath, Query.XPATH);
+  }
 
-    public void testOffset() throws Exception {
-        query.setOffset(0);
-        QueryResult result = query.execute();
-        checkResult(result, new Node[] { node1, node2, node3 });
+  protected void checkResult(QueryResult result, Node[] expectedNodes) throws RepositoryException {
+    assertEquals(expectedNodes.length, result.getNodes().getSize());
+  }
 
-        query.setOffset(1);
-        result = query.execute();
-        checkResult(result, new Node[] { node2, node3 });
+  public void testLimit() throws Exception {
+    query.setLimit(1);
+    QueryResult result = query.execute();
+    checkResult(result, new Node[] { node1 });
 
-        query.setOffset(2);
-        result = query.execute();
-        checkResult(result, new Node[] { node3 });
-    }
+    query.setLimit(2);
+    result = query.execute();
+    checkResult(result, new Node[] { node1, node2 });
 
-    public void testOffsetAndLimit() throws Exception {
-        query.setOffset(0);
-        query.setLimit(1);
-        QueryResult result = query.execute();
-        checkResult(result, new Node[] { node1 });
+    query.setLimit(3);
+    result = query.execute();
+    checkResult(result, new Node[] { node1, node2, node3 });
+  }
 
-        query.setOffset(1);
-        query.setLimit(1);
-        result = query.execute();
-        checkResult(result, new Node[] { node2 });
+  public void testOffset() throws Exception {
+    query.setOffset(0);
+    QueryResult result = query.execute();
+    checkResult(result, new Node[] { node1, node2, node3 });
 
-        query.setOffset(1);
-        query.setLimit(2);
-        result = query.execute();
-        checkResult(result, new Node[] { node2, node3 });
+    query.setOffset(1);
+    result = query.execute();
+    checkResult(result, new Node[] { node2, node3 });
 
-        query.setOffset(0);
-        query.setLimit(2);
-        result = query.execute();
-        checkResult(result, new Node[] { node1, node2 });
+    query.setOffset(2);
+    result = query.execute();
+    checkResult(result, new Node[] { node3 });
+  }
 
-        // Added for JCR-1323
-        query.setOffset(0);
-        query.setLimit(4);
-        result = query.execute();
-        checkResult(result, new Node[] { node1, node2, node3 });
-    }
+  public void testOffsetAndLimit() throws Exception {
+    query.setOffset(0);
+    query.setLimit(1);
+    QueryResult result = query.execute();
+    checkResult(result, new Node[] { node1 });
 
-    public void testOffsetAndSkip() throws Exception {
-        query.setOffset(1);
-        QueryResult result = query.execute();
-        NodeIterator nodes = result.getNodes();
-        nodes.skip(1);
-        assertTrue(nodes.nextNode() == node3);
-    }
+    query.setOffset(1);
+    query.setLimit(1);
+    result = query.execute();
+    checkResult(result, new Node[] { node2 });
 
-    public void testOffsetAndLimitWithGetSize() throws Exception {
-        query.setOffset(1);
-        QueryResult result = query.execute();
-        NodeIterator nodes = result.getNodes();
-        assertEquals(2, nodes.getSize());
-        assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+    query.setOffset(1);
+    query.setLimit(2);
+    result = query.execute();
+    checkResult(result, new Node[] { node2, node3 });
 
-        query.setOffset(1);
-        query.setLimit(1);
-        result = query.execute();
-        nodes = result.getNodes();
-        assertEquals(1, nodes.getSize());
-        assertEquals(3, ((QueryResultImpl) result).getTotalSize());
-    }
-    
-    public void testLimitWithGetSize() throws Exception {
-      query.setLimit(2);
-      QueryResult result = query.execute();
-      NodeIterator nodes = result.getNodes();
-      assertEquals(2, nodes.getSize());
-      assertTrue(nodes.nextNode() == node1);
-      assertTrue(nodes.nextNode() == node2);
-      assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+    query.setOffset(0);
+    query.setLimit(2);
+    result = query.execute();
+    checkResult(result, new Node[] { node1, node2 });
 
-      
-      query.setOffset(2);
-      query.setLimit(0);//no limit
-      result = query.execute();
-      nodes = result.getNodes();
-      assertEquals(1, nodes.getSize());
-      assertTrue(nodes.nextNode() == node3);
-      assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+    // Added for JCR-1323
+    query.setOffset(0);
+    query.setLimit(4);
+    result = query.execute();
+    checkResult(result, new Node[] { node1, node2, node3 });
+  }
 
+  public void testOffsetAndSkip() throws Exception {
+    query.setOffset(1);
+    QueryResult result = query.execute();
+    NodeIterator nodes = result.getNodes();
+    nodes.skip(1);
+    assertTrue(nodes.nextNode() == node3);
+  }
 
-    }
-    
-    
+  public void testOffsetAndLimitWithGetSize() throws Exception {
+    query.setOffset(1);
+    QueryResult result = query.execute();
+    NodeIterator nodes = result.getNodes();
+    assertEquals(2, nodes.getSize());
+    assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+
+    query.setOffset(1);
+    query.setLimit(1);
+    result = query.execute();
+    nodes = result.getNodes();
+    assertEquals(1, nodes.getSize());
+    assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+  }
+
+  public void testLimitWithGetSize() throws Exception {
+    query.setLimit(2);
+    QueryResult result = query.execute();
+    NodeIterator nodes = result.getNodes();
+    assertEquals(2, nodes.getSize());
+    assertTrue(nodes.nextNode() == node1);
+    assertTrue(nodes.nextNode() == node2);
+    assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+
+    query.setOffset(2);
+    query.setLimit(0);// no limit
+    result = query.execute();
+    nodes = result.getNodes();
+    assertEquals(1, nodes.getSize());
+    assertTrue(nodes.nextNode() == node3);
+    assertEquals(3, ((QueryResultImpl) result).getTotalSize());
+
+  }
 
 }

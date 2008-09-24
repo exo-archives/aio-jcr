@@ -24,31 +24,32 @@ import javax.jcr.observation.EventListener;
 import org.apache.commons.logging.Log;
 
 /**
- * Created by The eXo Platform SAS
- * 10.05.2006
+ * Created by The eXo Platform SAS 10.05.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SimpleListener.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class SimpleListener implements EventListener {
-  
-  private Log log;
+
+  private Log    log;
+
   private String name;
-  private int counter;
+
+  private int    counter;
 
   public SimpleListener(String name, Log log, Integer counter) {
     this.log = log;
-    this.name = (name == null ? "SimpleListener-"+System.currentTimeMillis() : name);
+    this.name = (name == null ? "SimpleListener-" + System.currentTimeMillis() : name);
     this.counter = counter;
   }
 
   public void onEvent(EventIterator events) {
-    while(events.hasNext()) {
+    while (events.hasNext()) {
       Event event = events.nextEvent();
       counter++;
       try {
-        if(log.isDebugEnabled())
-          log.debug("EVENT fired by " + name + " " +event.getPath() + " " + event.getType());
+        if (log.isDebugEnabled())
+          log.debug("EVENT fired by " + name + " " + event.getPath() + " " + event.getType());
       } catch (RepositoryException e) {
         log.error("Error in " + name, e);
       }

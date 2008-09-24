@@ -22,75 +22,81 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 21.04.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SessionProviderServiceTest.java 14112 2008-05-12 15:29:59Z gazarenkov $
  */
 public class SessionProviderServiceTest extends BaseStandaloneTest {
 
   private SessionProviderService provider;
-  
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    
+
     provider = new ThreadLocalSessionProviderService();
-    //provider.setSessionProvider(null, SessionProvider.createAnonimProvider());
+    // provider.setSessionProvider(null, SessionProvider.createAnonimProvider());
   }
 
   @Override
   protected void tearDown() throws Exception {
     provider = null;
-    
+
     super.tearDown();
   }
 
   public void testGetSystemSesssion() {
-    
+
     SessionProvider ssp = provider.getSystemSessionProvider(null);
-    
+
     assertNotNull("System session provider must be reachable anyway ", ssp);
-    
-    assertEquals("Same system session provider should be returned to this thread ", ssp, provider.getSystemSessionProvider(null));
+
+    assertEquals("Same system session provider should be returned to this thread ",
+                 ssp,
+                 provider.getSystemSessionProvider(null));
   }
-  
+
   public void testGetSystemSesssionWithSet() {
-    
+
     SessionProvider ssp = provider.getSystemSessionProvider(null);
-    
+
     provider.setSessionProvider(null, SessionProvider.createAnonimProvider());
-    
-    assertEquals("Same system session provider should be returned to this thread ", ssp, provider.getSystemSessionProvider(null));
+
+    assertEquals("Same system session provider should be returned to this thread ",
+                 ssp,
+                 provider.getSystemSessionProvider(null));
   }
-  
+
   public void testGetSystemSesssionAnotherTrhead() throws InterruptedException {
-    
+
     SessionProvider ssp = provider.getSystemSessionProvider(null);
-    
+
     final SessionProviderService provider = this.provider;
-    
-    final SessionProvider[] atSSP = new SessionProvider[] {ssp}; 
-    
-    final CountDownLatch testerLatch = new CountDownLatch(1); 
-    
-    Thread tester = new Thread() {  
+
+    final SessionProvider[] atSSP = new SessionProvider[] { ssp };
+
+    final CountDownLatch testerLatch = new CountDownLatch(1);
+
+    Thread tester = new Thread() {
 
       @Override
       public void run() {
-        atSSP[0] =  provider.getSystemSessionProvider(null);    
+        atSSP[0] = provider.getSystemSessionProvider(null);
         testerLatch.countDown();
       }
-      
+
     };
-    
+
     tester.start();
-    
+
     testerLatch.await();
-    
-    assertNotSame("Another thread should obtain another system session provider from the service", ssp, atSSP[0]);
+
+    assertNotSame("Another thread should obtain another system session provider from the service",
+                  ssp,
+                  atSSP[0]);
   }
-  
+
 }

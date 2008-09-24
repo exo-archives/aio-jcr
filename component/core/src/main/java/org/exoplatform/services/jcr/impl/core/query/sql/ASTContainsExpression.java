@@ -16,44 +16,42 @@
  */
 package org.exoplatform.services.jcr.impl.core.query.sql;
 
-
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-
 
 public class ASTContainsExpression extends SimpleNode {
 
-    private String query;
+  private String        query;
 
-    private InternalQName property;
+  private InternalQName property;
 
-    public ASTContainsExpression(int id) {
-        super(id);
-    }
+  public ASTContainsExpression(int id) {
+    super(id);
+  }
 
-    public ASTContainsExpression(JCRSQLParser p, int id) {
-        super(p, id);
-    }
+  public ASTContainsExpression(JCRSQLParser p, int id) {
+    super(p, id);
+  }
 
-    public String getQuery() {
-        return query;
-    }
+  public String getQuery() {
+    return query;
+  }
 
-    public void setQuery(String query) {
-        this.query = query;
-    }
+  public void setQuery(String query) {
+    this.query = query;
+  }
 
-    public InternalQName getPropertyName() {
-        return property;
-    }
+  public InternalQName getPropertyName() {
+    return property;
+  }
 
-    public void setPropertyName(InternalQName property) {
-        this.property = property;
-    }
+  public void setPropertyName(InternalQName property) {
+    this.property = property;
+  }
 
-    /**
-     * Accept the visitor. *
-     */
-    public Object jjtAccept(JCRSQLParserVisitor visitor, Object data) {
-        return visitor.visit(this, data);
-    }
+  /**
+   * Accept the visitor. *
+   */
+  public Object jjtAccept(JCRSQLParserVisitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
 }

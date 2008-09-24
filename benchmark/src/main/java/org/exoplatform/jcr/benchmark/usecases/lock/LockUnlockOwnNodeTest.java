@@ -25,6 +25,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
@@ -38,7 +39,7 @@ public class LockUnlockOwnNodeTest extends JCRTestBase {
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     rootNode = context.getSession().getRootNode().addNode(context.generateUniqueName("rootNode"),
-        "nt:unstructured");
+                                                          "nt:unstructured");
     rootNode.addMixin("mix:lockable");
     context.getSession().save();
   }

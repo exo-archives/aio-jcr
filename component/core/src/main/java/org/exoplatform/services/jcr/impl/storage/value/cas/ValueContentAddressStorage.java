@@ -24,20 +24,19 @@ import java.util.Properties;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
  * 
- * Some concept description from Wikipedia:
- * CAS system records a content address, which is an identifier uniquely and permanently 
- * linked to the information content itself. A request to retrieve information from a 
- * CAS system must provide the content identifier, from which the system can determine the 
- * physical location of the data and retrieve it. Because the identifiers are based on content, 
- * any change to a data element will necessarily change its content address. 
- * In nearly all cases, a CAS device will not permit editing information once it has been 
- * stored. Whether it can be deleted is often controlled by a policy.
+ * Some concept description from Wikipedia: CAS system records a content address, which is an
+ * identifier uniquely and permanently linked to the information content itself. A request to
+ * retrieve information from a CAS system must provide the content identifier, from which the system
+ * can determine the physical location of the data and retrieve it. Because the identifiers are
+ * based on content, any change to a data element will necessarily change its content address. In
+ * nearly all cases, a CAS device will not permit editing information once it has been stored.
+ * Whether it can be deleted is often controlled by a policy.
  * 
- * Storage for content addresses.
- * Physically content address is presented as ValueData content checksum, assuming that here 
- * are no collisions in checksum calculation (i.e. an address is unique for given content) 
+ * Storage for content addresses. Physically content address is presented as ValueData content
+ * checksum, assuming that here are no collisions in checksum calculation (i.e. an address is unique
+ * for given content)
  * 
  * @author Gennady Azarenkov
  * @version $Id$
@@ -46,8 +45,9 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 public interface ValueContentAddressStorage {
 
   static final String DIGEST_ALGO_PARAM = "digest-algo";
-  static final String VCAS_TYPE_PARAM = "vcas-type";
-    
+
+  static final String VCAS_TYPE_PARAM   = "vcas-type";
+
   /**
    * Deletes the address for given property value.
    * 
@@ -56,7 +56,6 @@ public interface ValueContentAddressStorage {
    * @throws RecordNotFoundException
    */
   void delete(String propertyId) throws RecordNotFoundException, VCASException;
-    
 
   /**
    * Add property address record to the storage.
@@ -64,9 +63,11 @@ public interface ValueContentAddressStorage {
    * @param propertyId
    * @param orderNum
    * @param identifier
-   * @throws RecordAlreadyExistsException if such propertyId/orderNumber already exists in storage
+   * @throws RecordAlreadyExistsException
+   *           if such propertyId/orderNumber already exists in storage
    */
-  void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException, VCASException;
+  void add(String propertyId, int orderNum, String identifier) throws RecordAlreadyExistsException,
+                                                              VCASException;
 
   /**
    * Return CAS Identifier (address) by given property id and value order number.
@@ -74,36 +75,40 @@ public interface ValueContentAddressStorage {
    * @param propertyId
    * @param orderNum
    * @return identifier - content address
-   * @throws RecordNotFoundException if no item found
+   * @throws RecordNotFoundException
+   *           if no item found
    */
-  String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException, VCASException;
-  
-  
+  String getIdentifier(String propertyId, int orderNum) throws RecordNotFoundException,
+                                                       VCASException;
+
   /**
    * Return identifiers (addresses) list for the given property.<br/>
    * 
-   * @param propertyId - property id
-   * @param ownOnly - boolean, if true the list will contains only owned values, false - all, including shared
-   * @return identifiers - content address list  
+   * @param propertyId
+   *          - property id
+   * @param ownOnly
+   *          - boolean, if true the list will contains only owned values, false - all, including
+   *          shared
+   * @return identifiers - content address list
    */
-  List <String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException, VCASException;
-  
+  List<String> getIdentifiers(String propertyId, boolean ownOnly) throws RecordNotFoundException,
+                                                                 VCASException;
+
   /**
    * Tell if given property shares content with other properties.<br/>
-   *
+   * 
    * NOTE: not used now.
-   *  
+   * 
    * @param propertyId
    * @return boolean flag, true if given property shares content with other properties
    */
   boolean hasSharedContent(String propertyId) throws RecordNotFoundException, VCASException;
-  
+
   /**
    * Initializes values CAS.
    * 
    * @param props
    * @throws IOException
    */
-  void init(Properties props) throws RepositoryConfigurationException, VCASException; 
+  void init(Properties props) throws RepositoryConfigurationException, VCASException;
 }
-

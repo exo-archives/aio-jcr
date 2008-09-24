@@ -16,17 +16,15 @@
  */
 package org.exoplatform.services.jcr.impl.storage.value.cas;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>
- * Describe the state when CAS storage already contains a record with identifier being added in context. 
+ * <br/> Describe the state when CAS storage already contains a record with identifier being added
+ * in context.
  * 
- * <br/>
- * Date: 15.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/> Date: 15.07.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class RecordAlreadyExistsException extends VCASException {

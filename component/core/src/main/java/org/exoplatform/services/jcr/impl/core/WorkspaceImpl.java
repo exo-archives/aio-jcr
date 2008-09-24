@@ -94,15 +94,17 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   private final String                name;
 
-  public WorkspaceImpl(String name, ExoContainer container, SessionImpl session, ObservationManager observationManager) throws RepositoryException {
+  public WorkspaceImpl(String name,
+                       ExoContainer container,
+                       SessionImpl session,
+                       ObservationManager observationManager) throws RepositoryException {
 
     this.session = session;
     this.name = name;
     this.observationManager = observationManager;
 
     this.namespaceRegistry = (NamespaceRegistryImpl) container.getComponentInstanceOfType(NamespaceRegistry.class);
-    this.nodeTypeManager =
-        ((NodeTypeManagerImpl) container.getComponentInstanceOfType(NodeTypeManager.class)).createWorkspaceNTManager(session);
+    this.nodeTypeManager = ((NodeTypeManagerImpl) container.getComponentInstanceOfType(NodeTypeManager.class)).createWorkspaceNTManager(session);
 
     QueryManagerFactory qf = (QueryManagerFactory) container.getComponentInstanceOfType(QueryManagerFactory.class);
     if (qf == null)
@@ -114,13 +116,16 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   /**
    * @see javax.jcr.Workspace#clone
    */
-  public void clone(String srcWorkspace, String srcAbsPath, String destAbsPath, boolean removeExisting) throws NoSuchWorkspaceException,
-                                                                                                       ConstraintViolationException,
-                                                                                                       VersionException,
-                                                                                                       AccessDeniedException,
-                                                                                                       PathNotFoundException,
-                                                                                                       ItemExistsException,
-                                                                                                       RepositoryException {
+  public void clone(String srcWorkspace,
+                    String srcAbsPath,
+                    String destAbsPath,
+                    boolean removeExisting) throws NoSuchWorkspaceException,
+                                           ConstraintViolationException,
+                                           VersionException,
+                                           AccessDeniedException,
+                                           PathNotFoundException,
+                                           ItemExistsException,
+                                           RepositoryException {
 
     SessionChangesLog changes = new SessionChangesLog(session.getId());
 
@@ -157,7 +162,6 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     SessionImpl srcSession = null;
     if (getName() != srcWorkspace) {
       srcSession = repository().internalLogin(session.getUserState(), srcWorkspace);
-        //(session.getRepository()).login(session.getCredentials(), srcWorkspace);
     } else {
       srcSession = session;
     }
@@ -170,14 +174,18 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
 
-    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(srcNodePath.getInternalPath(), false);
+    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager()
+                                            .getItem(srcNodePath.getInternalPath(), false);
 
     // get dst parent node
-    NodeImpl destParentNode =
-        (NodeImpl) session.getTransientNodesManager().getItem(destNodePath.makeParentPath().getInternalPath(), true);
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager()
+                                                .getItem(destNodePath.makeParentPath()
+                                                                     .getInternalPath(),
+                                                         true);
 
     if (srcNode == null || destParentNode == null) {
-      throw new PathNotFoundException("No node exists at " + srcAbsPath + " or no node exists one level above " + destAbsPath);
+      throw new PathNotFoundException("No node exists at " + srcAbsPath
+          + " or no node exists one level above " + destAbsPath);
     }
     try {
       destParentNode.checkPermission(PermissionType.ADD_NODE);
@@ -187,10 +195,11 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
                                      ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
-    NodeImpl destNode =
-        (NodeImpl) session.getTransientNodesManager().getItem((NodeData) destParentNode.getData(),
-                                                              new QPathEntry(destNodePath.getInternalPath().getName(), 0),
-                                                              false);
+    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
+                                          .getItem((NodeData) destParentNode.getData(),
+                                                   new QPathEntry(destNodePath.getInternalPath()
+                                                                              .getName(), 0),
+                                                   false);
 
     if (destNode != null) {
 
@@ -199,15 +208,16 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       }
     }
 
-    ItemDataCopyVisitor initializer =
-        new ItemDataCopyVisitor((NodeData) destParentNode.getData(),
-                                destNodePath.getName().getInternalName(),
-                                getNodeTypeManager(),
-                                srcSession.getTransientNodesManager(),
-                                 false);
+    ItemDataCopyVisitor initializer = new ItemDataCopyVisitor((NodeData) destParentNode.getData(),
+                                                              destNodePath.getName()
+                                                                          .getInternalName(),
+                                                              getNodeTypeManager(),
+                                                              srcSession.getTransientNodesManager(),
+                                                              false);
     srcNode.getData().accept(initializer);
 
-    PlainChangesLogImpl changesLog = new PlainChangesLogImpl(initializer.getItemAddStates(), session.getId());
+    PlainChangesLogImpl changesLog = new PlainChangesLogImpl(initializer.getItemAddStates(),
+                                                             session.getId());
 
     session.getTransientNodesManager().getTransactManager().save(changesLog);
   }
@@ -216,7 +226,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
    * @see javax.jcr.Workspace#getAccessibleWorkspaceNames
    */
   public String[] getAccessibleWorkspaceNames() throws RepositoryException {
-    RepositoryImpl rep = (RepositoryImpl)session.getRepository();
+    RepositoryImpl rep = (RepositoryImpl) session.getRepository();
     return rep.getWorkspaceNames();
   }
 
@@ -230,12 +240,14 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     NodeImpl node = (NodeImpl) session.getItem(parentAbsPath);
     // checked-in check
     if (!node.checkedOut()) {
-      throw new VersionException("Node " + node.getPath() + " or its nearest ancestor is checked-in");
+      throw new VersionException("Node " + node.getPath()
+          + " or its nearest ancestor is checked-in");
     }
 
     // Check if node is not protected
     if (node.getDefinition().isProtected()) {
-      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to " + node.getParent().getPath());
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
+          + node.getParent().getPath());
     }
 
     // Check locking
@@ -285,7 +297,8 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   /**
    * @see javax.jcr.Workspace#getObservationManager
    */
-  public ObservationManager getObservationManager() throws UnsupportedRepositoryOperationException, RepositoryException {
+  public ObservationManager getObservationManager() throws UnsupportedRepositoryOperationException,
+                                                   RepositoryException {
     return observationManager;
   }
 
@@ -307,7 +320,6 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Workspace#importXML(java.lang.String, java.io.InputStream, int)
    */
   public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
@@ -317,7 +329,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
                                                                                InvalidSerializedDataException,
                                                                                RepositoryException {
 
-    Map<String,Object> context = new HashMap<String, Object>();
+    Map<String, Object> context = new HashMap<String, Object>();
     context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, true);
     importXML(parentAbsPath, in, uuidBehavior, context);
 
@@ -325,47 +337,54 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.ExtendedWorkspace#importXML(java.lang.String, java.io.InputStream, int, boolean)
+   * @see org.exoplatform.services.jcr.core.ExtendedWorkspace#importXML(java.lang.String,
+   * java.io.InputStream, int, boolean)
    */
-  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior, boolean respectPropertyDefinitionsConstraints) throws IOException,
-                                                                                                                              PathNotFoundException,
-                                                                                                                              ItemExistsException,
-                                                                                                                              ConstraintViolationException,
-                                                                                                                              InvalidSerializedDataException,
-                                                                                                                              RepositoryException {
-    Map<String,Object> context = new HashMap<String, Object>();
-    context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS, respectPropertyDefinitionsConstraints);
+  public void importXML(String parentAbsPath,
+                        InputStream in,
+                        int uuidBehavior,
+                        boolean respectPropertyDefinitionsConstraints) throws IOException,
+                                                                      PathNotFoundException,
+                                                                      ItemExistsException,
+                                                                      ConstraintViolationException,
+                                                                      InvalidSerializedDataException,
+                                                                      RepositoryException {
+    Map<String, Object> context = new HashMap<String, Object>();
+    context.put(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS,
+                respectPropertyDefinitionsConstraints);
     importXML(parentAbsPath, in, uuidBehavior, context);
   }
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.ExtendedWorkspace#importXML(java.lang.String, java.io.InputStream, int,
-   *      org.exoplatform.services.ext.action.InvocationContext)
+   * @see org.exoplatform.services.jcr.core.ExtendedWorkspace#importXML(java.lang.String,
+   * java.io.InputStream, int, org.exoplatform.services.ext.action.InvocationContext)
    */
-  public void importXML(String parentAbsPath, InputStream in, int uuidBehavior, Map<String, Object> context) throws IOException,
-                                                                                                          PathNotFoundException,
-                                                                                                          ItemExistsException,
-                                                                                                          ConstraintViolationException,
-                                                                                                          InvalidSerializedDataException,
-                                                                                                          RepositoryException {
+  public void importXML(String parentAbsPath,
+                        InputStream in,
+                        int uuidBehavior,
+                        Map<String, Object> context) throws IOException,
+                                                    PathNotFoundException,
+                                                    ItemExistsException,
+                                                    ConstraintViolationException,
+                                                    InvalidSerializedDataException,
+                                                    RepositoryException {
     NodeImpl node = (NodeImpl) session.getItem(parentAbsPath);
     if (!node.checkedOut()) {
-      throw new VersionException("Node " + node.getPath() + " or its nearest ancestor is checked-in");
+      throw new VersionException("Node " + node.getPath()
+          + " or its nearest ancestor is checked-in");
     }
 
     // Check if node is not protected
     if (node.getDefinition().isProtected()) {
-      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to " + node.getParent().getPath());
+      throw new ConstraintViolationException("Can't add protected node " + node.getName() + " to "
+          + node.getParent().getPath());
     }
 
     // Check locking
     if (!node.checkLocking()) {
       throw new LockException("Node " + node.getPath() + " is locked ");
     }
-
 
     StreamImporter importer = new ExportImportFactory().getStreamImporter(((NodeData) node.getData()),
                                                                           uuidBehavior,
@@ -404,14 +423,18 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     // get source node
     JCRPath srcNodePath = session.getLocationFactory().parseAbsPath(srcAbsPath);
 
-    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager().getItem(srcNodePath.getInternalPath(), false);
+    NodeImpl srcNode = (NodeImpl) session.getTransientNodesManager()
+                                         .getItem(srcNodePath.getInternalPath(), false);
 
     // get dst parent node
-    NodeImpl destParentNode =
-        (NodeImpl) session.getTransientNodesManager().getItem(destNodePath.makeParentPath().getInternalPath(), true);
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager()
+                                                .getItem(destNodePath.makeParentPath()
+                                                                     .getInternalPath(),
+                                                         true);
 
     if (srcNode == null || destParentNode == null) {
-      throw new PathNotFoundException("No node exists at " + srcAbsPath + " or no node exists one level above " + destAbsPath);
+      throw new PathNotFoundException("No node exists at " + srcAbsPath
+          + " or no node exists one level above " + destAbsPath);
     }
     try {
       destParentNode.checkPermission(PermissionType.ADD_NODE);
@@ -423,10 +446,11 @@ public class WorkspaceImpl implements ExtendedWorkspace {
                                      ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-    NodeImpl destNode =
-        (NodeImpl) session.getTransientNodesManager().getItem((NodeData) destParentNode.getData(),
-                                                              new QPathEntry(destNodePath.getInternalPath().getName(), 0),
-                                                              false);
+    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
+                                          .getItem((NodeData) destParentNode.getData(),
+                                                   new QPathEntry(destNodePath.getInternalPath()
+                                                                              .getName(), 0),
+                                                   false);
 
     if (destNode != null) {
       if (!destNode.getDefinition().allowsSameNameSiblings()) {
@@ -438,26 +462,28 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
     // Check if versionable ancestor is not checked-in
     if (!srcNode.checkedOut())
-      throw new VersionException("Source parent node " + srcNode.getPath() + " or its nearest ancestor is checked-in");
+      throw new VersionException("Source parent node " + srcNode.getPath()
+          + " or its nearest ancestor is checked-in");
     // Check locking
     if (!srcNode.checkLocking())
       throw new LockException("Source parent node " + srcNode.getPath() + " is     locked ");
 
-    ItemDataMoveVisitor initializer =
-        new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
-                                destNodePath.getName().getInternalName(),
-                                getNodeTypeManager(),
-                                session.getTransientNodesManager(),
-                                true);
+    ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
+                                                              destNodePath.getName()
+                                                                          .getInternalName(),
+                                                              getNodeTypeManager(),
+                                                              session.getTransientNodesManager(),
+                                                              true);
     srcNode.getData().accept(initializer);
 
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
     changes.addAll(initializer.getItemDeletedStates(true));
 
     // Reindex same-name siblings on the parent after deletion
-    changes.addAll(session.getTransientNodesManager().reindexSameNameSiblings(srcNode.nodeData(),
-                                                                              session.getTransientNodesManager()
-                                                                                     .getTransactManager()));
+    changes.addAll(session.getTransientNodesManager()
+                          .reindexSameNameSiblings(srcNode.nodeData(),
+                                                   session.getTransientNodesManager()
+                                                          .getTransactManager()));
 
     changes.addAll(initializer.getItemAddStates());
 
@@ -498,15 +524,17 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
     // find src node
     SessionImpl srcSession = repository().internalLogin(session.getUserState(), srcWorkspace);
-    //session.getRepository().login(session.getCredentials(), srcWorkspace);
 
     // get source node
     JCRPath srcNodePath = srcSession.getLocationFactory().parseAbsPath(srcAbsPath);
 
-    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager().getItem(srcNodePath.getInternalPath(), false);
+    NodeImpl srcNode = (NodeImpl) srcSession.getTransientNodesManager()
+                                            .getItem(srcNodePath.getInternalPath(), false);
 
-    NodeImpl destParentNode =
-        (NodeImpl) session.getTransientNodesManager().getItem(destNodePath.makeParentPath().getInternalPath(), true);
+    NodeImpl destParentNode = (NodeImpl) session.getTransientNodesManager()
+                                                .getItem(destNodePath.makeParentPath()
+                                                                     .getInternalPath(),
+                                                         true);
 
     if (srcNode == null || destParentNode == null) {
       throw new PathNotFoundException("No node exists at source path " + srcAbsPath
@@ -523,10 +551,11 @@ public class WorkspaceImpl implements ExtendedWorkspace {
                                      ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
-    NodeImpl destNode =
-        (NodeImpl) session.getTransientNodesManager().getItem((NodeData) destParentNode.getData(),
-                                                              new QPathEntry(destNodePath.getInternalPath().getName(), 0),
-                                                              false);
+    NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
+                                          .getItem((NodeData) destParentNode.getData(),
+                                                   new QPathEntry(destNodePath.getInternalPath()
+                                                                              .getName(), 0),
+                                                   false);
 
     ItemState changesItemState = null;
 
@@ -542,14 +571,14 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       }
     }
 
-    ItemDataCloneVisitor initializer =
-        new ItemDataCloneVisitor((NodeData) destParentNode.getData(),
-                                 destNodePath.getName().getInternalName(),
-                                 getNodeTypeManager(),
-                                 srcSession.getTransientNodesManager(),
-                                 session.getTransientNodesManager(),
-                                 removeExisting,
-                                 changes);
+    ItemDataCloneVisitor initializer = new ItemDataCloneVisitor((NodeData) destParentNode.getData(),
+                                                                destNodePath.getName()
+                                                                            .getInternalName(),
+                                                                getNodeTypeManager(),
+                                                                srcSession.getTransientNodesManager(),
+                                                                session.getTransientNodesManager(),
+                                                                removeExisting,
+                                                                changes);
 
     srcNode.getData().accept(initializer);
 
@@ -574,7 +603,8 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     List<VersionImpl> notExistedVersions = new ArrayList<VersionImpl>();
     LinkedHashMap<VersionImpl, NodeData> existedVersions = new LinkedHashMap<VersionImpl, NodeData>();
 
-    TransactionableDataManager dataManager = session.getTransientNodesManager().getTransactManager();
+    TransactionableDataManager dataManager = session.getTransientNodesManager()
+                                                    .getTransactManager();
 
     for (Version v : versions) {
       String versionableIdentifier = v.getContainingHistory().getVersionableUUID();
@@ -593,15 +623,17 @@ public class WorkspaceImpl implements ExtendedWorkspace {
         NodeData corrNode = null;
         String versionableParentIdentifier = null;
         if (!v.getSession().getWorkspace().getName().equals(session.getWorkspace().getName())) {
-          TransactionableDataManager vDataManager =
-              ((SessionImpl) v.getSession()).getTransientNodesManager().getTransactManager();
+          TransactionableDataManager vDataManager = ((SessionImpl) v.getSession()).getTransientNodesManager()
+                                                                                  .getTransactManager();
           corrNode = (NodeData) vDataManager.getItemData(versionableIdentifier);
           if (corrNode != null)
             versionableParentIdentifier = corrNode.getParentIdentifier();
           else
-            log.warn("Workspace.restore(). Correspondent node is not found " + versionableIdentifier);
+            log.warn("Workspace.restore(). Correspondent node is not found "
+                + versionableIdentifier);
         }
-        if (versionableParentIdentifier != null && existedIdentifiers.contains(versionableParentIdentifier)) {
+        if (versionableParentIdentifier != null
+            && existedIdentifiers.contains(versionableParentIdentifier)) {
           notExistedVersions.add((VersionImpl) v);
           continue;
         }
@@ -619,17 +651,25 @@ public class WorkspaceImpl implements ExtendedWorkspace {
         NodeData node = existedVersions.get(v);
 
         NodeData destParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-        NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version parent it's a VH
-        VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh, dataManager, getNodeTypeManager());
+        NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version parent
+        // it's a VH
+        VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
+                                                                              dataManager,
+                                                                              getNodeTypeManager());
 
-        changesLog.addAll(v.restoreLog(destParent, node.getQPath().getName(), historyHelper, session, removeExisting, changesLog)
-                           .getAllStates());
+        changesLog.addAll(v.restoreLog(destParent,
+                                       node.getQPath().getName(),
+                                       historyHelper,
+                                       session,
+                                       removeExisting,
+                                       changesLog).getAllStates());
       } catch (ItemExistsException e) {
-        throw new ItemExistsException("Workspace restore. Can't restore a node. " + v.getContainingHistory().getVersionableUUID()
-            + ". " + e.getMessage(), e);
+        throw new ItemExistsException("Workspace restore. Can't restore a node. "
+            + v.getContainingHistory().getVersionableUUID() + ". " + e.getMessage(), e);
       } catch (RepositoryException e) {
-        throw new RepositoryException("Workspace restore. Can't restore a node. " + v.getContainingHistory().getVersionableUUID()
-            + ". Repository error: " + e.getMessage(), e);
+        throw new RepositoryException("Workspace restore. Can't restore a node. "
+            + v.getContainingHistory().getVersionableUUID() + ". Repository error: "
+            + e.getMessage(), e);
       }
     }
 
@@ -638,15 +678,19 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       try {
         NodeData node = null;
         for (ItemState change : changesLog.getAllStates()) {
-          if (change.isNode() && change.isAdded() && ((NodeData) change.getData()).getIdentifier().equals(versionableIdentifier)) {
+          if (change.isNode() && change.isAdded()
+              && ((NodeData) change.getData()).getIdentifier().equals(versionableIdentifier)) {
             node = (NodeData) change.getData();
             break;
           }
         }
         if (node != null) {
           NodeData destParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-          NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version parent it's a VH
-          VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh, dataManager, getNodeTypeManager());
+          // version parent it's a VH
+          NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier());
+          VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
+                                                                                dataManager,
+                                                                                getNodeTypeManager());
 
           changesLog.addAll(v.restoreLog(destParent,
                                          node.getQPath().getName(),
@@ -656,21 +700,25 @@ public class WorkspaceImpl implements ExtendedWorkspace {
                                          changesLog).getAllStates());
         } else {
           throw new VersionException("No such node restored before (for version, from the array of versions, "
-              + "that corresponds to a missing node in the workspace, " + "there must also be a parent in the array). UUID: "
-              + versionableIdentifier);
+              + "that corresponds to a missing node in the workspace, "
+              + "there must also be a parent in the array). UUID: " + versionableIdentifier);
         }
       } catch (ItemExistsException e) {
-        throw new ItemExistsException("Workspace restore. Can't restore a node not existed before. " + versionableIdentifier
-            + ". " + e.getMessage(), e);
+        throw new ItemExistsException("Workspace restore. Can't restore a node not existed before. "
+                                          + versionableIdentifier + ". " + e.getMessage(),
+                                      e);
       } catch (RepositoryException e) {
-        throw new RepositoryException("Workspace restore. Can't restore a node not existed before. " + versionableIdentifier
-            + ". Repository error: " + e.getMessage(), e);
+        throw new RepositoryException("Workspace restore. Can't restore a node not existed before. "
+                                          + versionableIdentifier
+                                          + ". Repository error: "
+                                          + e.getMessage(),
+                                      e);
       }
     }
 
     dataManager.save(changesLog);
   }
-  
+
   private RepositoryImpl repository() {
     return (RepositoryImpl) session.getRepository();
   }

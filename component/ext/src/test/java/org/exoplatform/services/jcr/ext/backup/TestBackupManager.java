@@ -29,7 +29,8 @@ import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua 05.12.2007
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * 05.12.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestBackupManager.java 760 2008-02-07 15:08:07Z pnedonosko $
@@ -66,7 +67,8 @@ public class TestBackupManager extends AbstractBackupTestCase {
       fail("Can't get fullBackup chain");
 
     // restore
-    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer().getComponentInstanceOfType(RepositoryEntry.class);
+    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
+                                                     .getComponentInstanceOfType(RepositoryEntry.class);
     WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back", "jdbcjcr3");
 
     repository.configWorkspace(ws1back);
@@ -81,11 +83,11 @@ public class TestBackupManager extends AbstractBackupTestCase {
       // check
       SessionImpl back1 = null;
       try {
-        back1 = (SessionImpl)repository.login(credentials, "ws1back");
+        back1 = (SessionImpl) repository.login(credentials, "ws1back");
         Node ws1backTestRoot = back1.getRootNode().getNode("backupTest");
-        assertEquals("Restored content should be same", "property-5", ws1backTestRoot.getNode("node_5")
-                                                                                     .getProperty("exo:data")
-                                                                                     .getString());
+        assertEquals("Restored content should be same",
+                     "property-5",
+                     ws1backTestRoot.getNode("node_5").getProperty("exo:data").getString());
       } catch (Exception e) {
         e.printStackTrace();
         fail(e.getMessage());
@@ -135,7 +137,8 @@ public class TestBackupManager extends AbstractBackupTestCase {
       fail("Can't get fullBackup chain");
 
     // restore
-    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer().getComponentInstanceOfType(RepositoryEntry.class);
+    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
+                                                     .getComponentInstanceOfType(RepositoryEntry.class);
     WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr", "jdbcjcr4");
 
     repository.configWorkspace(ws1back);
@@ -148,26 +151,27 @@ public class TestBackupManager extends AbstractBackupTestCase {
       // check
       SessionImpl back1 = null;
       try {
-        back1 = (SessionImpl)repository.login(credentials, ws1back.getName());
+        back1 = (SessionImpl) repository.login(credentials, ws1back.getName());
         Node ws1backTestRoot = back1.getRootNode().getNode("backupTest");
         assertFalse("Node should be removed", ws1backTestRoot.hasNode("node_3"));
         assertFalse("Node should be removed", ws1backTestRoot.hasNode("node_4"));
         assertFalse("Node should be removed", ws1backTestRoot.hasNode("node_5"));
 
-        assertEquals("Restored content should be same", "property #3", ws1backTestRoot.getNode("node #3")
-                                                                                      .getProperty("exo:data")
-                                                                                      .getString());
-        assertEquals("Restored content should be same", "property #5", ws1backTestRoot.getNode("node #5")
-                                                                                      .getProperty("exo:extraData")
-                                                                                      .getString());
+        assertEquals("Restored content should be same",
+                     "property #3",
+                     ws1backTestRoot.getNode("node #3").getProperty("exo:data").getString());
+        assertEquals("Restored content should be same",
+                     "property #5",
+                     ws1backTestRoot.getNode("node #5").getProperty("exo:extraData").getString());
 
-        assertFalse("Proeprty should be removed", ws1backTestRoot.getNode("node #5").hasProperty("exo:data"));
+        assertFalse("Proeprty should be removed", ws1backTestRoot.getNode("node #5")
+                                                                 .hasProperty("exo:data"));
       } catch (Exception e) {
         e.printStackTrace();
         fail(e.getMessage());
       } finally {
         if (back1 != null)
-          back1.logout(); 
+          back1.logout();
       }
     } else
       fail("There are no backup files in " + backDir.getAbsolutePath());
@@ -220,7 +224,10 @@ public class TestBackupManager extends AbstractBackupTestCase {
     ws1TestRoot.save(); // log here via listener
 
     ws1TestRoot.getNode("node_2").setProperty("exo:data", (InputStream) null); // remove property
-    ws1TestRoot.getNode("node_3").setProperty("exo:data", new ByteArrayInputStream("aaa".getBytes())); // set aaa bytes
+    ws1TestRoot.getNode("node_3").setProperty("exo:data",
+                                              new ByteArrayInputStream("aaa".getBytes())); // set
+    // aaa
+    // bytes
     ws1TestRoot.getNode("node_4").remove(); // (*)
     ws1TestRoot.save(); // log here via listener
 
@@ -236,7 +243,9 @@ public class TestBackupManager extends AbstractBackupTestCase {
     ws1TestRoot.save(); // log here via listener
 
     // before(*), log here via listener
-    ws1TestRoot.getSession().getWorkspace().move(ws1TestRoot.getNode("node_6").getPath(), ws1TestRoot.getPath() + "/node_4"); // in place of 4 removed
+    ws1TestRoot.getSession().getWorkspace().move(ws1TestRoot.getNode("node_6").getPath(),
+                                                 ws1TestRoot.getPath() + "/node_4"); // in place of
+    // 4 removed
 
     // stop all
     if (bch != null)
@@ -245,7 +254,8 @@ public class TestBackupManager extends AbstractBackupTestCase {
       fail("Can't get fullBackup chain");
 
     // restore
-    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer().getComponentInstanceOfType(RepositoryEntry.class);
+    RepositoryEntry re = (RepositoryEntry) ws1Session.getContainer()
+                                                     .getComponentInstanceOfType(RepositoryEntry.class);
     WorkspaceEntry ws1back = makeWorkspaceEntry("ws1back.incr2", "jdbcjcr5");
 
     repository.configWorkspace(ws1back);
@@ -258,31 +268,38 @@ public class TestBackupManager extends AbstractBackupTestCase {
       // check
       SessionImpl back1 = null;
       try {
-        back1 = (SessionImpl)repository.login(credentials, ws1back.getName());
+        back1 = (SessionImpl) repository.login(credentials, ws1back.getName());
         Node ws1backTestRoot = back1.getRootNode().getNode("backupTest");
 
         assertTrue("Node should exists", ws1backTestRoot.getNode("node_5").hasNode("node #53"));
-        assertTrue("Property should exists", ws1backTestRoot.getNode("node_5").hasProperty("node #53/exo:extraData"));
+        assertTrue("Property should exists", ws1backTestRoot.getNode("node_5")
+                                                            .hasProperty("node #53/exo:extraData"));
 
         assertTrue("Node should exists", ws1backTestRoot.hasNode("node_7"));
         assertTrue("Property should exists", ws1backTestRoot.hasProperty("node_5/exo:data"));
         assertTrue("Property should exists", ws1backTestRoot.hasProperty("node_1/exo:extraData"));
         assertTrue("Node should exists", ws1backTestRoot.hasNode("node_102"));
 
-        compareStream(new FileInputStream(tempf), ws1backTestRoot.getNode("node_5").getProperty("exo:data").getStream());
-        compareStream(new FileInputStream(tempf), ws1backTestRoot.getNode("node_1").getProperty("exo:extraData").getStream());
+        compareStream(new FileInputStream(tempf), ws1backTestRoot.getNode("node_5")
+                                                                 .getProperty("exo:data")
+                                                                 .getStream());
+        compareStream(new FileInputStream(tempf), ws1backTestRoot.getNode("node_1")
+                                                                 .getProperty("exo:extraData")
+                                                                 .getStream());
 
-        assertFalse("Property should be removed", ws1backTestRoot.getNode("node_2").hasProperty("exo:data"));
+        assertFalse("Property should be removed", ws1backTestRoot.getNode("node_2")
+                                                                 .hasProperty("exo:data"));
 
-        compareStream(new ByteArrayInputStream("aaa".getBytes()), ws1backTestRoot.getNode("node_3")
-                                                                                 .getProperty("exo:data")
-                                                                                 .getStream());
+        compareStream(new ByteArrayInputStream("aaa".getBytes()),
+                      ws1backTestRoot.getNode("node_3").getProperty("exo:data").getStream());
 
-        assertTrue("Node should be mix:lockable ", ws1backTestRoot.getNode("node_5").isNodeType("mix:lockable"));
+        assertTrue("Node should be mix:lockable ", ws1backTestRoot.getNode("node_5")
+                                                                  .isNodeType("mix:lockable"));
         assertFalse("Node should be not locked ", ws1backTestRoot.getNode("node_5").isLocked());
 
-        assertEquals("Node should be mix:referenceable and UUID should be " + id6, id6, ws1backTestRoot.getNode("node_4")
-                                                                                                       .getUUID());
+        assertEquals("Node should be mix:referenceable and UUID should be " + id6,
+                     id6,
+                     ws1backTestRoot.getNode("node_4").getUUID());
       } catch (Exception e) {
         e.printStackTrace();
         fail(e.getMessage());

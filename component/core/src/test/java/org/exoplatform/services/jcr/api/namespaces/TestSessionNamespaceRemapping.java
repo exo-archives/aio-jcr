@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.namespaces;
 
-
 import javax.jcr.NamespaceException;
 import javax.jcr.NamespaceRegistry;
 
@@ -24,6 +23,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: TestSessionNamespaceRemapping.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -51,22 +51,22 @@ public class TestSessionNamespaceRemapping extends JcrAPIBaseTest {
 
     session.setNamespacePrefix("exo2", "http://www.exoplatform.com/jcr/exo/1.0");
     assertEquals("http://www.exoplatform.com/jcr/exo/1.0", session.getNamespaceURI("exo2"));
-    //assertNull(session.getNamespaceURI("exo"));
+    // assertNull(session.getNamespaceURI("exo"));
 
     assertEquals("http://www.jcp.org/jcr/1.0", session.getNamespaceURI("jcr"));
   }
 
   public void testGetNamespacePrefixes() throws Exception {
-    String[] protectedNamespaces = {"jcr", "nt", "mix","", "sv", "exo2"};
+    String[] protectedNamespaces = { "jcr", "nt", "mix", "", "sv", "exo2" };
     session.setNamespacePrefix("exo2", "http://www.exoplatform.com/jcr/exo/1.0");
     String[] prefixes = session.getNamespacePrefixes();
-    assertTrue(protectedNamespaces.length<=prefixes.length);
+    assertTrue(protectedNamespaces.length <= prefixes.length);
   }
 
   public void testGetNamespaceURI() throws Exception {
     session.setNamespacePrefix("exo2", "http://www.exoplatform.com/jcr/exo/1.0");
     assertEquals("http://www.exoplatform.com/jcr/exo/1.0", session.getNamespaceURI("exo2"));
-    //assertNull(session.getNamespaceURI("exo"));
+    // assertNull(session.getNamespaceURI("exo"));
     assertEquals("http://www.jcp.org/jcr/1.0", session.getNamespaceURI("jcr"));
   }
 

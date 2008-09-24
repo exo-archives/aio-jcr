@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.backup.impl;
 
-
 /**
  * Created by The eXo Platform SARL .<br/>
  * 
@@ -28,7 +27,7 @@ public abstract class AbstractFullBackupJob extends AbstractBackupJob {
 
   public AbstractFullBackupJob() {
     this.id = 0;
-    
+
     notifyListeners();
   }
 

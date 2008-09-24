@@ -60,14 +60,21 @@ public class ExportImportFactory {
   /**
    * Create export visitor for given type of view.
    * 
-   * @param type - 6.4 XML Mappings
-   * @param contentHandler - for which will be generate SAX events
-   * @param skipBinary - If skipBinary is true then any properties of
-   *          PropertyType.BINARY will be serialized as if they are empty.
-   * @param noRecurse - if noRecurse is false, the whole subtree are serialized.
-   * @param dataManager - ItemDataConsumer
-   * @param namespaceRegistry - NamespaceRegistry
-   * @param systemValueFactory - default value factory
+   * @param type
+   *          - 6.4 XML Mappings
+   * @param contentHandler
+   *          - for which will be generate SAX events
+   * @param skipBinary
+   *          - If skipBinary is true then any properties of PropertyType.BINARY will be serialized
+   *          as if they are empty.
+   * @param noRecurse
+   *          - if noRecurse is false, the whole subtree are serialized.
+   * @param dataManager
+   *          - ItemDataConsumer
+   * @param namespaceRegistry
+   *          - NamespaceRegistry
+   * @param systemValueFactory
+   *          - default value factory
    * @return - visitor BaseXmlExporter.
    * @throws NamespaceException
    * @throws RepositoryException
@@ -102,14 +109,21 @@ public class ExportImportFactory {
   /**
    * Create export visitor for given type of view.
    * 
-   * @param type - 6.4 XML Mappings
-   * @param stream - output result stream
-   * @param skipBinary - If skipBinary is true then any properties of
-   *          PropertyType.BINARY will be serialized as if they are empty.
-   * @param noRecurse - if noRecurse is false, the whole subtree are serialized
-   * @param dataManager - ItemDataConsumer
-   * @param namespaceRegistry - NamespaceRegistry
-   * @param systemValueFactory - default value factory
+   * @param type
+   *          - 6.4 XML Mappings
+   * @param stream
+   *          - output result stream
+   * @param skipBinary
+   *          - If skipBinary is true then any properties of PropertyType.BINARY will be serialized
+   *          as if they are empty.
+   * @param noRecurse
+   *          - if noRecurse is false, the whole subtree are serialized
+   * @param dataManager
+   *          - ItemDataConsumer
+   * @param namespaceRegistry
+   *          - NamespaceRegistry
+   * @param systemValueFactory
+   *          - default value factory
    * @return - visitor BaseXmlExporter.
    * @throws NamespaceException
    * @throws RepositoryException

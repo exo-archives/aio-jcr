@@ -50,21 +50,27 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 public class PropertyDataReader extends ItemDataReader {
 
   private HashMap<InternalQName, PropertyInfo> propeties = new HashMap<InternalQName, PropertyInfo>();
-  
+
   private class PropertyInfo {
-    private InternalQName propertyName = null;
-    private boolean multiValued = false;
-    private List<ValueData> mValueData = null;
-    private List<Value> mValue = null;
-    private ValueData valueData = null;
-    private Value value = null;
-    private int type = PropertyType.STRING;
+    private InternalQName   propertyName = null;
+
+    private boolean         multiValued  = false;
+
+    private List<ValueData> mValueData   = null;
+
+    private List<Value>     mValue       = null;
+
+    private ValueData       valueData    = null;
+
+    private Value           value        = null;
+
+    private int             type         = PropertyType.STRING;
 
     PropertyInfo(InternalQName propertyName, int type) {
       this.propertyName = propertyName;
       this.type = type;
     }
-    
+
     public InternalQName getPropertyName() {
       return propertyName;
     }
@@ -72,36 +78,38 @@ public class PropertyDataReader extends ItemDataReader {
     public boolean isMultiValued() {
       return multiValued;
     }
-    
+
     public void setMultiValued(boolean multiValued) {
       this.multiValued = multiValued;
     }
-    
-    public List<Value> getValues() throws ValueFormatException, PathNotFoundException, RepositoryException {
+
+    public List<Value> getValues() throws ValueFormatException,
+                                  PathNotFoundException,
+                                  RepositoryException {
       if (mValue == null) {
-        List<ValueData> vds = getValueDatas(); 
+        List<ValueData> vds = getValueDatas();
         List<Value> vs = new ArrayList<Value>();
-        for (ValueData vd: vds) {
+        for (ValueData vd : vds) {
           vs.add(makeValue(vd, getType()));
         }
         mValue = vs;
       }
       return mValue;
     }
-    
+
     public List<ValueData> getValueDatas() throws ValueFormatException, PathNotFoundException {
       if (multiValued) {
         if (mValueData != null) {
           return mValueData;
         }
       } else if (valueData != null) {
-        throw new ValueFormatException("Property " + parent.getQPath().getAsString()  
+        throw new ValueFormatException("Property " + parent.getQPath().getAsString()
             + propertyName.getAsString() + " is multi-valued");
       }
-      throw new PathNotFoundException("Property " + parent.getQPath().getAsString() 
+      throw new PathNotFoundException("Property " + parent.getQPath().getAsString()
           + propertyName.getAsString() + " not found (multi-valued)");
     }
-    
+
     public void setValueDatas(List<ValueData> mValue) {
       this.mValueData = mValue;
       this.multiValued = true;
@@ -113,20 +121,20 @@ public class PropertyDataReader extends ItemDataReader {
       }
       return value;
     }
-    
+
     public ValueData getValueData() throws ValueFormatException, PathNotFoundException {
       if (!multiValued) {
         if (valueData != null) {
           return valueData;
         }
       } else if (mValueData != null) {
-        throw new ValueFormatException("Property " + parent.getQPath().getAsString() 
+        throw new ValueFormatException("Property " + parent.getQPath().getAsString()
             + propertyName.getAsString() + " is single-valued");
       }
-      throw new PathNotFoundException("Property " + parent.getQPath().getAsString() 
+      throw new PathNotFoundException("Property " + parent.getQPath().getAsString()
           + propertyName.getAsString() + " not found (single-valued)");
     }
-    
+
     public void setValueData(ValueData value) {
       this.valueData = value;
       this.multiValued = false;
@@ -136,29 +144,35 @@ public class PropertyDataReader extends ItemDataReader {
       return type;
     }
   }
-  
+
   public PropertyDataReader(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
     super(parent, dataManager, valueFactory);
   }
-    
+
   public PropertyDataReader forProperty(InternalQName name, int type) {
     propeties.put(name, new PropertyInfo(name, type));
     return this;
   }
-  
-  public List<ValueData> getPropertyValueDatas(InternalQName name) throws ValueFormatException, PathNotFoundException {
+
+  public List<ValueData> getPropertyValueDatas(InternalQName name) throws ValueFormatException,
+                                                                  PathNotFoundException {
     return propeties.get(name).getValueDatas();
   }
-  
-  public List<Value> getPropertyValues(InternalQName name) throws ValueFormatException, PathNotFoundException, RepositoryException {
+
+  public List<Value> getPropertyValues(InternalQName name) throws ValueFormatException,
+                                                          PathNotFoundException,
+                                                          RepositoryException {
     return propeties.get(name).getValues();
   }
-  
-  public Value getPropertyValue(InternalQName name) throws ValueFormatException, PathNotFoundException, RepositoryException {
+
+  public Value getPropertyValue(InternalQName name) throws ValueFormatException,
+                                                   PathNotFoundException,
+                                                   RepositoryException {
     return propeties.get(name).getValue();
   }
-  
-  public ValueData getPropertyValueData(InternalQName name) throws ValueFormatException, PathNotFoundException {
+
+  public ValueData getPropertyValueData(InternalQName name) throws ValueFormatException,
+                                                           PathNotFoundException {
     return propeties.get(name).getValueData();
   }
 
@@ -171,7 +185,7 @@ public class PropertyDataReader extends ItemDataReader {
         if (prop.isMultiValued()) {
           propInfo.setValueDatas(valueDataList);
         } else {
-          if (valueDataList.size()>0)
+          if (valueDataList.size() > 0)
             propInfo.setValueData(valueDataList.get(0));
         }
       }
@@ -180,21 +194,20 @@ public class PropertyDataReader extends ItemDataReader {
 
   private Value makeValue(ValueData valueData, int type) throws RepositoryException {
     if (valueFactory != null) {
-        TransientValueData tvd = ((AbstractValueData) valueData).createTransientCopy(); 
-        return valueFactory.loadValue(tvd, type);
+      TransientValueData tvd = ((AbstractValueData) valueData).createTransientCopy();
+      return valueFactory.loadValue(tvd, type);
     }
     try {
-      return new StringValue(
-          new String(valueData.getAsByteArray(), Constants.DEFAULT_ENCODING));
-    } catch(UnsupportedEncodingException e) {
+      return new StringValue(new String(valueData.getAsByteArray(), Constants.DEFAULT_ENCODING));
+    } catch (UnsupportedEncodingException e) {
       try {
         return new StringValue(new String(valueData.getAsByteArray()));
       } catch (IOException e1) {
         throw new RepositoryException("Can't make value from value data: " + e1.getMessage(), e1);
       }
-    } catch(IOException e) {
+    } catch (IOException e) {
       throw new RepositoryException("Can't make value from value data: " + e.getMessage(), e);
     }
   }
-  
+
 }

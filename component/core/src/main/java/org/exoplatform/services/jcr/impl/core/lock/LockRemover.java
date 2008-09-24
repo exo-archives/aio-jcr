@@ -31,7 +31,9 @@ public class LockRemover extends WorkerThread {
 
   private final Log             log                    = ExoLogger.getLogger("jcr.lock.LockRemover");
 
-  public static final long      DEFAULT_THREAD_TIMEOUT = 30000;                                      // 30sec
+  public static final long      DEFAULT_THREAD_TIMEOUT = 30000;                                      // 30
+
+  // sec
 
   private final LockManagerImpl lockManagerImpl;
 

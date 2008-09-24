@@ -21,6 +21,7 @@ import javax.jcr.RepositoryException;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ItemDataKeeper.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -28,12 +29,17 @@ import javax.jcr.RepositoryException;
 public interface ItemDataKeeper {
   /**
    * Saves the list of changes from this storage
-   * @param items for commit
-   * @throws InvalidItemStateException 
-   * @throws UnsupportedOperationException if operation is not supported (it is container for level 1)
-   * @throws RepositoryException if some exception occured
+   * 
+   * @param items
+   *          for commit
+   * @throws InvalidItemStateException
+   * @throws UnsupportedOperationException
+   *           if operation is not supported (it is container for level 1)
+   * @throws RepositoryException
+   *           if some exception occured
    */
   void save(ItemStateChangesLog changes) throws InvalidItemStateException,
-    UnsupportedOperationException, RepositoryException;
+                                        UnsupportedOperationException,
+                                        RepositoryException;
 
 }

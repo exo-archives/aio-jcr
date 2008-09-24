@@ -22,14 +22,13 @@ import org.exoplatform.services.jcr.datamodel.Identifier;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov
- *         </a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov </a>
  * @version $Id: IdGenerator.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class IdGenerator {
-  public static final int IDENTIFIER_LENGTH = IDGeneratorService.ID_LENGTH;
-  
+  public static final int           IDENTIFIER_LENGTH = IDGeneratorService.ID_LENGTH;
+
   private static IDGeneratorService idGenerator;
 
   public IdGenerator(IDGeneratorService idGenerator) {
@@ -45,6 +44,6 @@ public class IdGenerator {
   }
 
   public static String generate() {
-    return idGenerator.generateStringID(""+System.currentTimeMillis());
+    return idGenerator.generateStringID("" + System.currentTimeMillis());
   }
 }

@@ -34,8 +34,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ItemState implements Externalizable {
 
-  private static final long serialVersionUID = 7967457831325761318L;
-
+  private static final long   serialVersionUID  = 7967457831325761318L;
 
   private static Log          log               = ExoLogger.getLogger("jcr.ItemState");
 
@@ -71,32 +70,35 @@ public class ItemState implements Externalizable {
   protected transient boolean eventFire;
 
   /**
-   * path to the data on which save should be called for this state (for
-   * Session.move() for ex)
+   * path to the data on which save should be called for this state (for Session.move() for ex)
    */
   private transient QPath     ancestorToSave;
 
   /**
    * The constructor
    * 
-   * @param data underlying data
+   * @param data
+   *          underlying data
    * @param state
-   * @param eventFire - if the state cause some event firing
-   * @param ancestorToSave - path of item which should be called in save
-   *          (usually for session.move())
+   * @param eventFire
+   *          - if the state cause some event firing
+   * @param ancestorToSave
+   *          - path of item which should be called in save (usually for session.move())
    */
   public ItemState(ItemData data, int state, boolean eventFire, QPath ancestorToSave) {
     this(data, state, eventFire, ancestorToSave, false, true);
   }
 
   /**
-   * @param data underlying data
+   * @param data
+   *          underlying data
    * @param state
-   * @param eventFire - if the state cause some event firing
-   * @param ancestorToSave - path of item which should be called in save
-   *          (usually for session.move())
-   * @param isInternalCreated - indicates that item is created internaly by
-   *          system
+   * @param eventFire
+   *          - if the state cause some event firing
+   * @param ancestorToSave
+   *          - path of item which should be called in save (usually for session.move())
+   * @param isInternalCreated
+   *          - indicates that item is created internaly by system
    */
   public ItemState(ItemData data,
                    int state,
@@ -207,8 +209,7 @@ public class ItemState implements Externalizable {
   }
 
   /**
-   * creates ADDED item state shortcut for new ItemState(data, ADDED, true,
-   * true, null)
+   * creates ADDED item state shortcut for new ItemState(data, ADDED, true, true, null)
    * 
    * @param data
    * @param needValidation
@@ -223,8 +224,7 @@ public class ItemState implements Externalizable {
   }
 
   /**
-   * creates UPDATED item state shortcut for new ItemState(data, UPDATED, true,
-   * true, null)
+   * creates UPDATED item state shortcut for new ItemState(data, UPDATED, true, true, null)
    * 
    * @param data
    * @param needValidation
@@ -239,8 +239,7 @@ public class ItemState implements Externalizable {
   }
 
   /**
-   * creates RENAMED item state shortcut for new ItemState(data, RENAMED, true,
-   * true, null)
+   * creates RENAMED item state shortcut for new ItemState(data, RENAMED, true, true, null)
    * 
    * @param data
    * @param needValidation
@@ -255,8 +254,7 @@ public class ItemState implements Externalizable {
   }
 
   /**
-   * creates DELETED item state shortcut for new ItemState(data, DELETED, true,
-   * true, null)
+   * creates DELETED item state shortcut for new ItemState(data, DELETED, true, true, null)
    * 
    * @param data
    * @param needValidation
@@ -271,8 +269,7 @@ public class ItemState implements Externalizable {
   }
 
   /**
-   * creates UNCHANGED item state shortcut for new ItemState(data, UNCHANGED,
-   * false, false, null)
+   * creates UNCHANGED item state shortcut for new ItemState(data, UNCHANGED, false, false, null)
    * 
    * @param data
    * @param needValidation

@@ -33,17 +33,17 @@ import com.sun.japex.TestCase;
 public abstract class AbstractGetItemNameTest extends AbstractItemsTest {
 
   private List<String> names     = new ArrayList<String>();
-  
+
   private volatile int iteration = 0;
-  
+
   protected String nextName() {
     return names.get(iteration++);
   }
-  
+
   protected void addName(String name) {
     names.add(name);
   }
-  
+
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     super.doFinish(tc, context);

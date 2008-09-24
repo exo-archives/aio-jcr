@@ -24,8 +24,8 @@ import java.util.Calendar;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 28.02.2007 10:59:36
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 28.02.2007 10:59:36
  * 
  * @version $Id: TestReplicationCopyNode.java 28.02.2007 10:59:36 rainfox
  */
@@ -38,8 +38,8 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:data", "this is the content");
     contentNode.setProperty("jcr:mimeType", "text/html");
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-        Calendar.getInstance()));
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
 
     session.save();
 
@@ -60,11 +60,11 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     Node destNode = root2.getNode("testSessionMove1").getNode("childNode2").getNode("jcr:content");
 
     assertEquals(srcNode.getProperty("jcr:data").getString(), destNode.getProperty("jcr:data")
-        .getString());
-    assertEquals(srcNode.getProperty("jcr:mimeType").getString(), destNode.getProperty(
-        "jcr:mimeType").getString());
-    assertEquals(srcNode.getProperty("jcr:lastModified").getString(), destNode.getProperty(
-        "jcr:lastModified").getString());
+                                                                      .getString());
+    assertEquals(srcNode.getProperty("jcr:mimeType").getString(),
+                 destNode.getProperty("jcr:mimeType").getString());
+    assertEquals(srcNode.getProperty("jcr:lastModified").getString(),
+                 destNode.getProperty("jcr:lastModified").getString());
   }
 
   public void testCopy() throws Exception {
@@ -73,8 +73,8 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:data", "this is the content");
     contentNode.setProperty("jcr:mimeType", "text/html");
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-        Calendar.getInstance()));
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
 
     session.save();
 
@@ -92,11 +92,11 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     Node destNode = root2.getNode("testCopy1").getNode("childNode2").getNode("jcr:content");
 
     assertEquals(srcNode.getProperty("jcr:data").getString(), destNode.getProperty("jcr:data")
-        .getString());
-    assertEquals(srcNode.getProperty("jcr:mimeType").getString(), destNode.getProperty(
-        "jcr:mimeType").getString());
-    assertEquals(srcNode.getProperty("jcr:lastModified").getString(), destNode.getProperty(
-        "jcr:lastModified").getString());
+                                                                      .getString());
+    assertEquals(srcNode.getProperty("jcr:mimeType").getString(),
+                 destNode.getProperty("jcr:mimeType").getString());
+    assertEquals(srcNode.getProperty("jcr:lastModified").getString(),
+                 destNode.getProperty("jcr:lastModified").getString());
   }
 
   public void testMove() throws Exception {
@@ -105,8 +105,8 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:data", "this is the content");
     contentNode.setProperty("jcr:mimeType", "text/html");
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-        Calendar.getInstance()));
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
 
     session.save();
 
@@ -123,11 +123,11 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     Node destNode = root2.getNode("testMove1").getNode("childNode2").getNode("jcr:content");
 
     assertEquals(srcNode.getProperty("jcr:data").getString(), destNode.getProperty("jcr:data")
-        .getString());
-    assertEquals(srcNode.getProperty("jcr:mimeType").getString(), destNode.getProperty(
-        "jcr:mimeType").getString());
-    assertEquals(srcNode.getProperty("jcr:lastModified").getString(), destNode.getProperty(
-        "jcr:lastModified").getString());
+                                                                      .getString());
+    assertEquals(srcNode.getProperty("jcr:mimeType").getString(),
+                 destNode.getProperty("jcr:mimeType").getString());
+    assertEquals(srcNode.getProperty("jcr:lastModified").getString(),
+                 destNode.getProperty("jcr:lastModified").getString());
   }
 
   public void testBigDataMove() throws Exception {
@@ -150,13 +150,13 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
     contentNode.setProperty("jcr:mimeType", "text/plain");
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-        Calendar.getInstance()));
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
 
     session.save();
 
     workspace.move("/testMove_", "/testMove_dest");
-    
+
     session.save();
 
     log.info("Sleep 15 secands");
@@ -173,13 +173,13 @@ public class ReplicationCopyMoveNodeTest extends BaseReplicationTest {
 
     log.info("source data size      = " + srcNode.getProperty("jcr:data").getStream().available());
     log.info("destination data size = " + destNode.getProperty("jcr:data").getStream().available());
-    
-    assertEquals(srcNode.getProperty("jcr:data").getStream().available(), destNode.getProperty(
-        "jcr:data").getStream().available());
-    assertEquals(srcNode.getProperty("jcr:mimeType").getString(), destNode.getProperty(
-        "jcr:mimeType").getString());
-    assertEquals(srcNode.getProperty("jcr:lastModified").getString(), destNode.getProperty(
-        "jcr:lastModified").getString());
+
+    assertEquals(srcNode.getProperty("jcr:data").getStream().available(),
+                 destNode.getProperty("jcr:data").getStream().available());
+    assertEquals(srcNode.getProperty("jcr:mimeType").getString(),
+                 destNode.getProperty("jcr:mimeType").getString());
+    assertEquals(srcNode.getProperty("jcr:lastModified").getString(),
+                 destNode.getProperty("jcr:lastModified").getString());
   }
 
 }

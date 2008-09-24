@@ -34,10 +34,9 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * <code>SimpleExcerptProvider</code> is a <b>very</b> simple excerpt
- * provider. It does not do any highlighting and simply returns up to
- * <code>maxFragmentSize</code> characters of string properties for a given
- * node.
+ * <code>SimpleExcerptProvider</code> is a <b>very</b> simple excerpt provider. It does not do any
+ * highlighting and simply returns up to <code>maxFragmentSize</code> characters of string
+ * properties for a given node.
  * 
  * @see #getExcerpt(org.apache.jackrabbit.core.NodeId, int, int)
  */

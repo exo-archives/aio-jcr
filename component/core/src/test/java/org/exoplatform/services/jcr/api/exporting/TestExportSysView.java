@@ -83,7 +83,7 @@ public class TestExportSysView extends ExportBase {
 
   public void testExportCHNamespaceRemaping() throws Exception {
 
-    Session newSession = repository.login(this.credentials /*session.getCredentials()*/);
+    Session newSession = repository.login(this.credentials /* session.getCredentials() */);
     newSession.setNamespacePrefix("newjcr", "http://www.jcp.org/jcr/1.0");
 
     Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");
@@ -169,7 +169,7 @@ public class TestExportSysView extends ExportBase {
 
   public void testExportStreamNamespaceRemaping() throws Exception {
 
-    Session newSession = repository.login(this.credentials /*session.getCredentials()*/);
+    Session newSession = repository.login(this.credentials /* session.getCredentials() */);
 
     newSession.setNamespacePrefix("newjcr", "http://www.jcp.org/jcr/1.0");
 

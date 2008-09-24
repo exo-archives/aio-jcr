@@ -40,31 +40,34 @@ import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.Permissio
 import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dang Van Minh
- *          minh.dang@exoplatform.com
- * Nov 15, 2007 2:21:57 PM
+ * Created by The eXo Platform SAS Author : Dang Van Minh minh.dang@exoplatform.com Nov 15, 2007
+ * 2:21:57 PM
  */
-public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable{
+public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable {
 
-  final static private String NT_UNSTRUCTURED = "nt:unstructured".intern() ;
-  final static private String USERS_PATH = "usersPath";
-  final static private String USER_APPLICATION = "userApplicationData" ;
-  final static private String PUBLIC_APPLICATION = "eXoApplications" ;
-  final static private String USER_PRIVATE = "userPrivate" ;
-  final static private String USER_PUBLIC = "userPublic" ;
+  final static private String NT_UNSTRUCTURED    = "nt:unstructured".intern();
 
-  private RepositoryService jcrService_;
+  final static private String USERS_PATH         = "usersPath";
 
-  List<AddPathPlugin> pathPlugins_ = new ArrayList<AddPathPlugin>();
+  final static private String USER_APPLICATION   = "userApplicationData";
+
+  final static private String PUBLIC_APPLICATION = "eXoApplications";
+
+  final static private String USER_PRIVATE       = "userPrivate";
+
+  final static private String USER_PUBLIC        = "userPublic";
+
+  private RepositoryService   jcrService_;
+
+  List<AddPathPlugin>         pathPlugins_       = new ArrayList<AddPathPlugin>();
 
   public NodeHierarchyCreatorImpl(RepositoryService jcrService) throws Exception {
     jcrService_ = jcrService;
   }
 
-  public void start() {    
+  public void start() {
     try {
-      processAddPathPlugin() ;
+      processAddPathPlugin();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -73,133 +76,163 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
   public void stop() {
   }
 
-  public void init(String repository) throws Exception {   
-    initBasePath(repository) ;
-  }  
-  
+  public void init(String repository) throws Exception {
+    initBasePath(repository);
+  }
+
   @SuppressWarnings("unchecked")
-  private void createNode(Node rootNode, String path, String nodeType, List<String> mixinTypes, 
-      Map permissions) throws Exception {    
-    Node node = rootNode ;
+  private void createNode(Node rootNode,
+                          String path,
+                          String nodeType,
+                          List<String> mixinTypes,
+                          Map permissions) throws Exception {
+    Node node = rootNode;
     for (String token : path.split("/")) {
       try {
-        node = node.getNode(token) ;
-      } catch(PathNotFoundException e) {
-        if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
+        node = node.getNode(token);
+      } catch (PathNotFoundException e) {
+        if (nodeType == null || nodeType.length() == 0)
+          nodeType = NT_UNSTRUCTURED;
         node = node.addNode(token, nodeType);
-        if (node.canAddMixin("exo:privilegeable")) node.addMixin("exo:privilegeable");
-        if(permissions != null && !permissions.isEmpty()) ((ExtendedNode)node).setPermissions(permissions);
-        if(mixinTypes.size() > 0) {
-          for(String mixin : mixinTypes) {
-            if(node.canAddMixin(mixin)) node.addMixin(mixin) ;
+        if (node.canAddMixin("exo:privilegeable"))
+          node.addMixin("exo:privilegeable");
+        if (permissions != null && !permissions.isEmpty())
+          ((ExtendedNode) node).setPermissions(permissions);
+        if (mixinTypes.size() > 0) {
+          for (String mixin : mixinTypes) {
+            if (node.canAddMixin(mixin))
+              node.addMixin(mixin);
           }
         }
-      }      
+      }
     }
   }
-  
+
   public Map getPermissions(List<Permission> permissions) {
     Map<String, String[]> permissionsMap = new HashMap<String, String[]>();
-    for(Permission permission : permissions) {
-      StringBuilder strPer = new StringBuilder() ;
-      if("true".equals(permission.getRead())) strPer.append(PermissionType.READ) ;
-      if("true".equals(permission.getAddNode())) strPer.append(",").append(PermissionType.ADD_NODE) ;
-      if("true".equals(permission.getSetProperty())) strPer.append(",").append(PermissionType.SET_PROPERTY) ;
-      if("true".equals(permission.getRemove())) strPer.append(",").append(PermissionType.REMOVE) ;
-      permissionsMap.put(permission.getIdentity(), strPer.toString().split(",")) ;
+    for (Permission permission : permissions) {
+      StringBuilder strPer = new StringBuilder();
+      if ("true".equals(permission.getRead()))
+        strPer.append(PermissionType.READ);
+      if ("true".equals(permission.getAddNode()))
+        strPer.append(",").append(PermissionType.ADD_NODE);
+      if ("true".equals(permission.getSetProperty()))
+        strPer.append(",").append(PermissionType.SET_PROPERTY);
+      if ("true".equals(permission.getRemove()))
+        strPer.append(",").append(PermissionType.REMOVE);
+      permissionsMap.put(permission.getIdentity(), strPer.toString().split(","));
     }
     return permissionsMap;
-  } 
-  
+  }
+
   @SuppressWarnings("unchecked")
-  private void processAddPathPlugin()  throws Exception {           
-    Session session = null ;
-    for(AddPathPlugin pathPlugin:pathPlugins_) {
-      HierarchyConfig hierarchyConfig = pathPlugin.getPaths() ;
-      String repository = hierarchyConfig.getRepository() ;
-      List<JcrPath> jcrPaths = hierarchyConfig.getJcrPaths() ;
-      for(String workspaceName:hierarchyConfig.getWorkspaces()) {
-        session = jcrService_.getRepository(repository).getSystemSession(workspaceName) ;
-        Node rootNode = session.getRootNode() ;
-        for(JcrPath jcrPath:jcrPaths) {                    
-          String nodeType = jcrPath.getNodeType() ;
-          if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
-          List<String> mixinTypes = jcrPath.getMixinTypes() ;
-          if(mixinTypes == null) mixinTypes = new ArrayList<String>() ;
-          if(!jcrPath.getAlias().equals(USER_APPLICATION) && !jcrPath.getAlias().startsWith(USER_PRIVATE) && 
-              !jcrPath.getAlias().startsWith(USER_PUBLIC)) {
-            createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
-                getPermissions(jcrPath.getPermissions()));
+  private void processAddPathPlugin() throws Exception {
+    Session session = null;
+    for (AddPathPlugin pathPlugin : pathPlugins_) {
+      HierarchyConfig hierarchyConfig = pathPlugin.getPaths();
+      String repository = hierarchyConfig.getRepository();
+      List<JcrPath> jcrPaths = hierarchyConfig.getJcrPaths();
+      for (String workspaceName : hierarchyConfig.getWorkspaces()) {
+        session = jcrService_.getRepository(repository).getSystemSession(workspaceName);
+        Node rootNode = session.getRootNode();
+        for (JcrPath jcrPath : jcrPaths) {
+          String nodeType = jcrPath.getNodeType();
+          if (nodeType == null || nodeType.length() == 0)
+            nodeType = NT_UNSTRUCTURED;
+          List<String> mixinTypes = jcrPath.getMixinTypes();
+          if (mixinTypes == null)
+            mixinTypes = new ArrayList<String>();
+          if (!jcrPath.getAlias().equals(USER_APPLICATION)
+              && !jcrPath.getAlias().startsWith(USER_PRIVATE)
+              && !jcrPath.getAlias().startsWith(USER_PUBLIC)) {
+            createNode(rootNode,
+                       jcrPath.getPath(),
+                       nodeType,
+                       mixinTypes,
+                       getPermissions(jcrPath.getPermissions()));
           }
         }
-        session.save() ;
-        session.logout() ;
+        session.save();
+        session.logout();
       }
-    }    
+    }
   }
-  
+
   @SuppressWarnings("unchecked")
-  private void initBasePath(String repository) throws Exception {    
-    Session session = null ;
+  private void initBasePath(String repository) throws Exception {
+    Session session = null;
     ManageableRepository manageableRepository = jcrService_.getRepository(repository);
     String defaultWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
     String systemWorkspace = manageableRepository.getConfiguration().getSystemWorkspaceName();
-    boolean isSameWorksapce = defaultWorkspace.equalsIgnoreCase(systemWorkspace);        
+    boolean isSameWorksapce = defaultWorkspace.equalsIgnoreCase(systemWorkspace);
     String[] workspaceNames = manageableRepository.getWorkspaceNames();
-    for(AddPathPlugin pathPlugin:pathPlugins_) {
-      HierarchyConfig hierarchyConfig = pathPlugin.getPaths() ;
-      List<JcrPath> jcrPaths = hierarchyConfig.getJcrPaths() ;
-      for(String workspaceName:workspaceNames) {
-        if(!isSameWorksapce && workspaceName.equalsIgnoreCase(systemWorkspace)) continue;
+    for (AddPathPlugin pathPlugin : pathPlugins_) {
+      HierarchyConfig hierarchyConfig = pathPlugin.getPaths();
+      List<JcrPath> jcrPaths = hierarchyConfig.getJcrPaths();
+      for (String workspaceName : workspaceNames) {
+        if (!isSameWorksapce && workspaceName.equalsIgnoreCase(systemWorkspace))
+          continue;
         session = manageableRepository.getSystemSession(workspaceName);
-        Node rootNode = session.getRootNode() ;
-        for(JcrPath jcrPath:jcrPaths) {                    
-          String nodeType = jcrPath.getNodeType() ;
-          if(nodeType == null || nodeType.length() == 0) nodeType = NT_UNSTRUCTURED ;
-          List<String> mixinTypes = jcrPath.getMixinTypes() ;
-          if(mixinTypes == null) mixinTypes = new ArrayList<String>() ;
-          if(!jcrPath.getAlias().equals(USER_APPLICATION) && !jcrPath.getAlias().startsWith(USER_PRIVATE) && 
-              !jcrPath.getAlias().startsWith(USER_PUBLIC)) {
-            createNode(rootNode, jcrPath.getPath(),nodeType, mixinTypes, 
-                getPermissions(jcrPath.getPermissions()));
+        Node rootNode = session.getRootNode();
+        for (JcrPath jcrPath : jcrPaths) {
+          String nodeType = jcrPath.getNodeType();
+          if (nodeType == null || nodeType.length() == 0)
+            nodeType = NT_UNSTRUCTURED;
+          List<String> mixinTypes = jcrPath.getMixinTypes();
+          if (mixinTypes == null)
+            mixinTypes = new ArrayList<String>();
+          if (!jcrPath.getAlias().equals(USER_APPLICATION)
+              && !jcrPath.getAlias().startsWith(USER_PRIVATE)
+              && !jcrPath.getAlias().startsWith(USER_PUBLIC)) {
+            createNode(rootNode,
+                       jcrPath.getPath(),
+                       nodeType,
+                       mixinTypes,
+                       getPermissions(jcrPath.getPermissions()));
           }
         }
-        session.save() ;
-        session.logout() ;
+        session.save();
+        session.logout();
       }
-    }       
+    }
   }
 
   public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception {
     Node userNode = getUserNode(sessionProvider, userName);
-    if(userNode.hasNode(getJcrPath(USER_APPLICATION))) return userNode.getNode(getJcrPath(USER_APPLICATION)) ;
-    return userNode.addNode(getJcrPath(USER_APPLICATION)) ;
+    if (userNode.hasNode(getJcrPath(USER_APPLICATION)))
+      return userNode.getNode(getJcrPath(USER_APPLICATION));
+    return userNode.addNode(getJcrPath(USER_APPLICATION));
   }
-  
+
   public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception {
-    ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
-    Session session = getSession(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;    
-    Node rootNode = session.getRootNode() ;
-    String publicApplication = getJcrPath(PUBLIC_APPLICATION) ;
-    return rootNode.getNode(publicApplication.substring(1, publicApplication.length())) ;
+    ManageableRepository currentRepo = jcrService_.getCurrentRepository();
+    Session session = getSession(sessionProvider,
+                                 currentRepo,
+                                 currentRepo.getConfiguration().getDefaultWorkspaceName());
+    Node rootNode = session.getRootNode();
+    String publicApplication = getJcrPath(PUBLIC_APPLICATION);
+    return rootNode.getNode(publicApplication.substring(1, publicApplication.length()));
   }
-  
-  public Node getUserNode(SessionProvider sessionProvider, String userName) throws Exception{
-    String userPath = getJcrPath(USERS_PATH) ;
-    ManageableRepository currentRepo = jcrService_.getCurrentRepository() ;
-    Session session = 
-      getSession(sessionProvider, currentRepo, currentRepo.getConfiguration().getDefaultWorkspaceName()) ;
-    Node usersNode = (Node)session.getItem(userPath) ;
-    if(usersNode.hasNode(userName)) return usersNode.getNode(userName);
-    return usersNode.addNode(userName) ;
+
+  public Node getUserNode(SessionProvider sessionProvider, String userName) throws Exception {
+    String userPath = getJcrPath(USERS_PATH);
+    ManageableRepository currentRepo = jcrService_.getCurrentRepository();
+    Session session = getSession(sessionProvider,
+                                 currentRepo,
+                                 currentRepo.getConfiguration().getDefaultWorkspaceName());
+    Node usersNode = (Node) session.getItem(userPath);
+    if (usersNode.hasNode(userName))
+      return usersNode.getNode(userName);
+    return usersNode.addNode(userName);
   }
-  
-  private Session getSession(SessionProvider sessionProvider, ManageableRepository repo, 
-      String defaultWorkspace) throws RepositoryException {
+
+  private Session getSession(SessionProvider sessionProvider,
+                             ManageableRepository repo,
+                             String defaultWorkspace) throws RepositoryException {
     return sessionProvider.getSession(defaultWorkspace, repo);
   }
 
-  public String getJcrPath(String alias) { 
+  public String getJcrPath(String alias) {
     for (int j = 0; j < pathPlugins_.size(); j++) {
       HierarchyConfig config = pathPlugins_.get(j).getPaths();
       List jcrPaths = config.getJcrPaths();
@@ -212,9 +245,10 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
     }
     return null;
   }
-  
+
   public void addPlugin(ComponentPlugin plugin) {
-    if (plugin instanceof AddPathPlugin) pathPlugins_.add((AddPathPlugin) plugin);    
+    if (plugin instanceof AddPathPlugin)
+      pathPlugins_.add((AddPathPlugin) plugin);
   }
 
   @SuppressWarnings("unused")
@@ -224,5 +258,5 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
 
   public Collection getPlugins() {
     return null;
-  }    
+  }
 }

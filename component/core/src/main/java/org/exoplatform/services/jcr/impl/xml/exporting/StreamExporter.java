@@ -42,10 +42,10 @@ public abstract class StreamExporter extends BaseXmlExporter {
                         boolean skipBinary,
                         boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse, noRecurse ? 1
-                                                                                              : -1);
+    super(dataManager, namespaceRegistry, systemValueFactory, skipBinary, noRecurse, noRecurse
+        ? 1
+        : -1);
     this.writer = writer;
-
 
   }
 

@@ -49,19 +49,22 @@ public class TestItemAccess extends JcrImplBaseTest {
     super.setUp();
     testGetItemNode = root.addNode("testGetItemNode");
     root.save();
-    //geneteting tree maxDepth = 5 and maxWidth = 12
+    // geneteting tree maxDepth = 5 and maxWidth = 12
     nGen = new TreeGenerator(testGetItemNode, new WeightNodeGenerator(5, 5));
     nGen.genereteTree();
     validNames = NameTraversingVisitor.getValidNames(testGetItemNode,
-        NameTraversingVisitor.SCOPE_ALL);
-    
+                                                     NameTraversingVisitor.SCOPE_ALL);
+
     validUuids = NameTraversingVisitor.getValidUuids(testGetItemNode,
-        NameTraversingVisitor.SCOPE_ALL);
+                                                     NameTraversingVisitor.SCOPE_ALL);
   }
 
   public void testGetItemTest() throws RepositoryException {
-    SessionImpl newSession = (SessionImpl) repository.login(this.credentials /*session.getCredentials()*/, session.getWorkspace()
-        .getName());
+    SessionImpl newSession = (SessionImpl) repository.login(this.credentials /*
+                                                                              * session.getCredentials
+                                                                              * ()
+                                                                              */,
+                                                            session.getWorkspace().getName());
 
     Random random = new Random();
     SessionDataManager tm = newSession.getTransientNodesManager();

@@ -98,11 +98,12 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
     if (sourceNameParam == null) {
       sourceNameParam = params.getProperty("sourceName"); // try old, pre 1.9 name
       if (sourceNameParam == null)
-        throw new RepositoryConfigurationException("Repository service configuration. Source name (" + PARAM_SOURCE_NAME + ") is expected");
+        throw new RepositoryConfigurationException("Repository service configuration. Source name ("
+            + PARAM_SOURCE_NAME + ") is expected");
     }
-    
+
     String dialectParam = params.getProperty(PARAM_DIALECT);
-    
+
     this.sourceName = sourceNameParam;
 
     String binType = "BLOB";
@@ -119,9 +120,8 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
         binType = "VARBINARY(255)";
       }
 
-    this.initSQL =
-        "CREATE TABLE " + configTableName + " (" + "NAME VARCHAR(64) NOT NULL, " + "CONFIG " + binType + " NOT NULL, "
-            + "CONSTRAINT JCR_CONFIG_PK PRIMARY KEY(NAME))";
+    this.initSQL = "CREATE TABLE " + configTableName + " (" + "NAME VARCHAR(64) NOT NULL, "
+        + "CONFIG " + binType + " NOT NULL, " + "CONSTRAINT JCR_CONFIG_PK PRIMARY KEY(NAME))";
   }
 
   protected void checkInitialized() throws RepositoryConfigurationException {
@@ -156,7 +156,8 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       Connection con = openConnection();
       if (isDbInitialized(con)) {
         // check that data exists
-        PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM " + configTableName + " WHERE NAME=?");
+        PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) FROM " + configTableName
+            + " WHERE NAME=?");
         try {
           ps.setString(1, CONFIGNAME);
           ResultSet res = ps.executeQuery();
@@ -184,7 +185,8 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
       try {
         if (isDbInitialized(con)) {
 
-          PreparedStatement ps = con.prepareStatement("SELECT * FROM " + configTableName + " WHERE name=?");
+          PreparedStatement ps = con.prepareStatement("SELECT * FROM " + configTableName
+              + " WHERE name=?");
           ps.setString(1, CONFIGNAME);
           ResultSet res = ps.executeQuery();
 
@@ -192,7 +194,8 @@ public class JDBCConfigurationPersister implements ConfigurationPersister {
             ConfigDataHolder config = new ConfigDataHolder(res.getBinaryStream("config"));
             return config.getStream();
           } else
-            throw new ConfigurationNotFoundException("No configuration data is found in database. Source name " + sourceName);
+            throw new ConfigurationNotFoundException("No configuration data is found in database. Source name "
+                + sourceName);
 
         } else
           throw new ConfigurationNotInitializedException("Configuration table not is found in database. Source name "

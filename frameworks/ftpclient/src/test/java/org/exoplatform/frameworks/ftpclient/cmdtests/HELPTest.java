@@ -25,26 +25,26 @@ import org.exoplatform.frameworks.ftpclient.client.FtpClientSession;
 import org.exoplatform.frameworks.ftpclient.commands.CmdHelp;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class HELPTest extends TestCase {
-  
+
   private static Log log = new Log("HELPTest");
-  
+
   public void testHELP() throws Exception {
     log.info("Test...");
-    
+
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
-    
+
     CmdHelp cmdHelp = new CmdHelp();
-    assertEquals(FtpConst.Replyes.REPLY_214, client.executeCommand(cmdHelp));    
-    
+    assertEquals(FtpConst.Replyes.REPLY_214, client.executeCommand(cmdHelp));
+
     client.close();
     log.info("Complete.\r\n");
-  }  
+  }
 
 }

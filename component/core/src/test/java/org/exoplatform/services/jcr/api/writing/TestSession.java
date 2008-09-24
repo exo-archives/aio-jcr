@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.writing;
 
-
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -25,14 +24,14 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestSession.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class TestSession extends JcrAPIBaseTest{
+public class TestSession extends JcrAPIBaseTest {
 
   public void testSave() throws RepositoryException {
     Node root = session.getRootNode();
@@ -43,7 +42,7 @@ public class TestSession extends JcrAPIBaseTest{
     } catch (ConstraintViolationException e) {
     }
 
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
     root = session.getRootNode();
     try {
       root.getNode("childNode/childNode2");
@@ -52,13 +51,13 @@ public class TestSession extends JcrAPIBaseTest{
     }
 
     Node node = root.addNode("nodeType", "nt:base");
-  	session.save();
+    session.save();
     root.getNode("nodeType").remove();
     session.save();
   }
 
   public void testRefresh() throws RepositoryException {
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
     Node root = session.getRootNode();
     Node node = root.addNode("nodeType", "exo:mockNodeType");
     node.addNode("jcr:childNodeDefinition", "nt:childNodeDefinition");
@@ -71,7 +70,7 @@ public class TestSession extends JcrAPIBaseTest{
     session.save();
 
     // Test refresh(true)
-    /////////////////////
+    // ///////////////////
   }
 
   public void testHasPendingChanges() throws RepositoryException {
@@ -84,7 +83,6 @@ public class TestSession extends JcrAPIBaseTest{
 
   public void testSaveWithUUID() throws RepositoryException {
   }
-
 
   public void testPropertiesManipThenSave() throws RepositoryException {
     Node root = session.getRootNode();
@@ -100,7 +98,7 @@ public class TestSession extends JcrAPIBaseTest{
     node.addNode("addedNode", "nt:unstructured");
     session.save();
 
-    session = (SessionImpl)repository.login(credentials, WORKSPACE);
+    session = (SessionImpl) repository.login(credentials, WORKSPACE);
     node = session.getRootNode().getNode("testPropertiesManipThenSave");
     root = session.getRootNode();
     try {
@@ -122,11 +120,11 @@ public class TestSession extends JcrAPIBaseTest{
     }
     node.getNode("addedNode");
 
-//    System.out.println("REMOVE childNode");
+    // System.out.println("REMOVE childNode");
     root.getNode("testPropertiesManipThenSave").remove();
-//    System.out.println("SAVE childNode");
+    // System.out.println("SAVE childNode");
     session.save();
-//    System.out.println("REMOVED");
+    // System.out.println("REMOVED");
   }
 
 }

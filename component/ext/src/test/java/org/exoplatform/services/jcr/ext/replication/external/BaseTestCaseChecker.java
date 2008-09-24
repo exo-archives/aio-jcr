@@ -27,10 +27,10 @@ import junit.framework.TestCase;
 public class BaseTestCaseChecker extends TestCase {
 
   // for exo-application
-  public final static String TEST_REALM = "eXo REST services";
+  public final static String TEST_REALM        = "eXo REST services";
 
   // for ECM
-  //public final static String TEST_REALM        = "exo-domain";
+  // public final static String TEST_REALM = "exo-domain";
 
   protected static int       MAX_RANDOM_VALUE  = 1000000;
 
@@ -59,18 +59,18 @@ public class BaseTestCaseChecker extends TestCase {
 
     for (int mIndex = 0; mIndex < members.length; mIndex++) {
       MemberInfo memberInfo = members[mIndex];
-      
+
       if (min > memberInfo.getPriority()) {
         min = memberInfo.getPriority();
         minIndex = mIndex;
       }
-      
+
       if (max < memberInfo.getPriority()) {
         max = memberInfo.getPriority();
         maxIndex = mIndex;
       }
     }
-    
+
     minPriorityMemberIndex = minIndex;
     maxPriorityMemberIndex = maxIndex;
   }
@@ -103,20 +103,20 @@ public class BaseTestCaseChecker extends TestCase {
   public MemberInfo getMinPriorityMember() {
     return members[minPriorityMemberIndex];
   }
-  
+
   public MemberInfo getMiddlePriorityMember() {
-   for (MemberInfo memberInfo : members) 
-     if (!memberInfo.equals(members[maxPriorityMemberIndex]) &&
-         !memberInfo.equals(members[minPriorityMemberIndex])) {
-       return memberInfo;
-     }
-   return members[minPriorityMemberIndex];
+    for (MemberInfo memberInfo : members)
+      if (!memberInfo.equals(members[maxPriorityMemberIndex])
+          && !memberInfo.equals(members[minPriorityMemberIndex])) {
+        return memberInfo;
+      }
+    return members[minPriorityMemberIndex];
   }
 
   public MemberInfo[] getCurrentSlaveMembers() {
     return slaveMembers;
   }
-  
+
   public MemberInfo[] getAllMembers() {
     return members;
   }
@@ -134,8 +134,8 @@ public class BaseTestCaseChecker extends TestCase {
       if (i != masterIndex)
         slaveMembers[slaveMembersIndex++] = members[i];
   }
-  
+
   public long getRandomLong() {
-    return (long)(Math.random() * MAX_RANDOM_VALUE); 
+    return (long) (Math.random() * MAX_RANDOM_VALUE);
   }
 }

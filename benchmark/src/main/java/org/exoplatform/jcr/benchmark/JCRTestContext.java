@@ -30,20 +30,20 @@ import javax.jcr.Session;
 
 public final class JCRTestContext extends HashMap<String, Object> {
 
-  protected static int     threadCounter = 0;
-  
-  private static final String sessionId = ""+System.currentTimeMillis();
-  
-  public static final String SESSION  = "session";
-  
-  public static final String CREDENTIALS  = "credentials";
+  protected static int        threadCounter = 0;
 
-  private int counter = 0;
-  
-  private String name;
-  
+  private static final String sessionId     = "" + System.currentTimeMillis();
+
+  public static final String  SESSION       = "session";
+
+  public static final String  CREDENTIALS   = "credentials";
+
+  private int                 counter       = 0;
+
+  private String              name;
+
   public JCRTestContext() {
-    this.name = sessionId+"-"+(threadCounter++);
+    this.name = sessionId + "-" + (threadCounter++);
   }
 
   public void setSession(Session session) {
@@ -53,7 +53,7 @@ public final class JCRTestContext extends HashMap<String, Object> {
   public Session getSession() {
     return (Session) get(SESSION);
   }
-  
+
   public void setCredentials(Credentials credentials) {
     put(CREDENTIALS, credentials);
   }
@@ -63,8 +63,7 @@ public final class JCRTestContext extends HashMap<String, Object> {
   }
 
   public String generateUniqueName(String prefix) {
-    return prefix+"-"+name+"-"+(counter++);
+    return prefix + "-" + name + "-" + (counter++);
   }
-  
-  
+
 }

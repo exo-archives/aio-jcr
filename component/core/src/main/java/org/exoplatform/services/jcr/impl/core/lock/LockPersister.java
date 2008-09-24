@@ -22,8 +22,7 @@ import javax.jcr.lock.LockException;
 import org.picocontainer.Startable;
 
 /**
- * Class for storing information about locks And will be notified about add and
- * removing a lock
+ * Class for storing information about locks And will be notified about add and removing a lock
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: LockPersister.java 11907 2008-03-13 15:36:21Z ksm $

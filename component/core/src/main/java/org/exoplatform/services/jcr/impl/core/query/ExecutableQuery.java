@@ -20,19 +20,23 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.QueryResult;
 
 /**
- * Specifies an interface for a query object implementation that can just be
- * executed.
+ * Specifies an interface for a query object implementation that can just be executed.
+ * 
  * @see QueryImpl
  */
 public interface ExecutableQuery {
 
-    /**
-     * Executes this query and returns a <code>{@link QueryResult}</code>.
-     * @param offset the offset in the total result set
-     * @param limit the maximum result size
-     *
-     * @return a <code>QueryResult</code>
-     * @throws RepositoryException if an error occurs
-     */
-    QueryResult execute(long offset, long limit) throws RepositoryException;
+  /**
+   * Executes this query and returns a <code>{@link QueryResult}</code>.
+   * 
+   * @param offset
+   *          the offset in the total result set
+   * @param limit
+   *          the maximum result size
+   * 
+   * @return a <code>QueryResult</code>
+   * @throws RepositoryException
+   *           if an error occurs
+   */
+  QueryResult execute(long offset, long limit) throws RepositoryException;
 }

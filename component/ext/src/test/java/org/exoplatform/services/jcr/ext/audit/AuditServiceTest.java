@@ -286,22 +286,21 @@ public class AuditServiceTest extends BaseStandaloneTest {
     assertTrue(service.hasHistory(adminTestAuditHistoryNode));
     service.removeHistory(adminTestAuditHistoryNode);
     adminSession.save();
-    
 
-    //exo2
+    // exo2
     Node auditStorage2 = exo2AdminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
     for (NodeIterator nIterator = auditStorage2.getNodes(); nIterator.hasNext();) {
       nIterator.nextNode();
 
     }
 
-    //exo2
+    // exo2
     Node auditStorage3;
     try {
       auditStorage3 = exo1Session.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
       fail();
     } catch (AccessDeniedException e) {
-      //ok
+      // ok
     }
   }
 

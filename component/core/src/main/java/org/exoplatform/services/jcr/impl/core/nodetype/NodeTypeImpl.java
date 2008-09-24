@@ -734,14 +734,16 @@ public class NodeTypeImpl implements ExtendedNodeType {
   }
 
   /**
-   * @param mixin The mixin to set.
+   * @param mixin
+   *          The mixin to set.
    */
   public void setMixin(boolean mixin) {
     this.mixin = mixin;
   }
 
   /**
-   * @param name The name to set.
+   * @param name
+   *          The name to set.
    */
   public void setName(String name) throws RepositoryException {
     // this.name = name;
@@ -749,35 +751,40 @@ public class NodeTypeImpl implements ExtendedNodeType {
   }
 
   /**
-   * @param orderableChild The orderableChild to set.
+   * @param orderableChild
+   *          The orderableChild to set.
    */
   public void setOrderableChild(boolean orderableChild) {
     this.orderableChild = orderableChild;
   }
 
   /**
-   * @param primaryItemName The primaryItemName to set.
+   * @param primaryItemName
+   *          The primaryItemName to set.
    */
   public void setPrimaryItemName(String primaryItemName) {
     this.primaryItemName = primaryItemName;
   }
 
   /**
-   * @param declaredNodeDefs The declaredNodeDefs to set.
+   * @param declaredNodeDefs
+   *          The declaredNodeDefs to set.
    */
   public void setDeclaredNodeDefs(NodeDefinition[] declaredNodeDefs) {
     this.declaredChildNodeDefinitions = declaredNodeDefs;
   }
 
   /**
-   * @param declaredPropertyDefs The declaredPropertyDefs to set.
+   * @param declaredPropertyDefs
+   *          The declaredPropertyDefs to set.
    */
   public void setDeclaredPropertyDefs(PropertyDefinition[] declaredPropertyDefs) {
     this.declaredPropertyDefinitions = declaredPropertyDefs;
   }
 
   /**
-   * @param declaredSupertypes The declaredSupertypes to set.
+   * @param declaredSupertypes
+   *          The declaredSupertypes to set.
    */
   public void setDeclaredSupertypes(NodeType[] declaredSupertypes) {
     this.declaredSupertypes = declaredSupertypes;
@@ -791,8 +798,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType#getPropertyDefinitions(org.exoplatform.services.jcr.datamodel.InternalQName)
+   * @see
+   * org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType#getPropertyDefinitions(org.exoplatform
+   * .services.jcr.datamodel.InternalQName)
    */
   public PropertyDefinitions getPropertyDefinitions(InternalQName name) {
     PropertyDefinitions defs = new PropertyDefinitions();
@@ -809,8 +817,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType#getChildNodeDefinition(org.exoplatform.services.jcr.datamodel.InternalQName)
+   * @see
+   * org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType#getChildNodeDefinition(org.exoplatform
+   * .services.jcr.datamodel.InternalQName)
    */
   public NodeDefinition getChildNodeDefinition(InternalQName name) {
     NodeDefinition residual = null;

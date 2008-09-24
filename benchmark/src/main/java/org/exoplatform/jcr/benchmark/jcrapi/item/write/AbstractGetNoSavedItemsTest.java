@@ -22,12 +22,12 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractGetNoSavedItemsTest extends JCRTestBase {
 
-  private List<Node> parents  = new ArrayList<Node>();
+  private List<Node>   parents   = new ArrayList<Node>();
 
-  private List<Node> childs   = new ArrayList<Node>();
+  private List<Node>   childs    = new ArrayList<Node>();
 
-  private Node       testRoot = null;
-  
+  private Node         testRoot  = null;
+
   private volatile int iteration = 0;
 
   @Override

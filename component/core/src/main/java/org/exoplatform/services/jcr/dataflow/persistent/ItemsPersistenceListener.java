@@ -18,16 +18,16 @@ package org.exoplatform.services.jcr.dataflow.persistent;
 
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 
-
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ItemsPersistenceListener.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public interface ItemsPersistenceListener {
   /**
    * called wnen data is permanently saved
+   * 
    * @param itemStates
    */
   void onSaveItems(ItemStateChangesLog itemStates);

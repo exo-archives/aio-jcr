@@ -157,18 +157,14 @@ public class StringConverter {
     else if (string.startsWith("_x000A_"))
       return new DNChar('\n', 7);
     /**
-     * Denormalize of this value cause a 4 fails in TCK. If we don'n do it, it
-     * text will be remain the "_x0009_" value instead of "\t" TCK tests fail
-     * because the checkImportSimpleXMLTree method of DocumentViewImportTest
-     * object have a small problem in this place
-     *  // both possibilities In logic
-     *                  if (!propVal.equals(encodedAttributeValue)
-     *                   || !propVal.equals(encodedAttributeValue)) {
-     *               fail("Value " + encodedAttributeValue + "  of attribute " +
-     *                       decodedAttributeName + " is not correctly imported.");
-     *
-     * of test the propVal must be equal of encodedAttributeValue the encoded
-     * version of value
+     * Denormalize of this value cause a 4 fails in TCK. If we don'n do it, it text will be remain
+     * the "_x0009_" value instead of "\t" TCK tests fail because the checkImportSimpleXMLTree
+     * method of DocumentViewImportTest object have a small problem in this place // both
+     * possibilities In logic if (!propVal.equals(encodedAttributeValue) ||
+     * !propVal.equals(encodedAttributeValue)) { fail("Value " + encodedAttributeValue +
+     * "  of attribute " + decodedAttributeName + " is not correctly imported.");
+     * 
+     * of test the propVal must be equal of encodedAttributeValue the encoded version of value
      */
     else if (string.startsWith("_x0009_"))
       return new DNChar('\t', 7);

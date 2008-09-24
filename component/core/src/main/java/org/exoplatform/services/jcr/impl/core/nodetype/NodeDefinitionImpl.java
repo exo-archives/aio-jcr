@@ -37,15 +37,15 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements NodeDefini
   private boolean    multiple;
 
   public NodeDefinitionImpl(String name,
-      NodeType declaringNodeType,
-      NodeType[] requiredNodeTypes,
-      NodeType defaultNodeType,
-      boolean autoCreate,
-      boolean mandatory,
-      int onVersion,
-      boolean readOnly,
-      boolean multiple,
-      InternalQName qName) {
+                            NodeType declaringNodeType,
+                            NodeType[] requiredNodeTypes,
+                            NodeType defaultNodeType,
+                            boolean autoCreate,
+                            boolean mandatory,
+                            int onVersion,
+                            boolean readOnly,
+                            boolean multiple,
+                            InternalQName qName) {
 
     super(name, declaringNodeType, autoCreate, onVersion, readOnly, mandatory, qName);
 
@@ -83,21 +83,24 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements NodeDefini
   }
 
   /**
-   * @param defaultNodeType The defaultNodeType to set.
+   * @param defaultNodeType
+   *          The defaultNodeType to set.
    */
   public void setDefaultNodeType(NodeType defaultNodeType) {
     this.defaultNodeType = defaultNodeType;
   }
 
   /**
-   * @param multiple The multiple to set.
+   * @param multiple
+   *          The multiple to set.
    */
   public void setMultiple(boolean multiple) {
     this.multiple = multiple;
   }
 
   /**
-   * @param requiredNodeTypes The requiredNodeTypes to set.
+   * @param requiredNodeTypes
+   *          The requiredNodeTypes to set.
    */
   public void setRequiredNodeTypes(NodeType[] requiredNodeTypes) {
     this.requiredNodeTypes = requiredNodeTypes;

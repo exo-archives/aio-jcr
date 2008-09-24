@@ -27,15 +27,15 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPass;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class MODETest extends TestCase {
 
   private static Log log = new Log("MODETest");
-  
+
   public void testMODE() throws Exception {
     log.info("Test...");
 
@@ -46,7 +46,7 @@ public class MODETest extends TestCase {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
@@ -59,12 +59,12 @@ public class MODETest extends TestCase {
     }
 
     // Mode set to S
-    
+
     {
       CmdMode cmdMode = new CmdMode("s");
       assertEquals(FtpConst.Replyes.REPLY_200, client.executeCommand(cmdMode));
     }
-    
+
     // unsupported modes - c, b
 
     {
@@ -75,19 +75,17 @@ public class MODETest extends TestCase {
     {
       CmdMode cmdMode = new CmdMode("b");
       assertEquals(FtpConst.Replyes.REPLY_504, client.executeCommand(cmdMode));
-    } 
-    
+    }
+
     // unrecognized modes
 
     {
       CmdMode cmdMode = new CmdMode("a");
       assertEquals(FtpConst.Replyes.REPLY_501, client.executeCommand(cmdMode));
     }
-        
-    client.close();
-    log.info("Complete.\r\n");    
-  }
-  
-  
-}
 
+    client.close();
+    log.info("Complete.\r\n");
+  }
+
+}

@@ -16,11 +16,11 @@
  */
 package org.exoplatform.services.jcr.api.reading;
 
-
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestWorkspace.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -51,6 +51,5 @@ public class TestWorkspace extends JcrAPIBaseTest {
     log.debug(workspace.getAccessibleWorkspaceNames()[0]);
     assertNotNull(workspace.getAccessibleWorkspaceNames());
   }
-
 
 }

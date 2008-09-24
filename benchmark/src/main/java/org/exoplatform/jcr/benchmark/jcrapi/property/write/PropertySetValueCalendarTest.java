@@ -24,7 +24,8 @@ public class PropertySetValueCalendarTest extends AbstractGetItemTest {
 
   @Override
   protected void createContent(Node parent, TestCase tc, JCRTestContext context) throws Exception {
-    Property property = parent.setProperty(context.generateUniqueName("testProperty"), Calendar.getInstance());
+    Property property = parent.setProperty(context.generateUniqueName("testProperty"),
+                                           Calendar.getInstance());
     addProperty(property);
   }
 

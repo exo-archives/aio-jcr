@@ -22,37 +22,38 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 24.11.2006
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 
 public class FixupStream implements Externalizable {
-  
+
   private static final long serialVersionUID = 6453641729031051616L;
-  
-  int iItemStateId = -1;
-  
-  int iValueDataId = -1;
-  
-  public FixupStream(){}
-  
-  public FixupStream(int itemState_, int valueData_){
+
+  int                       iItemStateId     = -1;
+
+  int                       iValueDataId     = -1;
+
+  public FixupStream() {
+  }
+
+  public FixupStream(int itemState_, int valueData_) {
     iItemStateId = itemState_;
     iValueDataId = valueData_;
   }
-  
-  public int getItemSateId(){
+
+  public int getItemSateId() {
     return iItemStateId;
   }
-  
-  public int getValueDataId (){
+
+  public int getValueDataId() {
     return iValueDataId;
   }
-  
-  public boolean compare(FixupStream fs){
+
+  public boolean compare(FixupStream fs) {
     boolean b = true;
     if (fs.getItemSateId() != this.getItemSateId())
       b = false;

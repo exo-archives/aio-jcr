@@ -36,62 +36,70 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  */
 public class MultipartByterangesEntity implements SerializableEntity {
 
-  private final Resource resource_;
+  private final Resource    resource_;
+
   private final List<Range> ranges_;
-  private final long contentLength_;
-  private final String contentType_;
-  
-  public MultipartByterangesEntity(Resource resource, List<Range> ranges,
-      String contentType, long contentLength) {
+
+  private final long        contentLength_;
+
+  private final String      contentType_;
+
+  public MultipartByterangesEntity(Resource resource,
+                                   List<Range> ranges,
+                                   String contentType,
+                                   long contentLength) {
     resource_ = resource;
     ranges_ = ranges;
     contentLength_ = contentLength;
     contentType_ = contentType;
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
    */
   public void writeObject(OutputStream ostream) throws IOException {
     try {
-    for (Range range : ranges_) {
-      InputStream istream = null;
-      if (resource_ instanceof VersionResource) 
-        istream = ((VersionResource) resource_).getContentAsStream();
-      else 
-        istream = ((FileResource) resource_).getContentAsStream();
+      for (Range range : ranges_) {
+        InputStream istream = null;
+        if (resource_ instanceof VersionResource)
+          istream = ((VersionResource) resource_).getContentAsStream();
+        else
+          istream = ((FileResource) resource_).getContentAsStream();
 
+        println(ostream);
+        // boundary
+        print("--" + WebDavConst.BOUNDARY, ostream);
+        println(ostream);
+        // content-type
+        print(WebDavHeaders.CONTENTTYPE + ": " + contentType_, ostream);
+        println(ostream);
+        // current range
+        print(WebDavHeaders.CONTENTRANGE + ": bytes " + range.getStart() + "-" + range.getEnd()
+            + "/" + contentLength_, ostream);
+        println(ostream);
+        println(ostream);
+        // range data
+        RangedInputStream rangedInputStream = new RangedInputStream(istream,
+                                                                    range.getStart(),
+                                                                    range.getEnd());
+
+        byte buff[] = new byte[0x1000];
+        int rd = -1;
+        while ((rd = rangedInputStream.read(buff)) != -1)
+          ostream.write(buff, 0, rd);
+        rangedInputStream.close();
+      }
       println(ostream);
-      // boundary
-      print("--" + WebDavConst.BOUNDARY, ostream);
+      print("--" + WebDavConst.BOUNDARY + "--", ostream);
       println(ostream);
-      // content-type
-      print(WebDavHeaders.CONTENTTYPE + ": " + contentType_, ostream);
-      println(ostream);
-      // current range
-      print(WebDavHeaders.CONTENTRANGE + ": bytes " + range.getStart()
-          + "-" + range.getEnd() + "/" + contentLength_, ostream);
-      println(ostream);
-      println(ostream);
-      // range data
-      RangedInputStream rangedInputStream =
-        new RangedInputStream(istream, range.getStart(), range.getEnd());
-      
-      byte buff[] = new byte[0x1000];
-      int rd = -1;
-      while ((rd = rangedInputStream.read(buff)) != -1)
-        ostream.write(buff, 0, rd);
-      rangedInputStream.close();
-    }
-    println(ostream);
-    print("--" + WebDavConst.BOUNDARY + "--", ostream);
-    println(ostream);
     } catch (Exception e) {
       e.printStackTrace();
       throw new IOException("Can't write to stream, caused " + e);
     }
   }
-  
+
   private void print(String s, OutputStream ostream) throws IOException {
     int length = s.length();
     for (int i = 0; i < length; i++) {

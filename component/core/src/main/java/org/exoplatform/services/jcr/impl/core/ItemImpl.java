@@ -75,21 +75,21 @@ import org.exoplatform.services.log.ExoLogger;
 
 public abstract class ItemImpl implements Item {
 
-  private static Log log = ExoLogger.getLogger("jcr.ItemImpl");
+  private static Log           log = ExoLogger.getLogger("jcr.ItemImpl");
 
-  protected final SessionImpl session;
+  protected final SessionImpl  session;
 
-  protected ItemData data;
+  protected ItemData           data;
 
-  protected JCRPath location;
+  protected JCRPath            location;
 
   protected SessionDataManager dataManager;
 
-  protected LocationFactory locationFactory;
+  protected LocationFactory    locationFactory;
 
-  protected ValueFactoryImpl valueFactory;
+  protected ValueFactoryImpl   valueFactory;
 
-  protected final int itemHashCode;
+  protected final int          itemHashCode;
 
   ItemImpl(ItemData data, SessionImpl session) throws RepositoryException {
 
@@ -107,28 +107,29 @@ public abstract class ItemImpl implements Item {
   protected void invalidate() {
     this.data = null;
   }
-  
+
   /**
    * Return a status of the item state. If the state is invalid the item can't be used anymore.
+   * 
    * @return boolean flag, true if an item is usable in the session.
    */
   public boolean isValid() {
     return data != null;
   }
-  
+
   /**
    * Checking if this item has valid item state, i.e. wasn't removed (and saved).
-   *  
+   * 
    * @return true or throws an InvalidItemStateException exception otherwise
    * @throws InvalidItemStateException
    */
   protected boolean checkValid() throws InvalidItemStateException {
-    if (data == null) 
+    if (data == null)
       throw new InvalidItemStateException("Invalid item state. Item was removed or discarded.");
-    
+
     session.updateLastAccessTime();
-      return true;
-  } 
+    return true;
+  }
 
   public String getPath() {
     return getLocation().getAsString(false);
@@ -138,16 +139,18 @@ public abstract class ItemImpl implements Item {
     return getLocation().getName().getAsString();
   }
 
-  /** 
+  /**
    * @see javax.jcr.Item#getAncestor(int)
-   */  
-  public Item getAncestor(int degree) throws ItemNotFoundException, AccessDeniedException, RepositoryException {
+   */
+  public Item getAncestor(int degree) throws ItemNotFoundException,
+                                     AccessDeniedException,
+                                     RepositoryException {
     try {
       // 6.2.8 If depth > n is specified then an ItemNotFoundException is
       // thrown.
       if (degree < 0)
         throw new ItemNotFoundException("Can't get ancestor with ancestor's degree < 0.");
-      
+
       final QPath myPath = getData().getQPath();
       int n = myPath.getDepth() - degree;
       if (n == 0) {
@@ -161,49 +164,51 @@ public abstract class ItemImpl implements Item {
     } catch (PathNotFoundException e) {
       throw new ItemNotFoundException(e.getMessage(), e);
     }
-  }  
+  }
 
-  /** 
+  /**
    * @see javax.jcr.Item#getParent()
    */
-  public NodeImpl getParent() throws ItemNotFoundException, AccessDeniedException, RepositoryException {
-    
+  public NodeImpl getParent() throws ItemNotFoundException,
+                             AccessDeniedException,
+                             RepositoryException {
+
     checkValid();
-    
+
     if (isRoot())
       throw new ItemNotFoundException("Root node does not have a parent");
 
     return parent();
   }
 
-  /** 
+  /**
    * @see javax.jcr.Item#getSession()
    */
   public SessionImpl getSession() {
     return session;
   }
 
-  /** 
+  /**
    * @see javax.jcr.Item#getDepth()
    */
   public int getDepth() {
     return getLocation().getDepth();
   }
 
-  /** 
+  /**
    * @see javax.jcr.Item#isSame(javax.jcr.Item)
    */
   public boolean isSame(Item otherItem) {
-    
+
     if (isValid()) {
       if (otherItem == null)
         return false;
-  
-      if (!this.getClass().equals(otherItem.getClass())) 
+
+      if (!this.getClass().equals(otherItem.getClass()))
         return false;
-  
+
       try {
-        
+
         // identifier is not changed on ItemImpl
         return getInternalIdentifier().equals(((ItemImpl) otherItem).getInternalIdentifier());
       } catch (Exception e) {
@@ -212,16 +217,16 @@ public abstract class ItemImpl implements Item {
       }
     }
 
-    return false;    
+    return false;
   }
 
-  /** 
+  /**
    * @see javax.jcr.Item#isNew()
    */
   public boolean isNew() {
     if (isValid())
       return dataManager.isNew(getInternalIdentifier());
-    
+
     // if was removed (is invalid by check), isn't new
     return false;
   }
@@ -237,13 +242,16 @@ public abstract class ItemImpl implements Item {
     return true;
   }
 
-  /** 
+  /**
    * @see javax.jcr.Item#remove()
    */
-  public void remove() throws RepositoryException, ConstraintViolationException, VersionException,LockException {
+  public void remove() throws RepositoryException,
+                      ConstraintViolationException,
+                      VersionException,
+                      LockException {
 
     checkValid();
-    
+
     if (isRoot())
       throw new RepositoryException("Can't remove ROOT node.");
 
@@ -255,7 +263,8 @@ public abstract class ItemImpl implements Item {
       def = ((PropertyImpl) this).getDefinition();
 
     if (def.isMandatory() || def.isProtected())
-      throw new ConstraintViolationException("Can't remove mandatory or protected item " + getPath());
+      throw new ConstraintViolationException("Can't remove mandatory or protected item "
+          + getPath());
     NodeImpl parentNode = parent();
     // Check if versionable ancestor is not checked-in
     if (!parentNode.checkedOut())
@@ -265,90 +274,114 @@ public abstract class ItemImpl implements Item {
     // Check locking
     if (!parentNode.checkLocking())
       throw new LockException("Node " + parent().getPath() + " is locked ");
-    
-    //launch event
+
+    // launch event
     session.getActionHandler().preRemoveItem(this);
-    
+
     removeVersionable();
-    
+
     // remove from datamanager
     dataManager.delete(data);
   }
-      
+
   /**
-   * Check when it's a Node and is versionable will a version history removed.
-   * Case of last version in version history.
+   * Check when it's a Node and is versionable will a version history removed. Case of last version
+   * in version history.
    * 
    * @throws RepositoryException
    * @throws ConstraintViolationException
    * @throws VersionException
    */
-  protected void removeVersionable() throws RepositoryException, ConstraintViolationException, VersionException {
+  protected void removeVersionable() throws RepositoryException,
+                                    ConstraintViolationException,
+                                    VersionException {
     if (isNode()) {
       NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
-      NodeData node = (NodeData) data; 
-      if (ntManager.isNodeType(Constants.MIX_VERSIONABLE, 
-          node.getPrimaryTypeName(), 
-          node.getMixinTypeNames())) {
-  
-        PropertyData vhpd = (PropertyData) dataManager.getItemData(
-            node, new QPathEntry(Constants.JCR_VERSIONHISTORY, 1));
+      NodeData node = (NodeData) data;
+      if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
+                               node.getPrimaryTypeName(),
+                               node.getMixinTypeNames())) {
+
+        PropertyData vhpd = (PropertyData) dataManager.getItemData(node,
+                                                                   new QPathEntry(Constants.JCR_VERSIONHISTORY,
+                                                                                  1));
         try {
           String vhID = new String(vhpd.getValues().get(0).getAsByteArray());
           dataManager.removeVersionHistory(vhID, null, data.getQPath());
         } catch (IOException e) {
-          throw new RepositoryException(e); 
+          throw new RepositoryException(e);
         }
       }
     }
   }
-  
-  protected PropertyImpl doUpdateProperty(NodeImpl parentNode, InternalQName propertyName,
-      Value propertyValue, boolean multiValue, int expectedType) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException, RepositoryException {
-    
+
+  protected PropertyImpl doUpdateProperty(NodeImpl parentNode,
+                                          InternalQName propertyName,
+                                          Value propertyValue,
+                                          boolean multiValue,
+                                          int expectedType) throws ValueFormatException,
+                                                           VersionException,
+                                                           LockException,
+                                                           ConstraintViolationException,
+                                                           RepositoryException {
+
     Value[] val = null;
     if (propertyValue != null) {
-      val = new Value[]{propertyValue};
+      val = new Value[] { propertyValue };
     }
     return doUpdateProperty(parentNode, propertyName, val, multiValue, expectedType);
   }
-  
-  protected PropertyImpl doUpdateProperty(NodeImpl parentNode, InternalQName propertyName,
-      Value[] propertyValues, boolean multiValue, int expectedType) throws ValueFormatException,
-      VersionException, LockException, ConstraintViolationException, RepositoryException {
- 
+
+  protected PropertyImpl doUpdateProperty(NodeImpl parentNode,
+                                          InternalQName propertyName,
+                                          Value[] propertyValues,
+                                          boolean multiValue,
+                                          int expectedType) throws ValueFormatException,
+                                                           VersionException,
+                                                           LockException,
+                                                           ConstraintViolationException,
+                                                           RepositoryException {
+
     QPath qpath = QPath.makeChildPath(parentNode.getInternalPath(), propertyName);
     int state;
 
     String identifier;
     int version;
     PropertyImpl oldProp = null;
-    ItemImpl oldItem = dataManager.getItem(parentNode.nodeData(), new QPathEntry(propertyName,0), true);
+    ItemImpl oldItem = dataManager.getItem(parentNode.nodeData(),
+                                           new QPathEntry(propertyName, 0),
+                                           true);
     PropertyDefinition def = null;
-    
+
     NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
     NodeData parentData = (NodeData) parentNode.getData();
     if (oldItem == null || oldItem.isNode()) { // new prop
       identifier = IdGenerator.generate();
       version = -1;
-      if (propertyValues == null){
-        //new property null values; 
-          TransientPropertyData nullData = new TransientPropertyData(qpath, identifier, version, PropertyType.UNDEFINED,
-              parentNode.getInternalIdentifier(), multiValue);
-          PropertyImpl nullProperty = new PropertyImpl(nullData,session);
-          nullProperty.invalidate();
-          return nullProperty; 
+      if (propertyValues == null) {
+        // new property null values;
+        TransientPropertyData nullData = new TransientPropertyData(qpath,
+                                                                   identifier,
+                                                                   version,
+                                                                   PropertyType.UNDEFINED,
+                                                                   parentNode.getInternalIdentifier(),
+                                                                   multiValue);
+        PropertyImpl nullProperty = new PropertyImpl(nullData, session);
+        nullProperty.invalidate();
+        return nullProperty;
       }
-      def = ntm.findPropertyDefinitions(propertyName, parentData.getPrimaryTypeName(),
-          parentData.getMixinTypeNames()).getDefinition(multiValue);
-      
+      def = ntm.findPropertyDefinitions(propertyName,
+                                        parentData.getPrimaryTypeName(),
+                                        parentData.getMixinTypeNames()).getDefinition(multiValue);
+
       state = ItemState.ADDED;
     } else {
       oldProp = (PropertyImpl) oldItem;
-      def = ntm.findPropertyDefinitions(propertyName, parentData.getPrimaryTypeName(),
-          parentData.getMixinTypeNames()).getDefinition(oldProp.isMultiValued());
-      
+      def = ntm.findPropertyDefinitions(propertyName,
+                                        parentData.getPrimaryTypeName(),
+                                        parentData.getMixinTypeNames())
+               .getDefinition(oldProp.isMultiValued());
+
       identifier = oldProp.getInternalIdentifier();
       version = oldProp.getData().getPersistedVersion();
       if (propertyValues == null)
@@ -358,19 +391,19 @@ public abstract class ItemImpl implements Item {
       }
     }
     if (def != null && def.isProtected())
-      throw new ConstraintViolationException("Can not set protected property " + locationFactory.createJCRPath(qpath).getAsString(false));
+      throw new ConstraintViolationException("Can not set protected property "
+          + locationFactory.createJCRPath(qpath).getAsString(false));
 
-    
-    if (multiValue && (def == null || (oldProp!= null && !oldProp.isMultiValued()))){
-      throw new ValueFormatException(
-          "Can not assign multiple-values Value to a single-valued property " + locationFactory.createJCRPath(qpath).getAsString(false));
+    if (multiValue && (def == null || (oldProp != null && !oldProp.isMultiValued()))) {
+      throw new ValueFormatException("Can not assign multiple-values Value to a single-valued property "
+          + locationFactory.createJCRPath(qpath).getAsString(false));
     }
-    
-    if(!multiValue && (def == null || (oldProp!= null && oldProp.isMultiValued()))){
-      throw new ValueFormatException(
-          "Can not assign single-value Value to a multiple-valued property " + locationFactory.createJCRPath(qpath).getAsString(false));
+
+    if (!multiValue && (def == null || (oldProp != null && oldProp.isMultiValued()))) {
+      throw new ValueFormatException("Can not assign single-value Value to a multiple-valued property "
+          + locationFactory.createJCRPath(qpath).getAsString(false));
     }
-    
+
     if (!parentNode.checkedOut())
       throw new VersionException("Node " + parentNode.getPath()
           + " or its nearest ancestor is checked-in");
@@ -394,8 +427,7 @@ public abstract class ItemImpl implements Item {
           int vType = propertyValues[0].getType();
           for (Value val : propertyValues) {
             if (val != null && vType != val.getType()) {
-              throw new ValueFormatException(
-                  "All Value objects in the array must be of the same type");
+              throw new ValueFormatException("All Value objects in the array must be of the same type");
             }
           }
         }
@@ -429,8 +461,12 @@ public abstract class ItemImpl implements Item {
     // Check value constraints
     checkValueConstraints(def, valueDataList, propType);
 
-    TransientPropertyData newData = new TransientPropertyData(qpath, identifier, version, propType,
-        parentNode.getInternalIdentifier(), multiValue);
+    TransientPropertyData newData = new TransientPropertyData(qpath,
+                                                              identifier,
+                                                              version,
+                                                              propType,
+                                                              parentNode.getInternalIdentifier(),
+                                                              multiValue);
 
     if (requiredType != PropertyType.UNDEFINED && expectedType != PropertyType.UNDEFINED
         && requiredType != expectedType) {
@@ -440,37 +476,41 @@ public abstract class ItemImpl implements Item {
           + ExtendedPropertyType.nameFromValue(requiredType));
     }
 
-    PropertyImpl prop = null; 
+    PropertyImpl prop = null;
     if (state != ItemState.DELETED) {
       newData.setValues(valueDataList);
-      ItemState itemState = new ItemState(newData, state, true, qpath,false);
+      ItemState itemState = new ItemState(newData, state, true, qpath, false);
       prop = (PropertyImpl) dataManager.update(itemState, true);
       // launch event
       session.getActionHandler().postSetProperty(prop, state);
 
     } else {
       if (def.isMandatory()) {
-        throw new ConstraintViolationException(
-            "Can not remove (by setting null value) mandatory property " + locationFactory.createJCRPath(qpath).getAsString(false));
-      } 
-      //launch event
+        throw new ConstraintViolationException("Can not remove (by setting null value) mandatory property "
+            + locationFactory.createJCRPath(qpath).getAsString(false));
+      }
+      // launch event
       session.getActionHandler().preRemoveItem(oldProp);
       dataManager.delete(newData);
-      prop =  oldProp;
+      prop = oldProp;
     }
-    
+
     return prop;
   }
 
   /**
    * @see javax.jcr.Item#save()
    */
-  public void save() throws ReferentialIntegrityException, AccessDeniedException, LockException,
-      ConstraintViolationException, InvalidItemStateException, ReferentialIntegrityException,
-      RepositoryException {
+  public void save() throws ReferentialIntegrityException,
+                    AccessDeniedException,
+                    LockException,
+                    ConstraintViolationException,
+                    InvalidItemStateException,
+                    ReferentialIntegrityException,
+                    RepositoryException {
 
     checkValid();
-    
+
     if (isNew())
       throw new RepositoryException("It is impossible to call save() on the newly added item "
           + getPath());
@@ -479,22 +519,22 @@ public abstract class ItemImpl implements Item {
 
     if (isNode()) {
       // validate
-      // 1. referenceable nodes - if a node is deleted and then added, 
-      // referential integrity is unchanged ('move' usecase) 
+      // 1. referenceable nodes - if a node is deleted and then added,
+      // referential integrity is unchanged ('move' usecase)
       QPath path = getInternalPath();
       List<ItemState> changes = dataManager.getChangesLog().getDescendantsChanges(path);
-      
+
       List<NodeData> refNodes = new ArrayList<NodeData>();
-      
+
       for (ItemState changedItem : changes) {
         if (changedItem.isNode()) {
           NodeData refNode = (NodeData) changedItem.getData();
-          
+
           // Check referential integrity (remove of mix:referenceable node)
-          if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE, 
-                  refNode.getPrimaryTypeName(), 
-                  refNode.getMixinTypeNames())) {
-  
+          if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                   refNode.getPrimaryTypeName(),
+                                   refNode.getMixinTypeNames())) {
+
             // mix:referenceable
             if (changedItem.isDeleted())
               refNodes.add(refNode); // add to refs (delete - alway is first)
@@ -503,7 +543,7 @@ public abstract class ItemImpl implements Item {
           }
         }
       }
-      
+
       // check ref changes
       for (NodeData refNode : refNodes) {
         List<PropertyData> nodeRefs = dataManager.getReferencesData(refNode.getIdentifier(), true);
@@ -512,7 +552,7 @@ public abstract class ItemImpl implements Item {
           ItemState refState = dataManager.getChangesLog().getItemState(refProp.getIdentifier());
           if (refState != null && refState.isDeleted())
             continue;
-          
+
           NodeData refParent = (NodeData) dataManager.getItemData(refProp.getParentIdentifier());
           AccessControlList acl = refParent.getACL();
           AccessManager am = session.getAccessManager();
@@ -520,12 +560,11 @@ public abstract class ItemImpl implements Item {
           if (!am.hasPermission(acl, PermissionType.READ, session.getUserState().getIdentity())) {
             throw new AccessDeniedException("Can not delete node " + refNode.getQPath() + " ("
                 + refNode.getIdentifier() + ")"
-                + ". It is currently the target of a REFERENCE property and "
-                + path.getAsString());
+                + ". It is currently the target of a REFERENCE property and " + path.getAsString());
           }
-          throw new ReferentialIntegrityException("Can not delete node " + refNode.getQPath() + " ("
-              + refNode.getIdentifier() + ")" + ". It is currently the target of a REFERENCE property "
-              + path.getAsString());
+          throw new ReferentialIntegrityException("Can not delete node " + refNode.getQPath()
+              + " (" + refNode.getIdentifier() + ")"
+              + ". It is currently the target of a REFERENCE property " + path.getAsString());
         }
       }
     }
@@ -537,9 +576,9 @@ public abstract class ItemImpl implements Item {
    * @see javax.jcr.Item#refresh(boolean)
    */
   public void refresh(boolean keepChanges) throws InvalidItemStateException, RepositoryException {
-    
-    checkValid(); 
-    
+
+    checkValid();
+
     if (keepChanges)
       dataManager.refresh(this.getData());
     else
@@ -571,21 +610,21 @@ public abstract class ItemImpl implements Item {
   protected NodeImpl parent() throws RepositoryException {
     NodeImpl parent = (NodeImpl) item(getParentIdentifier());
     if (parent == null)
-      throw new ItemNotFoundException("FATAL: Parent is null for "
-          + getPath() + " parent UUID: " + getParentIdentifier());
+      throw new ItemNotFoundException("FATAL: Parent is null for " + getPath() + " parent UUID: "
+          + getParentIdentifier());
     return parent;
   }
-  
+
   public NodeData parentData() throws RepositoryException {
     NodeData parent = (NodeData) dataManager.getItemData(getData().getParentIdentifier());
     if (parent == null)
-      throw new ItemNotFoundException("FATAL: Parent is null for "
-          + getPath() + " parent UUID: " + getData().getParentIdentifier());
+      throw new ItemNotFoundException("FATAL: Parent is null for " + getPath() + " parent UUID: "
+          + getData().getParentIdentifier());
     return parent;
   }
-  
+
   protected ExtendedNodeType[] nodeTypes(NodeData node) throws RepositoryException {
-    
+
     InternalQName primaryTypeName = node.getPrimaryTypeName();
     InternalQName[] mixinNames = node.getMixinTypeNames();
     ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
@@ -595,14 +634,14 @@ public abstract class ItemImpl implements Item {
     for (int i = 1; i <= mixinNames.length; i++) {
       nodeTypes[i] = ntm.getNodeType(mixinNames[i - 1]);
     }
-    
+
     return nodeTypes;
   }
 
   public ExtendedNodeType[] getParentNodeTypes() throws RepositoryException {
     return nodeTypes(parentData());
   }
-  
+
   public String getInternalIdentifier() {
     return data.getIdentifier();
   }
@@ -623,18 +662,20 @@ public abstract class ItemImpl implements Item {
       ndata = (NodeData) getData();
     else
       ndata = parentData(); // (NodeData) dataManager.getItemData(data.getParentIdentifier())
-    
-    return session.getAccessManager().hasPermission(ndata.getACL(), action, session.getUserState().getIdentity());
+
+    return session.getAccessManager().hasPermission(ndata.getACL(),
+                                                    action,
+                                                    session.getUserState().getIdentity());
   }
 
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof ItemImpl) {
       ItemImpl otherItem = (ItemImpl) obj;
-      
+
       if (!otherItem.isValid() || !this.isValid())
         return false;
-      
+
       try {
         return getInternalIdentifier().equals(otherItem.getInternalIdentifier());
       } catch (Exception e) {
@@ -653,7 +694,7 @@ public abstract class ItemImpl implements Item {
   }
 
   private ValueData valueData(Value value, int type) throws RepositoryException,
-      ValueFormatException {
+                                                    ValueFormatException {
 
     if (value == null)
       return null;
@@ -662,16 +703,17 @@ public abstract class ItemImpl implements Item {
     case PropertyType.STRING:
       return new TransientValueData(value.getString());
     case PropertyType.BINARY:
-      TransientValueData vd = null ;
+      TransientValueData vd = null;
       if (value instanceof BaseValue) {
-        // if the value is normaly created in JCR API 
-        vd  = ((BaseValue) value).getInternalData().createTransientCopy() ;
+        // if the value is normaly created in JCR API
+        vd = ((BaseValue) value).getInternalData().createTransientCopy();
       } else if (value instanceof ExtendedValue) {
-        // if te value comes from outside the JCR API scope, e.g. RMI invocation 
-        vd  = ((BaseValue) getSession().getValueFactory().createValue(value.getStream())).getInternalData();
+        // if te value comes from outside the JCR API scope, e.g. RMI invocation
+        vd = ((BaseValue) getSession().getValueFactory().createValue(value.getStream())).getInternalData();
       } else {
         // third part value impl, convert via String
-        vd  = ((BaseValue) getSession().getValueFactory().createValue(value.getString(),PropertyType.BINARY)).getInternalData();
+        vd = ((BaseValue) getSession().getValueFactory().createValue(value.getString(),
+                                                                     PropertyType.BINARY)).getInternalData();
       }
       return vd;
     case PropertyType.BOOLEAN:
@@ -685,8 +727,8 @@ public abstract class ItemImpl implements Item {
     case PropertyType.PATH:
       TransientValueData tvd = null;
       if (value instanceof PathValue) {
-        tvd  = ((PathValue)value).getInternalData().createTransientCopy() ;
-      }else{
+        tvd = ((PathValue) value).getInternalData().createTransientCopy();
+      } else {
         QPath pathValue = locationFactory.parseJCRPath(value.getString()).getInternalPath();
         tvd = new TransientValueData(pathValue);
       }
@@ -699,26 +741,27 @@ public abstract class ItemImpl implements Item {
       return new TransientValueData(identifier);
     case ExtendedPropertyType.PERMISSION:
       PermissionValue permValue = (PermissionValue) value;
-      AccessControlEntry ace = new AccessControlEntry(permValue.getIdentity(), permValue
-          .getPermission());
+      AccessControlEntry ace = new AccessControlEntry(permValue.getIdentity(),
+                                                      permValue.getPermission());
       return new TransientValueData(ace);
     default:
       throw new ValueFormatException("ValueFactory.convert() unknown or unconvertable type " + type);
     }
   }
 
-  private void checkValueConstraints(PropertyDefinition def, List<ValueData> newValues, int type)
-      throws ConstraintViolationException, RepositoryException {
+  private void checkValueConstraints(PropertyDefinition def, List<ValueData> newValues, int type) throws ConstraintViolationException,
+                                                                                                 RepositoryException {
 
-    ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(), session);
+    ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(),
+                                                                      session);
 
     for (ValueData value : newValues) {
       if (!constraints.match(value, type)) {
         String strVal = null;
         try {
-          if (type != PropertyType.BINARY){//[VO]20.06.07, PropertyType.BINARY may have large size 
-           strVal = ((TransientValueData) value).getString();
-          }else{
+          if (type != PropertyType.BINARY) {// [VO]20.06.07, PropertyType.BINARY may have large size
+            strVal = ((TransientValueData) value).getString();
+          } else {
             strVal = "PropertyType.BINARY";
           }
         } catch (Throwable e) {

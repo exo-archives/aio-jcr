@@ -70,9 +70,8 @@ public class RepositoryImpl implements ManageableRepository {
 
   private static HashMap<String, String> descriptors        = new HashMap<String, String>();
 
-  private static final CredentialsImpl   SYSTEM_CREDENTIALS =
-                                                                new CredentialsImpl(SystemIdentity.SYSTEM,
-                                                                                    "".toCharArray());
+  private static final CredentialsImpl   SYSTEM_CREDENTIALS = new CredentialsImpl(SystemIdentity.SYSTEM,
+                                                                                  "".toCharArray());
 
   protected static Log                   log                = ExoLogger.getLogger("jcr:RepositoryImpl");
 
@@ -105,12 +104,11 @@ public class RepositoryImpl implements ManageableRepository {
   private final AuthenticationPolicy     authenticationPolicy;
 
   public RepositoryImpl(RepositoryContainer container) throws RepositoryException,
-                                                      RepositoryConfigurationException {
+      RepositoryConfigurationException {
 
     config = (RepositoryEntry) container.getComponentInstanceOfType(RepositoryEntry.class);
 
-    authenticationPolicy =
-        (AuthenticationPolicy) container.getComponentInstanceOfType(AuthenticationPolicy.class);
+    authenticationPolicy = (AuthenticationPolicy) container.getComponentInstanceOfType(AuthenticationPolicy.class);
 
     this.name = config.getName();
     this.systemWorkspaceName = config.getSystemWorkspaceName();
@@ -120,20 +118,20 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#addItemPersistenceListener(java.lang.String,
-   *      org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener)
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#addItemPersistenceListener(java.lang
+   * .String, org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener)
    */
   public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
-    WorkspacePersistentDataManager pmanager =
-        (WorkspacePersistentDataManager) repositoryContainer.getWorkspaceContainer(workspaceName)
-                                                            .getComponentInstanceOfType(WorkspacePersistentDataManager.class);
+    WorkspacePersistentDataManager pmanager = (WorkspacePersistentDataManager) repositoryContainer.getWorkspaceContainer(workspaceName)
+                                                                                                  .getComponentInstanceOfType(WorkspacePersistentDataManager.class);
 
     pmanager.addItemPersistenceListener(listener);
 
     // get via managers chain, the method should be extended in stub-proxy
     // managers
-    // getSystemSession(workspaceName).getTransientNodesManager().getTransactManager().getStorageDataManager().!!!.addItemPersistenceListener(listener);
+    // getSystemSession(workspaceName).getTransientNodesManager().getTransactManager().
+    // getStorageDataManager().!!!.addItemPersistenceListener(listener);
   }
 
   public boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException {
@@ -143,8 +141,7 @@ public class RepositoryImpl implements ManageableRepository {
     if (workspaceName.equals(config.getSystemWorkspaceName()))
       return false;
 
-    SessionRegistry sessionRegistry =
-        (SessionRegistry) repositoryContainer.getComponentInstance(SessionRegistry.class);
+    SessionRegistry sessionRegistry = (SessionRegistry) repositoryContainer.getComponentInstance(SessionRegistry.class);
 
     return sessionRegistry != null && !sessionRegistry.isInUse(workspaceName);
 
@@ -162,14 +159,16 @@ public class RepositoryImpl implements ManageableRepository {
 
   /**
    * Creation contains three steps: First <code>configWorkspace(WorkspaceEntry wsConfig)</code> -
-   * registration a new configuration in RepositoryContainer and create WorkspaceContainer. Second, the main
-   * step, is <code>initWorkspace(String workspaceName, String rootNodeType)</code> - initializing workspace
-   * by name and root nodetype. Third, final step, starting all components of workspace. Before creation
-   * workspace <b>must be configured</b>
+   * registration a new configuration in RepositoryContainer and create WorkspaceContainer. Second,
+   * the main step, is <code>initWorkspace(String workspaceName, String rootNodeType)</code> -
+   * initializing workspace by name and root nodetype. Third, final step, starting all components of
+   * workspace. Before creation workspace <b>must be configured</b>
    * 
-   * @see org.exoplatform.services.jcr.core.RepositoryImpl#configWorkspace(org.exoplatform.services.jcr.config.WorkspaceEntry )
+   * @see org.exoplatform.services.jcr.core.RepositoryImpl#configWorkspace(org.exoplatform.services.jcr.config.WorkspaceEntry
+   *      )
    * @see org.exoplatform.services.jcr.core.RepositoryImpl#initWorkspace(java.lang.String,java.lang.String)
-   * @param workspaceName - Creates a new Workspace with the specified name
+   * @param workspaceName
+   *          - Creates a new Workspace with the specified name
    * @throws RepositoryException
    */
   public void createWorkspace(String workspaceName) throws RepositoryException {
@@ -185,7 +184,9 @@ public class RepositoryImpl implements ManageableRepository {
       throw new RepositoryException("Workspace " + workspaceName
           + " is not configured. Use RepositoryImpl.configWorkspace() method");
 
-    repositoryContainer.getWorkspaceContainer(workspaceName).getWorkspaceInitializer().initWorkspace();
+    repositoryContainer.getWorkspaceContainer(workspaceName)
+                       .getWorkspaceInitializer()
+                       .initWorkspace();
 
     wsContainer.start();
 
@@ -194,7 +195,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getConfiguration()
    */
   public RepositoryEntry getConfiguration() {
@@ -203,7 +203,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#getDescriptor(java.lang.String)
    */
   public String getDescriptor(String key) {
@@ -214,7 +213,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#getDescriptorKeys()
    */
   public String[] getDescriptorKeys() {
@@ -242,7 +240,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getNamespaceRegistry()
    */
   public NamespaceRegistry getNamespaceRegistry() {
@@ -251,7 +248,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getNodeTypeManager()
    */
   public ExtendedNodeTypeManager getNodeTypeManager() {
@@ -268,12 +264,12 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession(java.lang.String)
    */
   public SessionImpl getSystemSession(String workspaceName) throws RepositoryException {
     WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(workspaceName);
-    if (workspaceContainer == null || !workspaceContainer.getWorkspaceInitializer().isWorkspaceInitialized()) {
+    if (workspaceContainer == null
+        || !workspaceContainer.getWorkspaceInitializer().isWorkspaceInitialized()) {
       throw new RepositoryException("Workspace " + workspaceName
           + " not found or workspace is not initialized");
     }
@@ -293,7 +289,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
    */
   public String[] getWorkspaceNames() {
@@ -319,11 +314,11 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#importWorkspace(java.lang.String,
-   *      java.io.InputStream)
+   * java.io.InputStream)
    */
-  public void importWorkspace(String wsName, InputStream xmlStream) throws RepositoryException, IOException {
+  public void importWorkspace(String wsName, InputStream xmlStream) throws RepositoryException,
+                                                                   IOException {
     createWorkspace(wsName);
     SessionImpl sysSession = getSystemSession(wsName);
 
@@ -360,12 +355,14 @@ public class RepositoryImpl implements ManageableRepository {
   private void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException {
 
     if (isWorkspaceInitialized(workspaceName)) {
-      log.warn("Workspace '" + workspaceName + "' is presumably initialized. Initialization canceled");
+      log.warn("Workspace '" + workspaceName
+          + "' is presumably initialized. Initialization canceled");
       return;
     }
 
-    InternalQName rootNodeTypeName =
-        repositoryContainer.getLocationFactory().parseJCRName(rootNodeType).getInternalName();
+    InternalQName rootNodeTypeName = repositoryContainer.getLocationFactory()
+                                                        .parseJCRName(rootNodeType)
+                                                        .getInternalName();
     repositoryContainer.getWorkspaceContainer(workspaceName)
                        .getWorkspaceInitializer()
                        .initWorkspace(rootNodeTypeName);
@@ -390,8 +387,8 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
    */
   public boolean isWorkspaceInitialized(String workspaceName) {
     try {
@@ -403,11 +400,10 @@ public class RepositoryImpl implements ManageableRepository {
     }
   }
 
-  ////////////////////////////////////////////////////////
+  // //////////////////////////////////////////////////////
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login()
    */
   public Session login() throws LoginException, NoSuchWorkspaceException, RepositoryException {
@@ -416,7 +412,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login(javax.jcr.Credentials)
    */
   public Session login(Credentials credentials) throws LoginException,
@@ -427,7 +422,6 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login(java.lang.String)
    */
   public Session login(String workspaceName) throws LoginException,
@@ -438,12 +432,11 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
    * @see javax.jcr.Repository#login(javax.jcr.Credentials, java.lang.String)
    */
   public Session login(Credentials credentials, String workspaceName) throws LoginException,
-                                                                         NoSuchWorkspaceException,
-                                                                         RepositoryException {
+                                                                     NoSuchWorkspaceException,
+                                                                     RepositoryException {
 
     ConversationState state;
 
@@ -456,10 +449,9 @@ public class RepositoryImpl implements ManageableRepository {
 
   }
 
-
-  SessionImpl internalLogin(ConversationState state, String workspaceName)
-      throws LoginException, NoSuchWorkspaceException, RepositoryException {
-
+  SessionImpl internalLogin(ConversationState state, String workspaceName) throws LoginException,
+                                                                          NoSuchWorkspaceException,
+                                                                          RepositoryException {
 
     if (workspaceName == null) {
       workspaceName = config.getDefaultWorkspaceName();
@@ -473,14 +465,13 @@ public class RepositoryImpl implements ManageableRepository {
           + "' not found. "
           + "Probably is not initialized. If so either Initialize it manually or turn on the RepositoryInitializer");
 
-    SessionFactory sessionFactory =
-        repositoryContainer.getWorkspaceContainer(workspaceName).getSessionFactory();
+    SessionFactory sessionFactory = repositoryContainer.getWorkspaceContainer(workspaceName)
+                                                       .getSessionFactory();
     return sessionFactory.createSession(state);
   }
- 
+
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.core.ManageableRepository#removeWorkspace(java.lang.String)
    */
   public void removeWorkspace(String workspaceName) throws RepositoryException {
@@ -495,8 +486,8 @@ public class RepositoryImpl implements ManageableRepository {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceContainer(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceContainer(java.lang.String)
    */
   public WorkspaceContainerFacade getWorkspaceContainer(String workspaceName) {
     return new WorkspaceContainerFacade(workspaceName,

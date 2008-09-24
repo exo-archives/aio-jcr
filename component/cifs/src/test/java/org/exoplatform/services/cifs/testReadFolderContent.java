@@ -33,21 +33,18 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * There are test of gettin the list of files as content of folder, device, or
- * search result.
+ * There are test of gettin the list of files as content of folder, device, or search result.
  * <p>
  * 
  * The SMB_TRANS2_FIND_FIRST & SMB_TRANS2_FIND_NEXT are used here.
  * <p>
  * 
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  */
 
 public class testReadFolderContent extends BaseStandaloneTest {
-  protected static Log logger = ExoLogger
-      .getLogger("jcr.JCRTest.testReadFolderContent");
+  protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testReadFolderContent");
 
   /**
    * Test getting file list - content of device (workspace)
@@ -56,15 +53,13 @@ public class testReadFolderContent extends BaseStandaloneTest {
    */
   public void testReadDeviceContent() throws Exception {
     // get realy used server name, Win32ServerName may not be initialized
-    String servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName()
+    String servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
         : serv.getConfiguration().getServerName();
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     Node root = s.getRootNode();
@@ -110,9 +105,9 @@ public class testReadFolderContent extends BaseStandaloneTest {
       boolean isexist = false;
       for (int j = 0; j < filelist.length; j++) {
         String jcrname = NameCoder.EncodeName(nodelist[i].getName());
-        String receivname = filelist[j].isDirectory() ? filelist[j].getName()
-            .substring(0, filelist[j].getName().length() - 1) : filelist[j]
-            .getName();
+        String receivname = filelist[j].isDirectory()
+            ? filelist[j].getName().substring(0, filelist[j].getName().length() - 1)
+            : filelist[j].getName();
 
         if (jcrname.equals(receivname)) {
           isexist = true;
@@ -135,15 +130,13 @@ public class testReadFolderContent extends BaseStandaloneTest {
    */
   public void testGetFileListFromFolder() throws Exception {
     // get realy used server name, Win32ServerName may not be initialized
-    String servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName()
+    String servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
         : serv.getConfiguration().getServerName();
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     Node root = s.getRootNode();
@@ -172,8 +165,7 @@ public class testReadFolderContent extends BaseStandaloneTest {
 
     s.save();
 
-    SmbFile share = new SmbFile("smb://" + user + servername +
-        "/ws/testfolder/");
+    SmbFile share = new SmbFile("smb://" + user + servername + "/ws/testfolder/");
 
     long t1 = System.currentTimeMillis();
     SmbFile[] filelist = share.listFiles();
@@ -198,9 +190,9 @@ public class testReadFolderContent extends BaseStandaloneTest {
       boolean isexist = false;
       for (int j = 0; j < filelist.length; j++) {
         String jcrname = NameCoder.EncodeName(nodelist[i].getName());
-        String receivname = filelist[j].isDirectory() ? filelist[j].getName()
-            .substring(0, filelist[j].getName().length() - 1) : filelist[j]
-            .getName();
+        String receivname = filelist[j].isDirectory()
+            ? filelist[j].getName().substring(0, filelist[j].getName().length() - 1)
+            : filelist[j].getName();
 
         if (jcrname.equals(receivname)) {
           isexist = true;

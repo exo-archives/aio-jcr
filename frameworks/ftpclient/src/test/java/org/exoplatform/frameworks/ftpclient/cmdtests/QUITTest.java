@@ -25,26 +25,26 @@ import org.exoplatform.frameworks.ftpclient.client.FtpClientSession;
 import org.exoplatform.frameworks.ftpclient.commands.CmdQuit;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class QUITTest extends TestCase {
-  
+
   private static Log log = new Log("QUITTest");
 
   public void test_QUIT() throws Exception {
     log.info("Test...");
-    
+
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
-    
+
     CmdQuit cmdQuit = new CmdQuit();
-    assertEquals(FtpConst.Replyes.REPLY_221, client.executeCommand(cmdQuit));    
-    
+    assertEquals(FtpConst.Replyes.REPLY_221, client.executeCommand(cmdQuit));
+
     client.close();
-    log.info("Complete.\r\n");    
+    log.info("Complete.\r\n");
   }
-  
+
 }

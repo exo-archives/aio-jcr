@@ -39,52 +39,58 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 public class NtResourceNodeRepresentation implements NodeRepresentation {
 
   protected Node node;
-  
+
   public NtResourceNodeRepresentation(Node node) throws RepositoryException {
     this.node = node;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getContentEncoding()
    */
   public String getContentEncoding() {
     return null;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getContentLenght()
    */
   public long getContentLenght() throws RepositoryException {
     return node.getProperty("jcr:data").getLength();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getMediaType()
    */
   public String getMediaType() throws RepositoryException {
     return node.getProperty("jcr:mimeType").getString();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getLastModified()
    */
   public long getLastModified() throws RepositoryException {
     return node.getProperty("jcr:lastModified").getLong();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getNode()
    */
   public Node getNode() {
     return node;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
    */
   public HierarchicalProperty getProperty(String name) throws RepositoryException {
-    if ("jcr:primaryType".equals(name) || "jcr:mixinTypes".equals(name) ||
-        "jcr:data".equals(name) || "jcr:uuid".equals(name))
+    if ("jcr:primaryType".equals(name) || "jcr:mixinTypes".equals(name) || "jcr:data".equals(name)
+        || "jcr:uuid".equals(name))
       return null;
 
     String value;
@@ -92,22 +98,27 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
       value = node.getProperty(name).getString();
     } catch (PathNotFoundException e) {
       return null;
-    } 
-    String ns = ((ExtendedSession)node.getSession()).getLocationFactory().parseJCRName(name).getNamespace();
+    }
+    String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
+                                                     .parseJCRName(name)
+                                                     .getNamespace();
     return new HierarchicalProperty(name, value, ns);
-    //return new HierarchicalProperty(name, value);
+    // return new HierarchicalProperty(name, value);
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperties(java.lang.String)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperties(java.lang.String)
    */
-  public Collection <HierarchicalProperty> getProperties(String name) throws RepositoryException { 
-    ArrayList <HierarchicalProperty> props = new ArrayList <HierarchicalProperty>();
+  public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
+    ArrayList<HierarchicalProperty> props = new ArrayList<HierarchicalProperty>();
     props.add(getProperty(name));
     return props;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()
    */
   public Collection<String> getPropertyNames() throws RepositoryException {
@@ -122,7 +133,8 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
     return props;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getInputStream()
    */
   public InputStream getInputStream() throws IOException, RepositoryException {
@@ -130,4 +142,3 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
   }
 
 }
-

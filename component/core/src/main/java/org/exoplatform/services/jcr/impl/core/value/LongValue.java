@@ -28,10 +28,10 @@ import javax.jcr.ValueFormatException;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
- * A <code>LongValue</code> provides an implementation of the
- * <code>Value</code> interface representing a long value.
+ * A <code>LongValue</code> provides an implementation of the <code>Value</code> interface
+ * representing a long value.
  * 
- * @author Gennady Azarenkov 
+ * @author Gennady Azarenkov
  */
 public class LongValue extends BaseValue {
 
@@ -49,7 +49,7 @@ public class LongValue extends BaseValue {
    * @see Value#getDate
    */
   public Calendar getDate() throws ValueFormatException, IllegalStateException, RepositoryException {
-    
+
     Long longNumber = new Long(getInternalString());
 
     if (longNumber != null) {
@@ -65,8 +65,9 @@ public class LongValue extends BaseValue {
   /**
    * @see Value#getBoolean
    */
-  public boolean getBoolean() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public boolean getBoolean() throws ValueFormatException,
+                             IllegalStateException,
+                             RepositoryException {
 
     throw new ValueFormatException("conversion to boolean failed: inconvertible types");
   }

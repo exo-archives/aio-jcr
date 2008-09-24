@@ -41,10 +41,8 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * Responsible for: 
- * *redirecting repository operations if item is descendant of
- * /jcr:system/jcr:versionStorage
- * *adding version history for newly added/assigned mix:versionable 
+ * Responsible for: *redirecting repository operations if item is descendant of
+ * /jcr:system/jcr:versionStorage *adding version history for newly added/assigned mix:versionable
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: VersionableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z ksm $
@@ -52,133 +50,143 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWorkspaceDataManager {
 
-  private static Log log = ExoLogger.getLogger("jcr.VersionableWorkspaceDataManager");
-  
+  private static Log                                  log = ExoLogger.getLogger("jcr.VersionableWorkspaceDataManager");
+
   private ACLInheritanceSupportedWorkspaceDataManager versionDataManager;
-  
+
   public VersionableWorkspaceDataManager(CacheableWorkspaceDataManager persistentManager) {
     super(persistentManager);
   }
-  
+
   /**
    * Called by WorkspaceContainer after repository initialization.
-   */ 
+   */
   public void setSystemDataManager(DataManager systemDataManager) {
 
     this.versionDataManager = (ACLInheritanceSupportedWorkspaceDataManager) systemDataManager;
   }
-  
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services.jcr.datamodel.NodeData)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services
+   * .jcr.datamodel.NodeData)
    */
   @Override
   public List<NodeData> getChildNodesData(final NodeData nodeData) throws RepositoryException {
-    if(isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
+    if (isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
       return versionDataManager.getChildNodesData(nodeData);
     }
     return super.getChildNodesData(nodeData);
   }
 
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform.services.jcr.datamodel.NodeData)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform
+   * .services.jcr.datamodel.NodeData)
    */
   @Override
   public List<PropertyData> getChildPropertiesData(final NodeData nodeData) throws RepositoryException {
-    if(isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
+    if (isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
       return versionDataManager.getChildPropertiesData(nodeData);
     }
     return super.getChildPropertiesData(nodeData);
   }
-  
+
   public List<PropertyData> listChildPropertiesData(final NodeData nodeData) throws RepositoryException {
-    if(isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
+    if (isSystemDescendant(nodeData.getQPath()) && !this.equals(versionDataManager)) {
       return versionDataManager.listChildPropertiesData(nodeData);
     }
     return super.listChildPropertiesData(nodeData);
   }
-  
+
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     if (parentData != null) {
-      final QPath ipath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[] {name});
-      if(isSystemDescendant(ipath) && !this.equals(versionDataManager)) {
-        return versionDataManager.getItemData(parentData,name);
+      final QPath ipath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[] { name });
+      if (isSystemDescendant(ipath) && !this.equals(versionDataManager)) {
+        return versionDataManager.getItemData(parentData, name);
       }
     }
-    return super.getItemData(parentData,name);
+    return super.getItemData(parentData, name);
   }
+
   /**
    * @see org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager#getItemData(java.lang.String)
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
     // from cache at first
     ItemData cdata = persistentManager.getCachedItemData(identifier);
-    if (cdata != null) 
+    if (cdata != null)
       return super.getItemData(identifier);
-    
-    if(!this.equals(versionDataManager) && !identifier.equals(Constants.ROOT_UUID)) {
+
+    if (!this.equals(versionDataManager) && !identifier.equals(Constants.ROOT_UUID)) {
       // search in System cache for /jcr:system nodes only
       cdata = versionDataManager.persistentManager.getCachedItemData(identifier);
       if (cdata != null)
-        if (isSystemDescendant(cdata.getQPath())) 
+        if (isSystemDescendant(cdata.getQPath()))
           return versionDataManager.getItemData(identifier);
         else
           return null;
     }
-    
+
     // then from persistence
     ItemData data = super.getItemData(identifier);
-    if(data != null)
+    if (data != null)
       return data;
-    else if(!this.equals(versionDataManager)) { 
+    else if (!this.equals(versionDataManager)) {
       // try from version storage if not the same
       data = versionDataManager.getItemData(identifier);
-      if(data != null && isSystemDescendant(data.getQPath()))
+      if (data != null && isSystemDescendant(data.getQPath()))
         return data;
     }
     return null;
   }
 
-  public void save(CompositeChangesLog changesLog) throws RepositoryException, InvalidItemStateException {
-    
+  public void save(CompositeChangesLog changesLog) throws RepositoryException,
+                                                  InvalidItemStateException {
+
     ChangesLogIterator logIterator = changesLog.getLogIterator();
-    
+
     boolean saveVersions = false;
     TransactionChangesLog versionLog = new TransactionChangesLog();
     boolean saveNonVersions = false;
     TransactionChangesLog nonVersionLog = new TransactionChangesLog();
-    
-    while(logIterator.hasNextLog()) {
-      List <ItemState> vstates = new ArrayList<ItemState>();
-      List <ItemState> nvstates = new ArrayList<ItemState>();
-      
+
+    while (logIterator.hasNextLog()) {
+      List<ItemState> vstates = new ArrayList<ItemState>();
+      List<ItemState> nvstates = new ArrayList<ItemState>();
+
       PlainChangesLog changes = logIterator.nextLog();
-      for(ItemState change: changes.getAllStates()) {
+      for (ItemState change : changes.getAllStates()) {
         if (isSystemDescendant(change.getData().getQPath()) && !this.equals(versionDataManager))
           vstates.add(change);
         else
           nvstates.add(change);
       }
-      
-      if (vstates.size()>0) {
-        versionLog.addLog(new PlainChangesLogImpl(vstates, changes.getSessionId(),changes.getEventType()));
+
+      if (vstates.size() > 0) {
+        versionLog.addLog(new PlainChangesLogImpl(vstates,
+                                                  changes.getSessionId(),
+                                                  changes.getEventType()));
         saveVersions = true;
       }
-      
-      if (nvstates.size()>0) {
-        nonVersionLog.addLog(new PlainChangesLogImpl(nvstates, changes.getSessionId(),changes.getEventType()));
+
+      if (nvstates.size() > 0) {
+        nonVersionLog.addLog(new PlainChangesLogImpl(nvstates,
+                                                     changes.getSessionId(),
+                                                     changes.getEventType()));
         saveNonVersions = true;
       }
     }
-    
+
     if (saveVersions)
       versionDataManager.save(versionLog);
 
     if (saveNonVersions)
       super.save(nonVersionLog);
   }
-  
+
   private boolean isSystemDescendant(QPath path) {
     return path.isDescendantOf(Constants.JCR_SYSTEM_PATH) || path.equals(Constants.JCR_SYSTEM_PATH);
   }

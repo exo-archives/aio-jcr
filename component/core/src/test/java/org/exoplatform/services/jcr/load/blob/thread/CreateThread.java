@@ -29,9 +29,7 @@ import org.exoplatform.services.jcr.load.blob.TestConcurrentItems;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Peter Nedonosko
- *          peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 24.10.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
@@ -40,52 +38,52 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 
 public class CreateThread extends UserThread {
 
-  
   public CreateThread(Session threadSession) {
     super(threadSession);
   }
-  
+
   public void testAction() {
     while (process) {
       createAction();
       try {
         sleep(1500);
-      } catch(InterruptedException e) {
+      } catch (InterruptedException e) {
         threadLog.error("Sleep error: " + e.getMessage(), e);
       }
     }
   }
-  
+
   public void createAction() {
-    
+
     String nodeName = IdGenerator.generate();
-    InputStream dataStream = null; 
+    InputStream dataStream = null;
     try {
       Node testRoot = threadSession.getRootNode().getNode(TestConcurrentItems.TEST_ROOT);
       Node ntFile = testRoot.addNode(nodeName, "nt:file");
       Node contentNode = ntFile.addNode("jcr:content", "nt:resource");
-      //dataStream =  new URL(TestSwap.URL_BIG_MEDIA_FILE).openStream();
-      dataStream =  new FileInputStream(TestConcurrentItems.TEST_FILE);
+      // dataStream = new URL(TestSwap.URL_BIG_MEDIA_FILE).openStream();
+      dataStream = new FileInputStream(TestConcurrentItems.TEST_FILE);
       PropertyImpl data = (PropertyImpl) contentNode.setProperty("jcr:data", dataStream);
       contentNode.setProperty("jcr:mimeType", "video/avi");
       contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
       this.threadSession.save();
       if (threadLog.isDebugEnabled())
-        threadLog.debug("Create node: " + ntFile.getPath() + ", data: " + data.getInternalIdentifier());
-    } catch(Throwable th) {
+        threadLog.debug("Create node: " + ntFile.getPath() + ", data: "
+            + data.getInternalIdentifier());
+    } catch (Throwable th) {
       threadLog.error("Create error: " + th.getMessage(), th);
     } finally {
       if (dataStream != null)
         try {
           dataStream.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
           threadLog.error("Stream read error: " + e.getMessage(), e);
         }
-        try {
-          this.threadSession.refresh(false);
-        } catch(Throwable th) {
-          threadLog.error("Session refresh error: " + th.getMessage());
-        }
+      try {
+        this.threadSession.refresh(false);
+      } catch (Throwable th) {
+        threadLog.error("Session refresh error: " + th.getMessage());
+      }
     }
   }
 }

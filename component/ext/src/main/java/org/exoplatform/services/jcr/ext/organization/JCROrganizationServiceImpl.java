@@ -43,73 +43,74 @@ import org.exoplatform.services.organization.BaseOrganizationService;
  */
 public class JCROrganizationServiceImpl extends BaseOrganizationService {
 
-  public static final String        STORAGE_WORKSPACE = "storage-workspace";
+  public static final String           STORAGE_WORKSPACE    = "storage-workspace";
 
-  public static final String        STORAGE_PATH      = "storage-path";
-  
-  public static final String        STORAGE_PATH_DEFAULT      = "/exo:organization";
+  public static final String           STORAGE_PATH         = "storage-path";
+
+  public static final String           STORAGE_PATH_DEFAULT = "/exo:organization";
 
   protected final ManageableRepository repository;
-  
-  protected final String storageWorkspace;
-  
-  protected final String storagePath;
 
-  public JCROrganizationServiceImpl(RepositoryService repositoryService, InitParams params) throws ConfigurationException, RepositoryException, RepositoryConfigurationException {
+  protected final String               storageWorkspace;
+
+  protected final String               storagePath;
+
+  public JCROrganizationServiceImpl(RepositoryService repositoryService, InitParams params) throws ConfigurationException,
+      RepositoryException,
+      RepositoryConfigurationException {
     // TODO Searching Repository Content should be enabled
-    
+
     String storageWorkspace = params.getValueParam(STORAGE_WORKSPACE).getValue();
     String storagePath = params.getValueParam(STORAGE_PATH).getValue();
-    
+
     repository = repositoryService.getDefaultRepository();
-    
+
     if (storageWorkspace != null)
       this.storageWorkspace = storageWorkspace;
     else
       // use default
       this.storageWorkspace = repository.getConfiguration().getDefaultWorkspaceName();
-    
+
     if (storagePath != null) {
       if (storagePath.equals("/"))
         throw new ConfigurationException(STORAGE_PATH + " can not be a root node");
-      
+
       this.storagePath = storagePath;
     } else
       this.storagePath = STORAGE_PATH_DEFAULT;
-    
-        
+
     // create /exo:organization
     Session session = getStorageSession();
     try {
       session.getItem(this.storagePath);
       // if found do nothing, the storage was initialized before.
-    } catch(PathNotFoundException e) {
+    } catch (PathNotFoundException e) {
       // will create new
-      Node storage = session.getRootNode().addNode(this.storagePath.substring(1), "exo:organizationStorage");
-      
+      Node storage = session.getRootNode().addNode(this.storagePath.substring(1),
+                                                   "exo:organizationStorage");
+
       storage.addNode("exo:users", "exo:organizationUsers");
       storage.addNode("exo:groups", "exo:organizationGroups");
       storage.addNode("exo:membershipTypes", "exo:organizationMembershipTypes");
-      
-      session.save(); // storage done 
+
+      session.save(); // storage done
     } finally {
       session.logout();
     }
-    
+
     // create DAO object
-    userDAO_ = new UserHandlerImpl(this) ;
-    userProfileDAO_ =  new UserProfileHandlerImpl(this);
-    groupDAO_ =  new GroupHandlerImpl(this) ;
-    membershipDAO_ = new MembershipHandlerImpl(this) ;
-    membershipTypeDAO_ = new MembershipTypeHandlerImpl(this) ;
+    userDAO_ = new UserHandlerImpl(this);
+    userProfileDAO_ = new UserProfileHandlerImpl(this);
+    groupDAO_ = new GroupHandlerImpl(this);
+    membershipDAO_ = new MembershipHandlerImpl(this);
+    membershipTypeDAO_ = new MembershipTypeHandlerImpl(this);
   }
 
   /**
-   * Return system Session to org-service storage workspace.
-   * For internal use only.
+   * Return system Session to org-service storage workspace. For internal use only.
    * 
    * @return
-   * @throws RepositoryException 
+   * @throws RepositoryException
    */
   Session getStorageSession() throws RepositoryException {
     return repository.getSystemSession(storageWorkspace);

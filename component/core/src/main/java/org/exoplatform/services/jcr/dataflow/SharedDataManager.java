@@ -20,14 +20,14 @@ import java.util.Calendar;
 
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 11.12.2006
- *
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SharedDataManager.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public interface SharedDataManager extends DataManager {
-  
+
   /**
    * Return current time of a persistent data manager
    */

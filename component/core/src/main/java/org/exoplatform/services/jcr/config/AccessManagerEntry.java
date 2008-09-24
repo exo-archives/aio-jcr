@@ -16,9 +16,9 @@
  */
 package org.exoplatform.services.jcr.config;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: AccessManagerEntry.java 14923 2008-05-29 14:10:41Z pnedonosko $
  */

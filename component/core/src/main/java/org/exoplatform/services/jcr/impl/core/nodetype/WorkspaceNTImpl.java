@@ -50,11 +50,11 @@ public class WorkspaceNTImpl implements ExtendedNodeType {
 
   public String getName() {
     String n = null;
-      try {
-        n = session.getLocationFactory().createJCRName(nodeType.getQName()).getAsString();
-      } catch (RepositoryException e) {
-        // should never happen
-        throw new RuntimeException("TYPE NAME >>> " + n + " " + e, e);
+    try {
+      n = session.getLocationFactory().createJCRName(nodeType.getQName()).getAsString();
+    } catch (RepositoryException e) {
+      // should never happen
+      throw new RuntimeException("TYPE NAME >>> " + n + " " + e, e);
     }
     return n;
   }

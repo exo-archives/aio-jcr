@@ -75,9 +75,9 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   protected void entering(NodeData node, int level) throws RepositoryException {
 
@@ -107,9 +107,9 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
             }
 
             strValue += MULTI_VALUE_DELIMITER
-                + (property.getType() == PropertyType.BINARY ? strVal
-                                                            : StringConverter.normalizeString(strVal,
-                                                                                              true));
+                + (property.getType() == PropertyType.BINARY
+                    ? strVal
+                    : StringConverter.normalizeString(strVal, true));
 
           }
           // encode node name
@@ -146,9 +146,9 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   protected void entering(PropertyData property, int level) throws RepositoryException {
 
@@ -156,9 +156,9 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   protected void leaving(NodeData node, int level) throws RepositoryException {
 
@@ -180,9 +180,9 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   protected void leaving(PropertyData property, int level) throws RepositoryException {
   }

@@ -65,12 +65,17 @@ class DefaultHighlighter {
   }
 
   /**
-   * @param tvec the term position vector for this hit
-   * @param queryTerms the query terms.
-   * @param text the original text that was used to create the tokens.
-   * @param prepend the string used to prepend a highlighted token, for example
+   * @param tvec
+   *          the term position vector for this hit
+   * @param queryTerms
+   *          the query terms.
+   * @param text
+   *          the original text that was used to create the tokens.
+   * @param prepend
+   *          the string used to prepend a highlighted token, for example
    *          <tt>&quot;&lt;b&gt;&quot;</tt>
-   * @param append the string used to append a highlighted token, for example
+   * @param append
+   *          the string used to append a highlighted token, for example
    *          <tt>&quot;&lt;/b&gt;&quot;</tt>
    * @return a String with text fragments where tokens from the query are highlighted
    */
@@ -89,19 +94,30 @@ class DefaultHighlighter {
   }
 
   /**
-   * @param tvec the term position vector for this hit
-   * @param queryTerms the query terms.
-   * @param text the original text that was used to create the tokens.
-   * @param excerptStart this string is prepended to the excerpt
-   * @param excerptEnd this string is appended to the excerpt
-   * @param fragmentStart this string is prepended to every fragment
-   * @param fragmentEnd this string is appended to the end of every fragement.
-   * @param hlStart the string used to prepend a highlighted token, for example
+   * @param tvec
+   *          the term position vector for this hit
+   * @param queryTerms
+   *          the query terms.
+   * @param text
+   *          the original text that was used to create the tokens.
+   * @param excerptStart
+   *          this string is prepended to the excerpt
+   * @param excerptEnd
+   *          this string is appended to the excerpt
+   * @param fragmentStart
+   *          this string is prepended to every fragment
+   * @param fragmentEnd
+   *          this string is appended to the end of every fragement.
+   * @param hlStart
+   *          the string used to prepend a highlighted token, for example
    *          <tt>&quot;&lt;b&gt;&quot;</tt>
-   * @param hlEnd the string used to append a highlighted token, for example
+   * @param hlEnd
+   *          the string used to append a highlighted token, for example
    *          <tt>&quot;&lt;/b&gt;&quot;</tt>
-   * @param maxFragments the maximum number of fragments
-   * @param surround the maximum number of chars surrounding a highlighted token
+   * @param maxFragments
+   *          the maximum number of fragments
+   * @param surround
+   *          the maximum number of chars surrounding a highlighted token
    * @return a String with text fragments where tokens from the query are highlighted
    */
   public static String highlight(TermPositionVector tvec,
@@ -148,15 +164,22 @@ class DefaultHighlighter {
   }
 
   /**
-   * @param tvec the term position vector for this hit
-   * @param queryTerms the query terms.
-   * @param text the original text that was used to create the tokens.
-   * @param prepend the string used to prepend a highlighted token, for example
+   * @param tvec
+   *          the term position vector for this hit
+   * @param queryTerms
+   *          the query terms.
+   * @param text
+   *          the original text that was used to create the tokens.
+   * @param prepend
+   *          the string used to prepend a highlighted token, for example
    *          <tt>&quot;&lt;b&gt;&quot;</tt>
-   * @param append the string used to append a highlighted token, for example
+   * @param append
+   *          the string used to append a highlighted token, for example
    *          <tt>&quot;&lt;/b&gt;&quot;</tt>
-   * @param maxFragments the maximum number of fragments
-   * @param surround the maximum number of chars surrounding a highlighted token
+   * @param maxFragments
+   *          the maximum number of fragments
+   * @param surround
+   *          the maximum number of chars surrounding a highlighted token
    * @return a String with text fragments where tokens from the query are highlighted
    */
   public static String highlight(TermPositionVector tvec,
@@ -354,9 +377,9 @@ class DefaultHighlighter {
         } else {
           skippedChars = 0;
         }
-        sb.append(Text.encodeIllegalXMLCharacters(new String(cbuf,
-                                                             0,
-                                                             EOF ? skip : (surround - skippedChars))));
+        sb.append(Text.encodeIllegalXMLCharacters(new String(cbuf, 0, EOF
+            ? skip
+            : (surround - skippedChars))));
         if (!EOF) {
           char lastChar = sb.charAt(sb.length() - 1);
           if (lastChar != '.' && lastChar != '!' && lastChar != '?') {

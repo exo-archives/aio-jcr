@@ -17,92 +17,92 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 public class TestNodeMove extends BaseUsecasesTest {
 
-	public void testSingleSession() throws Exception {
-		// create nodes and seek them in single session
-		
-		// - /testRootNode
-		Node fakeroot = root.addNode("fakeroot", "nt:folder");
-		Node subNode_1 = fakeroot.addNode("subnode1", "nt:folder");
-		Node subNode_2 = fakeroot.addNode("subnode2", "nt:folder");
+  public void testSingleSession() throws Exception {
+    // create nodes and seek them in single session
 
-		Node srcNode = subNode_1.addNode("target", "nt:folder");
+    // - /testRootNode
+    Node fakeroot = root.addNode("fakeroot", "nt:folder");
+    Node subNode_1 = fakeroot.addNode("subnode1", "nt:folder");
+    Node subNode_2 = fakeroot.addNode("subnode2", "nt:folder");
 
-		String src_path = "/fakeroot/subnode1/target";
-		String dest_path = "/fakeroot/subnode2/target";
+    Node srcNode = subNode_1.addNode("target", "nt:folder");
 
-		session.save();
+    String src_path = "/fakeroot/subnode1/target";
+    String dest_path = "/fakeroot/subnode2/target";
 
-		String sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode1/%' ";
-		QueryManager manager = session.getWorkspace().getQueryManager();
-		Query query = manager.createQuery(sqlQuery, Query.SQL);
-		QueryResult queryResult = query.execute();
-		NodeIterator iterator = queryResult.getNodes();
+    session.save();
 
-		assertTrue(iterator.getSize() == 1);
+    String sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode1/%' ";
+    QueryManager manager = session.getWorkspace().getQueryManager();
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
+    QueryResult queryResult = query.execute();
+    NodeIterator iterator = queryResult.getNodes();
 
-		//checks we have a node we need.
-		assertEquals(src_path, iterator.nextNode().getPath());
+    assertTrue(iterator.getSize() == 1);
 
-		//move procedure
-		session.getWorkspace().move(srcNode.getPath(), dest_path);
-		
-		Node test_node = (Node)session.getItem("/fakeroot/subnode2/target");
-		
-		sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode2/%' ";
-		QueryManager manager2 = session.getWorkspace().getQueryManager();
-		Query query2 = manager2.createQuery(sqlQuery, Query.SQL);
-		QueryResult queryResult2 = query2.execute();
-		NodeIterator n_iterator = queryResult2.getNodes();
+    // checks we have a node we need.
+    assertEquals(src_path, iterator.nextNode().getPath());
 
-		assertTrue(n_iterator.getSize() == 1);
-		assertEquals(dest_path, n_iterator.nextNode().getPath());
+    // move procedure
+    session.getWorkspace().move(srcNode.getPath(), dest_path);
 
-	}
+    Node test_node = (Node) session.getItem("/fakeroot/subnode2/target");
 
-	public void testDiffSession() throws Exception {
-		// target node was created in one sessions
-		// attempt to seek & move node in other.   
+    sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode2/%' ";
+    QueryManager manager2 = session.getWorkspace().getQueryManager();
+    Query query2 = manager2.createQuery(sqlQuery, Query.SQL);
+    QueryResult queryResult2 = query2.execute();
+    NodeIterator n_iterator = queryResult2.getNodes();
 
-		// - /testRootNode
-		Node fakeroot = root.addNode("fakeroot", "nt:folder");
-		Node subNode_1 = fakeroot.addNode("subnode1", "nt:folder");
-		Node subNode_2 = fakeroot.addNode("subnode2", "nt:folder");
+    assertTrue(n_iterator.getSize() == 1);
+    assertEquals(dest_path, n_iterator.nextNode().getPath());
 
-		Node srcNode = subNode_1.addNode("target", "nt:folder");
+  }
 
-		session.save();
-		session.logout();
+  public void testDiffSession() throws Exception {
+    // target node was created in one sessions
+    // attempt to seek & move node in other.
 
-		session = (SessionImpl) repository.login(credentials, "ws");
+    // - /testRootNode
+    Node fakeroot = root.addNode("fakeroot", "nt:folder");
+    Node subNode_1 = fakeroot.addNode("subnode1", "nt:folder");
+    Node subNode_2 = fakeroot.addNode("subnode2", "nt:folder");
 
-		String src_path = "/fakeroot/subnode1/target";
-		String dest_path = "/fakeroot/subnode2/target";
+    Node srcNode = subNode_1.addNode("target", "nt:folder");
 
-		String sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode1/%' ";
-		QueryManager manager = session.getWorkspace().getQueryManager();
-		Query query = manager.createQuery(sqlQuery, Query.SQL);
+    session.save();
+    session.logout();
 
-		QueryResult queryResult = query.execute();
-		NodeIterator iterator = queryResult.getNodes();
-		assertTrue(iterator.getSize() == 1);
-		//checks we have a node we need.
-		assertEquals(src_path, iterator.nextNode().getPath());
+    session = (SessionImpl) repository.login(credentials, "ws");
 
-		//move procedure
+    String src_path = "/fakeroot/subnode1/target";
+    String dest_path = "/fakeroot/subnode2/target";
 
-		session.getWorkspace().move(srcNode.getPath(), dest_path);
-		
-		Node test_node = (Node)session.getItem("/fakeroot/subnode2/target");
+    String sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode1/%' ";
+    QueryManager manager = session.getWorkspace().getQueryManager();
+    Query query = manager.createQuery(sqlQuery, Query.SQL);
 
-		sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode2/%' ";
-		QueryManager manager2 = session.getWorkspace().getQueryManager();
-		Query query2 = manager2.createQuery(sqlQuery, Query.SQL);
-		QueryResult queryResult2 = query2.execute();
-		NodeIterator n_iterator = queryResult2.getNodes();
+    QueryResult queryResult = query.execute();
+    NodeIterator iterator = queryResult.getNodes();
+    assertTrue(iterator.getSize() == 1);
+    // checks we have a node we need.
+    assertEquals(src_path, iterator.nextNode().getPath());
 
-		assertTrue(n_iterator.getSize() == 1);
-		assertEquals(dest_path, n_iterator.nextNode().getPath());
+    // move procedure
 
-	}
+    session.getWorkspace().move(srcNode.getPath(), dest_path);
+
+    Node test_node = (Node) session.getItem("/fakeroot/subnode2/target");
+
+    sqlQuery = "SELECT * FROM nt:folder WHERE jcr:path LIKE '/fakeroot/subnode2/%' ";
+    QueryManager manager2 = session.getWorkspace().getQueryManager();
+    Query query2 = manager2.createQuery(sqlQuery, Query.SQL);
+    QueryResult queryResult2 = query2.execute();
+    NodeIterator n_iterator = queryResult2.getNodes();
+
+    assertTrue(n_iterator.getSize() == 1);
+    assertEquals(dest_path, n_iterator.nextNode().getPath());
+
+  }
 
 }

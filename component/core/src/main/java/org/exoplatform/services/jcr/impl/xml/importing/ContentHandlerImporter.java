@@ -41,8 +41,7 @@ import org.exoplatform.services.security.ConversationState;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: ContentHandlerImporter.java 14100 2008-05-12 10:53:47Z
- *          gazarenkov $
+ * @version $Id: ContentHandlerImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
 public class ContentHandlerImporter implements ContentHandler, ErrorHandler, RawDataImporter {
 
@@ -81,7 +80,6 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ContentHandler#characters(char[], int, int)
    */
   public void characters(char ch[], int start, int length) throws SAXException {
@@ -95,10 +93,10 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.exoplatform.services.jcr.impl.core.NodeImpl,
-   *      int, org.exoplatform.services.jcr.impl.xml.XmlSaveType,
-   *      org.exoplatform.services.ext.action.InvocationContext)
+   * @seeorg.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.
+   * exoplatform.services.jcr.impl.core.NodeImpl, int,
+   * org.exoplatform.services.jcr.impl.xml.XmlSaveType,
+   * org.exoplatform.services.ext.action.InvocationContext)
    */
   public ContentImporter createContentImporter(NodeData parent,
                                                int uuidBehavior,
@@ -130,7 +128,6 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ContentHandler#endDocument()
    */
   public void endDocument() throws SAXException {
@@ -147,9 +144,8 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.xml.sax.ContentHandler#endElement(java.lang.String,
-   *      java.lang.String, java.lang.String)
+   * @see org.xml.sax.ContentHandler#endElement(java.lang.String, java.lang.String,
+   * java.lang.String)
    */
   public void endElement(String uri, String localName, String qName) throws SAXException {
     try {
@@ -162,7 +158,6 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ContentHandler#endPrefixMapping(java.lang.String)
    */
   public void endPrefixMapping(String arg0) throws SAXException {
@@ -176,7 +171,6 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ContentHandler#ignorableWhitespace(char[], int, int)
    */
   public void ignorableWhitespace(char[] arg0, int arg1, int arg2) throws SAXException {
@@ -184,16 +178,13 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.xml.sax.ContentHandler#processingInstruction(java.lang.String,
-   *      java.lang.String)
+   * @see org.xml.sax.ContentHandler#processingInstruction(java.lang.String, java.lang.String)
    */
   public void processingInstruction(String arg0, String arg1) throws SAXException {
   }
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ContentHandler#setDocumentLocator(org.xml.sax.Locator)
    */
   public void setDocumentLocator(Locator arg0) {
@@ -201,7 +192,6 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ContentHandler#skippedEntity(java.lang.String)
    */
   public void skippedEntity(String arg0) throws SAXException {
@@ -209,7 +199,6 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ContentHandler#startDocument()
    */
   public void startDocument() throws SAXException {
@@ -217,9 +206,8 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.xml.sax.ContentHandler#startElement(java.lang.String,
-   *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+   * @see org.xml.sax.ContentHandler#startElement(java.lang.String, java.lang.String,
+   * java.lang.String, org.xml.sax.Attributes)
    */
   public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
     try {
@@ -239,9 +227,7 @@ public class ContentHandlerImporter implements ContentHandler, ErrorHandler, Raw
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String,
-   *      java.lang.String)
+   * @see org.xml.sax.ContentHandler#startPrefixMapping(java.lang.String, java.lang.String)
    */
   public void startPrefixMapping(String prefix, String uri) throws SAXException {
     importer.registerNamespace(prefix, uri);

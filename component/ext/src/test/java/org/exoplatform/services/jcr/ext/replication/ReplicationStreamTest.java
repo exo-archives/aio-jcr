@@ -26,9 +26,8 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 16.01.2007
- * 15:21:45
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 16.01.2007 15:21:45
  * 
  * @version $Id: TestReplicationStream.java 16.01.2007 15:21:45 rainf0x
  */
@@ -58,8 +57,8 @@ public class ReplicationStreamTest extends BaseReplicationTest {
     contentNode.setProperty("jcr:encoding", "UTF-8");
     contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
     contentNode.setProperty("jcr:mimeType", "application/octet-stream");
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-        Calendar.getInstance()));
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
 
     try {
       session.save();
@@ -78,34 +77,35 @@ public class ReplicationStreamTest extends BaseReplicationTest {
 
     Thread.sleep(25 * 1000);
 
-    Node desinationNode = root2.getNode("cms2").getNode("test").getNode("nnn").getNode(
-        "jcr:content");
+    Node desinationNode = root2.getNode("cms2")
+                               .getNode("test")
+                               .getNode("nnn")
+                               .getNode("jcr:content");
     InputStream fis2 = desinationNode.getProperty("jcr:data").getStream();
 
     compareStream(fis, fis2);
 
-    assertEquals(sourceNode.getProperty("jcr:encoding").getString(), desinationNode.getProperty(
-        "jcr:encoding").getString());
+    assertEquals(sourceNode.getProperty("jcr:encoding").getString(),
+                 desinationNode.getProperty("jcr:encoding").getString());
 
-    assertEquals(sourceNode.getProperty("jcr:lastModified").getString(), desinationNode
-        .getProperty("jcr:lastModified").getString());
-    
-    
+    assertEquals(sourceNode.getProperty("jcr:lastModified").getString(),
+                 desinationNode.getProperty("jcr:lastModified").getString());
+
     // delete
-    
+
     Node srcParent = sourceNode.getParent();
     srcParent.remove();
     session.save();
-    
+
     Thread.sleep(25 * 1000);
-    
+
     try {
       Node destinationRemovablesNode = (Node) session2.getItem("/cms2/test/nnn");
-      fail("The node " +  destinationRemovablesNode.getPath() + "must be removed");
+      fail("The node " + destinationRemovablesNode.getPath() + "must be removed");
     } catch (PathNotFoundException pe) {
-      //ok
+      // ok
     }
-    
+
   }
 
   public void tearDown() throws Exception {

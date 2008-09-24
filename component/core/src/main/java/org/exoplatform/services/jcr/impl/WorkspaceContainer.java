@@ -77,7 +77,6 @@ public class WorkspaceContainer extends ExoContainer {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.defaults.DefaultPicoContainer#stop()
    */
   @Override

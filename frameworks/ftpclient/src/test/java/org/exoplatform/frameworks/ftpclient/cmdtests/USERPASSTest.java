@@ -26,18 +26,18 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdPass;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class USERPASSTest extends TestCase {
-  
+
   private static Log log = new Log("USERPASSTest");
 
   public void testUSER_PASS() throws Exception {
     log.info("Test...");
-    
+
     FtpClientSession client = FtpTestConfig.getTestFtpClient();
     client.connect();
 
@@ -45,17 +45,17 @@ public class USERPASSTest extends TestCase {
       CmdUser cmdUser = new CmdUser("");
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass("");
       assertEquals(FtpConst.Replyes.REPLY_503, client.executeCommand(cmdPass));
     }
-    
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass("");
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdPass));
@@ -65,15 +65,14 @@ public class USERPASSTest extends TestCase {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-    
-    client.close();
-    log.info("Complete.\r\n");    
-  }  
-  
-}
 
+    client.close();
+    log.info("Complete.\r\n");
+  }
+
+}

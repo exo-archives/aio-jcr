@@ -30,22 +30,23 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
 
-  protected NodeType declaringNodeType;
+  protected NodeType            declaringNodeType;
 
-  protected final String name;
+  protected final String        name;
 
-  protected boolean autoCreate;
+  protected boolean             autoCreate;
 
-  protected int onVersion;
+  protected int                 onVersion;
 
-  protected boolean readOnly;
+  protected boolean             readOnly;
 
-  protected boolean mandatory;
+  protected boolean             mandatory;
 
   protected final InternalQName qName;
-  
-  protected int hashCode;
-  public ItemDefinitionImpl(String name,InternalQName qName) {
+
+  protected int                 hashCode;
+
+  public ItemDefinitionImpl(String name, InternalQName qName) {
     this.name = name;
     this.qName = qName;
     this.hashCode = qName == null ? 0 : qName.hashCode();
@@ -56,16 +57,20 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
     return hashCode;
   }
 
-  public ItemDefinitionImpl(String name, NodeType declaringNodeType,
-      boolean autoCreate, int onVersion, boolean readOnly, boolean mandatory,
-      InternalQName qName) {
+  public ItemDefinitionImpl(String name,
+                            NodeType declaringNodeType,
+                            boolean autoCreate,
+                            int onVersion,
+                            boolean readOnly,
+                            boolean mandatory,
+                            InternalQName qName) {
     super();
     this.declaringNodeType = declaringNodeType;
     this.autoCreate = autoCreate;
     this.onVersion = onVersion;
     this.readOnly = readOnly;
     this.mandatory = mandatory;
-    if (qName == null){
+    if (qName == null) {
       System.out.println("==================  qName==null! ==========");
       (new Exception()).printStackTrace();
     }
@@ -118,7 +123,8 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
 
   // ////////////////////////////////////////////
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition#isResidualSet()
    */
   public boolean isResidualSet() {
@@ -164,7 +170,7 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
   }
-  
+
   public InternalQName getQName() {
     return qName;
   }

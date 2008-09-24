@@ -26,7 +26,7 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS .
- *
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -36,10 +36,11 @@ public class AddNodeBulkSaveTest extends JCRTestBase {
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     Session session = context.getSession();
     try {
-      for (int i=0;i<100;i++) {
+      for (int i = 0; i < 100; i++) {
         String name = context.generateUniqueName("node");
         Node node = session.getRootNode().addNode(name, "nt:unstructured");
-        node.setProperty("My property", "My data, I like the data, it's cool I have a data, it's very very nice.");
+        node.setProperty("My property",
+                         "My data, I like the data, it's cool I have a data, it's very very nice.");
       }
       session.save();
     } catch (Exception e) {

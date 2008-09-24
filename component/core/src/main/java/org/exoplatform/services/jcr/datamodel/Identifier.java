@@ -18,26 +18,27 @@ package org.exoplatform.services.jcr.datamodel;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: Identifier.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class Identifier {
-	
-	private final String string;
 
-	public Identifier(String stringValue) {
-		this.string = stringValue;
-	}
-	
-	public Identifier(byte[] value) {
-		this.string = new String(value);
-	}
+  private final String string;
 
-	/**
-	 * @return Returns the stringValue.
-	 */
-	public String getString() {
-		return string;
-	}
+  public Identifier(String stringValue) {
+    this.string = stringValue;
+  }
+
+  public Identifier(byte[] value) {
+    this.string = new String(value);
+  }
+
+  /**
+   * @return Returns the stringValue.
+   */
+  public String getString() {
+    return string;
+  }
 }

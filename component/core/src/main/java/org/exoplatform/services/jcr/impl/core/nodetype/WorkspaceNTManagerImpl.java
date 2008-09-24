@@ -41,21 +41,20 @@ import org.exoplatform.services.log.ExoLogger;
 class WorkspaceNTManagerImpl extends NodeTypeManagerImpl {
 
   protected static Log log = ExoLogger.getLogger("jcr.WorkspaceNTManagerImpl");
-  
-  private SessionImpl session;
-  
-  WorkspaceNTManagerImpl(
-      NamespaceRegistry namespaceRegistry, 
-      String accessControlPolicy, 
-      SessionImpl session,
-      NodeTypeDataPersister persister,
-      Map<InternalQName,ExtendedNodeType> nodeTypes) throws RepositoryException {
-    super(
-        session.getLocationFactory(), session.getValueFactory(), 
-        namespaceRegistry, 
-        accessControlPolicy,
-        persister,
-        nodeTypes);
+
+  private SessionImpl  session;
+
+  WorkspaceNTManagerImpl(NamespaceRegistry namespaceRegistry,
+                         String accessControlPolicy,
+                         SessionImpl session,
+                         NodeTypeDataPersister persister,
+                         Map<InternalQName, ExtendedNodeType> nodeTypes) throws RepositoryException {
+    super(session.getLocationFactory(),
+          session.getValueFactory(),
+          namespaceRegistry,
+          accessControlPolicy,
+          persister,
+          nodeTypes);
     this.session = session;
   }
 
@@ -63,18 +62,18 @@ class WorkspaceNTManagerImpl extends NodeTypeManagerImpl {
     return session;
   }
 
-  public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException, RepositoryException {
-    
+  public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException,
+                                                          RepositoryException {
+
     NodeTypeImpl nt = (NodeTypeImpl) super.getNodeType(qName);
-    /*if (nt.value != null) {
-      return new WorkspaceNTImpl(nt, nt.value, session);
-    }*/
+    /*
+     * if (nt.value != null) { return new WorkspaceNTImpl(nt, nt.value, session); }
+     */
     return new WorkspaceNTImpl(nt, session);
   }
-  
-  public synchronized void initStorage(Node sysNode, boolean forcePersistence)
-    throws RepositoryException {
+
+  public synchronized void initStorage(Node sysNode, boolean forcePersistence) throws RepositoryException {
     throw new UnsupportedRepositoryOperationException("Method is not accessible from this class");
   }
-  
+
 }

@@ -31,6 +31,7 @@ import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: TestFileValueIO.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -38,7 +39,7 @@ import org.exoplatform.services.jcr.impl.storage.value.fs.FileIOChannel;
 public class TestFileValueIO extends TestCase {
 
   static class FileValueIOUtil extends FileIOChannel {
-    
+
     FileValueIOUtil() {
       super(null, null, "Test #1");
     }
@@ -58,9 +59,8 @@ public class TestFileValueIO extends TestCase {
       return null;
     }
 
-    static public ValueData testReadValue(File file, int orderNum, int maxBufferSize, boolean temp)
-        throws IOException {
-      
+    static public ValueData testReadValue(File file, int orderNum, int maxBufferSize, boolean temp) throws IOException {
+
       return new FileValueIOUtil().readValue(file, orderNum, maxBufferSize, temp);
     }
 
@@ -70,18 +70,18 @@ public class TestFileValueIO extends TestCase {
   }
 
   public void testReadByteArrayValueData() throws Exception {
-    
+
     byte[] buf = "0123456789".getBytes();
     File file = new File("target/testReadByteArrayValueData");
-    if(file.exists())
+    if (file.exists())
       file.delete();
     FileOutputStream out = new FileOutputStream(file);
     out.write(buf);
     out.close();
-    
+
     // max buffer size = 50 - so ByteArray will be created
     ValueData vd = FileValueIOUtil.testReadValue(file, 0, 50, false);
-    
+
     assertTrue(vd instanceof ByteArrayPersistedValueData);
     assertTrue(vd.isByteArray());
     assertEquals(10, vd.getLength());
@@ -89,20 +89,20 @@ public class TestFileValueIO extends TestCase {
     assertEquals(10, vd.getAsByteArray().length);
     assertTrue(vd.getAsStream() instanceof ByteArrayInputStream);
   }
-  
+
   public void testReadFileValueData() throws Exception {
-    
+
     byte[] buf = "0123456789".getBytes();
     File file = new File("target/testReadFileValueData");
-    if(file.exists())
+    if (file.exists())
       file.delete();
     FileOutputStream out = new FileOutputStream(file);
     out.write(buf);
     out.close();
-    
+
     // max buffer size = 5 - so File will be created
     ValueData vd = FileValueIOUtil.testReadValue(file, 0, 5, false);
-    
+
     assertTrue(vd instanceof FileStreamPersistedValueData);
     assertFalse(vd.isByteArray());
     assertEquals(10, vd.getLength());
@@ -114,55 +114,33 @@ public class TestFileValueIO extends TestCase {
     }
     assertTrue(vd.getAsStream() instanceof FileInputStream);
   }
-  
+
   public void testWriteFileValueData() throws Exception {
-    
+
     byte[] buf = "0123456789".getBytes();
     File file = new File("target/testWriteFileValueData");
-    if(file.exists())
+    if (file.exists())
       file.delete();
 
-    ByteArrayPersistedValueData vd = new  ByteArrayPersistedValueData(buf, 0);
-  
+    ByteArrayPersistedValueData vd = new ByteArrayPersistedValueData(buf, 0);
+
     FileValueIOUtil.testWriteValue(file, vd);
-    
+
     // max buffer size = 5 - so File will be created
     ValueData vd1 = FileValueIOUtil.testReadValue(file, 0, 5, false);
-    
+
     assertFalse(vd1.isByteArray());
     assertEquals(10, vd1.getLength());
     assertEquals(0, vd1.getOrderNumber());
     assertTrue(vd1.getAsStream() instanceof FileInputStream);
   }
 
-
-/*
-  private class Probe extends Thread {
-    private File file;
-    private int len = 0;
-    
-    public Probe(File file) {
-      super();
-      this.file = file;
-    }
-
-    public void run() {
-      System.out.println("Thread started "+this.getName());
-      try {
-        FileInputStream is = new FileInputStream(file);
-        while(is.read()>0) {
-          len++;
-        }
-        
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      System.out.println("Thread finished "+this.getName()+" read: "+len);
-    }
-
-    public int getLen() {
-      return len;
-    }
-  }
-*/  
+  /*
+   * private class Probe extends Thread { private File file; private int len = 0; public Probe(File
+   * file) { super(); this.file = file; } public void run() {
+   * System.out.println("Thread started "+this.getName()); try { FileInputStream is = new
+   * FileInputStream(file); while(is.read()>0) { len++; } } catch (Exception e) {
+   * e.printStackTrace(); } System.out.println("Thread finished "+this.getName()+" read: "+len); }
+   * public int getLen() { return len; } }
+   */
 }

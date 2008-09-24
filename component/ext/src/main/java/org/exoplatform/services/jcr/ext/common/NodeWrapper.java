@@ -19,17 +19,16 @@ package org.exoplatform.services.jcr.ext.common;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SAS        .<br/>
- * Wrapper for jcr node. The idea is to force application to use the node of particular NodeType
- * so the object's client could not change its type in modified method.
- * For example
- *   
+ * Created by The eXo Platform SAS .<br/> Wrapper for jcr node. The idea is to force application to
+ * use the node of particular NodeType so the object's client could not change its type in modified
+ * method. For example
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public abstract class NodeWrapper {
-    
+
   private final Node node;
 
   protected NodeWrapper(final Node node) {
@@ -39,5 +38,5 @@ public abstract class NodeWrapper {
   public final Node getNode() {
     return node;
   }
-  
+
 }

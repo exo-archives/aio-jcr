@@ -39,30 +39,33 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.rest.Response;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class OrderPatchCommand {
-  
+
   public OrderPatchCommand() {
   }
-  
+
   public Response orderPatch(Session session, String path, HierarchicalProperty body, String baseURI) {
     try {
-      Node node = (Node)session.getItem(path);
-      
+      Node node = (Node) session.getItem(path);
+
       List<OrderMember> members = getMembers(body);
 
-      WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);      
+      WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
-      
+
       if (doOrder(node, members)) {
         return Response.Builder.ok().build();
       }
-      
-      OrderPatchResponseEntity orderPatchEntity = new OrderPatchResponseEntity(nsContext, uri, node, members);      
+
+      OrderPatchResponseEntity orderPatchEntity = new OrderPatchResponseEntity(nsContext,
+                                                                               uri,
+                                                                               node,
+                                                                               members);
       return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(orderPatchEntity).build();
     } catch (PathNotFoundException exc) {
       return Response.Builder.notFound().build();
@@ -71,38 +74,38 @@ public class OrderPatchCommand {
     } catch (Exception exc) {
       return Response.Builder.serverError().build();
     }
-    
+
   }
-  
+
   protected List<OrderMember> getMembers(HierarchicalProperty body) {
-    ArrayList<OrderMember> members = new ArrayList<OrderMember>();    
+    ArrayList<OrderMember> members = new ArrayList<OrderMember>();
     List<HierarchicalProperty> childs = body.getChildren();
     for (int i = 0; i < childs.size(); i++) {
       OrderMember member = new OrderMember(childs.get(i));
       members.add(member);
-    }    
+    }
     return members;
   }
-  
+
   protected boolean doOrder(Node parentNode, List<OrderMember> members) {
     boolean success = true;
     for (int i = 0; i < members.size(); i++) {
       OrderMember member = members.get(i);
-      
+
       int status = WebDavStatus.OK;
-      
+
       try {
         parentNode.getSession().refresh(false);
         String positionedNodeName = null;
-        
+
         if (!parentNode.hasNode(member.getSegment())) {
           throw new PathNotFoundException();
         }
-        
+
         if (!new QName("DAV:", "last").equals(member.getPosition())) {
           NodeIterator nodeIter = parentNode.getNodes();
           boolean finded = false;
-          
+
           while (nodeIter.hasNext()) {
             Node curNode = nodeIter.nextNode();
 
@@ -111,53 +114,53 @@ public class OrderPatchCommand {
               finded = true;
               break;
             }
-            
-            if (new QName("DAV:", "before").equals(member.getPosition()) &&
-                curNode.getName().equals(member.getPositionSegment())) {
+
+            if (new QName("DAV:", "before").equals(member.getPosition())
+                && curNode.getName().equals(member.getPositionSegment())) {
               positionedNodeName = curNode.getName();
               finded = true;
               break;
             }
-            
-            if (new QName("DAV:", "after").equals(member.getPosition()) &&
-                curNode.getName().equals(member.getPositionSegment())) {
+
+            if (new QName("DAV:", "after").equals(member.getPosition())
+                && curNode.getName().equals(member.getPositionSegment())) {
               if (nodeIter.hasNext()) {
                 positionedNodeName = nodeIter.nextNode().getName();
               }
               finded = true;
               break;
-            }          
+            }
           }
-          
+
           if (!finded) {
             throw new AccessDeniedException();
           }
         }
-        
+
         parentNode.getSession().refresh(false);
         parentNode.orderBefore(member.getSegment(), positionedNodeName);
         parentNode.getSession().save();
-        
+
       } catch (LockException exc) {
         status = WebDavStatus.LOCKED;
-        
+
       } catch (PathNotFoundException exc) {
         status = WebDavStatus.FORBIDDEN;
-        
+
       } catch (AccessDeniedException exc) {
         status = WebDavStatus.FORBIDDEN;
-        
+
       } catch (RepositoryException exc) {
         status = WebDavStatus.INTERNAL_SERVER_ERROR;
-        
+
       }
-      
+
       member.setStatus(status);
       if (status != WebDavStatus.OK) {
         success = false;
       }
     }
-    
+
     return success;
   }
 

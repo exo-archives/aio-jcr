@@ -32,7 +32,8 @@ import org.exoplatform.frameworks.jcr.command.JCRAppContext;
 
 public class RemoveItemCommand implements Command {
 
-  private String pathKey = DefaultKeys.PATH;
+  private String pathKey   = DefaultKeys.PATH;
+
   private String resultKey = DefaultKeys.RESULT;
 
   public boolean execute(Context context) throws Exception {

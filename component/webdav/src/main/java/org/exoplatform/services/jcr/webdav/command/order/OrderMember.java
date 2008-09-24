@@ -22,42 +22,42 @@ import javax.xml.namespace.QName;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class OrderMember {
-  
-  private HierarchicalProperty member; 
-  
-  private String segment;
-  
-  private int status;
-  
+
+  private HierarchicalProperty member;
+
+  private String               segment;
+
+  private int                  status;
+
   public OrderMember(HierarchicalProperty member) {
-    this.member = member;    
+    this.member = member;
     HierarchicalProperty segmentProperty = member.getChild(new QName("DAV:", "segment"));
     segment = segmentProperty.getValue();
   }
-  
+
   public String getSegment() {
     return segment;
   }
-  
+
   public QName getPosition() {
     return member.getChild(new QName("DAV:", "position")).getChild(0).getName();
   }
-  
+
   public String getPositionSegment() {
     HierarchicalProperty position = member.getChild(new QName("DAV:", "position"));
     return position.getChild(0).getChild(new QName("DAV:", "segment")).getValue();
   }
-  
+
   public int getStatus() {
     return status;
   }
-  
+
   public void setStatus(int status) {
     this.status = status;
   }

@@ -20,23 +20,23 @@ import java.util.List;
 
 import javax.jcr.RepositoryException;
 
-
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: MutablePropertyData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public interface MutablePropertyData extends PropertyData, MutableItemData {
-  
-	/**
-	 * @param values
-	 * @throws RepositoryException
-	 */
-	void setValues(List<ValueData> values)throws RepositoryException;
-  
-	/**
-	 * @param type
-	 */
-	void setType(int type);
+
+  /**
+   * @param values
+   * @throws RepositoryException
+   */
+  void setValues(List<ValueData> values) throws RepositoryException;
+
+  /**
+   * @param type
+   */
+  void setType(int type);
 }

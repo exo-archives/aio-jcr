@@ -25,21 +25,21 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS. 
+ * Created by The eXo Platform SAS.
  * 
  * Date: 31.03.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestSameNameSiblingsMove.java 12992 2008-04-09 14:52:34Z pnedonosko $
  */
 public class TestSameNameSiblingsMove extends JcrAPIBaseTest {
 
   private Node testRoot;
-  
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    
+
     testRoot = root.addNode("snsMoveTest");
     root.save();
   }
@@ -49,7 +49,7 @@ public class TestSameNameSiblingsMove extends JcrAPIBaseTest {
     root.refresh(false);
     testRoot.remove();
     root.save();
-    
+
     super.tearDown();
   }
 
@@ -61,56 +61,56 @@ public class TestSameNameSiblingsMove extends JcrAPIBaseTest {
    * @throws RepositoryException
    */
   public void testMoveFirst() throws LoginException, NoSuchWorkspaceException, RepositoryException {
-    
+
     final Node testRootS1 = testRoot;
     testRootS1.addMixin("exo:owneable");
     testRootS1.addMixin("exo:privilegeable");
     testRootS1.save();
-    
+
     Node nS1_1 = testRootS1.addNode("node"); // node[1]
     testRootS1.save();
     nS1_1.addMixin("mix:referenceable");
     nS1_1.addMixin("exo:owneable");
-    //nS1_1.setProperty("exo:owner", "root");
+    // nS1_1.setProperty("exo:owner", "root");
     String s1_1_id = nS1_1.getUUID();
     testRootS1.save();
-    
+
     Node nS1_2 = testRootS1.addNode("node"); // node[2]
     Node nS1_3 = testRootS1.addNode("node"); // node[3]
-    
+
     testRootS1.save();
-    
+
     // test
-//    for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
-//      Node n = iter.nextNode();
-//      log.info("Node: " + n.getPath() + " " + ((NodeImpl)n).getInternalIdentifier());
-//    }
+    // for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
+    // Node n = iter.nextNode();
+    // log.info("Node: " + n.getPath() + " " + ((NodeImpl)n).getInternalIdentifier());
+    // }
     try {
-      // move node[1] to node[3], node[3] reordered to node[2], node[2] to node[1]  
+      // move node[1] to node[3], node[3] reordered to node[2], node[2] to node[1]
       testRootS1.getSession().move(testRootS1.getPath() + "/node", testRootS1.getPath() + "/node");
-//      for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
-//        Node n = iter.nextNode();
-//        log.info("Node: " + n.getPath() + " " + ((NodeImpl)n).getInternalIdentifier());
-//      }
+      // for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
+      // Node n = iter.nextNode();
+      // log.info("Node: " + n.getPath() + " " + ((NodeImpl)n).getInternalIdentifier());
+      // }
       testRootS1.save(); // save
-      
-    } catch(RepositoryException e) {
+
+    } catch (RepositoryException e) {
       e.printStackTrace();
       fail("RepositoryException should not have been thrown, but " + e);
     }
-    
+
     int index = 0;
     for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
       index++;
       Node n = iter.nextNode();
-      //log.info("Node: " + n.getPath());
+      // log.info("Node: " + n.getPath());
       assertEquals("Wrong index found ", index, n.getIndex());
     }
-    
+
     // check reordering
     assertEquals("Wrong node UUID found ", s1_1_id, testRootS1.getNode("node[3]").getUUID());
   }
-  
+
   /**
    * Move node[2] to node[3], node[3] reordered to node[2].
    * 
@@ -119,41 +119,42 @@ public class TestSameNameSiblingsMove extends JcrAPIBaseTest {
    * @throws RepositoryException
    */
   public void testMoveMiddle() throws LoginException, NoSuchWorkspaceException, RepositoryException {
-    
+
     final Node testRootS1 = testRoot;
-    
+
     Node nS1_1 = testRootS1.addNode("node"); // node[1]
     testRootS1.save();
     nS1_1.addMixin("mix:referenceable");
     String s1_1_id = nS1_1.getUUID();
     testRootS1.save();
-    
+
     Node nS1_2 = testRootS1.addNode("node"); // node[2]
     Node nS1_3 = testRootS1.addNode("node"); // node[3]
     testRootS1.save();
-    
+
     // test
     try {
       // move node[2] to node[3], node[3] reordered to node[2]
-      testRootS1.getSession().move(testRootS1.getPath() + "/node[2]", testRootS1.getPath() + "/node");
-      testRootS1.save(); // save      
-    } catch(RepositoryException e) {
+      testRootS1.getSession().move(testRootS1.getPath() + "/node[2]",
+                                   testRootS1.getPath() + "/node");
+      testRootS1.save(); // save
+    } catch (RepositoryException e) {
       e.printStackTrace();
       fail("RepositoryException should not have been thrown, but " + e);
     }
-    
+
     int index = 0;
     for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
       index++;
       Node n = iter.nextNode();
-      //log.info("Node: " + n.getPath());
+      // log.info("Node: " + n.getPath());
       assertEquals("Wrong index found ", index, n.getIndex());
     }
-    
+
     // check reordering
     assertEquals("Wrong node UUID found ", s1_1_id, testRootS1.getNode("node").getUUID());
   }
-  
+
   /**
    * Move SNS node to itself, move node[3] to node[3].
    * 
@@ -162,38 +163,39 @@ public class TestSameNameSiblingsMove extends JcrAPIBaseTest {
    * @throws RepositoryException
    */
   public void testMoveLast() throws LoginException, NoSuchWorkspaceException, RepositoryException {
-    
+
     final Node testRootS1 = testRoot;
-    
+
     Node nS1_1 = testRootS1.addNode("node"); // node[1]
     testRootS1.save();
     nS1_1.addMixin("mix:referenceable");
     String s1_1_id = nS1_1.getUUID();
     testRootS1.save();
-    
+
     Node nS1_2 = testRootS1.addNode("node"); // node[2]
     Node nS1_3 = testRootS1.addNode("node"); // node[3]
     testRootS1.save();
-    
+
     // test
     try {
       // move to itself, move node[3] to node[3]
-      testRootS1.getSession().move(testRootS1.getPath() + "/node[3]", testRootS1.getPath() + "/node");
+      testRootS1.getSession().move(testRootS1.getPath() + "/node[3]",
+                                   testRootS1.getPath() + "/node");
       testRootS1.save(); // save
-    } catch(RepositoryException e) {
+    } catch (RepositoryException e) {
       e.printStackTrace();
       fail("RepositoryException should not have been thrown, but " + e);
     }
-    
+
     int index = 0;
     for (NodeIterator iter = testRootS1.getNodes(); iter.hasNext();) {
       index++;
       Node n = iter.nextNode();
-      //log.info("Node: " + n.getPath());
+      // log.info("Node: " + n.getPath());
       assertEquals("Wrong index found ", index, n.getIndex());
     }
-    
+
     // check reordering
     assertEquals("Wrong node UUID found ", s1_1_id, testRootS1.getNode("node").getUUID());
-  }  
+  }
 }

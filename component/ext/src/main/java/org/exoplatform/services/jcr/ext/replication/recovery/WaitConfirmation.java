@@ -26,7 +26,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class WaitConfirmation extends Thread {
@@ -53,15 +54,14 @@ public class WaitConfirmation extends Thread {
       if (log.isDebugEnabled())
         log.debug("Before : getParticipantsClusterList().size():"
             + recoveryManager.getPendingConfirmationChengesLogById(identifier)
-                .getConfirmationList().size());
+                             .getConfirmationList()
+                             .size());
 
       Thread.sleep(timeOut);
 
-      PendingConfirmationChengesLog confirmationChengesLog = recoveryManager
-          .getPendingConfirmationChengesLogById(identifier);
+      PendingConfirmationChengesLog confirmationChengesLog = recoveryManager.getPendingConfirmationChengesLogById(identifier);
 
-      List<String> notConfirmationList = new ArrayList<String>(recoveryManager
-          .getParticipantsClusterList());
+      List<String> notConfirmationList = new ArrayList<String>(recoveryManager.getParticipantsClusterList());
       notConfirmationList.removeAll(confirmationChengesLog.getConfirmationList());
 
       if (notConfirmationList.size() > 0) {

@@ -25,8 +25,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 
  * There is a test of login to server
  * 
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
@@ -34,15 +33,15 @@ import org.exoplatform.services.log.ExoLogger;
 public class testLogin extends BaseStandaloneTest {
   protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testLogin");
 
-  protected String servername;
+  protected String     servername;
 
   public void setUp() throws Exception {
     super.setUp();
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName() : serv.getConfiguration()
-        .getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
   }
 
   /**
@@ -79,12 +78,11 @@ public class testLogin extends BaseStandaloneTest {
   }
 
   /**
-   * Guest login means that there is just login name and no password (or
-   * password is useless)
+   * Guest login means that there is just login name and no password (or password is useless)
    * 
    * @throws Exception
    */
-   public void testGuestLogin() throws Exception {
+  public void testGuestLogin() throws Exception {
     String user = "__anonim:blabla@";// login "__anonim" password anystring
 
     SmbFile host = new SmbFile("smb://" + user + servername + "/ws");
@@ -101,8 +99,7 @@ public class testLogin extends BaseStandaloneTest {
     host.connect();
 
   }
-  
-  
+
   public void testConnectDevice() throws Exception {
     String user = "__anonim:@";
     SmbFile share = new SmbFile("smb://" + user + servername + "/ws/");

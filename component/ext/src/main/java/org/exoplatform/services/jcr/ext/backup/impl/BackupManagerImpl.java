@@ -76,24 +76,24 @@ import org.picocontainer.Startable;
 
 public class BackupManagerImpl implements BackupManager, Startable {
 
-  protected static Log               log = ExoLogger.getLogger("ext.BackupManagerImpl");
-  
+  protected static Log               log                            = ExoLogger.getLogger("ext.BackupManagerImpl");
+
   private final static String        DEFAULT_INCREMENTAL_JOB_PERIOD = "default-incremental-job-period";
-  
+
   private final static String        BACKUP_PROPERTIES              = "backup-properties";
-  
+
   private final static String        FULL_BACKUP_TYPE               = "full-backup-type";
-  
+
   private final static String        INCREMENTAL_BACKUP_TYPE        = "incremental-backup-type";
-  
+
   private final static String        BACKUP_DIR                     = "backup-dir";
-  
+
   private static final int           MESSAGES_MAXSIZE               = 5;
-  
+
   private final long                 defaultIncrementalJobPeriod;
-  
+
   private final String               fullBackupType;
-  
+
   private final String               incrementalBackupType;
 
   private final HashSet<BackupChain> currentBackups;
@@ -105,11 +105,11 @@ public class BackupManagerImpl implements BackupManager, Startable {
   private FileCleaner                fileCleaner;
 
   private BackupScheduler            scheduler;
-  
+
   private final BackupMessagesLog    messages;
-  
+
   private final MessagesListener     messagesListener;
-  
+
   class MessagesListener implements BackupJobListener {
 
     public void onError(BackupJob job, String message, Throwable error) {
@@ -122,60 +122,60 @@ public class BackupManagerImpl implements BackupManager, Startable {
       if (log.isDebugEnabled())
         log.debug(makeJobInfo(job, null));
     }
-    
+
     private String makeJobInfo(BackupJob job, Throwable error) {
       String jobInfo = "";
-      
+
       if (job != null) {
 
         switch (job.getType()) {
         case BackupJob.FULL:
-          jobInfo += "FULL BACKUP";  
+          jobInfo += "FULL BACKUP";
           break;
         case BackupJob.INCREMENTAL:
-          jobInfo += "INCREMENTAL BACKUP";  
+          jobInfo += "INCREMENTAL BACKUP";
           break;
         }
-        
+
         jobInfo += " [";
         switch (job.getState()) {
         case BackupJob.FINISHED:
-          jobInfo += "FINISHED";  
+          jobInfo += "FINISHED";
           break;
         case BackupJob.STARTING:
-          jobInfo += "STARTING";  
+          jobInfo += "STARTING";
           break;
         case BackupJob.WAITING:
-          jobInfo += "WAITING";  
+          jobInfo += "WAITING";
           break;
         case BackupJob.WORKING:
-          jobInfo += "WORKING";  
+          jobInfo += "WORKING";
           break;
         }
-        
+
         jobInfo += "]";
 
         if (error != null)
           jobInfo += " Error: " + error.getMessage();
-        
+
         try {
           jobInfo += " log: " + job.getStorageURL().getPath();
         } catch (BackupOperationException e) {
           // skip URL
         } finally {
-          jobInfo += " ";  
+          jobInfo += " ";
         }
       }
-      
+
       return jobInfo;
     }
-    
+
     public String printStackTrace(Throwable error) {
-      
-      ByteArrayOutputStream out = new ByteArrayOutputStream(); 
-      PrintWriter writer = new PrintWriter(out);  
+
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      PrintWriter writer = new PrintWriter(out);
       error.printStackTrace(writer);
-      
+
       return new String(out.toByteArray());
     }
   }
@@ -197,11 +197,11 @@ public class BackupManagerImpl implements BackupManager, Startable {
   public BackupManagerImpl(RepositoryService repoService, InitParams params) throws RepositoryConfigurationException {
 
     this.messagesListener = new MessagesListener();
-    
+
     this.repoService = repoService;
 
     PropertiesParam pps = params.getPropertiesParam(BACKUP_PROPERTIES);
-    
+
     String pathBackupDir = pps.getProperty(BACKUP_DIR);
 
     if (pathBackupDir == null)
@@ -210,29 +210,29 @@ public class BackupManagerImpl implements BackupManager, Startable {
     this.logsDirectory = new File(pathBackupDir);
     if (!logsDirectory.exists())
       logsDirectory.mkdirs();
-    
-    //set default incrementalJobPeriod
+
+    // set default incrementalJobPeriod
     String defIncrPeriod = pps.getProperty(DEFAULT_INCREMENTAL_JOB_PERIOD);
-    
+
     if (defIncrPeriod == null)
       throw new RepositoryConfigurationException(DEFAULT_INCREMENTAL_JOB_PERIOD + " not specified");
-      
+
     defaultIncrementalJobPeriod = Integer.valueOf(defIncrPeriod);
-    
-    //set fullBackupType
+
+    // set fullBackupType
     fullBackupType = pps.getProperty(FULL_BACKUP_TYPE);
-    
+
     if (fullBackupType == null)
       throw new RepositoryConfigurationException(FULL_BACKUP_TYPE + " not specified");
 
-    //set incrementalBackupType    
+    // set incrementalBackupType
     incrementalBackupType = pps.getProperty(INCREMENTAL_BACKUP_TYPE);
-    
+
     if (incrementalBackupType == null)
       throw new RepositoryConfigurationException(INCREMENTAL_BACKUP_TYPE + " not specified");
 
     currentBackups = new HashSet<BackupChain>();
-    
+
     fileCleaner = new FileCleaner(10000);
 
     messages = new BackupMessagesLog(MESSAGES_MAXSIZE);
@@ -243,7 +243,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
   public Set<BackupChain> getCurrentBackups() {
     return currentBackups;
   }
-  
+
   public BackupMessage[] getMessages() {
     return messages.getMessages();
   }
@@ -281,21 +281,25 @@ public class BackupManagerImpl implements BackupManager, Startable {
       for (int i = 0; i < list.size(); i++) {
         if (i == 0) {
           try {
-            fullRestore(list.get(i).getURL().getPath(), reposytoryName, workspaseName, workspaceEntry);
+            fullRestore(list.get(i).getURL().getPath(),
+                        reposytoryName,
+                        workspaseName,
+                        workspaceEntry);
           } catch (FileNotFoundException e) {
             throw new BackupOperationException("Restore of full backup file error " + e, e);
           } catch (IOException e) {
             throw new BackupOperationException("Restore of full backup file I/O error " + e, e);
           }
         } else {
-          // TODO do we not restoring same content few times, i.e. on STARTING, WAITIG, FINISHED events
-          // which are logged in chan log one after another 
+          // TODO do we not restoring same content few times, i.e. on STARTING, WAITIG, FINISHED
+          // events which are logged in chan log one after another
           try {
             incrementalRestore(list.get(i).getURL().getPath(), reposytoryName, workspaseName);
           } catch (FileNotFoundException e) {
             throw new BackupOperationException("Restore of incremental backup file error " + e, e);
           } catch (IOException e) {
-            throw new BackupOperationException("Restore of incremental backup file I/O error " + e, e);
+            throw new BackupOperationException("Restore of incremental backup file I/O error " + e,
+                                               e);
           } catch (ClassNotFoundException e) {
             throw new BackupOperationException("Restore of incremental backup error " + e, e);
           }
@@ -327,7 +331,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
    * Internally used for call with job listener from scheduler.
    * 
    * @param config
-   * @param jobListener 
+   * @param jobListener
    * @return
    * @throws BackupOperationException
    * @throws BackupConfigurationException
@@ -335,19 +339,23 @@ public class BackupManagerImpl implements BackupManager, Startable {
    * @throws RepositoryConfigurationException
    */
   BackupChain startBackup(BackupConfig config, BackupJobListener jobListener) throws BackupOperationException,
-                                              BackupConfigurationException,
-                                              RepositoryException,
-                                              RepositoryConfigurationException {
+                                                                             BackupConfigurationException,
+                                                                             RepositoryException,
+                                                                             RepositoryConfigurationException {
 
-    if (config.getIncrementalJobPeriod() == 0 && config.getBuckupType() == BackupManager.FULL_AND_INCREMENTAL)
+    if (config.getIncrementalJobPeriod() == 0
+        && config.getBuckupType() == BackupManager.FULL_AND_INCREMENTAL)
       config.setIncrementalJobPeriod(defaultIncrementalJobPeriod);
-    
-    BackupChain bchain = new BackupChainImpl(config, logsDirectory, repoService.getRepository(config.getRepository()), 
-        fullBackupType, incrementalBackupType);
-    
+
+    BackupChain bchain = new BackupChainImpl(config,
+                                             logsDirectory,
+                                             repoService.getRepository(config.getRepository()),
+                                             fullBackupType,
+                                             incrementalBackupType);
+
     bchain.addListener(messagesListener);
     bchain.addListener(jobListener);
-    
+
     currentBackups.add(bchain);
     bchain.startBackup();
 
@@ -383,19 +391,22 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
   public void stop() {
     // 1. stop current backup chains
-    //    for (Iterator iterator = currentBackups.iterator(); iterator.hasNext();) {
-    //      BackupChain bc = (BackupChain) iterator.next();
-    //      stopBackup(bc);
-    //    }
+    // for (Iterator iterator = currentBackups.iterator(); iterator.hasNext();) {
+    // BackupChain bc = (BackupChain) iterator.next();
+    // stopBackup(bc);
+    // }
     //    
-    //    // 2. stop all scheduled tasks
-    //    scheduler = null;
+    // // 2. stop all scheduled tasks
+    // scheduler = null;
   }
 
-  private void fullRestore(String pathBackupFile, String repositoryName, String workspaceName, WorkspaceEntry workspaceEntry) throws FileNotFoundException,
-                                                                                                                             IOException,
-                                                                                                                             RepositoryException,
-                                                                                                                             RepositoryConfigurationException {
+  private void fullRestore(String pathBackupFile,
+                           String repositoryName,
+                           String workspaceName,
+                           WorkspaceEntry workspaceEntry) throws FileNotFoundException,
+                                                         IOException,
+                                                         RepositoryException,
+                                                         RepositoryConfigurationException {
 
     RepositoryImpl defRep = (RepositoryImpl) repoService.getRepository(repositoryName);
 
@@ -408,9 +419,10 @@ public class BackupManagerImpl implements BackupManager, Startable {
                                                                                                      FileNotFoundException,
                                                                                                      IOException,
                                                                                                      ClassNotFoundException {
-    SessionImpl sesion = (SessionImpl) repoService.getRepository(repositoryName).getSystemSession(workspaceName);
-    WorkspacePersistentDataManager dataManager =
-        (WorkspacePersistentDataManager) sesion.getContainer().getComponentInstanceOfType(WorkspacePersistentDataManager.class);
+    SessionImpl sesion = (SessionImpl) repoService.getRepository(repositoryName)
+                                                  .getSystemSession(workspaceName);
+    WorkspacePersistentDataManager dataManager = (WorkspacePersistentDataManager) sesion.getContainer()
+                                                                                        .getComponentInstanceOfType(WorkspacePersistentDataManager.class);
 
     ObjectInputStream ois = null;
     File backupFile = null;
@@ -437,12 +449,15 @@ public class BackupManagerImpl implements BackupManager, Startable {
     }
   }
 
-  private void saveChangesLog(WorkspacePersistentDataManager dataManager, TransactionChangesLog changesLog) throws RepositoryException,
-                                                                                                           BackupOperationException {
+  private void saveChangesLog(WorkspacePersistentDataManager dataManager,
+                              TransactionChangesLog changesLog) throws RepositoryException,
+                                                               BackupOperationException {
     try {
       dataManager.save(changesLog);
     } catch (JCRInvalidItemStateException e) {
-      TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(), e.getState(), changesLog);
+      TransactionChangesLog normalizeChangesLog = getNormalizedChangesLog(e.getIdentifier(),
+                                                                          e.getState(),
+                                                                          changesLog);
       if (normalizeChangesLog != null)
         saveChangesLog(dataManager, normalizeChangesLog);
       else
@@ -452,7 +467,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
     }
   }
 
-  private TransactionChangesLog getNormalizedChangesLog(String collisionID, int state, TransactionChangesLog changesLog) {
+  private TransactionChangesLog getNormalizedChangesLog(String collisionID,
+                                                        int state,
+                                                        TransactionChangesLog changesLog) {
     ItemState citem = changesLog.getItemState(collisionID);
 
     if (citem != null) {
@@ -470,7 +487,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
             // targeted state
             if (citem.isNode()) {
               // Node... by ID and desc path
-              if (!item.getIdentifier().equals(collisionID) && !item.getQPath().isDescendantOf(citem.getData().getQPath()))
+              if (!item.getIdentifier().equals(collisionID)
+                  && !item.getQPath().isDescendantOf(citem.getData().getQPath()))
                 normalized.add(change);
             } else if (!item.getIdentifier().equals(collisionID)) {
               // Property... by ID
@@ -481,7 +499,9 @@ public class BackupManagerImpl implements BackupManager, Startable {
             normalized.add(change);
         }
 
-        PlainChangesLog plog = new PlainChangesLogImpl(normalized, next.getSessionId(), next.getEventType());
+        PlainChangesLog plog = new PlainChangesLogImpl(normalized,
+                                                       next.getSessionId(),
+                                                       next.getEventType());
         result.addLog(plog);
       }
 
@@ -491,7 +511,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
     return null;
   }
 
-  private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException, ClassNotFoundException {
+  private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
+                                                                  ClassNotFoundException {
     int changesLogType = in.readInt();
 
     TransactionChangesLog transactionChangesLog = null;
@@ -511,7 +532,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
         fs.readExternal(in);
         listFixupStreams.add(fs);
       }
-//        listFixupStreams.add((FixupStream) in.readObject());
+      // listFixupStreams.add((FixupStream) in.readObject());
 
       // read stream data
       int iStreamCount = in.readInt();
@@ -527,8 +548,10 @@ public class BackupManagerImpl implements BackupManager, Startable {
         listFiles.add(contentFile);
       }
 
-      PendingChangesLog pendingChangesLog =
-          new PendingChangesLog(transactionChangesLog, listFixupStreams, listFiles, fileCleaner);
+      PendingChangesLog pendingChangesLog = new PendingChangesLog(transactionChangesLog,
+                                                                  listFixupStreams,
+                                                                  listFiles,
+                                                                  fileCleaner);
 
       pendingChangesLog.restore();
 
@@ -571,7 +594,8 @@ public class BackupManagerImpl implements BackupManager, Startable {
     Iterator<BackupChain> it = currentBackups.iterator();
     while (it.hasNext()) {
       BackupChain chain = it.next();
-      if (repository.equals(chain.getBackupConfig().getRepository()) && workspace.equals(chain.getBackupConfig().getWorkspace()))
+      if (repository.equals(chain.getBackupConfig().getRepository())
+          && workspace.equals(chain.getBackupConfig().getWorkspace()))
         return chain;
     }
     return null;
@@ -589,7 +613,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
   File getLogsDirectory() {
     return logsDirectory;
   }
-  
+
   public File getBackupDirectory() {
     return getLogsDirectory();
   }

@@ -44,8 +44,8 @@ import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Store information about locks on file system. After start and before stop it
- * remove all lock properties in repository
+ * Store information about locks on file system. After start and before stop it remove all lock
+ * properties in repository
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: FileSystemLockPersister.java 11907 2008-03-13 15:36:21Z ksm $
@@ -107,8 +107,9 @@ public class FileSystemLockPersister implements LockPersister {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockPersister#add(org.exoplatform.services.jcr.impl.core.lock.LockData)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockPersister#add(org.exoplatform.services.jcr.
+   * impl.core.lock.LockData)
    */
   public void add(LockData lock) throws LockException {
     log.debug("add event fire");
@@ -127,8 +128,9 @@ public class FileSystemLockPersister implements LockPersister {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.LockPersister#remove(org.exoplatform.services.jcr.impl.core.lock.LockData)
+   * @see
+   * org.exoplatform.services.jcr.impl.core.lock.LockPersister#remove(org.exoplatform.services.jcr
+   * .impl.core.lock.LockData)
    */
   public void remove(LockData lock) throws LockException {
     log.debug("remove event fire");
@@ -137,7 +139,7 @@ public class FileSystemLockPersister implements LockPersister {
       // throw new LockException("Persistent lock information not exists");
       log.warn("Persistent lock information  for node " + lock.getNodeIdentifier()
           + " doesn't exists");
-     return; 
+      return;
     }
     if (!lockFile.delete())
       throw new LockException("Fail to remove lock information");
@@ -146,23 +148,23 @@ public class FileSystemLockPersister implements LockPersister {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.LockPersister#removeAll()
    */
   public void removeAll() throws LockException {
     if (log.isDebugEnabled()) {
       log.debug("Removing all locks");
     }
-    
+
     TransactionChangesLog transactionChangesLog = new TransactionChangesLog();
-    
+
     String[] list = rootDir.list();
-    
+
     try {
       for (int i = 0; i < list.length; i++) {
-        PlainChangesLog plainChangesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(), SystemIdentity.SYSTEM,
-            ExtendedEvent.UNLOCK);
-        
+        PlainChangesLog plainChangesLog = new PlainChangesLogImpl(new ArrayList<ItemState>(),
+                                                                  SystemIdentity.SYSTEM,
+                                                                  ExtendedEvent.UNLOCK);
+
         NodeData lockedNodeData = (NodeData) dataManager.getItemData(list[i]);
         // No item no problem
         if (lockedNodeData != null) {
@@ -172,12 +174,12 @@ public class FileSystemLockPersister implements LockPersister {
 
           if (dataLockIsDeep != null) {
             plainChangesLog.add(ItemState.createDeletedState(new TransientPropertyData(QPath.makeChildPath(lockedNodeData.getQPath(),
-                                                                                                      Constants.JCR_LOCKISDEEP),
-                                                                                  dataLockIsDeep.getIdentifier(),
-                                                                                  0,
-                                                                                  dataLockIsDeep.getType(),
-                                                                                  dataLockIsDeep.getParentIdentifier(),
-                                                                                  dataLockIsDeep.isMultiValued())));
+                                                                                                           Constants.JCR_LOCKISDEEP),
+                                                                                       dataLockIsDeep.getIdentifier(),
+                                                                                       0,
+                                                                                       dataLockIsDeep.getType(),
+                                                                                       dataLockIsDeep.getParentIdentifier(),
+                                                                                       dataLockIsDeep.isMultiValued())));
           }
 
           PropertyData dataLockOwner = (PropertyData) dataManager.getItemData(lockedNodeData,
@@ -185,23 +187,23 @@ public class FileSystemLockPersister implements LockPersister {
                                                                                              0));
           if (dataLockOwner != null)
             plainChangesLog.add(ItemState.createDeletedState(new TransientPropertyData(QPath.makeChildPath(lockedNodeData.getQPath(),
-                                                                                                      Constants.JCR_LOCKOWNER),
-                                                                                  dataLockOwner.getIdentifier(),
-                                                                                  0,
-                                                                                  dataLockOwner.getType(),
-                                                                                  dataLockOwner.getParentIdentifier(),
-                                                                                  dataLockOwner.isMultiValued())));
-          
+                                                                                                           Constants.JCR_LOCKOWNER),
+                                                                                       dataLockOwner.getIdentifier(),
+                                                                                       0,
+                                                                                       dataLockOwner.getType(),
+                                                                                       dataLockOwner.getParentIdentifier(),
+                                                                                       dataLockOwner.isMultiValued())));
+
           if (plainChangesLog.getSize() > 0) {
             transactionChangesLog.addLog(plainChangesLog);
           }
         }
       }
-      
+
       if (transactionChangesLog.getSize() > 0) {
         dataManager.save(transactionChangesLog);
       }
-      
+
       // remove files
       for (int i = 0; i < list.length; i++) {
         File lockFile = new File(rootDir, list[i]);
@@ -219,7 +221,6 @@ public class FileSystemLockPersister implements LockPersister {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
@@ -236,7 +237,6 @@ public class FileSystemLockPersister implements LockPersister {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.picocontainer.Startable#stop()
    */
   public void stop() {

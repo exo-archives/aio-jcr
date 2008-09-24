@@ -27,25 +27,21 @@ import org.exoplatform.services.jcr.usecases.BaseUsecasesTest;
 
 /**
  * 
- * HOW-TO:
-    It's not simply to run this test, as we need differents in nodes UUIDs in data container. 
-    
-    Testing with source distribution.
-    Run test once (like 'mvn clean test') its create repository and register node types.
-    Change source file MultiDbJDBCConnection.java in FIND_NODES_BY_PARENTID variable use 
-    " order by I.ID DESC" instead " order by I.ID ". Be careful to revert changes back after test.
-    And run the repository software again on existed and initialized database (like 'mvn test').
-    On the second phase you'll see repository startup printout with messages like: 
-    '>>> Node types registration cycle X started'
-    '<<< Node types registration cycle X finished'
-    where X is cycle number of node types registration.
-    More one cycle can be. 
-    It's depends on nodetypes count referenced one-by-one with forward declaration of dependent type.
-    
-    Another way to perform test it's change order of nodes returned by data container on getChildNodesData().
-    This can be done by direct change of UUIDs in the data storage (database).
+ * HOW-TO: It's not simply to run this test, as we need differents in nodes UUIDs in data container.
  * 
- * Created by The eXo Platform SAS 
+ * Testing with source distribution. Run test once (like 'mvn clean test') its create repository and
+ * register node types. Change source file MultiDbJDBCConnection.java in FIND_NODES_BY_PARENTID
+ * variable use " order by I.ID DESC" instead " order by I.ID ". Be careful to revert changes back
+ * after test. And run the repository software again on existed and initialized database (like 'mvn
+ * test'). On the second phase you'll see repository startup printout with messages like: '>>> Node
+ * types registration cycle X started' '<<< Node types registration cycle X finished' where X is
+ * cycle number of node types registration. More one cycle can be. It's depends on nodetypes count
+ * referenced one-by-one with forward declaration of dependent type.
+ * 
+ * Another way to perform test it's change order of nodes returned by data container on
+ * getChildNodesData(). This can be done by direct change of UUIDs in the data storage (database).
+ * 
+ * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestNodeTypeRegisterReferenced.java 11907 2008-03-13 15:36:21Z ksm $
@@ -59,7 +55,7 @@ public class TestNodeTypeRegisterReferenced extends BaseUsecasesTest {
     ByteArrayInputStream xmlInput = new ByteArrayInputStream(xmlData);
 
     NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) session.getWorkspace()
-        .getNodeTypeManager();
+                                                                 .getNodeTypeManager();
     ntManager.registerNodeTypes(xmlInput, 0);
 
     String ntName = "exojcrtest:testNodeType__1";
@@ -75,7 +71,7 @@ public class TestNodeTypeRegisterReferenced extends BaseUsecasesTest {
     assertTrue(ntRoot.hasNode(ntName));
     session.getRootNode().addNode("test2", ntName);
     session.save();
-    
+
     ntName = "exojcrtest:testNodeType__3";
     assertNotNull(ntManager.getNodeType(ntName));
     ntRoot = (Node) repository.getSystemSession().getItem(NodeTypeManagerImpl.NODETYPES_ROOT);
@@ -83,7 +79,7 @@ public class TestNodeTypeRegisterReferenced extends BaseUsecasesTest {
     Node test3 = session.getRootNode().addNode("test3", ntName);
     test3.addNode("somePrimaryItem", "exojcrtest:testNodeType_required");
     session.save();
-    
+
     ntName = "exojcrtest:testNodeType__4";
     assertNotNull(ntManager.getNodeType(ntName));
     ntRoot = (Node) repository.getSystemSession().getItem(NodeTypeManagerImpl.NODETYPES_ROOT);

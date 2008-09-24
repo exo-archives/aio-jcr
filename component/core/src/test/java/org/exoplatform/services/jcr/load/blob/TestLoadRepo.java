@@ -57,16 +57,16 @@ public class TestLoadRepo extends BaseStandaloneTest {
     File checkSummValue = new File(System.getProperty("java.io.tmpdir"), "repo.ssh1");
     BufferedOutputStream sshStrream = new BufferedOutputStream(new FileOutputStream(checkSummValue));
     RandomValueNodeGenerator nodeGenerator = new RandomValueNodeGenerator(session.getValueFactory(),
-        6,
-        5,
-        8,
-        5,
-        1024 * 1024);
+                                                                          6,
+                                                                          5,
+                                                                          8,
+                                                                          5,
+                                                                          1024 * 1024);
     TreeGenerator generator = new TreeGenerator(testNode, nodeGenerator);
     generator.genereteTree();
     root.save();
     ValueSsh1Generator ssh1Generator = new ValueSsh1Generator(session.getTransientNodesManager(),
-        sshStrream);
+                                                              sshStrream);
     ((NodeImpl) testNode).getData().accept(ssh1Generator);
     sshStrream.close();
     File exportFile = new File(System.getProperty("java.io.tmpdir"), "testExport.xml");
@@ -74,36 +74,36 @@ public class TestLoadRepo extends BaseStandaloneTest {
     session.exportSystemView(testNode.getPath(), os, false, false);
     os.close();
   }
+
   public void testStub() throws Exception {
-    
+
   }
+
   public void _testImport() throws ItemExistsException,
-      PathNotFoundException,
-      VersionException,
-      ConstraintViolationException,
-      LockException,
-      RepositoryException,
-      IOException,
-      NoSuchAlgorithmException {
+                           PathNotFoundException,
+                           VersionException,
+                           ConstraintViolationException,
+                           LockException,
+                           RepositoryException,
+                           IOException,
+                           NoSuchAlgorithmException {
 
     File importFile = new File(System.getProperty("java.io.tmpdir"), "testExport.xml");
     InputStream is = new FileInputStream(importFile);
 
-    
-    session.getWorkspace().getNamespaceRegistry().registerNamespace("exojcrtest_old", "http://www.exoplatform.org/jcr/exojcrtest");
-    session
-        .importXML(root.getPath(), is, ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
+    session.getWorkspace()
+           .getNamespaceRegistry()
+           .registerNamespace("exojcrtest_old", "http://www.exoplatform.org/jcr/exojcrtest");
+    session.importXML(root.getPath(), is, ImportUUIDBehavior.IMPORT_UUID_COLLISION_REPLACE_EXISTING);
     session.save();
-    
+
     File ssh1File = new File(System.getProperty("java.io.tmpdir"), "repo.ssh1");
     InputStream isSSH1 = new FileInputStream(ssh1File);
 
     ValueSsh1Comparator ssh1Comparator = new ValueSsh1Comparator(session.getTransientNodesManager(),
-        isSSH1);
-    ((NodeImpl)  root.getNode("testNode")).getData().accept(ssh1Comparator);
-  
-    
-    
+                                                                 isSSH1);
+    ((NodeImpl) root.getNode("testNode")).getData().accept(ssh1Comparator);
+
   };
 
 }

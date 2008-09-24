@@ -27,7 +27,7 @@ import org.exoplatform.services.security.IdentityRegistry;
  * @author Gennady Azarenkov
  * @version $Id: PortalAuthenticationPolicy.java 14100 2008-05-12 10:53:47Z gazarenkov $
  */
-public class PortalAuthenticationPolicy extends JAASAuthenticator {  
+public class PortalAuthenticationPolicy extends JAASAuthenticator {
   public PortalAuthenticationPolicy(RepositoryEntry config, IdentityRegistry identityRegistry) {
     super(config, identityRegistry);
   }

@@ -21,22 +21,22 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 04.12.2006
- *
+ * 
  * For testing purpose
- *
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SessionDataManagerTestWrapper.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class SessionDataManagerTestWrapper {
 
   protected final SessionDataManager manager;
-  
+
   public SessionDataManagerTestWrapper(SessionDataManager manager) {
     this.manager = manager;
   }
-  
+
   public ItemReferencePool getItemsPool() {
     return this.manager.getItemsPool();
   }

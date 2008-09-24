@@ -28,26 +28,27 @@ public class NtUnstructuredAsSupertypeTest extends BaseUsecasesTest {
 
   public void testMultiValue() throws Exception {
     Node rootNode = session.getRootNode();
-    Node tNode = rootNode.addNode("testNode","exojcrtest:sub1");
-    tNode.setProperty("multi",new String[]{"v1","v2"});
-    tNode.setProperty("multi",new String[]{"v1"});
+    Node tNode = rootNode.addNode("testNode", "exojcrtest:sub1");
+    tNode.setProperty("multi", new String[] { "v1", "v2" });
+    tNode.setProperty("multi", new String[] { "v1" });
     rootNode.save();
 
-    
   }
+
   public void testSingleValue() throws Exception {
     Node rootNode = session.getRootNode();
-    Node tNode = rootNode.addNode("testNode","exojcrtest:sub1");
-    tNode.setProperty("single","v1");
+    Node tNode = rootNode.addNode("testNode", "exojcrtest:sub1");
+    tNode.setProperty("single", "v1");
     rootNode.save();
   }
+
   public void testSingleandMultiValue() throws Exception {
     Node rootNode = session.getRootNode();
-    Node tNode = rootNode.addNode("testNode","exojcrtest:sub1");
-    tNode.setProperty("single","v1");
-    tNode.setProperty("multi",new String[]{"v1","v2"});
-    tNode.setProperty("multi",new String[]{"v1"});
+    Node tNode = rootNode.addNode("testNode", "exojcrtest:sub1");
+    tNode.setProperty("single", "v1");
+    tNode.setProperty("multi", new String[] { "v1", "v2" });
+    tNode.setProperty("multi", new String[] { "v1" });
     rootNode.save();
   }
-  
+
 }

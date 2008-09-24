@@ -30,14 +30,13 @@ import org.exoplatform.services.jcr.access.SystemIdentity;
 
 public class LockData {
   /**
-   * The time of birth. From this time we start count the time of death. death =
-   * birthday+TIME_OUT;
+   * The time of birth. From this time we start count the time of death. death = birthday+TIME_OUT;
    */
   private long              birthday;
 
   /**
-   * If isDeep is true then the lock applies to this node and all its descendant
-   * nodes; if false, the lock applies only to this, the holding node.
+   * If isDeep is true then the lock applies to this node and all its descendant nodes; if false,
+   * the lock applies only to this, the holding node.
    */
   private final boolean     deep;
 
@@ -52,8 +51,8 @@ public class LockData {
   private final Set<String> lockHolders = new HashSet<String>();
 
   /**
-   * A lock token is a string that uniquely identifies a particular lock and
-   * acts as a “key” allowing a user to alter a locked node.
+   * A lock token is a string that uniquely identifies a particular lock and acts as a “key”
+   * allowing a user to alter a locked node.
    */
   private String            lockToken;
 
@@ -68,17 +67,16 @@ public class LockData {
   private String            owner;
 
   /**
-   * If isSessionScoped is true then this lock will expire upon the expiration
-   * of the current session (either through an automatic or explicit
-   * Session.logout); if false, this lock does not expire until explicitly
-   * unlocked or automatically unlocked due to a implementation-specific
+   * If isSessionScoped is true then this lock will expire upon the expiration of the current
+   * session (either through an automatic or explicit Session.logout); if false, this lock does not
+   * expire until explicitly unlocked or automatically unlocked due to a implementation-specific
    * limitation, such as a timeout.
    */
   private final boolean     sessionScoped;
 
   /**
-   * <B>8.4.9 Timing Out</B> An implementation may unlock any lock at any time
-   * due to implementation-specific criteria, such as time limits on locks.
+   * <B>8.4.9 Timing Out</B> An implementation may unlock any lock at any time due to
+   * implementation-specific criteria, such as time limits on locks.
    */
   private long              timeOut;
 
@@ -116,7 +114,6 @@ public class LockData {
 
   /*
    * (non-Javadoc)
-   * 
    * @see java.lang.Object#equals(java.lang.Object)
    */
   @Override
@@ -164,7 +161,6 @@ public class LockData {
 
   /*
    * (non-Javadoc)
-   * 
    * @see java.lang.Object#hashCode()
    */
   @Override
@@ -214,7 +210,8 @@ public class LockData {
   }
 
   /**
-   * @param the live to set
+   * @param the
+   *          live to set
    */
   public void setLive(boolean live) {
     this.live = live;
@@ -228,7 +225,8 @@ public class LockData {
   }
 
   /**
-   * @param nodeIdentifier the nodeIdentifier to set
+   * @param nodeIdentifier
+   *          the nodeIdentifier to set
    */
   public void setNodeIdentifier(String nodeIdentifier) {
     this.nodeIdentifier = nodeIdentifier;

@@ -55,19 +55,17 @@ import org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl
 import org.exoplatform.services.xml.transform.trax.TRAXTemplatesService;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class GetCommand {
 
   /**
-   * GET content of the resource.
-   * Can be return content of the file.
-   * The content returns in the XML type.
-   * If version parameter is present, returns the content of the version of the resource. 
-   *  
+   * GET content of the resource. Can be return content of the file. The content returns in the XML
+   * type. If version parameter is present, returns the content of the version of the resource.
+   * 
    * @param session
    * @param path
    * @param version
@@ -75,8 +73,11 @@ public class GetCommand {
    * @param range
    * @return
    */
-  public Response get(Session session, String path, String version, String baseURI,
-      List<Range> ranges) {
+  public Response get(Session session,
+                      String path,
+                      String version,
+                      String baseURI,
+                      List<Range> ranges) {
 
     if (null == version) {
       if (path.indexOf("?version=") > 0) {
@@ -91,7 +92,7 @@ public class GetCommand {
 
       WebDavNamespaceContext nsContext = new WebDavNamespaceContext(session);
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
-      
+
       Resource resource;
       InputStream istream;
 
@@ -106,8 +107,7 @@ public class GetCommand {
           istream = ((FileResource) resource).getContentAsStream();
         }
 
-        HierarchicalProperty contentLengthProperty = resource
-            .getProperty(FileResource.GETCONTENTLENGTH);
+        HierarchicalProperty contentLengthProperty = resource.getProperty(FileResource.GETCONTENTLENGTH);
         long contentLength = new Long(contentLengthProperty.getValue());
 
         HierarchicalProperty mimeTypeProperty = resource.getProperty(FileResource.GETCONTENTTYPE);
@@ -115,15 +115,19 @@ public class GetCommand {
 
         // content length is not present
         if (contentLength == 0) {
-          return Response.Builder.ok().header(WebDavHeaders.ACCEPT_RANGES, "bytes").entity(istream,
-              contentType).build();
+          return Response.Builder.ok()
+                                 .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                                 .entity(istream, contentType)
+                                 .build();
         }
 
-        // no ranges request 
+        // no ranges request
         if (ranges.size() == 0) {
-          return Response.Builder.ok().header(WebDavHeaders.CONTENTLENGTH,
-              Long.toString(contentLength)).header(WebDavHeaders.ACCEPT_RANGES, "bytes").entity(
-              istream, contentType).build();
+          return Response.Builder.ok()
+                                 .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
+                                 .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                                 .entity(istream, contentType)
+                                 .build();
         }
 
         // one range
@@ -131,7 +135,8 @@ public class GetCommand {
           Range range = ranges.get(0);
           if (!validateRange(range, contentLength))
             return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-                .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength).build();
+                                   .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
+                                   .build();
 
           long start = range.getStart();
           long end = range.getEnd();
@@ -139,11 +144,14 @@ public class GetCommand {
 
           RangedInputStream rangedInputStream = new RangedInputStream(istream, start, end);
 
-          return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT).header(
-              WebDavHeaders.CONTENTLENGTH, Long.toString(returnedContentLength)).header(
-              WebDavHeaders.ACCEPT_RANGES, "bytes").header(WebDavHeaders.CONTENTRANGE,
-              "bytes " + start + "-" + end + "/" + contentLength).entity(rangedInputStream,
-              contentType).build();
+          return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
+                                 .header(WebDavHeaders.CONTENTLENGTH,
+                                         Long.toString(returnedContentLength))
+                                 .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                                 .header(WebDavHeaders.CONTENTRANGE,
+                                         "bytes " + start + "-" + end + "/" + contentLength)
+                                 .entity(rangedInputStream, contentType)
+                                 .build();
         }
 
         // multipart byte ranges as byte:0-100,80-150,210-300
@@ -151,33 +159,40 @@ public class GetCommand {
           Range range = ranges.get(i);
           if (!validateRange(range, contentLength))
             return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-                .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength).build();
+                                   .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
+                                   .build();
           ranges.set(i, range);
         }
 
         MultipartByterangesEntity mByterangesEntity = new MultipartByterangesEntity(resource,
-            ranges, contentType, contentLength);
+                                                                                    ranges,
+                                                                                    contentType,
+                                                                                    contentLength);
 
-        return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT).header(
-            WebDavHeaders.ACCEPT_RANGES, "bytes").entity(mByterangesEntity,
-            WebDavHeaders.MULTIPART_BYTERANGES + WebDavConst.BOUNDARY).transformer(
-            new SerializableTransformer()).build();
+        return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
+                               .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                               .entity(mByterangesEntity,
+                                       WebDavHeaders.MULTIPART_BYTERANGES + WebDavConst.BOUNDARY)
+                               .transformer(new SerializableTransformer())
+                               .build();
       } else {
-        //Collection processing;
+        // Collection processing;
         resource = new CollectionResource(uri, node, nsContext);
         istream = ((CollectionResource) resource).getContentAsStream(baseURI);
-        
+
         ExoContainer container = ExoContainerContext.getCurrentContainer();
-        TRAXTemplatesService templateService = (TRAXTemplatesService) container
-            .getComponentInstanceOfType(TRAXTemplatesServiceImpl.class);
-        
+        TRAXTemplatesService templateService = (TRAXTemplatesService) container.getComponentInstanceOfType(TRAXTemplatesServiceImpl.class);
+
         Map<String, String> tp = new HashMap<String, String>();
         tp.put(XSLTConstants.XSLT_TEMPLATE, "get.method.template");
-        
+
         XSLT4SourceOutputTransformer transformer = new XSLT4SourceOutputTransformer(templateService);
-        
-        return Response.Builder.ok().entity(new StreamSource(istream), "text/html").transformer(
-            transformer).setTransformerParameters(tp).build();
+
+        return Response.Builder.ok()
+                               .entity(new StreamSource(istream), "text/html")
+                               .transformer(transformer)
+                               .setTransformerParameters(tp)
+                               .build();
 
       }
 

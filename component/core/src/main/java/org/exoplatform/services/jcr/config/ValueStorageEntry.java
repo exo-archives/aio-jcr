@@ -20,20 +20,21 @@ import java.util.ArrayList;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ValueStorageEntry.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class ValueStorageEntry extends MappedParametrizedObjectEntry {
-  
-  private String id;
-  
+
+  private String                             id;
+
   private ArrayList<ValueStorageFilterEntry> filters;
-  
+
   public ValueStorageEntry() {
     super();
   }
-  
+
   public ValueStorageEntry(String type, ArrayList<ValueStorageFilterEntry> params) {
     super(type, params);
   }

@@ -24,8 +24,8 @@ import com.sun.japex.TestCase;
 
 public class WorkspaceRestoreTest extends AbstractGetItemTest {
 
-  private List<Version[]>   versions     = new ArrayList<Version[]>();
-  
+  private List<Version[]> versions = new ArrayList<Version[]>();
+
   /**
    * See JSR-170 for details 8.2.8 Restoring a Group of Versions
    */
@@ -34,15 +34,15 @@ public class WorkspaceRestoreTest extends AbstractGetItemTest {
     Node nodeA = parent.addNode(context.generateUniqueName("versionableNodeA"));
     nodeA.addMixin("mix:versionable");
     parent.save();
-    nodeA.checkin();//v.1
+    nodeA.checkin();// v.1
     nodeA.checkout();
-    
+
     Node nodeB = nodeA.addNode("Subnode B");
     nodeA.save();
     nodeB.addMixin("mix:versionable");
     nodeA.save();
     nodeB.checkin();// B v.1
-    
+
     Node nodeC = nodeA.addNode("Subnode C");
     nodeA.save();
     nodeC.addMixin("mix:versionable");
@@ -51,13 +51,13 @@ public class WorkspaceRestoreTest extends AbstractGetItemTest {
     nodeC.checkout();
     nodeC.setProperty("Property Y", nodeB); // ref to Subnode B
     nodeC.save();
-    Version vC = nodeC.checkin();//C v.2
+    Version vC = nodeC.checkin();// C v.2
     nodeC.checkout();
-    
+
     nodeB.checkout();
     nodeB.setProperty("Property X", nodeC); // ref to Subnode C
     nodeB.save();
-    Version vB = nodeB.checkin();//B v.2
+    Version vB = nodeB.checkin();// B v.2
     nodeB.checkout();
 
     // add some stuff
@@ -65,12 +65,12 @@ public class WorkspaceRestoreTest extends AbstractGetItemTest {
     nodeB.remove();
     nodeC.remove();
     nodeA.save();
-    Version vA = nodeA.checkin();//v.3
+    Version vA = nodeA.checkin();// v.3
     nodeA.checkout();
-    
-    versions.add(new Version[] {vA, vB, vC});
-    
-    addNode(nodeA);    
+
+    versions.add(new Version[] { vA, vB, vC });
+
+    addNode(nodeA);
   }
 
   @Override

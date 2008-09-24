@@ -33,11 +33,11 @@ public abstract class AbstractContentCreatorForImportTest extends AbstractGetObj
     file.deleteOnExit();
     OutputStream outputStream = new FileOutputStream(file);
     context.getSession().exportDocumentView(node.getPath(), outputStream, false, false);
-    
+
     outputStream.close();
     node.remove();
-    
-    InputStream inputStream = new FileInputStream(file); 
+
+    InputStream inputStream = new FileInputStream(file);
     addInputStream(inputStream);// do not forget to add this method to be sure that os is closed
   }
 

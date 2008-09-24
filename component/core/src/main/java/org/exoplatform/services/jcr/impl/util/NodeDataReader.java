@@ -33,8 +33,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 
 /**
- * Created by The eXo Platform SAS
- * 15.05.2006
+ * Created by The eXo Platform SAS 15.05.2006
  * 
  * NodeData bulk reader.
  * 
@@ -43,23 +42,26 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
  */
 public class NodeDataReader extends ItemDataReader {
 
-  private final HashMap<InternalQName, NodeInfo> nodes = new HashMap<InternalQName, NodeInfo>();
-  private final HashMap<InternalQName, NodeInfo> nodesByType = new HashMap<InternalQName, NodeInfo>();
-  
-  private PropertyDataReader nodePropertyReader = null;
-  
-  private final List<NodeData> skiped = new ArrayList<NodeData>();
-  private boolean rememberSkiped = false;
-  
+  private final HashMap<InternalQName, NodeInfo> nodes              = new HashMap<InternalQName, NodeInfo>();
+
+  private final HashMap<InternalQName, NodeInfo> nodesByType        = new HashMap<InternalQName, NodeInfo>();
+
+  private PropertyDataReader                     nodePropertyReader = null;
+
+  private final List<NodeData>                   skiped             = new ArrayList<NodeData>();
+
+  private boolean                                rememberSkiped     = false;
+
   private class NodeInfo {
-    private final InternalQName nodeName;
+    private final InternalQName        nodeName;
+
     private final List<NodeDataReader> childNodesReaders;
 
     NodeInfo(InternalQName nodeName, List<NodeDataReader> childNodesReaders) {
       this.nodeName = nodeName;
       this.childNodesReaders = childNodesReaders;
     }
-    
+
     public InternalQName getNodeName() {
       return nodeName;
     }
@@ -68,55 +70,64 @@ public class NodeDataReader extends ItemDataReader {
       return childNodesReaders;
     }
   }
-  
+
   public NodeDataReader(NodeData node, DataManager dataManager, ValueFactoryImpl valueFactory) {
     super(node, dataManager, valueFactory);
   }
-  
+
   public NodeDataReader forNodesByType(InternalQName name) {
     nodesByType.put(name, new NodeInfo(name, new ArrayList<NodeDataReader>()));
     return this;
   }
-  
+
   public NodeDataReader forNode(InternalQName name) {
     nodes.put(name, new NodeInfo(name, new ArrayList<NodeDataReader>()));
     return this;
   }
-  
+
   public List<NodeDataReader> getNodes(InternalQName name) throws PathNotFoundException {
     List<NodeDataReader> nr = nodes.get(name).getChildNodesReaders();
-    if (nr.size()>0)
+    if (nr.size() > 0)
       return nr;
-    throw new PathNotFoundException("Node with name " + parent.getQPath().getAsString() 
+    throw new PathNotFoundException("Node with name " + parent.getQPath().getAsString()
         + name.getAsString() + " not found");
   }
-  
+
   public List<NodeDataReader> getNodesByType(InternalQName typeName) throws PathNotFoundException {
     List<NodeDataReader> nr = nodesByType.get(typeName).getChildNodesReaders();
-    if (nr.size()>0)
+    if (nr.size() > 0)
       return nr;
-    throw new PathNotFoundException("Nodes with type " + typeName.getAsString() + " not found. Parent "
-        + parent.getQPath().getAsString());
+    throw new PathNotFoundException("Nodes with type " + typeName.getAsString()
+        + " not found. Parent " + parent.getQPath().getAsString());
   }
-  
-  public Value getPropertyValue(InternalQName name) throws ValueFormatException, PathNotFoundException, RepositoryException {
+
+  public Value getPropertyValue(InternalQName name) throws ValueFormatException,
+                                                   PathNotFoundException,
+                                                   RepositoryException {
     return nodePropertyReader.getPropertyValue(name);
   }
-  
-  public ValueData getPropertyValueData(InternalQName name) throws ValueFormatException, PathNotFoundException, RepositoryException {
+
+  public ValueData getPropertyValueData(InternalQName name) throws ValueFormatException,
+                                                           PathNotFoundException,
+                                                           RepositoryException {
     return nodePropertyReader.getPropertyValueData(name);
   }
-  
-  public List<Value> getPropertyValues(InternalQName name) throws ValueFormatException, PathNotFoundException, RepositoryException {
+
+  public List<Value> getPropertyValues(InternalQName name) throws ValueFormatException,
+                                                          PathNotFoundException,
+                                                          RepositoryException {
     return nodePropertyReader.getPropertyValues(name);
   }
-  
-  public List<ValueData> getPropertyValueDatas(InternalQName name) throws ValueFormatException, PathNotFoundException, RepositoryException {
+
+  public List<ValueData> getPropertyValueDatas(InternalQName name) throws ValueFormatException,
+                                                                  PathNotFoundException,
+                                                                  RepositoryException {
     return nodePropertyReader.getPropertyValueDatas(name);
   }
-  
+
   /**
    * Read node properties
+   * 
    * @param name
    * @param type
    * @param multiValued
@@ -125,10 +136,10 @@ public class NodeDataReader extends ItemDataReader {
   public PropertyDataReader forProperty(InternalQName name, int type) {
     if (nodePropertyReader == null) {
       nodePropertyReader = new PropertyDataReader(parent, dataManager, valueFactory);
-    } 
+    }
     return nodePropertyReader.forProperty(name, type);
   }
-  
+
   public void read() throws RepositoryException {
 
     cleanReaders();
@@ -138,7 +149,7 @@ public class NodeDataReader extends ItemDataReader {
     }
 
     if (nodes.size() > 0 || nodesByType.size() > 0 || rememberSkiped) {
-      
+
       List<NodeData> ndNodes = dataManager.getChildNodesData(parent);
       for (NodeData node : ndNodes) {
 
@@ -164,17 +175,17 @@ public class NodeDataReader extends ItemDataReader {
       }
     }
   }
-  
+
   private void cleanReaders() {
-    for (Map.Entry<InternalQName, NodeInfo> nodesEntry: nodes.entrySet()) {
+    for (Map.Entry<InternalQName, NodeInfo> nodesEntry : nodes.entrySet()) {
       nodesEntry.getValue().getChildNodesReaders().clear();
     }
-    for (Map.Entry<InternalQName, NodeInfo> nodesEntry: nodesByType.entrySet()) {
+    for (Map.Entry<InternalQName, NodeInfo> nodesEntry : nodesByType.entrySet()) {
       nodesEntry.getValue().getChildNodesReaders().clear();
     }
     skiped.clear();
   }
-  
+
   public void clean() {
     nodes.clear();
     nodesByType.clear();

@@ -24,23 +24,26 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 
 /**
- * for node operations like addNode, checkin 
+ * for node operations like addNode, checkin
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class SetDCMetadataAction implements Action{
+public class SetDCMetadataAction implements Action {
 
   public boolean execute(Context ctx) throws Exception {
-    NodeImpl node = (NodeImpl)ctx.get("currentItem");
+    NodeImpl node = (NodeImpl) ctx.get("currentItem");
     if (node.canAddMixin("dc:elementSet"))
       node.addMixin("dc:elementSet");
     node.setProperty("dc:creator", new String[] { node.getSession().getUserID() });
     ValueFactoryImpl vf = node.getSession().getValueFactory();
-      
-    node.setProperty("dc:date", new Value[] { vf.createValue(       
-        node.getSession().getTransientNodesManager()
-        .getTransactManager().getStorageDataManager().getCurrentTime())});
-    
+
+    node.setProperty("dc:date", new Value[] { vf.createValue(node.getSession()
+                                                                 .getTransientNodesManager()
+                                                                 .getTransactManager()
+                                                                 .getStorageDataManager()
+                                                                 .getCurrentTime()) });
+
     return false;
   }
 

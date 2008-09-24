@@ -30,25 +30,23 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * This class includes open file an folder tests
  * 
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
 
 public class testCreateFileFolder extends BaseStandaloneTest {
-  protected static Log logger = ExoLogger
-      .getLogger("jcr.JCRTest.testCreateFileFolder");
+  protected static Log logger = ExoLogger.getLogger("jcr.JCRTest.testCreateFileFolder");
 
-  protected String servername;
+  protected String     servername;
 
   public void setUp() throws Exception {
     super.setUp();
 
     // get realy used server name, Win32ServerName may not be initialized
-    servername = serv.getConfiguration().getWin32ServerName() != null ? serv
-        .getConfiguration().getWin32ServerName() : serv.getConfiguration()
-        .getServerName();
+    servername = serv.getConfiguration().getWin32ServerName() != null
+        ? serv.getConfiguration().getWin32ServerName()
+        : serv.getConfiguration().getServerName();
   }
 
   /**
@@ -59,18 +57,15 @@ public class testCreateFileFolder extends BaseStandaloneTest {
   public void testCreateFile() throws Exception {
 
     String newname = "newfile.dat";
-    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     // assertFalse(newfile.exists());
 
     newfile.createNewFile();
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     Node n = ((Node) s.getItem("/" + newname));
@@ -88,18 +83,15 @@ public class testCreateFileFolder extends BaseStandaloneTest {
   public void testCreateFolder() throws Exception {
 
     String newname = "newfolder";
-    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     // assertFalse(newfile.exists());
 
     newfile.mkdir(); // coreprotocol; Deirectorycreate command not NT_CREATE
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
 
     s.refresh(false);
 
@@ -120,10 +112,8 @@ public class testCreateFileFolder extends BaseStandaloneTest {
     String newname = "newfolder";
 
     Session s = null;
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     Node root = s.getRootNode();
@@ -131,8 +121,7 @@ public class testCreateFileFolder extends BaseStandaloneTest {
     root.addNode(newname);
     root.save();
 
-    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     // assertFalse(newfile.exists());
 
@@ -166,16 +155,13 @@ public class testCreateFileFolder extends BaseStandaloneTest {
 
     Session s = null;
 
-    Credentials credentials = new CredentialsImpl("admin", "admin"
-        .toCharArray());
-    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(
-        credentials, "ws");
+    Credentials credentials = new CredentialsImpl("admin", "admin".toCharArray());
+    s = (SessionImpl) (repositoryService.getDefaultRepository()).login(credentials, "ws");
     s.refresh(false);
 
     String newname = "newfile.dat";
 
-    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" +
-        newname);
+    SmbFile newfile = new SmbFile("smb://" + user + servername + "/ws/" + newname);
 
     s.getRootNode().addNode(newname);
 

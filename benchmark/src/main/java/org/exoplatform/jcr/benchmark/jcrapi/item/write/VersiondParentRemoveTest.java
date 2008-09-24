@@ -27,10 +27,11 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class VersiondParentRemoveTest extends ItemRemoveTest{
+public class VersiondParentRemoveTest extends ItemRemoveTest {
   /**
    * Class logger.
    */

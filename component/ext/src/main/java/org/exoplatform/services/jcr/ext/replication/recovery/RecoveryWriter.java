@@ -43,14 +43,15 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class RecoveryWriter extends AbstractFSAccess {
 
-  protected static Log      log = ExoLogger.getLogger("ext.RecoveryWriter");
-  
-  private final long        REMOVER_TIMEOUT = 2* 60 * 60 * 1000; // 2 hours
+  protected static Log      log             = ExoLogger.getLogger("ext.RecoveryWriter");
+
+  private final long        REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;                       // 2 hours
 
   private final FileCleaner fileCleaner;
 
@@ -62,8 +63,10 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   private FileRemover       fileRemover;
 
-  public RecoveryWriter(File recoveryDir, FileNameFactory fileNameFactory, FileCleaner fileCleaner,
-      String ownName) throws IOException {
+  public RecoveryWriter(File recoveryDir,
+                        FileNameFactory fileNameFactory,
+                        FileCleaner fileCleaner,
+                        String ownName) throws IOException {
     this.fileCleaner = fileCleaner;
     this.recoveryDir = recoveryDir;
     this.fileNameFactory = fileNameFactory;
@@ -76,8 +79,8 @@ public class RecoveryWriter extends AbstractFSAccess {
     fileRemover.start();
   }
 
-  public String save(PendingConfirmationChengesLog confirmationChengesLog)
-      throws FileNotFoundException, IOException {
+  public String save(PendingConfirmationChengesLog confirmationChengesLog) throws FileNotFoundException,
+                                                                          IOException {
 
     if (confirmationChengesLog.getNotConfirmationList().size() > 0) {
       String fileName = fileNameFactory.getTimeStampName(confirmationChengesLog.getTimeStamp())
@@ -93,8 +96,8 @@ public class RecoveryWriter extends AbstractFSAccess {
       // save data
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
 
-      writeExternal(objectOutputStream, (TransactionChangesLog) confirmationChengesLog
-          .getChangesLog());
+      writeExternal(objectOutputStream,
+                    (TransactionChangesLog) confirmationChengesLog.getChangesLog());
 
       objectOutputStream.flush();
       objectOutputStream.close();
@@ -111,7 +114,7 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   synchronized private void writeNotConfirmationInfo(File dataFile,
-      List<String> participantsClusterList) throws IOException {
+                                                     List<String> participantsClusterList) throws IOException {
     for (String name : participantsClusterList) {
       File metaDataFile = new File(recoveryDir.getCanonicalPath() + File.separator + name);
 
@@ -126,8 +129,7 @@ public class RecoveryWriter extends AbstractFSAccess {
     }
   }
 
-  private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog)
-      throws IOException {
+  private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
 
@@ -340,24 +342,24 @@ class FileRemover extends Thread {
           HashMap<String, String> map = getAllPendingBinaryFilePath();
 
           List<File> savedBinaryFileList = getAllSavedBinaryFile(recoveryDataDir);
-          
+
           for (File f : savedBinaryFileList)
             if (needRemoveFilesName.contains(f.getName()) && !map.containsKey(f.getName())) {
               fileCleaner.addFile(f);
-              
+
               if (log.isDebugEnabled())
                 log.debug("Remove file :" + f.getCanonicalPath());
             }
-          
-          // remove *.remove files  
-          if (savedBinaryFileList.size() == 0) 
+
+          // remove *.remove files
+          if (savedBinaryFileList.size() == 0)
             for (File f : fArray) {
               fileCleaner.addFile(f);
-              
+
               if (log.isDebugEnabled())
                 log.debug("Remove file :" + f.getCanonicalPath());
             }
-          
+
         }
       } catch (IOException e) {
         log.error("FileRemover error :", e);

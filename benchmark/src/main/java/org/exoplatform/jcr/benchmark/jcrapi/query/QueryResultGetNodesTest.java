@@ -31,7 +31,7 @@ import com.sun.japex.TestCase;
 public class QueryResultGetNodesTest extends AbstractQueryTest {
 
   private QueryResult queryResult = null;
-  
+
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);

@@ -35,7 +35,8 @@ import org.exoplatform.frameworks.jcr.command.JCRAppContext;
 public class GetChildPropertiesCommand implements Command {
 
   private String currentNodeKey = DefaultKeys.CURRENT_NODE;
-  private String resultKey = DefaultKeys.RESULT;
+
+  private String resultKey      = DefaultKeys.RESULT;
 
   public boolean execute(Context context) throws Exception {
     Session session = ((JCRAppContext) context).getSession();

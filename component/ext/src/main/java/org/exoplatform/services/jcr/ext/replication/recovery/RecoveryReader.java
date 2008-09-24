@@ -39,7 +39,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class RecoveryReader extends AbstractFSAccess {
@@ -55,7 +56,8 @@ public class RecoveryReader extends AbstractFSAccess {
   }
 
   public TransactionChangesLog getChangesLog(String filePath) throws FileNotFoundException,
-      IOException, ClassNotFoundException {
+                                                             IOException,
+                                                             ClassNotFoundException {
     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
     TransactionChangesLog tcl = readExternal(ois);
 
@@ -64,7 +66,7 @@ public class RecoveryReader extends AbstractFSAccess {
   }
 
   private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
-      ClassNotFoundException {
+                                                                  ClassNotFoundException {
     int changesLogType = in.readInt();
 
     TransactionChangesLog transactionChangesLog = null;
@@ -97,7 +99,9 @@ public class RecoveryReader extends AbstractFSAccess {
       }
 
       PendingChangesLog pendingChangesLog = new PendingChangesLog(transactionChangesLog,
-          listFixupStreams, listFiles, fileCleaner);
+                                                                  listFixupStreams,
+                                                                  listFiles,
+                                                                  fileCleaner);
 
       pendingChangesLog.restore();
 

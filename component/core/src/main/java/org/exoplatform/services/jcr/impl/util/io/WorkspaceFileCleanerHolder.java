@@ -15,21 +15,22 @@
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
 package org.exoplatform.services.jcr.impl.util.io;
+
 /**
- * Created by The eXo Platform SAS. <br/>
- * per workspace container file cleaner holder object
+ * Created by The eXo Platform SAS. <br/> per workspace container file cleaner holder object
+ * 
  * @author Gennady Azarenkov
  * @version $Id: WorkspaceFileCleanerHolder.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class WorkspaceFileCleanerHolder {
-  
+
   private final FileCleaner fileCleaner;
-  
+
   public WorkspaceFileCleanerHolder() {
     this.fileCleaner = new FileCleaner();
   }
-  
+
   public FileCleaner getFileCleaner() {
     return fileCleaner;
   }

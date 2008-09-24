@@ -22,7 +22,8 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 /**
- * Created by The eXo Platform SARL .<br/> 
+ * Created by The eXo Platform SARL .<br/>
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -30,24 +31,25 @@ import javax.xml.namespace.QName;
 public class TestWebDavService extends BaseStandaloneWebDavTest {
 
   public void testService() throws Exception {
-  	assertNotNull(webdavService);
+    assertNotNull(webdavService);
   }
 
   public void testJCR() throws Exception {
-  	WebDavServiceImpl serv = (WebDavServiceImpl)webdavService;
-  	//System.out.println("------------->"
-  	assertEquals("/file1/file2", serv.path("ws/file1/file2"));
-  	assertEquals("ws", serv.workspaceName("ws/file1/file2"));
-  	assertEquals(0, serv.lockTokens(null, null).size());
-  	
-  	Session internalSession = serv.session(repository.getConfiguration().getName(),
-  			 session.getWorkspace().getName(), serv.lockTokens(null, null));
-  	assertNotNull(internalSession);
-  	assertNotNull(internalSession.getRootNode());
+    WebDavServiceImpl serv = (WebDavServiceImpl) webdavService;
+    // System.out.println("------------->"
+    assertEquals("/file1/file2", serv.path("ws/file1/file2"));
+    assertEquals("ws", serv.workspaceName("ws/file1/file2"));
+    assertEquals(0, serv.lockTokens(null, null).size());
+
+    Session internalSession = serv.session(repository.getConfiguration().getName(),
+                                           session.getWorkspace().getName(),
+                                           serv.lockTokens(null, null));
+    assertNotNull(internalSession);
+    assertNotNull(internalSession.getRootNode());
   }
-	
+
   public void testQName() throws Exception {
-  	QName name = new QName("DAV:", "test");
-  	assertEquals(XMLConstants.DEFAULT_NS_PREFIX, name.getPrefix());
+    QName name = new QName("DAV:", "test");
+    assertEquals(XMLConstants.DEFAULT_NS_PREFIX, name.getPrefix());
   }
 }

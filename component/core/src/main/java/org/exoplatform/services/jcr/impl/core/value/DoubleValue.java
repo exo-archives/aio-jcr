@@ -29,14 +29,14 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
  * a double value impl.
- *
+ * 
  * @author Gennady Azarenkov
  */
 public class DoubleValue extends BaseValue {
 
   public static final int TYPE = PropertyType.DOUBLE;
 
-  public DoubleValue(double dbl)  throws IOException  {
+  public DoubleValue(double dbl) throws IOException {
     super(TYPE, new TransientValueData(dbl));
   }
 
@@ -76,8 +76,9 @@ public class DoubleValue extends BaseValue {
   /**
    * @see Value#getBoolean
    */
-  public boolean getBoolean() throws ValueFormatException, IllegalStateException,
-      RepositoryException {
+  public boolean getBoolean() throws ValueFormatException,
+                             IllegalStateException,
+                             RepositoryException {
     throw new ValueFormatException("conversion to boolean failed: inconvertible types");
   }
 }

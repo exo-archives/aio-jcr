@@ -21,7 +21,8 @@ import org.exoplatform.services.command.action.Action;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: AddOwneableAction.java 12017 2007-01-17 16:26:04Z ksm $
  */
@@ -29,8 +30,8 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 public class AddOwneableAction implements Action {
 
   public boolean execute(Context ctx) throws Exception {
-    NodeImpl node = (NodeImpl)ctx.get("currentItem");
-    if(node != null && node.canAddMixin("exo:owneable")){
+    NodeImpl node = (NodeImpl) ctx.get("currentItem");
+    if (node != null && node.canAddMixin("exo:owneable")) {
       node.addMixin("exo:owneable");
     }
     return false;

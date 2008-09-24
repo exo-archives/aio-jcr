@@ -32,18 +32,22 @@ import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase
  * Created by The eXo Platform SAS
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ConcurrentModificationTestCase.java 111 2008-11-11 11:11:11Z
- *          rainf0x $
+ * @version $Id: ConcurrentModificationTestCase.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
-  public ConcurrentModificationTestCase(RepositoryService repositoryService, String reposytoryName,
-      String workspaceName, String userName, String password) {
+  public ConcurrentModificationTestCase(RepositoryService repositoryService,
+                                        String reposytoryName,
+                                        String workspaceName,
+                                        String userName,
+                                        String password) {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
   }
 
-  public StringBuffer createContent(String repoPath, String fileName, Long iterations,
-      String simpleContent) {
+  public StringBuffer createContent(String repoPath,
+                                    String fileName,
+                                    Long iterations,
+                                    String simpleContent) {
     StringBuffer sb = new StringBuffer();
 
     log.info("ReplicationTestService.createContent run");
@@ -65,8 +69,8 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
       contentNode.setProperty("jcr:encoding", "UTF-8");
       contentNode.setProperty("jcr:data", new FileInputStream(tempFile));
       contentNode.setProperty("jcr:mimeType", "application/octet-stream");
-      contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(
-          Calendar.getInstance()));
+      contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                         .createValue(Calendar.getInstance()));
 
       session.save();
 
@@ -84,20 +88,21 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
-  public StringBuffer compareData(String srcRepoPath, String srcFileName, String destRepoPath,
-      String destFileName) {
+  public StringBuffer compareData(String srcRepoPath,
+                                  String srcFileName,
+                                  String destRepoPath,
+                                  String destFileName) {
     StringBuffer sb = new StringBuffer();
 
     try {
       Node srcNode = ((Node) session.getItem(getNormalizePath(srcRepoPath))).getNode(srcFileName);
-      Node destNode = ((Node) session.getItem(getNormalizePath(destRepoPath)))
-          .getNode(destFileName);
+      Node destNode = ((Node) session.getItem(getNormalizePath(destRepoPath))).getNode(destFileName);
 
       InputStream srcStream = srcNode.getNode("jcr:content").getProperty("jcr:data").getStream();
       InputStream destStream = destNode.getNode("jcr:content").getProperty("jcr:data").getStream();
 
       compareStream(srcStream, destStream);
-      
+
       log.info("ReplicationTestService.startThread run");
       sb.append("ok");
     } catch (Exception e) {
@@ -108,14 +113,16 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
-  public StringBuffer startThreadUpdater(String srcRepoPath, String srcFileName, String destRepoPath,
-      String destFileName, Long iterations) {
+  public StringBuffer startThreadUpdater(String srcRepoPath,
+                                         String srcFileName,
+                                         String destRepoPath,
+                                         String destFileName,
+                                         Long iterations) {
     StringBuffer sb = new StringBuffer();
 
     try {
       Node srcNode = ((Node) session.getItem(getNormalizePath(srcRepoPath))).getNode(srcFileName);
-      Node destNode = ((Node) session.getItem(getNormalizePath(destRepoPath)))
-          .getNode(destFileName);
+      Node destNode = ((Node) session.getItem(getNormalizePath(destRepoPath))).getNode(destFileName);
 
       DataUpdaterThread updaterThread = new DataUpdaterThread(srcNode, destNode, iterations);
       updaterThread.start();
@@ -149,14 +156,16 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
       try {
         destPath = destNode.getPath();
         for (int i = 0; i < iterations; i++) {
-          InputStream srcStream = srcNode.getNode("jcr:content").getProperty("jcr:data")
-              .getStream();
+          InputStream srcStream = srcNode.getNode("jcr:content")
+                                         .getProperty("jcr:data")
+                                         .getStream();
 
           destNode.getNode("jcr:content").setProperty("jcr:data", srcStream);
           session.save();
 
           log.info(Calendar.getInstance().getTime().toGMTString() + " : ");
-          log.info(this.getName() + " : " + "has been updated the 'nt:file' " + destPath + " : iterations == " + i);
+          log.info(this.getName() + " : " + "has been updated the 'nt:file' " + destPath
+              + " : iterations == " + i);
         }
       } catch (RepositoryException e) {
         log.error("Can't update the 'nt:file' " + destPath + " : ", e);

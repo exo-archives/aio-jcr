@@ -18,29 +18,28 @@ package org.exoplatform.services.jcr.core;
 
 import javax.jcr.PropertyType;
 
-
 /**
- * Created by The eXo Platform SAS.<br/>
- * Extension for JSR-170 Property Types
+ * Created by The eXo Platform SAS.<br/> Extension for JSR-170 Property Types
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ExtendedPropertyType.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class ExtendedPropertyType {
-  
+
   /**
    * Additional property type for exo permission properties.
    */
   public static final int PERMISSION = 100;
 
   public static String nameFromValue(int type) {
-    if(type == PERMISSION)
+    if (type == PERMISSION)
       return "Permission";
     return PropertyType.nameFromValue(type);
   }
 
   public static int valueFromName(String name) {
-    if(name.equals("Permission"))
+    if (name.equals("Permission"))
       return PERMISSION;
     return PropertyType.valueFromName(name);
   }

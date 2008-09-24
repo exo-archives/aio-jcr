@@ -26,8 +26,10 @@ import org.apache.commons.chain.Context;
  */
 public abstract class ActionInfo {
   public abstract int getEventType();
-  public abstract void execute(Context ctx) throws RepositoryException; 
-  public void tearDown(Context ctx) throws RepositoryException{
+
+  public abstract void execute(Context ctx) throws RepositoryException;
+
+  public void tearDown(Context ctx) throws RepositoryException {
 
   }
 }

@@ -46,37 +46,38 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: AddMetadataAction.java 12539 2007-02-04 19:15:49Z brice $
  */
 
 public class AddMetadataAction implements Action {
-  
+
   private static Log log = ExoLogger.getLogger("ext.AddMetadataAction");
 
   public boolean execute(Context ctx) throws Exception {
 
-    PropertyImpl property = (PropertyImpl)ctx.get("currentItem");
-    NodeImpl parent = (NodeImpl)property.getParent();
-    if(!parent.isNodeType("nt:resource"))
+    PropertyImpl property = (PropertyImpl) ctx.get("currentItem");
+    NodeImpl parent = (NodeImpl) property.getParent();
+    if (!parent.isNodeType("nt:resource"))
       throw new Exception("incoming node is not nt:resource type");
     InputStream data = null;
     String mimeType = null;
-    
-    if(property.getInternalName().equals(Constants.JCR_DATA)) {
-      data = ((TransientPropertyData)property.getData()).getValues().get(0).getAsStream();
-        try {
-          mimeType = parent.getProperty("jcr:mimeType").getString();
-        } catch (PathNotFoundException e) {
-          return false;
-        }
-    } else if(property.getInternalName().equals(Constants.JCR_MIMETYPE)) {
+
+    if (property.getInternalName().equals(Constants.JCR_DATA)) {
+      data = ((TransientPropertyData) property.getData()).getValues().get(0).getAsStream();
+      try {
+        mimeType = parent.getProperty("jcr:mimeType").getString();
+      } catch (PathNotFoundException e) {
+        return false;
+      }
+    } else if (property.getInternalName().equals(Constants.JCR_MIMETYPE)) {
       mimeType = property.getString();
       try {
-        PropertyImpl propertyImpl = (PropertyImpl)parent.getProperty("jcr:data");
-        data = ((TransientPropertyData)propertyImpl.getData()).getValues().get(0).getAsStream();
-        //data = parent.getProperty("jcr:data").getStream();
+        PropertyImpl propertyImpl = (PropertyImpl) parent.getProperty("jcr:data");
+        data = ((TransientPropertyData) propertyImpl.getData()).getValues().get(0).getAsStream();
+        // data = parent.getProperty("jcr:data").getStream();
       } catch (PathNotFoundException e) {
         return false;
       }
@@ -85,14 +86,13 @@ public class AddMetadataAction implements Action {
       return false;
     }
 
-    if(!parent.isNodeType("dc:elementSet"))
+    if (!parent.isNodeType("dc:elementSet"))
       parent.addMixin("dc:elementSet");
-    
-    DocumentReaderService readerService = (DocumentReaderService)
-    ((ExoContainer)ctx.get("exocontainer")).getComponentInstanceOfType(DocumentReaderService.class);
-    if(readerService == null)
+
+    DocumentReaderService readerService = (DocumentReaderService) ((ExoContainer) ctx.get("exocontainer")).getComponentInstanceOfType(DocumentReaderService.class);
+    if (readerService == null)
       throw new NullPointerException("No DocumentReaderService configured for current container");
-    
+
     Properties props = new Properties();
     try {
       props = readerService.getDocumentReader(mimeType).getProperties(data);
@@ -100,38 +100,44 @@ public class AddMetadataAction implements Action {
       log.debug(e.getMessage());
     }
     Iterator entries = props.entrySet().iterator();
-    while(entries.hasNext()) {
-      Entry entry = (Entry)entries.next();
-      QName qname = (QName)entry.getKey();
-      JCRName jcrName = property.getSession().getLocationFactory().createJCRName(new InternalQName(qname.getNamespace(), qname.getName()));
-      
-      PropertyDefinitions pds = parent.getSession().getWorkspace().getNodeTypeManager().findPropertyDefinitions(
-          jcrName.getInternalName(), 
-          ((NodeData) parent.getData()).getPrimaryTypeName(), 
-          ((NodeData) parent.getData()).getMixinTypeNames());
-      if(pds.getDefinition(true) != null) {
-        Value[] values = {createValue(entry.getValue(), property.getSession().getValueFactory())};
+    while (entries.hasNext()) {
+      Entry entry = (Entry) entries.next();
+      QName qname = (QName) entry.getKey();
+      JCRName jcrName = property.getSession()
+                                .getLocationFactory()
+                                .createJCRName(new InternalQName(qname.getNamespace(),
+                                                                 qname.getName()));
+
+      PropertyDefinitions pds = parent.getSession()
+                                      .getWorkspace()
+                                      .getNodeTypeManager()
+                                      .findPropertyDefinitions(jcrName.getInternalName(),
+                                                               ((NodeData) parent.getData()).getPrimaryTypeName(),
+                                                               ((NodeData) parent.getData()).getMixinTypeNames());
+      if (pds.getDefinition(true) != null) {
+        Value[] values = { createValue(entry.getValue(), property.getSession().getValueFactory()) };
         parent.setProperty(jcrName.getAsString(), values);
       } else {
-        parent.setProperty(jcrName.getAsString(), createValue(entry.getValue(), property.getSession().getValueFactory()));
+        parent.setProperty(jcrName.getAsString(), createValue(entry.getValue(),
+                                                              property.getSession()
+                                                                      .getValueFactory()));
       }
     }
 
     return false;
   }
 
-  
   private Value createValue(Object obj, ValueFactory factory) throws ValueFormatException {
-    if(obj instanceof String)
-      return factory.createValue((String)obj);
-    else if(obj instanceof Calendar)
-      return factory.createValue((Calendar)obj);
-    else if(obj instanceof Date) {
+    if (obj instanceof String)
+      return factory.createValue((String) obj);
+    else if (obj instanceof Calendar)
+      return factory.createValue((Calendar) obj);
+    else if (obj instanceof Date) {
       Calendar cal = Calendar.getInstance();
-      cal.setTime((Date)obj);
+      cal.setTime((Date) obj);
       return factory.createValue(cal);
     } else {
-      throw new ValueFormatException("Unsupported value type "+obj.getClass());
+      throw new ValueFormatException("Unsupported value type " + obj.getClass());
     }
   }
 

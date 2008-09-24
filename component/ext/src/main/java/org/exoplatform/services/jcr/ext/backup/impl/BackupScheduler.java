@@ -55,7 +55,7 @@ import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua 10.01.2008
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupScheduler.java 760 2008-02-07 15:08:07Z pnedonosko $
@@ -90,7 +90,11 @@ public class BackupScheduler {
 
     long                     incrPeriod;
 
-    TaskConfig(BackupConfig backupConfig, Date startTime, Date stopTime, long chainPeriod, long incrPeriod) {
+    TaskConfig(BackupConfig backupConfig,
+               Date startTime,
+               Date stopTime,
+               long chainPeriod,
+               long incrPeriod) {
       this.backupConfig = backupConfig;
       this.startTime = startTime;
       this.stopTime = stopTime;
@@ -98,7 +102,10 @@ public class BackupScheduler {
       this.incrPeriod = incrPeriod;
     }
 
-    TaskConfig(File taskFile) throws IOException, XMLStreamException, FactoryConfigurationError, ParseException {
+    TaskConfig(File taskFile) throws IOException,
+        XMLStreamException,
+        FactoryConfigurationError,
+        ParseException {
       read(taskFile);
     }
 
@@ -120,7 +127,10 @@ public class BackupScheduler {
       w.writeEndLog();
     }
 
-    void read(File taskFile) throws IOException, XMLStreamException, FactoryConfigurationError, ParseException {
+    void read(File taskFile) throws IOException,
+                            XMLStreamException,
+                            FactoryConfigurationError,
+                            ParseException {
       TaskConfigReader r = new TaskConfigReader(taskFile);
       r.readLogFile();
 
@@ -180,8 +190,8 @@ public class BackupScheduler {
           throw new BackupSchedulerException("Scheduler task skipped due to the error. Backup log file not exists "
               + _backupLog.getAbsolutePath() + ". Task file " + taskFile.getAbsolutePath());
       } else
-        throw new BackupSchedulerException("Scheduler task skipped due to bad configured task file " + taskFile.getAbsolutePath()
-            + ". File doesn't contains configuration line.");
+        throw new BackupSchedulerException("Scheduler task skipped due to bad configured task file "
+            + taskFile.getAbsolutePath() + ". File doesn't contains configuration line.");
     }
 
     @Deprecated
@@ -191,7 +201,8 @@ public class BackupScheduler {
         FileWriter fw = new FileWriter(taskFile);
         fw.append("LogPath,StartTime,StopTime,ChainPeriod,IncrPeriod\n");
         fw.append(taskFile.getAbsolutePath() + "," + datef.format(startTime) + ","
-            + (stopTime != null ? datef.format(stopTime) : "null") + "," + chainPeriod + "," + incrPeriod);
+            + (stopTime != null ? datef.format(stopTime) : "null") + "," + chainPeriod + ","
+            + incrPeriod);
         fw.close();
         return taskFile;
       }
@@ -207,7 +218,9 @@ public class BackupScheduler {
 
       final XMLStreamWriter  writer;
 
-      TaskConfigWriter(File logFile) throws FileNotFoundException, XMLStreamException, FactoryConfigurationError {
+      TaskConfigWriter(File logFile) throws FileNotFoundException,
+          XMLStreamException,
+          FactoryConfigurationError {
         this.logFile = new FileOutputStream(logFile);
 
         writer = XMLOutputFactory.newInstance().createXMLStreamWriter(this.logFile);
@@ -227,7 +240,6 @@ public class BackupScheduler {
         writer.writeStartElement("incremental-backup-type");
         writer.writeCharacters(backup.getIncrementalBackupType());
         writer.writeEndElement();
-        
 
         if (config.getBackupDir() != null) {
           writer.writeStartElement("backup-dir");
@@ -246,7 +258,7 @@ public class BackupScheduler {
           writer.writeCharacters(config.getWorkspace());
           writer.writeEndElement();
         }
-        
+
         writer.writeStartElement("incremental-job-period");
         writer.writeCharacters(Long.toString(config.getIncrementalJobPeriod()));
         writer.writeEndElement();
@@ -306,7 +318,9 @@ public class BackupScheduler {
 
       long                  incrPeriod;
 
-      TaskConfigReader(File logFile) throws FileNotFoundException, XMLStreamException, FactoryConfigurationError {
+      TaskConfigReader(File logFile) throws FileNotFoundException,
+          XMLStreamException,
+          FactoryConfigurationError {
         this.logFile = new FileInputStream(logFile);
 
         this.reader = XMLInputFactory.newInstance().createXMLStreamReader(this.logFile);
@@ -338,7 +352,9 @@ public class BackupScheduler {
         }
       }
 
-      private void readTaskConfig() throws XMLStreamException, MalformedURLException, ParseException {
+      private void readTaskConfig() throws XMLStreamException,
+                                   MalformedURLException,
+                                   ParseException {
         boolean endJobEntryInfo = false;
 
         while (!endJobEntryInfo) {
@@ -392,7 +408,7 @@ public class BackupScheduler {
 
             if (name.equals("workspace"))
               conf.setWorkspace(readContent());
-            
+
             if (name.equals("incremental-job-period"))
               conf.setIncrementalJobPeriod(Long.valueOf(readContent()));
 
@@ -442,7 +458,7 @@ public class BackupScheduler {
 
   class CleanupTasksListTask extends TimerTask {
 
-    static final int PERIOD = 60000 * 30; // 30 min 
+    static final int PERIOD = 60000 * 30; // 30 min
 
     @Override
     public void run() {
@@ -575,9 +591,8 @@ public class BackupScheduler {
 
     protected void removeTaskConfig() {
       // remove task file config
-      File taskFile =
-          new File(backup.getLogsDirectory().getAbsolutePath() + File.separator + config.getRepository() + "-"
-              + config.getWorkspace() + ".task");
+      File taskFile = new File(backup.getLogsDirectory().getAbsolutePath() + File.separator
+          + config.getRepository() + "-" + config.getWorkspace() + ".task");
       if (taskFile.exists()) {
         taskFile.delete();
         if (log.isDebugEnabled())
@@ -589,7 +604,8 @@ public class BackupScheduler {
     public boolean cancel() {
       status = TaskStatus.FINISHED;
       if (log.isDebugEnabled())
-        log.debug("Task scheduling canceled " + (chain != null ? chain.getLogFilePath() : "[not started]"));
+        log.debug("Task scheduling canceled "
+            + (chain != null ? chain.getLogFilePath() : "[not started]"));
       return super.cancel();
     }
   }
@@ -678,15 +694,18 @@ public class BackupScheduler {
 
   BackupScheduler(BackupManagerImpl backup, BackupMessagesLog messages) {
     this.backup = backup;
-    this.timer = new Timer("BackupScheduler_Timer_" + new SimpleDateFormat("yyyyMMdd.HHmmss.SSS").format(new Date()), true);
+    this.timer = new Timer("BackupScheduler_Timer_"
+        + new SimpleDateFormat("yyyyMMdd.HHmmss.SSS").format(new Date()), true);
 
     // tasks list cleanup task
-    this.timer.schedule(new CleanupTasksListTask(), CleanupTasksListTask.PERIOD, CleanupTasksListTask.PERIOD);
+    this.timer.schedule(new CleanupTasksListTask(),
+                        CleanupTasksListTask.PERIOD,
+                        CleanupTasksListTask.PERIOD);
 
     this.messages = messages;
 
     // don't ask timer to cancel tasks
-    //registerShutdownHook();
+    // registerShutdownHook();
   }
 
   private void registerShutdownHook() {
@@ -709,8 +728,9 @@ public class BackupScheduler {
   /**
    * Restore scheduler after system shutdown etc. Called from manager at start.
    * 
-   * Should restore the scheduler tasks if start and stop time are correct and will be occured in future. Or should restore and to continue the tasks if start
-   * time reached but stop time in future or periodic scheduling enabled for the task (including incremental configuration too).
+   * Should restore the scheduler tasks if start and stop time are correct and will be occured in
+   * future. Or should restore and to continue the tasks if start time reached but stop time in
+   * future or periodic scheduling enabled for the task (including incremental configuration too).
    * 
    * @param taskFile
    * @throws ParseException
@@ -732,71 +752,104 @@ public class BackupScheduler {
       // check if the task is not expired
       final Date now = new Date();
       // by start time and periodic parameters
-      if ((tconf.stopTime != null && tconf.stopTime.after(now)) || tconf.chainPeriod > 0 || tconf.incrPeriod > 0) {
+      if ((tconf.stopTime != null && tconf.stopTime.after(now)) || tconf.chainPeriod > 0
+          || tconf.incrPeriod > 0) {
 
         // by stop time
-        // TODO restore without scheduler now. Add task search capabilities to the scheduler and add listener to a task
-        schedule(tconf.backupConfig, tconf.startTime, tconf.stopTime, tconf.chainPeriod, tconf.incrPeriod, null);
+        // TODO restore without scheduler now. Add task search capabilities to the scheduler and add
+        // listener to a task
+        schedule(tconf.backupConfig,
+                 tconf.startTime,
+                 tconf.stopTime,
+                 tconf.chainPeriod,
+                 tconf.incrPeriod,
+                 null);
       } // else - the start time in past and no periodic configuration found
 
     } catch (IOException e) {
-      throw new BackupSchedulerException("Can't restore scheduler from task file " + taskFile.getAbsolutePath(), e);
+      throw new BackupSchedulerException("Can't restore scheduler from task file "
+          + taskFile.getAbsolutePath(), e);
     } catch (ParseException e) {
-      throw new BackupSchedulerException("Can't restore scheduler from task file " + taskFile.getAbsolutePath(), e);
+      throw new BackupSchedulerException("Can't restore scheduler from task file "
+          + taskFile.getAbsolutePath(), e);
     } catch (XMLStreamException e) {
-      throw new BackupSchedulerException("Can't restore scheduler from task file " + taskFile.getAbsolutePath(), e);
+      throw new BackupSchedulerException("Can't restore scheduler from task file "
+          + taskFile.getAbsolutePath(), e);
     } catch (FactoryConfigurationError e) {
-      throw new BackupSchedulerException("Can't restore scheduler from task file " + taskFile.getAbsolutePath(), e);
+      throw new BackupSchedulerException("Can't restore scheduler from task file "
+          + taskFile.getAbsolutePath(), e);
     }
   }
 
   /**
-   * Schedule backup task with given configuration and scheduler parameters. The behaviour of a task vary depending on scheduler parameters. If specified
+   * Schedule backup task with given configuration and scheduler parameters. The behaviour of a task
+   * vary depending on scheduler parameters. If specified
    * <ul>
    * <li>1. startTime only - run once forever</li>
    * <li>2. startTime + incrementalPeriod - run once forever (with incremental backup)</li>
-   * <li>3. startTime, endTime - run during given period </li>
-   * <li>4. startTime, endTime + incrementalPeriod - run during given period (with incremental backup)</li>
-   * <li>5. startTime, endTime, chainPeriod - run periodic during given period </li>
-   * <li>6. startTime, endTime, chainPeriod + incrementalPeriod - run periodic during given period (with incremental backup)</li>
-   * <li>7. startTime, chainPeriod - run periodic forever </li>
-   * <li>8. startTime, chainPeriod + incrementalPeriod - run periodic forever (with incremental backup)</li>
+   * <li>3. startTime, endTime - run during given period</li>
+   * <li>4. startTime, endTime + incrementalPeriod - run during given period (with incremental
+   * backup)</li>
+   * <li>5. startTime, endTime, chainPeriod - run periodic during given period</li>
+   * <li>6. startTime, endTime, chainPeriod + incrementalPeriod - run periodic during given period
+   * (with incremental backup)</li>
+   * <li>7. startTime, chainPeriod - run periodic forever</li>
+   * <li>8. startTime, chainPeriod + incrementalPeriod - run periodic forever (with incremental
+   * backup)</li>
    * </ul>
    * 
    * @param config
-   * @param startTime - task start time
-   * @param stopTime - task stop time, may be null i.e. the task will be executed forever
-   * @param chainPeriod - task chain period, means periodic execution of the configured backup chain
-   * @param incrementalPeriod - incr period
-   * @param listener - listener for each job produced by an each backup chain
+   * @param startTime
+   *          - task start time
+   * @param stopTime
+   *          - task stop time, may be null i.e. the task will be executed forever
+   * @param chainPeriod
+   *          - task chain period, means periodic execution of the configured backup chain
+   * @param incrementalPeriod
+   *          - incr period
+   * @param listener
+   *          - listener for each job produced by an each backup chain
    * @return
    * @throws BackupSchedulerException
    */
-  public void schedule(BackupConfig config, Date startTime, Date stopTime, long chainPeriod, long incrementalPeriod) throws BackupSchedulerException {
+  public void schedule(BackupConfig config,
+                       Date startTime,
+                       Date stopTime,
+                       long chainPeriod,
+                       long incrementalPeriod) throws BackupSchedulerException {
     schedule(config, startTime, stopTime, chainPeriod, incrementalPeriod, null);
   }
 
   /**
-   * Schedule backup task with given configuration and scheduler parameters. The behaviour of a task vary depending on scheduler parameters. If specified
+   * Schedule backup task with given configuration and scheduler parameters. The behaviour of a task
+   * vary depending on scheduler parameters. If specified
    * <ul>
    * <li>1. startTime only - run once forever</li>
    * <li>2. startTime + incrementalPeriod - run once forever (with incremental backup)</li>
-   * <li>3. startTime, endTime - run during given period </li>
-   * <li>4. startTime, endTime + incrementalPeriod - run during given period (with incremental backup)</li>
-   * <li>5. startTime, endTime, chainPeriod - run periodic during given period </li>
-   * <li>6. startTime, endTime, chainPeriod + incrementalPeriod - run periodic during given period (with incremental backup)</li>
-   * <li>7. startTime, chainPeriod - run periodic forever </li>
-   * <li>8. startTime, chainPeriod + incrementalPeriod - run periodic forever (with incremental backup)</li>
+   * <li>3. startTime, endTime - run during given period</li>
+   * <li>4. startTime, endTime + incrementalPeriod - run during given period (with incremental
+   * backup)</li>
+   * <li>5. startTime, endTime, chainPeriod - run periodic during given period</li>
+   * <li>6. startTime, endTime, chainPeriod + incrementalPeriod - run periodic during given period
+   * (with incremental backup)</li>
+   * <li>7. startTime, chainPeriod - run periodic forever</li>
+   * <li>8. startTime, chainPeriod + incrementalPeriod - run periodic forever (with incremental
+   * backup)</li>
    * </ul>
    * 
    * The method will return immediate, a task will be scheduled and started as independent thread.
    * 
    * @param config
-   * @param startTime - task start time
-   * @param stopTime - task stop time, may be null i.e. the task will be executed forever
-   * @param chainPeriod - task chain period, means periodic execution of the configured backup chain
-   * @param incrementalPeriod - incr period
-   * @param listener - listener for each job produced by an each backup chain
+   * @param startTime
+   *          - task start time
+   * @param stopTime
+   *          - task stop time, may be null i.e. the task will be executed forever
+   * @param chainPeriod
+   *          - task chain period, means periodic execution of the configured backup chain
+   * @param incrementalPeriod
+   *          - incr period
+   * @param listener
+   *          - listener for each job produced by an each backup chain
    * @return
    * @throws BackupSchedulerException
    */
@@ -827,7 +880,8 @@ public class BackupScheduler {
           timer.schedule(ctask, startTime, stopPeriod);
         }
       } else
-        throw new BackupSchedulerException("Stop time (" + stopTime + ") should be after the start time (" + startTime + ")");
+        throw new BackupSchedulerException("Stop time (" + stopTime
+            + ") should be after the start time (" + startTime + ")");
     } else {
       if (chainPeriodMilliseconds > 0) {
         ctask = new PeriodicTask(config, null, listener);
@@ -847,12 +901,12 @@ public class BackupScheduler {
     TaskConfig tc = new TaskConfig(config, startTime, stopTime, chainPeriod, incrementalPeriod);
     try {
       // backup.getLogsDirectory().getAbsolutePath()
-      File taskFile =
-          new File(backup.getLogsDirectory().getAbsolutePath() + File.separator + config.getRepository() + "-"
-              + config.getWorkspace() + ".task");
+      File taskFile = new File(backup.getLogsDirectory().getAbsolutePath() + File.separator
+          + config.getRepository() + "-" + config.getWorkspace() + ".task");
       if (taskFile.exists())
-        throw new BackupSchedulerException("Task for repository '" + config.getRepository() + "' workspace '"
-            + config.getWorkspace() + "' already exists. File " + taskFile.getAbsolutePath());
+        throw new BackupSchedulerException("Task for repository '" + config.getRepository()
+            + "' workspace '" + config.getWorkspace() + "' already exists. File "
+            + taskFile.getAbsolutePath());
       tc.save(taskFile); // save task config
     } catch (IOException e) {
       throw new BackupSchedulerException("Can't save scheduler task file " + e, e);
@@ -866,8 +920,10 @@ public class BackupScheduler {
   /**
    * Search task by repository and workspace names
    * 
-   * @param repository - name string
-   * @param workspace - name string
+   * @param repository
+   *          - name string
+   * @param workspace
+   *          - name string
    * 
    * @return SchedulerTask
    */
@@ -876,7 +932,8 @@ public class BackupScheduler {
       for (Iterator<WeakReference<SchedulerTask>> ti = tasks.iterator(); ti.hasNext();) {
         WeakReference<SchedulerTask> tr = ti.next();
         SchedulerTask task = tr.get();
-        if (task != null && task.config.getRepository().equals(repository) && task.config.getWorkspace().equals(workspace)) {
+        if (task != null && task.config.getRepository().equals(repository)
+            && task.config.getWorkspace().equals(workspace)) {
           return task;
         }
       }
@@ -886,9 +943,11 @@ public class BackupScheduler {
   }
 
   /**
-   * Unshedule the task scheduled before with the given configuration. The method will waits till the task will be stopped.
+   * Unshedule the task scheduled before with the given configuration. The method will waits till
+   * the task will be stopped.
    * 
-   * @param config - configuration used for a task search
+   * @param config
+   *          - configuration used for a task search
    * @return - true if task was searched and stopped ok
    * @throws BackupSchedulerException
    */

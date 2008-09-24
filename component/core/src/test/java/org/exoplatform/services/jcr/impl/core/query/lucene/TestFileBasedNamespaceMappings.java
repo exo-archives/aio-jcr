@@ -24,8 +24,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: TestFileBasedNamespaceMappings.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -36,26 +35,23 @@ public class TestFileBasedNamespaceMappings extends TestCase {
 
   public void testFileBasedNamespaceMappings() throws Exception {
 
-    FileBasedNamespaceMappings namereg = new FileBasedNamespaceMappings(
-        test_mapp);
+    FileBasedNamespaceMappings namereg = new FileBasedNamespaceMappings(test_mapp);
 
     // LocationFactory resolver = new LocationFactory(namereg);
 
     assertEquals("", namereg.getNamespaceURIByPrefix(""));
-    assertEquals("http://www.jcp.org/jcr/1.0", namereg
-        .getNamespaceURIByPrefix("jcr"));
-    assertEquals("http://www.w3.org/2004/10/xpath-functions",namereg
-        .getNamespaceURIByPrefix("fn") );
-    
-    assertEquals("xs",namereg.getNamespacePrefixByURI("http://www.w3.org/2001/XMLSchema"));
-    assertEquals("mix",namereg.getNamespacePrefixByURI("http://www.jcp.org/jcr/mix/1.0"));
+    assertEquals("http://www.jcp.org/jcr/1.0", namereg.getNamespaceURIByPrefix("jcr"));
+    assertEquals("http://www.w3.org/2004/10/xpath-functions", namereg.getNamespaceURIByPrefix("fn"));
+
+    assertEquals("xs", namereg.getNamespacePrefixByURI("http://www.w3.org/2001/XMLSchema"));
+    assertEquals("mix", namereg.getNamespacePrefixByURI("http://www.jcp.org/jcr/mix/1.0"));
   }
-  
+
   public void setUp() throws Exception {
     test_mapp = File.createTempFile("temp", "mapping");
 
     // Fill the namespace mappings file by prefix uri pairs
- 
+
     Properties props = new Properties();
 
     props.setProperty("", "");
@@ -71,7 +67,7 @@ public class TestFileBasedNamespaceMappings extends TestCase {
     props.store(new FileOutputStream(test_mapp), "");
 
     props.clear();
-     test_mapp.deleteOnExit();
+    test_mapp.deleteOnExit();
   }
 
   protected void tearDown() throws Exception {

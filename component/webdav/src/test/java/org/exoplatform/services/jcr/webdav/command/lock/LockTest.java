@@ -22,21 +22,21 @@ import javax.jcr.Node;
 import org.exoplatform.services.jcr.webdav.BaseStandaloneWebDavTest;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class LockTest extends BaseStandaloneWebDavTest {
-  
+
   protected Node lockNode;
-  
+
   public void setUp() throws Exception {
     super.setUp();
-    if(lockNode == null) {
+    if (lockNode == null) {
       lockNode = writeNode.addNode("testLockNode", "nt:unstructured");
       session.save();
     }
-  }   
+  }
 
 }

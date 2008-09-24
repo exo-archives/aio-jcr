@@ -21,37 +21,40 @@ import java.io.FileInputStream;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: Probe.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class Probe extends Thread {
-  
-    private File file;
-    private int len = 0;
 
-    public Probe() {}
+  private File file;
 
-    public Probe(File file) {
-      super();
-      this.file = file;
-    }
+  private int  len = 0;
 
-    public void run() {
-      System.out.println("Thread started "+this.getName());
-      try {
-        FileInputStream is = new FileInputStream(file);
-        while(is.read()>0) {
-          len++;
-        }
-        
-      } catch (Exception e) {
-        e.printStackTrace();
+  public Probe() {
+  }
+
+  public Probe(File file) {
+    super();
+    this.file = file;
+  }
+
+  public void run() {
+    System.out.println("Thread started " + this.getName());
+    try {
+      FileInputStream is = new FileInputStream(file);
+      while (is.read() > 0) {
+        len++;
       }
-      System.out.println("Thread finished "+this.getName()+" read: "+len);
-    }
 
-    public int getLen() {
-      return len;
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+    System.out.println("Thread finished " + this.getName() + " read: " + len);
+  }
+
+  public int getLen() {
+    return len;
+  }
 }

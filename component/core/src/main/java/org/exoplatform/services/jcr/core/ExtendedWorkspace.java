@@ -34,15 +34,15 @@ import javax.jcr.nodetype.ConstraintViolationException;
 public interface ExtendedWorkspace extends Workspace {
 
   /**
-   * Deserializes an XML document and adds the resulting item subtree as a child
-   * of the node at parentAbsPath.
+   * Deserializes an XML document and adds the resulting item subtree as a child of the node at
+   * parentAbsPath.
    * 
-   * @param parentAbsPath the absolute path of the node below which the
-   *          deserialized subtree is added.
-   * @param in The <code>Inputstream</code> from which the XML to be
-   *          deserilaized is read.
-   * @param uuidBehavior a four-value flag that governs how incoming UUIDs are
-   *          handled.
+   * @param parentAbsPath
+   *          the absolute path of the node below which the deserialized subtree is added.
+   * @param in
+   *          The <code>Inputstream</code> from which the XML to be deserilaized is read.
+   * @param uuidBehavior
+   *          a four-value flag that governs how incoming UUIDs are handled.
    * @param context
    * @throws IOException
    * @throws PathNotFoundException

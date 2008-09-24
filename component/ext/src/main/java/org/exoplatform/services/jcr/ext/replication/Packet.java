@@ -29,15 +29,15 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 24.11.2006
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 24.11.2006
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 
 public class Packet implements Externalizable {
-  
+
   private static final long serialVersionUID = -238898618077133064L;
 
   public class PacketType {
@@ -78,29 +78,29 @@ public class Packet implements Externalizable {
     public static final int ALL_BinaryFile_transferred_OK                = 18;
 
     public static final int ALL_ChangesLog_saved_OK                      = 19;
-     
+
     public static final int SYNCHRONIZED_OK                              = 20;
-    
+
     public static final int INITED_IN_CLUSTER                            = 21;
-    
+
     public static final int ALL_INITED                                   = 22;
-    
+
     public static final int OLD_ChangesLog_removed_OK                    = 23;
-    
+
     public static final int NEED_TRANSFER_COUNTER                        = 24;
-    
+
     public static final int REMOVED_OLD_CHANGESLOG_COUNTER               = 25;
-    
+
     public static final int MEMBER_STARTED                               = 26;
-    
+
     public static final int BIG_PACKET_FIRST                             = 27;
-    
+
     public static final int BIG_PACKET_MIDDLE                            = 28;
-    
+
     public static final int BIG_PACKET_LAST                              = 29;
-    
+
     public static final int GET_ALL_PRIORITY                             = 30;
-    
+
     public static final int OWN_PRIORITY                                 = 31;
   }
 
@@ -124,7 +124,7 @@ public class Packet implements Externalizable {
   private Calendar        timeStamp       = Calendar.getInstance();
 
   private String          fileName        = new String(" ");
-  
+
   private String          systemId        = new String(" ");
 
   private List<String>    fileNameList    = new ArrayList<String>();
@@ -185,12 +185,12 @@ public class Packet implements Externalizable {
     for (int i = 0; i < buf.length; i++)
       buffer_[i] = buf[i];
   }
-  
+
   public Packet(int type, String identifier_, String ownName, Calendar timeStamp) {
     this(type, identifier_, ownName);
     this.timeStamp = timeStamp;
   }
-  
+
   public Packet(int type, String ownName, long size, String identifier) {
     this(type, identifier, ownName);
     this.size_ = size;
@@ -274,8 +274,8 @@ public class Packet implements Externalizable {
   public long getSize() {
     return size_;
   }
-  
-  public void setSize( long size) {
+
+  public void setSize(long size) {
     this.size_ = size;
   }
 

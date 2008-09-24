@@ -27,32 +27,32 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory;
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class NtResourceNodeRepresentationFactory implements
-    NodeRepresentationFactory {
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#createNodeRepresentation(
+public class NtResourceNodeRepresentationFactory implements NodeRepresentationFactory {
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#createNodeRepresentation(
    * javax.jcr.Node, java.lang.String)
    */
-  public NodeRepresentation createNodeRepresentation(Node node,
-      String mediaTypeHint) {
+  public NodeRepresentation createNodeRepresentation(Node node, String mediaTypeHint) {
 
     try {
 
       return new NtResourceNodeRepresentation(node);
-      
+
     } catch (RepositoryException e) {
       e.printStackTrace();
     }
     return null;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#getNodeType()
    */
   public String getNodeType() {
     return "nt:resource";
   }
 
-  
 }

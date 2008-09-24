@@ -35,8 +35,7 @@ public abstract class AbstractFCKConnector {
    */
   protected String getCurrentFolderPath(GenericWebAppContext context) {
     // To limit browsing set Servlet init param "digitalAssetsPath" with desired JCR path
-    String rootFolderStr =
-        (String) context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
+    String rootFolderStr = (String) context.get("org.exoplatform.frameworks.jcr.command.web.fckeditor.digitalAssetsPath");
 
     if (rootFolderStr == null)
       rootFolderStr = "/";
@@ -55,7 +54,8 @@ public abstract class AbstractFCKConnector {
    * Compile REST path of the given resource.
    * 
    * @param workspace
-   * @param resource, we assume that path starts with '/'
+   * @param resource
+   *          , we assume that path starts with '/'
    * @return
    */
   protected String makeRESTPath(String repoName, String workspace, String resource) {

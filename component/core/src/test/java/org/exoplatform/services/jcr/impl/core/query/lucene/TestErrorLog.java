@@ -26,26 +26,26 @@ import org.exoplatform.services.jcr.impl.core.query.BaseQueryTest;
 import org.exoplatform.services.jcr.impl.core.query.ErrorLog;
 
 /**
- * Created by The eXo Platform SAS Author : Sergey Karpenko
- * <sergey.karpenko@exoplatform.com.ua>
+ * Created by The eXo Platform SAS Author : Sergey Karpenko <sergey.karpenko@exoplatform.com.ua>
  * 
  * @version $Id: $
  */
 public class TestErrorLog extends BaseQueryTest {
   ErrorLog                 log;
-  File file;
+
+  File                     file;
 
   private static final int SIZE = 100;
 
-  public void setUp() throws Exception{
+  public void setUp() throws Exception {
     super.setUp();
     file = File.createTempFile("error", "log");
-    if(file.exists()){
+    if (file.exists()) {
       file.delete();
     }
   }
-  
-  public void tearDown() throws Exception{
+
+  public void tearDown() throws Exception {
     super.tearDown();
     log.clear();
     file.delete();
@@ -61,33 +61,28 @@ public class TestErrorLog extends BaseQueryTest {
       }
 
       public void run() {
-/*        try {
-          for (int i = 0; i < SIZE; i++) {
-            log.append(ErrorLog.ADD,name + i);
-            //System.out.println(name + i);
+        /*
+         * try { for (int i = 0; i < SIZE; i++) { log.append(ErrorLog.ADD,name + i);
+         * //System.out.println(name + i); } log.flush(); } catch (Exception e) {
+         * System.out.println(e); }
+         */
+
+        try {
+          HashSet<String> add = new HashSet<String>();
+          HashSet<String> rem = new HashSet<String>();
+
+          for (int j = 0; j < 10; j++) {
+            add.clear();
+            for (int i = 0; i < 10; i++) {
+              int el = j * 10 + i;
+              add.add(name + el);
+            }
+            log.writeChanges(rem, add);
           }
-          log.flush();
+
         } catch (Exception e) {
           System.out.println(e);
         }
-        */
-        
-          try {
-            HashSet<String> add = new HashSet<String>();
-            HashSet<String> rem = new HashSet<String>();
-            
-            for(int j=0; j<10; j++){
-              add.clear();
-              for (int i = 0; i <10; i++) {
-                int el= j*10+i;
-                add.add(name+el);
-              }
-              log.writeChanges(rem, add);
-            }
-            
-          } catch (Exception e) {
-            System.out.println(e);
-          }
       }
     }
 
@@ -99,14 +94,14 @@ public class TestErrorLog extends BaseQueryTest {
     two.start();
     one.join();
     two.join();
-    
+
     List<String> list = log.readList();
 
     int lost_first = 0;
     int lost_second = 0;
     for (int i = 0; i < SIZE; i++) {
-      String firstname = ErrorLog.ADD+ " first" + i;
-      String secondname =ErrorLog.ADD+ " second" + i;
+      String firstname = ErrorLog.ADD + " first" + i;
+      String secondname = ErrorLog.ADD + " second" + i;
       int ffinded = 0;
       int sfinded = 0;
       for (int j = 0; j < list.size(); j++) {
@@ -131,32 +126,32 @@ public class TestErrorLog extends BaseQueryTest {
       }
     }
 
-    assertEquals("There is mismatch of expected writed messages count ",200,list.size());
-    assertEquals("First thread has lost apdates",0,lost_first);
-    assertEquals("Second thread has lost apdates",0,lost_second);
+    assertEquals("There is mismatch of expected writed messages count ", 200, list.size());
+    assertEquals("First thread has lost apdates", 0, lost_first);
+    assertEquals("Second thread has lost apdates", 0, lost_second);
   }
-  
-  public void testExctractNotifyList() throws Exception{
+
+  public void testExctractNotifyList() throws Exception {
     log = new ErrorLog(file);
-    
+
     Set<String> removed = new HashSet<String>();
-    Set<String> added = new HashSet<String>(); 
-    
-    for(int i = 0;i<10 ;i++){
-      added.add("uuidadd"+i);     
+    Set<String> added = new HashSet<String>();
+
+    for (int i = 0; i < 10; i++) {
+      added.add("uuidadd" + i);
     }
-    
-    for(int i = 0;i<5 ;i++){
-      removed.add("uuidrem"+i);
+
+    for (int i = 0; i < 5; i++) {
+      removed.add("uuidrem" + i);
     }
-    
+
     log.writeChanges(removed, added);
-      
+
     Set<String> rem = new HashSet<String>();
     Set<String> add = new HashSet<String>();
-    
+
     log.readChanges(rem, add);
-    
+
     assertTrue(rem.containsAll(removed));
     assertTrue(add.containsAll(added));
   }

@@ -16,7 +16,7 @@ public class AddNodeTypePlugin extends BaseComponentPlugin {
    */
   private Map<String, List<String>> nodeTypes    = new LinkedHashMap<String, List<String>>();
 
-  public  static final String       AUTO_CREATED = "autoCreatedInNewRepository";
+  public static final String        AUTO_CREATED = "autoCreatedInNewRepository";
 
   public AddNodeTypePlugin(InitParams params) {
 

@@ -27,15 +27,15 @@ import org.exoplatform.frameworks.ftpclient.commands.CmdStru;
 import org.exoplatform.frameworks.ftpclient.commands.CmdUser;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class STRUTest extends TestCase {
 
   private static Log log = new Log("STRUTest");
-  
+
   public void testSTRU() throws Exception {
     log.info("Test...");
 
@@ -45,18 +45,18 @@ public class STRUTest extends TestCase {
     {
       CmdStru cmdStru = new CmdStru("");
       assertEquals(FtpConst.Replyes.REPLY_530, client.executeCommand(cmdStru));
-    }    
-    
+    }
+
     {
       CmdUser cmdUser = new CmdUser(FtpTestConfig.USER_ID);
       assertEquals(FtpConst.Replyes.REPLY_331, client.executeCommand(cmdUser));
     }
-    
+
     {
       CmdPass cmdPass = new CmdPass(FtpTestConfig.USER_PASS);
       assertEquals(FtpConst.Replyes.REPLY_230, client.executeCommand(cmdPass));
     }
-    
+
     {
       CmdStru cmdStru = new CmdStru("");
       assertEquals(FtpConst.Replyes.REPLY_500, client.executeCommand(cmdStru));
@@ -71,10 +71,9 @@ public class STRUTest extends TestCase {
       CmdStru cmdStru = new CmdStru("any");
       assertEquals(FtpConst.Replyes.REPLY_501, client.executeCommand(cmdStru));
     }
-    
-    client.close();
-    log.info("Complete.\r\n");        
-  }  
-  
-}
 
+    client.close();
+    log.info("Complete.\r\n");
+  }
+
+}

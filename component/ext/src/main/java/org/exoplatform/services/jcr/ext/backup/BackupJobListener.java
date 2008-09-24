@@ -17,17 +17,17 @@
 package org.exoplatform.services.jcr.ext.backup;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 05.02.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: BackupJobListener.java 760 2008-02-07 15:08:07Z pnedonosko $
  */
 public interface BackupJobListener {
 
   void onStateChanged(BackupJob job);
-  
+
   void onError(BackupJob job, String message, Throwable error);
-  
+
 }

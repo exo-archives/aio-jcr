@@ -21,17 +21,17 @@ import org.apache.commons.chain.Context;
 import org.exoplatform.services.ftp.client.FtpClientSession;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public interface FtpCommand extends Command {
-  
+
   boolean execute(Context context) throws Exception;
-  
-  void run(String []params) throws Exception;
-  
+
+  void run(String[] params) throws Exception;
+
   FtpClientSession clientSession();
-  
+
 }

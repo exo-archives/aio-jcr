@@ -33,11 +33,11 @@ import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserHandler;
 
 /**
- * Created by The eXo Platform SAS 
+ * Created by The eXo Platform SAS
  * 
  * Date: 24.07.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: UserHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserHandlerImpl implements UserHandler {
@@ -48,17 +48,17 @@ public class UserHandlerImpl implements UserHandler {
   }
 
   protected final JCROrganizationServiceImpl service;
-  
-  protected final List<UserEventListener> listeners  = new ArrayList<UserEventListener>();
-  
+
+  protected final List<UserEventListener>    listeners = new ArrayList<UserEventListener>();
+
   UserHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
-  
+
   public void addUserEventListener(UserEventListener listener) {
     listeners.add(listener);
   }
-  
+
   public void removeUserEventListener(UserEventListener listener) {
     listeners.remove(listener);
   }
@@ -88,33 +88,40 @@ public class UserHandlerImpl implements UserHandler {
   }
 
   public PageList findUsersByGroup(String groupId) throws OrganizationServiceException {
-    //TODO 
+    // TODO
     try {
       List<User> users = new ArrayList<User>();
-      
+
       // find group
-      String statement = "select * from exo:group where jcr:uuid='"+groupId+"'";
-      Query gquery = service.getStorageSession().getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
+      String statement = "select * from exo:group where jcr:uuid='" + groupId + "'";
+      Query gquery = service.getStorageSession()
+                            .getWorkspace()
+                            .getQueryManager()
+                            .createQuery(statement, Query.SQL);
       QueryResult gres = gquery.execute();
       if (gres.getNodes().hasNext()) {
         // has group
         Node groupNode = gres.getNodes().nextNode();
-        
+
         // find memberships
-        statement = "select * from exo:userMembership where exo:group='"+groupNode.getUUID()+"'";
-        Query mquery = service.getStorageSession().getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
+        statement = "select * from exo:userMembership where exo:group='" + groupNode.getUUID()
+            + "'";
+        Query mquery = service.getStorageSession()
+                              .getWorkspace()
+                              .getQueryManager()
+                              .createQuery(statement, Query.SQL);
         QueryResult mres = mquery.execute();
-        for (NodeIterator membs = mres.getNodes(); membs.hasNext(); ) {
+        for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
           Node membership = membs.nextNode();
           Node userNode = membership.getParent();
-          
+
           UserImpl user = new UserImpl();
           // TODO fill user from userNode
-          
+
           users.add(user);
         }
       }
-      
+
       return new ObjectPageList(users, 10);
     } catch (RepositoryException e) {
       throw new OrganizationServiceException("Query error " + e, e);

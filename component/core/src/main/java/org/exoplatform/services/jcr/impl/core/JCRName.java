@@ -20,83 +20,89 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: JCRName.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class JCRName {
-	
-	protected final String prefix;
-	protected final String name;
+
+  protected final String prefix;
+
+  protected final String name;
+
   protected final String namespace;
-  
+
   protected final String stringName;
-  protected final int hashCode;
+
+  protected final int    hashCode;
 
   // [PN] 05.02.07 use of canonical representation for the string values
   // see: http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html#intern()
-	JCRName(String namespace, String name, String prefix) {
-		this.name = name.intern();
-		this.namespace = namespace.intern();
-		this.prefix = prefix.intern();
-    
+  JCRName(String namespace, String name, String prefix) {
+    this.name = name.intern();
+    this.namespace = namespace.intern();
+    this.prefix = prefix.intern();
+
     this.stringName = ((this.prefix.length() == 0 ? "" : this.prefix + ":") + this.name);
-    
-    //this.hashCode = 31 * this.stringName.hashCode();
-    
+
+    // this.hashCode = 31 * this.stringName.hashCode();
+
     int hk = 31 + this.namespace.hashCode();
     hk = hk * 31 + this.name.hashCode();
     this.hashCode = hk * 31 + this.prefix.hashCode();
-	}
-	
-	/**
-	 * @return Returns the internalName.
-	 */
-	public String getNamespace() {
-		return namespace;
-	}
-  
-	/**
-	 * @return Returns the name.
-	 */
-	public String getName() {
-		return name;
-	}
-  
-	/**
-	 * @return Returns the namespace.
-	 */
-	public String getPrefix() {
-		return prefix;
-	}
-	
-	/**
-	 * @return Returns the internalName.
-	 */
-	public InternalQName getInternalName() {
-		return new InternalQName(namespace, name);
-	}
-	
-	/**
-	 * Return this name as string.
-	 * @param showIndex if index should be included to the string.
-	 * @return name as string.
-	 */
-	public String getAsString() {
-    return stringName; 
-	}
+  }
 
-	public boolean equals(Object obj) {
-  	if (this == obj)
-  	    return true;
-    
+  /**
+   * @return Returns the internalName.
+   */
+  public String getNamespace() {
+    return namespace;
+  }
+
+  /**
+   * @return Returns the name.
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @return Returns the namespace.
+   */
+  public String getPrefix() {
+    return prefix;
+  }
+
+  /**
+   * @return Returns the internalName.
+   */
+  public InternalQName getInternalName() {
+    return new InternalQName(namespace, name);
+  }
+
+  /**
+   * Return this name as string.
+   * 
+   * @param showIndex
+   *          if index should be included to the string.
+   * @return name as string.
+   */
+  public String getAsString() {
+    return stringName;
+  }
+
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+
     if (obj == null)
       return false;
-    
-  	if (obj instanceof JCRName) {
-        return hashCode == obj.hashCode();
-  	}
-  	return false;
+
+    if (obj instanceof JCRName) {
+      return hashCode == obj.hashCode();
+    }
+    return false;
   }
 
   @Override
@@ -109,4 +115,3 @@ public class JCRName {
     return super.toString() + " (" + getAsString() + ")";
   }
 }
-

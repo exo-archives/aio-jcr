@@ -29,7 +29,8 @@ import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
- * Created by The eXo Platform SAS.<br/> Prerequisite: enable access control i.e. <access-control>optional</access-control>
+ * Created by The eXo Platform SAS.<br/> Prerequisite: enable access control i.e.
+ * <access-control>optional</access-control>
  * 
  * @author Gennady Azarenkov
  * @version $Id:TestAccessExoPrivilegeable.java 12535 2007-02-02 15:39:26Z peterit $
@@ -62,10 +63,10 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
     node.addMixin("exo:owneable");
     node.addMixin("exo:privilegeable");
 
-    //good style of set permission 
-    //1. set for me
-    //2. set for others
-    //3. remove for any
+    // good style of set permission
+    // 1. set for me
+    // 2. set for others
+    // 3. remove for any
     node.setPermission("exo", PermissionType.ALL);
     node.setPermission("exo1", new String[] { PermissionType.READ });
     node.removePermission("any");
@@ -74,7 +75,8 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
     Session session1 = repository.login(new CredentialsImpl("exo1", "exo1".toCharArray()));
     session1.checkPermission("/accessTestRoot/testSessionCheckPermission", PermissionType.READ);
     try {
-      session1.checkPermission("/accessTestRoot/testSessionCheckPermission", PermissionType.SET_PROPERTY);
+      session1.checkPermission("/accessTestRoot/testSessionCheckPermission",
+                               PermissionType.SET_PROPERTY);
       fail("AccessControlException should have been thrown ");
     } catch (AccessControlException e) {
     }
@@ -103,8 +105,10 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
     Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()));
     try {
       subnode = (NodeImpl) session1.getItem(subnode.getPath());
-      
-      assertEquals("User 'exo' permissions are wrong", PermissionType.READ, subnode.getACL().getPermissions("exo").get(0));
+
+      assertEquals("User 'exo' permissions are wrong",
+                   PermissionType.READ,
+                   subnode.getACL().getPermissions("exo").get(0));
       assertEquals("User 'exo' permissions are wrong",
                    "exo " + PermissionType.READ,
                    subnode.getProperty("exo:permissions").getValues()[0].getString());
@@ -112,7 +116,7 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
       session1.logout();
     }
   }
-  
+
   public void testSubNodeInheritedPermissions() throws Exception {
     NodeImpl newNode = (NodeImpl) accessTestRoot.addNode("node1");
     newNode.addMixin("exo:privilegeable");
@@ -128,7 +132,9 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
     Session session1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()));
     try {
       subnode = (NodeImpl) session1.getItem(subnode.getPath());
-      assertEquals("User 'exo' permissions are wrong", PermissionType.READ, subnode.getACL().getPermissions("exo").get(0));
+      assertEquals("User 'exo' permissions are wrong",
+                   PermissionType.READ,
+                   subnode.getACL().getPermissions("exo").get(0));
     } finally {
       session1.logout();
     }
@@ -164,21 +170,21 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
       e.printStackTrace();
       fail("User 'exo' shoould be able to get the node " + n.getPath());
     }
-    
+
     try {
       assertNotNull("Property should be accessible", acr.getProperty("node1/subnode/property1"));
     } catch (AccessDeniedException e) {
       e.printStackTrace();
       fail("User 'exo' shoould be able to get the property " + np.getPath());
     }
-    
+
     try {
       assertNotNull("Node should be accessible", session1.getItem(n.getPath()));
     } catch (AccessDeniedException e) {
       e.printStackTrace();
       fail("User 'exo' shoould be able to get the node " + n.getPath());
     }
-    
+
     try {
       assertNotNull("Property should be accessible", session1.getItem(np.getPath()));
     } catch (AccessDeniedException e) {
@@ -186,7 +192,7 @@ public class TestAccessExoPrivilegeable extends BaseStandaloneTest {
       fail("User 'exo' shoould be able to get the property " + np.getPath());
     }
   }
-  
+
   public void testGetPropertyWithoutParentREAD() throws Exception {
     NodeImpl newNode = (NodeImpl) accessTestRoot.addNode("node1");
     newNode.addMixin("exo:privilegeable");

@@ -34,8 +34,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
- * Created by The eXo Platform SAS        .<br/>
- * Encapsulates registry entry (i.e services', applications' etc settings) 
+ * Created by The eXo Platform SAS .<br/> Encapsulates registry entry (i.e services', applications'
+ * etc settings)
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -43,33 +44,37 @@ import org.xml.sax.SAXException;
 public final class RegistryEntry {
 
   private Document document;
-  
+
   /**
-   * creates a RegistryEntry after XML DOM Document
-   * root element node name it is the name of the Entry
+   * creates a RegistryEntry after XML DOM Document root element node name it is the name of the
+   * Entry
+   * 
    * @param dom
    */
   public RegistryEntry(Document dom) {
     this.document = dom;
   }
-  
+
   /**
    * creates an empty RegistryEntry
+   * 
    * @param rootName
    * @throws IOException
    * @throws SAXException
    * @throws ParserConfigurationException
    */
   public RegistryEntry(String rootName) throws IOException,
-  SAXException, ParserConfigurationException {
-  	DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-  	this.document = db.newDocument();
-  	Element nodeElement = document.createElement(rootName);
-  	document.appendChild(nodeElement);
+      SAXException,
+      ParserConfigurationException {
+    DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    this.document = db.newDocument();
+    Element nodeElement = document.createElement(rootName);
+    document.appendChild(nodeElement);
   }
-  
+
   /**
-   * Factory method to create RegistryEntry from serialized XML 
+   * Factory method to create RegistryEntry from serialized XML
+   * 
    * @param bytes
    * @return RegistryEntry
    * @throws IOException
@@ -77,20 +82,24 @@ public final class RegistryEntry {
    * @throws ParserConfigurationException
    */
   public static RegistryEntry parse(byte[] bytes) throws IOException,
-      SAXException, ParserConfigurationException {
-    return new RegistryEntry(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-        new ByteArrayInputStream(bytes)));
+                                                 SAXException,
+                                                 ParserConfigurationException {
+    return new RegistryEntry(DocumentBuilderFactory.newInstance()
+                                                   .newDocumentBuilder()
+                                                   .parse(new ByteArrayInputStream(bytes)));
   }
 
   /**
    * Factory method to create RegistryEntry from stream XML
+   * 
    * @return RegistryEntry
    * @throws IOException
    * @throws SAXException
    * @throws ParserConfigurationException
    */
   public static RegistryEntry parse(InputStream in) throws IOException,
-      SAXException, ParserConfigurationException {
+                                                   SAXException,
+                                                   ParserConfigurationException {
     return new RegistryEntry(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in));
   }
 
@@ -101,19 +110,19 @@ public final class RegistryEntry {
    */
   public InputStream getAsInputStream() throws TransformerException {
     ByteArrayOutputStream out = new ByteArrayOutputStream();
-    TransformerFactory.newInstance().newTransformer().transform(
-        new DOMSource(document), new StreamResult(out));
+    TransformerFactory.newInstance().newTransformer().transform(new DOMSource(document),
+                                                                new StreamResult(out));
 
     return new ByteArrayInputStream(out.toByteArray());
   }
-  
+
   /**
-   * @return the name of entry (which is the same as underlying Document's root name) 
+   * @return the name of entry (which is the same as underlying Document's root name)
    */
   public String getName() {
     return document.getDocumentElement().getNodeName();
   }
-  
+
   /**
    * @return the underlying Document
    */

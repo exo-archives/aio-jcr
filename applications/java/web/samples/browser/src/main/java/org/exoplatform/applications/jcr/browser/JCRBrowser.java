@@ -30,23 +30,23 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * Created by The eXo Platform SAS. <br/>
  * 
  * Date: 27.05.2008 <br/>
- *
+ * 
  * JavaBean for JCRBrowser sample application.<br/>
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: JCRBrowser.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class JCRBrowser {
 
-  protected RepositoryService repositoryService;
-  
+  protected RepositoryService    repositoryService;
+
   protected ManageableRepository repository;
-  
-  protected Session session;
-  
-  protected Node node;
-  
-  protected List<String> errors = new ArrayList<String>();
+
+  protected Session              session;
+
+  protected Node                 node;
+
+  protected List<String>         errors = new ArrayList<String>();
 
   /**
    * Get browser repository.
@@ -60,7 +60,8 @@ public class JCRBrowser {
   /**
    * Set browser repository.
    * 
-   * @param repository the repository to set
+   * @param repository
+   *          the repository to set
    */
   public void setRepository(ManageableRepository repository) {
     this.repository = repository;
@@ -78,8 +79,9 @@ public class JCRBrowser {
   /**
    * Set browser JCR session.
    * 
-   * @param session the session to set
-   * @throws RepositoryException 
+   * @param session
+   *          the session to set
+   * @throws RepositoryException
    */
   public void setSession(Session session) throws RepositoryException {
     this.session = session;
@@ -98,31 +100,32 @@ public class JCRBrowser {
   /**
    * Set browser current node.
    * 
-   * @param node the node to set
+   * @param node
+   *          the node to set
    */
   public void setNode(Node node) {
     this.node = node;
   }
-   
+
   public void addError(Throwable error) {
     this.errors.add(error.toString());
   }
-  
+
   public boolean isErrorsFound() {
-    return this.errors.size()>0;
+    return this.errors.size() > 0;
   }
-  
+
   public String[] getErrorsAndClean() {
-//    StringBuilder msg = new StringBuilder();
-//    msg.append("<div id='browserErrors' class='errors'>");
-//    for (String e: this.errors) {
-//      msg.append("&nbsp;&nbsp;&nbsp;&nbsp;");
-//      msg.append(e);
-//      msg.append("<br/>");
-//    }
-//    msg.append("</div>");
-//    this.errors.clear();
-//    return msg.toString();
+    // StringBuilder msg = new StringBuilder();
+    // msg.append("<div id='browserErrors' class='errors'>");
+    // for (String e: this.errors) {
+    // msg.append("&nbsp;&nbsp;&nbsp;&nbsp;");
+    // msg.append(e);
+    // msg.append("<br/>");
+    // }
+    // msg.append("</div>");
+    // this.errors.clear();
+    // return msg.toString();
     try {
       String[] errs = new String[this.errors.size()];
       this.errors.toArray(errs);
@@ -140,7 +143,8 @@ public class JCRBrowser {
   }
 
   /**
-   * @param repositoryService the repositoryService to set
+   * @param repositoryService
+   *          the repositoryService to set
    */
   public void setRepositoryService(RepositoryService repositoryService) {
     this.repositoryService = repositoryService;

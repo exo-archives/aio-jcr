@@ -70,10 +70,10 @@ public class ValueFactoryImpl implements ValueFactory {
 
     this.tempDirectory = new File(System.getProperty("java.io.tmpdir"));
 
-    // TODO we use WorkspaceDataContainer constants but is it ok?  
-    this.maxBufferSize =
-        workspaceConfig.getContainer().getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
-                                                           WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
+    // TODO we use WorkspaceDataContainer constants but is it ok?
+    this.maxBufferSize = workspaceConfig.getContainer()
+                                        .getParameterInteger(WorkspaceDataContainer.MAXBUFFERSIZE,
+                                                             WorkspaceDataContainer.DEF_MAXBUFFERSIZE);
   }
 
   public ValueFactoryImpl(LocationFactory locationFactory) {
@@ -98,7 +98,8 @@ public class ValueFactoryImpl implements ValueFactory {
         try {
           return createValue(new ByteArrayInputStream(value.getBytes(Constants.DEFAULT_ENCODING)));
         } catch (UnsupportedEncodingException e) {
-          throw new RuntimeException("FATAL ERROR Charset " + Constants.DEFAULT_ENCODING + " is not supported!");
+          throw new RuntimeException("FATAL ERROR Charset " + Constants.DEFAULT_ENCODING
+              + " is not supported!");
         }
       case PropertyType.BOOLEAN:
         return createValue(Boolean.parseBoolean(value));
@@ -139,7 +140,8 @@ public class ValueFactoryImpl implements ValueFactory {
         throw new ValueFormatException("unknown type " + type);
       }
     } catch (IllegalArgumentException e) { // NumberFormatException
-      throw new ValueFormatException("Cant create value from string '" + value + "' for type " + PropertyType.nameFromValue(type));
+      throw new ValueFormatException("Cant create value from string '" + value + "' for type "
+          + PropertyType.nameFromValue(type));
     }
   }
 

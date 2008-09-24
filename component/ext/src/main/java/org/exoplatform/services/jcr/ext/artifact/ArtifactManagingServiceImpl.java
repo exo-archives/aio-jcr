@@ -77,19 +77,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
 /**
- * Created by The eXo Platform SAS .<br/> Service responsible for Administration
- * Maven repository the served JCR structure inside workspaceName is: rootPath
- * (maven-root)/ ---part-of-group-folder1/ (nt:folder + exo:groupId)
- * ---part-of-group-foldern/ ------artifact-root-folder/(nt:folder +
- * exo:artifactId) ---------maven-metadata.xml(nt:file)
- * ---------maven-metadata.xml.sha1(nt:file)
- * ---------artifact-version-folder/(nt:folder + exo:versionId)
- * ------------artifactId-version.jar (nt:file + exo:mavenjar / nt:resource)
- * ------------artifactId-version.jar.sha1 (nt:file + exo:mavensha1 /
- * nt:resource ) ------------artifactId-version.pom (nt:file + exo:mavenpom /
- * nt:resource) ------------artifactId-version.pom.sha1 (nt:file +
- * exo:mavensha1/ (nt:resource) ------------maven-metadata.xml (nt:file
- * +exo:mavenmetadata / (nt:resource )
+ * Created by The eXo Platform SAS .<br/> Service responsible for Administration Maven repository
+ * the served JCR structure inside workspaceName is: rootPath (maven-root)/
+ * ---part-of-group-folder1/ (nt:folder + exo:groupId) ---part-of-group-foldern/
+ * ------artifact-root-folder/(nt:folder + exo:artifactId) ---------maven-metadata.xml(nt:file)
+ * ---------maven-metadata.xml.sha1(nt:file) ---------artifact-version-folder/(nt:folder +
+ * exo:versionId) ------------artifactId-version.jar (nt:file + exo:mavenjar / nt:resource)
+ * ------------artifactId-version.jar.sha1 (nt:file + exo:mavensha1 / nt:resource )
+ * ------------artifactId-version.pom (nt:file + exo:mavenpom / nt:resource)
+ * ------------artifactId-version.pom.sha1 (nt:file + exo:mavensha1/ (nt:resource)
+ * ------------maven-metadata.xml (nt:file +exo:mavenmetadata / (nt:resource )
  * ------------maven-metadata.xml.sha1(nt:file + exo:mavensha1 / (nt:resource)
  * 
  * @author Gennady Azarenkov
@@ -156,11 +153,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#addArtifact
+   * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#addArtifact
    * (org.exoplatform.services.jcr.ext.common.SessionProvider,
-   * org.exoplatform.services.jcr.ext.maven.ArtifactDescriptor,
-   * java.io.InputStream)
+   * org.exoplatform.services.jcr.ext.maven.ArtifactDescriptor, java.io.InputStream)
    */
 
   // remove it with builder pattern
@@ -193,11 +188,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#exportArtifacts
+   * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#exportArtifacts
    * (org.exoplatform.services.jcr.ext.common.SessionProvider,
-   * org.exoplatform.services.jcr.ext.maven.FolderDescriptor,
-   * java.io.OutputStream)
+   * org.exoplatform.services.jcr.ext.maven.FolderDescriptor, java.io.OutputStream)
    */
   public void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, OutputStream out) throws RepositoryException,
                                                                                                   FileNotFoundException {
@@ -312,8 +305,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#getDescriptors
+   * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#getDescriptors
    * (org.exoplatform.services.jcr.ext.common.SessionProvider,
    * org.exoplatform.services.jcr.ext.maven.FolderDescriptor)
    */
@@ -354,9 +346,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
       // node.getPrimaryNodeType().getName());
 
       /*
-       * if(node.isNodeType("exo:artifact") || node.isNodeType("exo:file")){
-       * Descriptor descriptor = new FolderDescriptor(node.getName());
-       * childNodes.add(descriptor); }
+       * if(node.isNodeType("exo:artifact") || node.isNodeType("exo:file")){ Descriptor descriptor =
+       * new FolderDescriptor(node.getName()); childNodes.add(descriptor); }
        */
 
       if (node.isNodeType("nt:folder") || node.isNodeType("nt:file")) {
@@ -370,10 +361,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#importArtifacts
-   * (org.exoplatform.services.jcr.ext.common.SessionProvider,
-   * java.io.InputStream)
+   * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#importArtifacts
+   * (org.exoplatform.services.jcr.ext.common.SessionProvider, java.io.InputStream)
    */
   public void importArtifacts(SessionProvider sp, InputStream in) throws RepositoryException,
                                                                  FileNotFoundException {
@@ -435,8 +424,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#importArtifacts
+   * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#importArtifacts
    * (org.exoplatform.services.jcr.ext.common.SessionProvider, java.io.File)
    */
   public void importArtifacts(SessionProvider sp, File folder) throws RepositoryException,
@@ -451,9 +439,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
   }
 
   /*
-   * This method provides adding to JCR artifacts. this means that jar-files and
-   * appropriate pom files would be added. Main logic: scan all files & if it is
-   * a pair jar/pom -add it.
+   * This method provides adding to JCR artifacts. this means that jar-files and appropriate pom
+   * files would be added. Main logic: scan all files & if it is a pair jar/pom -add it.
    */
   private void importFilesToJCR(SessionProvider sp, File folder) throws Exception {
 
@@ -481,10 +468,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
   }
 
   /*
-   * According JCR structure, version Node holds all actual data: jar, pom and
-   * ckecksums Removing that node is removing all content and artifact indeed!
-   * @see
-   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#removeArtifact
+   * According JCR structure, version Node holds all actual data: jar, pom and ckecksums Removing
+   * that node is removing all content and artifact indeed!
+   * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#removeArtifact
    * (org.exoplatform.services.jcr.ext.common.SessionProvider,
    * org.exoplatform.services.jcr.ext.maven.ArtifactDescriptor)
    */
@@ -516,8 +502,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   /*
    * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#searchArtifacts
+   * @see org.exoplatform.services.jcr.ext.maven.ArtifactManagingService#searchArtifacts
    * (org.exoplatform.services.jcr.ext.common.SessionProvider,
    * org.exoplatform.services.jcr.ext.maven.SearchCriteria)
    */
@@ -533,7 +518,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
       pathConstraint = rootNodePath + "/%/" + param + "[%]";
     else
       pathConstraint = "/%/" + param + "[%]"; // artifact root is workspace root
-                                              // node !!
+    // node !!
 
     String sqlQuery = String.format("SELECT * FROM nt:folder WHERE jcr:path LIKE '%s' ",
                                     pathConstraint);
@@ -588,10 +573,9 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
       Document doc = entry.getDocument();
       /*
-       * DOMSerializerImpl sr = new DOMSerializerImpl(); String str =
-       * sr.writeToString(doc); LOGGER.info( str ); NodeList nd_list =
-       * doc.getElementsByTagName("artifact.workspace"); LOGGER.info("=======>"
-       * + nd_list.item(0).getTextContent());
+       * DOMSerializerImpl sr = new DOMSerializerImpl(); String str = sr.writeToString(doc);
+       * LOGGER.info( str ); NodeList nd_list = doc.getElementsByTagName("artifact.workspace");
+       * LOGGER.info("=======>" + nd_list.item(0).getTextContent());
        */
 
       repoWorkspaceName = doc.getElementsByTagName("artifact.workspace").item(0).getTextContent();
@@ -664,19 +648,19 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
   private Document createInitConf(String workspace, String relPath) throws ParserConfigurationException {
     // Create new DOM tree
-//    DOMImplementation domImpl = new DOMImplementationImpl();
-//    Document doc = domImpl.createDocument(null, SERVICE_NAME, null);
+    // DOMImplementation domImpl = new DOMImplementationImpl();
+    // Document doc = domImpl.createDocument(null, SERVICE_NAME, null);
     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-//    Element root = doc.getDocumentElement();
+    // Element root = doc.getDocumentElement();
     Element r = doc.createElement(SERVICE_NAME);
     doc.appendChild(r);
-    
+
     // Name of the workspace for holding artifacts
     Element nameElement = doc.createElement("artifact.workspace");
     nameElement.setAttribute("id", "workspace");
     Text nameText = doc.createTextNode(repoWorkspaceName);
     nameElement.appendChild(nameText);
-//    root.appendChild(nameElement);
+    // root.appendChild(nameElement);
     r.appendChild(nameElement);
 
     // Set path to internal root node
@@ -684,7 +668,7 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     descriptionElement.setAttribute("id", "root");
     Text descriptionText = doc.createTextNode(rootNodePath);
     descriptionElement.appendChild(descriptionText);
-//    root.appendChild(descriptionElement);
+    // root.appendChild(descriptionElement);
     r.appendChild(descriptionElement);
 
     return doc;

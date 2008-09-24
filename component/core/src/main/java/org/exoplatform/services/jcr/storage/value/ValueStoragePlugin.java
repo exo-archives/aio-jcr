@@ -27,16 +27,16 @@ import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: ValueStoragePlugin.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public abstract class ValueStoragePlugin {
-  
-  protected List <ValuePluginFilter> filters;
-  
-  protected String id;
-    
+
+  protected List<ValuePluginFilter> filters;
+
+  protected String                  id;
 
   /**
    * Initialize this plugin.
@@ -49,18 +49,18 @@ public abstract class ValueStoragePlugin {
   public abstract void init(Properties props) throws RepositoryConfigurationException, IOException;
 
   public abstract ValueIOChannel openIOChannel() throws IOException;
- 
+
   /**
    * @return filters
    */
-  public final List <ValuePluginFilter> getFilters() {
+  public final List<ValuePluginFilter> getFilters() {
     return filters;
   }
-  
-  public final void setFilters(List <ValuePluginFilter> filters) {
+
+  public final void setFilters(List<ValuePluginFilter> filters) {
     this.filters = filters;
   }
-  
+
   public final String getId() {
     return id;
   }
@@ -68,15 +68,15 @@ public abstract class ValueStoragePlugin {
   public final void setId(String id) {
     this.id = id;
   }
-  
+
   /**
    * Run consistency check operation
    * 
-   * @param dataConnection - connection to metadata storage
+   * @param dataConnection
+   *          - connection to metadata storage
    */
   public abstract void checkConsistency(WorkspaceStorageConnection dataConnection);
-  
+
   public abstract boolean match(String valueDataDescriptor);
 
 }
-

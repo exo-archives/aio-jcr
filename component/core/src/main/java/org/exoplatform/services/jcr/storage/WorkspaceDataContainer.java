@@ -23,8 +23,8 @@ import javax.jcr.RepositoryException;
 /**
  * Created by The eXo Platform SAS.<br>
  * 
- * Serves repository workspace persistent storage. Acts as factory for WorkspaceStorageConnection objects, the implementation should support thread safety for
- * openConnection() method;
+ * Serves repository workspace persistent storage. Acts as factory for WorkspaceStorageConnection
+ * objects, the implementation should support thread safety for openConnection() method;
  * 
  * @author Gennady Azarenkov
  * @version $Id: WorkspaceDataContainer.java 11907 2008-03-13 15:36:21Z ksm $
@@ -33,11 +33,11 @@ import javax.jcr.RepositoryException;
 public interface WorkspaceDataContainer extends DataContainer {
 
   // configuration params
-  
+
   public final static String CONTAINER_NAME    = "containerName";
 
   public final static String SOURCE_NAME       = "source-name";
-  
+
   public final static String MULTIDB           = "multi-db";
 
   public final static String SINGLEDB          = "single-db";
@@ -56,39 +56,44 @@ public interface WorkspaceDataContainer extends DataContainer {
    * @return current time as for this container env
    */
   Calendar getCurrentTime();
-  
+
   /**
    * Status of write-operations restrictions.
    * 
-   * Read-only status is descriptive within the container, i.e. will not prevent any write operation.
+   * Read-only status is descriptive within the container, i.e. will not prevent any write
+   * operation.
    * 
    * Used in DataManager implementations.
    * 
    * @return true - if write-operations allowed, false - otherwise.
    */
   boolean isReadOnly();
-  
+
   /**
    * Set status of write-operations restrictions.
    * 
-   * Read-only status is descriptive within the container, i.e. will not prevent any write operation.
+   * Read-only status is descriptive within the container, i.e. will not prevent any write
+   * operation.
    * 
    * Used in DataManager implementations.
    * 
-   * @param status, true - if write-operations allowed, false - otherwise.
+   * @param status
+   *          , true - if write-operations allowed, false - otherwise.
    */
   void setReadOnly(boolean status);
-  
+
   /**
-   * @return the new connection to workspace storage normally implementation of this method should be synchronized
+   * @return the new connection to workspace storage normally implementation of this method should
+   *         be synchronized
    */
   WorkspaceStorageConnection openConnection() throws RepositoryException;
 
   /**
-   * @return the connection to workspace storage, if it possible the connection will use same physical resource (already obtained) as original connection,
-   *         otherwise same behaviour will be used as for openConnection().
+   * @return the connection to workspace storage, if it possible the connection will use same
+   *         physical resource (already obtained) as original connection, otherwise same behaviour
+   *         will be used as for openConnection().
    * 
-   * normally implementation of this method should be synchronized
+   *         normally implementation of this method should be synchronized
    */
   WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException;
 

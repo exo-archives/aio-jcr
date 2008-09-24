@@ -24,23 +24,22 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * Created by The eXo Platform SAS
- *
+ * 
  * 27.12.2006
- *
+ * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestSameNameSiblingsReindex.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestSameNameSiblingsReindex extends JcrAPIBaseTest {
 
   protected final String TEST_ROOT = "reindex_test";
-  
-  private Node testBase = null;
 
-  
+  private Node           testBase  = null;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    
+
     testBase = root.addNode(TEST_ROOT);
     root.save();
   }
@@ -50,20 +49,20 @@ public class TestSameNameSiblingsReindex extends JcrAPIBaseTest {
     try {
       testBase.remove();
       root.save();
-    } catch(Throwable e) {
+    } catch (Throwable e) {
       log.error("TEAR DOWN ERROR. " + getName() + ". " + e.getMessage(), e);
     }
-    
+
     super.tearDown();
   }
-  
+
   // -------------- Tests ---------------
 
   /**
    * Check if reindex works properly, i.e. nodes will be stored well in persistent storage
-   */ 
+   */
   public void testSNSRemove() throws Exception {
-    
+
     testBase.addNode("n1");
     testBase.addNode("n1");
     Node n3 = testBase.addNode("n1");
@@ -71,42 +70,48 @@ public class TestSameNameSiblingsReindex extends JcrAPIBaseTest {
     n4.addMixin("mix:referenceable");
     String n4uuid = n4.getUUID();
     testBase.addNode("n1");
-    
+
     root.save();
-    
+
     n3.remove();
-    
+
     root.save();
-    
+
     try {
       n3 = testBase.getNode("n1[3]");
       if (log.isDebugEnabled())
         log.debug("Third node is " + n3.getPath() + ", " + n3.getIndex());
-      
+
       try {
         assertEquals("Node /" + TEST_ROOT + "/n1[3] has a wrong UUID", n4uuid, n3.getUUID());
-      } catch(RepositoryException e) {
-        fail("Node /" + TEST_ROOT + "/n1[3] must be mix:referenceable as result of reindex n1[4] to n1[3]");
+      } catch (RepositoryException e) {
+        fail("Node /" + TEST_ROOT
+            + "/n1[3] must be mix:referenceable as result of reindex n1[4] to n1[3]");
       }
-    } catch(PathNotFoundException e) {
-      fail("Node /" + TEST_ROOT + "/n1[3] is not found after remove. But must as result of reindex n1[4] to n1[3]. Case Node.getNode(String)");
+    } catch (PathNotFoundException e) {
+      fail("Node /"
+          + TEST_ROOT
+          + "/n1[3] is not found after remove. But must as result of reindex n1[4] to n1[3]. Case Node.getNode(String)");
     }
-    
+
     try {
       n3 = (Node) testBase.getSession().getItem("/" + TEST_ROOT + "/n1[3]");
       if (log.isDebugEnabled())
         log.debug("Third node is " + n3.getPath() + ", " + n3.getIndex());
-      
+
       try {
         assertEquals("Node /" + TEST_ROOT + "/n1[3] has a wrong UUID", n4uuid, n3.getUUID());
-      } catch(RepositoryException e) {
-        fail("Node /" + TEST_ROOT + "/n1[3] must be mix:referenceable as result of reindex n1[4] to n1[3]");
-      }      
-    } catch(PathNotFoundException e) {
-      fail("Node /" + TEST_ROOT + "/n1[3] is not found after remove. But must as result of reindex n1[4] to n1[3]. Case Session.getItem(String)");
-    }    
-  }   
-  
+      } catch (RepositoryException e) {
+        fail("Node /" + TEST_ROOT
+            + "/n1[3] must be mix:referenceable as result of reindex n1[4] to n1[3]");
+      }
+    } catch (PathNotFoundException e) {
+      fail("Node /"
+          + TEST_ROOT
+          + "/n1[3] is not found after remove. But must as result of reindex n1[4] to n1[3]. Case Session.getItem(String)");
+    }
+  }
+
   /**
    * ISSUE: sub node dereferenced when deleting "same name sibling"
    * http://jira.exoplatform.org/browse/JCR-120
@@ -121,7 +126,7 @@ public class TestSameNameSiblingsReindex extends JcrAPIBaseTest {
     // remove one sibling
     siblings[0].remove();
     testBase.save();
-    
+
     // test remaining sibling
     assertTrue(siblings[1].hasNode("sub1"));
     assertTrue(siblings[1].hasNode("sub1/sub1.1")); // test fails: sub-node dereferenced !

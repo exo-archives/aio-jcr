@@ -30,8 +30,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak
- * alex.reshetnyak@exoplatform.com.ua 14.05.2008
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
+ * 14.05.2008
  */
 public class BackupCreator implements Runnable {
   protected static Log         log = ExoLogger.getLogger("ext.BackupCreator");
@@ -48,8 +48,10 @@ public class BackupCreator implements Runnable {
 
   private FileNameFactory      fileNameFactory;
 
-  public BackupCreator(long delayTime, String workspaceName, File backupDir,
-      ManageableRepository manageableRepository) {
+  public BackupCreator(long delayTime,
+                       String workspaceName,
+                       File backupDir,
+                       ManageableRepository manageableRepository) {
     this.delayTime = delayTime;
     this.workspaceName = workspaceName;
     this.backupDir = backupDir;
@@ -80,7 +82,7 @@ public class BackupCreator implements Runnable {
       File backupFile = new File(backupDir.getCanonicalPath() + File.separator + fileName);
 
       if (backupFile.createNewFile()) {
-        
+
         session.exportWorkspaceSystemView(new FileOutputStream(backupFile), false, false);
 
         log.info("The backup has been finished : "

@@ -27,12 +27,12 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: ByteArrayPersistedValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class ByteArrayPersistedValueData extends AbstractValueData {
-  
 
   protected byte[] data;
 
@@ -40,41 +40,43 @@ public class ByteArrayPersistedValueData extends AbstractValueData {
     super(orderNumber);
     this.data = data;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsStream()
    */
   public InputStream getAsStream() throws IOException {
     return new ByteArrayInputStream(data);
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getAsByteArray()
    */
   public byte[] getAsByteArray() throws IllegalStateException {
     return data;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#getLength()
    */
   public long getLength() {
     return data.length;
   }
-  
-  /* (non-Javadoc)
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.datamodel.AbstractValueData#isByteArray()
    */
   public boolean isByteArray() {
     return true;
   }
 
-  
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
-      return new TransientValueData(orderNumber, data, 
-          null, null, null, -1, null, false);
+      return new TransientValueData(orderNumber, data, null, null, null, -1, null, false);
     } catch (IOException e) {
       throw new RepositoryException(e);
     }

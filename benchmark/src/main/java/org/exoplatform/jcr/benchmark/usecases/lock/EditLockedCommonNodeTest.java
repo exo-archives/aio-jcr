@@ -29,13 +29,13 @@ import com.sun.japex.TestCase;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 
 public class EditLockedCommonNodeTest extends JCRTestBase {
   /*
-   * This test measures performance of lock mechanism, each thread has common
-   * level2 node
+   * This test measures performance of lock mechanism, each thread has common level2 node
    */
 
   public static Log     log             = ExoLogger.getLogger("jcr.benchmark");
@@ -53,7 +53,7 @@ public class EditLockedCommonNodeTest extends JCRTestBase {
 
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
-    Node rootNode = (Node)context.getSession().getItem("/" + rootNodeName);
+    Node rootNode = (Node) context.getSession().getItem("/" + rootNodeName);
     try {
       rootNode.addNode(context.generateUniqueName("node"), "nt:unstructured");
       context.getSession().save();
@@ -62,8 +62,8 @@ public class EditLockedCommonNodeTest extends JCRTestBase {
       // as expected
     }
     try {
-      rootNode.setProperty(context.generateUniqueName("property"), context
-          .generateUniqueName("value"));
+      rootNode.setProperty(context.generateUniqueName("property"),
+                           context.generateUniqueName("value"));
       context.getSession().save();
       throw new RuntimeException("LockException must be here");
     } catch (LockException e) {

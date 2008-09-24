@@ -28,15 +28,16 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersisted
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author Gennady Azarenkov
  * @version $Id: TestPersistedValueData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class TestPersistedValueData extends TestCase {
-  
+
   public void testCreateByteArrayValueData() throws Exception {
     byte[] buf = "0123456789".getBytes();
-    ByteArrayPersistedValueData vd = new  ByteArrayPersistedValueData(buf, 0);
+    ByteArrayPersistedValueData vd = new ByteArrayPersistedValueData(buf, 0);
     assertTrue(vd.isByteArray());
     assertEquals(10, vd.getLength());
     assertEquals(0, vd.getOrderNumber());
@@ -45,16 +46,16 @@ public class TestPersistedValueData extends TestCase {
   }
 
   public void testCreateFileStreamValueData() throws Exception {
-    
+
     byte[] buf = "0123456789".getBytes();
     File file = new File("target/testCreateFileStreamValueData");
-    if(file.exists())
+    if (file.exists())
       file.delete();
     FileOutputStream out = new FileOutputStream(file);
     out.write(buf);
     out.close();
-    
-    FileStreamPersistedValueData vd = new  FileStreamPersistedValueData(file, 0, false);
+
+    FileStreamPersistedValueData vd = new FileStreamPersistedValueData(file, 0, false);
     assertFalse(vd.isByteArray());
     assertEquals(10, vd.getLength());
     assertEquals(0, vd.getOrderNumber());
@@ -67,51 +68,51 @@ public class TestPersistedValueData extends TestCase {
   }
 
   public void testIfFinalizeRemovesTempFileStreamValueData() throws Exception {
-    
+
     byte[] buf = "0123456789".getBytes();
     File file = new File("target/testIfFinalizeRemovesTempFileStreamValueData");
-    if(file.exists())
+    if (file.exists())
       file.delete();
     FileOutputStream out = new FileOutputStream(file);
     out.write(buf);
     out.close();
-    
-    FileStreamPersistedValueData vd = new  FileStreamPersistedValueData(file, 0, true);
+
+    FileStreamPersistedValueData vd = new FileStreamPersistedValueData(file, 0, true);
     assertTrue(file.exists());
-    
+
     vd = null;
     System.gc();
-    
+
     // allows GC to call finalize on vd
     Thread.sleep(1000);
-    
+
     assertFalse(file.exists());
   }
 
   public void testConcurrentFileStreamValueDataReading() throws Exception {
-    
+
     byte[] buf = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789".getBytes();
     File file = new File("target/testConcurrentFileStreamValueDataReading");
-    if(file.exists())
+    if (file.exists())
       file.delete();
     FileOutputStream out = new FileOutputStream(file);
     // approx. 10Kb file
-    for(int i=0; i<100; i++) {
+    for (int i = 0; i < 100; i++) {
       out.write(buf);
     }
     out.close();
-    
+
     Probe[] p = new Probe[10];
-    for(int i=0; i<10; i++) {
+    for (int i = 0; i < 10; i++) {
       p[i] = new Probe(file);
       p[i].start();
     }
-    
+
     // should be enough to finish all the threads
     Thread.sleep(1000);
-    
-    for(int i=0; i<10; i++) {
-      assertEquals(100*100, p[i].getLen());
+
+    for (int i = 0; i < 10; i++) {
+      assertEquals(100 * 100, p[i].getLen());
     }
   }
 

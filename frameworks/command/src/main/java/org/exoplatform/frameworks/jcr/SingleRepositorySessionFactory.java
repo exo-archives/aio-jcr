@@ -36,25 +36,26 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
  * @deprecated use SessionProvider related mechanism instead
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: SingleRepositorySessionFactory.java 9129 2006-09-26 12:34:00Z
- *          gavrikvetal $
+ * @version $Id: SingleRepositorySessionFactory.java 9129 2006-09-26 12:34:00Z gavrikvetal $
  */
 
 public class SingleRepositorySessionFactory implements JCRAppSessionFactory {
 
-  public static final String SESSION_FACTORY = "org.exoplatform.frameworks.web.sessionFactory";
+  public static final String   SESSION_FACTORY = "org.exoplatform.frameworks.web.sessionFactory";
 
   private Map<String, Session> cache;
-  private Repository rep;
-  private Credentials credentials;
-  private String defaultWorkspace;
+
+  private Repository           rep;
+
+  private Credentials          credentials;
+
+  private String               defaultWorkspace;
 
   public SingleRepositorySessionFactory(ManageableRepository repository) {
     this(repository, null);
   }
 
-  public SingleRepositorySessionFactory(ManageableRepository repository,
-      Credentials cred) {
+  public SingleRepositorySessionFactory(ManageableRepository repository, Credentials cred) {
     cache = new HashMap<String, Session>();
     rep = repository;
     credentials = cred;
@@ -63,11 +64,11 @@ public class SingleRepositorySessionFactory implements JCRAppSessionFactory {
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.frameworks.jcr.command.JCRSessionFactory#getSession(java.lang.String)
    */
   public Session getSession(String workspaceName) throws LoginException,
-      NoSuchWorkspaceException, RepositoryException {
+                                                 NoSuchWorkspaceException,
+                                                 RepositoryException {
 
     if (workspaceName == null || workspaceName.length() == 0) {
       if (defaultWorkspace == null)

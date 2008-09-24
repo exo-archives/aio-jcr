@@ -22,23 +22,23 @@ import javax.xml.namespace.QName;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SAS.
- * Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
+ * 
  * @version $Id: $
  */
 
 public class WebDavProperty extends HierarchicalProperty {
-  
+
   private int status;
 
-//  public WebDavProperty(String name, String value) {
-//    super(name, value);
-//  }
-//  
+  // public WebDavProperty(String name, String value) {
+  // super(name, value);
+  // }
+  //  
   public WebDavProperty(QName name, String value) {
     super(name, value);
   }
-  
+
   public WebDavProperty(QName name) {
     super(name);
   }
@@ -49,13 +49,13 @@ public class WebDavProperty extends HierarchicalProperty {
       addChild(child);
     }
   }
-  
+
   public void setStatus(int status) {
     this.status = status;
   }
-  
+
   public int getStatus() {
     return status;
   }
-  
+
 }

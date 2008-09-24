@@ -25,17 +25,17 @@ package org.exoplatform.services.jcr.impl.ext.action;
 
 public class ActionConfiguration {
 
-  private String       actionClassName;
+  private String  actionClassName;
 
-  private String       eventTypes;
+  private String  eventTypes;
 
-  private String       path;
+  private String  path;
 
-  private boolean      isDeep;
+  private boolean isDeep;
 
-  private String       nodeTypes;
+  private String  nodeTypes;
 
-  private String       workspace;
+  private String  workspace;
 
   public ActionConfiguration() {
     this.actionClassName = null;

@@ -35,30 +35,36 @@ import org.exoplatform.services.jcr.ext.backup.impl.BackupScheduler;
  */
 
 public interface BackupManager {
-  
-  final static int FULL_BACKUP_ONLY = 0;
-  
+
+  final static int FULL_BACKUP_ONLY     = 0;
+
   final static int FULL_AND_INCREMENTAL = 1;
 
   Set<BackupChain> getCurrentBackups();
-  
+
   BackupChainLog[] getBackupsLogs();
 
-  BackupChain startBackup(BackupConfig config) throws BackupOperationException, BackupConfigurationException, RepositoryException, RepositoryConfigurationException;
+  BackupChain startBackup(BackupConfig config) throws BackupOperationException,
+                                              BackupConfigurationException,
+                                              RepositoryException,
+                                              RepositoryConfigurationException;
 
   void stopBackup(BackupChain backup);
-  
+
   BackupChain findBackup(String reposytore, String workspace);
 
-  void restore(BackupChainLog log, RepositoryEntry repository, WorkspaceEntry workspaceEntry) throws BackupOperationException, BackupConfigurationException, RepositoryException, RepositoryConfigurationException;
-  
+  void restore(BackupChainLog log, RepositoryEntry repository, WorkspaceEntry workspaceEntry) throws BackupOperationException,
+                                                                                             BackupConfigurationException,
+                                                                                             RepositoryException,
+                                                                                             RepositoryConfigurationException;
+
   BackupScheduler getScheduler();
 
   BackupMessage[] getMessages();
-  
+
   File getBackupDirectory();
-  
+
   String getFullBackupType();
-  
+
   String getIncrementalBackupType();
 }

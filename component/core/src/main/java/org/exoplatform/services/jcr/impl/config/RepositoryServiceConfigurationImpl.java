@@ -47,8 +47,7 @@ import org.exoplatform.services.naming.InitialContextInitializer;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: RepositoryServiceConfigurationImpl.java 12841 2007-02-16
- *          08:58:38Z peterit $
+ * @version $Id: RepositoryServiceConfigurationImpl.java 12841 2007-02-16 08:58:38Z peterit $
  */
 
 public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfiguration {
@@ -60,15 +59,17 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
   private ConfigurationPersister configurationPersister;
 
   public RepositoryServiceConfigurationImpl(InitParams params,
-      ConfigurationManager configurationService,
-      InitialContextInitializer initialContextInitializer) throws RepositoryConfigurationException {
+                                            ConfigurationManager configurationService,
+                                            InitialContextInitializer initialContextInitializer) throws RepositoryConfigurationException {
 
     param = params.getValueParam("conf-path");
 
     if (params.getPropertiesParam("working-conf") != null) {
       String cn = params.getPropertiesParam("working-conf").getProperty("persister-class-name");
       if (cn == null)
-        cn = params.getPropertiesParam("working-conf").getProperty("persisterClassName"); // try old name, pre 1.9
+        cn = params.getPropertiesParam("working-conf").getProperty("persisterClassName"); // try old
+      // name,
+      // pre 1.9
       if (cn != null) {
         try {
           Class<ConfigurationPersister> configurationPersisterClass = (Class<ConfigurationPersister>) Class.forName(cn);
@@ -98,7 +99,7 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
         jcrConfigurationInputStream.close();
       }
     } catch (Exception e) {
-      throw new RepositoryConfigurationException("Fail to init from xml! Reason: " + e, e); 
+      throw new RepositoryConfigurationException("Fail to init from xml! Reason: " + e, e);
     }
   }
 
@@ -108,7 +109,6 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.config.RepositoryServiceConfiguration#isRetainable()
    */
   public boolean isRetainable() {
@@ -127,9 +127,8 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
   }
 
   /**
-   * Retain configuration of JCR If configurationPersister is configured it
-   * write data in to the persister otherwise it try to save configuration in
-   * file
+   * Retain configuration of JCR If configurationPersister is configured it write data in to the
+   * persister otherwise it try to save configuration in file
    * 
    * @throws RepositoryException
    */
@@ -165,8 +164,7 @@ public class RepositoryServiceConfigurationImpl extends RepositoryServiceConfigu
 
       // writing configuration in to the persister
       if (configurationPersister != null) {
-        configurationPersister.write(new ByteArrayInputStream(((ByteArrayOutputStream) saveStream)
-            .toByteArray()));
+        configurationPersister.write(new ByteArrayInputStream(((ByteArrayOutputStream) saveStream).toByteArray()));
       }
 
     } catch (JiBXException e) {

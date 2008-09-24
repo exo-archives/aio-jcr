@@ -41,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Implements a NodeIterator that returns the nodes in document order.
  */
-class DocOrderNodeIteratorImpl implements TwoWayRangeIterator,ScoreNodeIterator {
+class DocOrderNodeIteratorImpl implements TwoWayRangeIterator, ScoreNodeIterator {
 
   /** Logger instance for this class */
   private static final Log           log = ExoLogger.getLogger(DocOrderNodeIteratorImpl.class);
@@ -63,8 +63,10 @@ class DocOrderNodeIteratorImpl implements TwoWayRangeIterator,ScoreNodeIterator 
    * Creates a <code>DocOrderNodeIteratorImpl</code> that orders the nodes in
    * <code>scoreNodes</code> in document order.
    * 
-   * @param itemMgr the item manager of the session executing the query.
-   * @param scoreNodes the ids of the matching nodes with their score value.
+   * @param itemMgr
+   *          the item manager of the session executing the query.
+   * @param scoreNodes
+   *          the ids of the matching nodes with their score value.
    */
   DocOrderNodeIteratorImpl(final SessionDataManager itemMgr,
                            AccessManager accessManager,
@@ -99,7 +101,8 @@ class DocOrderNodeIteratorImpl implements TwoWayRangeIterator,ScoreNodeIterator 
   }
 
   /**
-   * @throws UnsupportedOperationException always.
+   * @throws UnsupportedOperationException
+   *           always.
    */
   public void remove() {
     throw new UnsupportedOperationException("remove");
@@ -116,17 +119,14 @@ class DocOrderNodeIteratorImpl implements TwoWayRangeIterator,ScoreNodeIterator 
   public void skipBack(long skipNum) {
     initOrderedIterator();
     orderedNodes.skipBack(skipNum);
-   }
+  }
 
   /**
-   * Returns the number of nodes in this iterator.
-   * </p>
-   * Note: The number returned by this method may differ from the number of
-   * nodes actually returned by calls to hasNext() / getNextNode()! This is
-   * because this iterator works on a lazy instantiation basis and while
-   * iterating over the nodes some of them might have been deleted in the
-   * meantime. Those will not be returned by getNextNode(). As soon as an
-   * invalid node is detected, the size of this iterator is adjusted.
+   * Returns the number of nodes in this iterator. </p> Note: The number returned by this method may
+   * differ from the number of nodes actually returned by calls to hasNext() / getNextNode()! This
+   * is because this iterator works on a lazy instantiation basis and while iterating over the nodes
+   * some of them might have been deleted in the meantime. Those will not be returned by
+   * getNextNode(). As soon as an invalid node is detected, the size of this iterator is adjusted.
    * 
    * @return the number of node in this iterator.
    */

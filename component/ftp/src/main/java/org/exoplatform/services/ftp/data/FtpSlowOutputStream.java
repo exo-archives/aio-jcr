@@ -13,25 +13,26 @@ import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * 
  * @version $Id: $
  */
 
 public class FtpSlowOutputStream extends OutputStream {
-  
-  private static Log log = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpSlowOutputStream");
+
+  private static Log   log    = ExoLogger.getLogger(FtpConst.FTP_PREFIX + "FtpSlowOutputStream");
 
   private OutputStream nativeOutputStream;
-  
-  private int blockSize;
-  private int writed = 0;  
-  
+
+  private int          blockSize;
+
+  private int          writed = 0;
+
   public FtpSlowOutputStream(OutputStream nativeOutputStream, int bytesPerSec) {
-    this.nativeOutputStream = nativeOutputStream;    
+    this.nativeOutputStream = nativeOutputStream;
     blockSize = bytesPerSec / 10;
   }
-  
+
   protected void tryWaiting() {
     if (writed >= blockSize) {
       try {
@@ -42,41 +43,41 @@ public class FtpSlowOutputStream extends OutputStream {
       writed = 0;
     }
   }
-  
+
   public void write(int dataByte) throws IOException {
     tryWaiting();
     nativeOutputStream.write(dataByte);
     writed++;
   }
-  
-  public void write(byte []dataBytes) throws IOException {
-    write(dataBytes, 0, dataBytes.length);   
+
+  public void write(byte[] dataBytes) throws IOException {
+    write(dataBytes, 0, dataBytes.length);
   }
-  
-  public void write(byte []dataBytes, int offset, int len) throws IOException {
+
+  public void write(byte[] dataBytes, int offset, int len) throws IOException {
     int allWrited = 0;
     int curOffset = offset;
-    
-    while (allWrited < len) {      
+
+    while (allWrited < len) {
       tryWaiting();
-      
+
       int curBlockSize = blockSize - writed;
       if ((curBlockSize + allWrited) > len) {
         curBlockSize = len - allWrited;
       }
-      
+
       nativeOutputStream.write(dataBytes, curOffset, curBlockSize);
-      
+
       allWrited += curBlockSize;
       writed += curBlockSize;
       curOffset += curBlockSize;
     }
   }
-  
+
   public void flush() throws IOException {
     nativeOutputStream.flush();
   }
-  
+
   public void close() throws IOException {
     nativeOutputStream.close();
   }

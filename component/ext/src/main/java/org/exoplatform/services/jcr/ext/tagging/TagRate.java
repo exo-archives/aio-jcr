@@ -20,19 +20,20 @@ package org.exoplatform.services.jcr.ext.tagging;
 import java.util.Calendar;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author eXo Platform
  * @version $Id: $
  */
 
 public class TagRate {
-  
-  private final String tagName;
-  
-  private final int count;
-  
-  private final int rate;
-  
+
+  private final String   tagName;
+
+  private final int      count;
+
+  private final int      rate;
+
   private final Calendar updated;
 
   public TagRate(String tagName, int count, int rate, Calendar updated) {
@@ -56,7 +57,6 @@ public class TagRate {
 
   public Calendar getUpdated() {
     return updated;
-  }  
-  
-}
+  }
 
+}

@@ -56,12 +56,9 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS. <br/>
  * 
- * Default workspace intializer. <br/>
- * Can be configured with root-nodetype and root-permissions parameters.
- * If root-nodetype and root-permissions are empty then <br/>
- * root-nodetype = nt:unstructured <br/>
- * root-permissions = ACL default <br/>
- * values will be applied.
+ * Default workspace intializer. <br/> Can be configured with root-nodetype and root-permissions
+ * parameters. If root-nodetype and root-permissions are empty then <br/> root-nodetype =
+ * nt:unstructured <br/> root-permissions = ACL default <br/> values will be applied.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ScratchWorkspaceInitializer.java 13986 2008-05-08 10:48:43Z pnedonosko $
@@ -90,14 +87,14 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
   private final InternalQName           rootNodeType;
 
   public ScratchWorkspaceInitializer(WorkspaceEntry config,
-                            RepositoryEntry repConfig,
-                            CacheableWorkspaceDataManager dataManager,
-                            LocationFactory locationFactory,
-                            NamespaceDataPersister nsPersister,
-                            ExtendedNodeTypeManager ntRegistry,
-                            NodeTypeDataPersister ntPersister) throws RepositoryConfigurationException,
-                                                              PathNotFoundException,
-                                                              RepositoryException {
+                                     RepositoryEntry repConfig,
+                                     CacheableWorkspaceDataManager dataManager,
+                                     LocationFactory locationFactory,
+                                     NamespaceDataPersister nsPersister,
+                                     ExtendedNodeTypeManager ntRegistry,
+                                     NodeTypeDataPersister ntPersister) throws RepositoryConfigurationException,
+      PathNotFoundException,
+      RepositoryException {
 
     this.systemWorkspaceName = repConfig.getSystemWorkspaceName();
     this.accessControlType = repConfig.getAccessControl();
@@ -107,33 +104,42 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
     String rootPermissions = null;
     String rootNodeType = null;
     if (config.getInitializer() != null) {
-      // use user configuration for initializer 
-      rootPermissions = config.getInitializer().getParameterValue(WorkspaceInitializer.ROOT_PERMISSIONS_PARAMETER, null);
-      rootNodeType = config.getInitializer().getParameterValue(WorkspaceInitializer.ROOT_NODETYPE_PARAMETER, null);
+      // use user configuration for initializer
+      rootPermissions = config.getInitializer()
+                              .getParameterValue(WorkspaceInitializer.ROOT_PERMISSIONS_PARAMETER,
+                                                 null);
+      rootNodeType = config.getInitializer()
+                           .getParameterValue(WorkspaceInitializer.ROOT_NODETYPE_PARAMETER, null);
     }
-    
-    // use deprecated params if found, temporary TODO 
+
+    // use deprecated params if found, temporary TODO
     if (config.getAutoInitializedRootNt() != null) {
       if (rootNodeType == null) {
         rootNodeType = config.getAutoInitializedRootNt();
-        log.warn("[" + workspaceName + "] auto-init-root-nodetype (" + rootNodeType + ") parameter is DEPRECATED ! Use <initializer .../> instead.");
+        log.warn("[" + workspaceName + "] auto-init-root-nodetype (" + rootNodeType
+            + ") parameter is DEPRECATED ! Use <initializer .../> instead.");
       } else {
-        log.warn("[" + workspaceName + "] auto-init-root-nodetype parameter is DEPRECATED ! Skipped.");
+        log.warn("[" + workspaceName
+            + "] auto-init-root-nodetype parameter is DEPRECATED ! Skipped.");
       }
-    } 
+    }
     if (config.getAutoInitPermissions() != null) {
       if (rootPermissions == null) {
         rootPermissions = config.getAutoInitPermissions();
-        log.warn("[" + workspaceName + "] auto-init-permissions (" + rootPermissions + ") parameter is DEPRECATED ! Use <initializer .../> instead.");
+        log.warn("[" + workspaceName + "] auto-init-permissions (" + rootPermissions
+            + ") parameter is DEPRECATED ! Use <initializer .../> instead.");
       } else {
         log.warn("[" + workspaceName + "] auto-init-permissions parameter is DEPRECATED ! Skipped.");
       }
     }
-    
-    // default behaviour root-nodetype=nt:unstructured, root-permissions will be managed by AccessControlList class
+
+    // default behaviour root-nodetype=nt:unstructured, root-permissions will be managed by
+    // AccessControlList class
     this.rootPermissions = rootPermissions;
-    this.rootNodeType = rootNodeType != null ? locationFactory.parseJCRName(rootNodeType).getInternalName() : Constants.NT_UNSTRUCTURED;
-    
+    this.rootNodeType = rootNodeType != null
+        ? locationFactory.parseJCRName(rootNodeType).getInternalName()
+        : Constants.NT_UNSTRUCTURED;
+
     this.dataManager = dataManager;
     this.nsPersister = nsPersister;
     this.ntRegistry = ntRegistry;
@@ -152,8 +158,8 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
     NodeData root = initRootNode(rootNodeType);
 
     if (log.isDebugEnabled())
-      log.debug("Root node for " + workspaceName + " initialized. NodeType: " + rootNodeType + " system workspace: "
-          + systemWorkspaceName);
+      log.debug("Root node for " + workspaceName + " initialized. NodeType: " + rootNodeType
+          + " system workspace: " + systemWorkspaceName);
 
     // Init system workspace
     if (workspaceName.equals(systemWorkspaceName)) {
@@ -173,8 +179,8 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
     NodeData root = initRootNode(rootNodeType);
 
     if (log.isDebugEnabled())
-      log.debug("Root node for " + workspaceName + " initialized. NodeType: " + rootNodeType + " system workspace: "
-          + systemWorkspaceName);
+      log.debug("Root node for " + workspaceName + " initialized. NodeType: " + rootNodeType
+          + " system workspace: " + systemWorkspaceName);
 
     // Init system workspace
     if (workspaceName.equals(systemWorkspaceName)) {
@@ -203,24 +209,23 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
 
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
-    TransientNodeData rootNode =
-        new TransientNodeData(Constants.ROOT_PATH,
-                              Constants.ROOT_UUID,
-                              -1,
-                              rootNodeType,
-                              new InternalQName[0],
-                              0,
-                              null,
-                              new AccessControlList());
+    TransientNodeData rootNode = new TransientNodeData(Constants.ROOT_PATH,
+                                                       Constants.ROOT_UUID,
+                                                       -1,
+                                                       rootNodeType,
+                                                       new InternalQName[0],
+                                                       0,
+                                                       null,
+                                                       new AccessControlList());
     changesLog.add(new ItemState(rootNode, ItemState.ADDED, false, null));
 
-    TransientPropertyData primaryType =
-        new TransientPropertyData(QPath.makeChildPath(rootNode.getQPath(), Constants.JCR_PRIMARYTYPE),
-                                  IdGenerator.generate(),
-                                  -1,
-                                  PropertyType.NAME,
-                                  rootNode.getIdentifier(),
-                                  false);
+    TransientPropertyData primaryType = new TransientPropertyData(QPath.makeChildPath(rootNode.getQPath(),
+                                                                                      Constants.JCR_PRIMARYTYPE),
+                                                                  IdGenerator.generate(),
+                                                                  -1,
+                                                                  PropertyType.NAME,
+                                                                  rootNode.getIdentifier(),
+                                                                  false);
     primaryType.setValue(new TransientValueData(rootNodeType));
 
     changesLog.add(new ItemState(primaryType, ItemState.ADDED, false, null)); // 
@@ -237,7 +242,8 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
 
       rootNode.setACL(acl);
 
-      InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE, Constants.EXO_PRIVILEGEABLE };
+      InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE,
+          Constants.EXO_PRIVILEGEABLE };
       rootNode.setMixinTypeNames(mixins);
 
       // jcr:mixinTypes
@@ -245,27 +251,28 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
       for (InternalQName mixin : mixins) {
         mixValues.add(new TransientValueData(mixin));
       }
-      TransientPropertyData exoMixinTypes =
-          TransientPropertyData.createPropertyData(rootNode, Constants.JCR_MIXINTYPES, PropertyType.NAME, true, mixValues);
+      TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(rootNode,
+                                                                                     Constants.JCR_MIXINTYPES,
+                                                                                     PropertyType.NAME,
+                                                                                     true,
+                                                                                     mixValues);
 
-      TransientPropertyData exoOwner =
-          TransientPropertyData.createPropertyData(rootNode,
-                                                   Constants.EXO_OWNER,
-                                                   PropertyType.STRING,
-                                                   false,
-                                                   new TransientValueData(acl.getOwner()));
+      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(rootNode,
+                                                                                Constants.EXO_OWNER,
+                                                                                PropertyType.STRING,
+                                                                                false,
+                                                                                new TransientValueData(acl.getOwner()));
 
       List<ValueData> permsValues = new ArrayList<ValueData>();
       for (int i = 0; i < acl.getPermissionEntries().size(); i++) {
         AccessControlEntry entry = acl.getPermissionEntries().get(i);
         permsValues.add(new TransientValueData(entry));
       }
-      TransientPropertyData exoPerms =
-          TransientPropertyData.createPropertyData(rootNode,
-                                                   Constants.EXO_PERMISSIONS,
-                                                   ExtendedPropertyType.PERMISSION,
-                                                   true,
-                                                   permsValues);
+      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(rootNode,
+                                                                                Constants.EXO_PERMISSIONS,
+                                                                                ExtendedPropertyType.PERMISSION,
+                                                                                true,
+                                                                                permsValues);
 
       changesLog.add(ItemState.createAddedState(exoMixinTypes))
                 .add(ItemState.createAddedState(exoOwner))
@@ -282,21 +289,27 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
 
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
-    TransientNodeData jcrSystem =
-        TransientNodeData.createNodeData(root, Constants.JCR_SYSTEM, Constants.NT_UNSTRUCTURED, Constants.SYSTEM_UUID);
+    TransientNodeData jcrSystem = TransientNodeData.createNodeData(root,
+                                                                   Constants.JCR_SYSTEM,
+                                                                   Constants.NT_UNSTRUCTURED,
+                                                                   Constants.SYSTEM_UUID);
 
-    TransientPropertyData primaryType =
-        TransientPropertyData.createPropertyData(jcrSystem, Constants.JCR_PRIMARYTYPE, PropertyType.NAME, false);
+    TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrSystem,
+                                                                                 Constants.JCR_PRIMARYTYPE,
+                                                                                 PropertyType.NAME,
+                                                                                 false);
     primaryType.setValue(new TransientValueData(jcrSystem.getPrimaryTypeName()));
 
-    changesLog.add(ItemState.createAddedState(jcrSystem)).add(ItemState.createAddedState(primaryType));
+    changesLog.add(ItemState.createAddedState(jcrSystem))
+              .add(ItemState.createAddedState(primaryType));
 
     boolean addACL = !accessControlType.equals(AccessControlPolicy.DISABLE);
 
     if (addACL) {
       AccessControlList acl = new AccessControlList();
 
-      InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE, Constants.EXO_PRIVILEGEABLE };
+      InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE,
+          Constants.EXO_PRIVILEGEABLE };
       jcrSystem.setMixinTypeNames(mixins);
 
       // jcr:mixinTypes
@@ -304,27 +317,28 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
       for (InternalQName mixin : mixins) {
         mixValues.add(new TransientValueData(mixin));
       }
-      TransientPropertyData exoMixinTypes =
-          TransientPropertyData.createPropertyData(jcrSystem, Constants.JCR_MIXINTYPES, PropertyType.NAME, true, mixValues);
+      TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(jcrSystem,
+                                                                                     Constants.JCR_MIXINTYPES,
+                                                                                     PropertyType.NAME,
+                                                                                     true,
+                                                                                     mixValues);
 
-      TransientPropertyData exoOwner =
-          TransientPropertyData.createPropertyData(jcrSystem,
-                                                   Constants.EXO_OWNER,
-                                                   PropertyType.STRING,
-                                                   false,
-                                                   new TransientValueData(acl.getOwner()));
+      TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(jcrSystem,
+                                                                                Constants.EXO_OWNER,
+                                                                                PropertyType.STRING,
+                                                                                false,
+                                                                                new TransientValueData(acl.getOwner()));
 
       List<ValueData> permsValues = new ArrayList<ValueData>();
       for (int i = 0; i < acl.getPermissionEntries().size(); i++) {
         AccessControlEntry entry = acl.getPermissionEntries().get(i);
         permsValues.add(new TransientValueData(entry));
       }
-      TransientPropertyData exoPerms =
-          TransientPropertyData.createPropertyData(jcrSystem,
-                                                   Constants.EXO_PERMISSIONS,
-                                                   ExtendedPropertyType.PERMISSION,
-                                                   true,
-                                                   permsValues);
+      TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(jcrSystem,
+                                                                                Constants.EXO_PERMISSIONS,
+                                                                                ExtendedPropertyType.PERMISSION,
+                                                                                true,
+                                                                                permsValues);
 
       changesLog.add(ItemState.createAddedState(exoMixinTypes))
                 .add(ItemState.createAddedState(exoOwner))
@@ -333,17 +347,19 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
     }
 
     // init version storage
-    TransientNodeData versionStorageNodeData =
-        TransientNodeData.createNodeData(jcrSystem,
-                                         Constants.JCR_VERSIONSTORAGE,
-                                         Constants.EXO_VERSIONSTORAGE,
-                                         Constants.VERSIONSTORAGE_UUID);
+    TransientNodeData versionStorageNodeData = TransientNodeData.createNodeData(jcrSystem,
+                                                                                Constants.JCR_VERSIONSTORAGE,
+                                                                                Constants.EXO_VERSIONSTORAGE,
+                                                                                Constants.VERSIONSTORAGE_UUID);
 
-    TransientPropertyData vsPrimaryType =
-        TransientPropertyData.createPropertyData(versionStorageNodeData, Constants.JCR_PRIMARYTYPE, PropertyType.NAME, false);
+    TransientPropertyData vsPrimaryType = TransientPropertyData.createPropertyData(versionStorageNodeData,
+                                                                                   Constants.JCR_PRIMARYTYPE,
+                                                                                   PropertyType.NAME,
+                                                                                   false);
     vsPrimaryType.setValue(new TransientValueData(versionStorageNodeData.getPrimaryTypeName()));
 
-    changesLog.add(ItemState.createAddedState(versionStorageNodeData)).add(ItemState.createAddedState(vsPrimaryType));
+    changesLog.add(ItemState.createAddedState(versionStorageNodeData))
+              .add(ItemState.createAddedState(vsPrimaryType));
 
     dataManager.save(new TransactionChangesLog(changesLog));
 

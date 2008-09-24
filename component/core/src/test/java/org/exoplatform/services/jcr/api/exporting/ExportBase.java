@@ -53,12 +53,13 @@ public class ExportBase extends JcrAPIBaseTest {
     valList.add(new String[] { "" });
     valList.add(new String[] { "1" });
     valList.add(new String[] { "1", "2" });
-    valList.add(new String[] { "\">" ,"\"<"});
-    valList.add(new String[] { "</sv:value>"});
-    valList.add(new String[] { "</sv:value>","</sv:value>"});
-    valList.add(new String[] { "<sv:value>nt:unstructured</sv:value>"});
-    valList.add(new String[] { "<sv:value>nt:unstructured</sv:value>","<sv:value>nt:unstructured</sv:value>"});
-    //!!!! /r http://www.w3.org/TR/2000/REC-xml-20001006#sec-line-ends
+    valList.add(new String[] { "\">", "\"<" });
+    valList.add(new String[] { "</sv:value>" });
+    valList.add(new String[] { "</sv:value>", "</sv:value>" });
+    valList.add(new String[] { "<sv:value>nt:unstructured</sv:value>" });
+    valList.add(new String[] { "<sv:value>nt:unstructured</sv:value>",
+        "<sv:value>nt:unstructured</sv:value>" });
+    // !!!! /r http://www.w3.org/TR/2000/REC-xml-20001006#sec-line-ends
     valList.add(new String[] { "anvwiuehovi", "akf\"123\401/.m4gjsdlfg", "qp_f i\tsdfh\npihqebpf" });
     valList.add(new String[] { "bejhryi&oph<nb >3  'o[..=123-" });
     valList.add(new String[] {

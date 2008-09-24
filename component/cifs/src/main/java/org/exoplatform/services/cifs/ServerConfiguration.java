@@ -399,8 +399,7 @@ public class ServerConfiguration {
 
       String osName = System.getProperty("os.name");
       if (osName.startsWith("Windows")
-          && (osName.endsWith("95") == false && osName.endsWith("98") == false && osName
-              .endsWith("ME") == false)) {
+          && (osName.endsWith("95") == false && osName.endsWith("98") == false && osName.endsWith("ME") == false)) {
 
         // Call the Win32NetBIOS native code to make sure it is initialized
 
@@ -460,7 +459,13 @@ public class ServerConfiguration {
       setSMBServerEnabled(true);
     }
 
-    String flags = "NETBIOS,Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify,IPC,DCERPC,STREAMS";// elem.getAttribute("flags");
+    String flags = "NETBIOS,Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify,IPC,DCERPC,STREAMS";// elem
+    // .
+    // getAttribute
+    // (
+    // "flags"
+    // )
+    // ;
     int sessDbg = 0;
 
     if (flags != null) {
@@ -506,8 +511,7 @@ public class ServerConfiguration {
     }
 
     if (repoName == null)
-      logger
-          .warn("Neither jndi-repository-name nor repository-name is set. Default repository will be obtained");
+      logger.warn("Neither jndi-repository-name nor repository-name is set. Default repository will be obtained");
 
     ValueParam wsParam = params.getValueParam("workspaces");
     if (wsParam != null) {
@@ -613,8 +617,7 @@ public class ServerConfiguration {
 
     String osName = System.getProperty("os.name");
     if (osName.startsWith("Windows")
-        && (osName.endsWith("95") == false && osName.endsWith("98") == false && osName
-            .endsWith("ME") == false)) {
+        && (osName.endsWith("95") == false && osName.endsWith("98") == false && osName.endsWith("ME") == false)) {
 
       // Call the Win32NetBIOS native code to make sure it is
       // initialized
@@ -652,7 +655,13 @@ public class ServerConfiguration {
     // "FILEIO", "TRANSACT", "ECHO", "ERROR", "IPC", "LOCK", "PKTTYPE",
     // "DCERPC", "STATECACHE", "NOTIFY",
     // "STREAMS", "SOCKET"
-    String flags = "Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify,NETBIOS,IPC,DCERPC,STREAMS";// elem.getAttribute("flags");
+    String flags = "Negotiate,Socket,Tree,PktType,StateCache,State,Search,Info,File,FileIO,Echo,Error,Notify,NETBIOS,IPC,DCERPC,STREAMS";// elem
+    // .
+    // getAttribute
+    // (
+    // "flags"
+    // )
+    // ;
     int sessDbg = 0;
 
     if (flags != null) {
@@ -825,8 +834,8 @@ public class ServerConfiguration {
   }
 
   /**
-   * Determine if the server should be announced via Win32 NetBIOS, so that it
-   * appears under Network Neighborhood.
+   * Determine if the server should be announced via Win32 NetBIOS, so that it appears under Network
+   * Neighborhood.
    * 
    * @return boolean
    */
@@ -844,8 +853,7 @@ public class ServerConfiguration {
   }
 
   /**
-   * Return the Win32 NetBIOS server name, if null the default server name will
-   * be used
+   * Return the Win32 NetBIOS server name, if null the default server name will be used
    * 
    * @return String
    */
@@ -854,8 +862,7 @@ public class ServerConfiguration {
   }
 
   /**
-   * Determine if the Win32 Netbios() API or Winsock Netbios calls should be
-   * used
+   * Determine if the Win32 Netbios() API or Winsock Netbios calls should be used
    * 
    * @return boolean
    */
@@ -945,7 +952,8 @@ public class ServerConfiguration {
         // Try and find the browse master on the local network
 
         nbName = NetBIOSSession.FindName(NetBIOSName.BrowseMasterName,
-            NetBIOSName.BrowseMasterGroup, 5000);
+                                         NetBIOSName.BrowseMasterGroup,
+                                         5000);
 
         // Log the browse master details
 
@@ -954,8 +962,7 @@ public class ServerConfiguration {
 
         // Get the NetBIOS name list from the browse master
 
-        NetBIOSNameList nbNameList = NetBIOSSession.FindNamesForAddress(nbName
-            .getIPAddressString(0));
+        NetBIOSNameList nbNameList = NetBIOSSession.FindNamesForAddress(nbName.getIPAddressString(0));
         if (nbNameList != null) {
           nbName = nbNameList.findName(NetBIOSName.MasterBrowser, false);
           // Set the domain/workgroup name
@@ -983,7 +990,8 @@ public class ServerConfiguration {
   /**
    * Set the SMB server enabled state
    * 
-   * @param ena boolean
+   * @param ena
+   *          boolean
    */
   public final void setSMBServerEnabled(boolean ena) {
     m_smbEnable = ena;
@@ -992,7 +1000,8 @@ public class ServerConfiguration {
   /**
    * Set the broadcast mask to be used for broadcast datagrams.
    * 
-   * @param mask String
+   * @param mask
+   *          String
    */
   public final void setBroadcastMask(String mask) {
     m_broadcast = mask;
@@ -1005,7 +1014,8 @@ public class ServerConfiguration {
   /**
    * Set the primary WINS server address
    * 
-   * @param addr InetAddress
+   * @param addr
+   *          InetAddress
    */
   public final void setPrimaryWINSServer(InetAddress addr) {
     m_winsPrimary = addr;
@@ -1014,7 +1024,8 @@ public class ServerConfiguration {
   /**
    * Set the secondary WINS server address
    * 
-   * @param addr InetAddress
+   * @param addr
+   *          InetAddress
    */
   public final void setSecondaryWINSServer(InetAddress addr) {
     m_winsSecondary = addr;
@@ -1051,8 +1062,7 @@ public class ServerConfiguration {
   }
 
   /**
-   * Determine if the server should be announced so that it appears under
-   * Network Neighborhood.
+   * Determine if the server should be announced so that it appears under Network Neighborhood.
    * 
    * @return boolean
    */

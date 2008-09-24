@@ -29,37 +29,47 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  */
 public abstract class AbstractQueryImpl implements Query {
 
-    /**
-     * Initializes a query instance from a query string.
-     *
-     * @param session   the session of the user executing this query.
-     * @param itemMgr   the item manager of the session executing this query.
-     * @param handler   the query handler of the search index.
-     * @param statement the query statement.
-     * @param language  the syntax of the query statement.
-     * @throws InvalidQueryException if the query statement is invalid according
-     *                               to the specified <code>language</code>.
-     */
-    public abstract void init(SessionImpl session,
-                              SessionDataManager itemMgr,
-                              QueryHandler handler,
-                              String statement,
-                              String language) throws InvalidQueryException;
+  /**
+   * Initializes a query instance from a query string.
+   * 
+   * @param session
+   *          the session of the user executing this query.
+   * @param itemMgr
+   *          the item manager of the session executing this query.
+   * @param handler
+   *          the query handler of the search index.
+   * @param statement
+   *          the query statement.
+   * @param language
+   *          the syntax of the query statement.
+   * @throws InvalidQueryException
+   *           if the query statement is invalid according to the specified <code>language</code>.
+   */
+  public abstract void init(SessionImpl session,
+                            SessionDataManager itemMgr,
+                            QueryHandler handler,
+                            String statement,
+                            String language) throws InvalidQueryException;
 
-    /**
-     * Initializes a query instance from a nt:query node.
-     *
-     * @param session the session of the user executing this query.
-     * @param itemMgr the item manager of the session executing this query.
-     * @param handler the query handler of the search index.
-     * @param node    a node of type <code>nt:query</code>.
-     * @throws InvalidQueryException If <code>node</code> is not a valid persisted query
-     *                               (that is, a node of type <code>nt:query</code>).
-     * @throws RepositoryException   if another error occurs
-     */
-    public abstract void init(SessionImpl session,
-                              SessionDataManager itemMgr,
-                              QueryHandler handler,
-                              Node node)
-            throws InvalidQueryException, RepositoryException;
+  /**
+   * Initializes a query instance from a nt:query node.
+   * 
+   * @param session
+   *          the session of the user executing this query.
+   * @param itemMgr
+   *          the item manager of the session executing this query.
+   * @param handler
+   *          the query handler of the search index.
+   * @param node
+   *          a node of type <code>nt:query</code>.
+   * @throws InvalidQueryException
+   *           If <code>node</code> is not a valid persisted query (that is, a node of type
+   *           <code>nt:query</code>).
+   * @throws RepositoryException
+   *           if another error occurs
+   */
+  public abstract void init(SessionImpl session,
+                            SessionDataManager itemMgr,
+                            QueryHandler handler,
+                            Node node) throws InvalidQueryException, RepositoryException;
 }

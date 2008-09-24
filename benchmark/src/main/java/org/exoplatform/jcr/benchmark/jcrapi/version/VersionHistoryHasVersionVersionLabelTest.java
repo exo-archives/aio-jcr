@@ -20,14 +20,14 @@ public class VersionHistoryHasVersionVersionLabelTest extends AbstractGetVersion
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
-    
+
     vnode.checkout();
     vnode.addNode("Subnode").setProperty("Property", "property of subnode");
     vnode.save();
-    
+
     version = vnode.checkin(); // v.2
     vnode.checkout();
-    
+
     vhistory.addVersionLabel("2", "v.2", false);
     vhistory.addVersionLabel("2", "ver.2", false);
   }

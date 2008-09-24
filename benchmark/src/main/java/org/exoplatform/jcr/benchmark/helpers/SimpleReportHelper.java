@@ -27,6 +27,7 @@ import java.util.Date;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author Vitaliy Obmanyuk
  */
 

@@ -37,51 +37,58 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
  */
 public class NtFileNodeRepresentation implements NodeRepresentation {
 
-  private Node node;
+  private Node               node;
+
   private NodeRepresentation content;
-  
+
   public NtFileNodeRepresentation(Node node, NodeRepresentation content) throws RepositoryException {
     this.node = node;
     this.content = content;
-    //content = node.getNode("jcr:content");
+    // content = node.getNode("jcr:content");
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getContentEncoding()
    */
   public String getContentEncoding() {
     return null;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getContentLenght()
    */
   public long getContentLenght() throws RepositoryException {
     return content.getContentLenght();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getMediaType()
    */
   public String getMediaType() throws RepositoryException {
     return content.getMediaType();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getLastModified()
    */
   public long getLastModified() throws RepositoryException {
     return content.getLastModified();
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getNode()
    */
   public Node getNode() {
     return node;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
    */
   public HierarchicalProperty getProperty(String name) throws RepositoryException {
@@ -90,35 +97,40 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
 
     if (content == null)
       return null;
-    
+
     if (content.getProperty(name) != null) {
       return content.getProperty(name);
     }
-    
+
     try {
       String value = node.getProperty(name).getString();
-      String ns = ((ExtendedSession)node.getSession()).getLocationFactory().parseJCRName(name).getNamespace();
+      String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
+                                                       .parseJCRName(name)
+                                                       .getNamespace();
       return new HierarchicalProperty(name, value, ns);
     } catch (PathNotFoundException e) {
       return null;
     }
-    
+
   }
-  
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperties(java.lang.String)
+
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperties(java.lang.String)
    */
-  public Collection <HierarchicalProperty> getProperties(String name) throws RepositoryException { 
-    ArrayList <HierarchicalProperty> props = new ArrayList <HierarchicalProperty>();
+  public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
+    ArrayList<HierarchicalProperty> props = new ArrayList<HierarchicalProperty>();
     props.add(getProperty(name));
     return props;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()
    */
   public Collection<String> getPropertyNames() throws RepositoryException {
-    //List <String> propnames = new ArrayList<String>();
+    // List <String> propnames = new ArrayList<String>();
     PropertyIterator iter = node.getProperties();
     ArrayList<String> props = new ArrayList<String>();
     while (iter.hasNext()) {
@@ -130,7 +142,8 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
     return props;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getInputStream()
    */
   public InputStream getInputStream() throws IOException, RepositoryException {
@@ -138,4 +151,3 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
   }
 
 }
-

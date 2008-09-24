@@ -38,8 +38,8 @@ import org.exoplatform.services.jcr.impl.xml.XmlMapping;
 
 public class NodeTypeRecognizer {
   public static XmlMapping recognize(InputStream is) throws IOException,
-      SAXException,
-      ParserConfigurationException {
+                                                    SAXException,
+                                                    ParserConfigurationException {
 
     DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
     dfactory.setNamespaceAware(true);

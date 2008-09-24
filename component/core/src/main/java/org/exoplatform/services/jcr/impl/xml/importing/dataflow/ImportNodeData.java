@@ -137,7 +137,6 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.exoplatform.services.jcr.impl.dataflow.TransientNodeData#getMixinTypeNames()
    */
   @Override
@@ -192,14 +191,16 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param baseVersionIdentifier the baseVersionIdentifier to set
+   * @param baseVersionIdentifier
+   *          the baseVersionIdentifier to set
    */
   public void setBaseVersionIdentifier(String baseVersionIdentifier) {
     this.baseVersionIdentifier = baseVersionIdentifier;
   }
 
   /**
-   * @param isContainsVersionhistory the isContainsVersionhistory to set
+   * @param isContainsVersionhistory
+   *          the isContainsVersionhistory to set
    */
   public void setContainsVersionhistory(boolean isContainsVersionhistory) {
     this.isContainsVersionhistory = isContainsVersionhistory;
@@ -210,14 +211,16 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param isMixReferenceable the isMixReferenceable to set
+   * @param isMixReferenceable
+   *          the isMixReferenceable to set
    */
   public void setMixReferenceable(boolean isMixReferenceable) {
     this.isMixReferenceable = isMixReferenceable;
   }
 
   /**
-   * @param isMixVersionable the isMixVersionable to set
+   * @param isMixVersionable
+   *          the isMixVersionable to set
    */
   public void setMixVersionable(boolean isMixVersionable) {
     this.isMixVersionable = isMixVersionable;
@@ -240,7 +243,6 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
     primaryTypeName = name;
   }
 
-
   /**
    * Set path of item
    * 
@@ -251,7 +253,8 @@ public class ImportNodeData extends TransientNodeData implements ImportItemData 
   }
 
   /**
-   * @param versionHistoryIdentifier the versionHistoryIdentifier to set
+   * @param versionHistoryIdentifier
+   *          the versionHistoryIdentifier to set
    */
   public void setVersionHistoryIdentifier(String versionHistoryIdentifier) {
     this.versionHistoryIdentifier = versionHistoryIdentifier;

@@ -50,7 +50,7 @@ public class TestInitRepository extends JcrImplBaseTest {
     String sysWs = defRep.getSystemWorkspaceName();
     assertFalse("Sys ws should not be    initialized for this test!!",
                 defRep.isWorkspaceInitialized(sysWs)); // Default Namespaces
-                                                        // and NodeTypes
+    // and NodeTypes
     NamespaceRegistry nsReg = defRep.getNamespaceRegistry();
     assertNotNull(nsReg);
     assertTrue(nsReg.getPrefixes().length > 0);
@@ -68,7 +68,7 @@ public class TestInitRepository extends JcrImplBaseTest {
                 defRep.isWorkspaceInitialized(sysWs));
 
     // TODO
-    //defRep.initWorkspace(sysWs, "nt:unstructured");
+    // defRep.initWorkspace(sysWs, "nt:unstructured");
 
     Session sess = defRep.getSystemSession(sysWs);
 
@@ -100,7 +100,7 @@ public class TestInitRepository extends JcrImplBaseTest {
       fail("not system workspace not found for test!!");
 
     // TODO
-    //defRep.initWorkspace(wsName, "nt:unstructured");
+    // defRep.initWorkspace(wsName, "nt:unstructured");
 
     // Session sysSess = defRep.getSystemSession(sysWs);
     Session sess = defRep.getSystemSession(wsName);

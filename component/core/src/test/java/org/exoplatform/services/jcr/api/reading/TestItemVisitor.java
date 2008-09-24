@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.api.reading;
 
-
 import java.util.Calendar;
 
 import javax.jcr.ItemVisitor;
@@ -30,6 +29,7 @@ import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: TestItemVisitor.java 11907 2008-03-13 15:36:21Z ksm $
  */
@@ -40,9 +40,12 @@ public class TestItemVisitor extends JcrAPIBaseTest {
     Node root = session.getRootNode();
     Node file = root.addNode("childNode", "nt:folder").addNode("childNode2", "nt:file");
     Node contentNode = file.addNode("jcr:content", "nt:resource");
-    contentNode.setProperty("jcr:data", session.getValueFactory().createValue("this is the content", PropertyType.BINARY));
+    contentNode.setProperty("jcr:data", session.getValueFactory()
+                                               .createValue("this is the content",
+                                                            PropertyType.BINARY));
     contentNode.setProperty("jcr:mimeType", session.getValueFactory().createValue("text/html"));
-    contentNode.setProperty("jcr:lastModified", session.getValueFactory().createValue(Calendar.getInstance()));
+    contentNode.setProperty("jcr:lastModified", session.getValueFactory()
+                                                       .createValue(Calendar.getInstance()));
 
     session.save();
 
@@ -52,11 +55,11 @@ public class TestItemVisitor extends JcrAPIBaseTest {
 
     visitor = new MockVisitor2();
     root.getNode("childNode").accept(visitor);
-    assertEquals(((MockVisitor2)visitor).getI(),((MockVisitor2)visitor).getJ());
-    assertEquals(3, ((MockVisitor2)visitor).getI());
-    log.debug("VISITOR -- "+((MockVisitor2)visitor).isReached());
-    assertTrue(((MockVisitor2)visitor).isReached());
-    
+    assertEquals(((MockVisitor2) visitor).getI(), ((MockVisitor2) visitor).getJ());
+    assertEquals(3, ((MockVisitor2) visitor).getI());
+    log.debug("VISITOR -- " + ((MockVisitor2) visitor).isReached());
+    assertTrue(((MockVisitor2) visitor).isReached());
+
     root.getNode("childNode").remove();
     session.save();
   }
@@ -73,15 +76,16 @@ public class TestItemVisitor extends JcrAPIBaseTest {
 
   }
 
-
   public class MockVisitor2 extends TraversingItemVisitor {
 
     private boolean reached = false;
-    private int i = 0;
-    private int j = 0;
+
+    private int     i       = 0;
+
+    private int     j       = 0;
 
     protected void entering(Property property, int level) throws RepositoryException {
-      if("jcr:data".equals(property.getName()))
+      if ("jcr:data".equals(property.getName()))
         reached = true;
     }
 
@@ -97,9 +101,9 @@ public class TestItemVisitor extends JcrAPIBaseTest {
       j++;
     }
 
-    private boolean isInList(String name){
-      if("childNode".equals(name) || "childNode2".equals(name) || "jcr:content".equals(name) ||
-          "jcr:data".equals(name) || "jcr:mimeType".equals(name)){
+    private boolean isInList(String name) {
+      if ("childNode".equals(name) || "childNode2".equals(name) || "jcr:content".equals(name)
+          || "jcr:data".equals(name) || "jcr:mimeType".equals(name)) {
         return true;
       }
       return false;

@@ -20,18 +20,18 @@ import com.sun.japex.TestCase;
 
 public abstract class AbstractNodeTest extends JCRTestBase {
 
-  protected Node root;
-  
+  protected Node   root;
+
   protected String nodeName;
-  
+
   protected String propertyName;
-  
-  protected Node node;
-  
+
+  protected Node   node;
+
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     super.doFinish(tc, context);
-    
+
     node.remove();
     context.getSession().save();
   }
@@ -39,22 +39,22 @@ public abstract class AbstractNodeTest extends JCRTestBase {
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
-        
+
     root = context.getSession().getRootNode().addNode(context.generateUniqueName("testRoot"));
-    
+
     node = root.addNode(nodeName = context.generateUniqueName("testNode"));
     node.addMixin("mix:referenceable");
-    node.setProperty(propertyName =  context.generateUniqueName("property"), "content");
+    node.setProperty(propertyName = context.generateUniqueName("property"), "content");
     context.getSession().save();
-    
-    for (int i = 0; i<10; i++) {
+
+    for (int i = 0; i < 10; i++) {
       node.addNode(context.generateUniqueName("node"));
     }
-    
-    for (int i = 0; i<10; i++) {
+
+    for (int i = 0; i < 10; i++) {
       node.setProperty(context.generateUniqueName("property"), node);
     }
-    
+
     root.save();
   }
 
