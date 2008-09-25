@@ -120,4 +120,11 @@
 
     <!-- CORE -->
   <suppress checks=".*" files=".+[\\\/]query[\\\/]"/>
+  <suppress checks="MagicNumberCheck" files=".+[\\\/]jcr[\\\/]impl[\\\/]xml[\\\/]XMLChar.java"/>
+  
+
+    <!-- WebDAV -->
+  <suppress checks="MagicNumberCheck" files=".+[\\\/]jcr[\\\/]webdav[\\\/]lnkproducer[\\\/]LinkGenerator.java"/>
+  
+
 </suppressions>
