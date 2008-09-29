@@ -16,9 +16,11 @@
  */
 package org.exoplatform.services.jcr.impl.value;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.jcr.Node;
 import javax.jcr.PropertyType;
@@ -26,11 +28,10 @@ import javax.jcr.PropertyType;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS 22.01.2007
  * 
- * 22.01.2007
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: TestDateValueFormat.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestDateValueFormat extends JcrImplBaseTest {
@@ -68,26 +69,25 @@ public class TestDateValueFormat extends JcrImplBaseTest {
   }
 
   /**
-   * It's a pb found. If we will set property with date contains timezone different to the current.
-   * And will get property as string after that. We will have a date with the current timezone,
-   * actualy the date will be same but in different tz.
-   * 
-   * "2023-07-05T19:28:00.000-0300" --> "2023-07-06T01:28:00.000+0300" - it's same date, but...
-   * print is different.
-   * 
-   * The pb can be solved ib SimpleDateFormat be setting the formatter timezone before the format
-   * procedure.
-   * 
-   * TimeZone tz = TimeZone.getTimeZone("GMT-03:00"); Calendar cdate = Calendar.getInstance();
-   * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); sdf.setTimeZone(tz);
-   * Date d = sdf.parse(javaDate); log.info("parse " + sdf.format(d)); // print date in GMT-03:00
-   * timezone
+   * It's a pb found. If we will set property with date contains timezone
+   * different to the current. And will get property as string after that. We
+   * will have a date with the current timezone, actualy the date will be same
+   * but in different tz. "2023-07-05T19:28:00.000-0300" -->
+   * "2023-07-06T01:28:00.000+0300" - it's same date, but... print is different.
+   * The pb can be solved ib SimpleDateFormat be setting the formatter timezone
+   * before the format procedure. TimeZone tz =
+   * TimeZone.getTimeZone("GMT-03:00"); Calendar cdate = Calendar.getInstance();
+   * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+   * sdf.setTimeZone(tz); Date d = sdf.parse(javaDate); log.info("parse " +
+   * sdf.format(d)); // print date in GMT-03:00 timezone
    * 
    * @throws Exception
    */
   public void testTestStringDateValue() throws Exception {
-    final String date = "2023-07-05T19:28:00.000-03:00"; // ISO8601, JCR supported
-    final String javaDate = "2023-07-05T19:28:00.000-0300"; // ISO8601 + RFC822, jvm supported
+    final String date = "2023-07-05T19:28:00.000-03:00"; // ISO8601, JCR
+    // supported
+    final String javaDate = "2023-07-05T19:28:00.000-0300"; // ISO8601 + RFC822,
+    // jvm supported
 
     Node dateParent = testRoot.addNode("date node");
     dateParent.setProperty("calendar", date, PropertyType.DATE);
@@ -96,7 +96,7 @@ public class TestDateValueFormat extends JcrImplBaseTest {
     Calendar cdate = Calendar.getInstance();
 
     // Calendar cdate = Calendar.getInstance();
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US);
     // sdf.setTimeZone(tz);
 
     Date d = sdf.parse(javaDate);
@@ -105,7 +105,8 @@ public class TestDateValueFormat extends JcrImplBaseTest {
     cdate.setTime(d);
     // log.info("calendar " + sdf.format(cdate.getTime()));
 
-    // assertEquals("Dates must be equals", date, dateParent.getProperty("calendar").getString());
+    // assertEquals("Dates must be equals", date,
+    // dateParent.getProperty("calendar").getString());
     assertEquals("Dates must be equals", cdate, dateParent.getProperty("calendar").getDate());
 
     testRoot.save();
@@ -113,4 +114,8 @@ public class TestDateValueFormat extends JcrImplBaseTest {
     assertEquals("Dates must be equals", cdate, dateParent.getProperty("calendar").getDate());
   }
 
+  public void testArabicProblem() throws ParseException {
+    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+    System.out.println(format.parse("21-02-2008"));
+  }
 }
