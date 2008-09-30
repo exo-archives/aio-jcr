@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.common;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,7 +73,7 @@ public class SessionProvider implements SessionLifecycleListener {
 
   private SessionProvider(boolean isSystem) {
     this.isSystem = isSystem;
-    this.cache = Collections.synchronizedMap(new HashMap<String, ExtendedSession>());
+    this.cache = new HashMap<String, ExtendedSession>();
   }
 
   /**
@@ -88,7 +87,7 @@ public class SessionProvider implements SessionLifecycleListener {
   }
 
   /**
-   * Helper for creating Anonimous session provider
+   * Helper for creating Anonymous session provider
    * 
    * @return System session
    */
@@ -107,7 +106,7 @@ public class SessionProvider implements SessionLifecycleListener {
    * @throws NoSuchWorkspaceException
    * @throws RepositoryException
    */
-  public Session getSession(String workspaceName, ManageableRepository repository) throws LoginException,
+  public synchronized Session getSession(String workspaceName, ManageableRepository repository) throws LoginException,
                                                                                   NoSuchWorkspaceException,
                                                                                   RepositoryException {
     if (workspaceName == null) {
@@ -135,16 +134,14 @@ public class SessionProvider implements SessionLifecycleListener {
   /**
    * Calls logout() method for all cached sessions
    */
-  public void close() {
-    synchronized (cache) {
-      Collection<ExtendedSession> cachedSessions = cache.values();
-      Iterator<ExtendedSession> sessionIter = cachedSessions.iterator();
-      while (sessionIter.hasNext()) {
-        Session curSession = sessionIter.next();
-        curSession.logout();
-      }
-      cache.clear();
+  public synchronized void close() {
+    Collection<ExtendedSession> cachedSessions = cache.values();
+    Iterator<ExtendedSession> sessionIter = cachedSessions.iterator();
+    while (sessionIter.hasNext()) {
+      Session curSession = sessionIter.next();
+      curSession.logout();
     }
+    cache.clear();
   }
 
   /*
@@ -153,7 +150,7 @@ public class SessionProvider implements SessionLifecycleListener {
    * org.exoplatform.services.jcr.core.SessionLifecycleListener#onCloseSession(org.exoplatform.services
    * .jcr.core.ExtendedSession)
    */
-  public void onCloseSession(ExtendedSession session) {
+  public synchronized void onCloseSession(ExtendedSession session) {
     this.cache.remove(key((ManageableRepository) session.getRepository(), session.getWorkspace()
                                                                                  .getName()));
   }
