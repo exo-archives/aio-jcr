@@ -16,6 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.log.ExoLogger;
@@ -29,9 +32,14 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class StringConverter {
 
-  private static String ILLEGAL_DNCHAR = "StringConverter: empty string for denormalization to char";
+  private static String        ILLEGAL_DNCHAR = "StringConverter: empty string for denormalization to char";
 
-  private static Log    log            = ExoLogger.getLogger("jcr.StringConverter");
+  /** Pattern on an encoded character */
+  private static final Pattern ENCODE_PATTERN = Pattern.compile("_x\\p{XDigit}{4}_");
+
+  private static final int     ENCODE_CHARS   = 7;
+
+  private static Log           log            = ExoLogger.getLogger("jcr.StringConverter");
 
   private static class DNChar {
     private char dnChar;
@@ -61,12 +69,18 @@ public class StringConverter {
     int len = (s != null) ? s.length() : 0;
     for (int i = 0; i < len; i++) {
       char c = s.charAt(i);
-      String spart = s.substring(i);
-      if (spart.startsWith("_") && !spart.startsWith("_x")) {
-        strBuf.append(c);
-      } else {
+      if ('_' == c) {
+        if (len - i > ENCODE_CHARS) {
+          String spart = s.substring(i, i + ENCODE_CHARS);
+          Matcher encodeMatcher = ENCODE_PATTERN.matcher(spart);
+          if (encodeMatcher.matches())
+            strBuf.append(normalizeChar(c, canonical));
+          else
+            strBuf.append(c);
+        } else
+          strBuf.append(c);
+      } else
         strBuf.append(normalizeChar(c, canonical));
-      }
     }
     return new String(strBuf);
   }
@@ -162,9 +176,8 @@ public class StringConverter {
      * method of DocumentViewImportTest object have a small problem in this place // both
      * possibilities In logic if (!propVal.equals(encodedAttributeValue) ||
      * !propVal.equals(encodedAttributeValue)) { fail("Value " + encodedAttributeValue +
-     * "  of attribute " + decodedAttributeName + " is not correctly imported.");
-     * 
-     * of test the propVal must be equal of encodedAttributeValue the encoded version of value
+     * "  of attribute " + decodedAttributeName + " is not correctly imported."); of test the
+     * propVal must be equal of encodedAttributeValue the encoded version of value
      */
     else if (string.startsWith("_x0009_"))
       return new DNChar('\t', 7);
