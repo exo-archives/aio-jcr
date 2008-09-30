@@ -14,12 +14,13 @@
   <description>eXo JCR Service core component</description>
   
   <!-- repositories>
-	  <repository>
-	  <id>java.net</id>
-	  <url>https://maven-repository.dev.java.net/nonav/repository</url>
-	  <layout>legacy</layout>
-	  </repository>
-  </repositories -->
+  <repository>
+  <id>java.net</id>
+  <url>https://maven-repository.dev.java.net/nonav/repository</url>
+  <layout>legacy</layout>
+  </repository>
+  </repositories
+  -->
   
   <pluginRepositories>
     <pluginRepository>
@@ -29,7 +30,8 @@
     <!-- pluginRepository>
     <id>central</id>
     <url>http://www.ibiblio.org/maven2</url>
-    </pluginRepository -->
+    </pluginRepository
+    -->
   </pluginRepositories>
   
   <dependencies>
@@ -106,30 +108,31 @@
     <!-- DEPRECATED: Third party dependencies (eXo JCR API) -->
     
     <!-- dependency>
-      <groupId>jibx</groupId>
-      <artifactId>jibx-bind</artifactId>
-      <version>1.1.3</version>
+    <groupId>jibx</groupId>
+    <artifactId>jibx-bind</artifactId>
+    <version>1.1.3</version>
     </dependency>
     
     <dependency>
-      <groupId>jibx</groupId>
-      <artifactId>jibx-run</artifactId>
-      <version>1.1.3</version>
+    <groupId>jibx</groupId>
+    <artifactId>jibx-run</artifactId>
+    <version>1.1.3</version>
     </dependency>
     
     <dependency>
-      <groupId>bcel</groupId>
-      <artifactId>bcel</artifactId>
-      <version>5.1</version>
-      <scope>compile</scope>
+    <groupId>bcel</groupId>
+    <artifactId>bcel</artifactId>
+    <version>5.1</version>
+    <scope>compile</scope>
     </dependency>
     
     <dependency>
-      <groupId>xpp3</groupId>
-      <artifactId>xpp3</artifactId>
-      <version>1.1.3.4.O</version>
-      <scope>compile</scope>
-    </dependency -->
+    <groupId>xpp3</groupId>
+    <artifactId>xpp3</artifactId>
+    <version>1.1.3.4.O</version>
+    <scope>compile</scope>
+    </dependency
+    -->
     
     <!-- Third party dependencies (eXo JCR Impl) -->
     
@@ -283,12 +286,12 @@
     <!-- ===== Databases JDBC support ===== -->
     
     <!-- For MySQL support -->
-    <!-- dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
-    <version>5.0.5</version>
-    <scope>compile</scope>
-    </dependency -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.0.5</version>
+      <scope>compile</scope>
+    </dependency>
     
     <!-- For PostgresSQL support -->
     <!-- dependency>
@@ -296,7 +299,8 @@
     <artifactId>postgresql</artifactId>
     <version>8.2-504.jdbc3</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency
+    -->
     
     <!-- For Oracle 10g support (local-jcr repository) -->
     <!-- dependency>
@@ -311,7 +315,8 @@
     <artifactId>orai18n</artifactId>
     <version>14</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency
+    -->
     
     <!-- For IBM DB2 support (local-jcr repository) -->
     <!-- dependency>
@@ -326,7 +331,8 @@
     <artifactId>db2jcc_license_cu</artifactId>
     <version>9.1</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency
+    -->
     
     <!-- For MS SQL 7/2000/2005 and Sybase ASE/Anywhere support (jTDS driver) -->
     <!-- dependency>
@@ -334,7 +340,8 @@
     <artifactId>jtds</artifactId>
     <version>1.2</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency
+    -->
     
     <!-- For MS SQL 2005 support (Microsoft JDBC driver) (local-jcr repository) -->
     <!-- dependency>
@@ -342,7 +349,8 @@
     <artifactId>sqljdbc</artifactId>
     <version>9.0</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency
+    -->
     
     <!-- For Sybase ASE/Anywhere support (jConnect driver) (local-jcr repository) -->
     <!-- dependency>
@@ -350,7 +358,8 @@
     <artifactId>jconn3</artifactId>
     <version>6.05</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency
+    -->
     
     <!-- For Apache Derby support (aka JavaDB) -->
     <!-- dependency>
@@ -358,15 +367,17 @@
     <artifactId>derby</artifactId>
     <version>10.2.2.0</version>
     <scope>compile</scope>
-    </dependency -->
+    </dependency
+    -->
     
     <!-- H2 Database -->
     <!-- dependency>
-	    <groupId>com.h2database</groupId>
-	    <artifactId>h2</artifactId>
-	    <version>1.0.74</version>
-			<scope>compile</scope>
-    </dependency -->
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>1.0.74</version>
+    <scope>compile</scope>
+    </dependency
+    -->
     <!-- ======================================================================= -->
     
   </dependencies>
@@ -446,8 +457,10 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.4.3</version>
         <!-- normal mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false clean install -->
-        <!-- debug  mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false -Dexo.test.forkmode=never clean install -->
-        <!-- forking: to run both eXo test and TCK use forkMode=once, to run one of them (only) in Eclipse debug use forkMode=never -->
+        <!-- debug  mode: mvn -Dexo.test.skip=false -Dexo.tck.skip=false -Dexo.test.forkmode=never clean install
+        -->
+        <!-- forking: to run both eXo test and TCK use forkMode=once, to run one of them (only) in Eclipse debug use forkMode=never
+        -->
         <configuration>
           <skip>true</skip>
         </configuration>
@@ -471,11 +484,12 @@
               <includes>
                 <include>**/**/TestErrorMultithreading__.java</include>
                 <include>**/**/TestConcurrentItems__.java</include>
-								
-								<include>**/**/TestJDBCValueContentAddressStorageImpl.java</include>
-								
-								<include>**/**/TestCASableSimpleFileIOChannel.java</include>
-								<include>**/**/TestCASableTreeFileIOChannel.java</include>
+                
+                <include>**/**/TestJDBCValueContentAddressStorageImpl__.java</include>
+                <include>**/**/TestCASableSimpleFileIOChannel__.java</include>
+                <include>**/**/TestCASableTreeFileIOChannel__.java</include>
+                
+                <include>**/**/TestSameNameSiblings__.java</include>
               </includes>
             </configuration>
           </execution>
@@ -505,7 +519,7 @@
                 <include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
                 <include>**/impl/**/Test*.java</include>
-
+                
               </includes>
               <excludes>
                 <exclude>**/TestErrorMultithreading.java</exclude>
@@ -521,7 +535,7 @@
                 <exclude>**/api/TestAll.java</exclude>
                 <exclude>**/usecases/**/TestDateBetween.java</exclude>
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
-								<exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
+                <exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
                 <exclude>**/usecases/BaseUsecasesTest.java</exclude>
                 <exclude>**/apache/**</exclude>
                 <exclude>**/api/**/TestSameNameItems.java</exclude>
@@ -651,7 +665,7 @@
           </execution>
         </executions>
       </plugin>
-
+      
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
