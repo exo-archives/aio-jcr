@@ -22,8 +22,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 24.11.2006
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
@@ -33,16 +32,16 @@ public class FixupStream implements Externalizable {
 
   private static final long serialVersionUID = 6453641729031051616L;
 
-  int                       iItemStateId     = -1;
+  private int                       iItemStateId     = -1;
 
-  int                       iValueDataId     = -1;
+  private int                       iValueDataId     = -1;
 
   public FixupStream() {
   }
 
-  public FixupStream(int itemState_, int valueData_) {
-    iItemStateId = itemState_;
-    iValueDataId = valueData_;
+  public FixupStream(int itemState, int valueData) {
+    this.iItemStateId = itemState;
+    this.iValueDataId = valueData;
   }
 
   public int getItemSateId() {

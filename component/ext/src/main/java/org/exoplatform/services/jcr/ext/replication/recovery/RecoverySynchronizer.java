@@ -45,13 +45,13 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class RecoverySynchronizer {
-  protected static Log                       log = ExoLogger.getLogger("ext.RecoverySynchronizer");
+  private static Log                       log = ExoLogger.getLogger("ext.RecoverySynchronizer");
 
   private File                               recoveryDir;
 
@@ -101,7 +101,7 @@ public class RecoverySynchronizer {
 
   public void synchronizRepository() {
     try {
-      Packet packet = new Packet(Packet.PacketType.GET_ChangesLog_up_to_DATE,
+      Packet packet = new Packet(Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE,
                                  IdGenerator.generate(),
                                  ownName,
                                  Calendar.getInstance());
@@ -126,11 +126,11 @@ public class RecoverySynchronizer {
 
     switch (packet.getPacketType()) {
 
-    case Packet.PacketType.GET_ChangesLog_up_to_DATE:
+    case Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE:
       sendChangesLogUpDate(packet.getTimeStamp(), packet.getOwnerName(), packet.getIdentifier());
       break;
 
-    case Packet.PacketType.BinaryFile_First_Packet:
+    case Packet.PacketType.BINARY_FILE_FIRST_PACKET:
       if (mapPendingBinaryFile.containsKey(packet.getIdentifier()) == false)
         mapPendingBinaryFile.put(packet.getIdentifier(), new PendingBinaryFile());
 
@@ -141,7 +141,7 @@ public class RecoverySynchronizer {
       }
       break;
 
-    case Packet.PacketType.BinaryFile_Middle_Packet:
+    case Packet.PacketType.BINARY_FILE_MIDDLE_PACKET:
       if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
         container = mapPendingBinaryFile.get(packet.getIdentifier());
 
@@ -160,7 +160,7 @@ public class RecoverySynchronizer {
       }
       break;
 
-    case Packet.PacketType.BinaryFile_Last_Packet:
+    case Packet.PacketType.BINARY_FILE_LAST_PACKET:
       if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
         container = mapPendingBinaryFile.get(packet.getIdentifier());
 
@@ -183,7 +183,7 @@ public class RecoverySynchronizer {
       }
       break;
 
-    case Packet.PacketType.ALL_BinaryFile_transferred_OK:
+    case Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK:
       if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
         PendingBinaryFile pbf = mapPendingBinaryFile.get(packet.getIdentifier());
         pbf.addToSuccessfulTransferCounter(packet.getSize());
@@ -242,7 +242,7 @@ public class RecoverySynchronizer {
             List<String> fileNameList = mapPendingBinaryFile.get(packet.getIdentifier())
                                                             .getFileNameList();
 
-            Packet packetFileNameList = new Packet(Packet.PacketType.ALL_ChangesLog_saved_OK,
+            Packet packetFileNameList = new Packet(Packet.PacketType.ALL_CHANGESLOG_SAVED_OK,
                                                    packet.getIdentifier(),
                                                    ownName,
                                                    fileNameList);
@@ -258,7 +258,7 @@ public class RecoverySynchronizer {
       }
       break;
 
-    case Packet.PacketType.ALL_ChangesLog_saved_OK:
+    case Packet.PacketType.ALL_CHANGESLOG_SAVED_OK:
       long removeCounter = recoveryWriter.removeChangesLog(packet.getFileNameList(),
                                                            packet.getOwnerName());
 
@@ -316,6 +316,8 @@ public class RecoverySynchronizer {
         stat = AbstractWorkspaceDataReceiver.NORMAL_MODE;
       }
       break;
+      default:
+        break;
     }
 
     return stat;
@@ -340,7 +342,7 @@ public class RecoverySynchronizer {
           channelManager.sendBinaryFile(filePath, ownerName, identifier, systemId);
         }
 
-        Packet endPocket = new Packet(Packet.PacketType.ALL_BinaryFile_transferred_OK, identifier);
+        Packet endPocket = new Packet(Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK, identifier);
         endPocket.setOwnName(ownerName);
         endPocket.setSize(filePathList.size());
         channelManager.sendPacket(endPocket);

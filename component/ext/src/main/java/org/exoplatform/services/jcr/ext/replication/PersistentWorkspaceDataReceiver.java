@@ -20,11 +20,12 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class PersistentWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 
   public PersistentWorkspaceDataReceiver(WorkspacePersistentDataManager dataManager) throws RepositoryConfigurationException {

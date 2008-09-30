@@ -121,9 +121,9 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
 
-    if (pendingChangesLog.getConteinerType() == PendingChangesLog.Type.ItemDataChangesLog_with_Streams) {
+    if (pendingChangesLog.getConteinerType() == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
 
-      out.writeInt(PendingChangesLog.Type.ItemDataChangesLog_with_Streams);
+      out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITH_STREAM);
       out.writeObject(changesLog);
 
       // Write FixupStream
@@ -157,7 +157,7 @@ public class IncrementalBackupJob extends AbstractIncrementalBackupJob {
       // restore changes log worlds
 
     } else {
-      out.writeInt(PendingChangesLog.Type.ItemDataChangesLog_without_Streams);
+      out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM);
       out.writeObject(changesLog);
     }
 

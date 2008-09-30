@@ -33,23 +33,27 @@ import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id$
+ * @version $Id: AbstractWorkspaceDataReceiver.java 20384 2008-09-24 16:25:43Z
+ *          pnedonosko $
  */
 
 public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
-  public final static int                    INIT_MODE     = -1;
+  private static Log                         log           = ExoLogger
+                                                               .getLogger("ext.AbstractWorkspaceDataReceiver");
 
-  public final static int                    NORMAL_MODE   = 0;
+  public static final int                    INIT_MODE     = -1;
 
-  public final static int                    RECOVERY_MODE = 1;
+  public static final int                    NORMAL_MODE   = 0;
+
+  public static final int                    RECOVERY_MODE = 1;
+
+  private static final int                   START_TIMEOUT = 1000;
 
   private int                                state;
-
-  protected static Log                       log           = ExoLogger.getLogger("ext.AbstractWorkspaceDataReceiver");
 
   private String                             systemId;
 
@@ -66,16 +70,14 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   private RecoveryManager                    recoveryManager;
 
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
-    this.fileCleaner = new FileCleaner(30030);
+    this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
     mapPendingChangesLog = new HashMap<String, PendingChangesLog>();
 
     state = INIT_MODE;
   }
 
-  public void init(ChannelManager channelManager,
-                   String systemId,
-                   String ownName,
-                   RecoveryManager recoveryManager) {
+  public void init(ChannelManager channelManager, String systemId, String ownName,
+      RecoveryManager recoveryManager) {
     this.systemId = systemId;
     this.channelManager = channelManager;
 
@@ -88,24 +90,22 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   public void start() {
     try {
-      Packet memberStartedPacket = new Packet(Packet.PacketType.MEMBER_STARTED,
-                                              IdGenerator.generate(),
-                                              ownName);
+      Packet memberStartedPacket = new Packet(Packet.PacketType.MEMBER_STARTED, IdGenerator
+          .generate(), ownName);
       channelManager.sendPacket(memberStartedPacket);
 
-      Thread.sleep(1000);
+      Thread.sleep(START_TIMEOUT);
 
-      Packet initedPacket = new Packet(Packet.PacketType.INITED_IN_CLUSTER,
-                                       IdGenerator.generate(),
-                                       ownName);
+      Packet initedPacket = new Packet(Packet.PacketType.INITED_IN_CLUSTER, IdGenerator.generate(),
+          ownName);
       channelManager.sendPacket(initedPacket);
     } catch (Exception e) {
       log.error("Can't initialized AbstractWorkspaceDataReceiver", e);
     }
   }
 
-  public void receive(ItemStateChangesLog changesLog_, String identifier) throws Exception {
-    TransactionChangesLog changesLog = (TransactionChangesLog) changesLog_;
+  public void receive(ItemStateChangesLog itemStatechangesLog, String identifier) throws Exception {
+    TransactionChangesLog changesLog = (TransactionChangesLog) itemStatechangesLog;
     if (changesLog.getSystemId() == null) {
       throw new Exception("Invalid or same systemId " + changesLog.getSystemId());
     } else if (!changesLog.getSystemId().equals(this.systemId)) {
@@ -138,8 +138,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
       Packet bigPacket = null;
 
       switch (packet.getPacketType()) {
-      case Packet.PacketType.ItemDataChangesLog:
-        TransactionChangesLog changesLog = PendingChangesLog.getAsItemDataChangesLog(packet.getByteArray());
+      case Packet.PacketType.CHANGESLOG:
+        TransactionChangesLog changesLog = PendingChangesLog.getAsItemDataChangesLog(packet
+            .getByteArray());
         if (log.isDebugEnabled()) {
           log.debug("Received-->ItemDataChangesLog_without_Streams-->");
           log.debug("---------------------");
@@ -150,40 +151,39 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         this.receive(changesLog, packet.getIdentifier());
         break;
 
-      case Packet.PacketType.First_ItemDataChangesLog_with_Streams:
+      case Packet.PacketType.FIRST_CHANGESLOG_WITH_STREAM:
         changesLog = PendingChangesLog.getAsItemDataChangesLog(packet.getByteArray());
 
-        PendingChangesLog container = new PendingChangesLog(changesLog,
-                                                            packet.getIdentifier(),
-                                                            PendingChangesLog.Type.ItemDataChangesLog_with_Streams,
-                                                            fileCleaner);
+        PendingChangesLog container = new PendingChangesLog(changesLog, packet.getIdentifier(),
+            PendingChangesLog.Type.CHANGESLOG_WITH_STREAM, fileCleaner);
 
         mapPendingChangesLog.put(packet.getIdentifier(), container);
         if (log.isDebugEnabled())
           log.debug("Item DataChangesLog of type 'ItemDataChangesLog first whith stream'");
         break;
 
-      case Packet.PacketType.ItemDataChangesLog_with_Stream_First_Packet:
+      case Packet.PacketType.CHANGESLOG_WITH_STREAM_FIRST_PACKET:
         PendingChangesLog bigChangesLogWhithStream = new PendingChangesLog(packet.getIdentifier(),
-                                                                           (int) packet.getSize());
+            (int) packet.getSize());
         bigChangesLogWhithStream.putData((int) packet.getOffset(), packet.getByteArray());
 
         mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLogWhithStream);
         break;
 
-      case Packet.PacketType.ItemDataChangesLog_with_Stream_Middle_Packet:
+      case Packet.PacketType.CHANGESLOG_WITH_STREAM_MIDDLE_PACKET:
         if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
           container.putData((int) packet.getOffset(), packet.getByteArray());
         }
         break;
 
-      case Packet.PacketType.ItemDataChangesLog_with_Stream_Last_Packet:
+      case Packet.PacketType.CHANGESLOG_WITH_STREAM_LAST_PACKET:
         if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
           container.putData((int) packet.getOffset(), packet.getByteArray());
 
-          TransactionChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container.getData());
+          TransactionChangesLog tempChangesLog = PendingChangesLog
+              .getAsItemDataChangesLog(container.getData());
           if (log.isDebugEnabled()) {
             log.debug("Recive-->Big ItemDataChangesLog_without_Streams-->");
             log.debug("---------------------");
@@ -194,17 +194,15 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           }
           mapPendingChangesLog.remove(packet.getIdentifier());
 
-          container = new PendingChangesLog(tempChangesLog,
-                                            packet.getIdentifier(),
-                                            PendingChangesLog.Type.ItemDataChangesLog_with_Streams,
-                                            fileCleaner);
+          container = new PendingChangesLog(tempChangesLog, packet.getIdentifier(),
+              PendingChangesLog.Type.CHANGESLOG_WITH_STREAM, fileCleaner);
 
           mapPendingChangesLog.put(packet.getIdentifier(), container);
         }
 
         break;
 
-      case Packet.PacketType.First_Packet_of_Stream:
+      case Packet.PacketType.FIRST_PACKET_OF_STREAM:
         if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
 
@@ -218,11 +216,12 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         }
         break;
 
-      case Packet.PacketType.Packet_of_Stream:
+      case Packet.PacketType.PACKET_OF_STREAM:
         if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
 
-          RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getFixupStream());
+          RandomAccessFile randomAccessFile = container
+              .getRandomAccessFile(packet.getFixupStream());
 
           if (randomAccessFile != null) {
             randomAccessFile.seek(packet.getOffset());
@@ -234,11 +233,12 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         }
         break;
 
-      case Packet.PacketType.Last_Packet_of_Stream:
+      case Packet.PacketType.LAST_PACKET_OF_STREAM:
         if (mapPendingChangesLog.containsKey(packet.getIdentifier())) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
 
-          RandomAccessFile randomAccessFile = container.getRandomAccessFile(packet.getFixupStream());
+          RandomAccessFile randomAccessFile = container
+              .getRandomAccessFile(packet.getFixupStream());
 
           if (randomAccessFile != null) {
             randomAccessFile.seek(packet.getOffset());
@@ -249,11 +249,12 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         }
         break;
 
-      case Packet.PacketType.Last_ItemDataChangesLog_with_Streams:
+      case Packet.PacketType.LAST_CHANGESLOG_WITH_STREAM:
         if (mapPendingChangesLog.get(packet.getIdentifier()) != null)
           mapPendingChangesLog.get(packet.getIdentifier()).restore();
 
-        ItemStateChangesLog dataChangesLog = (mapPendingChangesLog.get(packet.getIdentifier())).getItemDataChangesLog();
+        ItemStateChangesLog dataChangesLog = (mapPendingChangesLog.get(packet.getIdentifier()))
+            .getItemDataChangesLog();
         if (dataChangesLog != null) {
           if (log.isDebugEnabled()) {
             log.debug("Send-->ItemDataChangesLog_with_Streams-->");
@@ -269,27 +270,28 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         }
         break;
 
-      case Packet.PacketType.ItemDataChangesLog_First_Packet:
+      case Packet.PacketType.CHANGESLOG_FIRST_PACKET:
         PendingChangesLog bigChangesLog = new PendingChangesLog(packet.getIdentifier(),
-                                                                (int) packet.getSize());
+            (int) packet.getSize());
         bigChangesLog.putData((int) packet.getOffset(), packet.getByteArray());
 
         mapPendingChangesLog.put(packet.getIdentifier(), bigChangesLog);
         break;
 
-      case Packet.PacketType.ItemDataChangesLog_Middle_Packet:
+      case Packet.PacketType.CHANGESLOG_MIDDLE_PACKET:
         if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
           container.putData((int) packet.getOffset(), packet.getByteArray());
         }
         break;
 
-      case Packet.PacketType.ItemDataChangesLog_Last_Packet:
+      case Packet.PacketType.CHANGESLOG_LAST_PACKET:
         if (mapPendingChangesLog.get(packet.getIdentifier()) != null) {
           container = mapPendingChangesLog.get(packet.getIdentifier());
           container.putData((int) packet.getOffset(), packet.getByteArray());
 
-          ItemStateChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container.getData());
+          ItemStateChangesLog tempChangesLog = PendingChangesLog.getAsItemDataChangesLog(container
+              .getData());
           if (log.isDebugEnabled()) {
             log.debug("Recive-->Big ItemDataChangesLog_without_Streams-->");
             log.debug("---------------------");
@@ -306,8 +308,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         break;
 
       case Packet.PacketType.BIG_PACKET_FIRST:
-        PendingChangesLog bigLog = new PendingChangesLog(packet.getIdentifier(),
-                                                         (int) packet.getSize());
+        PendingChangesLog bigLog = new PendingChangesLog(packet.getIdentifier(), (int) packet
+            .getSize());
         bigLog.putData((int) packet.getOffset(), packet.getByteArray());
 
         mapPendingChangesLog.put(packet.getIdentifier(), bigLog);
@@ -337,6 +339,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         }
 
         break;
+
+      default:
+        break;
       }
 
       if (bigPacket != null) {
@@ -350,7 +355,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
     }
   }
 
-  public void suspect(Address suspected_mbr) {
+  public void suspect(Address suspectedMbr) {
   }
 
   public void block() {

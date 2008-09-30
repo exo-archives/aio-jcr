@@ -37,7 +37,7 @@ import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ChannelManager.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -221,7 +221,7 @@ public class ChannelManager implements RequestHandler {
     File f = new File(filePath);
     InputStream in = new FileInputStream(f);
 
-    Packet packet = new Packet(Packet.PacketType.BinaryFile_First_Packet,
+    Packet packet = new Packet(Packet.PacketType.BINARY_FILE_FIRST_PACKET,
                                identifier,
                                ownerName,
                                f.getName());
@@ -233,7 +233,7 @@ public class ChannelManager implements RequestHandler {
     long offset = 0;
 
     while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-      packet = new Packet(Packet.PacketType.BinaryFile_Middle_Packet,
+      packet = new Packet(Packet.PacketType.BINARY_FILE_MIDDLE_PACKET,
                           new FixupStream(),
                           identifier,
                           buf);
@@ -259,7 +259,7 @@ public class ChannelManager implements RequestHandler {
       for (int i = 0; i < len; i++)
         buffer[i] = buf[i];
 
-      packet = new Packet(Packet.PacketType.BinaryFile_Last_Packet,
+      packet = new Packet(Packet.PacketType.BINARY_FILE_LAST_PACKET,
                           new FixupStream(),
                           identifier,
                           buffer);

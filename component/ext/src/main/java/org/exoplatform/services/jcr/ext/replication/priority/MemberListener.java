@@ -17,11 +17,11 @@
 package org.exoplatform.services.jcr.ext.replication.priority;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: MemberRejoinListener.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public interface MemberListener {
-  public void memberRejoin();
+  void memberRejoin();
 }

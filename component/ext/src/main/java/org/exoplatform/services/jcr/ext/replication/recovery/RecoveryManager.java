@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,19 +32,16 @@ import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.Message;
-import org.jgroups.blocks.GroupRequest;
-import org.jgroups.blocks.MessageDispatcher;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class RecoveryManager {
 
-  protected static Log                                            log = ExoLogger.getLogger("ext.RecoveryManager");
+  private static Log                                              log = ExoLogger.getLogger("ext.RecoveryManager");
 
   private FileNameFactory                                         fileNameFactory;
 
@@ -116,11 +112,10 @@ public class RecoveryManager {
     isAllInited = false;
   }
 
-  public void save(ItemStateChangesLog log, String identifier) throws FileNotFoundException,
-                                                              IOException {
+  public void save(ItemStateChangesLog cangesLog, String identifier) throws IOException {
     timeStamp = Calendar.getInstance();
 
-    PendingConfirmationChengesLog confirmationChengesLog = new PendingConfirmationChengesLog(log,
+    PendingConfirmationChengesLog confirmationChengesLog = new PendingConfirmationChengesLog(cangesLog,
                                                                                              timeStamp,
                                                                                              identifier);
 
@@ -140,8 +135,7 @@ public class RecoveryManager {
 
         if (log.isDebugEnabled()) {
           log.debug(ownName + ": Confirmation ChangesLog form : " + packet.getOwnerName());
-          log.debug("Beefor: Confirmation list size : "
-              + confirmationChengesLog.getConfirmationList().size());
+          log.debug("Beefor: Confirmation list size : " + confirmationChengesLog.getConfirmationList().size());
         }
 
         confirmationChengesLog.getConfirmationList().add(packet.getOwnerName());
@@ -163,7 +157,7 @@ public class RecoveryManager {
     recoveryWriter.removeChangesLog(identifier, ownerName);
   }
 
-  public String save(String identifier) throws FileNotFoundException, IOException {
+  public String save(String identifier) throws IOException {
     PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(identifier);
 
     String fileName = recoveryWriter.save(confirmationChengesLog);
@@ -183,8 +177,7 @@ public class RecoveryManager {
     if (mapPendingConfirmation.containsKey(identifier) == true)
       return mapPendingConfirmation.get(identifier);
 
-    throw new Exception("Can't find the PendingConfirmationChengesLog by identifier : "
-        + identifier);
+    throw new Exception("Can't find the PendingConfirmationChengesLog by identifier : " + identifier);
   }
 
   public int processing(Packet packet, int stat) throws Exception {
@@ -201,32 +194,32 @@ public class RecoveryManager {
       }
       break;
 
-    case Packet.PacketType.GET_ChangesLog_up_to_DATE:
+    case Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE:
       if (ownName.equals(packet.getOwnerName()) == false)
         recoverySynchronizer.processingPacket(packet, state);
       break;
 
-    case Packet.PacketType.BinaryFile_First_Packet:
+    case Packet.PacketType.BINARY_FILE_FIRST_PACKET:
       if (ownName.equals(packet.getOwnerName()) == true)
         recoverySynchronizer.processingPacket(packet, state);
       break;
 
-    case Packet.PacketType.BinaryFile_Middle_Packet:
+    case Packet.PacketType.BINARY_FILE_MIDDLE_PACKET:
       if (ownName.equals(packet.getOwnerName()) == true)
         recoverySynchronizer.processingPacket(packet, state);
       break;
 
-    case Packet.PacketType.BinaryFile_Last_Packet:
+    case Packet.PacketType.BINARY_FILE_LAST_PACKET:
       if (ownName.equals(packet.getOwnerName()) == true)
         recoverySynchronizer.processingPacket(packet, state);
       break;
 
-    case Packet.PacketType.ALL_BinaryFile_transferred_OK:
+    case Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK:
       if (ownName.equals(packet.getOwnerName()) == true)
         recoverySynchronizer.processingPacket(packet, state);
       break;
 
-    case Packet.PacketType.ALL_ChangesLog_saved_OK:
+    case Packet.PacketType.ALL_CHANGESLOG_SAVED_OK:
       if (ownName.equals(packet.getOwnerName()) == false)
         recoverySynchronizer.processingPacket(packet, state);
       break;
@@ -289,6 +282,9 @@ public class RecoveryManager {
           initedParticipantsClusterList.remove(packet.getOwnerName());
         }
       break;
+      
+      default:
+        break;
     }
 
     return state;

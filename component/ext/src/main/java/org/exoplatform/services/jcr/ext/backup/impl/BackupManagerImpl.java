@@ -517,7 +517,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
     TransactionChangesLog transactionChangesLog = null;
 
-    if (changesLogType == PendingChangesLog.Type.ItemDataChangesLog_with_Streams) {
+    if (changesLogType == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
 
       // read ChangesLog
       transactionChangesLog = (TransactionChangesLog) in.readObject();
@@ -557,7 +557,7 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
       TransactionChangesLog log = pendingChangesLog.getItemDataChangesLog();
 
-    } else if (changesLogType == PendingChangesLog.Type.ItemDataChangesLog_without_Streams) {
+    } else if (changesLogType == PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM) {
       transactionChangesLog = (TransactionChangesLog) in.readObject();
     }
 

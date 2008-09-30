@@ -30,11 +30,13 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 14.05.2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
 public class BackupCreator implements Runnable {
-  protected static Log         log = ExoLogger.getLogger("ext.BackupCreator");
+  private static Log         log = ExoLogger.getLogger("ext.BackupCreator");
 
   private Thread               backupCreatorThread;
 

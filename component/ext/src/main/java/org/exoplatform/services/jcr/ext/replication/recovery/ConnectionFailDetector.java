@@ -21,32 +21,33 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
-import org.exoplatform.services.jcr.ext.replication.PacketListener;
-import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
 import org.exoplatform.services.jcr.ext.replication.priority.AbstractPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.DynamicPriorityChecker;
-import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
 import org.exoplatform.services.jcr.ext.replication.priority.MemberListener;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
+import org.exoplatform.services.jcr.ext.replication.priority.StaticPriorityChecker;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.ChannelListener;
 import org.jgroups.MembershipListener;
-import org.jgroups.Message;
-import org.jgroups.MessageListener;
 import org.jgroups.View;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ConectionFailDetector.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ConnectionFailDetector implements ChannelListener, MembershipListener, MemberListener {
   private static Log                    log          = ExoLogger.getLogger("ext.ConnectionFailDetector");
+  
+  private static final int              BEFORE_CHECK = 10000;
+  
+  private static final int              BEFORE_INIT = 60000;
+  
+  private static final int              AFTER_INIT = 60000;
 
   private final ChannelManager          channelManager;
 
@@ -152,17 +153,6 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     if (allInited == true)
       lastViewSize = view.size();
 
-    if (log.isDebugEnabled()) {
-      log.debug("lastViewSize                    == " + lastViewSize);
-      log.debug("otherPartisipants.size()        == " + otherPartisipants.size());
-      log.debug("priorityChecker.isMaxPriority() == " + priorityChecker.isMaxPriority());
-      log.debug("priorityChecker.isAllOnline()   == " + priorityChecker.isAllOnline());
-      log.debug("priorityChecker.isMaxOnline()   == " + priorityChecker.isMaxOnline());
-      log.debug("reconectTtread == null          == " + reconectTtread == null);
-      log.debug("priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1 == "
-          + (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1));
-    }
-
     if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {
 
       if (log.isDebugEnabled()) {
@@ -215,7 +205,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       while (isStop) {
         try {
           log.info("Connect to channel : " + channelName);
-          Thread.sleep(10000);
+          Thread.sleep(BEFORE_CHECK);
 
           int curruntOnlin = 1;
 
@@ -225,14 +215,14 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
           if (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline())) {
             channelManager.closeChannel();
 
-            Thread.sleep(Math.round(60000 + Math.random()));
+            Thread.sleep(BEFORE_INIT);
 
             channelManager.init();
             channelManager.connect();
           } else {
             isStop = false;
           }
-          Thread.sleep(Math.round(60000 + Math.random()));
+          Thread.sleep(AFTER_INIT);
         } catch (Exception e) {
           log.info(e, e);
         }

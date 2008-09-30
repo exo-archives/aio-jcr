@@ -21,34 +21,29 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.ReplicationService;
 import org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
-import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ReplicationLockPersister.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-/**
- * @author rainf0x
- */
+
 public class ReplicationLockPersister extends FileSystemLockPersister {
   private final ReplicationService replicationService;
 
-  private final Log                log = ExoLogger.getLogger("ext.ReplicationLockPersister");
+  private static Log               log = ExoLogger.getLogger("ext.ReplicationLockPersister");
+  
+  private static final             int START_TIMEOUT = 250;
 
   private Thread                   delayStarterThread;
 
   public ReplicationLockPersister(WorkspacePersistentDataManager dataManager,
-                                  WorkspaceEntry config,
-                                  ReplicationService service) throws RepositoryConfigurationException,
+      WorkspaceEntry config, ReplicationService service) throws RepositoryConfigurationException,
       RepositoryException {
     super(dataManager, config);
     log.info("init");
@@ -58,6 +53,7 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister#start()
    */
   public void start() {
@@ -73,6 +69,7 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
 
   /*
    * (non-Javadoc)
+   * 
    * @see org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister#stop()
    */
   public void stop() {
@@ -83,7 +80,7 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
     public void run() {
       try {
         while (!replicationService.isStarted())
-          Thread.sleep(250);
+          Thread.sleep(START_TIMEOUT);
 
         superStart();
       } catch (InterruptedException ie) {

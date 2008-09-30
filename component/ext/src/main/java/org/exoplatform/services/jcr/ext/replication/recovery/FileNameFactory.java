@@ -24,23 +24,29 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class FileNameFactory {
-  DateFormat           datefName        = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");
+  private DateFormat       datefName        = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");
 
-  private final int    subPathLengh     = 7;
+  private static final int SUB_PATH_LENGTH  = 7;
 
-  private final String pathCharSequence = "0123456789abcdef";
+  private static final int PATTERN_10       = 10;
+
+  private static final int PATTERN_100      = 100;
+  
+  private static final int PATTERN_1000     = 1000;
+
+  private final String     pathCharSequence = "0123456789abcdef";
 
   public String getStrDate(Calendar c) {
     // Returns as a String (YYYYMMDD) a Calendar date
     int m = c.get(Calendar.MONTH) + 1;
     int d = c.get(Calendar.DATE);
-    return "" + c.get(Calendar.YEAR) + (m < 10 ? "0" + m : m) + (d < 10 ? "0" + d : d);
+    return "" + c.get(Calendar.YEAR) + (m < PATTERN_10 ? "0" + m : m) + (d < PATTERN_10 ? "0" + d : d);
   }
 
   public String getStrTime(Calendar c) {
@@ -50,8 +56,8 @@ public class FileNameFactory {
     int s = c.get(Calendar.SECOND);
     int ms = c.get(Calendar.MILLISECOND);
 
-    return "" + (h < 10 ? "0" + h : h) + (m < 10 ? "0" + m : m) + (s < 10 ? "0" + s : s) + "_"
-        + (ms < 100 ? (ms < 10 ? "00" + ms : "0" + ms) : ms);
+    return "" + (h < PATTERN_10 ? "0" + h : h) + (m < PATTERN_10 ? "0" + m : m) + (s < PATTERN_10 ? "0" + s : s) + "_"
+        + (ms < PATTERN_100 ? (ms < PATTERN_10 ? "00" + ms : "0" + ms) : ms);
   }
 
   public String getTimeStampName(Calendar c) {
@@ -61,10 +67,10 @@ public class FileNameFactory {
   public String getRandomSubPath() {
     String subPath = new String();
 
-    for (int i = 0; i < subPathLengh; i++) {
-      int index = (int) (Math.random() * 1000) % pathCharSequence.length();
+    for (int i = 0; i < SUB_PATH_LENGTH; i++) {
+      int index = (int) (Math.random() * PATTERN_1000) % pathCharSequence.length();
 
-      if (i != subPathLengh - 1)
+      if (i != SUB_PATH_LENGTH - 1)
         subPath += (pathCharSequence.charAt(index) + File.separator);
       else
         subPath += pathCharSequence.charAt(index);

@@ -22,11 +22,12 @@ import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,

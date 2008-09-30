@@ -21,7 +21,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -42,16 +41,16 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class RecoveryWriter extends AbstractFSAccess {
 
-  protected static Log      log             = ExoLogger.getLogger("ext.RecoveryWriter");
+  private static Log        log             = ExoLogger.getLogger("ext.RecoveryWriter");
 
-  private final long        REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;                       // 2 hours
+  private static final long        REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;   // 2 hours
 
   private final FileCleaner fileCleaner;
 
@@ -79,8 +78,7 @@ public class RecoveryWriter extends AbstractFSAccess {
     fileRemover.start();
   }
 
-  public String save(PendingConfirmationChengesLog confirmationChengesLog) throws FileNotFoundException,
-                                                                          IOException {
+  public String save(PendingConfirmationChengesLog confirmationChengesLog) throws IOException {
 
     if (confirmationChengesLog.getNotConfirmationList().size() > 0) {
       String fileName = fileNameFactory.getTimeStampName(confirmationChengesLog.getTimeStamp())
@@ -113,7 +111,7 @@ public class RecoveryWriter extends AbstractFSAccess {
     return null;
   }
 
-  synchronized private void writeNotConfirmationInfo(File dataFile,
+  private synchronized void writeNotConfirmationInfo(File dataFile,
                                                      List<String> participantsClusterList) throws IOException {
     for (String name : participantsClusterList) {
       File metaDataFile = new File(recoveryDir.getCanonicalPath() + File.separator + name);
@@ -133,9 +131,9 @@ public class RecoveryWriter extends AbstractFSAccess {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
 
-    if (pendingChangesLog.getConteinerType() == PendingChangesLog.Type.ItemDataChangesLog_with_Streams) {
+    if (pendingChangesLog.getConteinerType() == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
 
-      out.writeInt(PendingChangesLog.Type.ItemDataChangesLog_with_Streams);
+      out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITH_STREAM);
       out.writeObject(changesLog);
 
       // Write FixupStream
@@ -168,7 +166,7 @@ public class RecoveryWriter extends AbstractFSAccess {
       // restore changes log worlds
 
     } else {
-      out.writeInt(PendingChangesLog.Type.ItemDataChangesLog_without_Streams);
+      out.writeInt(PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM);
       out.writeObject(changesLog);
     }
 
@@ -176,7 +174,7 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 
   private void writeContent(InputStream is, ObjectOutputStream oos) throws IOException {
-    byte[] buf = new byte[BUFFER_1KB * 8];
+    byte[] buf = new byte[BUFFER_1KB * BUFFER_8X];
     int len;
 
     int size = 0;
@@ -189,7 +187,7 @@ public class RecoveryWriter extends AbstractFSAccess {
     oos.flush();
   }
 
-  synchronized public void removeChangesLog(String identifier, String ownerName) throws IOException {
+  public synchronized void removeChangesLog(String identifier, String ownerName) throws IOException {
     File metaDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + ownerName);
 
     RandomAccessFile raf = new RandomAccessFile(metaDataFile, "rw");
@@ -301,7 +299,9 @@ public class RecoveryWriter extends AbstractFSAccess {
 
 // The thread will be remove ChangesLog, saved as binary file.
 class FileRemover extends Thread {
-  protected static Log log = ExoLogger.getLogger("ext.FileRemover");
+  private static Log          log        = ExoLogger.getLogger("ext.FileRemover");
+  
+  private static final double ONE_SECOND = 1000.0;
 
   private long         period;
 
@@ -420,7 +420,7 @@ class FileRemover extends Thread {
     getFiles(recoveryDataDir, list);
 
     if (log.isDebugEnabled())
-      log.debug("The total time of parced : " + (System.currentTimeMillis() - startTime) / 1000.0);
+      log.debug("The total time of parced : " + (System.currentTimeMillis() - startTime) / ONE_SECOND);
     return list;
   }
 

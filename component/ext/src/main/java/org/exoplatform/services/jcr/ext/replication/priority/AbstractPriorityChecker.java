@@ -28,16 +28,19 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: PriorityChecker.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public abstract class AbstractPriorityChecker implements PacketListener {
 
-  public static int                  MAX_PRIORITY = 100;
+  public static final int            MAX_PRIORITY = 100;
+  
+  private static final int            INFORM_TIMOUT = 1000;
 
-  protected static Log               log          = ExoLogger.getLogger("ext.PriorityChecker");
+  private static Log                 log          = ExoLogger.getLogger("ext.AbstractPriorityChecker");
 
   protected final ChannelManager     channelManager;
 
@@ -53,10 +56,8 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
   protected MemberListener           memberListener;
 
-  public AbstractPriorityChecker(ChannelManager channelManager,
-                                 int ownPriority,
-                                 String ownName,
-                                 List<String> otherParticipants) {
+  public AbstractPriorityChecker(ChannelManager channelManager, int ownPriority, String ownName,
+      List<String> otherParticipants) {
 
     this.ownPriority = ownPriority;
     this.ownName = ownName;
@@ -75,12 +76,10 @@ public abstract class AbstractPriorityChecker implements PacketListener {
       identifier = IdGenerator.generate();
       currentPartisipants = new HashMap<String, Integer>();
 
-      Packet pktInformer = new Packet(Packet.PacketType.GET_ALL_PRIORITY,
-                                      ownName,
-                                      (long) ownPriority,
-                                      identifier);
+      Packet pktInformer = new Packet(Packet.PacketType.GET_ALL_PRIORITY, ownName,
+          (long) ownPriority, identifier);
       channelManager.sendPacket(pktInformer);
-      Thread.sleep(1000);
+      Thread.sleep(INFORM_TIMOUT);
     } catch (Exception e) {
       log.error("Can not informed the other participants", e);
     }

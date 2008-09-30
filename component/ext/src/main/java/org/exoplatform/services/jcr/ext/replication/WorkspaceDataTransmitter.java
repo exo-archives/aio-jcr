@@ -35,14 +35,16 @@ import org.jgroups.MembershipListener;
 import org.jgroups.View;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id$
+ * @version $Id: WorkspaceDataTransmitter.java 20384 2008-09-24 16:25:43Z
+ *          pnedonosko $
  */
+
 public class WorkspaceDataTransmitter implements ItemsPersistenceListener, MembershipListener {
 
-  protected static Log    log = ExoLogger.getLogger("ext.WorksapeDataTransmitter");
+  private static Log      log = ExoLogger.getLogger("ext.WorksapeDataTransmitter");
 
   private String          systemId;
 
@@ -56,15 +58,14 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
   private String          ownName;
 
-  public WorkspaceDataTransmitter(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
+  public WorkspaceDataTransmitter(CacheableWorkspaceDataManager dataManager)
+      throws RepositoryConfigurationException {
     dataManager.addItemPersistenceListener(this);
-    this.fileCleaner = new FileCleaner(30030);
+    this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
   }
 
-  public void init(ChannelManager channelManager,
-                   String systemId,
-                   String ownName,
-                   RecoveryManager recoveryManager) {
+  public void init(ChannelManager channelManager, String systemId, String ownName,
+      RecoveryManager recoveryManager) {
     this.systemId = systemId;
     this.channelManager = channelManager;
 
@@ -75,8 +76,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     log.info("System ID : " + systemId);
   }
 
-  public void onSaveItems(ItemStateChangesLog changesLog_) {
-    TransactionChangesLog changesLog = (TransactionChangesLog) changesLog_;
+  public void onSaveItems(ItemStateChangesLog isChangesLog) {
+    TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
     if (changesLog.getSystemId() == null && !isSessionNull(changesLog)) {
       changesLog.setSystemId(systemId);
       // broadcast messages
@@ -104,75 +105,74 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     // no needs to broadcast again, ignore silently
   }
 
-  private String send(ItemStateChangesLog itemDataChangesLog_) throws Exception {
-    TransactionChangesLog itemDataChangesLog = (TransactionChangesLog) itemDataChangesLog_;
-    PendingChangesLog container = new PendingChangesLog(itemDataChangesLog, fileCleaner);
+  private String send(ItemStateChangesLog isChangesLog) throws Exception {
+    TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
+    PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
 
     // before save ChangesLog
-    recoveryManager.save(itemDataChangesLog_, container.getIdentifier());
+    recoveryManager.save(isChangesLog, container.getIdentifier());
 
     switch (container.getConteinerType()) {
-    case PendingChangesLog.Type.ItemDataChangesLog_without_Streams: {
-      byte[] buf = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
+    case PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM:
+      byte[] buf1 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
 
-      if (buf.length > Packet.MAX_PACKET_SIZE) {
-        sendBigItemDataChangesLog(buf, container.getIdentifier());
+      if (buf1.length > Packet.MAX_PACKET_SIZE) {
+        sendBigItemDataChangesLog(buf1, container.getIdentifier());
       } else {
-        Packet firstPacket = new Packet(Packet.PacketType.ItemDataChangesLog,
-                                        buf.length,
-                                        buf,
-                                        container.getIdentifier());
+        Packet firstPacket = new Packet(Packet.PacketType.CHANGESLOG, buf1.length, buf1, container
+            .getIdentifier());
         channelManager.sendPacket(firstPacket);
 
         if (log.isDebugEnabled()) {
           log.debug("Send-->ItemDataChangesLog_without_Streams-->");
           log.debug("---------------------");
-          log.debug("Size of buffer --> " + buf.length);
-          log.debug("ItemStates size  --> " + itemDataChangesLog.getAllStates().size());
+          log.debug("Size of buffer --> " + buf1.length);
+          log.debug("ItemStates size  --> " + changesLog.getAllStates().size());
           log.debug("---------------------");
         }
       }
       break;
-    }
-    case PendingChangesLog.Type.ItemDataChangesLog_with_Streams: {
-      byte[] buf = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
 
-      if (buf.length < Packet.MAX_PACKET_SIZE) {
-        Packet packet = new Packet(Packet.PacketType.First_ItemDataChangesLog_with_Streams,
-                                   buf.length,
-                                   buf,
-                                   container.getIdentifier());
+    case PendingChangesLog.Type.CHANGESLOG_WITH_STREAM:
+      byte[] buf2 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
+
+      if (buf2.length < Packet.MAX_PACKET_SIZE) {
+        Packet packet = new Packet(Packet.PacketType.FIRST_CHANGESLOG_WITH_STREAM, buf2.length,
+            buf2, container.getIdentifier());
         channelManager.sendPacket(packet);
       } else {
-        sendBigItemDataChangesLogWhithStream(buf, container.getIdentifier());
+        sendBigItemDataChangesLogWhithStream(buf2, container.getIdentifier());
       }
 
       for (int i = 0; i < container.getInputStreams().size(); i++)
-        sendStream(container.getInputStreams().get(i),
-                   container.getFixupStreams().get(i),
-                   container.getIdentifier());
+        sendStream(container.getInputStreams().get(i), container.getFixupStreams().get(i),
+            container.getIdentifier());
 
-      Packet lastPacket = new Packet(Packet.PacketType.Last_ItemDataChangesLog_with_Streams,
-                                     container.getIdentifier());
+      Packet lastPacket = new Packet(Packet.PacketType.LAST_CHANGESLOG_WITH_STREAM, container
+          .getIdentifier());
       channelManager.sendPacket(lastPacket);
 
       if (log.isDebugEnabled()) {
         log.debug("Send-->ItemDataChangesLog_with_Streams-->");
         log.debug("---------------------");
-        log.debug("Size of damp --> " + buf.length);
-        log.debug("ItemStates   --> " + itemDataChangesLog.getAllStates().size());
+        log.debug("Size of damp --> " + buf2.length);
+        log.debug("ItemStates   --> " + changesLog.getAllStates().size());
         log.debug("Streams      --> " + container.getInputStreams().size());
         log.debug("---------------------");
       }
+
       break;
-    }
+
+    default:
+      break;
     }
 
     return container.getIdentifier();
   }
 
-  private void sendStream(InputStream in, FixupStream fixupStream, String identifier) throws Exception {
-    Packet packet = new Packet(Packet.PacketType.First_Packet_of_Stream, fixupStream, identifier);
+  private void sendStream(InputStream in, FixupStream fixupStream, String identifier)
+      throws Exception {
+    Packet packet = new Packet(Packet.PacketType.FIRST_PACKET_OF_STREAM, fixupStream, identifier);
     channelManager.sendPacket(packet);
 
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
@@ -181,7 +181,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
     try {
       while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-        packet = new Packet(Packet.PacketType.Packet_of_Stream, fixupStream, identifier, buf);
+        packet = new Packet(Packet.PacketType.PACKET_OF_STREAM, fixupStream, identifier, buf);
         packet.setOffset(offset);
         channelManager.sendPacket(packet);
 
@@ -201,10 +201,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
         for (int i = 0; i < len; i++)
           buffer[i] = buf[i];
 
-        packet = new Packet(Packet.PacketType.Last_Packet_of_Stream,
-                            fixupStream,
-                            identifier,
-                            buffer);
+        packet = new Packet(Packet.PacketType.LAST_PACKET_OF_STREAM, fixupStream, identifier,
+            buffer);
         packet.setOffset(offset);
         channelManager.sendPacket(packet);
       }
@@ -219,10 +217,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
 
     cutData(data, offset, tempBuffer);
 
-    Packet firsPacket = new Packet(Packet.PacketType.ItemDataChangesLog_First_Packet,
-                                   data.length,
-                                   tempBuffer,
-                                   identifier);
+    Packet firsPacket = new Packet(Packet.PacketType.CHANGESLOG_FIRST_PACKET, data.length,
+        tempBuffer, identifier);
     firsPacket.setOffset(offset);
     channelManager.sendPacket(firsPacket);
 
@@ -234,10 +230,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
       cutData(data, offset, tempBuffer);
 
-      Packet middlePacket = new Packet(Packet.PacketType.ItemDataChangesLog_Middle_Packet,
-                                       data.length,
-                                       tempBuffer,
-                                       identifier);
+      Packet middlePacket = new Packet(Packet.PacketType.CHANGESLOG_MIDDLE_PACKET, data.length,
+          tempBuffer, identifier);
       middlePacket.setOffset(offset);
       channelManager.sendPacket(middlePacket);
 
@@ -250,10 +244,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     byte[] lastBuffer = new byte[data.length - (int) offset];
     cutData(data, offset, lastBuffer);
 
-    Packet lastPacket = new Packet(Packet.PacketType.ItemDataChangesLog_Last_Packet,
-                                   data.length,
-                                   lastBuffer,
-                                   identifier);
+    Packet lastPacket = new Packet(Packet.PacketType.CHANGESLOG_LAST_PACKET, data.length,
+        lastBuffer, identifier);
     lastPacket.setOffset(offset);
     channelManager.sendPacket(lastPacket);
 
@@ -261,16 +253,15 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       log.info("Send of damp --> " + lastPacket.getByteArray().length);
   }
 
-  private void sendBigItemDataChangesLogWhithStream(byte[] data, String identifier) throws Exception {
+  private void sendBigItemDataChangesLogWhithStream(byte[] data, String identifier)
+      throws Exception {
     long offset = 0;
     byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
 
     cutData(data, offset, tempBuffer);
 
-    Packet firsPacket = new Packet(Packet.PacketType.ItemDataChangesLog_with_Stream_First_Packet,
-                                   data.length,
-                                   tempBuffer,
-                                   identifier);
+    Packet firsPacket = new Packet(Packet.PacketType.CHANGESLOG_WITH_STREAM_FIRST_PACKET,
+        data.length, tempBuffer, identifier);
     firsPacket.setOffset(offset);
     channelManager.sendPacket(firsPacket);
 
@@ -282,10 +273,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
       cutData(data, offset, tempBuffer);
 
-      Packet middlePacket = new Packet(Packet.PacketType.ItemDataChangesLog_with_Stream_Middle_Packet,
-                                       data.length,
-                                       tempBuffer,
-                                       identifier);
+      Packet middlePacket = new Packet(Packet.PacketType.CHANGESLOG_WITH_STREAM_MIDDLE_PACKET,
+          data.length, tempBuffer, identifier);
       middlePacket.setOffset(offset);
       channelManager.sendPacket(middlePacket);
 
@@ -298,10 +287,8 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     byte[] lastBuffer = new byte[data.length - (int) offset];
     cutData(data, offset, lastBuffer);
 
-    Packet lastPacket = new Packet(Packet.PacketType.ItemDataChangesLog_with_Stream_Last_Packet,
-                                   data.length,
-                                   lastBuffer,
-                                   identifier);
+    Packet lastPacket = new Packet(Packet.PacketType.CHANGESLOG_WITH_STREAM_LAST_PACKET,
+        data.length, lastBuffer, identifier);
     lastPacket.setOffset(offset);
     channelManager.sendPacket(lastPacket);
 
@@ -314,7 +301,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       destination[i] = sourceData[i + (int) startPos];
   }
 
-  public void suspect(Address suspected_mbr) {
+  public void suspect(Address suspectedMbr) {
   }
 
   public void block() {

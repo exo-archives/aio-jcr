@@ -30,7 +30,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.RepositoryService;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
@@ -61,7 +61,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
       FileOutputStream fos = new FileOutputStream(tempFile);
 
       for (int i = 0; i < buf.length; i++)
-        buf[i] = (byte) (i % 255);
+        buf[i] = (byte) (i % Byte.MAX_VALUE);
 
       for (long i = 0; i < contentSize / BUFFER_SIZE; i++)
         fos.write(buf);
@@ -111,7 +111,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
       FileOutputStream fos = new FileOutputStream(tempFile);
 
       for (int i = 0; i < buf.length; i++)
-        buf[i] = (byte) (i % 255);
+        buf[i] = (byte) (i % Byte.MAX_VALUE);
 
       for (long i = 0; i < contentSize / BUFFER_SIZE; i++)
         fos.write(buf);
@@ -161,7 +161,7 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
       FileOutputStream fos = new FileOutputStream(tempFile);
 
       for (int i = 0; i < buf.length; i++)
-        buf[i] = (byte) (i % 255);
+        buf[i] = (byte) (i % Byte.MAX_VALUE);
 
       for (long i = 0; i < contentSize / BUFFER_SIZE; i++)
         fos.write(buf);

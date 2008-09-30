@@ -23,24 +23,29 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class AbstractFSAccess {
-  public final static String DATA_DIR_NAME       = "data";
+  public static final String DATA_DIR_NAME       = "data";
 
-  public final static String PREFIX_REMOVED_DATA = "---";
+  public static final String PREFIX_REMOVED_DATA = "---";
 
-  public final static String PREFIX_CHAR         = "-";
+  public static final String PREFIX_CHAR         = "-";
 
-  public final static String REMOVED_SUFFIX      = ".remove";
+  public static final String REMOVED_SUFFIX      = ".remove";
 
-  protected int              BUFFER_1KB          = 1024;
+  protected static final int BUFFER_1KB          = 1024;
+
+  protected static final int BUFFER_8X           = 8;
+
+  protected static final int BUFFER_20X          = 20;
 
   protected File getAsFile(InputStream is) throws IOException {
-    byte[] buf = new byte[BUFFER_1KB * 20];
+    byte[] buf = new byte[BUFFER_1KB * BUFFER_20X];
 
     File tempFile = File.createTempFile("" + System.currentTimeMillis(), "" + System.nanoTime());
     FileOutputStream fos = new FileOutputStream(tempFile);
@@ -56,7 +61,7 @@ public class AbstractFSAccess {
   }
 
   protected File getAsFile(ObjectInputStream ois, long fileSize) throws IOException {
-    int bufferSize = BUFFER_1KB * 8;
+    int bufferSize = BUFFER_1KB * BUFFER_8X;
     byte[] buf = new byte[bufferSize];
 
     File tempFile = File.createTempFile("" + System.currentTimeMillis(), "" + System.nanoTime());

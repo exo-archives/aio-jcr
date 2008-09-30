@@ -32,13 +32,15 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 19.05.2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
 public abstract class BaseReplicationTestCase {
   protected static Log log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
 
-  protected final int  BUFFER_SIZE = 1024;
+  protected static final int  BUFFER_SIZE = 1024;
 
   protected Session    session;
 
@@ -98,9 +100,9 @@ public abstract class BaseReplicationTestCase {
    * @param etalon
    * @param data
    * @param etalonPos
-   * @param length
    * @param dataPos
-   * @throws IOException
+   * @param length
+   * @throws Exception
    */
   protected void compareStream(InputStream etalon,
                                InputStream data,
@@ -110,7 +112,7 @@ public abstract class BaseReplicationTestCase {
 
     int dindex = 0;
 
-    byte[] ebuff = new byte[1024];
+    byte[] ebuff = new byte[BUFFER_SIZE];
     int eread = 0;
 
     while ((eread = etalon.read(ebuff)) > 0) {
@@ -136,8 +138,8 @@ public abstract class BaseReplicationTestCase {
           if (eb != db)
             throw new Exception("Streams is not equals. Wrong byte stored at position " + dindex
                 + " of data stream. Expected 0x" + Integer.toHexString(eb) + " '"
-                + new String(new byte[] { eb }) + "' but found 0x" + Integer.toHexString(db) + " '"
-                + new String(new byte[] { db }) + "'");
+                + new String(new byte[] {eb}) + "' but found 0x" + Integer.toHexString(db) + " '"
+                + new String(new byte[] {db}) + "'");
 
           erindex++;
           dindex++;

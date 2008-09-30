@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,7 +38,6 @@ import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.ext.replication.recovery.backup.BackupCreator;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -47,24 +45,26 @@ import org.jgroups.JChannel;
 import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class ReplicationService implements Startable {
 
-  protected static Log        log                   = ExoLogger.getLogger("ext.ReplicationService");
+  private static Log          log                   = ExoLogger.getLogger("ext.ReplicationService");
 
-  private final static String IP_ADRESS_TEMPLATE    = "[$]bind-ip-address";
+  private static final String IP_ADRESS_TEMPLATE    = "[$]bind-ip-address";
 
-  private final static String PERSISTENT_MODE       = "persistent";
+  private static final String PERSISTENT_MODE       = "persistent";
 
-  private final static String PROXY_MODE            = "proxy";
+  private static final String PROXY_MODE            = "proxy";
 
-  public final static String  PRIORITY_STATIC_TYPE  = "static";
+  public static final String  PRIORITY_STATIC_TYPE  = "static";
 
-  public final static String  PRIORITY_DYNAMIC_TYPE = "dynamic";
+  public static final String  PRIORITY_DYNAMIC_TYPE = "dynamic";
+
+  public static final int     FILE_CLEANRE_TIMEOUT  = 30030;
 
   private RepositoryService   repoService;
 
@@ -102,7 +102,8 @@ public class ReplicationService implements Startable {
 
   private int                 ownPriority;
 
-  public ReplicationService(RepositoryService repoService, InitParams params) throws RepositoryConfigurationException {
+  public ReplicationService(RepositoryService repoService, InitParams params)
+      throws RepositoryConfigurationException {
     started = false;
 
     this.repoService = repoService;
@@ -119,7 +120,8 @@ public class ReplicationService implements Startable {
     if (mode == null)
       throw new RepositoryConfigurationException("mode not specified");
     else if (!mode.equals(PERSISTENT_MODE) && !mode.equals(PROXY_MODE))
-      throw new RepositoryConfigurationException("Parameter 'mode' (persistent|proxy) required for replication configuration");
+      throw new RepositoryConfigurationException(
+          "Parameter 'mode' (persistent|proxy) required for replication configuration");
 
     bindIPAdaress = pps.getProperty("bind-ip-address");
     if (bindIPAdaress == null)
@@ -205,7 +207,8 @@ public class ReplicationService implements Startable {
       throw new RepositoryConfigurationException("Priority type not specified");
     else if (!priprityType.equals(PRIORITY_STATIC_TYPE)
         && !priprityType.equals(PRIORITY_DYNAMIC_TYPE))
-      throw new RepositoryConfigurationException("Parameter 'priority-type' (static|dynamic) required for replication configuration");
+      throw new RepositoryConfigurationException(
+          "Parameter 'priority-type' (static|dynamic) required for replication configuration");
 
     String ownValue = priorityParams.getProperty("node-priority");
     if (ownValue == null)
@@ -217,7 +220,8 @@ public class ReplicationService implements Startable {
     try {
 
       for (int rIndex = 0; rIndex < repoNamesList.size(); rIndex++) {
-        RepositoryImpl jcrRepository = (RepositoryImpl) repoService.getRepository(repoNamesList.get(rIndex));
+        RepositoryImpl jcrRepository = (RepositoryImpl) repoService.getRepository(repoNamesList
+            .get(rIndex));
 
         String[] workspaces = jcrRepository.getWorkspaceNames();
 
@@ -245,8 +249,8 @@ public class ReplicationService implements Startable {
               JChannel channel = new JChannel(props);
 
               // get workspace container
-              WorkspaceContainer wContainer = (WorkspaceContainer) jcrRepository.getSystemSession(workspaces[wIndex])
-                                                                                .getContainer();
+              WorkspaceContainer wContainer = (WorkspaceContainer) jcrRepository.getSystemSession(
+                  workspaces[wIndex]).getContainer();
 
               String uniqueNoame = jcrRepository.getName() + "_" + workspaces[wIndex];
               if (testMode != null && "true".equals(testMode))
@@ -255,30 +259,24 @@ public class ReplicationService implements Startable {
               ChannelManager channelManager = new ChannelManager(props, uniqueNoame);
 
               // create the RecoveryManager
-              RecoveryManager recoveryManager = new RecoveryManager(dir,
-                                                                    ownName,
-                                                                    systemId,
-                                                                    participantsClusterList,
-                                                                    waitConformation,
-                                                                    jcrRepository.getName(),
-                                                                    workspaces[wIndex],
-                                                                    channelManager);
+              RecoveryManager recoveryManager = new RecoveryManager(dir, ownName, systemId,
+                  participantsClusterList, waitConformation, jcrRepository.getName(),
+                  workspaces[wIndex], channelManager);
 
-              WorkspaceContainerFacade wsFacade = jcrRepository.getWorkspaceContainer(workspaces[wIndex]);
-              WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
+              WorkspaceContainerFacade wsFacade = jcrRepository
+                  .getWorkspaceContainer(workspaces[wIndex]);
+              WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade
+                  .getComponent(WorkspaceDataContainer.class);
 
               ConnectionFailDetector failDetector = new ConnectionFailDetector(channelManager,
-                                                                               dataContainer,
-                                                                               recoveryManager,
-                                                                               ownPriority,
-                                                                               participantsClusterList,
-                                                                               ownName,
-                                                                               priprityType);
+                  dataContainer, recoveryManager, ownPriority, participantsClusterList, ownName,
+                  priprityType);
               channelManager.setMembershipListener(failDetector);
 
               // add data transmitter
               wContainer.registerComponentImplementation(WorkspaceDataTransmitter.class);
-              WorkspaceDataTransmitter dataTransmitter = (WorkspaceDataTransmitter) wContainer.getComponentInstanceOfType(WorkspaceDataTransmitter.class);
+              WorkspaceDataTransmitter dataTransmitter = (WorkspaceDataTransmitter) wContainer
+                  .getComponentInstanceOfType(WorkspaceDataTransmitter.class);
               dataTransmitter.init(/* disp */channelManager, systemId, ownName, recoveryManager);
 
               // add data receiver
@@ -287,10 +285,12 @@ public class ReplicationService implements Startable {
               if (mode.equals(PROXY_MODE)) {
                 wContainer.registerComponentImplementation(WorkspaceDataManagerProxy.class);
                 wContainer.registerComponentImplementation(ProxyWorkspaceDataReceiver.class);
-                dataReceiver = (ProxyWorkspaceDataReceiver) wContainer.getComponentInstanceOfType(ProxyWorkspaceDataReceiver.class);
+                dataReceiver = (ProxyWorkspaceDataReceiver) wContainer
+                    .getComponentInstanceOfType(ProxyWorkspaceDataReceiver.class);
               } else if (mode.equals(PERSISTENT_MODE)) {
                 wContainer.registerComponentImplementation(PersistentWorkspaceDataReceiver.class);
-                dataReceiver = (PersistentWorkspaceDataReceiver) wContainer.getComponentInstanceOfType(PersistentWorkspaceDataReceiver.class);
+                dataReceiver = (PersistentWorkspaceDataReceiver) wContainer
+                    .getComponentInstanceOfType(PersistentWorkspaceDataReceiver.class);
               }
 
               recoveryManager.setDataKeeper(dataReceiver.getDataKeeper());
@@ -308,7 +308,8 @@ public class ReplicationService implements Startable {
 
         if (backupEnabled)
           for (int wIndex = 0; wIndex < workspaces.length; wIndex++)
-            backupCreatorList.add(initWorkspaceBackup(repoNamesList.get(rIndex), workspaces[wIndex]));
+            backupCreatorList
+                .add(initWorkspaceBackup(repoNamesList.get(rIndex), workspaces[wIndex]));
       }
     } catch (RepositoryException re) {
       log.error("Can not start ReplicationService \n" + re, re);
@@ -331,13 +332,11 @@ public class ReplicationService implements Startable {
     return null;
   }
 
-  private BackupCreator initWorkspaceBackup(String repositoryName, String workspaceName) throws RepositoryException,
-                                                                                        RepositoryConfigurationException {
+  private BackupCreator initWorkspaceBackup(String repositoryName, String workspaceName)
+      throws RepositoryException, RepositoryConfigurationException {
     ManageableRepository manageableRepository = repoService.getRepository(repositoryName);
-    BackupCreator backupCreator = new BackupCreator(backupDelayTime,
-                                                    workspaceName,
-                                                    backupDir,
-                                                    manageableRepository);
+    BackupCreator backupCreator = new BackupCreator(backupDelayTime, workspaceName, backupDir,
+        manageableRepository);
     return backupCreator;
   }
 

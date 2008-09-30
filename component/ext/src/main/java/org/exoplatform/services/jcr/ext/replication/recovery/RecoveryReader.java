@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.recovery;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -38,7 +37,7 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
@@ -55,8 +54,7 @@ public class RecoveryReader extends AbstractFSAccess {
     this.recoveryDir = recoveryDir;
   }
 
-  public TransactionChangesLog getChangesLog(String filePath) throws FileNotFoundException,
-                                                             IOException,
+  public TransactionChangesLog getChangesLog(String filePath) throws IOException,
                                                              ClassNotFoundException {
     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
     TransactionChangesLog tcl = readExternal(ois);
@@ -71,7 +69,7 @@ public class RecoveryReader extends AbstractFSAccess {
 
     TransactionChangesLog transactionChangesLog = null;
 
-    if (changesLogType == PendingChangesLog.Type.ItemDataChangesLog_with_Streams) {
+    if (changesLogType == PendingChangesLog.Type.CHANGESLOG_WITH_STREAM) {
 
       // read ChangesLog
       transactionChangesLog = (TransactionChangesLog) in.readObject();
@@ -105,9 +103,9 @@ public class RecoveryReader extends AbstractFSAccess {
 
       pendingChangesLog.restore();
 
-      TransactionChangesLog log = pendingChangesLog.getItemDataChangesLog();
+//      TransactionChangesLog log = pendingChangesLog.getItemDataChangesLog();
 
-    } else if (changesLogType == PendingChangesLog.Type.ItemDataChangesLog_without_Streams) {
+    } else if (changesLogType == PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM) {
       transactionChangesLog = (TransactionChangesLog) in.readObject();
     }
 

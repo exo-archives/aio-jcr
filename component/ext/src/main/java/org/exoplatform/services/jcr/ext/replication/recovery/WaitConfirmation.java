@@ -25,19 +25,19 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
 public class WaitConfirmation extends Thread {
-  protected static Log log = ExoLogger.getLogger("ext.WaitConfirmation");
+  private static Log log = ExoLogger.getLogger("ext.WaitConfirmation");
 
-  long                 timeOut;
+  private long                 timeOut;
 
-  RecoveryManager      recoveryManager;
+  private RecoveryManager      recoveryManager;
 
-  String               identifier;
+  private String               identifier;
 
   WaitConfirmation(long timeOut, RecoveryManager recoveryManager, String identifier) {
     super();
