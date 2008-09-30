@@ -136,13 +136,15 @@ public class SessionProvider implements SessionLifecycleListener {
    * Calls logout() method for all cached sessions
    */
   public void close() {
-    Collection<ExtendedSession> cachedSessions = cache.values();
-    Iterator<ExtendedSession> sessionIter = cachedSessions.iterator();
-    while (sessionIter.hasNext()) {
-      Session curSession = sessionIter.next();
-      curSession.logout();
+    synchronized (cache) {
+      Collection<ExtendedSession> cachedSessions = cache.values();
+      Iterator<ExtendedSession> sessionIter = cachedSessions.iterator();
+      while (sessionIter.hasNext()) {
+        Session curSession = sessionIter.next();
+        curSession.logout();
+      }
+      cache.clear();
     }
-    cache.clear();
   }
 
   /*
