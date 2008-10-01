@@ -107,8 +107,8 @@ public class SessionProvider implements SessionLifecycleListener {
    * @throws RepositoryException
    */
   public synchronized Session getSession(String workspaceName, ManageableRepository repository) throws LoginException,
-                                                                                  NoSuchWorkspaceException,
-                                                                                  RepositoryException {
+                                                                                               NoSuchWorkspaceException,
+                                                                                               RepositoryException {
     if (workspaceName == null) {
       throw new NullPointerException("Workspace Name is null");
     }
@@ -135,13 +135,18 @@ public class SessionProvider implements SessionLifecycleListener {
    * Calls logout() method for all cached sessions
    */
   public synchronized void close() {
-    Collection<ExtendedSession> cachedSessions = cache.values();
-    Iterator<ExtendedSession> sessionIter = cachedSessions.iterator();
-    while (sessionIter.hasNext()) {
-      Session curSession = sessionIter.next();
-      curSession.logout();
+//    Collection<ExtendedSession> cachedSessions = cache.values();
+//    Iterator<ExtendedSession> sessionIter = cachedSessions.iterator();
+//    while (sessionIter.hasNext()) {
+//      Session curSession = sessionIter.next();
+//      curSession.logout();
+//    }
+//    cache.clear();
+    
+    for (Iterator<Map.Entry<String, ExtendedSession>> sessions = cache.entrySet().iterator(); sessions.hasNext();) {
+      sessions.next().getValue().logout();
+      sessions.remove();
     }
-    cache.clear();
   }
 
   /*
