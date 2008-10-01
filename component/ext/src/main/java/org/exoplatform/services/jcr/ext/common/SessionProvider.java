@@ -16,10 +16,11 @@
  */
 package org.exoplatform.services.jcr.ext.common;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.jcr.LoginException;
@@ -132,14 +133,17 @@ public class SessionProvider implements SessionLifecycleListener {
   }
 
   /**
-   * Calls logout() method for all cached sessions
+   * Calls logout() method for all cached sessions.
+   * 
+   * Session will be removed from cache by the listener (this provider) via ExtendedSession.logout().
    */
   public synchronized void close() {
-    for (Iterator<Map.Entry<String, ExtendedSession>> sessions = cache.entrySet().iterator(); sessions.hasNext();) {
-      sessions.next().getValue().logout();
-    }
     
-    // the cache already empty, just to be sure
+    for (ExtendedSession session : (ExtendedSession[]) cache.values().toArray(new ExtendedSession[cache.values().size()]))
+      session.logout();
+    
+    // the cache already empty (logout listener work, see onCloseSession())
+    // just to be sure
     cache.clear();
   }
 
