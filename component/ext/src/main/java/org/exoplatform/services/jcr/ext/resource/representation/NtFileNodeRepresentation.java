@@ -26,6 +26,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.UnsupportedRepositoryOperationException;
 
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.core.ExtendedSession;
@@ -150,4 +151,30 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
     return content.getInputStream();
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperties(java.lang.String, java.util.Collection)
+   */
+  public void addProperties( Collection<HierarchicalProperty> properties)
+      throws UnsupportedRepositoryOperationException {
+    content.addProperties(properties);
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperty(java.lang.String, org.exoplatform.common.util.HierarchicalProperty)
+   */
+  public void addProperty(HierarchicalProperty property)
+      throws UnsupportedRepositoryOperationException {
+    content.addProperty(property);
+    
+  }
+
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#removeProperty(java.lang.String)
+   */
+  public void removeProperty(String name)
+      throws UnsupportedRepositoryOperationException {
+    content.removeProperty(name);
+    
+  }
 }

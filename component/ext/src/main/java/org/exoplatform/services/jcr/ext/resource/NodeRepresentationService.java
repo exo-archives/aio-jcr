@@ -17,11 +17,6 @@
 
 package org.exoplatform.services.jcr.ext.resource;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +27,8 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeType;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
 
@@ -50,28 +43,19 @@ import org.picocontainer.Startable;
 
 public class NodeRepresentationService implements Startable {
 
-  private Map<String, NodeRepresentationFactory> factories;
+  private Map<String, NodeRepresentationFactory> factoriesByNodeType;
+  private Map<String, NodeRepresentationFactory> factoriesByKey;
 
   ExoContainerContext                            containerContext;
 
   private static final Log                       log = ExoLogger.getLogger("jcr.ext.resource.NodeRepresentationService");
 
   public NodeRepresentationService(ExoContainerContext containerContext) {
-    this.factories = new HashMap<String, NodeRepresentationFactory>();
+    this.factoriesByNodeType = new HashMap<String, NodeRepresentationFactory>();
+    this.factoriesByKey = new HashMap<String, NodeRepresentationFactory>();
     this.containerContext = containerContext;
   }
 
-  // /**
-  // * Add new NodeRepresentationFactory for node type.
-  // * @param nodeType the node type.
-  // * @param representationFactoryType the class of NodeRepresentationFactory.
-  // * @throws Exception if NodeRepresentationFactory can't be instantiated.
-  // */
-  // public void addNodeRepresentationFactory(String nodeType,
-  // Class<? extends NodeRepresentationFactory> representationFactoryType)
-  // throws Exception {
-  // factories.put(nodeType, representationFactoryType.newInstance());
-  // }
 
   /**
    * Add new NodeRepresentationFactory for node type.
@@ -83,7 +67,7 @@ public class NodeRepresentationService implements Startable {
    */
   public void addNodeRepresentationFactory(String nodeType,
                                            NodeRepresentationFactory representationFactory) {
-    factories.put(nodeType, representationFactory);
+    factoriesByNodeType.put(nodeType, representationFactory);
   }
 
   /**
@@ -93,7 +77,7 @@ public class NodeRepresentationService implements Startable {
    * @param node
    *          the jcr node.
    * @param mediaTypeHint
-   *          the mimetype.
+   *          the mimetype hint or null if not known.
    * @return the NodeRepresentation.
    * @throws RepositoryException
    */
@@ -103,13 +87,24 @@ public class NodeRepresentationService implements Startable {
     if (factory != null)
       return factory.createNodeRepresentation(node, mediaTypeHint);
     else
-      return new DocViewNodeRepresentation(node);
+      return new DocumentViewNodeRepresentation(node);
   }
 
-  public Collection<String> getNodeTypes() {
-    return factories.keySet();
+  
+  /**
+   * @return served node types.
+   */
+  public Collection <String> getNodeTypes() {
+    return factoriesByNodeType.keySet();
   }
 
+  /**
+   * @return served keys.
+   */
+  public Collection <String> getKeys() {
+    return factoriesByKey.keySet();
+  }
+  
   /*
    * (non-Javadoc)
    * @see org.picocontainer.Startable#start()
@@ -134,12 +129,14 @@ public class NodeRepresentationService implements Startable {
 
   private NodeRepresentationFactory factory(Node node) throws RepositoryException {
 
-    NodeRepresentationFactory f = factories.get(node.getPrimaryNodeType().getName());
+
+    NodeRepresentationFactory f = factoriesByNodeType.get(node.getPrimaryNodeType()
+        .getName());
 
     if (f == null) {
-      for (String nt : factories.keySet()) {
+      for (String nt : factoriesByNodeType.keySet()) {
         if (node.isNodeType(nt)) {
-          f = factories.get(nt);
+          f = factoriesByNodeType.get(nt);
           break;
         }
       }
@@ -147,120 +144,13 @@ public class NodeRepresentationService implements Startable {
 
     if (f == null) {
       for (NodeType mixin : node.getMixinNodeTypes()) {
-        f = factories.get(mixin.getName());
+        f = factoriesByNodeType.get(mixin.getName());
         if (f != null)
           return f;
       }
-    }
+    } 
 
     return f;
-
-  }
-
-  private class DocViewNodeRepresentation implements NodeRepresentation {
-
-    private Node node;
-
-    public DocViewNodeRepresentation(Node node) {
-      this.node = node;
-    }
-
-    public String getContentEncoding() {
-      return Constants.DEFAULT_ENCODING;
-    }
-
-    public long getContentLenght() throws RepositoryException {
-      return -1;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getMediaType()
-     */
-    public String getMediaType() throws RepositoryException {
-      return "text/xml";
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getLastModified()
-     */
-    public long getLastModified() throws RepositoryException {
-      return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see
-     * org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
-     */
-    public HierarchicalProperty getProperty(String name) throws RepositoryException {
-      return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see
-     * org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
-     */
-    public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
-      return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()
-     */
-    public Collection<String> getPropertyNames() throws RepositoryException {
-      return new ArrayList<String>();
-    }
-
-    public InputStream getInputStream() throws IOException, RepositoryException {
-      final PipedInputStream pin = new PipedInputStream();
-      final PipedOutputStream pout = new PipedOutputStream(pin);
-
-      try {
-
-        new Thread() {
-
-          /*
-           * (non-Javadoc)
-           * @see java.lang.Thread#run()
-           */
-          public void run() {
-            try {
-              node.getSession().exportDocumentView(node.getPath(), pout, false, false);
-            } catch (Exception e) {
-              /*
-               * Nothing to do. Can give exception if nothing read from stream, this exception
-               * generated by XMLStreamWriterImpl#writeStartDocument.
-               */
-            } finally {
-              try {
-                pout.flush();
-                pout.close();
-              } catch (Exception e) {
-              }
-            }
-          }
-
-        }.start();
-
-        return pin;
-      } catch (Exception e) {
-        e.printStackTrace();
-        throw new IOException("can't get input stream");
-      }
-
-    }
-
-    /*
-     * (non-Javadoc)
-     * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getNode()
-     */
-    public Node getNode() {
-      return node;
-    }
 
   }
 

@@ -21,12 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
-import javax.jcr.ValueFormatException;
+import javax.jcr.UnsupportedRepositoryOperationException;
 
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.core.ExtendedSession;
@@ -39,9 +40,28 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 public class NtResourceNodeRepresentation implements NodeRepresentation {
 
   protected Node node;
+  
+  protected ArrayList<HierarchicalProperty> properties;
 
   public NtResourceNodeRepresentation(Node node) throws RepositoryException {
+    
     this.node = node;
+    this.properties = new ArrayList<HierarchicalProperty>();
+    
+    PropertyIterator iter = node.getProperties();
+    
+    while (iter.hasNext()) {
+      Property prop = iter.nextProperty();
+      String name = prop.getName();
+      if (!"jcr:primaryType".equals(name) && !"jcr:mixinTypes".equals(name)
+          && !"jcr:data".equals(name) && !"jcr:uuid".equals(name)) {
+        String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
+        .parseJCRName(name).getNamespace();
+        String value = prop.getString();
+        properties.add(new HierarchicalProperty(name, value, ns));
+      }
+    }
+    
   }
 
   /*
@@ -89,21 +109,28 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
    */
   public HierarchicalProperty getProperty(String name) throws RepositoryException {
-    if ("jcr:primaryType".equals(name) || "jcr:mixinTypes".equals(name) || "jcr:data".equals(name)
-        || "jcr:uuid".equals(name))
-      return null;
-
-    String value;
-    try {
-      value = node.getProperty(name).getString();
-    } catch (PathNotFoundException e) {
-      return null;
+    
+    for(HierarchicalProperty p:properties) {
+      if(p.getStringName().equals(name))
+        return p;
     }
-    String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
-                                                     .parseJCRName(name)
-                                                     .getNamespace();
-    return new HierarchicalProperty(name, value, ns);
-    // return new HierarchicalProperty(name, value);
+    return null;
+    
+//    if ("jcr:primaryType".equals(name) || "jcr:mixinTypes".equals(name) || "jcr:data".equals(name)
+//        || "jcr:uuid".equals(name))
+//      return null;
+//
+//    String value;
+//    try {
+//      value = node.getProperty(name).getString();
+//    } catch (PathNotFoundException e) {
+//      return null;
+//    }
+//    String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
+//                                                     .parseJCRName(name)
+//                                                     .getNamespace();
+//    return new HierarchicalProperty(name, value, ns);
+    
   }
 
   /*
@@ -113,8 +140,15 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
    */
   public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
     ArrayList<HierarchicalProperty> props = new ArrayList<HierarchicalProperty>();
-    props.add(getProperty(name));
+    for(HierarchicalProperty p:properties) {
+      if(p.getStringName().equals(name))
+        props.add(p);
+    }
     return props;
+//    HierarchicalProperty prop = getProperty(name);
+//    if(prop != null)
+//      props.add( prop );
+//    return props;
   }
 
   /*
@@ -122,15 +156,22 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getPropertyNames()
    */
   public Collection<String> getPropertyNames() throws RepositoryException {
-    PropertyIterator iter = node.getProperties();
-    ArrayList<String> props = new ArrayList<String>();
-    while (iter.hasNext()) {
-      String name = iter.nextProperty().getName();
-      if (!"jcr:primaryType".equals(name) && !"jcr:mixinTypes".equals(name)
-          && !"jcr:data".equals(name) && !"jcr:uuid".equals(name))
-        props.add(name);
+    
+    HashSet<String> props = new HashSet<String>();
+    for(HierarchicalProperty p:properties) {
+        props.add(p.getStringName());
     }
     return props;
+    
+//    PropertyIterator iter = node.getProperties();
+//    ArrayList<String> props = new ArrayList<String>();
+//    while (iter.hasNext()) {
+//      String name = iter.nextProperty().getName();
+//      if (!"jcr:primaryType".equals(name) && !"jcr:mixinTypes".equals(name)
+//          && !"jcr:data".equals(name) && !"jcr:uuid".equals(name))
+//        props.add(name);
+//    }
+//    return props;
   }
 
   /*
@@ -141,4 +182,36 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
     return node.getProperty("jcr:data").getStream();
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperties(java.lang.String, java.util.Collection)
+   */
+  public void addProperties(Collection<HierarchicalProperty> properties)
+      throws UnsupportedRepositoryOperationException {
+    
+    this.properties.addAll(properties);
+  }
+
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperty(java.lang.String, org.exoplatform.common.util.HierarchicalProperty)
+   */
+  public void addProperty(HierarchicalProperty property)
+      throws UnsupportedRepositoryOperationException {
+        
+    this.properties.add(property);    
+  }
+
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#removeProperty(java.lang.String)
+   */
+  public void removeProperty(String name)
+      throws UnsupportedRepositoryOperationException {
+    
+    for(int i=0;i<properties.size();i++) {
+      if(properties.get(i).getStringName().equals(name))
+        properties.remove(i);
+    }
+    
+  }
+
+  
 }
