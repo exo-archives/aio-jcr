@@ -62,7 +62,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     repositoryEntry.setName(repoName);
     repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator");
     repositoryEntry.setSecurityDomain("exo-domain");
     repositoryEntry.setSystemWorkspaceName(defaultWs);
     repositoryEntry.setDefaultWorkspaceName(defaultWs);
@@ -77,10 +77,9 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs(defaultWs + IdGenerator.generate(),
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb
-                                                  ? null
-                                                  : workspaceEntry.getContainer()
-                                                                  .getParameterValue("sourceName"),
+                                              isDefaultWsMultiDb ? null
+                                                                : workspaceEntry.getContainer()
+                                                                                .getParameterValue("sourceName"),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
 
@@ -108,7 +107,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     repositoryEntry.setName("repo4TestCreateRepository");
     repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator");
     repositoryEntry.setSecurityDomain("exo-domain");
     repositoryEntry.setSystemWorkspaceName("ws4TestCreateRepository");
     repositoryEntry.setDefaultWorkspaceName("ws4TestCreateRepository");
@@ -196,7 +195,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     repositoryEntry.setName(service.getConfig().getDefaultRepositoryName());
     repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator");
     repositoryEntry.setSecurityDomain("exo-domain");
     repositoryEntry.setSystemWorkspaceName("ws4testAddNewRepositoryWithSameName");
     repositoryEntry.setDefaultWorkspaceName("ws4testAddNewRepositoryWithSameName");
@@ -240,7 +239,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     repositoryEntry.setName("repo4testCanRemove");
     repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator");
     repositoryEntry.setSecurityDomain("exo-domain");
     repositoryEntry.setSystemWorkspaceName("ws4testCanRemove");
     repositoryEntry.setDefaultWorkspaceName("ws4testCanRemove");
@@ -255,10 +254,9 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs("ws4testCanRemove2",
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb
-                                                  ? null
-                                                  : wsEntry.getContainer()
-                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                              isDefaultWsMultiDb ? null
+                                                                : wsEntry.getContainer()
+                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
     // WorkspaceEntry secondWs = TestWorkspaceManagement.getNewWs(null, false,
@@ -437,7 +435,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     repositoryEntry.setName("repo4testRemove");
     repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator");
     repositoryEntry.setSecurityDomain("exo-domain");
     repositoryEntry.setSystemWorkspaceName("ws4testRemove");
     repositoryEntry.setDefaultWorkspaceName("ws4testRemove");
@@ -452,10 +450,9 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs("ws4testRemove2",
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb
-                                                  ? null
-                                                  : wsEntry.getContainer()
-                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                              isDefaultWsMultiDb ? null
+                                                                : wsEntry.getContainer()
+                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
     repositoryEntry.addWorkspace(secondWs);
@@ -475,7 +472,7 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     repositoryEntry.setName("repo4RemoveOtherThread");
     repositoryEntry.setSessionTimeOut(3600000);
-    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy");
+    repositoryEntry.setAuthenticationPolicy("org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator");
     repositoryEntry.setSecurityDomain("exo-domain");
     repositoryEntry.setSystemWorkspaceName("ws4RemoveOtherThread");
     repositoryEntry.setDefaultWorkspaceName("ws4RemoveOtherThread");
@@ -490,10 +487,9 @@ public class TestRepositoryManagement extends JcrImplBaseTest {
 
     WorkspaceEntry secondWs = helper.getNewWs("ws4RemoveOtherThread2",
                                               isDefaultWsMultiDb,
-                                              isDefaultWsMultiDb
-                                                  ? null
-                                                  : wsEntry.getContainer()
-                                                           .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
+                                              isDefaultWsMultiDb ? null
+                                                                : wsEntry.getContainer()
+                                                                         .getParameterValue(WorkspaceDataContainer.SOURCE_NAME),
                                               "target/temp/values/" + IdGenerator.generate(),
                                               wsEntry.getContainer());
 
