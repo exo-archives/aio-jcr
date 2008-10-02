@@ -41,7 +41,7 @@ import org.exoplatform.services.organization.User;
  */
 public class MembershipHandlerImpl implements MembershipHandler {
 
-  public static final String                    STORAGE_EXO_MEMBERSHIP = "/exo:membership";
+  public static final String                    STORAGE_EXO_MEMBERSHIP = "exo:userMembership";
 
   protected final JCROrganizationServiceImpl    service;
 
@@ -174,7 +174,6 @@ public class MembershipHandlerImpl implements MembershipHandler {
    * org.exoplatform.services.organization.MembershipHandler#removeMembershipByUser
    * (java.lang.String, boolean)
    */
-
   public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception {
     // TODO broadcast
     Session session = service.getStorageSession();

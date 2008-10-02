@@ -57,6 +57,10 @@ public class UserHandlerImpl implements UserHandler {
 
   public static final String                 STORAGE_EXO_PROFILE         = "exo:profile";
 
+  public static final String                 STORAGE_EXO_USER_NAME       = "exo:userName";
+
+  public static final String                 STORAGE_EXO_GROUP           = "exo:group";
+
   public static final String                 STORAGE_EXO_USERS           = "/exo:users";
 
   protected final List<UserEventListener>    listeners                   = new ArrayList<UserEventListener>();

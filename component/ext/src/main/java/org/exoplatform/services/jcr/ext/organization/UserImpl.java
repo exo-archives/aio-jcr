@@ -45,6 +45,7 @@ public class UserImpl implements User {
 
   private Date             lastLoginTime  = null;
 
+  // not used
   private String           organizationId = null;
 
   /**
@@ -168,6 +169,7 @@ public class UserImpl implements User {
    * @see org.exoplatform.services.organization.User#setUserName(java.lang.String)
    */
   public void setUserName(String s) {
+    userName = s;
   }
 
 }

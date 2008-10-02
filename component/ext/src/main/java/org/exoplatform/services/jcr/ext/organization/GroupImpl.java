@@ -27,15 +27,17 @@ import org.exoplatform.services.organization.Group;
  */
 public class GroupImpl implements Group {
 
-  private String id        = null;
+  // not used
+  private String id          = null;
 
   private String parentId;
 
-  private String groupName = null;
+  // not used
+  private String groupName   = null;
 
   private String label;
 
-  private String description;
+  private String description = "";
 
   GroupImpl() {
   }

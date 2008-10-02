@@ -54,9 +54,14 @@ public class GroupHandlerImpl implements GroupHandler {
    */
   public void addChild(Group parent, Group child, boolean broadcast) throws Exception {
     // TODO implement broadcast
-    // TODO Auto-generated method stub
     Session session = service.getStorageSession();
     try {
+      Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
+          + parent.getParentId() + "/" + parent.getLabel());
+
+      Node newNode = gNode.addNode(child.getLabel());
+      newNode.setProperty(STORAGE_EXO_DESCRIPTION, child.getDescription());
+      session.save();
 
     } finally {
       session.logout();
@@ -86,7 +91,9 @@ public class GroupHandlerImpl implements GroupHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * This method not used.
+   * 
+   * @inheritDoc
    */
   public Group findGroupById(String groupId) throws Exception {
     // TODO Auto-generated method stub
@@ -105,9 +112,26 @@ public class GroupHandlerImpl implements GroupHandler {
    * {@inheritDoc}
    */
   public Collection findGroups(Group parent) throws Exception {
-    // TODO Auto-generated method stub
     Session session = service.getStorageSession();
     try {
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
+          + parent.getParentId());
+
+      List<Group> types = new ArrayList<Group>();
+
+      String label = "";
+      String parentId = "";
+      if (parent != null) {
+        label = parent.getLabel();
+        parentId = parent.getParentId();
+      }
+
+      for (NodeIterator nodes = storageNode.getNodes(label); nodes.hasNext();) {
+        Node gNode = nodes.nextNode();
+        Group group = new GroupImpl(gNode.getName(), parentId + '/' + label);
+        group.setDescription(gNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
+        types.add(group);
+      }
 
     } finally {
 
@@ -119,8 +143,11 @@ public class GroupHandlerImpl implements GroupHandler {
    * {@inheritDoc}
    */
   public Collection findGroupsOfUser(String user) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    List<Group> groups = new ArrayList<Group>();
+    String statement = "select * from " + UserHandlerImpl.STORAGE_EXO_USERS.substring(1) + ", "
+        + " where " + UserHandlerImpl.STORAGE_EXO_USER_NAME + "=" + user + " AND ";
+
+    return groups;
   }
 
   /**
@@ -180,7 +207,7 @@ public class GroupHandlerImpl implements GroupHandler {
     // TODO: implement broadcast
     Session session = service.getStorageSession();
     try {
-      Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS + "/"
+      Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
           + group.getParentId() + "/" + group.getLabel());
       gNode.setProperty(STORAGE_EXO_DESCRIPTION, group.getDescription());
       session.save();
