@@ -32,14 +32,13 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.organization.BaseOrganizationService;
 
 /**
- * Created by The eXo Platform SAS. <br/>
+ * Created by The eXo Platform SAS. <br/> Initialization will be performed via
+ * OrganizationServiceJCRInitializer. <br/>Date: 24.07.2008
  * 
- * Initialization will be performed via OrganizationServiceJCRInitializer.
- * 
- * <br/>Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JCROrganizationServiceImpl.java 111 2008-11-11 11:11:11Z peterit $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: JCROrganizationServiceImpl.java 111 2008-11-11 11:11:11Z
+ *          peterit $
  */
 public class JCROrganizationServiceImpl extends BaseOrganizationService {
 
@@ -89,9 +88,10 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService {
       Node storage = session.getRootNode().addNode(this.storagePath.substring(1),
                                                    "exo:organizationStorage");
 
-      storage.addNode("exo:users", "exo:organizationUsers");
-      storage.addNode("exo:groups", "exo:organizationGroups");
-      storage.addNode("exo:membershipTypes", "exo:organizationMembershipTypes");
+      storage.addNode(UserHandlerImpl.STORAGE_EXO_USERS.substring(1), "exo:organizationUsers");
+      storage.addNode(GroupHandlerImpl.STORAGE_EXO_GROUPS.substring(1), "exo:organizationGroups");
+      storage.addNode(MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES.substring(1),
+                      "exo:organizationMembershipTypes");
 
       session.save(); // storage done
     } finally {
@@ -107,7 +107,8 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService {
   }
 
   /**
-   * Return system Session to org-service storage workspace. For internal use only.
+   * Return system Session to org-service storage workspace. For internal use
+   * only.
    * 
    * @return
    * @throws RepositoryException

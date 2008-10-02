@@ -19,53 +19,68 @@ package org.exoplatform.services.jcr.ext.organization;
 import org.exoplatform.services.organization.Membership;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: MembershipImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class MembershipImpl implements Membership {
 
-  /* (non-Javadoc)
+  private String groupId        = null;
+
+  private String id             = null;
+
+  private String membershipType = null;
+
+  private String userName       = null;
+
+  MembershipImpl(String id, String groupId, String userName) {
+    this.groupId = groupId;
+    this.id = id;
+    this.userName = userName;
+  }
+
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.organization.Membership#getGroupId()
    */
   public String getGroupId() {
-    // TODO Auto-generated method stub
-    return null;
+    return groupId;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.organization.Membership#getId()
    */
   public String getId() {
-    // TODO Auto-generated method stub
-    return null;
+    return id;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.organization.Membership#getMembershipType()
    */
   public String getMembershipType() {
-    // TODO Auto-generated method stub
-    return null;
+    return membershipType;
   }
 
-  /* (non-Javadoc)
+  /*
+   * (non-Javadoc)
    * @see org.exoplatform.services.organization.Membership#getUserName()
    */
   public String getUserName() {
-    // TODO Auto-generated method stub
-    return null;
+    return userName;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.Membership#setMembershipType(java.lang.String)
+  /*
+   * (non-Javadoc)
+   * @see
+   * org.exoplatform.services.organization.Membership#setMembershipType(java
+   * .lang.String)
    */
   public void setMembershipType(String type) {
-    // TODO Auto-generated method stub
-    
+    membershipType = type;
   }
 
 }

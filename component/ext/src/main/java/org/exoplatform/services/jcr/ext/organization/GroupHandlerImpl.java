@@ -20,110 +20,172 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Session;
+
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupHandler;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: GroupHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class GroupHandlerImpl implements GroupHandler {
 
-  protected final JCROrganizationServiceImpl service;
+  public static final String                 STORAGE_EXO_GROUPS      = "/exo:groups";
 
-  protected final List<GroupEventListener>   listeners = new ArrayList<GroupEventListener>();
+  public static final String                 STORAGE_EXO_DESCRIPTION = "exo:description";
+
+  protected final List<GroupEventListener>   listeners               = new ArrayList<GroupEventListener>();
+
+  protected final JCROrganizationServiceImpl service;
 
   GroupHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void addChild(Group parent, Group child, boolean broadcast) throws Exception {
+    // TODO implement broadcast
     // TODO Auto-generated method stub
+    Session session = service.getStorageSession();
+    try {
+
+    } finally {
+      session.logout();
+    }
 
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#addGroupEventListener(org.exoplatform.services.organization.GroupEventListener)
+  /**
+   * {@inheritDoc}
    */
   public void addGroupEventListener(GroupEventListener listener) {
     listeners.add(listener);
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#createGroup(org.exoplatform.services.organization.Group, boolean)
+  /**
+   * {@inheritDoc}
    */
   public void createGroup(Group group, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
-
+    addChild(null, group, broadcast);
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#createGroupInstance()
+  /**
+   * {@inheritDoc}
    */
   public Group createGroupInstance() {
-    // TODO Auto-generated method stub
-    return null;
+    return new GroupImpl();
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#findGroupById(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Group findGroupById(String groupId) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#findGroupByMembership(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Collection findGroupByMembership(String userName, String membershipType) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#findGroups(org.exoplatform.services.organization.Group)
+  /**
+   * {@inheritDoc}
    */
   public Collection findGroups(Group parent) throws Exception {
     // TODO Auto-generated method stub
+    Session session = service.getStorageSession();
+    try {
+
+    } finally {
+
+    }
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#findGroupsOfUser(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Collection findGroupsOfUser(String user) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#getAllGroups()
+  /**
+   * {@inheritDoc}
    */
   public Collection getAllGroups() throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Session session = service.getStorageSession();
+    try {
+      Node storageNode = (Node) session.getItem(service.getStoragePath());
+
+      List<Group> types = new ArrayList<Group>();
+
+      for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_GROUPS.substring(1)); nodes.hasNext();) {
+        // types.add(group);
+      }
+
+      return types;
+    } finally {
+      session.logout();
+    }
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#removeGroup(org.exoplatform.services.organization.Group, boolean)
+  /**
+   * {@inheritDoc}
    */
   public Group removeGroup(Group group, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO broadcast
+    // TODO remove membership
+    Session session = service.getStorageSession();
+    try {
+      Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS + "/"
+          + group.getLabel());
+
+      NodeIterator groups = gNode.getNodes();
+      if (groups.hasNext()) {
+        throw new OrganizationServiceException("The group has a child group.");
+      }
+      gNode.remove();
+      session.save();
+      return group;
+    } finally {
+      session.logout();
+    }
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.GroupHandler#saveGroup(org.exoplatform.services.organization.Group, boolean)
+  /**
+   * {@inheritDoc}
+   */
+  public void removeGroupEventListener(GroupEventListener listener) {
+    listeners.remove(listener);
+  }
+
+  /**
+   * {@inheritDoc}
    */
   public void saveGroup(Group group, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
-
+    // TODO: implement broadcast
+    Session session = service.getStorageSession();
+    try {
+      Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS + "/"
+          + group.getParentId() + "/" + group.getLabel());
+      gNode.setProperty(STORAGE_EXO_DESCRIPTION, group.getDescription());
+      session.save();
+    } finally {
+      session.logout();
+    }
   }
-
 }

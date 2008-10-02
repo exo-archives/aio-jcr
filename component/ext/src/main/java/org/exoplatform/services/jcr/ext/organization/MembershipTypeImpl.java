@@ -21,63 +21,100 @@ import java.util.Date;
 import org.exoplatform.services.organization.MembershipType;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: MembershipTypeImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class MembershipTypeImpl implements MembershipType {
 
+  private Date   createdDate  = null;
+
+  private String description  = null;
+
+  private Date   modifiedDate = null;
+
+  private String name         = null;
+
+  private String owner        = null;
+
+  /**
+   * @return The date that the membership type is saved to the database
+   */
   public Date getCreatedDate() {
-    // TODO Auto-generated method stub
-    return null;
+    return createdDate;
   }
 
+  /**
+   * @return The description of the membership type
+   */
   public String getDescription() {
-    // TODO Auto-generated method stub
-    return null;
+    return description;
   }
 
+  /**
+   * @return The last time that an user modify the data of the membership type.
+   */
   public Date getModifiedDate() {
-    // TODO Auto-generated method stub
-    return null;
+    return modifiedDate;
   }
 
+  /**
+   * @return The name of the membership type. The name of the membership type
+   *         should be unique in the membership type database.
+   */
   public String getName() {
-    // TODO Auto-generated method stub
-    return null;
+    return name;
   }
 
+  /**
+   * @return The owner of the membership type
+   */
   public String getOwner() {
-    // TODO Auto-generated method stub
-    return null;
+    return owner;
   }
 
+  /**
+   * Set created date for membership type.
+   * 
+   * @param d the created date
+   */
   public void setCreatedDate(Date d) {
-    // TODO Auto-generated method stub
-
   }
 
+  /**
+   * Set description for membership type.
+   * 
+   * @param s The new description of the membership type
+   */
   public void setDescription(String s) {
-    // TODO Auto-generated method stub
-
+    description = s;
   }
 
+  /**
+   * Set modified date for membership type.
+   * 
+   * @param d the modified date
+   */
   public void setModifiedDate(Date d) {
-    // TODO Auto-generated method stub
-
   }
 
+  /**
+   * Set name for membership type.
+   * 
+   * @param s The name of the membership type
+   */
   public void setName(String s) {
-    // TODO Auto-generated method stub
-
+    name = s;
   }
 
+  /**
+   * Set owner for membership type.
+   * 
+   * @param s The new owner of the membership type
+   */
   public void setOwner(String s) {
-    // TODO Auto-generated method stub
-
   }
 
 }

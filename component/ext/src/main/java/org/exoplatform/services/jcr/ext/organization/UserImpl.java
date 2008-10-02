@@ -21,157 +21,153 @@ import java.util.Date;
 import org.exoplatform.services.organization.User;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: UserImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserImpl implements User {
 
-  /* (non-Javadoc)
+  private String           id             = null;
+
+  private String           userName       = null;
+
+  private transient String password       = null;
+
+  private String           firstName      = null;
+
+  private String           lastName       = null;
+
+  private String           email          = null;
+
+  private Date             createdDate    = null;
+
+  private Date             lastLoginTime  = null;
+
+  private String           organizationId = null;
+
+  /**
    * @see org.exoplatform.services.organization.User#getCreatedDate()
    */
   public Date getCreatedDate() {
-    // TODO Auto-generated method stub
-    return null;
+    return createdDate;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getEmail()
    */
   public String getEmail() {
-    // TODO Auto-generated method stub
-    return null;
+    return email;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getFirstName()
    */
   public String getFirstName() {
-    // TODO Auto-generated method stub
-    return null;
+    return firstName;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getFullName()
    */
   public String getFullName() {
-    // TODO Auto-generated method stub
-    return null;
+    return getFirstName() + " " + getLastName();
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getLastLoginTime()
    */
   public Date getLastLoginTime() {
-    // TODO Auto-generated method stub
-    return null;
+    return lastLoginTime;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getLastName()
    */
   public String getLastName() {
-    // TODO Auto-generated method stub
-    return null;
+    return lastName;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getOrganizationId()
    */
   public String getOrganizationId() {
-    // TODO Auto-generated method stub
-    return null;
+    return organizationId;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getPassword()
    */
   public String getPassword() {
-    // TODO Auto-generated method stub
-    return null;
+    return password;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#getUserName()
    */
   public String getUserName() {
-    // TODO Auto-generated method stub
-    return null;
+    return userName;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setCreatedDate(java.util.Date)
    */
   public void setCreatedDate(Date t) {
-    // TODO Auto-generated method stub
-
+    createdDate = t;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setEmail(java.lang.String)
    */
   public void setEmail(String s) {
-    // TODO Auto-generated method stub
-
+    email = s;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setFirstName(java.lang.String)
    */
   public void setFirstName(String s) {
-    // TODO Auto-generated method stub
-
+    firstName = s;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setFullName(java.lang.String)
    */
   public void setFullName(String s) {
-    // TODO Auto-generated method stub
-
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setLastLoginTime(java.util.Date)
    */
   public void setLastLoginTime(Date t) {
-    // TODO Auto-generated method stub
-
+    lastLoginTime = t;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setLastName(java.lang.String)
    */
   public void setLastName(String s) {
-    // TODO Auto-generated method stub
-
+    lastName = s;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setOrganizationId(java.lang.String)
    */
-  public void setOrganizationId(String organizationId) {
-    // TODO Auto-generated method stub
-
+  public void setOrganizationId(String s) {
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setPassword(java.lang.String)
    */
   public void setPassword(String s) {
-    // TODO Auto-generated method stub
-
+    password = s;
   }
 
-  /* (non-Javadoc)
+  /**
    * @see org.exoplatform.services.organization.User#setUserName(java.lang.String)
    */
   public void setUserName(String s) {
-    // TODO Auto-generated method stub
-
   }
 
 }

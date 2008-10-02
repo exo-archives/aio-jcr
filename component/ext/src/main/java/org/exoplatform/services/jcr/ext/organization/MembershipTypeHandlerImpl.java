@@ -17,9 +17,7 @@
 package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -30,14 +28,18 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: MembershipTypeHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: MembershipTypeHandlerImpl.java 111 2008-11-11 11:11:11Z peterit
+ *          $
  */
 public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
+
+  public static final String                 STORAGE_EXO_DESCRIPTION      = "exo:description";
+
+  public static final String                 STORAGE_EXO_MEMBERSHIP_TYPES = "/exo:membershipTypes";
 
   protected final JCROrganizationServiceImpl service;
 
@@ -45,50 +47,74 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     this.service = service;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#createMembershipTypeInstance()
+  /**
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#
+   *      createMembershipTypeInstance()
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
+    // TODO: implement broadcast
+    if (mt.getName().length() == 0) {
+      throw new OrganizationServiceException("Name of membership type can not be empty.");
+    } else if (findMembershipType(mt.getName()) != null) {
+      throw new OrganizationServiceException("Membership type with name " + mt.getName()
+          + " is present.");
+    }
 
-    Date now = Calendar.getInstance().getTime();
-    mt.setCreatedDate(now);
-    mt.setModifiedDate(now);
-
-    return mt;
-  }
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#createMembershipTypeInstance()
-   */
-  public MembershipType createMembershipTypeInstance() {
-    return new MembershipTypeImpl();
-  }
-
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#findMembershipType(java.lang.String)
-   */
-  public MembershipType findMembershipType(String name) throws Exception {
+    // Date now = Calendar.getInstance().getTime();
+    // mt.setCreatedDate(now);
+    // mt.setModifiedDate(now);
 
     Session session = service.getStorageSession();
     try {
-      Node mtNode = (Node) session.getItem(service.getStoragePath() + "/exo:membershipTypes/"
-          + name);
-
-      MembershipType mt = new MembershipTypeImpl();
-      mt.setName(mtNode.getName());
-      mt.setDescription(mtNode.getProperty("exo:description").getString());
-
-      // TODO fix noetype
-      // mt.setCreatedDate(d);
-      // mt.setModifiedDate(d);
-      // mt.setOwner(s);
-
-      return null;
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES);
+      mtNode = mtNode.addNode(mt.getName());
+      mtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
+      session.save();
+      return mt;
     } finally {
       session.logout();
     }
   }
 
+  /**
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#
+   *      createMembershipTypeInstance ()
+   */
+  public MembershipType createMembershipTypeInstance() {
+    return new MembershipTypeImpl();
+  }
+
+  /**
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#findMembershipType
+   *      (java.lang.String)
+   */
+  public MembershipType findMembershipType(String name) throws Exception {
+    MembershipType mt = null;
+    Session session = service.getStorageSession();
+    try {
+      Node storageNode = (Node) session.getItem(service.getStoragePath()
+          + STORAGE_EXO_MEMBERSHIP_TYPES);
+
+      for (NodeIterator nodes = storageNode.getNodes(name); nodes.hasNext();) {
+        if (mt != null) {
+          throw new OrganizationServiceException("More than one membership type with same name is found");
+        }
+        Node mtNode = nodes.nextNode();
+
+        mt = new MembershipTypeImpl();
+        mt.setName(mtNode.getName());
+        mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
+      }
+      return mt;
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#
+   *      findMembershipTypes ()
+   */
   public Collection findMembershipTypes() throws Exception {
     Session session = service.getStorageSession();
     try {
@@ -96,15 +122,11 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
 
       List<MembershipType> types = new ArrayList<MembershipType>();
 
-      for (NodeIterator nodes = storageNode.getNodes("exo:membershipTypes"); nodes.hasNext();) {
+      for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_MEMBERSHIP_TYPES.substring(1)); nodes.hasNext();) {
         Node mtNode = nodes.nextNode();
         MembershipType mt = new MembershipTypeImpl();
         mt.setName(mtNode.getName());
-        mt.setDescription(mtNode.getProperty("exo:description").getString());
-        // TODO fix noetype
-        // mt.setCreatedDate(d);
-        // mt.setModifiedDate(d);
-        // mt.setOwner(s);
+        mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
 
         types.add(mt);
       }
@@ -115,20 +137,46 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#removeMembershipType(java.lang.String, boolean)
+  /**
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#
+   *      removeMembershipType (java.lang.String, boolean)
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO: broadcast
+    Session session = service.getStorageSession();
+    MembershipType mt = null;
+    try {
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
+          + "/" + name);
+
+      mt = new MembershipTypeImpl();
+      mt.setName(name);
+      mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
+      mtNode.remove();
+      session.save();
+      return mt;
+    } finally {
+      session.logout();
+    }
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#saveMembershipType(org.exoplatform.services.organization.MembershipType, boolean)
+  /**
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#
+   *      saveMembershipType
+   *      (org.exoplatform.services.organization.MembershipType, boolean)
    */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO broadcast
+    Session session = service.getStorageSession();
+    try {
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
+          + "/" + mt.getName());
+      mtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
+      session.save();
+      return mt;
+    } finally {
+      session.logout();
+    }
   }
 
 }
