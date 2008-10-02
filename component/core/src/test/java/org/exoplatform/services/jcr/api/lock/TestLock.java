@@ -339,4 +339,32 @@ public class TestLock extends JcrAPIBaseTest {
       // ok
     }
   }
+
+  public void testLockChild() throws Exception {
+    Node childLockNode = lockedNode.addNode("childLock");
+    childLockNode.addMixin("mix:lockable");
+    session.save();
+    assertFalse(childLockNode.isLocked());
+    childLockNode.lock(false, true);
+    assertTrue(childLockNode.isLocked());
+    session.save();
+
+    Session s1 = repository.login(new CredentialsImpl("exo", "exo".toCharArray()),
+                                  session.getWorkspace().getName());
+    Node lock2Node = s1.getRootNode().getNode("locked node");
+    assertFalse(lock2Node.isLocked());
+    lock2Node.lock(false, true);
+    s1.save();
+    assertTrue(lock2Node.isLocked());
+
+    try {
+      childLockNode.remove();
+    } catch (LockException e) {
+      // ok
+    }
+    childLockNode.unlock();
+    session.save();
+    assertFalse(childLockNode.isLocked());
+
+  }
 }

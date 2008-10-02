@@ -152,9 +152,8 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     this.dataManager = dataManager;
     this.persister = persister;
     if (config.getLockManager() != null)
-      lockTimeOut = config.getLockManager().getTimeout() > 0
-          ? config.getLockManager().getTimeout()
-          : DEFAULT_LOCK_TIMEOUT;
+      lockTimeOut = config.getLockManager().getTimeout() > 0 ? config.getLockManager().getTimeout()
+                                                            : DEFAULT_LOCK_TIMEOUT;
 
     locks = new HashMap<String, LockData>();
     pendingLocks = new HashMap<String, LockData>();
@@ -617,17 +616,6 @@ public class LockManagerImpl implements ItemsPersistenceListener, SessionLifecyc
     // }
 
     if (lData != null) {
-      NodeData parentNode = null;
-      try {
-        NodeData node = (NodeData) dataManager.getItemData(nodeIdentifier);
-        if (node != null)
-          parentNode = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-      } catch (RepositoryException e) {
-        log.error(e.getLocalizedMessage());
-      }
-      if (parentNode != null && isLocked(parentNode)) {
-        throw new LockException("Session does not have the correct lock token");
-      }
 
       tokensMap.remove(lData.getLockToken(sessionId));
       locks.remove(nodeIdentifier);
