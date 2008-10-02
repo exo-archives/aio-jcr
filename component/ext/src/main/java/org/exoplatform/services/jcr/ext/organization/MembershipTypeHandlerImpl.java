@@ -45,8 +45,8 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     this.service = service;
   }
 
-  /**
-   * // TODO check if method used.
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#createMembershipTypeInstance()
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
 
@@ -57,10 +57,16 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     return mt;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#createMembershipTypeInstance()
+   */
   public MembershipType createMembershipTypeInstance() {
     return new MembershipTypeImpl();
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#findMembershipType(java.lang.String)
+   */
   public MembershipType findMembershipType(String name) throws Exception {
 
     Session session = service.getStorageSession();
@@ -109,13 +115,19 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     }
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#removeMembershipType(java.lang.String, boolean)
+   */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipTypeHandler#saveMembershipType(org.exoplatform.services.organization.MembershipType, boolean)
+   */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
-    // TODO update memebership
+    // TODO Auto-generated method stub
     return null;
   }
 

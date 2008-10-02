@@ -28,29 +28,44 @@ import org.exoplatform.services.organization.Membership;
  */
 public class MembershipImpl implements Membership {
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Membership#getGroupId()
+   */
   public String getGroupId() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Membership#getId()
+   */
   public String getId() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Membership#getMembershipType()
+   */
   public String getMembershipType() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Membership#getUserName()
+   */
   public String getUserName() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Membership#setMembershipType(java.lang.String)
+   */
   public void setMembershipType(String type) {
     // TODO Auto-generated method stub
-
+    
   }
 
 }

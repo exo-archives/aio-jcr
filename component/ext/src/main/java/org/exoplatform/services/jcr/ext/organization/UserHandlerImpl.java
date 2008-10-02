@@ -27,7 +27,6 @@ import javax.jcr.query.QueryResult;
 
 import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
-import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserHandler;
@@ -55,6 +54,9 @@ public class UserHandlerImpl implements UserHandler {
     this.service = service;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#addUserEventListener(org.exoplatform.services.organization.UserEventListener)
+   */
   public void addUserEventListener(UserEventListener listener) {
     listeners.add(listener);
   }
@@ -63,30 +65,49 @@ public class UserHandlerImpl implements UserHandler {
     listeners.remove(listener);
   }
 
-  public boolean authenticate(String username, String password) throws OrganizationServiceException {
-    return false; // TODO
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#authenticate(java.lang.String, java.lang.String)
+   */
+  public boolean authenticate(String username, String password) throws Exception {
+    // TODO Auto-generated method stub
+    return false;
   }
 
-  public void createUser(User user, boolean broadcast) throws OrganizationServiceException {
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#createUser(org.exoplatform.services.organization.User, boolean)
+   */
+  public void createUser(User user, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
 
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#createUserInstance()
+   */
   public User createUserInstance() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#createUserInstance(java.lang.String)
+   */
   public User createUserInstance(String username) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public User findUserByName(String userName) throws OrganizationServiceException {
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#findUserByName(java.lang.String)
+   */
+  public User findUserByName(String userName) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#findUsersByGroup(java.lang.String)
+   */
   public PageList findUsersByGroup(String groupId) throws OrganizationServiceException {
     // TODO
     try {
@@ -128,17 +149,26 @@ public class UserHandlerImpl implements UserHandler {
     }
   }
 
-  public PageList getUserPageList(int pageSize) throws OrganizationServiceException {
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#getUserPageList(int)
+   */
+  public PageList getUserPageList(int pageSize) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public User removeUser(String userName, boolean broadcast) throws OrganizationServiceException {
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#removeUser(java.lang.String, boolean)
+   */
+  public User removeUser(String userName, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public void saveUser(User user, boolean broadcast) throws OrganizationServiceException {
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserHandler#saveUser(org.exoplatform.services.organization.User, boolean)
+   */
+  public void saveUser(User user, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
 
   }

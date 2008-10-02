@@ -30,31 +30,49 @@ import org.exoplatform.services.organization.UserProfile;
  */
 public class UserProfileImpl implements UserProfile {
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfile#getAttribute(java.lang.String)
+   */
   public String getAttribute(String attName) {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfile#getUserInfoMap()
+   */
   public Map<String, String> getUserInfoMap() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfile#getUserName()
+   */
   public String getUserName() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfile#setAttribute(java.lang.String, java.lang.String)
+   */
   public void setAttribute(String key, String value) {
     // TODO Auto-generated method stub
 
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfile#setUserInfoMap(java.util.Map)
+   */
   public void setUserInfoMap(Map<String, String> map) {
     // TODO Auto-generated method stub
 
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfile#setUserName(java.lang.String)
+   */
   public void setUserName(String username) {
     // TODO Auto-generated method stub
 

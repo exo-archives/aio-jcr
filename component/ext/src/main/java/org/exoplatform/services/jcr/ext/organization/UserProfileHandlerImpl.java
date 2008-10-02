@@ -42,6 +42,9 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
     this.service = service;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfileHandler#addUserProfileEventListener(org.exoplatform.services.organization.UserProfileEventListener)
+   */
   public void addUserProfileEventListener(UserProfileEventListener listener) {
     listeners.add(listener);
   }
@@ -50,31 +53,49 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
     listeners.remove(listener);
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfileHandler#createUserProfileInstance()
+   */
   public UserProfile createUserProfileInstance() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfileHandler#createUserProfileInstance(java.lang.String)
+   */
   public UserProfile createUserProfileInstance(String userName) {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfileHandler#findUserProfileByName(java.lang.String)
+   */
   public UserProfile findUserProfileByName(String userName) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfileHandler#findUserProfiles()
+   */
   public Collection findUserProfiles() throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfileHandler#removeUserProfile(java.lang.String, boolean)
+   */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.UserProfileHandler#saveUserProfile(org.exoplatform.services.organization.UserProfile, boolean)
+   */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
 

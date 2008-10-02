@@ -28,41 +28,65 @@ import org.exoplatform.services.organization.Group;
  */
 public class GroupImpl implements Group {
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#getDescription()
+   */
   public String getDescription() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#getGroupName()
+   */
   public String getGroupName() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#getId()
+   */
   public String getId() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#getLabel()
+   */
   public String getLabel() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#getParentId()
+   */
   public String getParentId() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#setDescription(java.lang.String)
+   */
   public void setDescription(String desc) {
     // TODO Auto-generated method stub
 
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#setGroupName(java.lang.String)
+   */
   public void setGroupName(String name) {
     // TODO Auto-generated method stub
 
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.Group#setLabel(java.lang.String)
+   */
   public void setLabel(String name) {
     // TODO Auto-generated method stub
 

@@ -47,54 +47,80 @@ public class GroupHandlerImpl implements GroupHandler {
 
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#addGroupEventListener(org.exoplatform.services.organization.GroupEventListener)
+   */
   public void addGroupEventListener(GroupEventListener listener) {
     listeners.add(listener);
   }
 
-  public void removeGroupEventListener(GroupEventListener listener) {
-    listeners.remove(listener);
-  }
-
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#createGroup(org.exoplatform.services.organization.Group, boolean)
+   */
   public void createGroup(Group group, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
 
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#createGroupInstance()
+   */
   public Group createGroupInstance() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#findGroupById(java.lang.String)
+   */
   public Group findGroupById(String groupId) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#findGroupByMembership(java.lang.String, java.lang.String)
+   */
   public Collection findGroupByMembership(String userName, String membershipType) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#findGroups(org.exoplatform.services.organization.Group)
+   */
   public Collection findGroups(Group parent) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#findGroupsOfUser(java.lang.String)
+   */
   public Collection findGroupsOfUser(String user) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#getAllGroups()
+   */
   public Collection getAllGroups() throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#removeGroup(org.exoplatform.services.organization.Group, boolean)
+   */
   public Group removeGroup(Group group, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.GroupHandler#saveGroup(org.exoplatform.services.organization.Group, boolean)
+   */
   public void saveGroup(Group group, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
 
