@@ -2,11 +2,12 @@
 <!DOCTYPE suppressions PUBLIC "-//Puppy Crawl//DTD Suppressions 1.0//EN" "http://www.puppycrawl.com/dtds/suppressions_1_0.dtd">
 <suppressions>
   <suppress checks="PackageHtmlCheck" files=".+[\\\/]*"/>
+
   <!--suppress checks=".*" files="DummyResponse.java"/-->
   <!--suppress checks=".*" files=".+[\\\/]query[\\\/]"/-->
   <!--suppress checks="NewlineAtEndOfFile" files=".+[\\\/]*"/-->
 
-    <!-- CIFS -->
+  <!-- CIFS -->
   <suppress checks=".*" files=".+[\\\/]netbios[\\\/]"/>
   <suppress checks=".*" files=".+[\\\/]smb[\\\/]server[\\\/]win32[\\\/]"/>
   <suppress checks=".*" files=".+[\\\/]auth[\\\/]"/>
@@ -91,7 +92,7 @@
   <suppress checks=".*" files="[\\\/]TcpipSMBSessionSocketHandler.java"/>
 
   
-    <!-- RMI -->
+  <!-- RMI -->
   <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]iterator[\\\/]"/>
   <suppress checks=".*" files=".+[\\\/]rmi[\\\/]api[\\\/]"/>
   <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]RemoteAdapterFactoryImpl.java"/>
@@ -118,12 +119,12 @@
   <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerVersionHistory.java"/>
   <suppress checks=".*" files=".+[\\\/]rmi[\\\/]impl[\\\/]server[\\\/]ServerWorkspace.java"/>
 
-    <!-- CORE -->
+  <!-- CORE -->
   <suppress checks=".*" files=".+[\\\/]query[\\\/]"/>
   <suppress checks="MagicNumberCheck" files=".+[\\\/]jcr[\\\/]impl[\\\/]xml[\\\/]XMLChar.java"/>
   
 
-    <!-- WebDAV -->
+  <!-- WebDAV -->
   <suppress checks="MagicNumberCheck" files=".+[\\\/]jcr[\\\/]webdav[\\\/]lnkproducer[\\\/]LinkGenerator.java"/>
   
 
