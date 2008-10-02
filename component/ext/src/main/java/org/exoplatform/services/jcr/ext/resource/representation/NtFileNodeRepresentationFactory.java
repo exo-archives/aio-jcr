@@ -32,6 +32,9 @@ public class NtFileNodeRepresentationFactory implements NodeRepresentationFactor
 
   protected NodeRepresentationService nodeRepresentationService;
 
+  /**
+   * @param nodeRepresentationService
+   */
   public NtFileNodeRepresentationFactory(NodeRepresentationService nodeRepresentationService) {
     this.nodeRepresentationService = nodeRepresentationService;
   }

@@ -42,14 +42,23 @@ public abstract class AbstractXMLViewNodeRepresentation implements NodeRepresent
   private Node node;
   protected boolean isSystem;
 
+  /**
+   * @param node
+   */
   protected AbstractXMLViewNodeRepresentation(Node node) {
     this.node = node;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getContentEncoding()
+   */
   public String getContentEncoding() {
     return Constants.DEFAULT_ENCODING;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getContentLenght()
+   */
   public long getContentLenght() throws RepositoryException {
     return -1;
   }

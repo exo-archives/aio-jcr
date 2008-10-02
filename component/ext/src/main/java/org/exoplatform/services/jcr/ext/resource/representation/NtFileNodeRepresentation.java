@@ -42,6 +42,11 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
 
   private NodeRepresentation content;
 
+  /**
+   * @param node
+   * @param content
+   * @throws RepositoryException
+   */
   public NtFileNodeRepresentation(Node node, NodeRepresentation content) throws RepositoryException {
     this.node = node;
     this.content = content;

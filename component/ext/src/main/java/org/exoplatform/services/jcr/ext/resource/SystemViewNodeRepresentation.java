@@ -27,6 +27,9 @@ import javax.jcr.Node;
 
 public class SystemViewNodeRepresentation extends AbstractXMLViewNodeRepresentation {
 
+  /**
+   * @param node
+   */
   public SystemViewNodeRepresentation(Node node) {
     super(node);
     this.isSystem = true;

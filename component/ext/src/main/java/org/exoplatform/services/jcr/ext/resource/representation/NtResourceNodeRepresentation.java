@@ -43,6 +43,10 @@ public class NtResourceNodeRepresentation implements NodeRepresentation {
   
   protected ArrayList<HierarchicalProperty> properties;
 
+  /**
+   * @param node
+   * @throws RepositoryException
+   */
   public NtResourceNodeRepresentation(Node node) throws RepositoryException {
     
     this.node = node;
