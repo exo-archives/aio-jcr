@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.common;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,48 +48,57 @@ import org.exoplatform.services.security.MembershipEntry;
 
 public class SessionProvider implements SessionLifecycleListener {
 
+  /**
+   * Constant for handlers.
+   */
   public final static String                 SESSION_PROVIDER = "JCRsessionProvider";
 
+  /**
+   * Sessions cache.
+   */
   private final Map<String, ExtendedSession> cache;
 
+  /**
+   * System session marker.
+   */
   private boolean                            isSystem;
 
   private ManageableRepository               currentRepository;
 
   private String                             currentWorkspace;
 
-  // private final ConversationState userState;
-
   /**
-   * Creates SessionProvider for certain identity
+   * Creates SessionProvider for certain identity.
    * 
-   * @param cred
+   * @param userState
    */
   public SessionProvider(ConversationState userState) {
     this(false);
-    // this.cache = new HashMap<String, ExtendedSession>();
-    // this.userState = userState;
     if (userState.getAttribute(SESSION_PROVIDER) == null)
       userState.setAttribute(SESSION_PROVIDER, this);
   }
 
+  /**
+   * Internal constructor.
+   * 
+   * @param isSystem
+   */
   private SessionProvider(boolean isSystem) {
     this.isSystem = isSystem;
     this.cache = new HashMap<String, ExtendedSession>();
   }
 
   /**
-   * Helper for creating System session provider
+   * Helper for creating System session provider.
    * 
    * @return System session
    */
   public static SessionProvider createSystemProvider() {
-    // Identity id = new Identity(SystemIdentity.SYSTEM, new HashSet<MembershipEntry>());
     return new SessionProvider(true);
   }
 
   /**
-   * Helper for creating Anonymous session provider
+   * Helper for creating Anonymous session provider.
    * 
    * @return System session
    */
@@ -98,7 +108,7 @@ public class SessionProvider implements SessionLifecycleListener {
   }
 
   /**
-   * Gets the session from internal cache or creates and caches new one
+   * Gets the session from internal cache or creates and caches new one.
    * 
    * @param workspaceName
    * @param repository
@@ -135,13 +145,16 @@ public class SessionProvider implements SessionLifecycleListener {
   /**
    * Calls logout() method for all cached sessions.
    * 
-   * Session will be removed from cache by the listener (this provider) via ExtendedSession.logout().
+   * Session will be removed from cache by the listener (this provider) via
+   * ExtendedSession.logout().
    */
   public synchronized void close() {
-    
-    for (ExtendedSession session : (ExtendedSession[]) cache.values().toArray(new ExtendedSession[cache.values().size()]))
+
+    for (ExtendedSession session : (ExtendedSession[]) cache.values()
+                                                            .toArray(new ExtendedSession[cache.values()
+                                                                                              .size()]))
       session.logout();
-    
+
     // the cache already empty (logout listener work, see onCloseSession())
     // just to be sure
     cache.clear();
@@ -158,6 +171,13 @@ public class SessionProvider implements SessionLifecycleListener {
                                                                                  .getName()));
   }
 
+  /**
+   * Key generator for sessions cache.
+   *  
+   * @param repository
+   * @param workspaceName
+   * @return
+   */
   private String key(ManageableRepository repository, String workspaceName) {
     String repositoryName = repository.getConfiguration().getName();
     return repositoryName + workspaceName;
