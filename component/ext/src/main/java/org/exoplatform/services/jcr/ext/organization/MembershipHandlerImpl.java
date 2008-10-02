@@ -47,6 +47,9 @@ public class MembershipHandlerImpl implements
     this.service = service;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#addMembershipEventListener(org.exoplatform.services.organization.MembershipEventListener)
+   */
   public void addMembershipEventListener(MembershipEventListener listener) {
     listeners.add(listener);
   }
@@ -55,54 +58,83 @@ public class MembershipHandlerImpl implements
     listeners.remove(listener);
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#createMembership(org.exoplatform.services.organization.Membership, boolean)
+   */
   public void createMembership(Membership m, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
-
+    
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#createMembershipInstance()
+   */
   public Membership createMembershipInstance() {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#findMembership(java.lang.String)
+   */
   public Membership findMembership(String id) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#findMembershipByUserGroupAndType(java.lang.String, java.lang.String, java.lang.String)
+   */
   public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#findMembershipsByGroup(org.exoplatform.services.organization.Group)
+   */
   public Collection findMembershipsByGroup(Group group) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#findMembershipsByUser(java.lang.String)
+   */
   public Collection findMembershipsByUser(String userName) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#findMembershipsByUserAndGroup(java.lang.String, java.lang.String)
+   */
   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#linkMembership(org.exoplatform.services.organization.User, org.exoplatform.services.organization.Group, org.exoplatform.services.organization.MembershipType, boolean)
+   */
   public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
-
+    
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#removeMembership(java.lang.String, boolean)
+   */
   public Membership removeMembership(String id, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
+  /* (non-Javadoc)
+   * @see org.exoplatform.services.organization.MembershipHandler#removeMembershipByUser(java.lang.String, boolean)
+   */
   public Collection removeMembershipByUser(String username, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
-
 }
