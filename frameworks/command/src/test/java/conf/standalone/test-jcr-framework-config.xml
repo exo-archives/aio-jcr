@@ -3,7 +3,7 @@
     <repository name="db1" system-workspace="ws" default-workspace="ws">
       <security-domain>exo-domain</security-domain>
       <access-control>disable</access-control>
-      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
+      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator</authentication-policy>
       <workspaces>
         <workspace name="ws" auto-init-root-nodetype="nt:unstructured">
           <!-- for system storage -->

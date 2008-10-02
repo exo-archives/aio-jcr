@@ -5,7 +5,7 @@
       <!-- access-control>optional</access-control -->
       <!-- access-control>disable</access-control -->
       <session-max-age>1h</session-max-age>
-      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
+      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator</authentication-policy>
       <workspaces>
         <workspace name="ws">
           <!-- for system storage -->
@@ -160,7 +160,7 @@
       <!-- access-control>optional</access-control -->
       <!-- access-control>disable</access-control -->
       <session-max-age>1h</session-max-age>
-      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.PortalAuthenticationPolicy</authentication-policy>
+      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator</authentication-policy>
       <workspaces>
         <workspace name="ws">
           <!-- for system storage -->
