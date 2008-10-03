@@ -786,7 +786,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   /**
    * getName.
-   *
+   * 
    * @return
    */
   public String getName() {
@@ -837,7 +837,6 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
               new CacheValue(data, System.currentTimeMillis() + liveTime));
   }
 
-  
   /**
    * {@inheritDoc}
    */

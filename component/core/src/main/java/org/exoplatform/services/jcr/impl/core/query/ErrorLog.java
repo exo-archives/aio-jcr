@@ -76,8 +76,8 @@ public class ErrorLog {
   private int                fileSize          = DEFAULT_FILE_SIZE;                  // Kb
 
   /**
-   * ErrorLog  constructor.
-   *
+   * ErrorLog constructor.
+   * 
    * @param file
    * @throws IOException
    */
@@ -87,8 +87,8 @@ public class ErrorLog {
   }
 
   /**
-   * ErrorLog  constructor.
-   *
+   * ErrorLog constructor.
+   * 
    * @param file
    * @param errorLogSize
    * @throws IOException
@@ -101,7 +101,7 @@ public class ErrorLog {
 
   /**
    * openFile.
-   *
+   * 
    * @param log
    * @throws IOException
    */
