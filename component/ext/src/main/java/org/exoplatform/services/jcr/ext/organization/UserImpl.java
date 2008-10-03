@@ -21,10 +21,11 @@ import java.util.Date;
 import org.exoplatform.services.organization.User;
 
 /**
- * Created by The eXo Platform SAS Date: 24.07.2008
+ * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * Date: 24.07.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: UserImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserImpl implements User {
@@ -126,7 +127,7 @@ public class UserImpl implements User {
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setFirstName(java.lang.String)
+   * aaa.
    */
   public void setFirstName(String s) {
     firstName = s;

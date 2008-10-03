@@ -32,11 +32,12 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.User;
 
 /**
- * Created by The eXo Platform SAS TODO seems nodetypes and/or existing
- * interfaces of API don't relate one to other. Date: 24.07.2008
+ * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * NOTE: Check if nodetypes and/or existing interfaces of API don't relate one to other. Date:
+ * 24.07.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: MembershipHandler.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class MembershipHandlerImpl implements MembershipHandler {
@@ -186,9 +187,9 @@ public class MembershipHandlerImpl implements MembershipHandler {
         Node mtNode = nodes.nextNode();
         // Membership membership = new MembershipImpl();
         // mt.setName(mtNode.getName());
-        //mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString
+        // mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString
         // ());
-        //mt.setCreatedDate(mtNode.getProperty(STORAGE_EXO_CREATED_DATE).getDate
+        // mt.setCreatedDate(mtNode.getProperty(STORAGE_EXO_CREATED_DATE).getDate
         // ().getTime());
         // mt.setModifiedDate(mtNode.getProperty(STORAGE_EXO_MODIFIED_DATE).
         // getDate().getTime());

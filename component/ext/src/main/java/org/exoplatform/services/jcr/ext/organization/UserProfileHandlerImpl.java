@@ -25,7 +25,7 @@ import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * Date: 24.07.2008
  * 
@@ -42,59 +42,65 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
     this.service = service;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfileHandler#addUserProfileEventListener(org.exoplatform.services.organization.UserProfileEventListener)
+  /**
+   * {@inheritDoc}
    */
   public void addUserProfileEventListener(UserProfileEventListener listener) {
     listeners.add(listener);
   }
 
+  /**
+   * Remove User Profile Event Listener.
+   * 
+   * @param listener
+   *          the listener
+   */
   public void removeUserProfileEventListener(UserProfileEventListener listener) {
     listeners.remove(listener);
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfileHandler#createUserProfileInstance()
+  /**
+   * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance() {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfileHandler#createUserProfileInstance(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance(String userName) {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfileHandler#findUserProfileByName(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public UserProfile findUserProfileByName(String userName) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfileHandler#findUserProfiles()
+  /**
+   * {@inheritDoc}
    */
   public Collection findUserProfiles() throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfileHandler#removeUserProfile(java.lang.String, boolean)
+  /**
+   * {@inheritDoc}
    */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
     return null;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfileHandler#saveUserProfile(org.exoplatform.services.organization.UserProfile, boolean)
+  /**
+   * {@inheritDoc}
    */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub

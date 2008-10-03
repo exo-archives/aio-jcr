@@ -21,7 +21,7 @@ import java.util.Map;
 import org.exoplatform.services.organization.UserProfile;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * Date: 24.07.2008
  * 
@@ -30,8 +30,8 @@ import org.exoplatform.services.organization.UserProfile;
  */
 public class UserProfileImpl implements UserProfile {
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfile#getAttribute(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getAttribute(String attName) {
     // TODO Auto-generated method stub

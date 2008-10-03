@@ -33,10 +33,11 @@ import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserHandler;
 
 /**
- * Created by The eXo Platform SAS Date: 24.07.2008
+ * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * Date: 24.07.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: UserHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserHandlerImpl implements UserHandler {

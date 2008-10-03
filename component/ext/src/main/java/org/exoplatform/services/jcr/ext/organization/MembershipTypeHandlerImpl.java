@@ -28,12 +28,12 @@ import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 
 /**
- * Created by The eXo Platform SAS Date: 24.07.2008
+ * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
- * @version $Id: MembershipTypeHandlerImpl.java 111 2008-11-11 11:11:11Z peterit
- *          $
+ * Date: 24.07.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: MembershipTypeHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
 
@@ -41,6 +41,9 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
 
   public static final String                 STORAGE_EXO_MEMBERSHIP_TYPES = "/exo:membershipTypes";
 
+  /**
+   * Organization service implementation covering the handler.
+   */
   protected final JCROrganizationServiceImpl service;
 
   MembershipTypeHandlerImpl(JCROrganizationServiceImpl service) {
@@ -77,8 +80,8 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#
-   *      createMembershipTypeInstance ()
+   * @see org.exoplatform.services.organization.MembershipTypeHandler# createMembershipTypeInstance
+   *      ()
    */
   public MembershipType createMembershipTypeInstance() {
     return new MembershipTypeImpl();
@@ -112,8 +115,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#
-   *      findMembershipTypes ()
+   * @see org.exoplatform.services.organization.MembershipTypeHandler# findMembershipTypes ()
    */
   public Collection findMembershipTypes() throws Exception {
     Session session = service.getStorageSession();
@@ -138,8 +140,8 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#
-   *      removeMembershipType (java.lang.String, boolean)
+   * @see org.exoplatform.services.organization.MembershipTypeHandler# removeMembershipType
+   *      (java.lang.String, boolean)
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
     // TODO: broadcast
@@ -161,8 +163,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#
-   *      saveMembershipType
+   * @see org.exoplatform.services.organization.MembershipTypeHandler# saveMembershipType
    *      (org.exoplatform.services.organization.MembershipType, boolean)
    */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {

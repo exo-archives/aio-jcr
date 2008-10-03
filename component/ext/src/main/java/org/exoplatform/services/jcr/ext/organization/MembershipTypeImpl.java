@@ -21,10 +21,11 @@ import java.util.Date;
 import org.exoplatform.services.organization.MembershipType;
 
 /**
- * Created by The eXo Platform SAS Date: 24.07.2008
+ * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * Date: 24.07.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: MembershipTypeImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class MembershipTypeImpl implements MembershipType {
@@ -61,8 +62,8 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * @return The name of the membership type. The name of the membership type
-   *         should be unique in the membership type database.
+   * @return The name of the membership type. The name of the membership type should be unique in
+   *         the membership type database.
    */
   public String getName() {
     return name;
@@ -78,7 +79,8 @@ public class MembershipTypeImpl implements MembershipType {
   /**
    * Set created date for membership type.
    * 
-   * @param d the created date
+   * @param d
+   *          the created date
    */
   public void setCreatedDate(Date d) {
   }
@@ -86,7 +88,8 @@ public class MembershipTypeImpl implements MembershipType {
   /**
    * Set description for membership type.
    * 
-   * @param s The new description of the membership type
+   * @param s
+   *          The new description of the membership type
    */
   public void setDescription(String s) {
     description = s;
@@ -95,7 +98,8 @@ public class MembershipTypeImpl implements MembershipType {
   /**
    * Set modified date for membership type.
    * 
-   * @param d the modified date
+   * @param d
+   *          the modified date
    */
   public void setModifiedDate(Date d) {
   }
@@ -103,7 +107,8 @@ public class MembershipTypeImpl implements MembershipType {
   /**
    * Set name for membership type.
    * 
-   * @param s The name of the membership type
+   * @param s
+   *          The name of the membership type
    */
   public void setName(String s) {
     name = s;
@@ -112,7 +117,8 @@ public class MembershipTypeImpl implements MembershipType {
   /**
    * Set owner for membership type.
    * 
-   * @param s The new owner of the membership type
+   * @param s
+   *          The new owner of the membership type
    */
   public void setOwner(String s) {
   }

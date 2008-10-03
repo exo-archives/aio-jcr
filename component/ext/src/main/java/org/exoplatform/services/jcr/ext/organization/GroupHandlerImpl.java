@@ -29,10 +29,11 @@ import org.exoplatform.services.organization.GroupEventListener;
 import org.exoplatform.services.organization.GroupHandler;
 
 /**
- * Created by The eXo Platform SAS Date: 24.07.2008
+ * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * Date: 03.10.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: GroupHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class GroupHandlerImpl implements GroupHandler {
@@ -45,6 +46,12 @@ public class GroupHandlerImpl implements GroupHandler {
 
   protected final JCROrganizationServiceImpl service;
 
+  /**
+   * GroupHandlerImpl constructor.
+   * 
+   * @param service
+   *          organization service
+   */
   GroupHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
@@ -91,12 +98,10 @@ public class GroupHandlerImpl implements GroupHandler {
   }
 
   /**
-   * This method not used.
-   * 
-   * @inheritDoc
+   * {@inheritDoc}
    */
   public Group findGroupById(String groupId) throws Exception {
-    // TODO Auto-generated method stub
+    // TODO This method not used.
     return null;
   }
 
@@ -204,7 +209,7 @@ public class GroupHandlerImpl implements GroupHandler {
    * {@inheritDoc}
    */
   public void saveGroup(Group group, boolean broadcast) throws Exception {
-    // TODO: implement broadcast
+    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
