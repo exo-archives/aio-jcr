@@ -61,67 +61,67 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   /**
    * Maximum cache size.
    */
-  static public final int                               MAX_CACHE_SIZE                      = 2048;                                                      // 2
+  public static final int                               MAX_CACHE_SIZE                      = 2048;                                                      // 2
 
   /**
    * Maximum cache luve time in milliseconds.
    */
-  static public final long                              MAX_CACHE_LIVETIME                  = 600 * 1000;                                                // 10
+  public static final long                              MAX_CACHE_LIVETIME                  = 600 * 1000;                                                // 10
 
   /**
    * Default statistic gathering period.
    */
-  static public final long                              DEF_STATISTIC_PERIOD                = 5 * 60000;                                                 // 5
+  public static final long                              DEF_STATISTIC_PERIOD                = 5 * 60000;                                                 // 5
 
   /**
    * Default cache C cleaner period.
    */
-  static public final long                              DEF_CLEANER_PERIOD                  = 20 * 60000;                                                // 20
+  public static final long                              DEF_CLEANER_PERIOD                  = 20 * 60000;                                                // 20
 
   /**
    * Default blocking users amount.
    */
-  static public final int                               DEF_BLOCKING_USERS_COUNT            = 0;
+  public static final int                               DEF_BLOCKING_USERS_COUNT            = 0;
 
   /**
    * TODO remove it
    */
-  static public final String                            DEEP_DELETE_PARAMETER_NAME          = "deep-delete";
+  public static final String                            DEEP_DELETE_PARAMETER_NAME          = "deep-delete";
 
   /**
    * statistic-period parameter name.
    */
-  static public final String                            STATISTIC_PERIOD_PARAMETER_NAME     = "statistic-period";
+  public static final String                            STATISTIC_PERIOD_PARAMETER_NAME     = "statistic-period";
 
   /**
    * statistic-clean parameter name.
    */
-  static public final String                            STATISTIC_CLEAN_PARAMETER_NAME      = "statistic-clean";
+  public static final String                            STATISTIC_CLEAN_PARAMETER_NAME      = "statistic-clean";
 
   /**
    * statistic-log parameter name.
    */
-  static public final String                            STATISTIC_LOG_PARAMETER_NAME        = "statistic-log";
+  public static final String                            STATISTIC_LOG_PARAMETER_NAME        = "statistic-log";
 
   /**
    * blocking-users-count parameter name.
    */
-  static public final String                            BLOCKING_USERS_COUNT_PARAMETER_NAME = "blocking-users-count";
+  public static final String                            BLOCKING_USERS_COUNT_PARAMETER_NAME = "blocking-users-count";
 
   /**
    * cleaner-period parameter name.
    */
-  static public final String                            CLEANER_PERIOD_PARAMETER_NAME       = "cleaner-period";
+  public static final String                            CLEANER_PERIOD_PARAMETER_NAME       = "cleaner-period";
 
   /**
    * Default cache C load factor (HashMap parameter).
    */
-  static public final float                             LOAD_FACTOR                         = 0.7f;
+  public static final float                             LOAD_FACTOR                         = 0.7f;
 
   /**
    * Cache implementaion logger.
    */
-  protected static Log                                  LOG                                 = ExoLogger.getLogger("jcr.LinkedWorkspaceStorageCacheImpl");
+  protected static final Log                                  LOG                                 = ExoLogger.getLogger("jcr.LinkedWorkspaceStorageCacheImpl");
 
   /**
    * Cache C.
