@@ -30,14 +30,17 @@ import org.exoplatform.services.organization.MembershipType;
  */
 public class MembershipTypeImpl implements MembershipType {
 
+  // not used
   private Date   createdDate  = null;
 
   private String description  = null;
 
+  // not used
   private Date   modifiedDate = null;
 
   private String name         = null;
 
+  // not used
   private String owner        = null;
 
   /**

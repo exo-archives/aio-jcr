@@ -20,23 +20,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.Session;
+
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: UserProfileHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserProfileHandlerImpl implements UserProfileHandler {
 
+  public static final String                     STORAGE_EXO_ATTRIBUTES = "exo:attributes";
+
   protected final JCROrganizationServiceImpl     service;
 
-  protected final List<UserProfileEventListener> listeners = new ArrayList<UserProfileEventListener>();
+  protected final List<UserProfileEventListener> listeners              = new ArrayList<UserProfileEventListener>();
 
   UserProfileHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
@@ -50,10 +57,7 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
   }
 
   /**
-   * Remove User Profile Event Listener.
-   * 
    * @param listener
-   *          the listener
    */
   public void removeUserProfileEventListener(UserProfileEventListener listener) {
     listeners.remove(listener);
@@ -63,48 +67,118 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
    * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance() {
-    // TODO Auto-generated method stub
-    return null;
+    return new UserProfileImpl();
   }
 
   /**
    * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance(String userName) {
-    // TODO Auto-generated method stub
-    return null;
+    return new UserProfileImpl(userName);
   }
 
   /**
    * {@inheritDoc}
    */
   public UserProfile findUserProfileByName(String userName) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Session session = service.getStorageSession();
+    try {
+      UserProfile userProfile = null;
+
+      String absPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+          + userName;
+      if (!session.itemExists(absPath)) {
+        return userProfile;
+      }
+
+      Node storagePath = (Node) session.getItem(absPath);
+      for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
+        if (userProfile != null) {
+          throw new OrganizationServiceException("More than one user found.");
+        }
+        Node uNode = nodes.nextNode();
+        Node profileNode = uNode.getNode(STORAGE_EXO_ATTRIBUTES);
+
+        userProfile = new UserProfileImpl(userName);
+        for (PropertyIterator props = profileNode.getProperties(); props.hasNext();) {
+          Property prop = props.nextProperty();
+          userProfile.setAttribute(prop.getName(), prop.getString());
+        }
+      }
+      return userProfile;
+    } finally {
+      session.logout();
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   public Collection findUserProfiles() throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    Session session = service.getStorageSession();
+    try {
+      Collection<UserProfile> types = new ArrayList<UserProfile>();
+
+      Node storagePath = (Node) session.getItem(service.getStoragePath()
+          + UserHandlerImpl.STORAGE_EXO_USERS);
+      for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
+        Node uNode = nodes.nextNode();
+        types.add(findUserProfileByName(uNode.getName()));
+      }
+      return types;
+    } finally {
+      session.logout();
+    }
+
   }
 
   /**
    * {@inheritDoc}
    */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    // TODO Implement broadcast
+    Session session = service.getStorageSession();
+    try {
+      UserProfile userProfile = findUserProfileByName(userName);
+      if (userProfile != null) {
+        Node profileNode = (Node) session.getItem(service.getStoragePath()
+            + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/"
+            + UserHandlerImpl.STORAGE_EXO_PROFILE);
+        profileNode.remove();
+        session.save();
+      }
+      return userProfile;
+    } finally {
+      session.logout();
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
+    // TODO Implement broadcast
+    Session session = service.getStorageSession();
+    try {
+      String absPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+          + profile.getUserName();
+      if (!session.itemExists(absPath)) {
+        throw new OrganizationServiceException("User " + profile.getUserName() + " not found.");
+      }
 
+      Node uNode = (Node) session.getItem(absPath);
+      if (!session.itemExists(absPath + "/" + UserHandlerImpl.STORAGE_EXO_PROFILE)) {
+        Node profileNode = uNode.addNode(UserHandlerImpl.STORAGE_EXO_PROFILE);
+
+        String keys[] = (String[]) profile.getUserInfoMap().keySet().toArray();
+        for (int i = 0; i <= keys.length; i++) {
+          profileNode.setProperty(keys[i], profile.getAttribute(keys[i]));
+        }
+        session.save();
+      }
+    } finally {
+      session.logout();
+    }
   }
 
 }

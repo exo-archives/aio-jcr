@@ -58,10 +58,6 @@ public class UserHandlerImpl implements UserHandler {
 
   public static final String                 STORAGE_EXO_PROFILE         = "exo:profile";
 
-  public static final String                 STORAGE_EXO_USER_NAME       = "exo:userName";
-
-  public static final String                 STORAGE_EXO_GROUP           = "exo:group";
-
   public static final String                 STORAGE_EXO_USERS           = "/exo:users";
 
   protected final List<UserEventListener>    listeners                   = new ArrayList<UserEventListener>();
@@ -211,8 +207,7 @@ public class UserHandlerImpl implements UserHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.UserHandler#saveUser(org.exoplatform
-   *      .services.organization.User, boolean)
+   * {@inheritDoc}
    */
   public void saveUser(User user, boolean broadcast) throws Exception {
     // TODO implement broadcast
@@ -220,14 +215,14 @@ public class UserHandlerImpl implements UserHandler {
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS + "/"
-          + user.getLastName());
+          + user.getUserName());
 
-      // uNode.setProperty(STORAGE_EXO_CREATED_DATE, user.getCreatedDate());
       uNode.setProperty(STORAGE_EXO_EMAIL, user.getEmail());
       uNode.setProperty(STORAGE_EXO_FIRST_NAME, user.getFirstName());
-      // uNode.setProperty(STORAGE_EXO_LAST_LOGIN_TIME,
-      // user.getLastLoginTime());
+      uNode.setProperty(STORAGE_EXO_LAST_NAME, user.getLastName());
       uNode.setProperty(STORAGE_EXO_PASSWORD, user.getPassword());
+      // uNode.setProperty(STORAGE_EXO_CREATED_DATE, user.getCreatedDate().);
+      // uNode.setProperty(STORAGE_EXO_LAST_LOGIN_TIME, user.getPassword());
 
       session.save();
     } finally {

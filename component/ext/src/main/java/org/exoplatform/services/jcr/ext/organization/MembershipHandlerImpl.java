@@ -42,11 +42,13 @@ import org.exoplatform.services.organization.User;
  */
 public class MembershipHandlerImpl implements MembershipHandler {
 
-  public static final String                    STORAGE_EXO_MEMBERSHIP = "exo:userMembership";
+  public static final String                    STORAGE_EXO_USER_MEMBERSHIP = "exo:userMembership";
+
+  public static final String                    STORAGE_EXO_GROUP           = "exo:group";
 
   protected final JCROrganizationServiceImpl    service;
 
-  protected final List<MembershipEventListener> listeners              = new ArrayList<MembershipEventListener>();
+  protected final List<MembershipEventListener> listeners                   = new ArrayList<MembershipEventListener>();
 
   MembershipHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
@@ -183,7 +185,7 @@ public class MembershipHandlerImpl implements MembershipHandler {
 
       List<Membership> types = new ArrayList<Membership>();
 
-      for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_MEMBERSHIP.substring(1)); nodes.hasNext();) {
+      for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_USER_MEMBERSHIP.substring(1)); nodes.hasNext();) {
         Node mtNode = nodes.nextNode();
         // Membership membership = new MembershipImpl();
         // mt.setName(mtNode.getName());

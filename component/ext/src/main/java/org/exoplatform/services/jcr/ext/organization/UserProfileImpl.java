@@ -16,66 +16,72 @@
  */
 package org.exoplatform.services.jcr.ext.organization;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.exoplatform.services.organization.UserProfile;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS Date: 24.07.2008
  * 
- * Date: 24.07.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: UserProfileImpl.java 111 2008-11-11 11:11:11Z peterit $
  */
 public class UserProfileImpl implements UserProfile {
+
+  private Map<String, String> attributes;
+
+  private String              userName;
+
+  public UserProfileImpl() {
+    attributes = new HashMap<String, String>();
+  }
+
+  public UserProfileImpl(String name) {
+    attributes = new HashMap<String, String>();
+    userName = name;
+  }
 
   /**
    * {@inheritDoc}
    */
   public String getAttribute(String attName) {
-    // TODO Auto-generated method stub
-    return null;
+    return attributes.get(attName);
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfile#getUserInfoMap()
+  /**
+   * {@inheritDoc}
    */
   public Map<String, String> getUserInfoMap() {
-    // TODO Auto-generated method stub
-    return null;
+    return attributes;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfile#getUserName()
+  /**
+   * {@inheritDoc}
    */
   public String getUserName() {
-    // TODO Auto-generated method stub
-    return null;
+    return userName;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfile#setAttribute(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void setAttribute(String key, String value) {
-    // TODO Auto-generated method stub
-
+    attributes.put(key, value);
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfile#setUserInfoMap(java.util.Map)
+  /**
+   * {@inheritDoc}
    */
   public void setUserInfoMap(Map<String, String> map) {
-    // TODO Auto-generated method stub
-
+    attributes = map;
   }
 
-  /* (non-Javadoc)
-   * @see org.exoplatform.services.organization.UserProfile#setUserName(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void setUserName(String username) {
-    // TODO Auto-generated method stub
-
+    userName = username;
   }
-
 }
