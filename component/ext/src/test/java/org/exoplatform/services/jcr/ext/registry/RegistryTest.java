@@ -33,8 +33,6 @@ public class RegistryTest extends BaseStandaloneTest {
 
   private ThreadLocalSessionProviderService sessionProviderService;
 
-  // private ConversationRegistry registry;
-
   private static final String               SERVICE_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                                                             + "<exo_service xmlns:jcr=\"http://www.jcp.org/jcr/1.0\" jcr:primaryType=\"exo:registryEntry\"/>";
 
@@ -187,27 +185,27 @@ public class RegistryTest extends BaseStandaloneTest {
 
     regService.addRegistryLocation("wrong", "wrong");
   }
-  
+
   /**
    * author : Trong.Tran
    */
   public void testStoreAndReadXML() throws Exception {
     String category = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      + "<category name1=\"the_value\" name2=\"the_xvalue\"></category>";
+        + "<category name1=\"the_value\" name2=\"the_xvalue\"></category>";
 
     RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
 
     String groupPath = RegistryService.EXO_USERS + "/testStoreAndReadXML";
 
     regService.createEntry(sessionProviderService.getSessionProvider(null),
-    		groupPath,
+                           groupPath,
                            RegistryEntry.parse(category.getBytes()));
 
     RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
-    		groupPath + "/category");
-    assertEquals("the_value", entry.getDocument().getDocumentElement().getAttribute("name1")) ;
-    
-    //Note : the value with "_x"
-    assertEquals("the_xvalue", entry.getDocument().getDocumentElement().getAttribute("name2")) ;
+                                              groupPath + "/category");
+    assertEquals("the_value", entry.getDocument().getDocumentElement().getAttribute("name1"));
+
+    // Note : the value with "_x"
+    assertEquals("the_xvalue", entry.getDocument().getDocumentElement().getAttribute("name2"));
   }
 }

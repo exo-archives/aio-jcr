@@ -173,7 +173,7 @@ public class SessionProvider implements SessionLifecycleListener {
 
   /**
    * Key generator for sessions cache.
-   *  
+   * 
    * @param repository
    * @param workspaceName
    * @return

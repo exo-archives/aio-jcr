@@ -68,8 +68,8 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
         String normalizePath = getNormalizePath(repoPath);
         Node baseNode = (Node) session.getItem(normalizePath);
 
-        Node emptyNode = baseNode.addNode(nodeName+"_"+i, "nt:base");
-        
+        Node emptyNode = baseNode.addNode(nodeName + "_" + i, "nt:base");
+
         session.save();
       }
 

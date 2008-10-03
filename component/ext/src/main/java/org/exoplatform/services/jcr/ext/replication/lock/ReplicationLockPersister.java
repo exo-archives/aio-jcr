@@ -36,14 +36,15 @@ import org.exoplatform.services.log.ExoLogger;
 public class ReplicationLockPersister extends FileSystemLockPersister {
   private final ReplicationService replicationService;
 
-  private static Log               log = ExoLogger.getLogger("ext.ReplicationLockPersister");
-  
-  private static final             int START_TIMEOUT = 250;
+  private static Log               log           = ExoLogger.getLogger("ext.ReplicationLockPersister");
+
+  private static final int         START_TIMEOUT = 250;
 
   private Thread                   delayStarterThread;
 
   public ReplicationLockPersister(WorkspacePersistentDataManager dataManager,
-      WorkspaceEntry config, ReplicationService service) throws RepositoryConfigurationException,
+                                  WorkspaceEntry config,
+                                  ReplicationService service) throws RepositoryConfigurationException,
       RepositoryException {
     super(dataManager, config);
     log.info("init");

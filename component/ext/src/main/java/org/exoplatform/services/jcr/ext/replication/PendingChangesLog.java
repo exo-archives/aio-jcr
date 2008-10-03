@@ -81,8 +81,7 @@ public class PendingChangesLog {
 
   private byte[]                                 data;
 
-  public PendingChangesLog(TransactionChangesLog itemDataChangesLog, FileCleaner fileCleaner)
-      throws IOException {
+  public PendingChangesLog(TransactionChangesLog itemDataChangesLog, FileCleaner fileCleaner) throws IOException {
     this.itemDataChangesLog = itemDataChangesLog;
     listInputStream = new ArrayList<InputStream>();
     listFixupStream = new ArrayList<FixupStream>();
@@ -92,8 +91,10 @@ public class PendingChangesLog {
     this.fileCleaner = fileCleaner;
   }
 
-  public PendingChangesLog(TransactionChangesLog itemDataChangesLog, String identifier, int type,
-      FileCleaner fileCleaner) throws IOException {
+  public PendingChangesLog(TransactionChangesLog itemDataChangesLog,
+                           String identifier,
+                           int type,
+                           FileCleaner fileCleaner) throws IOException {
     this.itemDataChangesLog = itemDataChangesLog;
     listInputStream = new ArrayList<InputStream>();
     listFixupStream = new ArrayList<FixupStream>();
@@ -110,7 +111,9 @@ public class PendingChangesLog {
   }
 
   public PendingChangesLog(TransactionChangesLog transactionChangesLog,
-      List<FixupStream> listFixupStreams, List<File> listFiles, FileCleaner fileCleaner) {
+                           List<FixupStream> listFixupStreams,
+                           List<File> listFiles,
+                           FileCleaner fileCleaner) {
     this.itemDataChangesLog = transactionChangesLog;
     this.listFixupStream = listFixupStreams;
     this.listFile = listFiles;
@@ -202,7 +205,7 @@ public class PendingChangesLog {
   }
 
   public static TransactionChangesLog getAsItemDataChangesLog(byte[] byteArray) throws IOException,
-      ClassNotFoundException {
+                                                                               ClassNotFoundException {
     ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
     ObjectInputStream ois = new ObjectInputStream(is);
     TransactionChangesLog objRead = (TransactionChangesLog) ois.readObject();
@@ -260,8 +263,8 @@ public class PendingChangesLog {
       ItemData itemData = itemState.getData();
 
       TransientPropertyData propertyData = (TransientPropertyData) itemData;
-      TransientValueData transientValueData = (TransientValueData) (propertyData.getValues()
-          .get(listFixupStream.get(i).getValueDataId()));
+      TransientValueData transientValueData = (TransientValueData) (propertyData.getValues().get(listFixupStream.get(i)
+                                                                                                                .getValueDataId()));
       transientValueData.setStream(new FileInputStream(listFile.get(i)));
       transientValueData.setFileCleaner(fileCleaner);
       transientValueData.isByteArray();

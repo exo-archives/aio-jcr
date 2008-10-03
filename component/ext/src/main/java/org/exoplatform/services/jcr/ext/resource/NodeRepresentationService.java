@@ -44,6 +44,7 @@ import org.picocontainer.Startable;
 public class NodeRepresentationService implements Startable {
 
   private Map<String, NodeRepresentationFactory> factoriesByNodeType;
+
   private Map<String, NodeRepresentationFactory> factoriesByKey;
 
   ExoContainerContext                            containerContext;
@@ -55,7 +56,6 @@ public class NodeRepresentationService implements Startable {
     this.factoriesByKey = new HashMap<String, NodeRepresentationFactory>();
     this.containerContext = containerContext;
   }
-
 
   /**
    * Add new NodeRepresentationFactory for node type.
@@ -90,21 +90,20 @@ public class NodeRepresentationService implements Startable {
       return new DocumentViewNodeRepresentation(node);
   }
 
-  
   /**
    * @return served node types.
    */
-  public Collection <String> getNodeTypes() {
+  public Collection<String> getNodeTypes() {
     return factoriesByNodeType.keySet();
   }
 
   /**
    * @return served keys.
    */
-  public Collection <String> getKeys() {
+  public Collection<String> getKeys() {
     return factoriesByKey.keySet();
   }
-  
+
   /*
    * (non-Javadoc)
    * @see org.picocontainer.Startable#start()
@@ -129,9 +128,7 @@ public class NodeRepresentationService implements Startable {
 
   private NodeRepresentationFactory factory(Node node) throws RepositoryException {
 
-
-    NodeRepresentationFactory f = factoriesByNodeType.get(node.getPrimaryNodeType()
-        .getName());
+    NodeRepresentationFactory f = factoriesByNodeType.get(node.getPrimaryNodeType().getName());
 
     if (f == null) {
       for (String nt : factoriesByNodeType.keySet()) {
@@ -148,7 +145,7 @@ public class NodeRepresentationService implements Startable {
         if (f != null)
           return f;
       }
-    } 
+    }
 
     return f;
 

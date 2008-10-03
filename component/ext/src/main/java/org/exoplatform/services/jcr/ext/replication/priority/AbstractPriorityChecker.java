@@ -36,11 +36,11 @@ import org.exoplatform.services.log.ExoLogger;
 
 public abstract class AbstractPriorityChecker implements PacketListener {
 
-  public static final int            MAX_PRIORITY = 100;
-  
-  private static final int            INFORM_TIMOUT = 1000;
+  public static final int            MAX_PRIORITY  = 100;
 
-  private static Log                 log          = ExoLogger.getLogger("ext.AbstractPriorityChecker");
+  private static final int           INFORM_TIMOUT = 1000;
+
+  private static Log                 log           = ExoLogger.getLogger("ext.AbstractPriorityChecker");
 
   protected final ChannelManager     channelManager;
 
@@ -56,8 +56,10 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
   protected MemberListener           memberListener;
 
-  public AbstractPriorityChecker(ChannelManager channelManager, int ownPriority, String ownName,
-      List<String> otherParticipants) {
+  public AbstractPriorityChecker(ChannelManager channelManager,
+                                 int ownPriority,
+                                 String ownName,
+                                 List<String> otherParticipants) {
 
     this.ownPriority = ownPriority;
     this.ownName = ownName;
@@ -76,8 +78,10 @@ public abstract class AbstractPriorityChecker implements PacketListener {
       identifier = IdGenerator.generate();
       currentPartisipants = new HashMap<String, Integer>();
 
-      Packet pktInformer = new Packet(Packet.PacketType.GET_ALL_PRIORITY, ownName,
-          (long) ownPriority, identifier);
+      Packet pktInformer = new Packet(Packet.PacketType.GET_ALL_PRIORITY,
+                                      ownName,
+                                      (long) ownPriority,
+                                      identifier);
       channelManager.sendPacket(pktInformer);
       Thread.sleep(INFORM_TIMOUT);
     } catch (Exception e) {

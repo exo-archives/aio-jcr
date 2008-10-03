@@ -135,7 +135,8 @@ public class RecoveryManager {
 
         if (log.isDebugEnabled()) {
           log.debug(ownName + ": Confirmation ChangesLog form : " + packet.getOwnerName());
-          log.debug("Beefor: Confirmation list size : " + confirmationChengesLog.getConfirmationList().size());
+          log.debug("Beefor: Confirmation list size : "
+              + confirmationChengesLog.getConfirmationList().size());
         }
 
         confirmationChengesLog.getConfirmationList().add(packet.getOwnerName());
@@ -177,7 +178,8 @@ public class RecoveryManager {
     if (mapPendingConfirmation.containsKey(identifier) == true)
       return mapPendingConfirmation.get(identifier);
 
-    throw new Exception("Can't find the PendingConfirmationChengesLog by identifier : " + identifier);
+    throw new Exception("Can't find the PendingConfirmationChengesLog by identifier : "
+        + identifier);
   }
 
   public int processing(Packet packet, int stat) throws Exception {
@@ -282,9 +284,9 @@ public class RecoveryManager {
           initedParticipantsClusterList.remove(packet.getOwnerName());
         }
       break;
-      
-      default:
-        break;
+
+    default:
+      break;
     }
 
     return state;

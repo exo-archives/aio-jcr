@@ -78,25 +78,32 @@ public interface NodeRepresentation {
    * @return the properties with specified name.
    */
   Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException;
-  
+
   /**
    * adds single property.
-   * @param name.
-   * @param property.
+   * 
+   * @param name
+   *          .
+   * @param property
+   *          .
    */
   void addProperty(HierarchicalProperty property) throws UnsupportedRepositoryOperationException;
-  
+
   /**
    * adds multivalued property.
-   * @param name.
-   * @param properties.
+   * 
+   * @param name
+   *          .
+   * @param properties
+   *          .
    */
-  void addProperties(Collection<HierarchicalProperty> properties)
-  throws UnsupportedRepositoryOperationException;
-  
+  void addProperties(Collection<HierarchicalProperty> properties) throws UnsupportedRepositoryOperationException;
+
   /**
    * removes property.
-   * @param name.
+   * 
+   * @param name
+   *          .
    */
   void removeProperty(String name) throws UnsupportedRepositoryOperationException;
 

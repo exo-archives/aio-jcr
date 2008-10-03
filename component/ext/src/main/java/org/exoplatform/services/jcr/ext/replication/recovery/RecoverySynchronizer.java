@@ -51,7 +51,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 public class RecoverySynchronizer {
-  private static Log                       log = ExoLogger.getLogger("ext.RecoverySynchronizer");
+  private static Log                         log = ExoLogger.getLogger("ext.RecoverySynchronizer");
 
   private File                               recoveryDir;
 
@@ -316,8 +316,8 @@ public class RecoverySynchronizer {
         stat = AbstractWorkspaceDataReceiver.NORMAL_MODE;
       }
       break;
-      default:
-        break;
+    default:
+      break;
     }
 
     return stat;

@@ -38,17 +38,17 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 public abstract class BaseReplicationTestCase {
-  protected static Log log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
+  protected static Log       log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
 
-  protected static final int  BUFFER_SIZE = 1024;
+  protected static final int BUFFER_SIZE = 1024;
 
-  protected Session    session;
+  protected Session          session;
 
-  protected Node       rootNode;
+  protected Node             rootNode;
 
-  private Credentials  credentials;
+  private Credentials        credentials;
 
-  protected Repository repository;
+  protected Repository       repository;
 
   public BaseReplicationTestCase(RepositoryService repositoryService,
                                  String reposytoryName,
@@ -138,8 +138,8 @@ public abstract class BaseReplicationTestCase {
           if (eb != db)
             throw new Exception("Streams is not equals. Wrong byte stored at position " + dindex
                 + " of data stream. Expected 0x" + Integer.toHexString(eb) + " '"
-                + new String(new byte[] {eb}) + "' but found 0x" + Integer.toHexString(db) + " '"
-                + new String(new byte[] {db}) + "'");
+                + new String(new byte[] { eb }) + "' but found 0x" + Integer.toHexString(db) + " '"
+                + new String(new byte[] { db }) + "'");
 
           erindex++;
           dindex++;

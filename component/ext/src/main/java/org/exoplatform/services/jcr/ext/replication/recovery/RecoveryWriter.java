@@ -50,7 +50,7 @@ public class RecoveryWriter extends AbstractFSAccess {
 
   private static Log        log             = ExoLogger.getLogger("ext.RecoveryWriter");
 
-  private static final long        REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;   // 2 hours
+  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;                       // 2 hours
 
   private final FileCleaner fileCleaner;
 
@@ -300,14 +300,14 @@ public class RecoveryWriter extends AbstractFSAccess {
 // The thread will be remove ChangesLog, saved as binary file.
 class FileRemover extends Thread {
   private static Log          log        = ExoLogger.getLogger("ext.FileRemover");
-  
+
   private static final double ONE_SECOND = 1000.0;
 
-  private long         period;
+  private long                period;
 
-  private File         recoveryDir;
+  private File                recoveryDir;
 
-  private FileCleaner  fileCleaner;
+  private FileCleaner         fileCleaner;
 
   class RemoveFilesFilter implements FileFilter {
     public boolean accept(File pathname) {
@@ -420,7 +420,8 @@ class FileRemover extends Thread {
     getFiles(recoveryDataDir, list);
 
     if (log.isDebugEnabled())
-      log.debug("The total time of parced : " + (System.currentTimeMillis() - startTime) / ONE_SECOND);
+      log.debug("The total time of parced : " + (System.currentTimeMillis() - startTime)
+          / ONE_SECOND);
     return list;
   }
 

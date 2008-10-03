@@ -37,7 +37,7 @@ public class FileNameFactory {
   private static final int PATTERN_10       = 10;
 
   private static final int PATTERN_100      = 100;
-  
+
   private static final int PATTERN_1000     = 1000;
 
   private final String     pathCharSequence = "0123456789abcdef";
@@ -46,7 +46,8 @@ public class FileNameFactory {
     // Returns as a String (YYYYMMDD) a Calendar date
     int m = c.get(Calendar.MONTH) + 1;
     int d = c.get(Calendar.DATE);
-    return "" + c.get(Calendar.YEAR) + (m < PATTERN_10 ? "0" + m : m) + (d < PATTERN_10 ? "0" + d : d);
+    return "" + c.get(Calendar.YEAR) + (m < PATTERN_10 ? "0" + m : m)
+        + (d < PATTERN_10 ? "0" + d : d);
   }
 
   public String getStrTime(Calendar c) {
@@ -56,7 +57,8 @@ public class FileNameFactory {
     int s = c.get(Calendar.SECOND);
     int ms = c.get(Calendar.MILLISECOND);
 
-    return "" + (h < PATTERN_10 ? "0" + h : h) + (m < PATTERN_10 ? "0" + m : m) + (s < PATTERN_10 ? "0" + s : s) + "_"
+    return "" + (h < PATTERN_10 ? "0" + h : h) + (m < PATTERN_10 ? "0" + m : m)
+        + (s < PATTERN_10 ? "0" + s : s) + "_"
         + (ms < PATTERN_100 ? (ms < PATTERN_10 ? "00" + ms : "0" + ms) : ms);
   }
 

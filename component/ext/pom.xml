@@ -176,8 +176,7 @@
 						<include>**/resource/*Test.java</include>
 						<include>**/groovy/*Test.java</include>
 						<include>**/replication/*.java</include>
-						<include>**/replication/external/*.java
-						</include>
+						<include>**/replication/external/*.java</include>
 					</includes>
 					<excludes>
 						<exclude>**/*$*</exclude>

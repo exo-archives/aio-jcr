@@ -159,27 +159,24 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperties(java.lang.String, java.util.Collection)
    */
-  public void addProperties( Collection<HierarchicalProperty> properties)
-      throws UnsupportedRepositoryOperationException {
+  public void addProperties(Collection<HierarchicalProperty> properties) throws UnsupportedRepositoryOperationException {
     content.addProperties(properties);
-    
+
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperty(java.lang.String, org.exoplatform.common.util.HierarchicalProperty)
    */
-  public void addProperty(HierarchicalProperty property)
-      throws UnsupportedRepositoryOperationException {
+  public void addProperty(HierarchicalProperty property) throws UnsupportedRepositoryOperationException {
     content.addProperty(property);
-    
+
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#removeProperty(java.lang.String)
    */
-  public void removeProperty(String name)
-      throws UnsupportedRepositoryOperationException {
+  public void removeProperty(String name) throws UnsupportedRepositoryOperationException {
     content.removeProperty(name);
-    
+
   }
 }

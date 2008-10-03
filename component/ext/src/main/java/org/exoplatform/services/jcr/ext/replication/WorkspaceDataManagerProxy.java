@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class WorkspaceDataManagerProxy implements ItemDataKeeper {
 
-  private static Log                   log = ExoLogger.getLogger("jcr.WorkspaceDataManagerProxy");
+  private static Log                     log = ExoLogger.getLogger("jcr.WorkspaceDataManagerProxy");
 
   private List<ItemsPersistenceListener> listeners;
 
@@ -62,7 +62,8 @@ public class WorkspaceDataManagerProxy implements ItemDataKeeper {
   /**
    * calls onSaveItems on all registered listeners.
    * 
-   * @throws RepositoryException, UnsupportedOperationException
+   * @throws RepositoryException
+   *           , UnsupportedOperationException
    * @param changesLog
    */
   public void save(ItemStateChangesLog changesLog) throws InvalidItemStateException,

@@ -38,8 +38,10 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
 
   private int        previousMaxPriority;
 
-  public DynamicPriorityChecker(ChannelManager channelManager, int ownPriority, String ownName,
-      List<String> otherParticipants) {
+  public DynamicPriorityChecker(ChannelManager channelManager,
+                                int ownPriority,
+                                String ownName,
+                                List<String> otherParticipants) {
     super(channelManager, ownPriority, ownName, otherParticipants);
   }
 
@@ -59,8 +61,10 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
       if (!ownName.equals(packet.getOwnerName()))
         switch (packet.getPacketType()) {
         case Packet.PacketType.GET_ALL_PRIORITY:
-          Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY, ownName,
-              (long) ownPriority, packet.getIdentifier());
+          Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY,
+                                            ownName,
+                                            (long) ownPriority,
+                                            packet.getIdentifier());
           channelManager.sendPacket(pktMyPriority);
           break;
 

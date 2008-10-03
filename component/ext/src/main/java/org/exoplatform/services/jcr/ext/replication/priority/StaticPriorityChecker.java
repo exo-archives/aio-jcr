@@ -33,8 +33,10 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
 
   private static Log log = ExoLogger.getLogger("ext.StaticPriorityChecker");
 
-  public StaticPriorityChecker(ChannelManager channelManagerpu, int ownPriority, String ownName,
-      List<String> otherParticipants) {
+  public StaticPriorityChecker(ChannelManager channelManagerpu,
+                               int ownPriority,
+                               String ownName,
+                               List<String> otherParticipants) {
     super(channelManagerpu, ownPriority, ownName, otherParticipants);
   }
 
@@ -57,8 +59,10 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
         switch (packet.getPacketType()) {
 
         case Packet.PacketType.GET_ALL_PRIORITY:
-          Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY, ownName,
-              (long) ownPriority, packet.getIdentifier());
+          Packet pktMyPriority = new Packet(Packet.PacketType.OWN_PRIORITY,
+                                            ownName,
+                                            (long) ownPriority,
+                                            packet.getIdentifier());
           channelManager.sendPacket(pktMyPriority);
           break;
 
@@ -80,9 +84,9 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
           if (log.isDebugEnabled())
             printOnlineMembers();
           break;
-          
-          default:
-            break;
+
+        default:
+          break;
         }
     } catch (Exception e) {
       log.error("An error in processing packet : ", e);

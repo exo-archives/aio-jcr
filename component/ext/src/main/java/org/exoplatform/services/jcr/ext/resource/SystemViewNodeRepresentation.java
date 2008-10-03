@@ -20,7 +20,8 @@ package org.exoplatform.services.jcr.ext.resource;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -36,4 +37,3 @@ public class SystemViewNodeRepresentation extends AbstractXMLViewNodeRepresentat
   }
 
 }
-

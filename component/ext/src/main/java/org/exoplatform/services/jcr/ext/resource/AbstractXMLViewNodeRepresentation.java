@@ -32,17 +32,20 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public abstract class AbstractXMLViewNodeRepresentation implements NodeRepresentation {
-  
-  private Node node;
+
+  private Node      node;
+
   protected boolean isSystem;
 
   /**
+   * AbstractXMLViewNodeRepresentation.
+   * 
    * @param node
    */
   protected AbstractXMLViewNodeRepresentation(Node node) {
@@ -86,8 +89,7 @@ public abstract class AbstractXMLViewNodeRepresentation implements NodeRepresent
    * 
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
    */
-  public HierarchicalProperty getProperty(String name)
-      throws RepositoryException {
+  public HierarchicalProperty getProperty(String name) throws RepositoryException {
     return null;
   }
 
@@ -96,11 +98,10 @@ public abstract class AbstractXMLViewNodeRepresentation implements NodeRepresent
    * 
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#getProperty(java.lang.String)
    */
-  public Collection <HierarchicalProperty> getProperties(String name)
-      throws RepositoryException {
+  public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
     return null;
   }
-  
+
   /*
    * (non-Javadoc)
    * 
@@ -128,11 +129,10 @@ public abstract class AbstractXMLViewNodeRepresentation implements NodeRepresent
          */
         public void run() {
           try {
-            if(isSystem)
+            if (isSystem)
               node.getSession().exportSystemView(node.getPath(), pout, false, false);
             else
-              node.getSession().exportDocumentView(node.getPath(), pout, false,
-                false);
+              node.getSession().exportDocumentView(node.getPath(), pout, false, false);
           } catch (Exception e) {
             /*
              * Nothing to do. Can give exception if nothing read from stream,
@@ -170,30 +170,25 @@ public abstract class AbstractXMLViewNodeRepresentation implements NodeRepresent
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperties(java.lang.String, java.util.Collection)
    */
-  public void addProperties(
-      Collection<HierarchicalProperty> properties)
-      throws UnsupportedRepositoryOperationException {
+  public void addProperties(Collection<HierarchicalProperty> properties) throws UnsupportedRepositoryOperationException {
     throw new UnsupportedRepositoryOperationException();
-    
+
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#addProperty(java.lang.String, org.exoplatform.common.util.HierarchicalProperty)
    */
-  public void addProperty(HierarchicalProperty property)
-      throws UnsupportedRepositoryOperationException {
+  public void addProperty(HierarchicalProperty property) throws UnsupportedRepositoryOperationException {
     throw new UnsupportedRepositoryOperationException();
-    
+
   }
 
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentation#removeProperty(java.lang.String)
    */
-  public void removeProperty(String name)
-      throws UnsupportedRepositoryOperationException {
+  public void removeProperty(String name) throws UnsupportedRepositoryOperationException {
     throw new UnsupportedRepositoryOperationException();
-    
+
   }
 
 }
-

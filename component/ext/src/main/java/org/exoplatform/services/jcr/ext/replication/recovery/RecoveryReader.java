@@ -103,7 +103,7 @@ public class RecoveryReader extends AbstractFSAccess {
 
       pendingChangesLog.restore();
 
-//      TransactionChangesLog log = pendingChangesLog.getItemDataChangesLog();
+      // TransactionChangesLog log = pendingChangesLog.getItemDataChangesLog();
 
     } else if (changesLogType == PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM) {
       transactionChangesLog = (TransactionChangesLog) in.readObject();

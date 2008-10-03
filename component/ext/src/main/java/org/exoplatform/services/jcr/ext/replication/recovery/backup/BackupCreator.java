@@ -36,7 +36,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 public class BackupCreator implements Runnable {
-  private static Log         log = ExoLogger.getLogger("ext.BackupCreator");
+  private static Log           log = ExoLogger.getLogger("ext.BackupCreator");
 
   private Thread               backupCreatorThread;
 

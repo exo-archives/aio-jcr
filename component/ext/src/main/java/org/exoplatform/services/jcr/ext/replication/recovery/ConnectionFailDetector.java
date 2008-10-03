@@ -42,12 +42,12 @@ import org.jgroups.View;
  */
 public class ConnectionFailDetector implements ChannelListener, MembershipListener, MemberListener {
   private static Log                    log          = ExoLogger.getLogger("ext.ConnectionFailDetector");
-  
+
   private static final int              BEFORE_CHECK = 10000;
-  
-  private static final int              BEFORE_INIT = 60000;
-  
-  private static final int              AFTER_INIT = 60000;
+
+  private static final int              BEFORE_INIT  = 60000;
+
+  private static final int              AFTER_INIT   = 60000;
 
   private final ChannelManager          channelManager;
 

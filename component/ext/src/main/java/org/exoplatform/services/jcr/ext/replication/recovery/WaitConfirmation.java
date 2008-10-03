@@ -31,13 +31,13 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 public class WaitConfirmation extends Thread {
-  private static Log log = ExoLogger.getLogger("ext.WaitConfirmation");
+  private static Log      log = ExoLogger.getLogger("ext.WaitConfirmation");
 
-  private long                 timeOut;
+  private long            timeOut;
 
-  private RecoveryManager      recoveryManager;
+  private RecoveryManager recoveryManager;
 
-  private String               identifier;
+  private String          identifier;
 
   WaitConfirmation(long timeOut, RecoveryManager recoveryManager, String identifier) {
     super();

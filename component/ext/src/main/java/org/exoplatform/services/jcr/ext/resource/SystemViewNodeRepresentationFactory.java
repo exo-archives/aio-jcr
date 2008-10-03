@@ -20,7 +20,8 @@ package org.exoplatform.services.jcr.ext.resource;
 import javax.jcr.Node;
 
 /**
- * Created by The eXo Platform SAS        .
+ * Created by The eXo Platform SAS .
+ * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
@@ -30,8 +31,7 @@ public class SystemViewNodeRepresentationFactory implements NodeRepresentationFa
   /* (non-Javadoc)
    * @see org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactory#createNodeRepresentation(javax.jcr.Node, java.lang.String)
    */
-  public NodeRepresentation createNodeRepresentation(Node node,
-      String mediaTypeHint) {
+  public NodeRepresentation createNodeRepresentation(Node node, String mediaTypeHint) {
     return new DocumentViewNodeRepresentation(node);
   }
 
@@ -43,4 +43,3 @@ public class SystemViewNodeRepresentationFactory implements NodeRepresentationFa
   }
 
 }
-

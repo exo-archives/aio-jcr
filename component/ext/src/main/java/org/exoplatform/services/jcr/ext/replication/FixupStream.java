@@ -32,9 +32,9 @@ public class FixupStream implements Externalizable {
 
   private static final long serialVersionUID = 6453641729031051616L;
 
-  private int                       iItemStateId     = -1;
+  private int               iItemStateId     = -1;
 
-  private int                       iValueDataId     = -1;
+  private int               iValueDataId     = -1;
 
   public FixupStream() {
   }
