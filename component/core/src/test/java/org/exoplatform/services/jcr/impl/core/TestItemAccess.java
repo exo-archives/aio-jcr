@@ -60,10 +60,7 @@ public class TestItemAccess extends JcrImplBaseTest {
   }
 
   public void testGetItemTest() throws RepositoryException {
-    SessionImpl newSession = (SessionImpl) repository.login(this.credentials /*
-                                                                              * session.getCredentials
-                                                                              * ()
-                                                                              */,
+    SessionImpl newSession = (SessionImpl) repository.login(this.credentials,
                                                             session.getWorkspace().getName());
 
     Random random = new Random();

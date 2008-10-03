@@ -30,8 +30,7 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
 /**
  * Created by The eXo Platform SAS 22.01.2007
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: TestDateValueFormat.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestDateValueFormat extends JcrImplBaseTest {
@@ -69,17 +68,15 @@ public class TestDateValueFormat extends JcrImplBaseTest {
   }
 
   /**
-   * It's a pb found. If we will set property with date contains timezone
-   * different to the current. And will get property as string after that. We
-   * will have a date with the current timezone, actualy the date will be same
-   * but in different tz. "2023-07-05T19:28:00.000-0300" -->
-   * "2023-07-06T01:28:00.000+0300" - it's same date, but... print is different.
-   * The pb can be solved ib SimpleDateFormat be setting the formatter timezone
-   * before the format procedure. TimeZone tz =
-   * TimeZone.getTimeZone("GMT-03:00"); Calendar cdate = Calendar.getInstance();
-   * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-   * sdf.setTimeZone(tz); Date d = sdf.parse(javaDate); log.info("parse " +
-   * sdf.format(d)); // print date in GMT-03:00 timezone
+   * It's a pb found. If we will set property with date contains timezone different to the current.
+   * And will get property as string after that. We will have a date with the current timezone,
+   * actualy the date will be same but in different tz. "2023-07-05T19:28:00.000-0300" -->
+   * "2023-07-06T01:28:00.000+0300" - it's same date, but... print is different. The pb can be
+   * solved ib SimpleDateFormat be setting the formatter timezone before the format procedure.
+   * TimeZone tz = TimeZone.getTimeZone("GMT-03:00"); Calendar cdate = Calendar.getInstance();
+   * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); sdf.setTimeZone(tz);
+   * Date d = sdf.parse(javaDate); log.info("parse " + sdf.format(d)); // print date in GMT-03:00
+   * timezone
    * 
    * @throws Exception
    */

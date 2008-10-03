@@ -57,7 +57,7 @@ public class TestWorkspaceRestore extends JcrImplBaseTest {
   private boolean                   isDefaultWsMultiDb;
 
   public void _testRestore() throws Exception {
-    Session defSession = repository.login(this.credentials /* session.getCredentials() */, "defWs");
+    Session defSession = repository.login(this.credentials, "defWs");
     Node defRoot = defSession.getRootNode();
 
     Node node1 = defRoot.addNode("node1");

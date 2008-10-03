@@ -117,7 +117,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
   public void _testReadSame() throws Exception {
     // creators
-    Session csession = repository.login(this.credentials /* session.getCredentials() */, "ws1");
+    Session csession = repository.login(this.credentials, "ws1");
     String nodeName = IdGenerator.generate();
     InputStream dataStream = null;
     try {
@@ -143,10 +143,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
     log.info("Begin readers...");
     for (int i = 0; i < 10; i++) {
-      ReadThread readed = new ReadThread(repository.login(this.credentials /*
-                                                                            * session.getCredentials(
-                                                                            * )
-                                                                            */, "ws1"));
+      ReadThread readed = new ReadThread(repository.login(this.credentials, "ws1"));
       readed.start();
       readers.add(readed);
       try {
@@ -196,10 +193,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
   public void _testReadWriteSet() throws Exception {
     // creators
-    CreateThread creator = new CreateThread(repository.login(this.credentials /*
-                                                                               * session.getCredentials
-                                                                               * ()
-                                                                               */, "ws1"));
+    CreateThread creator = new CreateThread(repository.login(this.credentials, "ws1"));
     creator.start();
     try {
       log.info("Wait 20 sec. for CreateThread");
@@ -213,9 +207,9 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
     log.info("Begin readers...");
     for (int i = 0; i < 5; i++) {
       ReadThread readed = new ReadThread(repository.login(this.credentials /*
-                                                                            * session.getCredentials(
-                                                                            * )
-                                                                            */, "ws1"));
+                                                                                      * session.getCredentials(
+                                                                                      * )
+                                                                                      */, "ws1"));
       readed.start();
       readers.add(readed);
       try {
@@ -227,9 +221,9 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
     log.info("Begin cleaner...");
     DeleteThread cleaner = new DeleteThread(repository.login(this.credentials /*
-                                                                               * session.getCredentials
-                                                                               * ()
-                                                                               */, "ws1"));
+                                                                                     * session.getCredentials
+                                                                                     * ()
+                                                                                     */, "ws1"));
     cleaner.start();
 
     log.info("<<<<<<<<<<<<<<<<<<<< Wait cycle >>>>>>>>>>>>>>>>>>>>>");
@@ -360,7 +354,7 @@ public class TestConcurrentItems extends JcrAPIBaseTest {
 
   public void _testAddNtBig() throws Exception {
     // creators
-    Session csession = repository.login(this.credentials /* session.getCredentials() */, "ws1");
+    Session csession = repository.login(this.credentials, "ws1");
     String nodeName = IdGenerator.generate();
     InputStream dataStream = null;
     try {

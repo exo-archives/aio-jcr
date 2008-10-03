@@ -79,10 +79,7 @@ public class TestCachedMixins extends JcrImplBaseTest {
       fail("Node isn't a referenceable, but must. Access from Session.geItem()");
     }
 
-    SessionImpl anotherSession = (SessionImpl) repository.login(this.credentials /*
-                                                                                  * session.getCredentials
-                                                                                  * ()
-                                                                                  */);
+    SessionImpl anotherSession = (SessionImpl) repository.login(this.credentials);
     NodeImpl anotherRoot = (NodeImpl) anotherSession.getRootNode();
 
     try {
@@ -126,9 +123,9 @@ public class TestCachedMixins extends JcrImplBaseTest {
     }
 
     SessionImpl anotherSession = (SessionImpl) repository.login(this.credentials /*
-                                                                                  * session.getCredentials
-                                                                                  * ()
-                                                                                  */);
+                                                                                     * session.getCredentials
+                                                                                     * ()
+                                                                                     */);
     NodeImpl anotherRoot = (NodeImpl) anotherSession.getRootNode();
 
     NodeImpl aNode = (NodeImpl) anotherRoot.getNode(TEST_NODE_NAME);
@@ -164,9 +161,9 @@ public class TestCachedMixins extends JcrImplBaseTest {
     checkMixins(mixins, (NodeImpl) session.getItem("/" + TEST_NODE_NAME));
 
     SessionImpl anotherSession = (SessionImpl) repository.login(this.credentials /*
-                                                                                  * session.getCredentials
-                                                                                  * ()
-                                                                                  */);
+                                                                                     * session.getCredentials
+                                                                                     * ()
+                                                                                     */);
 
     checkMixins(mixins, (NodeImpl) anotherSession.getRootNode().getNode(TEST_NODE_NAME));
     checkMixins(mixins, (NodeImpl) anotherSession.getItem("/" + TEST_NODE_NAME));
@@ -208,9 +205,9 @@ public class TestCachedMixins extends JcrImplBaseTest {
     checkMixins(finalMixins, (NodeImpl) session.getItem("/" + TEST_NODE_NAME));
 
     SessionImpl anotherSession = (SessionImpl) repository.login(this.credentials /*
-                                                                                  * session.getCredentials
-                                                                                  * ()
-                                                                                  */);
+                                                                                     * session.getCredentials
+                                                                                     * ()
+                                                                                     */);
 
     checkMixins(finalMixins, (NodeImpl) anotherSession.getRootNode().getNode(TEST_NODE_NAME));
     checkMixins(finalMixins, (NodeImpl) anotherSession.getItem("/" + TEST_NODE_NAME));

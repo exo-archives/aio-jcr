@@ -191,7 +191,7 @@ public class TestOrderBefore extends JcrAPIBaseTest {
    */
   private void checkOrderAnotherSession(String[] nodes) throws Exception {
 
-    Session newSession = repository.login(this.credentials /* session.getCredentials() */,
+    Session newSession = repository.login(this.credentials,
                                           session.getWorkspace().getName());
     Node testRoot = newSession.getRootNode().getNode(TEST_ROOT);
     checkOrder(testRoot, nodes);

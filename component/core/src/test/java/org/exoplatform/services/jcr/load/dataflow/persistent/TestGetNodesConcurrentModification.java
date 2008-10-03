@@ -230,11 +230,7 @@ public class TestGetNodesConcurrentModification extends JcrImplBaseTest {
 
     for (int i = 0; i < readersCount; i++) {
       NodesReader reader = new NodesReader("NR-" + i,
-                                           (SessionImpl) repository.login(this.credentials /*
-                                                                                            * session.
-                                                                                            * getCredentials
-                                                                                            * ()
-                                                                                            */,
+                                           (SessionImpl) repository.login(this.credentials,
                                                                           session.getWorkspace()
                                                                                  .getName()));
       readers.add(reader);

@@ -48,10 +48,16 @@ public class ErrorLog {
   /**
    * Logger instance for this class
    */
-  private static final Log   log               = ExoLogger.getLogger(ErrorLog.class);
+  private static final Log   LOG               = ExoLogger.getLogger(ErrorLog.class);
 
+  /**
+   * REMOVE term.
+   */
   public static final String REMOVE            = "rem";
 
+  /**
+   * ADD term.
+   */
   public static final String ADD               = "add";
 
   /**
@@ -70,7 +76,9 @@ public class ErrorLog {
   private int                fileSize          = DEFAULT_FILE_SIZE;                  // Kb
 
   /**
-   * @param log
+   * ErrorLog  constructor.
+   *
+   * @param file
    * @throws IOException
    */
   public ErrorLog(File file) throws IOException {
@@ -78,12 +86,25 @@ public class ErrorLog {
     openFile(file);
   }
 
+  /**
+   * ErrorLog  constructor.
+   *
+   * @param file
+   * @param errorLogSize
+   * @throws IOException
+   */
   public ErrorLog(File file, int errorLogSize) throws IOException {
     fileSize = errorLogSize;
     logFile = file;
     openFile(file);
   }
 
+  /**
+   * openFile.
+   *
+   * @param log
+   * @throws IOException
+   */
   private void openFile(File log) throws IOException {
     // set file size;
     if (!log.exists()) {
@@ -180,7 +201,7 @@ public class ErrorLog {
         try {
           in.close();
         } catch (IOException e) {
-          log.warn("Exception while closing error log: " + e.toString());
+          LOG.warn("Exception while closing error log: " + e.toString());
         }
       }
     }
