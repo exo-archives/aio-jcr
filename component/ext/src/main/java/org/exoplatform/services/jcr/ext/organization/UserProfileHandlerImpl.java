@@ -93,7 +93,7 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
       Node storagePath = (Node) session.getItem(absPath);
       for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
         if (userProfile != null) {
-          throw new OrganizationServiceException("More than one user found.");
+          throw new OrganizationServiceException("More than one user " + userName + " is found.");
         }
         Node uNode = nodes.nextNode();
         Node profileNode = uNode.getNode(STORAGE_EXO_ATTRIBUTES);

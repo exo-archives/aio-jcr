@@ -71,11 +71,9 @@ public class MembershipHandlerImpl implements MembershipHandler {
     listeners.remove(listener);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.organization.MembershipHandler#createMembership
-   * (org.exoplatform.services.organization.Membership, boolean)
+  /**
+   * @see org.exoplatform.services.organization.MembershipHandler#createMembership
+   *      (org.exoplatform.services.organization.Membership, boolean)
    */
   public void createMembership(Membership m, boolean broadcast) throws Exception {
     // TODO Auto-generated method stub
@@ -87,18 +85,15 @@ public class MembershipHandlerImpl implements MembershipHandler {
    * createMembershipInstance()
    */
   public Membership createMembershipInstance() {
-    // TODO return new MembershipImpl();
-    return null;
+    return new MembershipImpl();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.organization.MembershipHandler#findMembership(
-   * java.lang.String)
+  /**
+   * @see org.exoplatform.services.organization.MembershipHandler#findMembership(java.lang.String)
    */
   public Membership findMembership(String id) throws Exception {
     // TODO Auto-generated method stub
+
     return null;
   }
 
@@ -181,11 +176,12 @@ public class MembershipHandlerImpl implements MembershipHandler {
     // TODO broadcast
     Session session = service.getStorageSession();
     try {
-      Node storageNode = (Node) session.getItem(service.getStoragePath());
+      Node storageNode = (Node) session.getItem(service.getStoragePath()
+          + STORAGE_EXO_USER_MEMBERSHIP);
 
       List<Membership> types = new ArrayList<Membership>();
 
-      for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_USER_MEMBERSHIP.substring(1)); nodes.hasNext();) {
+      for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
         Node mtNode = nodes.nextNode();
         // Membership membership = new MembershipImpl();
         // mt.setName(mtNode.getName());

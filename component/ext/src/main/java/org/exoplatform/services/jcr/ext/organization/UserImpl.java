@@ -49,6 +49,13 @@ public class UserImpl implements User {
   // not used
   private String           organizationId = null;
 
+  UserImpl() {
+  }
+
+  UserImpl(String name) {
+    userName = name;
+  }
+
   /**
    * @see org.exoplatform.services.organization.User#getCreatedDate()
    */

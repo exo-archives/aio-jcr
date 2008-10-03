@@ -36,6 +36,9 @@ public class MembershipImpl implements Membership {
 
   private String userName       = null;
 
+  MembershipImpl() {
+  }
+
   MembershipImpl(String id, String groupId, String userName) {
     this.groupId = groupId;
     this.id = id;

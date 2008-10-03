@@ -58,14 +58,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     // TODO: implement broadcast
     if (mt.getName().length() == 0) {
       throw new OrganizationServiceException("Name of membership type can not be empty.");
-    } else if (findMembershipType(mt.getName()) != null) {
-      throw new OrganizationServiceException("Membership type with name " + mt.getName()
-          + " is present.");
     }
-
-    // Date now = Calendar.getInstance().getTime();
-    // mt.setCreatedDate(now);
-    // mt.setModifiedDate(now);
 
     Session session = service.getStorageSession();
     try {
@@ -100,7 +93,8 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
 
       for (NodeIterator nodes = storageNode.getNodes(name); nodes.hasNext();) {
         if (mt != null) {
-          throw new OrganizationServiceException("More than one membership type with same name is found");
+          throw new OrganizationServiceException("More than one membership type " + name
+              + " is found");
         }
         Node mtNode = nodes.nextNode();
 
@@ -120,11 +114,12 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   public Collection findMembershipTypes() throws Exception {
     Session session = service.getStorageSession();
     try {
-      Node storageNode = (Node) session.getItem(service.getStoragePath());
+      Node storageNode = (Node) session.getItem(service.getStoragePath()
+          + STORAGE_EXO_MEMBERSHIP_TYPES);
 
       List<MembershipType> types = new ArrayList<MembershipType>();
 
-      for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_MEMBERSHIP_TYPES.substring(1)); nodes.hasNext();) {
+      for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
         Node mtNode = nodes.nextNode();
         MembershipType mt = new MembershipTypeImpl();
         mt.setName(mtNode.getName());

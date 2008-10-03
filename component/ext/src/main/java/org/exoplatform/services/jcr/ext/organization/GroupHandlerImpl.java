@@ -161,12 +161,12 @@ public class GroupHandlerImpl implements GroupHandler {
 
       try {
         storageNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
-            + parentId);
+            + parentId + "/" + label);
       } catch (PathNotFoundException e) {
         return types;
       }
 
-      for (NodeIterator nodes = storageNode.getNodes(label); nodes.hasNext();) {
+      for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
         Node gNode = nodes.nextNode();
         Group group = new GroupImpl(gNode.getName(), parentId + '/' + label);
         group.setDescription(gNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
@@ -233,7 +233,8 @@ public class GroupHandlerImpl implements GroupHandler {
 
       NodeIterator groups = gNode.getNodes();
       if (groups.hasNext()) {
-        throw new OrganizationServiceException("The group has a child group.");
+        throw new OrganizationServiceException("The group " + group.getLabel()
+            + " has a child group.");
       }
 
       String statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP
