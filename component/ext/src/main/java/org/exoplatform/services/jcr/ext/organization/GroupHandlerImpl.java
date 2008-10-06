@@ -105,19 +105,9 @@ public class GroupHandlerImpl implements GroupHandler {
     Group group = null;
     Session session = service.getStorageSession();
     try {
-      String parentId = "";
-      String label = "";
-      int pos = groupId.lastIndexOf('/');
-      if (pos != -1) {
-        parentId = groupId.substring(0, pos);
-        label = groupId.substring(pos + 1);
-
-        Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS + groupId);
-        group = new GroupImpl(label, parentId);
-        group.setDescription(gNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
-      }
-      return group;
-    } catch (PathNotFoundException e) {
+      Node gNode = session.getNodeByUUID(groupId);
+      // group = new GroupImpl(gNode.getName(), parentId);
+      group.setDescription(gNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
       return group;
     } finally {
       session.logout();

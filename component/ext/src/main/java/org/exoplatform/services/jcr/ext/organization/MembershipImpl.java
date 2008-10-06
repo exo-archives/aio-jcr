@@ -28,21 +28,18 @@ import org.exoplatform.services.organization.Membership;
  */
 public class MembershipImpl implements Membership {
 
-  private String groupId        = null;
+  private String groupId;
 
-  private String id             = null;
+  private String membershipType;
 
-  private String membershipType = null;
-
-  private String userName       = null;
+  private String userName;
 
   MembershipImpl() {
   }
 
-  MembershipImpl(String id, String groupId, String userName) {
+  MembershipImpl(String groupId, String membershipType) {
     this.groupId = groupId;
-    this.id = id;
-    this.userName = userName;
+    this.membershipType = membershipType;
   }
 
   /*
@@ -58,7 +55,7 @@ public class MembershipImpl implements Membership {
    * @see org.exoplatform.services.organization.Membership#getId()
    */
   public String getId() {
-    return id;
+    return null;
   }
 
   /*

@@ -20,8 +20,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.organization.MembershipType;
@@ -30,7 +33,7 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
 /**
  * Created by The eXo Platform SAS.
  * 
- * Date: 24.07.2008
+ * Date: 6 Жов 2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -56,22 +59,26 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO implement broadcast
     if (mt.getName().length() == 0) {
-      throw new OrganizationServiceException("Name of membership type can not be empty.");
+      throw new OrganizationServiceException("The name of membership type can not be empty.");
     }
 
     Session session = service.getStorageSession();
     try {
-      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES);
-      // TODO throw an OrganizationServiceException if MT already exist (use try-catch on ItemExistsException)
-      mtNode = mtNode.addNode(mt.getName());
-      mtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
-      session.save();
-      return mt;
+      Node storagePath = (Node) session.getItem(service.getStoragePath()
+          + STORAGE_EXO_MEMBERSHIP_TYPES);
+      try {
+        Node mtNode = storagePath.addNode(mt.getName());
+        mtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
+        session.save();
+        return new MembershipTypeImpl(mt.getName(), mt.getDescription(), mtNode.getUUID());
+      } catch (ItemExistsException e) {
+        throw new OrganizationServiceException("The membership type " + mt.getName() + " is exist.");
+      }
     } finally {
       session.logout();
     }
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -83,27 +90,17 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
    * {@inheritDoc}
    */
   public MembershipType findMembershipType(String name) throws Exception {
-    MembershipType mt = null; // TODO use local var which will not be used in the scope
     Session session = service.getStorageSession();
     try {
-      Node storageNode = (Node) session.getItem(service.getStoragePath()
-          + STORAGE_EXO_MEMBERSHIP_TYPES);
-
-      // TODO don't traverse all memberships if you know the name
-      // just return one - storageNode.getNode(name)
-      // try-catch on PathNotFoundExc and throw OrganizationServiceException
-      for (NodeIterator nodes = storageNode.getNodes(name); nodes.hasNext();) {
-        if (mt != null) {
-          throw new OrganizationServiceException("More than one membership type " + name
-              + " is found");
-        }
-        Node mtNode = nodes.nextNode();
-
-        mt = new MembershipTypeImpl();
-        mt.setName(mtNode.getName());
-        mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
-      }
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
+          + "/" + name);
+      MembershipType mt = new MembershipTypeImpl(mtNode.getUUID());
+      mt.setName(mtNode.getName());
+      mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
       return mt;
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("The membership type with name " + name
+          + " is absent.");
     } finally {
       session.logout();
     }
@@ -119,10 +116,10 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
           + STORAGE_EXO_MEMBERSHIP_TYPES);
 
       List<MembershipType> types = new ArrayList<MembershipType>();
-      
+
       for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
         Node mtNode = nodes.nextNode();
-        MembershipType mt = new MembershipTypeImpl();
+        MembershipType mt = new MembershipTypeImpl(mtNode.getUUID());
         mt.setName(mtNode.getName());
         mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
 
@@ -139,41 +136,67 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
    * {@inheritDoc}
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
-    // TODO: broadcast
+    // TODO implement broadcast
     Session session = service.getStorageSession();
-    MembershipType mt = null;// TODO use local var which will not be used in the scope
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
           + "/" + name);
 
-      mt = new MembershipTypeImpl();
+      MembershipType mt = new MembershipTypeImpl();
       mt.setName(name);
       mt.setDescription(mtNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
       mtNode.remove();
       session.save();
       return mt;
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("The membership type with name " + name
+          + " is absent.");
     } finally {
       session.logout();
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
-    // TODO broadcast
+    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
-          + "/" + mt.getName());
-      mtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
-      // TODO other properties - 
-      // name?
-      session.save();
-      return mt;
+      MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
+      if (mtImpl.getUUId() == null) {
+        throw new OrganizationServiceException("");
+      }
+
+      try {
+        Node mNode = session.getNodeByUUID(mtImpl.getUUId());
+        String path = mNode.getPath();
+        int pos = path.lastIndexOf('/');
+        String prevName = path.substring(pos + 1);
+        String srcPath = path.substring(0, pos);
+        String destPath = srcPath + "/" + mt.getName();
+
+        try {
+          session.move(srcPath, destPath);
+          try {
+            Node nmtNode = (Node) session.getItem(destPath);
+            nmtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
+            MembershipType nmt = new MembershipTypeImpl(nmtNode.getUUID());
+            nmt.setDescription(mt.getDescription());
+            session.save();
+            return nmt;
+          } finally {
+          }
+
+        } catch (PathNotFoundException e) {
+          throw new OrganizationServiceException("The membership type " + prevName
+              + " is absent and can not be save.");
+        } catch (ItemExistsException e) {
+          throw new OrganizationServiceException("Can not save membership type " + prevName
+              + " because new membership type " + mt.getName() + " already is exist.");
+        }
+      } catch (ItemNotFoundException e) {
+        throw new OrganizationServiceException("Can not find membership type for save changes.");
+      }
     } finally {
       session.logout();
     }
   }
-
 }

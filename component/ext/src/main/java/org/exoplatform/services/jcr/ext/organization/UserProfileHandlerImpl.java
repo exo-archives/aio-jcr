@@ -84,13 +84,13 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
     try {
       UserProfile userProfile = null;
 
-      String absPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+      String userPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
           + userName;
-      if (!session.itemExists(absPath)) {
+      if (!session.itemExists(userPath)) {
         return userProfile;
       }
 
-      Node storagePath = (Node) session.getItem(absPath);
+      Node storagePath = (Node) session.getItem(userPath);
       for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
         if (userProfile != null) {
           throw new OrganizationServiceException("More than one user " + userName + " is found.");
@@ -116,7 +116,7 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
   public Collection findUserProfiles() throws Exception {
     Session session = service.getStorageSession();
     try {
-      Collection<UserProfile> types = new ArrayList<UserProfile>();
+      List<UserProfile> types = new ArrayList<UserProfile>();
 
       Node storagePath = (Node) session.getItem(service.getStoragePath()
           + UserHandlerImpl.STORAGE_EXO_USERS);
@@ -159,14 +159,14 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
     // TODO Implement broadcast
     Session session = service.getStorageSession();
     try {
-      String absPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+      String userPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
           + profile.getUserName();
-      if (!session.itemExists(absPath)) {
+      if (!session.itemExists(userPath)) {
         throw new OrganizationServiceException("User " + profile.getUserName() + " not found.");
       }
 
-      Node uNode = (Node) session.getItem(absPath);
-      if (!session.itemExists(absPath + "/" + UserHandlerImpl.STORAGE_EXO_PROFILE)) {
+      Node uNode = (Node) session.getItem(userPath);
+      if (!session.itemExists(userPath + "/" + UserHandlerImpl.STORAGE_EXO_PROFILE)) {
         Node profileNode = uNode.addNode(UserHandlerImpl.STORAGE_EXO_PROFILE);
 
         String keys[] = (String[]) profile.getUserInfoMap().keySet().toArray();

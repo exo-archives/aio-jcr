@@ -30,28 +30,44 @@ import org.exoplatform.services.organization.MembershipType;
  */
 public class MembershipTypeImpl implements MembershipType {
 
-  // TODO not used - remove it
-  private Date   createdDate  = null;
-
-  private String description  = null;
-
-  // TODO not used - remove it
-  private Date   modifiedDate = null;
-
-  private String name         = null;
-
-  // TODO not used - remove it
-  private String owner        = null;
+  /**
+   * The description of the membership type
+   */
+  private String       description;
 
   /**
-   * {@inheritDoc}
+   * The name of the membership type
    */
-  public Date getCreatedDate() {
-    return createdDate;
+  private String       name;
+
+  /**
+   * The UUID of the membership type in the storage
+   */
+  private final String UUId;
+
+  MembershipTypeImpl() {
+    this.UUId = null;
+  }
+
+  MembershipTypeImpl(String UUId) {
+    this.UUId = UUId;
+  }
+
+  MembershipTypeImpl(String name, String description, String UUId) {
+    this.name = name;
+    this.UUId = UUId;
+    this.description = description;
   }
 
   /**
-   * {@inheritDoc}
+   * @return The date that the membership type is saved to the database
+   */
+  public Date getCreatedDate() {
+    return null;
+  }
+
+  /**
+   * @return The description of the membership type
    */
   public String getDescription() {
     return description;
@@ -61,12 +77,11 @@ public class MembershipTypeImpl implements MembershipType {
    * @return The last time that an user modify the data of the membership type.
    */
   public Date getModifiedDate() {
-    return modifiedDate;
+    return null;
   }
 
   /**
-   * @return The name of the membership type. The name of the membership type should be unique in
-   *         the membership type database.
+   * @return The name of the membership type
    */
   public String getName() {
     return name;
@@ -76,14 +91,21 @@ public class MembershipTypeImpl implements MembershipType {
    * @return The owner of the membership type
    */
   public String getOwner() {
-    return owner;
+    return null;
   }
 
   /**
-   * Set created date for membership type.
+   * @return The UUID of the membership type in the storage
+   */
+  public String getUUId() {
+    return UUId;
+  }
+
+  /**
+   * Set created date of the membership type
    * 
    * @param d
-   *          the created date
+   *          The created date
    */
   public void setCreatedDate(Date d) {
   }
@@ -102,7 +124,7 @@ public class MembershipTypeImpl implements MembershipType {
    * Set modified date for membership type.
    * 
    * @param d
-   *          the modified date
+   *          The modified date
    */
   public void setModifiedDate(Date d) {
   }
@@ -111,7 +133,7 @@ public class MembershipTypeImpl implements MembershipType {
    * Set name for membership type.
    * 
    * @param s
-   *          The name of the membership type
+   *          The new name of the membership type
    */
   public void setName(String s) {
     name = s;

@@ -29,16 +29,16 @@ import org.exoplatform.services.organization.Group;
 public class GroupImpl implements Group {
 
   // not used
-  private String id          = null;
+  private String id;
 
   private String parentId;
 
   // not used
-  private String groupName   = null;
+  private String groupName;
 
   private String label;
 
-  private String description = "";
+  private String description;
 
   GroupImpl() {
   }
@@ -49,55 +49,61 @@ public class GroupImpl implements Group {
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#getDescription()
+   * @return The group description
    */
   public String getDescription() {
     return description;
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#getGroupName()
+   * @return The local name of the group
    */
   public String getGroupName() {
     return groupName;
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#getId()
+   * @deprecated This method not used
+   * @return the id of the group. The id should have the form /ancestor/parent/groupname
    */
   public String getId() {
     return id;
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#getLabel()
+   * @return The display label of the group.
    */
   public String getLabel() {
     return label;
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#getParentId()
+   * @return the id of the parent group. if the parent id is null , it mean that the group is at the
+   *         first level. the child of root group.
    */
   public String getParentId() {
     return parentId;
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#setDescription(java.lang.String )
+   * @param desc
+   *          The new description of the group
    */
   public void setDescription(String desc) {
     description = desc;
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#setGroupName(java.lang.String)
+   * @deprecated This method not used
+   * @param name
+   *          The local name for the group
    */
   public void setGroupName(String name) {
   }
 
   /**
-   * @see org.exoplatform.services.organization.Group#setLabel(java.lang.String)
+   * @param name
+   *          The new label of the group
    */
   public void setLabel(String name) {
     label = name;
