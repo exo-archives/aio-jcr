@@ -162,7 +162,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     try {
       MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
       if (mtImpl.getUUId() == null) {
-        throw new OrganizationServiceException("");
+        throw new OrganizationServiceException("Can not find membership type for save changes because UUId is null.");
       }
 
       try {
@@ -178,13 +178,10 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
           try {
             Node nmtNode = (Node) session.getItem(destPath);
             nmtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
-            MembershipType nmt = new MembershipTypeImpl(nmtNode.getUUID());
-            nmt.setDescription(mt.getDescription());
             session.save();
-            return nmt;
+            return new MembershipTypeImpl(mt.getName(), mt.getDescription(), nmtNode.getUUID());
           } finally {
           }
-
         } catch (PathNotFoundException e) {
           throw new OrganizationServiceException("The membership type " + prevName
               + " is absent and can not be save.");
@@ -193,7 +190,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
               + " because new membership type " + mt.getName() + " already is exist.");
         }
       } catch (ItemNotFoundException e) {
-        throw new OrganizationServiceException("Can not find membership type for save changes.");
+        throw new OrganizationServiceException("Can not find membership type for save changes by UUId.");
       }
     } finally {
       session.logout();

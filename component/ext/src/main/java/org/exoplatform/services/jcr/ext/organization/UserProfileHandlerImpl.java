@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.Session;
@@ -49,69 +50,83 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * When a method save, remove are called, the will broadcast an event. You can use this method to
+   * register a listener to catch those events
+   * 
+   * @param listener
+   *          The listener instance
+   * @see UserProfileEventListener
    */
   public void addUserProfileEventListener(UserProfileEventListener listener) {
     listeners.add(listener);
   }
 
   /**
+   * Remove registered listener
+   * 
    * @param listener
+   *          The registered listener for removing
    */
   public void removeUserProfileEventListener(UserProfileEventListener listener) {
     listeners.remove(listener);
   }
 
   /**
-   * {@inheritDoc}
+   * @return return a new UserProfile implementation instance. This instance is not persisted yet
    */
   public UserProfile createUserProfileInstance() {
     return new UserProfileImpl();
   }
 
   /**
-   * {@inheritDoc}
+   * @return return a new UserProfile implementation instance. This instance is not persisted yet
+   * @param userName
+   *          The user profile record with the username
    */
   public UserProfile createUserProfileInstance(String userName) {
     return new UserProfileImpl(userName);
   }
 
   /**
-   * {@inheritDoc}
+   * This method should search for and return UserProfile record according to the username
+   * 
+   * @param userName
+   * @return return null if no record match the userName. return an UserProfile instance if a record
+   *         match the username.
+   * @throws Exception
+   *           Throw Exception if the method fail to access the database or find more than one
+   *           record that match the username.
+   * @see UserProfile
    */
   public UserProfile findUserProfileByName(String userName) throws Exception {
     Session session = service.getStorageSession();
     try {
-      UserProfile userProfile = null;
+      Node uNode = (Node) session.getItem(service.getStoragePath()
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
-      String userPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
-          + userName;
-      if (!session.itemExists(userPath)) {
-        return userProfile;
-      }
-
-      Node storagePath = (Node) session.getItem(userPath);
-      for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
-        if (userProfile != null) {
-          throw new OrganizationServiceException("More than one user " + userName + " is found.");
-        }
-        Node uNode = nodes.nextNode();
+      try {
         Node profileNode = uNode.getNode(STORAGE_EXO_ATTRIBUTES);
-
-        userProfile = new UserProfileImpl(userName);
+        UserProfile userProfile = new UserProfileImpl(userName);
         for (PropertyIterator props = profileNode.getProperties(); props.hasNext();) {
           Property prop = props.nextProperty();
           userProfile.setAttribute(prop.getName(), prop.getString());
         }
+        return userProfile;
+      } finally {
       }
-      return userProfile;
+    } catch (PathNotFoundException e) {
+      return null;
     } finally {
       session.logout();
     }
   }
 
   /**
-   * {@inheritDoc}
+   * Find and return all the UserProfile record in the database
+   * 
+   * @return
+   * @throws Exception
+   *           Throw exception if the method fail to access the database
    */
   public Collection findUserProfiles() throws Exception {
     Session session = service.getStorageSession();
@@ -132,7 +147,18 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * This method should remove the user profile record in the database. If any listener fail to
+   * handle event. The record should not be removed from the database.
+   * 
+   * @param userName
+   *          The user profile record with the username should be removed from the database
+   * @param broadcast
+   *          Broadcast the event the listeners if broadcast is true.
+   * @return The UserProfile instance that has been removed.
+   * @throws Exception
+   *           Throw exception if the method fail to remove the record or any listener fail to
+   *           handle the event TODO Should we provide this method or the user profile should be
+   *           removed only when the user is removed
    */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
     // TODO Implement broadcast
@@ -153,31 +179,42 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * This method should persist the profile instance to the database. If the profile is not existed
+   * yet, the method should create a new user profile record. If there is an existed record. The
+   * method should merge the data with the existed record
+   * 
+   * @param profile
+   *          the profile instance to persist.
+   * @param broadcast
+   *          broadcast the event to the listener if broadcast is true
+   * @throws Exception
+   *           throw exception if the method fail to access the database or any listener fail to
+   *           handle the event.
    */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
-    // TODO Implement broadcast
+    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       String userPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
           + profile.getUserName();
-      if (!session.itemExists(userPath)) {
-        throw new OrganizationServiceException("User " + profile.getUserName() + " not found.");
-      }
 
       Node uNode = (Node) session.getItem(userPath);
       if (!session.itemExists(userPath + "/" + UserHandlerImpl.STORAGE_EXO_PROFILE)) {
-        Node profileNode = uNode.addNode(UserHandlerImpl.STORAGE_EXO_PROFILE);
-
-        String keys[] = (String[]) profile.getUserInfoMap().keySet().toArray();
-        for (int i = 0; i <= keys.length; i++) {
-          profileNode.setProperty(keys[i], profile.getAttribute(keys[i]));
-        }
-        session.save();
+        uNode.addNode(UserHandlerImpl.STORAGE_EXO_PROFILE);
       }
+
+      Node profileNode = uNode.getNode(UserHandlerImpl.STORAGE_EXO_PROFILE);
+      String keys[] = (String[]) profile.getUserInfoMap().keySet().toArray();
+      for (int i = 0; i < keys.length; i++) {
+        profileNode.setProperty(keys[i], profile.getAttribute(keys[i]));
+      }
+      session.save();
+
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("Can not find user " + profile.getUserName()
+          + " for save profile.");
     } finally {
       session.logout();
     }
   }
-
 }

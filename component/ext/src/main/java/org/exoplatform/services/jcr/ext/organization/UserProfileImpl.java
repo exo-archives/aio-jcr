@@ -43,42 +43,54 @@ public class UserProfileImpl implements UserProfile {
   }
 
   /**
-   * {@inheritDoc}
+   * @param attName
+   *          The key name of an attribute in the user info map.
+   * @return null if no key is matched in the user info map or a String value.
    */
   public String getAttribute(String attName) {
     return attributes.get(attName);
   }
 
   /**
-   * {@inheritDoc}
+   * @return The map that contains the user information. The map should only accept the
+   *         java.lang.String for the key and the value.
    */
   public Map<String, String> getUserInfoMap() {
     return attributes;
   }
 
   /**
-   * {@inheritDoc}
+   * @return the username, the identifier of an user profile instance
    */
   public String getUserName() {
     return userName;
   }
 
   /**
-   * {@inheritDoc}
+   * Use this method to change or add a new attribute to the user info map.
+   * 
+   * @param key
+   *          The attribute name of the info
+   * @param value
+   *          An info of the user.
    */
   public void setAttribute(String key, String value) {
     attributes.put(key, value);
   }
 
   /**
-   * {@inheritDoc}
+   * @param map
+   *          The map that contains the extra user information. The map should contains only the
+   *          java.lang.String as the key and the value.
    */
   public void setUserInfoMap(Map<String, String> map) {
     attributes = map;
   }
 
   /**
-   * {@inheritDoc}
+   *@deprecated The third party developer should not used this method. We should pass the username
+   *             to the @see UserProfileHandler.createUserInstance() and set the username for the
+   *             instance once only.
    */
   public void setUserName(String username) {
     userName = username;
