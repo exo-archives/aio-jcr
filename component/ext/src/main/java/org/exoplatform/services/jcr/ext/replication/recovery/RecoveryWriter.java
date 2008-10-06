@@ -110,6 +110,17 @@ public class RecoveryWriter extends AbstractFSAccess {
     }
     return null;
   }
+  
+  public String save(File f, TransactionChangesLog changesLog) throws IOException {
+      // save data
+      ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
+
+      writeExternal(objectOutputStream,  changesLog);
+
+      objectOutputStream.flush();
+      objectOutputStream.close();
+      return f.getName();
+  }
 
   private synchronized void writeNotConfirmationInfo(File dataFile,
                                                      List<String> participantsClusterList) throws IOException {
@@ -126,7 +137,7 @@ public class RecoveryWriter extends AbstractFSAccess {
       raf.close();
     }
   }
-
+  
   private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);

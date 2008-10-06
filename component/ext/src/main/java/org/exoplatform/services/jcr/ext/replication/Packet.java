@@ -101,6 +101,12 @@ public class Packet implements Externalizable {
     public static final int GET_ALL_PRIORITY                     = 30;
 
     public static final int OWN_PRIORITY                         = 31;
+    
+    public static final int BINARY_CHANGESLOG_FIRST_PACKET           = 32;
+    
+    public static final int BINARY_CHANGESLOG_MIDDLE_PACKET          = 33;
+
+    public static final int BINARY_CHANGESLOG_LAST_PACKET            = 34;
 
     private PacketType() {
     }

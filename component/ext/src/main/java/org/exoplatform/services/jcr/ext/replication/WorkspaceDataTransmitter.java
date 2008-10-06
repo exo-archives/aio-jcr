@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Vector;
 
@@ -90,8 +91,12 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
             log.info(pcl.dump());
           }
         }
-
-        String identifier = this.send(changesLog);
+        
+        //TODO
+//        String identifier = this.send(changesLog);
+        String identifier = this.sendAsBinaryFile(changesLog);
+        
+        
 
         if (log.isDebugEnabled()) {
           log.info("After send message: the owner systemId --> " + changesLog.getSystemId());
@@ -172,6 +177,59 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       break;
     }
 
+    return container.getIdentifier();
+  }
+  
+  private String sendAsBinaryFile(ItemStateChangesLog isChangesLog) throws Exception {
+    TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
+    PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
+
+    // before save ChangesLog
+    recoveryManager.save(isChangesLog, container.getIdentifier());
+    
+    File f = File.createTempFile("cl_", ".tmp");
+    
+    recoveryManager.getRecoveryWriter().save(f, changesLog);
+    
+    
+    switch (container.getConteinerType()) {
+    case PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM:
+      byte[] buf1 = PendingChangesLog.getAsByteArray(container.getItemDataChangesLog());
+
+      if (buf1.length > Packet.MAX_PACKET_SIZE) {
+        sendBigItemDataChangesLog(buf1, container.getIdentifier());
+      } else {
+        Packet firstPacket = new Packet(Packet.PacketType.CHANGESLOG, buf1.length, buf1, container
+            .getIdentifier());
+        channelManager.sendPacket(firstPacket);
+
+        if (log.isDebugEnabled()) {
+          log.debug("Send-->ItemDataChangesLog_without_Streams-->");
+          log.debug("---------------------");
+          log.debug("Size of buffer --> " + buf1.length);
+          log.debug("ItemStates size  --> " + changesLog.getAllStates().size());
+          log.debug("---------------------");
+        }
+      }
+      break;
+
+    case PendingChangesLog.Type.CHANGESLOG_WITH_STREAM:
+      //send the serializabe Changeslog
+      channelManager.sendBinaryFile(f.getCanonicalPath(), 
+          ownName, 
+          container.getIdentifier(), 
+          systemId,
+          Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET,
+          Packet.PacketType.BINARY_CHANGESLOG_MIDDLE_PACKET,
+          Packet.PacketType.BINARY_CHANGESLOG_LAST_PACKET);
+      
+      fileCleaner.addFile(f);
+      break;
+
+    default:
+      break;
+    }
+    
     return container.getIdentifier();
   }
 

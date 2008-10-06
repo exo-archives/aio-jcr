@@ -59,6 +59,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   private HashMap<String, PendingChangesLog> mapPendingChangesLog;
 
+  private HashMap<String, PendingBinaryFile> mapPendingBinaryFile;
+
   protected ItemDataKeeper                   dataKeeper;
 
   private FileCleaner                        fileCleaner;
@@ -70,6 +72,7 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
     this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
     mapPendingChangesLog = new HashMap<String, PendingChangesLog>();
+    mapPendingBinaryFile = new HashMap<String, PendingBinaryFile>();
 
     state = INIT_MODE;
   }
@@ -337,8 +340,84 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
           }
           mapPendingChangesLog.remove(packet.getIdentifier());
         }
-
         break;
+
+      // prouf concept
+      // --------------------------------------------------------------------------------
+      case Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET:
+        if (mapPendingBinaryFile.containsKey(packet.getIdentifier()) == false)
+          mapPendingBinaryFile.put(packet.getIdentifier(), new PendingBinaryFile());
+
+        PendingBinaryFile pbf = mapPendingBinaryFile.get(packet.getIdentifier());
+
+        synchronized (pbf) {
+          pbf.addBinaryFile(packet.getOwnerName(), packet.getFileName(), packet.getSystemId());
+        }
+        break;
+
+      case Packet.PacketType.BINARY_CHANGESLOG_MIDDLE_PACKET:
+        if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
+          pbf = mapPendingBinaryFile.get(packet.getIdentifier());
+
+//          log.info("Pocket namber : " + packet.getSize());
+//          RandomAccessFile randomAccessFile = pbf.getRandomAccessFile(packet.getOwnerName(), packet
+//              .getFileName());
+          FileDescriptor fd = pbf.getFileDescriptor(packet.getOwnerName(), packet.getFileName());
+          RandomAccessFile randomAccessFile = fd.getRandomAccessFile(); 
+          
+
+          if (randomAccessFile != null) {
+            if (log.isDebugEnabled())
+              log.info("Offset : BinaryFile_Middle_Packet :" + packet.getOffset());
+
+            randomAccessFile.seek(packet.getOffset());
+            randomAccessFile.write(packet.getByteArray());
+          } else
+            log.warn("Can't find the RandomAccessFile : \n" + "owner - \t" + packet.getOwnerName()
+                + "\nfile name - \t" + packet.getFileName());
+        }
+        break;
+
+      case Packet.PacketType.BINARY_CHANGESLOG_LAST_PACKET:
+        if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
+          pbf = mapPendingBinaryFile.get(packet.getIdentifier());
+
+          RandomAccessFile randomAccessFile = pbf.getRandomAccessFile(packet.getOwnerName(), packet
+              .getFileName());
+
+          if (randomAccessFile != null) {
+            if (log.isDebugEnabled())
+              log.info("Offset : BinaryFile_Last_Packet :" + packet.getOffset());
+
+            randomAccessFile.seek(packet.getOffset());
+            randomAccessFile.write(packet.getByteArray());
+//            randomAccessFile.close();
+            
+            //save to JCR
+            /*log.info("OwnerName  : " + packet.getOwnerName());
+            log.info("FileName   : " + packet.getFileName());
+            log.info("Identifire : " + packet.getIdentifier());*/
+            
+            
+            randomAccessFile.close();
+            FileDescriptor fd = pbf.getFileDescriptor(packet.getOwnerName(), packet
+                .getFileName());
+            saveChangesLog(fd, packet.getIdentifier());
+            
+            
+            
+            //remove
+            fileCleaner.addFile(fd.getFile());
+            mapPendingBinaryFile.remove(packet.getIdentifier());
+
+            if (log.isDebugEnabled())
+              log.debug("Last packet of file has been received : " + packet.getFileName());
+          } else
+            log.warn("Can't find the RandomAccessFile : \n" + "owner - \t" + packet.getOwnerName()
+                + "\nfile name - \t" + packet.getFileName());
+        }
+        break;
+      // --------------------------------------------------------------------------------
 
       default:
         break;
@@ -373,5 +452,26 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   public ItemDataKeeper getDataKeeper() {
     return dataKeeper;
+  }
+
+  private void saveChangesLog(FileDescriptor fileDescriptor, String identifire) throws Exception {
+    TransactionChangesLog transactionChangesLog = recoveryManager.getRecoveryReader().getChangesLog(fileDescriptor
+        .getFile().getAbsolutePath());
+
+    if (log.isDebugEnabled()) {
+      log.debug("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
+      log.debug("SystemID : " + transactionChangesLog.getSystemId());
+    }
+
+    // dump log
+    if (log.isDebugEnabled()) {
+      ChangesLogIterator logIterator = transactionChangesLog.getLogIterator();
+      while (logIterator.hasNextLog()) {
+        PlainChangesLog pcl = logIterator.nextLog();
+        log.debug(pcl.dump());
+      }
+    }
+
+    this.receive((ItemStateChangesLog)transactionChangesLog, identifire);
   }
 }

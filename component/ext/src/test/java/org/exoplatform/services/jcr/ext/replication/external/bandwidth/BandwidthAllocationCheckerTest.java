@@ -165,7 +165,7 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
 
   public void testAddBinaryProperty() throws Exception {
     // add the 10-th base node
-    int baseNodesCount = 500;
+    int baseNodesCount = 1000;
     int simpleOperationCount = 1;
     int binarySize = 1024 * 1024;
     long start, end;
@@ -207,7 +207,7 @@ public class BandwidthAllocationCheckerTest extends BaseTestCaseChecker {
 
     // add 128B string property (10*100 == 1000)
     for (int i = 0; i < baseNodesCount; i++) {
-      Thread.sleep(300);
+      //Thread.sleep(300);
       String url = "http://" + masterMember.getIpAddress() + ":" + masterMember.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()

@@ -211,7 +211,7 @@ public class ChannelManager implements RequestHandler {
       destination[i] = sourceData[i + (int) startPos];
   }
 
-  public synchronized void sendBinaryFile(String filePath,
+  /*public synchronized void sendBinaryFile(String filePath,
                                           String ownerName,
                                           String identifier,
                                           String systemId) throws Exception {
@@ -271,6 +271,88 @@ public class ChannelManager implements RequestHandler {
 
     if (log.isDebugEnabled())
       log.debug("End send : " + filePath);
+  }*/
+  
+  public synchronized void sendBinaryFile(String filePath,
+                                        String ownerName,
+                                        String identifier,
+                                        String systemId,
+                                        int firstPacketType, 
+                                        int middlePocketType, 
+                                        int lastPocketType) throws Exception {
+    long count = 0;
+    
+    if (log.isDebugEnabled())
+      log.debug("Begin send : " + filePath);
+
+    File f = new File(filePath);
+    InputStream in = new FileInputStream(f);
+
+    Packet packet = new Packet(firstPacketType,
+        identifier,
+        ownerName,
+        f.getName());
+    packet.setSystemId(systemId);
+    //
+    packet.setSize(count);
+    count++;
+    //
+    sendPacket(packet);
+    
+    byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
+    int len;
+    long offset = 0;
+    
+    while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
+      packet = new Packet(middlePocketType,
+          new FixupStream(),
+          identifier,
+          buf);
+      
+      packet.setOffset(offset);
+      packet.setOwnName(ownerName);
+      packet.setFileName(f.getName());
+      //
+      packet.setSize(count);
+      count++;
+      //
+      sendPacket(packet);
+      
+      offset += len;
+      if (log.isDebugEnabled())
+        log.debug("Send  --> " + offset);
+      
+      Thread.sleep(1);
+    }
+    
+    if (len < Packet.MAX_PACKET_SIZE) {
+      // check if empty stream
+      len = (len == -1 ? 0 : len);
+      
+      byte[] buffer = new byte[len];
+
+      for (int i = 0; i < len; i++)
+        buffer[i] = buf[i];
+
+      packet = new Packet(lastPocketType,
+          new FixupStream(),
+          identifier,
+          buffer);
+      packet.setOffset(offset);
+      packet.setOwnName(ownerName);
+      packet.setFileName(f.getName());
+      //
+      packet.setSize(count);
+      count++;
+      //
+      sendPacket(packet);
+    }
+
+    if (log.isDebugEnabled())
+      log.debug("End send : " + filePath);
+    
+    //TODO
+    in.close();
   }
 
   public Object handle(Message message) {

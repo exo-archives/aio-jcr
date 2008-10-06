@@ -46,6 +46,8 @@ public class RecoveryManager {
   private FileNameFactory                                         fileNameFactory;
 
   private RecoveryWriter                                          recoveryWriter;
+  
+  private RecoveryReader                                          recoveryReader;
 
   private File                                                    recoveryDir;
 
@@ -96,6 +98,7 @@ public class RecoveryManager {
     this.channelManager = channelManager;
 
     fileNameFactory = new FileNameFactory();
+    recoveryReader = new RecoveryReader(fileCleaner, recoveryDir);
     recoveryWriter = new RecoveryWriter(recoveryDir, fileNameFactory, fileCleaner, ownName);
     mapPendingConfirmation = new HashMap<String, PendingConfirmationChengesLog>();
     this.waitConformationTimeout = waitConformation;
@@ -105,6 +108,7 @@ public class RecoveryManager {
                                                     channelManager,
                                                     ownName,
                                                     recoveryWriter,
+                                                    recoveryReader,
                                                     systemId);
 
     initedParticipantsClusterList = new ArrayList<String>();
@@ -303,5 +307,13 @@ public class RecoveryManager {
 
   public void startRecovery() {
     recoverySynchronizer.synchronizRepository();
+  }
+
+  public RecoveryWriter getRecoveryWriter() {
+    return recoveryWriter;
+  }
+
+  public RecoveryReader getRecoveryReader() {
+    return recoveryReader;
   }
 }

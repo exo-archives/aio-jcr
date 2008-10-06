@@ -45,7 +45,7 @@ public class ReplicationLockTest extends BaseReplicationTest {
     Lock lock = nodeLocked.lock(false, false);
     session.save();
 
-    Thread.sleep(4 * 1000);
+    Thread.sleep(8 * 1000);
 
     assertEquals(true, destNodeLocked.isLocked());
 
@@ -60,7 +60,7 @@ public class ReplicationLockTest extends BaseReplicationTest {
     // unlock source node
     nodeLocked.unlock();
 
-    Thread.sleep(4 * 1000);
+    Thread.sleep(8 * 1000);
 
     assertEquals(false, destNodeLocked.isLocked());
 

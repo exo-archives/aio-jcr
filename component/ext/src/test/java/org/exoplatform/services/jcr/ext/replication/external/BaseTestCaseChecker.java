@@ -40,8 +40,8 @@ public class BaseTestCaseChecker extends TestCase {
 
   private final MemberInfo[] members           = new MemberInfo[] {
       new MemberInfo("192.168.0.15", 8080, "root", "exo", 100),
-      new MemberInfo("192.168.0.15", 8081, "root", "exo", 50),
-      new MemberInfo("192.168.0.15", 8082, "root", "exo", 30) };
+      /*new MemberInfo("192.168.0.15", 8081, "root", "exo", 50),*/
+      new MemberInfo("192.168.0.20", 8081, "root", "exo", 30) };
 
   private int                maxPriorityMemberIndex;
 

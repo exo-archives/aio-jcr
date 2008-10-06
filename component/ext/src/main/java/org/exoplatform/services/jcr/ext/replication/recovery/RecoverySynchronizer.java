@@ -17,12 +17,10 @@
 package org.exoplatform.services.jcr.ext.replication.recovery;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,9 +34,10 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.AbstractWorkspaceDataReceiver;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
+import org.exoplatform.services.jcr.ext.replication.FileDescriptor;
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.replication.PendingBinaryFile;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
-import org.exoplatform.services.jcr.ext.replication.recovery.PendingBinaryFile.FileDescriptor;
 import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -83,6 +82,7 @@ public class RecoverySynchronizer {
                               ChannelManager channelManager,
                               String ownName,
                               RecoveryWriter recoveryWriter,
+                              RecoveryReader recoveryReader,
                               String systemId) {
     this.recoveryDir = recoveryDir;
     this.fileNameFactory = fileNameFactory;
@@ -91,7 +91,10 @@ public class RecoverySynchronizer {
     this.ownName = ownName;
     this.systemId = systemId;
 
-    recoveryReader = new RecoveryReader(fileCleaner, recoveryDir);
+    //TODO
+    //recoveryReader = new RecoveryReader(fileCleaner, recoveryDir);
+    this.recoveryReader = recoveryReader;
+    
     this.recoveryWriter = recoveryWriter;
     mapPendingBinaryFile = new HashMap<String, PendingBinaryFile>();
 
@@ -339,7 +342,13 @@ public class RecoverySynchronizer {
 
       if (filePathList.size() > 0) {
         for (String filePath : filePathList) {
-          channelManager.sendBinaryFile(filePath, ownerName, identifier, systemId);
+          channelManager.sendBinaryFile(filePath, 
+              ownerName, 
+              identifier, 
+              systemId,
+              Packet.PacketType.BINARY_FILE_FIRST_PACKET,
+              Packet.PacketType.BINARY_FILE_MIDDLE_PACKET,
+              Packet.PacketType.BINARY_FILE_LAST_PACKET);
         }
 
         Packet endPocket = new Packet(Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK, identifier);
@@ -430,7 +439,7 @@ public class RecoverySynchronizer {
   }
 }
 
-class PendingBinaryFile {
+/*class PendingBinaryFile {
   private static Log                                       log = ExoLogger.getLogger("ext.PendingBinaryFile");
 
   private HashMap<String, HashMap<String, FileDescriptor>> mapFilePerOwner;
@@ -592,7 +601,7 @@ class PendingBinaryFile {
   public void setSuccessfulSave(boolean isSuccessfulSave) {
     this.isSuccessfulSave = isSuccessfulSave;
   }
-}
+}*/
 
 class Counter {
   int count = 0;
