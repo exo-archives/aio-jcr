@@ -27,21 +27,32 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: WorkspaceDataContainerBase.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
 abstract public class WorkspaceDataContainerBase implements WorkspaceDataContainer {
 
+  /**
+   * Read-only status.
+   */
   protected boolean readOnly = false;
 
+  /**
+   * {@inheritDoc}
+   */
   public Calendar getCurrentTime() {
     Calendar cal = Calendar.getInstance();
     cal.setTime(new Date());
     return cal;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isReadOnly() {
     return readOnly;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void setReadOnly(boolean status) {
     this.readOnly = status;
   }

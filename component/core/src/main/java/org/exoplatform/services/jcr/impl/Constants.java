@@ -26,42 +26,76 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: Constants.java 13986 2008-05-08 10:48:43Z pnedonosko $
  */
-
 public class Constants {
 
-  // default namespace (empty uri)
+  /**
+   * Default namespace prefix (empty uri).
+   */
   public static final String        NS_EMPTY_PREFIX            = "";
 
+  /**
+   * Default namespace URI (empty).
+   */
   public static final String        NS_DEFAULT_URI             = "";
 
-  // reserved namespace for exo node types
+  /**
+   * Reserved namespace for exo node types.
+   */
   public static final String        NS_EXO_PREFIX              = "exo";
 
+  /**
+   * Reserved namespace URI for exo node types.
+   */
   public static final String        NS_EXO_URI                 = "http://www.exoplatform.com/jcr/exo/1.0";
 
-  // reserved namespace for items defined by built-in node types
+  /**
+   * Reserved namespace for items defined by built-in node types.
+   */
   public static final String        NS_JCR_PREFIX              = "jcr";
 
+  /**
+   * Reserved namespace URI for items defined by built-in node types.
+   */
   public static final String        NS_JCR_URI                 = "http://www.jcp.org/jcr/1.0";
 
-  // reserved namespace for built-in primary node types
+  /**
+   * Reserved namespace for built-in primary node types.
+   */
   public static final String        NS_NT_PREFIX               = "nt";
 
+  /**
+   * Reserved namespace URI for built-in primary node types.
+   */
   public static final String        NS_NT_URI                  = "http://www.jcp.org/jcr/nt/1.0";
 
-  // reserved namespace for built-in mixin node types
+  /**
+   * Reserved namespace for built-in mixin node types.
+   */
   public static final String        NS_MIX_PREFIX              = "mix";
 
+  /**
+   * Reserved namespace URI for built-in mixin node types.
+   */
   public static final String        NS_MIX_URI                 = "http://www.jcp.org/jcr/mix/1.0";
 
-  // reserved namespace used in the system view XML serialization format
+  /**
+   * Reserved namespace used in the system view XML serialization format.
+   */
   public static final String        NS_SV_PREFIX               = "sv";
 
+  /**
+   * Reserved namespace URI used in the system view XML serialization format.
+   */
   public static final String        NS_SV_URI                  = "http://www.jcp.org/jcr/sv/1.0";
 
-  // reserved namespaces that must not be redefined and should not be used
+  /**
+   * Reserved namespaces that must not be redefined and should not be used.
+   */
   public static final String        NS_XML_PREFIX              = "xml";
 
+  /**
+   * Reserved namespaces URI that must not be redefined and should not be used.
+   */
   public static final String        NS_XML_URI                 = "http://www.w3.org/XML/1998/namespace";
 
   public static final String        NS_XMLNS_PREFIX            = "xmlns";
@@ -80,9 +114,14 @@ public class Constants {
    */
   public static final InternalQName JCR_ANY_NAME               = new InternalQName("", "*");
 
-  // reserved namespace for exo node types
+  /**
+   * Reserved namespace for exo node types (Portal/ECM).
+   */
   public static final String        NS_REP_PREFIX              = "rep";
 
+  /**
+   * Reserved namespace URI for exo node types (Portal/ECM).
+   */
   public static final String        NS_REP_URI                 = "internal";
 
   public static final InternalQName JCR_PRIMARYTYPE            = new InternalQName(NS_JCR_URI,
@@ -298,15 +337,24 @@ public class Constants {
   public static final InternalQName NT_FOLDER                  = new InternalQName(NS_NT_URI,
                                                                                    "folder");
 
+  /**
+   * Workspace root node URI.
+   */
   public static final String        ROOT_URI                   = "[]:1";
 
-  // public static final String ROOT_UUID = "__eXo_jcr_root_uuid_____________";
+  /**
+   * Workspace root node vurtual parent node UUID.
+   */
   public static final String        ROOT_PARENT_UUID           = " ".intern();                                                                          // empty
 
-  // string
-
+  /**
+   * Workspace root node UUID.
+   */
   public static final String        ROOT_UUID                  = "00exo0jcr0root0uuid0000000000000";
 
+  /**
+   * jcr:system UUID.
+   */
   public static final String        SYSTEM_UUID                = "00exo0jcr0system0uuid00000000000";
 
   public static final String        VERSIONSTORAGE_UUID        = "00exo0jcr0version0storage0uuid00";
@@ -322,11 +370,6 @@ public class Constants {
   public static final String        ACCESS_TYPE_URI            = "[http://www.exoplatform.com/jcr/exo/1.0]accessControllable";
 
   public static final String        PRIVILEGABLE_TYPE_URI      = "[http://www.exoplatform.com/jcr/exo/1.0]privilegeable";
-
-  // public static final String NODE_OWNER_URI = "[http://www.exoplatform.com/jcr/exo/1.0]owner";
-  //
-  // public static final String NODE_PERM_URI =
-  // "[http://www.exoplatform.com/jcr/exo/1.0]permissions";
 
   public static final String        JCR_VERSION_STORAGE_URI    = "[]:1[http://www.jcp.org/jcr/1.0]system:1[http://www.jcp.org/jcr/1.0]versionStorage:1";
 
@@ -366,72 +409,72 @@ public class Constants {
 
   // -------- system view name constants
   /**
-   * 
+   * SV_NODE.
    */
   public static final String        SV_NODE                    = "node";
 
   /**
-   * 
+   * SV_PROPERTY.
    */
   public static final String        SV_PROPERTY                = "property";
 
   /**
-   * 
+   * SV_VALUE.
    */
   public static final String        SV_VALUE                   = "value";
 
   /**
-   * 
+   * SV_TYPE.
    */
   public static final String        SV_TYPE                    = "type";
 
   /**
-   * 
+   * SV_NAME.
    */
   public static final String        SV_NAME                    = "name";
 
   /**
-   * 
+   * EXO_ID.
    */
   public static final String        EXO_ID                     = "id";
 
   /**
-   * 
+   * EXO_MULTIVALUED.
    */
   public static final String        EXO_MULTIVALUED            = "multivalued";
 
   /**
-   * sv:node
+   * sv:node.
    */
   public static final InternalQName SV_NODE_NAME               = new InternalQName(NS_SV_URI,
                                                                                    SV_NODE);
 
   /**
-   * sv:property
+   * sv:property.
    */
   public static final InternalQName SV_PROPERTY_NAME           = new InternalQName(NS_SV_URI,
                                                                                    SV_PROPERTY);
 
   /**
-   * sv:value
+   * sv:value.
    */
   public static final InternalQName SV_VALUE_NAME              = new InternalQName(NS_SV_URI,
                                                                                    SV_VALUE);
 
   /**
-   * sv:type
+   * sv:type.
    */
   public static final InternalQName SV_TYPE_NAME               = new InternalQName(NS_SV_URI,
                                                                                    SV_TYPE);
 
   /**
-   * sv:name
+   * sv:name.
    */
   public static final InternalQName SV_NAME_NAME               = new InternalQName(NS_SV_URI,
                                                                                    SV_NAME);
 
   /**
-   * exo:id
+   * exo:id.
    */
   public static final InternalQName EXO_ID_NAME                = new InternalQName(NS_EXO_URI,
                                                                                    EXO_ID);
@@ -440,22 +483,32 @@ public class Constants {
 
   public static QPath               JCR_NODETYPES_PATH;
 
+  /**
+   * jcr:system path.
+   */
   public static QPath               JCR_SYSTEM_PATH;
 
   public static QPath               EXO_NAMESPACES_PATH;
 
+  /**
+   * Workspace root node path.
+   */
   public static QPath               ROOT_PATH;
 
-  // ** Formatting and validation constants
   /**
-   * Chars in a UUID String.
+   * Chars quantity in a UUID String.
    */
   public static int                 UUID_UNFORMATTED_LENGTH    = 32;
 
   /**
-   * Chars in a UUID String.
+   * Chars quantity in a UUID String.
    */
   public static int                 UUID_FORMATTED_LENGTH      = 32;
+
+  /**
+   * eXo JCR default Strings encoding.
+   */
+  public static final String        DEFAULT_ENCODING           = "UTF-8";
 
   static {
 
@@ -500,7 +553,5 @@ public class Constants {
     }
 
   }
-
-  public static final String        DEFAULT_ENCODING           = "UTF-8";
 
 }
