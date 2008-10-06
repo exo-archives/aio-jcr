@@ -28,23 +28,19 @@ import org.exoplatform.services.organization.Group;
  */
 public class GroupImpl implements Group {
 
-  // not used
-  private String id;
-
   private String parentId;
-
-  // not used
-  private String groupName;
 
   private String label;
 
   private String description;
 
+  private String groupName;
+
   GroupImpl() {
   }
 
-  GroupImpl(String label, String parendId) {
-    this.label = label;
+  GroupImpl(String name, String parendId) {
+    this.groupName = name;
     this.parentId = parendId;
   }
 
@@ -67,7 +63,7 @@ public class GroupImpl implements Group {
    * @return the id of the group. The id should have the form /ancestor/parent/groupname
    */
   public String getId() {
-    return id;
+    return null;
   }
 
   /**
@@ -99,6 +95,7 @@ public class GroupImpl implements Group {
    *          The local name for the group
    */
   public void setGroupName(String name) {
+    groupName = name;
   }
 
   /**

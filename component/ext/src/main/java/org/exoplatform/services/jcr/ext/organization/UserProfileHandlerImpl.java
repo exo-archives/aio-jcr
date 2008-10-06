@@ -171,8 +171,11 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
             + UserHandlerImpl.STORAGE_EXO_PROFILE);
         profileNode.remove();
         session.save();
+        return userProfile;
+      } else {
+        throw new OrganizationServiceException("Can not find user " + userName
+            + " for remove profile.");
       }
-      return userProfile;
     } finally {
       session.logout();
     }

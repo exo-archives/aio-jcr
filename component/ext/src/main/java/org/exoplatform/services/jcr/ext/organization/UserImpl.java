@@ -30,154 +30,206 @@ import org.exoplatform.services.organization.User;
  */
 public class UserImpl implements User {
 
-  private String           id             = null;
+  /**
+   * The user name
+   */
+  private String           userName;
 
-  private String           userName       = null;
+  /**
+   * The password of the user
+   */
+  private transient String password;
 
-  private transient String password       = null;
+  /**
+   * The first name of the user
+   */
+  private String           firstName;
 
-  private String           firstName      = null;
+  /**
+   * The last name of the user
+   */
+  private String           lastName;
 
-  private String           lastName       = null;
+  /**
+   * The email of the user
+   */
+  private String           email;
 
-  private String           email          = null;
+  /**
+   * The user's created date
+   */
+  private Date             createdDate;
 
-  private Date             createdDate    = null;
+  /**
+   * The last login time of the user
+   */
+  private Date             lastLoginTime;
 
-  private Date             lastLoginTime  = null;
-
-  // not used
-  private String           organizationId = null;
+  /**
+   * The UUId of the user in the storage
+   */
+  private final String     UUId;
 
   UserImpl() {
+    this.UUId = null;
   }
 
   UserImpl(String name) {
-    userName = name;
+    this.userName = name;
+    this.UUId = null;
+  }
+
+  UserImpl(String name, String UUId) {
+    this.userName = name;
+    this.UUId = UUId;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getCreatedDate()
+   * @return The date that the user register or create the account
    */
   public Date getCreatedDate() {
     return createdDate;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getEmail()
+   * @return The email address of the user
    */
   public String getEmail() {
     return email;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getFirstName()
+   * @return This method return the first name of the user
    */
   public String getFirstName() {
     return firstName;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getFullName()
+   * @return return the full name of the user. The full name shoul have the format: first name, last
+   *         name by default
    */
   public String getFullName() {
     return getFirstName() + " " + getLastName();
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getLastLoginTime()
+   * @return Return the last time that the user access the account
    */
   public Date getLastLoginTime() {
     return lastLoginTime;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getLastName()
+   * @return The last name of the user
    */
   public String getLastName() {
     return lastName;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getOrganizationId()
+   * @return the id of organization the user belongs to or null if not applicable
    */
   public String getOrganizationId() {
-    return organizationId;
+    return null;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getPassword()
+   * @return This method return the password of the user account
    */
   public String getPassword() {
     return password;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#getUserName()
+   * This method should return the username of the user. The username should be unique and the user
+   * database should not have 2 user record with the same username
+   * 
+   * @return
    */
   public String getUserName() {
     return userName;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setCreatedDate(java.util.Date)
+   * @param t
+   * @deprecated The third party should not used this method.
    */
   public void setCreatedDate(Date t) {
     createdDate = t;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setEmail(java.lang.String)
+   * @param s
+   *          The new user email address
    */
   public void setEmail(String s) {
     email = s;
   }
 
   /**
-   * aaa.
+   * @param s
+   *          the new first name
    */
   public void setFirstName(String s) {
     firstName = s;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setFullName(java.lang.String)
+   * @param s
+   *          The name that should show in the full name
    */
   public void setFullName(String s) {
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setLastLoginTime(java.util.Date)
+   * @param t
+   * @deprecated The third party developer should not aware of this method
    */
   public void setLastLoginTime(Date t) {
     lastLoginTime = t;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setLastName(java.lang.String)
+   * @param s
+   *          The new last name of the user
    */
   public void setLastName(String s) {
     lastName = s;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setOrganizationId(java.lang.String)
+   * sets the prganizationId
    */
   public void setOrganizationId(String s) {
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setPassword(java.lang.String)
+   * This method is used to change the user account password.
+   * 
+   * @param s
    */
   public void setPassword(String s) {
     password = s;
   }
 
   /**
-   * @see org.exoplatform.services.organization.User#setUserName(java.lang.String)
+   * This method is used to change the username
+   * 
+   * @param s
+   * @deprecated The third party developer should not used this method TODO: I think we should not
+   *             have this method. the username should be set only for the first time. So we can
+   *             pass the username to the @see UserHandler createUserInstance() method.
    */
   public void setUserName(String s) {
     userName = s;
+  }
+
+  /**
+   * @return UUId of the user in the storage
+   */
+  String getUUId() {
+    return UUId;
   }
 
 }

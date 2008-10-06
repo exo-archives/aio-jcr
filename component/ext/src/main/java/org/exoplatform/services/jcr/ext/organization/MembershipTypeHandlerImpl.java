@@ -167,11 +167,10 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
 
       try {
         Node mNode = session.getNodeByUUID(mtImpl.getUUId());
-        String path = mNode.getPath();
-        int pos = path.lastIndexOf('/');
-        String prevName = path.substring(pos + 1);
-        String srcPath = path.substring(0, pos);
-        String destPath = srcPath + "/" + mt.getName();
+        String srcPath = mNode.getPath();
+        int pos = srcPath.lastIndexOf('/');
+        String prevName = srcPath.substring(pos + 1);
+        String destPath = srcPath.substring(0, pos) + "/" + mt.getName();
 
         try {
           session.move(srcPath, destPath);
