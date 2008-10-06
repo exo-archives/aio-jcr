@@ -20,7 +20,7 @@ package org.exoplatform.services.jcr.impl.storage.jdbc;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: DBConstants.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class DBConstants {
@@ -58,8 +58,6 @@ public class DBConstants {
   protected String              FIND_REFERENCES;
 
   protected String              FIND_VALUES_BY_PROPERTYID;
-
-  // protected String FIND_VALUESDATA_BY_PROPERTYID;
 
   protected String              FIND_VALUE_BY_PROPERTYID_OREDERNUMB;
 

@@ -32,10 +32,38 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * 16.03.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: MySQLConnectionFactory.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class MySQLConnectionFactory extends GenericConnectionFactory {
 
+  /**
+   * MySQLConnectionFactory constructor.
+   * 
+   *@param dataSource
+   *          - DataSource
+   * @param dbDriver
+   *          - JDBC Driver
+   * @param dbUrl
+   *          - JDBC URL
+   * @param dbUserName
+   *          - database username
+   * @param dbPassword
+   *          - database user password
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   * @throws RepositoryException
+   *           if error eccurs
+   */
   public MySQLConnectionFactory(String dbDriver,
                                 String dbUrl,
                                 String dbUserName,
@@ -59,6 +87,24 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
           swapCleaner);
   }
 
+  /**
+   * MySQLConnectionFactory  constructor.
+   *
+   * @param dataSource
+   *          - DataSource
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   */
   public MySQLConnectionFactory(DataSource dbDataSource,
                                 String containerName,
                                 boolean multiDb,
@@ -76,6 +122,9 @@ public class MySQLConnectionFactory extends GenericConnectionFactory {
           swapCleaner);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
     try {

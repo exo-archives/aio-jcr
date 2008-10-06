@@ -38,30 +38,37 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * Created by The eXo Platform SAS. </br>
  * 
  * Concrete JDBC based data container that uses "table-set per Workspace policy" i.e each JCR
- * Workspace storage is placed in dedicated DB like: table JCR_MITEM (ID varchar(255) not null,
- * VERSION integer not null, PATH varchar(255) not null, primary key (ID)) table JCR_MNODE (ID
- * varchar(255) not null, ORDER_NUM integer, PARENT_ID varchar(255), primary key (ID)) table
- * JCR_MPROPERTY (ID varchar(255) not null, TYPE integer not null, PARENT_ID varchar(255) not null,
- * MULTIVALUED bit not null, primary key (ID)) table JCR_MVALUE (ID bigint not null, DATA
- * varbinary(65535) not null, ORDER_NUM integer, PROPERTY_ID varchar(255) not null, primary key
- * (ID))
+ * Workspace storage is placed in dedicated DB.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: MultiDbJDBCConnection.java 12813 2008-04-07 08:04:26Z pnedonosko $
- * 
- *          CREATE INDEX JCR_IDX_MITEM_NAME ON JCR_MITEM(NAME, ID, VERSION);
+ * @version $Id$
  */
 
 public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
+  /**
+   * findItemById.
+   */
   protected PreparedStatement findItemById;
 
+  /**
+   * findItemByPath.
+   */
   protected PreparedStatement findItemByPath;
 
+  /**
+   * findItemByName.
+   */
   protected PreparedStatement findItemByName;
 
+  /**
+   * findChildPropertyByPath.
+   */
   protected PreparedStatement findChildPropertyByPath;
 
+  /**
+   * findPropertyByName.
+   */
   protected PreparedStatement findPropertyByName;
 
   protected PreparedStatement findDescendantNodes;
@@ -80,7 +87,6 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
   protected PreparedStatement findPropertiesByParentId;
 
-  // protected PreparedStatement insertItem;
   protected PreparedStatement insertNode;
 
   protected PreparedStatement insertProperty;
@@ -109,6 +115,25 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
   protected PreparedStatement renameNode;
 
+  /**
+   * Multidatabase JDBC Connection constructor.
+   * 
+   * @param dbConnection
+   *          JDBC connection, shoudl be opened before
+   * @param containerName
+   *          Workspace Storage Container name (see configuration)
+   * @param valueStorageProvider
+   *          External Value Storages provider
+   * @param maxBufferSize
+   *          Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          Swap directory (see configuration)
+   * @param swapCleaner
+   *          Swap cleaner (internal FileCleaner).
+   * @throws SQLException
+   * 
+   * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
+   */
   public MultiDbJDBCConnection(Connection dbConnection,
                                String containerName,
                                ValueStoragePluginProvider valueStorageProvider,
@@ -124,18 +149,22 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
           swapCleaner);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected String getIdentifier(final String internalId) {
     return internalId;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected String getInternalId(final String identifier) {
     return identifier;
   }
 
   /**
-   * Prepared queries at start time
-   * 
-   * @throws SQLException
+   * {@inheritDoc}
    */
   @Override
   protected void prepareQueries() throws SQLException {
@@ -190,6 +219,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     DELETE_REF = "delete from JCR_MREF where PROPERTY_ID=?";
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int addNodeRecord(NodeData data) throws SQLException {
     if (insertNode == null)
@@ -208,6 +240,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return insertNode.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int addPropertyRecord(PropertyData data) throws SQLException {
     if (insertProperty == null)
@@ -229,6 +264,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   /**
    * For REFERENCE properties only
    */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int addReference(PropertyData data) throws SQLException, IOException {
     if (insertReference == null)
@@ -237,7 +275,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
       insertReference.clearParameters();
 
     if (data.getQPath().getAsString().indexOf("versionableUuid") > 0)
-      log.info("add ref versionableUuid " + data.getQPath().getAsString());
+      LOG.info("add ref versionableUuid " + data.getQPath().getAsString());
 
     List<ValueData> values = data.getValues();
     int added = 0;
@@ -255,7 +293,7 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
   }
 
   /**
-   * For REFERENCE properties only
+   * {@inheritDoc}
    */
   @Override
   protected int deleteReference(String propertyIdentifier) throws SQLException {
@@ -268,6 +306,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return deleteReference.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int deleteItemByIdentifier(String identifier) throws SQLException {
     if (deleteItem == null)
@@ -279,6 +320,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return deleteItem.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int updateNodeByIdentifier(int version, int index, int orderNumb, String identifier) throws SQLException {
     if (updateNode == null)
@@ -293,6 +337,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return updateNode.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int updatePropertyByIdentifier(int version, int type, String identifier) throws SQLException {
     if (updateProperty == null)
@@ -306,6 +353,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return updateProperty.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected ResultSet findItemByName(String parentId, String name, int index) throws SQLException {
     if (findItemByName == null)
       findItemByName = dbConnection.prepareStatement(FIND_ITEM_BY_NAME);
@@ -318,6 +368,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findItemByName.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findPropertyByName(String parentId, String name) throws SQLException {
     if (findPropertyByName == null)
@@ -330,6 +383,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findPropertyByName.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findItemByIdentifier(String identifier) throws SQLException {
     if (findItemById == null)
@@ -341,6 +397,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findItemById.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findReferences(String nodeIdentifier) throws SQLException {
     if (findReferences == null)
@@ -352,6 +411,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findReferences.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findChildNodesByParentIdentifier(String parentIdentifier) throws SQLException {
     if (findNodesByParentId == null)
@@ -363,6 +425,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findNodesByParentId.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findChildPropertiesByParentIdentifier(String parentIdentifier) throws SQLException {
     if (findPropertiesByParentId == null)
@@ -376,6 +441,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
 
   // -------- values processing ------------
 
+  /**
+   * {@inheritDoc}
+   */
   protected int addValueData(String cid,
                              int orderNumber,
                              InputStream stream,
@@ -401,6 +469,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return insertValue.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected int deleteValues(String cid) throws SQLException {
     if (deleteValue == null)
       deleteValue = dbConnection.prepareStatement(DELETE_VALUE);
@@ -411,16 +482,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return deleteValue.executeUpdate();
   }
 
-  // protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
-  // if (findValuesDataByPropertyId == null)
-  // findValuesDataByPropertyId = dbConnection.prepareStatement(FIND_VALUESDATA_BY_PROPERTYID);
-  // else
-  // findValuesDataByPropertyId.clearParameters();
-  //      
-  // findValuesDataByPropertyId.setString(1, cid);
-  // return findValuesDataByPropertyId.executeQuery();
-  // }
-
+  /**
+   * {@inheritDoc}
+   */
   protected ResultSet findValuesByPropertyId(String cid) throws SQLException {
     if (findValuesByPropertyId == null)
       findValuesByPropertyId = dbConnection.prepareStatement(FIND_VALUES_BY_PROPERTYID);
@@ -431,6 +495,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findValuesByPropertyId.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException {
     if (findValueByPropertyIdOrderNumber == null)
       findValueByPropertyIdOrderNumber = dbConnection.prepareStatement(FIND_VALUE_BY_PROPERTYID_OREDERNUMB);
@@ -442,6 +509,9 @@ public class MultiDbJDBCConnection extends JDBCStorageConnection {
     return findValueByPropertyIdOrderNumber.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int renameNode(NodeData data) throws SQLException, IOException {
     if (renameNode == null)

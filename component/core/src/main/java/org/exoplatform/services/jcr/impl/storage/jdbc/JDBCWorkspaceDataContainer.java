@@ -54,6 +54,8 @@ import org.picocontainer.Startable;
  */
 public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase implements Startable {
 
+  protected static final Log                 LOG         = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
+
   /**
    * Describe which type of RDBMS will be used (DB creation metadata etc.)
    */
@@ -66,8 +68,6 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
   public final static String                 DB_USERNAME = "username";
 
   public final static String                 DB_PASSWORD = "password";
-
-  protected static Log                       log         = ExoLogger.getLogger("jcr.JDBCWorkspaceDataContainer");
 
   protected final String                     containerName;
 
@@ -97,10 +97,38 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
 
   protected GenericConnectionFactory         connFactory;
 
+  /**
+   * Shared connection factory.
+   * 
+   * Issued to share JDBC connection between system and regular workspace in case of same database
+   * used for storage.
+   * 
+   */
   class SharedConnectionFactory extends GenericConnectionFactory {
 
+    /**
+     * JDBC connection.
+     */
     final private Connection connection;
 
+    /**
+     * SharedConnectionFactory constructor.
+     * 
+     * @param connection
+     *          JDBC - connection
+     * @param containerName
+     *          - container name
+     * @param multiDb
+     *          - multidatabase status
+     * @param valueStorageProvider
+     *          - external Value Storages provider
+     * @param maxBufferSize
+     *          - Maximum buffer size (see configuration)
+     * @param swapDirectory
+     *          - Swap directory (see configuration)
+     * @param swapCleaner
+     *          - Swap cleaner (internal FileCleaner).
+     */
     SharedConnectionFactory(Connection connection,
                             String containerName,
                             boolean multiDb,
@@ -124,18 +152,25 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       this.connection = connection;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public Connection getJdbcConnection() throws RepositoryException {
       return connection;
     }
   }
 
   /**
-   * Constructor with value storage plugins
+   * Constructor with value storage plugins.
    * 
    * @param wsConfig
+   *          Workspace configuration
    * @param valueStrorageProvider
+   *          External Value Stprages provider
    * @throws RepositoryConfigurationException
+   *           if Repository configuration is wrong
    * @throws NamingException
+   *           if JNDI exception (on DataSource lookup)
    */
   public JDBCWorkspaceDataContainer(WorkspaceEntry wsConfig,
                                     RepositoryEntry repConfig,
@@ -155,9 +190,9 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     String pDbDialect = null;
     try {
       pDbDialect = detectDialect(wsConfig.getContainer().getParameterValue(DB_DIALECT));
-      log.info("Using a dialect '" + pDbDialect + "'");
+      LOG.info("Using a dialect '" + pDbDialect + "'");
     } catch (RepositoryConfigurationException e) {
-      log.info("Using a default dialect '" + DBConstants.DB_DIALECT_GENERIC + "'");
+      LOG.info("Using a default dialect '" + DBConstants.DB_DIALECT_GENERIC + "'");
       pDbDialect = DBConstants.DB_DIALECT_GENERIC;
     }
     this.dbDialect = pDbDialect;
@@ -187,7 +222,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       this.dbUserName = pDbUserName;
       this.dbPassword = pDbPassword;
       this.dbSourceName = null;
-      log.info("Connect to JCR database as user '" + this.dbUserName + "'");
+      LOG.info("Connect to JCR database as user '" + this.dbUserName + "'");
     } else {
       this.dbDriver = null;
       this.dbUrl = null;
@@ -230,7 +265,7 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
       suParam = wsConfig.getContainer().getParameterValue("update-storage");
       enableStorageUpdate = Boolean.parseBoolean(suParam);
     } catch (RepositoryConfigurationException e) {
-      log.debug("update-storage parameter is not set " + dbSourceName);
+      LOG.debug("update-storage parameter is not set " + dbSourceName);
     }
 
     this.storageVersion = StorageUpdateManager.checkVersion(dbSourceName,
@@ -238,21 +273,18 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
                                                             multiDb,
                                                             enableStorageUpdate);
 
-    // check for FileValueStorage
-    // if (valueStorageProvider instanceof StandaloneStoragePluginProvider) {
-    // WorkspaceStorageConnection conn = null;
-    // try {
-    // conn = openConnection();
-    // ((StandaloneStoragePluginProvider) valueStorageProvider).checkConsistency(conn);
-    // } finally {
-    // if (conn != null)
-    // conn.rollback();
-    // }
-    // }
-
-    log.info(getInfo());
+    LOG.info(getInfo());
   }
 
+  /**
+   * Prepare sefault connection factory.
+   * 
+   * @return GenericConnectionFactory
+   * @throws NamingException
+   *           on JNDI error
+   * @throws RepositoryException
+   *           on Storage error
+   */
   protected GenericConnectionFactory defaultConnectionFactory() throws NamingException,
                                                                RepositoryException {
     // by default
@@ -283,12 +315,35 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
                                         swapCleaner);
   }
 
+  /**
+   * Prepare default DB initializer.
+   * 
+   * @param sqlPath
+   *          - path to SQL script (database creation script)
+   * @return DBInitializer instance
+   * @throws NamingException
+   *           on JNDI error
+   * @throws RepositoryException
+   *           on Storage error
+   * @throws IOException
+   *           on I/O error
+   */
   protected DBInitializer defaultDBInitializer(String sqlPath) throws NamingException,
                                                               RepositoryException,
                                                               IOException {
     return new DBInitializer(containerName, this.connFactory.getJdbcConnection(), sqlPath, multiDb);
   }
 
+  /**
+   * Checks if DataSources used in right manner.
+   * 
+   * @param wsConfig
+   *          Workspace configuration
+   * @param repConfig
+   *          Repository configuration
+   * @throws RepositoryConfigurationException
+   *           in case of configuration errors
+   */
   protected void checkIntegrity(WorkspaceEntry wsConfig, RepositoryEntry repConfig) throws RepositoryConfigurationException {
     boolean isMulti;
     for (WorkspaceEntry wsEntry : repConfig.getWorkspaceEntries()) {
@@ -362,12 +417,22 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     }
   }
 
+  /**
+   * Init storage database.
+   * 
+   * @throws NamingException
+   *           on JNDI error
+   * @throws RepositoryException
+   *           on storage error
+   * @throws IOException
+   *           on I/O error
+   */
   protected void initDatabase() throws NamingException, RepositoryException, IOException {
 
     DBInitializer dbInitilizer = null;
     String sqlPath = null;
     if (dbDialect == DBConstants.DB_DIALECT_ORACLEOCI) {
-      log.warn(DBConstants.DB_DIALECT_ORACLEOCI + " dialect is experimental!");
+      LOG.warn(DBConstants.DB_DIALECT_ORACLEOCI + " dialect is experimental!");
       // sample of connection factory customization
       if (dbSourceName != null)
         this.connFactory = defaultConnectionFactory();
@@ -493,10 +558,15 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     try {
       dbInitilizer.init();
     } catch (DBInitializerException e) {
-      log.error("Error of init db " + e, e);
+      LOG.error("Error of init db " + e, e);
     }
   }
 
+  /**
+   * Return ConnectionFactory.
+   * 
+   * @return WorkspaceStorageConnectionFactory connection
+   */
   protected GenericConnectionFactory getConnectionFactory() {
     return connFactory;
   }
@@ -510,15 +580,17 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     return DBConstants.DB_DIALECT_GENERIC; // by default
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#openConnection()
+  /**
+   * {@inheritDoc}
    */
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
 
     return connFactory.openConnection();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
 
     if (original instanceof JDBCStorageConnection) {
@@ -536,17 +608,15 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getName()
+  /**
+   * {@inheritDoc}
    */
   public String getName() {
     return containerName;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.WorkspaceDataContainer#getInfo()
+  /**
+   * {@inheritDoc}
    */
   public String getInfo() {
     String str = "JDBC based JCR Workspace Data container \n" + "container name: " + containerName
@@ -557,25 +627,22 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     return str;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.storage.DataContainer#getStorageVersion()
+  /**
+   * {@inheritDoc}
    */
   public String getStorageVersion() {
     return storageVersion;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#start()
+  /**
+   * {@inheritDoc}
    */
   public void start() {
     this.swapCleaner.start();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#stop()
+  /**
+   * {@inheritDoc}
    */
   public void stop() {
     this.swapCleaner.halt();
@@ -603,6 +670,9 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     // }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(Object obj) {
     if (obj == this)
@@ -623,18 +693,38 @@ public class JDBCWorkspaceDataContainer extends WorkspaceDataContainerBase imple
     return false;
   }
 
+  /**
+   * Used in <code>equals()</code>.
+   * 
+   * @return DataSource name
+   */
   protected String getDbSourceName() {
     return dbSourceName;
   }
 
+  /**
+   * Used in <code>equals()</code>.
+   * 
+   * @return JDBC driver
+   */
   protected String getDbDriver() {
     return dbDriver;
   }
 
+  /**
+   * Used in <code>equals()</code>.
+   * 
+   * @return Database URL
+   */
   protected String getDbUrl() {
     return dbUrl;
   }
 
+  /**
+   * Used in <code>equals()</code>.
+   * 
+   * @return Database username
+   */
   protected String getDbUserName() {
     return dbUserName;
   }

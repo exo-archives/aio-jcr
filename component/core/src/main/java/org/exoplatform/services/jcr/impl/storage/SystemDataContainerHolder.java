@@ -22,16 +22,35 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: SystemDataContainerHolder.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
+/**
+ * System DataContainer holder.
+ * 
+ * Used to store Container and provide it as dependency on statup time.
+ */
 public class SystemDataContainerHolder {
+  /**
+   * Actual data Container.
+   */
   private WorkspaceDataContainer dataContainer;
 
+  /**
+   * SystemDataContainerHolder constructor.
+   * 
+   * @param dataContainer
+   *          - data Container instance
+   */
   public SystemDataContainerHolder(WorkspaceDataContainer dataContainer) {
     this.dataContainer = dataContainer;
   }
 
+  /**
+   * Returns Container instance
+   * 
+   * @return WorkspaceDataContainer instance
+   */
   public WorkspaceDataContainer getContainer() {
     return dataContainer;
   }

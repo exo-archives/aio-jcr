@@ -30,7 +30,7 @@ import org.apache.commons.logging.Log;
  * <br/>Date: 2-sep-08
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ManagedStatement.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class ManagedStatement implements Statement {
 

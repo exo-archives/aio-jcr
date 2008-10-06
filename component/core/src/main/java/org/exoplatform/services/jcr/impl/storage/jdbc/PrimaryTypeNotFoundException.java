@@ -26,12 +26,23 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  * 13.12.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: PrimaryTypeNotFoundException.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class PrimaryTypeNotFoundException extends ItemNotFoundException {
 
+  /**
+   * Context path.
+   */
   private final QPath path;
 
+  /**
+   * PrimaryTypeNotFoundException constructor.
+   * 
+   * @param message
+   *          - context message
+   * @param path
+   *          - context path
+   */
   PrimaryTypeNotFoundException(String message, QPath path) {
     super(message);
     this.path = path;

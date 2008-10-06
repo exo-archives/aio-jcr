@@ -30,7 +30,7 @@ import java.sql.SQLException;
  * DBMS_STATS.GATHER_SCHEMA_STATS(ownname=>'exoadmin')
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: OracleDBInitializer.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class OracleDBInitializer extends DBInitializer {
 

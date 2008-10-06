@@ -35,7 +35,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS 12.03.2007 Generic db initializer.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: DBInitializer.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class DBInitializer {
 

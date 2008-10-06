@@ -32,10 +32,29 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * 20.03.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: MySQLSingleDbJDBCConnection.java 12813 2008-04-07 08:04:26Z pnedonosko $
+ * @version $Id$
  */
 public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
 
+  /**
+   * MySQL Singledatabase JDBC Connection constructor.
+   * 
+   * @param dbConnection
+   *          JDBC connection, shoudl be opened before
+   * @param containerName
+   *          Workspace Storage Container name (see configuration)
+   * @param valueStorageProvider
+   *          External Value Storages provider
+   * @param maxBufferSize
+   *          Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          Swap directory File (see configuration)
+   * @param swapCleaner
+   *          Swap cleaner (internal FileCleaner).
+   * @throws SQLException
+   * 
+   * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
+   */
   public MySQLSingleDbJDBCConnection(Connection dbConnection,
                                      String containerName,
                                      ValueStoragePluginProvider valueStorageProvider,
@@ -51,6 +70,9 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
           swapCleaner);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int addNodeRecord(NodeData data) throws SQLException {
     // check if parent exists
@@ -66,6 +88,9 @@ public class MySQLSingleDbJDBCConnection extends SingleDbJDBCConnection {
     return super.addNodeRecord(data);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int addPropertyRecord(PropertyData data) throws SQLException {
     // check if parent exists

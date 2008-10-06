@@ -37,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
  * 15.03.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: GenericConnectionFactory.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class GenericConnectionFactory implements WorkspaceStorageConnectionFactory {
 
@@ -67,6 +67,32 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
 
   protected int                              monitorInterest = 0;
 
+  /**
+   * GenericConnectionFactory constructor.
+   * 
+   * @param dataSource
+   *          - DataSource
+   * @param dbDriver
+   *          - JDBC Driver
+   * @param dbUrl
+   *          - JDBC URL
+   * @param dbUserName
+   *          - database username
+   * @param dbPassword
+   *          - database user password
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   */
   protected GenericConnectionFactory(DataSource dataSource,
                                      String dbDriver,
                                      String dbUrl,
@@ -95,6 +121,24 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
     initMonitor();
   }
 
+  /**
+   * GenericConnectionFactory constructor.
+   * 
+   * @param dataSource
+   *          - DataSource
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   */
   public GenericConnectionFactory(DataSource dataSource,
                                   String containerName,
                                   boolean multiDb,
@@ -116,6 +160,30 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
          swapCleaner);
   }
 
+  /**
+   * GenericConnectionFactory constructor.
+   * 
+   * @param dbDriver
+   *          - JDBC Driver
+   * @param dbUrl
+   *          - JDBC URL
+   * @param dbUserName
+   *          - database username
+   * @param dbPassword
+   *          - database user password
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   */
   public GenericConnectionFactory(String dbDriver,
                                   String dbUrl,
                                   String dbUserName,
@@ -150,6 +218,9 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
 
     try {
@@ -175,6 +246,9 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Connection getJdbcConnection() throws RepositoryException {
     try {
       final Connection conn = dbDataSource != null
@@ -191,6 +265,10 @@ public class GenericConnectionFactory implements WorkspaceStorageConnectionFacto
     }
   }
 
+  /**
+   * JDBC monitor init procedure.
+   *
+   */
   private void initMonitor() {
     String monitor = System.getProperty(ManagedConnection.JCR_JDBC_CONNECTION_MONITOR);
     if (monitor != null) {

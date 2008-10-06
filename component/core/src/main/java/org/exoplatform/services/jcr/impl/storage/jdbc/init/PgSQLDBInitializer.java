@@ -28,7 +28,7 @@ import java.sql.SQLException;
  * PgSQL convert all db object names to lower case, so respect it.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: PgSQLDBInitializer.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class PgSQLDBInitializer extends DBInitializer {
 

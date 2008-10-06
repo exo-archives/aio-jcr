@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * dependecies on ora drivers from POM.
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: OracleConnectionFactory.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class OracleConnectionFactory extends GenericConnectionFactory {
 
@@ -51,6 +51,32 @@ public class OracleConnectionFactory extends GenericConnectionFactory {
 
   protected final Object ociDataSource;
 
+  /**
+   * OracleConnectionFactory constructor. For CLI interface ONLY!
+   * 
+   * @param dbDriver
+   *          - JDBC Driver
+   * @param dbUrl
+   *          - JDBC URL
+   * @param dbUserName
+   *          - database username
+   * @param dbPassword
+   *          - database user password
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   * @throws RepositoryException
+   *           if error occurs
+   */
   public OracleConnectionFactory(String dbDriver,
                                  String dbUrl,
                                  String dbUserName,
@@ -150,6 +176,9 @@ public class OracleConnectionFactory extends GenericConnectionFactory {
     this.ociDataSource = cds; // actually instance of javax.sql.DataSource
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Connection getJdbcConnection() throws RepositoryException {
     if (ociDataSource != null)
@@ -162,6 +191,15 @@ public class OracleConnectionFactory extends GenericConnectionFactory {
     return super.getJdbcConnection();
   }
 
+  /**
+   * getCachedConnection.
+   *
+   * @return
+   * @throws NoSuchMethodException
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException
+   * @throws InvocationTargetException
+   */
   protected Connection getCachedConnection() throws NoSuchMethodException,
                                             IllegalArgumentException,
                                             IllegalAccessException,

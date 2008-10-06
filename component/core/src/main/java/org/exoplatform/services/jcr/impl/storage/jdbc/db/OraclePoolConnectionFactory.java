@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * 16.03.2007
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: OraclePoolConnectionFactory.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class OraclePoolConnectionFactory extends GenericConnectionFactory {
 
@@ -46,6 +46,32 @@ public class OraclePoolConnectionFactory extends GenericConnectionFactory {
 
   protected final Object ociPool;
 
+  /**
+   * OraclePoolConnectionFactory constructor. For CLI interface ONLY!
+   * 
+   * @param dbDriver
+   *          - JDBC Driver
+   * @param dbUrl
+   *          - JDBC URL
+   * @param dbUserName
+   *          - database username
+   * @param dbPassword
+   *          - database user password
+   * @param containerName
+   *          - Container name (see configuration)
+   * @param multiDb
+   *          - multidatabase state flag
+   * @param valueStorageProvider
+   *          - external Value Storages provider
+   * @param maxBufferSize
+   *          - Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          - Swap directory (see configuration)
+   * @param swapCleaner
+   *          - Swap cleaner (internal FileCleaner).
+   * @throws RepositoryException
+   *           if error occurs
+   */
   public OraclePoolConnectionFactory(String dbDriver,
                                      String dbUrl,
                                      String dbUserName,
@@ -132,6 +158,9 @@ public class OraclePoolConnectionFactory extends GenericConnectionFactory {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Connection getJdbcConnection() throws RepositoryException {
     if (ociPool != null)
@@ -144,6 +173,15 @@ public class OraclePoolConnectionFactory extends GenericConnectionFactory {
     return super.getJdbcConnection();
   }
 
+  /**
+   * getPoolConnection.
+   *
+   * @return
+   * @throws NoSuchMethodException
+   * @throws IllegalArgumentException
+   * @throws IllegalAccessException
+   * @throws InvocationTargetException
+   */
   protected Connection getPoolConnection() throws NoSuchMethodException,
                                           IllegalArgumentException,
                                           IllegalAccessException,
@@ -176,7 +214,7 @@ public class OraclePoolConnectionFactory extends GenericConnectionFactory {
   }
 
   /**
-   * Display the current status of the OracleOCIConnectionPool
+   * Display the current status of the OracleOCIConnectionPool.
    */
   protected void displayPoolConfig() throws NoSuchMethodException,
                                     IllegalArgumentException,

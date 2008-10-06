@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: WorkspaceDataContainerBase.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 abstract public class WorkspaceDataContainerBase implements WorkspaceDataContainer {
 

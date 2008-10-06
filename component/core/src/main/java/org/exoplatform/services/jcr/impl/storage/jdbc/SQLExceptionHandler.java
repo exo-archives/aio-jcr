@@ -47,22 +47,49 @@ import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
  * JCR_IDX_XREF_PROPERTY - Reference already exists with the property and order number
  * 
  * @author Peter Nedonosko
- * @version $Id: SQLExceptionHandler.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 
 public class SQLExceptionHandler {
 
+  /**
+   * Ccontainer name.
+   */
   private final String                containerName;
 
+  /**
+   * Storage connection.
+   */
   private final JDBCStorageConnection conn;
 
   // ---------------- SQLException handler -------------------
 
+  /**
+   * SQLExceptionHandler constructor.
+   * 
+   * @param containerName
+   *          - workspace container name
+   * @param conn
+   *          - storage connection
+   */
   SQLExceptionHandler(String containerName, JDBCStorageConnection conn) {
     this.containerName = containerName;
     this.conn = conn;
   }
 
+  /**
+   * Handle Add Exceptions.
+   * 
+   * @param e
+   *          - an Exception
+   * @param item
+   *          - context ItemData
+   * @return String with error message
+   * @throws RepositoryException
+   *           if <code>RepositoryException</code> should be thrown
+   * @throws InvalidItemStateException
+   *           if <code>InvalidItemStateException</code> should be thrown
+   */
   protected String handleAddException(Exception e, ItemData item) throws RepositoryException,
                                                                  InvalidItemStateException {
     String message = "[" + containerName + "] ADD " + (item.isNode() ? "NODE. " : "PROPERTY. ");
@@ -151,6 +178,19 @@ public class SQLExceptionHandler {
     throw new JCRInvalidItemStateException(message, item.getIdentifier(), ItemState.ADDED, e);
   }
 
+  /**
+   * Handle delete Exceptions.
+   * 
+   * @param e
+   *          - an Exception
+   * @param item
+   *          - context ItemData
+   * @return String with error message
+   * @throws RepositoryException
+   *           if <code>RepositoryException</code> should be thrown
+   * @throws InvalidItemStateException
+   *           if <code>InvalidItemStateException</code> should be thrown
+   */
   protected String handleDeleteException(Exception e, ItemData item) throws RepositoryException,
                                                                     InvalidItemStateException {
     String message = "[" + containerName + "] DELETE " + (item.isNode() ? "NODE. " : "PROPERTY. ");
@@ -175,6 +215,19 @@ public class SQLExceptionHandler {
     throw new RepositoryException(message, e);
   }
 
+  /**
+   * Handle update Exceptions.
+   * 
+   * @param e
+   *          - an Exception
+   * @param item
+   *          - context ItemData
+   * @return String with error message
+   * @throws RepositoryException
+   *           if <code>RepositoryException</code> should be thrown
+   * @throws InvalidItemStateException
+   *           if <code>InvalidItemStateException</code> should be thrown
+   */
   protected String handleUpdateException(Exception e, ItemData item) throws RepositoryException,
                                                                     InvalidItemStateException {
     String message = "[" + containerName + "] EDIT " + (item.isNode() ? "NODE. " : "PROPERTY. ");

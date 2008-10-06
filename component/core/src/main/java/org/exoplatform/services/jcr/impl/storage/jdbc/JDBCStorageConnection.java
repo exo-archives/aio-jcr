@@ -66,13 +66,13 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: JDBCStorageConnection.java 13366 2008-04-17 09:12:24Z pnedonosko $
+ * @version $Id$
  */
 
 abstract public class JDBCStorageConnection extends DBConstants implements
     WorkspaceStorageConnection {
 
-  protected static Log                       log              = ExoLogger.getLogger("jcr.JDBCStorageConnection");
+  protected static final Log                 LOG              = ExoLogger.getLogger("jcr.JDBCStorageConnection");
 
   public static final int                    I_CLASS_NODE     = 1;
 
@@ -185,7 +185,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       return !dbConnection.isClosed();
     } catch (SQLException e) {
-      log.error(e);
+      LOG.error(e);
       return false;
     }
   }
@@ -233,13 +233,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     checkIfOpened();
     try {
       addNodeRecord(data);
-      if (log.isDebugEnabled())
-        log.debug("Node added " + data.getQPath().getAsString() + ", " + data.getIdentifier()
+      if (LOG.isDebugEnabled())
+        LOG.debug("Node added " + data.getQPath().getAsString() + ", " + data.getIdentifier()
             + ", " + data.getPrimaryTypeName().getAsString());
 
     } catch (SQLException e) {
-      if (log.isDebugEnabled())
-        log.error("Node add. Database error: " + e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Node add. Database error: " + e);
 
       exceptionHandler.handleAddException(e, data);
     }
@@ -271,8 +271,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
       addValues(data);
 
-      if (log.isDebugEnabled())
-        log.debug("Property added "
+      if (LOG.isDebugEnabled())
+        LOG.debug("Property added "
             + data.getQPath().getAsString()
             + ", "
             + data.getIdentifier()
@@ -281,12 +281,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                 : ", NULL data"));
 
     } catch (IOException e) {
-      if (log.isDebugEnabled())
-        log.error("Property add. IO error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property add. IO error: " + e, e);
       exceptionHandler.handleAddException(e, data);
     } catch (SQLException e) {
-      if (log.isDebugEnabled())
-        log.error("Property add. Database error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property add. Database error: " + e, e);
       exceptionHandler.handleAddException(e, data);
     }
   }
@@ -307,12 +307,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                                data.getIdentifier(),
                                                ItemState.RENAMED);
     } catch (IOException e) {
-      if (log.isDebugEnabled())
-        log.error("Property add. IO error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property add. IO error: " + e, e);
       exceptionHandler.handleAddException(e, data);
     } catch (SQLException e) {
-      if (log.isDebugEnabled())
-        log.error("Property add. Database error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property add. Database error: " + e, e);
       exceptionHandler.handleAddException(e, data);
     }
   }
@@ -336,13 +336,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                                data.getIdentifier(),
                                                ItemState.DELETED);
 
-      if (log.isDebugEnabled())
-        log.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier()
+      if (LOG.isDebugEnabled())
+        LOG.debug("Node deleted " + data.getQPath().getAsString() + ", " + data.getIdentifier()
             + ", " + ((NodeData) data).getPrimaryTypeName().getAsString());
 
     } catch (SQLException e) {
-      if (log.isDebugEnabled())
-        log.error("Node remove. Database error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Node remove. Database error: " + e, e);
       exceptionHandler.handleDeleteException(e, data);
     }
   }
@@ -373,8 +373,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                                data.getIdentifier(),
                                                ItemState.DELETED);
 
-      if (log.isDebugEnabled())
-        log.debug("Property deleted "
+      if (LOG.isDebugEnabled())
+        LOG.debug("Property deleted "
             + data.getQPath().getAsString()
             + ", "
             + data.getIdentifier()
@@ -382,12 +382,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                 + ((PropertyData) data).getValues().size() : ", NULL data"));
 
     } catch (IOException e) {
-      if (log.isDebugEnabled())
-        log.error("Property remove. IO error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property remove. IO error: " + e, e);
       exceptionHandler.handleDeleteException(e, data);
     } catch (SQLException e) {
-      if (log.isDebugEnabled())
-        log.error("Property remove. Database error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property remove. Database error: " + e, e);
       exceptionHandler.handleDeleteException(e, data);
     }
   }
@@ -418,13 +418,13 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                                data.getIdentifier(),
                                                ItemState.UPDATED);
 
-      if (log.isDebugEnabled())
-        log.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getIdentifier()
+      if (LOG.isDebugEnabled())
+        LOG.debug("Node updated " + data.getQPath().getAsString() + ", " + data.getIdentifier()
             + ", " + data.getPrimaryTypeName().getAsString());
 
     } catch (SQLException e) {
-      if (log.isDebugEnabled())
-        log.error("Node update. Database error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Node update. Database error: " + e, e);
       exceptionHandler.handleUpdateException(e, data);
     }
   }
@@ -471,8 +471,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
       addValues(data);
 
-      if (log.isDebugEnabled())
-        log.debug("Property updated "
+      if (LOG.isDebugEnabled())
+        LOG.debug("Property updated "
             + data.getQPath().getAsString()
             + ", "
             + data.getIdentifier()
@@ -481,12 +481,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                 : ", NULL data"));
 
     } catch (IOException e) {
-      if (log.isDebugEnabled())
-        log.error("Property update. IO error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property update. IO error: " + e, e);
       exceptionHandler.handleUpdateException(e, data);
     } catch (SQLException e) {
-      if (log.isDebugEnabled())
-        log.error("Property update. Database error: " + e, e);
+      if (LOG.isDebugEnabled())
+        LOG.error("Property update. Database error: " + e, e);
       exceptionHandler.handleUpdateException(e, data);
     }
   }
@@ -623,7 +623,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         if (item != null)
           item.close();
       } catch (SQLException e) {
-        log.error("getItemData() Error close resultset " + e.getMessage());
+        LOG.error("getItemData() Error close resultset " + e.getMessage());
       }
     }
   }
@@ -661,7 +661,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         if (item != null)
           item.close();
       } catch (SQLException e) {
-        log.error("getItemData() Error close resultset " + e.getMessage());
+        LOG.error("getItemData() Error close resultset " + e.getMessage());
       }
     }
   }
@@ -1346,7 +1346,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
     } catch (SQLException e) {
       String msg = "Can't read value data of property with id " + cid + ", error:" + e;
-      log.error(msg, e);
+      LOG.error(msg, e);
       throw new IOException(msg);
     }
   }
@@ -1374,7 +1374,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
     } catch (SQLException e) {
       String msg = "Can't read value data of property with id " + cid + ", error:" + e;
-      log.error(msg, e);
+      LOG.error(msg, e);
       throw new IOException(msg);
     }
 

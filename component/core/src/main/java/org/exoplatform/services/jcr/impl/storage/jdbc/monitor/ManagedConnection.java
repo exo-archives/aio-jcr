@@ -35,7 +35,7 @@ import org.exoplatform.services.log.ExoLogger;
  * <br/>Date: 2-sep-08
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ManagedConnection.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class ManagedConnection implements Connection {
 

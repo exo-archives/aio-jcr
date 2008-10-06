@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
  * Created by The eXo Platform SAS 27.04.2006
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SingleDbJDBCConnection.java 12813 2008-04-07 08:04:26Z pnedonosko $
+ * @version $Id$
  */
 public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
@@ -98,6 +98,26 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
   protected PreparedStatement renameNode;
 
+  /**
+   * Singledatabase JDBC Connection constructor.
+   * 
+   * @param dbConnection
+   *          JDBC connection, shoudl be opened before
+   * @param containerName
+   *          Workspace Storage Container name (see configuration)
+   * @param valueStorageProvider
+   *          External Value Storages provider
+   * @param maxBufferSize
+   *          Maximum buffer size (see configuration)
+   * @param swapDirectory
+   *          Swap directory (see configuration)
+   * @param swapCleaner
+   *          Swap cleaner (internal FileCleaner).
+   * @throws SQLException
+   *           in case of database error
+   * 
+   * @see org.exoplatform.services.jcr.impl.util.io.FileCleaner
+   */
   public SingleDbJDBCConnection(Connection dbConnection,
                                 String containerName,
                                 ValueStoragePluginProvider valueStorageProvider,
@@ -113,10 +133,16 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
           swapCleaner);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected String getInternalId(final String identifier) {
     return containerName + identifier;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected String getIdentifier(final String internalId) {
 
     if (internalId == null) // possible for root parent
@@ -126,9 +152,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
 
   /**
-   * Prepared queries at start time
-   * 
-   * @throws SQLException
+   * {@inheritDoc}
    */
   @Override
   protected final void prepareQueries() throws SQLException {
@@ -184,6 +208,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     DELETE_REF = "delete from JCR_SREF where PROPERTY_ID=?";
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int addNodeRecord(NodeData data) throws SQLException {
     if (insertNode == null)
@@ -204,6 +231,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return insertNode.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int addPropertyRecord(PropertyData data) throws SQLException {
     if (insertProperty == null)
@@ -224,7 +254,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
 
   /**
-   * For REFERENCE properties only
+   * {@inheritDoc}
    */
   @Override
   protected int addReference(PropertyData data) throws SQLException, IOException {
@@ -248,7 +278,7 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
   }
 
   /**
-   * For REFERENCE properties only
+   * {@inheritDoc}
    */
   @Override
   protected int deleteReference(String propertyCid) throws SQLException {
@@ -261,6 +291,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return deleteReference.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int deleteItemByIdentifier(String cid) throws SQLException {
     if (deleteItem == null)
@@ -272,6 +305,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return deleteItem.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findChildNodesByParentIdentifier(String parentCid) throws SQLException {
     if (findNodesByParentId == null)
@@ -284,6 +320,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findNodesByParentId.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findChildPropertiesByParentIdentifier(String parentCid) throws SQLException {
     if (findPropertiesByParentId == null)
@@ -296,6 +335,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findPropertiesByParentId.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findItemByName(String parentId, String name, int index) throws SQLException {
     if (findItemByName == null)
@@ -310,6 +352,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findItemByName.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findPropertyByName(String parentCid, String name) throws SQLException {
     if (findPropertyByName == null)
@@ -323,6 +368,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findPropertyByName.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findItemByIdentifier(String cid) throws SQLException {
     if (findItemById == null)
@@ -334,6 +382,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findItemById.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected ResultSet findReferences(String cid) throws SQLException {
     if (findReferences == null)
@@ -346,6 +397,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findReferences.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int updateNodeByIdentifier(int version, int index, int orderNumb, String cid) throws SQLException {
     if (updateNode == null)
@@ -360,6 +414,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return updateNode.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int updatePropertyByIdentifier(int version, int type, String cid) throws SQLException {
     if (updateProperty == null)
@@ -375,6 +432,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
 
   // -------- values processing ------------
 
+  /**
+   * {@inheritDoc}
+   */
   protected int addValueData(String cid,
                              int orderNumber,
                              InputStream stream,
@@ -400,6 +460,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return insertValue.executeUpdate();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected int deleteValues(String cid) throws SQLException {
     if (deleteValue == null)
       deleteValue = dbConnection.prepareStatement(DELETE_VALUE);
@@ -410,16 +473,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return deleteValue.executeUpdate();
   }
 
-  // protected ResultSet findValuesDataByPropertyId(String cid) throws SQLException {
-  // if (findValuesDataByPropertyId == null)
-  // findValuesDataByPropertyId = dbConnection.prepareStatement(FIND_VALUESDATA_BY_PROPERTYID);
-  // else
-  // findValuesDataByPropertyId.clearParameters();
-  //      
-  // findValuesDataByPropertyId.setString(1, cid);
-  // return findValuesDataByPropertyId.executeQuery();
-  // }
-
+  /**
+   * {@inheritDoc}
+   */
   protected ResultSet findValuesByPropertyId(String cid) throws SQLException {
     if (findValuesByPropertyId == null)
       findValuesByPropertyId = dbConnection.prepareStatement(FIND_VALUES_BY_PROPERTYID);
@@ -430,6 +486,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findValuesByPropertyId.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected ResultSet findValueByPropertyIdOrderNumber(String cid, int orderNumb) throws SQLException {
     if (findValueByPropertyIdOrderNumber == null)
       findValueByPropertyIdOrderNumber = dbConnection.prepareStatement(FIND_VALUE_BY_PROPERTYID_OREDERNUMB);
@@ -441,6 +500,9 @@ public class SingleDbJDBCConnection extends JDBCStorageConnection {
     return findValueByPropertyIdOrderNumber.executeQuery();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected int renameNode(NodeData data) throws SQLException, IOException {
     if (renameNode == null)
