@@ -33,7 +33,7 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
  * Date: 24.07.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: MembershipTypeHandlerImpl.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
 
@@ -51,11 +51,10 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#
-   *      createMembershipTypeInstance()
+   * {@inheritDoc}
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
-    // TODO: implement broadcast
+    // TODO implement broadcast
     if (mt.getName().length() == 0) {
       throw new OrganizationServiceException("Name of membership type can not be empty.");
     }
@@ -63,6 +62,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     Session session = service.getStorageSession();
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES);
+      // TODO throw an OrganizationServiceException if MT already exist (use try-catch on ItemExistsException)
       mtNode = mtNode.addNode(mt.getName());
       mtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
       session.save();
@@ -71,26 +71,27 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
       session.logout();
     }
   }
-
+  
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler# createMembershipTypeInstance
-   *      ()
+   * {@inheritDoc}
    */
   public MembershipType createMembershipTypeInstance() {
     return new MembershipTypeImpl();
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler#findMembershipType
-   *      (java.lang.String)
+   * {@inheritDoc}
    */
   public MembershipType findMembershipType(String name) throws Exception {
-    MembershipType mt = null;
+    MembershipType mt = null; // TODO use local var which will not be used in the scope
     Session session = service.getStorageSession();
     try {
       Node storageNode = (Node) session.getItem(service.getStoragePath()
           + STORAGE_EXO_MEMBERSHIP_TYPES);
 
+      // TODO don't traverse all memberships if you know the name
+      // just return one - storageNode.getNode(name)
+      // try-catch on PathNotFoundExc and throw OrganizationServiceException
       for (NodeIterator nodes = storageNode.getNodes(name); nodes.hasNext();) {
         if (mt != null) {
           throw new OrganizationServiceException("More than one membership type " + name
@@ -118,7 +119,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
           + STORAGE_EXO_MEMBERSHIP_TYPES);
 
       List<MembershipType> types = new ArrayList<MembershipType>();
-
+      
       for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
         Node mtNode = nodes.nextNode();
         MembershipType mt = new MembershipTypeImpl();
@@ -135,13 +136,12 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler# removeMembershipType
-   *      (java.lang.String, boolean)
+   * {@inheritDoc}
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
     // TODO: broadcast
     Session session = service.getStorageSession();
-    MembershipType mt = null;
+    MembershipType mt = null;// TODO use local var which will not be used in the scope
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
           + "/" + name);
@@ -158,8 +158,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler# saveMembershipType
-   *      (org.exoplatform.services.organization.MembershipType, boolean)
+   * {@inheritDoc}
    */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO broadcast
@@ -168,6 +167,8 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
           + "/" + mt.getName());
       mtNode.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
+      // TODO other properties - 
+      // name?
       session.save();
       return mt;
     } finally {

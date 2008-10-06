@@ -26,32 +26,32 @@ import org.exoplatform.services.organization.MembershipType;
  * Date: 24.07.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: MembershipTypeImpl.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class MembershipTypeImpl implements MembershipType {
 
-  // not used
+  // TODO not used - remove it
   private Date   createdDate  = null;
 
   private String description  = null;
 
-  // not used
+  // TODO not used - remove it
   private Date   modifiedDate = null;
 
   private String name         = null;
 
-  // not used
+  // TODO not used - remove it
   private String owner        = null;
 
   /**
-   * @return The date that the membership type is saved to the database
+   * {@inheritDoc}
    */
   public Date getCreatedDate() {
     return createdDate;
   }
 
   /**
-   * @return The description of the membership type
+   * {@inheritDoc}
    */
   public String getDescription() {
     return description;
