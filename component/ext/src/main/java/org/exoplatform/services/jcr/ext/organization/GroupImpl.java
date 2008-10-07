@@ -35,6 +35,8 @@ public class GroupImpl implements Group {
   private String description;
 
   private String groupName;
+  
+  private String groupId;
 
   GroupImpl() {
   }
@@ -59,11 +61,10 @@ public class GroupImpl implements Group {
   }
 
   /**
-   * @deprecated This method not used
-   * @return the id of the group. The id should have the form /ancestor/parent/groupname
+   * {@inheritDoc}
    */
   public String getId() {
-    return null;
+    return groupId;
   }
 
   /**
@@ -90,9 +91,7 @@ public class GroupImpl implements Group {
   }
 
   /**
-   * @deprecated This method not used
-   * @param name
-   *          The local name for the group
+   * {@inheritDoc}
    */
   public void setGroupName(String name) {
     groupName = name;

@@ -91,6 +91,7 @@ public class GroupHandlerImpl implements GroupHandler {
         newNode.setProperty(STORAGE_EXO_LABEL, child.getLabel());
         session.save();
       } finally {
+        // TODO
       }
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find parent group " + parentId + name);
@@ -172,6 +173,7 @@ public class GroupHandlerImpl implements GroupHandler {
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
       try {
+        // TODO use query
         for (NodeIterator mNodes = uNode.getNodes(MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP); mNodes.hasNext();) {
           Node mNode = mNodes.nextNode();
           String groupId = mNode.getProperty(MembershipHandlerImpl.STORAGE_EXO_GROUP).toString();
@@ -186,6 +188,7 @@ public class GroupHandlerImpl implements GroupHandler {
                   Group group = new GroupImpl(gNode.getName(), getParentId(gNode.getPath()));
                   types.add(group);
                 } finally {
+                  // TODO
                 }
               }
             } catch (ItemNotFoundException e) {
@@ -196,6 +199,7 @@ public class GroupHandlerImpl implements GroupHandler {
           }
         }
       } finally {
+        // TODO
       }
       return types;
     } catch (PathNotFoundException e) {
@@ -227,6 +231,10 @@ public class GroupHandlerImpl implements GroupHandler {
     try {
       List<Group> types = new ArrayList<Group>();
 
+      // TODO parentNode not storageNode
+      // TODO add / between path elements (to have it readable here)
+      
+      // TODO but use query 
       Node storageNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
           + parentId + name);
 
@@ -266,6 +274,8 @@ public class GroupHandlerImpl implements GroupHandler {
   public Collection getAllGroups() throws Exception {
     try {
       List<Group> types = new ArrayList<Group>();
+      
+      // TODO you may ask exo:groups getNodes() only
       String statement = "select * from " + STORAGE_EXO_GROUPS.substring(1);
       Query gquery = service.getStorageSession()
                             .getWorkspace()
@@ -287,6 +297,7 @@ public class GroupHandlerImpl implements GroupHandler {
 
       return types;
     } finally {
+      // TODO
     }
   }
 
@@ -322,6 +333,8 @@ public class GroupHandlerImpl implements GroupHandler {
               + group.getGroupName() + " has a child group.");
         }
 
+        // remove memberships
+        // TODO use exo:group getReferences()
         String statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP
             + " where " + MembershipHandlerImpl.STORAGE_EXO_GROUP + "=" + gNode.getUUID();
         Query gquery = service.getStorageSession()
@@ -337,6 +350,7 @@ public class GroupHandlerImpl implements GroupHandler {
         session.save();
         return group;
       } finally {
+        // TODO
       }
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find group " + group.getParentId() + "/"
@@ -382,6 +396,7 @@ public class GroupHandlerImpl implements GroupHandler {
         gNode.setProperty(STORAGE_EXO_LABEL, group.getLabel());
         session.save();
       } finally {
+        // TODO
       }
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find group " + group.getParentId() + "/"
