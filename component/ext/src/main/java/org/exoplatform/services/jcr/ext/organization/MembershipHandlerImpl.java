@@ -114,9 +114,11 @@ public class MembershipHandlerImpl implements MembershipHandler {
         Membership membership = new MembershipImpl(uNode.getName(), groupId, membershipType);
         return membership;
       } finally {
+        // TODO ???
       }
     } catch (ItemNotFoundException e) {
-      throw new OrganizationServiceException("Can not find membership by UUId");
+      // TODO put cause exception into OrganizationServiceException
+      throw new OrganizationServiceException("Can not find membership by UUId"); 
     } finally {
       session.logout();
     }
@@ -142,6 +144,7 @@ public class MembershipHandlerImpl implements MembershipHandler {
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
       try {
+        // TODO Query will be better?
         for (NodeIterator mNodes = uNode.getNodes(STORAGE_EXO_USER_MEMBERSHIP); mNodes.hasNext();) {
           Node mNode = mNodes.nextNode();
           String group = mNode.getProperty(STORAGE_EXO_GROUP).toString();
@@ -181,7 +184,8 @@ public class MembershipHandlerImpl implements MembershipHandler {
     try {
       List<Membership> types = new ArrayList<Membership>();
 
-      String statement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP;
+      
+      String statement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP; // TODO ...where exo:group='group_id'
       Query mquery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
@@ -221,6 +225,7 @@ public class MembershipHandlerImpl implements MembershipHandler {
     try {
       List<Membership> types = new ArrayList<Membership>();
 
+      // TODO userNode not a storageNode
       Node storageNode = (Node) session.getItem(service.getStoragePath()
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
@@ -259,6 +264,8 @@ public class MembershipHandlerImpl implements MembershipHandler {
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
       try {
+        // TODO use query
+        
         List<Membership> types = new ArrayList<Membership>();
 
         for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_USER_MEMBERSHIP); nodes.hasNext();) {
@@ -271,6 +278,7 @@ public class MembershipHandlerImpl implements MembershipHandler {
         }
         return types;
       } finally {
+        // TODO ???
       }
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find user " + userName);
@@ -316,9 +324,10 @@ public class MembershipHandlerImpl implements MembershipHandler {
             mNode.setProperty(STORAGE_EXO_GROUP, gNode.getUUID());
             mNode.setProperty(STORAGE_EXO_MEMBERSHIP_TYPE, mtNode.getUUID());
           } finally {
+            // TODO ???
           }
         } catch (PathNotFoundException e) {
-          throw new OrganizationServiceException("Can not membership type " + m.getName());
+          throw new OrganizationServiceException("Can not membership type " + m.getName()); // TODO ,e
         }
       } catch (PathNotFoundException e) {
         throw new OrganizationServiceException("Can not find group " + group.getParentId() + "/"
@@ -360,6 +369,7 @@ public class MembershipHandlerImpl implements MembershipHandler {
         session.save();
         return membership;
       } finally {
+        // TODO
       }
     } catch (ItemNotFoundException e) {
       throw new OrganizationServiceException("Can not find membership by UUId.");
@@ -386,7 +396,7 @@ public class MembershipHandlerImpl implements MembershipHandler {
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath()
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
-      Node mNode = uNode.getNode(STORAGE_EXO_USER_MEMBERSHIP);
+      Node mNode = uNode.getNode(STORAGE_EXO_USER_MEMBERSHIP); // TODO uNode.getNodes(...
 
       List<Membership> types = new ArrayList<Membership>();
       types = (List) findMembershipsByUser(userName);
