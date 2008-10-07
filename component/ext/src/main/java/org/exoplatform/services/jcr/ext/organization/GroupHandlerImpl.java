@@ -75,16 +75,16 @@ public class GroupHandlerImpl implements GroupHandler {
   public void addChild(Group parent, Group child, boolean broadcast) throws Exception {
     // TODO implement broadcast
     String parentId = "";
-    String label = "";
+    String name = "";
     if (parent != null) {
       parentId = parent.getParentId();
-      label = parent.getLabel();
+      name = "/" + parent.getGroupName();
     }
 
     Session session = service.getStorageSession();
     try {
       Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS + parentId
-          + "/" + label);
+          + name);
       try {
         Node newNode = gNode.addNode(child.getLabel());
         newNode.setProperty(STORAGE_EXO_DESCRIPTION, child.getDescription());
@@ -93,7 +93,7 @@ public class GroupHandlerImpl implements GroupHandler {
       } finally {
       }
     } catch (PathNotFoundException e) {
-      throw new OrganizationServiceException("Can not find parent group " + parentId + "/" + label);
+      throw new OrganizationServiceException("Can not find parent group " + parentId + name);
     } finally {
       session.logout();
     }
@@ -138,11 +138,7 @@ public class GroupHandlerImpl implements GroupHandler {
     Session session = service.getStorageSession();
     try {
       Node gNode = session.getNodeByUUID(groupId);
-
-      String path = gNode.getPath();
-      int posF = path.indexOf(STORAGE_EXO_GROUPS) + STORAGE_EXO_GROUPS.length();
-      int posL = path.lastIndexOf('/');
-      Group group = new GroupImpl(gNode.getName(), path.substring(posF, posL - posF));
+      Group group = new GroupImpl(gNode.getName(), getParentId(gNode.getPath()));
       group.setDescription(gNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
       group.setLabel(gNode.getProperty(STORAGE_EXO_LABEL).getString());
       return group;
@@ -221,10 +217,10 @@ public class GroupHandlerImpl implements GroupHandler {
   public Collection findGroups(Group parent) throws Exception {
     Session session = service.getStorageSession();
 
-    String parentLabel = "";
+    String name = "";
     String parentId = "";
     if (parent != null) {
-      parentLabel = "/" + parent.getLabel();
+      name = "/" + parent.getGroupName();
       parentId = parent.getParentId();
     }
 
@@ -232,11 +228,11 @@ public class GroupHandlerImpl implements GroupHandler {
       List<Group> types = new ArrayList<Group>();
 
       Node storageNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
-          + parentId + "/" + parentLabel);
+          + parentId + name);
 
       for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
         Node gNode = nodes.nextNode();
-        Group group = new GroupImpl(gNode.getName(), parentId + parentLabel);
+        Group group = new GroupImpl(gNode.getName(), parentId + name);
         group.setDescription(gNode.getProperty(STORAGE_EXO_DESCRIPTION).getString());
         group.setLabel(gNode.getProperty(STORAGE_EXO_LABEL).getString());
         types.add(group);
@@ -244,7 +240,7 @@ public class GroupHandlerImpl implements GroupHandler {
 
       return types;
     } catch (PathNotFoundException e) {
-      throw new OrganizationServiceException("Can not find parent node " + parentId + parentLabel);
+      throw new OrganizationServiceException("Can not find parent node " + parentId + name);
     } finally {
       session.logout();
     }
@@ -317,13 +313,13 @@ public class GroupHandlerImpl implements GroupHandler {
     Session session = service.getStorageSession();
     try {
       Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
-          + group.getParentId() + "/" + group.getLabel());
+          + group.getParentId() + "/" + group.getGroupName());
 
       try {
         NodeIterator groups = gNode.getNodes();
         if (groups.hasNext()) {
           throw new OrganizationServiceException("The group " + group.getParentId() + "/"
-              + group.getLabel() + " has a child group.");
+              + group.getGroupName() + " has a child group.");
         }
 
         String statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP
@@ -344,7 +340,7 @@ public class GroupHandlerImpl implements GroupHandler {
       }
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find group " + group.getParentId() + "/"
-          + group.getLabel() + " for remove");
+          + group.getGroupName() + " for remove");
     } finally {
       session.logout();
     }
@@ -380,7 +376,7 @@ public class GroupHandlerImpl implements GroupHandler {
     Session session = service.getStorageSession();
     try {
       Node gNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_GROUPS
-          + group.getParentId() + "/" + group.getLabel());
+          + group.getParentId() + "/" + group.getGroupName());
       try {
         gNode.setProperty(STORAGE_EXO_DESCRIPTION, group.getDescription());
         gNode.setProperty(STORAGE_EXO_LABEL, group.getLabel());
@@ -389,7 +385,7 @@ public class GroupHandlerImpl implements GroupHandler {
       }
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find group " + group.getParentId() + "/"
-          + group.getLabel() + " for save changes.");
+          + group.getGroupName() + " for save changes.");
     } finally {
       session.logout();
     }
