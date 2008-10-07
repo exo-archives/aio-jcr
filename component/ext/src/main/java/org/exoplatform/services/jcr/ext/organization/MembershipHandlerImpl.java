@@ -42,7 +42,7 @@ import org.exoplatform.services.organization.User;
  * 24.07.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: MembershipHandler.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class MembershipHandlerImpl implements MembershipHandler {
 

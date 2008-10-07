@@ -45,14 +45,34 @@ public class MembershipTypeImpl implements MembershipType {
    */
   private final String UUId;
 
+  /**
+   * MembershipTypeImpl constructor.
+   * 
+   */
   MembershipTypeImpl() {
     this.UUId = null;
   }
 
+  /**
+   * MembershipTypeImpl constructor.
+   * 
+   * @param UUId
+   *          - membership node id
+   */
   MembershipTypeImpl(String UUId) {
     this.UUId = UUId;
   }
 
+  /**
+   * MembershipTypeImpl constructor.
+   * 
+   * @param name
+   *          memebership name
+   * @param description
+   *          memebership description
+   * @param UUId
+   *          memebership node id
+   */
   MembershipTypeImpl(String name, String description, String UUId) {
     this.name = name;
     this.UUId = UUId;

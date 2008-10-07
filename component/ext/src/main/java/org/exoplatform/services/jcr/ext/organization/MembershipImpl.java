@@ -24,7 +24,7 @@ import org.exoplatform.services.organization.Membership;
  * Date: 24.07.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: MembershipImpl.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class MembershipImpl implements Membership {
 

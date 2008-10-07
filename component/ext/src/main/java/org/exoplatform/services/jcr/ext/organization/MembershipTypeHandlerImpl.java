@@ -33,8 +33,6 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
 /**
  * Created by The eXo Platform SAS.
  * 
- * Date: 6 Жов 2008
- * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */

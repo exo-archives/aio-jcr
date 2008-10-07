@@ -37,7 +37,7 @@ import org.exoplatform.services.organization.BaseOrganizationService;
  * Initialization will be performed via OrganizationServiceJCRInitializer. <br/>Date: 24.07.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: JCROrganizationServiceImpl.java 111 2008-11-11 11:11:11Z peterit $
+ * @version $Id$
  */
 public class JCROrganizationServiceImpl extends BaseOrganizationService {
 
