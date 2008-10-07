@@ -47,7 +47,6 @@ public class MembershipTypeImpl implements MembershipType {
 
   /**
    * MembershipTypeImpl constructor.
-   * 
    */
   MembershipTypeImpl() {
     this.UUId = null;
@@ -67,11 +66,11 @@ public class MembershipTypeImpl implements MembershipType {
    * MembershipTypeImpl constructor.
    * 
    * @param name
-   *          memebership name
+   *          membership name
    * @param description
-   *          memebership description
+   *          membership description
    * @param UUId
-   *          memebership node id
+   *          membership node id
    */
   MembershipTypeImpl(String name, String description, String UUId) {
     this.name = name;
@@ -80,20 +79,26 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * @return The date that the membership type is saved to the database
+   * Get the date when the membership type was created to the database.
+   * 
+   * @deprecated This method is not used.
+   * @return The date that the membership type was created to the database
    */
   public Date getCreatedDate() {
     return null;
   }
 
   /**
-   * @return The description of the membership type
+   * {@inheritDoc}
    */
   public String getDescription() {
     return description;
   }
 
   /**
+   * Get the date when membership type was modified last time.
+   * 
+   * @deprecated This method is not used.
    * @return The last time that an user modify the data of the membership type.
    */
   public Date getModifiedDate() {
@@ -101,13 +106,16 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * @return The name of the membership type
+   * {@inheritDoc}
    */
   public String getName() {
     return name;
   }
 
   /**
+   * Get owner of the membership type.
+   * 
+   * @deprecated This method is not used.
    * @return The owner of the membership type
    */
   public String getOwner() {
@@ -115,6 +123,8 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
+   * Get UUId of the membership type in the storage.
+   * 
    * @return The UUID of the membership type in the storage
    */
   public String getUUId() {
@@ -122,7 +132,7 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * Set created date of the membership type.
+   * Set date creation of the membership type.
    * 
    * @deprecated This method is not used.
    * @param d
@@ -132,18 +142,16 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * Set description for membership type.
-   * 
-   * @param s
-   *          The new description of the membership type
+   * {@inheritDoc}
    */
   public void setDescription(String s) {
     description = s;
   }
 
   /**
-   * Set modified date for membership type.
+   * Set date modification of the membership type.
    * 
+   * @deprecated This method is not used.
    * @param d
    *          The modified date
    */
@@ -151,17 +159,17 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * Set name for membership type.
+   * Set the new name for membership type.
    * 
    * @param s
-   *          The new name of the membership type
+   *          The name of the membership type
    */
   public void setName(String s) {
     name = s;
   }
 
   /**
-   * Set owner for membership type.
+   * Set the owner for membership type.
    * 
    * @deprecated This method is not used.
    * @param s

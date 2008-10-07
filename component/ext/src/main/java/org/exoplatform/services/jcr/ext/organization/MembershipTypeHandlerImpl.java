@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.jcr.ItemExistsException;
@@ -25,6 +26,7 @@ import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.organization.MembershipType;
@@ -36,7 +38,7 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
+public class MembershipTypeHandlerImpl extends CommonHandler implements MembershipTypeHandler {
 
   public static final String                 STORAGE_EXO_DESCRIPTION      = "exo:description";
 
@@ -47,31 +49,33 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
    */
   protected final JCROrganizationServiceImpl service;
 
+  /**
+   * MembershipTypeHandlerImpl constructor.
+   * 
+   * @param service
+   *          The initialization data
+   */
   MembershipTypeHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
 
   /**
    * Use this method to persist a new membership type. The developer usually should call the method
-   * createMembershipTypeInstance, to create a new MembershipType, set the memerbership type data
-   * and call this method to persist the membership type.
+   * createMembershipTypeInstance, to create a new MembershipType, set the membership type data and
+   * call this method to persist the membership type.
    * 
    * @param mt
    *          The new membership type that the developer want to persist
    * @param broadcast
    *          Broadcast the event if the broadcast value is 'true'
-   * @return Return the MembershiptType object that contains the updated informations. Note that the
-   *         return membership type cannot be the same with the mt as the method can set the created
-   *         date and modified date automatically.
+   * @return Return the MembershiptType object (the same as passed without update).
    * @throws Exception
-   *           An exception is throwed if the method cannot access the database or a listener fail
-   *           to handle the event
+   *           An exception is thrown if the method cannot access the database or a listener fail to
+   *           handle the event
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO implement broadcast
-    if (mt.getName().length() == 0) {
-      throw new OrganizationServiceException("The name of membership type can not be empty.");
-    }
+    checkMandatoryProperties(mt);
 
     Session session = service.getStorageSession();
     try {
@@ -83,7 +87,8 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
         session.save();
         return new MembershipTypeImpl(mt.getName(), mt.getDescription(), mtNode.getUUID());
       } catch (ItemExistsException e) {
-        throw new OrganizationServiceException("The membership type " + mt.getName() + " is exist.");
+        throw new OrganizationServiceException("The membership type " + mt.getName() + " is exist.",
+                                               e);
       }
     } finally {
       session.logout();
@@ -91,7 +96,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @return a new object instance that implement the MembershipType interface
+   * {@inheritDoc}
    */
   public MembershipType createMembershipTypeInstance() {
     return new MembershipTypeImpl();
@@ -118,7 +123,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipTypeHandler# findMembershipTypes ()
+   * {@inheritDoc}
    */
   public Collection findMembershipTypes() throws Exception {
     Session session = service.getStorageSession();
@@ -144,16 +149,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * Use this method to remove a membership type.
-   * 
-   * @param name
-   *          the membership type name
-   * @param broadcast
-   *          Broadcast the event to the registered listener if the broadcast value is 'true'
-   * @return The membership type object which has been removed from the database
-   * @throws Exception
-   *           An exception is throwed if the method cannot access the database or the membership
-   *           type is not found in the database or any listener fail to handle the event.
+   * {@inheritDoc}
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
     // TODO implement broadcast
@@ -181,6 +177,8 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
    */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO implement broadcast
+    checkMandatoryProperties(mt);
+
     Session session = service.getStorageSession();
     try {
       MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
@@ -218,4 +216,35 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
       session.logout();
     }
   }
+
+  @Override
+  void checkMandatoryProperties(Object nodeType) throws Exception {
+    MembershipType mt = (MembershipType) nodeType;
+    if (mt.getName() == null) {
+      throw new OrganizationServiceException("The name of membership type can not be empty.");
+    }
+  }
+
+  @Override
+  Date readDateProperty(Node node, String prop) throws Exception {
+    try {
+      return node.getProperty(prop).getDate().getTime();
+    } catch (PathNotFoundException e) {
+      return null;
+    } catch (RepositoryException e) {
+      throw new OrganizationServiceException("Can not get access to the database", e);
+    }
+  }
+
+  @Override
+  String readStringProperty(Node node, String prop) throws Exception {
+    try {
+      return node.getProperty(prop).getString();
+    } catch (PathNotFoundException e) {
+      return null;
+    } catch (RepositoryException e) {
+      throw new OrganizationServiceException("Can not get access to the database", e);
+    }
+  }
+
 }
