@@ -28,57 +28,64 @@ import org.exoplatform.services.organization.Membership;
  */
 public class MembershipImpl implements Membership {
 
+  /**
+   * The group id
+   */
   private String groupId;
 
+  /**
+   * The membership type id
+   */
   private String membershipType;
 
+  /**
+   * The user name
+   */
   private String userName;
 
   MembershipImpl() {
   }
 
-  MembershipImpl(String groupId, String membershipType) {
+  MembershipImpl(String userName, String groupId, String membershipType) {
+    this.userName = userName;
     this.groupId = groupId;
     this.membershipType = membershipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.organization.Membership#getGroupId()
+  /**
+   * @return The group id
    */
   public String getGroupId() {
     return groupId;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.organization.Membership#getId()
+  /**
+   * @deprecated This method is not used
+   * @return The id of the membership
    */
   public String getId() {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.organization.Membership#getMembershipType()
+  /**
+   * @return The membership type id
    */
   public String getMembershipType() {
     return membershipType;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.organization.Membership#getUserName()
+  /**
+   * @return The user name which belong to this membership
    */
   public String getUserName() {
     return userName;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.organization.Membership#setMembershipType(java
-   * .lang.String)
+  /**
+   * Set membership type
+   * 
+   * @param type
+   *          The new membership type
    */
   public void setMembershipType(String type) {
     membershipType = type;

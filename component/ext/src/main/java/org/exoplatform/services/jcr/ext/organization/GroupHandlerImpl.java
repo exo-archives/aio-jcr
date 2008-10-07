@@ -169,24 +169,38 @@ public class GroupHandlerImpl implements GroupHandler {
    *           merge this method with the findGroupsOfUser method.
    */
   public Collection findGroupByMembership(String userName, String membershipType) throws Exception {
-    // TODO Auto-generated method stub
     Session session = service.getStorageSession();
     List<Group> types = new ArrayList<Group>();
     try {
-      String uPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName;
-      Node uNode = (Node) session.getItem(uPath);
+      Node uNode = (Node) session.getItem(service.getStoragePath()
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
-      // TODO check STORAGE_EXO_MEMBERSHIP
-      Node storagePath = uNode.getNode(UserHandlerImpl.STORAGE_EXO_MEMBERSHIP);
-      for (NodeIterator mNodes = storagePath.getNodes(); mNodes.hasNext();) {
-        Node mNode = mNodes.nextNode();
-        if (membershipType == null) {
-
+      try {
+        for (NodeIterator mNodes = uNode.getNodes(MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP); mNodes.hasNext();) {
+          Node mNode = mNodes.nextNode();
+          String groupId = mNode.getProperty(MembershipHandlerImpl.STORAGE_EXO_GROUP).toString();
+          String mtId = mNode.getProperty(MembershipHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPE)
+                             .toString();
+          try {
+            Node mtNode = session.getNodeByUUID(mtId);
+            try {
+              if (mtNode.getName().equals(membershipType)) {
+                Node gNode = session.getNodeByUUID(groupId);
+                try {
+                  Group group = new GroupImpl(gNode.getName(), getParentId(gNode.getPath()));
+                  types.add(group);
+                } finally {
+                }
+              }
+            } catch (ItemNotFoundException e) {
+              throw new OrganizationServiceException("Can not find group by UUId");
+            }
+          } catch (ItemNotFoundException e) {
+            throw new OrganizationServiceException("Can not find membership type by UUId");
+          }
         }
-
+      } finally {
       }
-      // Node mNode = uNode.getNode(UserHandlerImpl.);
-
       return types;
     } catch (PathNotFoundException e) {
       return types;
@@ -380,4 +394,16 @@ public class GroupHandlerImpl implements GroupHandler {
       session.logout();
     }
   }
+
+  /**
+   * @param absPath
+   *          The absolute path to the group
+   * @return Relative path to the parent group
+   */
+  private String getParentId(String absPath) {
+    int posF = absPath.indexOf(STORAGE_EXO_GROUPS) + STORAGE_EXO_GROUPS.length();
+    int posL = absPath.lastIndexOf('/');
+    return absPath.substring(posF, posL - posF);
+  }
+
 }

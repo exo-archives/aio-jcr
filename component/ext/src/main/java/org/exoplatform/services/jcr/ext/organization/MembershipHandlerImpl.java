@@ -20,8 +20,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -59,81 +61,118 @@ public class MembershipHandlerImpl implements MembershipHandler {
   }
 
   /**
+   * Use this method to register a membership event listener.
    * 
-   * @see org.exoplatform.services.organization.MembershipHandler# addMembershipEventListener
-   *      (org.exoplatform .services.organization .MembershipEventListener)
+   * @param listener
+   *          the listener instance.
    */
   public void addMembershipEventListener(MembershipEventListener listener) {
     listeners.add(listener);
   }
 
   /**
-   * {@inheritDoc}
+   * Remove registered listener
+   * 
+   * @param listener
+   *          The registered listener
    */
   public void removeMembershipEventListener(MembershipEventListener listener) {
     listeners.remove(listener);
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#createMembership
-   *      (org.exoplatform.services.organization.Membership, boolean)
+   * @deprecated This method should no be called, use the linkMembership(..) instead
    */
   public void createMembership(Membership m, boolean broadcast) throws Exception {
-    // TODO Auto-generated method stub
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler# createMembershipInstance()
+   * @deprecated This method should not be called, use the linkMembership instead.
    */
   public Membership createMembershipInstance() {
-    return new MembershipImpl();
+    return null;
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#findMembership(java.lang.String)
+   * Use this method to search for an membership record with the given id
+   * 
+   * @param id
+   *          The id of the membership
+   * @return Return The membership object that matched the id
+   * @throws Exception
+   *           An exception is throwed if the method fail to access the database or no membership is
+   *           found.
    */
   public Membership findMembership(String id) throws Exception {
     Session session = service.getStorageSession();
     try {
       Node mNode = session.getNodeByUUID(id);
-      String groupId = mNode.getProperty(STORAGE_EXO_GROUP).toString();
-      String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
-      Membership membership = new MembershipImpl(groupId, membershipType);
-      return membership;
+      try {
+        Node uNode = mNode.getParent();
+        String groupId = mNode.getProperty(STORAGE_EXO_GROUP).toString();
+        String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
+        Membership membership = new MembershipImpl(uNode.getName(), groupId, membershipType);
+        return membership;
+      } finally {
+      }
+    } catch (ItemNotFoundException e) {
+      throw new OrganizationServiceException("Can not find membership by UUId");
     } finally {
       session.logout();
     }
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#
-   *      findMembershipByUserGroupAndType(java.lang.String, java.lang.String, java.lang.String)
+   * Use this method to search for a specific membership type of an user in a group.
+   * 
+   * @param userName
+   *          The username of the user.
+   * @param groupId
+   *          The group identifier
+   * @param type
+   *          The membership type
+   * @return Null if no such memberhsip record or a membership object.
+   * @throws Exception
+   *           Usually an exception is thrown if the method cannot access the database
    */
   public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception {
-    // TODO
-    Membership membership = null;
+    Session session = service.getStorageSession();
+    try {
+      Node uNode = (Node) session.getItem(service.getStoragePath()
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
-    String statement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP + " where "
-        + STORAGE_EXO_GROUP + "=" + groupId + " AND " + STORAGE_EXO_MEMBERSHIP_TYPE + "=" + type;
-    Query mquery = service.getStorageSession()
-                          .getWorkspace()
-                          .getQueryManager()
-                          .createQuery(statement, Query.SQL);
-    QueryResult mres = mquery.execute();
-    for (NodeIterator mNodes = mres.getNodes(); mNodes.hasNext();) {
-      Node uNode = mNodes.nextNode().getParent();
-      if (uNode.getName().equals(userName)) {
-        membership = new MembershipImpl(groupId, type);
-        break;
+      try {
+        for (NodeIterator mNodes = uNode.getNodes(STORAGE_EXO_USER_MEMBERSHIP); mNodes.hasNext();) {
+          Node mNode = mNodes.nextNode();
+          String group = mNode.getProperty(STORAGE_EXO_GROUP).toString();
+          String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
+          if (group.equals(groupId)) {
+            Node mtNode = session.getNodeByUUID(membershipType);
+            if (mtNode.getName().equals(type)) {
+              return new MembershipImpl(userName, groupId, membershipType);
+            }
+          }
+        }
+        return null;
+      } catch (ItemNotFoundException e) {
+        throw new OrganizationServiceException("Can not find membership type");
       }
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("Can not find user " + userName);
+    } finally {
+      session.logout();
     }
-
-    return membership;
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#findMembershipsByGroup
-   *      (org.exoplatform.services.organization.Group)
+   * Use this method to find all the membership in a group. Note that an user can have more than one
+   * membership in a group. For example , user admin can have memberhsip 'member' and 'admin' in the
+   * group '/users'
+   * 
+   * @param group
+   * @return A collection of the memberships. The collection cannot be none and empty if no
+   *         membership is found.
+   * @throws Exception
    */
   public Collection findMembershipsByGroup(Group group) throws Exception {
 
@@ -152,8 +191,10 @@ public class MembershipHandlerImpl implements MembershipHandler {
         Node mNode = mNodes.nextNode();
         String groupId = mNode.getProperty(STORAGE_EXO_GROUP).toString();
         Node gNode = session.getNodeByUUID(groupId);
-        if (gNode.getName().equals(group.getLabel())) {
-          Membership membership = new MembershipImpl(groupId,
+        if (gNode.getName().equals(group.getGroupName())) {
+          Node uNode = mNode.getParent();
+          Membership membership = new MembershipImpl(uNode.getName(),
+                                                     groupId,
                                                      mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE)
                                                           .toString());
           types.add(membership);
@@ -167,8 +208,13 @@ public class MembershipHandlerImpl implements MembershipHandler {
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#findMembershipsByUser
-   *      (java.lang.String)
+   * Use this method to find all the memberships of an user in any group.
+   * 
+   * @param userName
+   * @return A collection of the memebership. The collection cannot be null and if no membership is
+   *         found , the collection should be empty
+   * @throws Exception
+   *           Usually an exception is throwed if the method cannot access the database.
    */
   public Collection findMembershipsByUser(String userName) throws Exception {
     Session session = service.getStorageSession();
@@ -176,91 +222,163 @@ public class MembershipHandlerImpl implements MembershipHandler {
       List<Membership> types = new ArrayList<Membership>();
 
       Node storageNode = (Node) session.getItem(service.getStoragePath()
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/" + STORAGE_EXO_USER_MEMBERSHIP);
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
-      for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
-        Node mNode = nodes.nextNode();
-        String groupId = mNode.getProperty(STORAGE_EXO_GROUP).toString();
-        String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
-        Membership membership = new MembershipImpl(groupId, membershipType);
-        types.add(membership);
+      try {
+        for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_USER_MEMBERSHIP); nodes.hasNext();) {
+          Node mNode = nodes.nextNode();
+          String groupId = mNode.getProperty(STORAGE_EXO_GROUP).toString();
+          String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
+          Membership membership = new MembershipImpl(userName, groupId, membershipType);
+          types.add(membership);
+        }
+      } finally {
       }
-
       return types;
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("Can not find user " + userName);
     } finally {
       session.logout();
     }
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#
-   *      findMembershipsByUserAndGroup(java. lang.String, java.lang.String)
+   * Use this method to find all the memberships of an user in a group
+   * 
+   * @param userName
+   * @param groupId
+   * @return A collection of the membership of an user in a group. The collection cannot be null and
+   *         the collection should be empty is no membership is found
+   * @throws Exception
+   *           Usually an exception is thrown if the method cannot access the database.
    */
   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception {
     Session session = service.getStorageSession();
     try {
-      List<Membership> types = new ArrayList<Membership>();
-
       Node storageNode = (Node) session.getItem(service.getStoragePath()
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/" + STORAGE_EXO_USER_MEMBERSHIP);
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
-      for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
-        Node mNode = nodes.nextNode();
-        if (mNode.getProperty(STORAGE_EXO_GROUP).toString().equals(groupId)) {
-          String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
-          Membership membership = new MembershipImpl(groupId, membershipType);
-          types.add(membership);
+      try {
+        List<Membership> types = new ArrayList<Membership>();
+
+        for (NodeIterator nodes = storageNode.getNodes(STORAGE_EXO_USER_MEMBERSHIP); nodes.hasNext();) {
+          Node mNode = nodes.nextNode();
+          if (mNode.getProperty(STORAGE_EXO_GROUP).toString().equals(groupId)) {
+            String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
+            Membership membership = new MembershipImpl(userName, groupId, membershipType);
+            types.add(membership);
+          }
         }
+        return types;
+      } finally {
       }
-
-      return types;
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("Can not find user " + userName);
     } finally {
       session.logout();
     }
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#linkMembership(org.exoplatform.services.organization.User,
-   *      org.exoplatform.services.organization.Group,
-   *      org.exoplatform.services.organization.MembershipType, boolean)
+   * Use this method to create a membership record, a relation of the user , group and membership
+   * type
+   * 
+   * @param user
+   *          The user of the membership
+   * @param group
+   *          The group of the membership
+   * @param m
+   *          The MembershipType of the membership
+   * @param broadcast
+   *          Broadcast the event if the value of the broadcast is 'true'
+   * @throws Exception
+   *           An exception is throwed if the method is fail to access the database, a membership
+   *           record with the same user , group and membership type existed or any listener fail to
+   *           handle the event.
    */
   public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception {
     // TODO Implement broadcast
-    // TODO
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath()
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName() + "/"
-          + STORAGE_EXO_USER_MEMBERSHIP);
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName());
 
+      try {
+        Node gNode = (Node) session.getItem(service.getStoragePath()
+            + GroupHandlerImpl.STORAGE_EXO_GROUPS + group.getParentId() + "/"
+            + group.getGroupName());
+
+        try {
+          Node mtNode = (Node) session.getItem(service.getStoragePath()
+              + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + m.getName());
+          try {
+            Node mNode = uNode.addNode(STORAGE_EXO_USER_MEMBERSHIP);
+            mNode.setProperty(STORAGE_EXO_GROUP, gNode.getUUID());
+            mNode.setProperty(STORAGE_EXO_MEMBERSHIP_TYPE, mtNode.getUUID());
+          } finally {
+          }
+        } catch (PathNotFoundException e) {
+          throw new OrganizationServiceException("Can not membership type " + m.getName());
+        }
+      } catch (PathNotFoundException e) {
+        throw new OrganizationServiceException("Can not find group " + group.getParentId() + "/"
+            + group.getGroupName());
+      }
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("Can not find user " + user.getUserName());
     } finally {
       session.logout();
     }
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#removeMembership
-   *      (java.lang.String, boolean)
+   * Use this method to remove a membership. Usually you need to call the method
+   * findMembershipByUserGroupAndType(..) to find the membership and remove.
+   * 
+   * @param id
+   *          The id of the membership
+   * @param broadcast
+   *          Broadcast the event to the registered listeners if the broadcast event is 'true'
+   * @return The membership object which has been removed from the database
+   * @throws Exception
+   *           An exception is throwed if the method cannot access the database or any listener fail
+   *           to handle the event.
    */
   public Membership removeMembership(String id, boolean broadcast) throws Exception {
     // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       Node mNode = session.getNodeByUUID(id);
-      String groupId = mNode.getProperty(STORAGE_EXO_GROUP).toString();
-      String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
-      Membership membership = new MembershipImpl(groupId, membershipType);
-      mNode.remove();
-      session.save();
-      return membership;
+
+      try {
+        // get user
+        Node uNode = mNode.getParent();
+        String groupId = mNode.getProperty(STORAGE_EXO_GROUP).toString();
+        String membershipType = mNode.getProperty(STORAGE_EXO_MEMBERSHIP_TYPE).toString();
+        Membership membership = new MembershipImpl(uNode.getName(), groupId, membershipType);
+        mNode.remove();
+        session.save();
+        return membership;
+      } finally {
+      }
+    } catch (ItemNotFoundException e) {
+      throw new OrganizationServiceException("Can not find membership by UUId.");
     } finally {
       session.logout();
     }
   }
 
   /**
-   * @see org.exoplatform.services.organization.MembershipHandler#removeMembershipByUser
-   *      (java.lang.String, boolean)
+   * Use this method to remove all user's membership.
+   * 
+   * @param username
+   *          The username which user object need remove memberships
+   * @param broadcast
+   *          Broadcast the event to the registered listeners if the broadcast event is 'true'
+   * @return The membership object which has been removed from the database
+   * @throws Exception
+   *           An exception is throwed if the method cannot access the database or any listener fail
+   *           to handle the event.
    */
   public Collection removeMembershipByUser(String userName, boolean broadcast) throws Exception {
     // TODO broadcast
@@ -273,9 +391,12 @@ public class MembershipHandlerImpl implements MembershipHandler {
       List<Membership> types = new ArrayList<Membership>();
       types = (List) findMembershipsByUser(userName);
       mNode.remove();
-      uNode.addNode(STORAGE_EXO_USER_MEMBERSHIP);
       session.save();
       return types;
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("Can not find user " + userName
+          + " for remove membership.");
+
     } finally {
       session.logout();
     }
