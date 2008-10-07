@@ -122,8 +122,9 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * Set created date of the membership type
+   * Set created date of the membership type.
    * 
+   * @deprecated This method is not used.
    * @param d
    *          The created date
    */
@@ -162,6 +163,7 @@ public class MembershipTypeImpl implements MembershipType {
   /**
    * Set owner for membership type.
    * 
+   * @deprecated This method is not used.
    * @param s
    *          The new owner of the membership type
    */

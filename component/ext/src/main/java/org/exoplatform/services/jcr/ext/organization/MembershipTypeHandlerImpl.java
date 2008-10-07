@@ -52,7 +52,20 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * Use this method to persist a new membership type. The developer usually should call the method
+   * createMembershipTypeInstance, to create a new MembershipType, set the memerbership type data
+   * and call this method to persist the membership type.
+   * 
+   * @param mt
+   *          The new membership type that the developer want to persist
+   * @param broadcast
+   *          Broadcast the event if the broadcast value is 'true'
+   * @return Return the MembershiptType object that contains the updated informations. Note that the
+   *         return membership type cannot be the same with the mt as the method can set the created
+   *         date and modified date automatically.
+   * @throws Exception
+   *           An exception is throwed if the method cannot access the database or a listener fail
+   *           to handle the event
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO implement broadcast
@@ -78,7 +91,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * @return a new object instance that implement the MembershipType interface
    */
   public MembershipType createMembershipTypeInstance() {
     return new MembershipTypeImpl();
@@ -131,7 +144,16 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * Use this method to remove a membership type.
+   * 
+   * @param name
+   *          the membership type name
+   * @param broadcast
+   *          Broadcast the event to the registered listener if the broadcast value is 'true'
+   * @return The membership type object which has been removed from the database
+   * @throws Exception
+   *           An exception is throwed if the method cannot access the database or the membership
+   *           type is not found in the database or any listener fail to handle the event.
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
     // TODO implement broadcast
@@ -154,6 +176,9 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO implement broadcast
     Session session = service.getStorageSession();
@@ -184,7 +209,7 @@ public class MembershipTypeHandlerImpl implements MembershipTypeHandler {
               + " is absent and can not be save.");
         } catch (ItemExistsException e) {
           throw new OrganizationServiceException("Can not save membership type " + prevName
-              + " because new membership type " + mt.getName() + " already is exist.");
+              + " because new membership type " + mt.getName() + " is exist.");
         }
       } catch (ItemNotFoundException e) {
         throw new OrganizationServiceException("Can not find membership type for save changes by UUId.");
