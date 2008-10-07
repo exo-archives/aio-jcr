@@ -98,14 +98,17 @@ public class Constants {
    */
   public static final String        NS_XML_URI                 = "http://www.w3.org/XML/1998/namespace";
 
-  public static final String        NS_XMLNS_PREFIX            = "xmlns";
+  //public static final String        NS_XMLNS_PREFIX            = "xmlns";
 
-  public static final String        NS_XMLNS_URI               = "http://www.w3.org/2000/xmlns/";
+  //public static final String        NS_XMLNS_URI               = "http://www.w3.org/2000/xmlns/";
 
-  public static final String        NS_XS_URI                  = "http://www.w3.org/2001/XMLSchema";
+  //public static final String        NS_XS_URI                  = "http://www.w3.org/2001/XMLSchema";
 
-  public static final String        NS_FN_URI                  = "http://www.w3.org/2004/10/xpath-functions";
+  //public static final String        NS_FN_URI                  = "http://www.w3.org/2004/10/xpath-functions";
 
+  /**
+   * Default JCR name (empty).
+   */
   public static final InternalQName JCR_DEFAULT_NAME           = new InternalQName(NS_DEFAULT_URI,
                                                                                    "");
 
@@ -124,216 +127,364 @@ public class Constants {
    */
   public static final String        NS_REP_URI                 = "internal";
 
+  /**
+   * jcr:primaryType internal name.
+   */
   public static final InternalQName JCR_PRIMARYTYPE            = new InternalQName(NS_JCR_URI,
                                                                                    "primaryType");
 
+  /**
+   * jcr:system internal name.
+   */
   public static final InternalQName JCR_SYSTEM                 = new InternalQName(NS_JCR_URI,
                                                                                    "system");
 
+  /**
+   * jcr:mixinTypes internal name.
+   */
   public static final InternalQName JCR_MIXINTYPES             = new InternalQName(NS_JCR_URI,
                                                                                    "mixinTypes");
 
+  /**
+   * jcr:uuid internal name.
+   */
   public static final InternalQName JCR_UUID                   = new InternalQName(NS_JCR_URI,
                                                                                    "uuid");
 
+  /**
+   * jcr:frozenUuid internal name.
+   */
   public static final InternalQName JCR_FROZENUUID             = new InternalQName(NS_JCR_URI,
                                                                                    "frozenUuid");
 
+  /**
+   * jcr:frozenNode internal name.
+   */
   public static final InternalQName JCR_FROZENNODE             = new InternalQName(NS_JCR_URI,
                                                                                    "frozenNode");
-
+  /**
+   * jcr:path internal name.
+   */
   public static final InternalQName JCR_PATH                   = new InternalQName(NS_JCR_URI,
                                                                                    "path");
-
+  /**
+   * jcr:versionHistory internal name.
+   */
   public static final InternalQName JCR_VERSIONHISTORY         = new InternalQName(NS_JCR_URI,
                                                                                    "versionHistory");
-
+  /**
+   * jcr:childVersionHistory internal name.
+   */
   public static final InternalQName JCR_CHILDVERSIONHISTORY    = new InternalQName(NS_JCR_URI,
                                                                                    "childVersionHistory");
-
+  /**
+   * jcr:baseVersion internal name.
+   */
   public static final InternalQName JCR_BASEVERSION            = new InternalQName(NS_JCR_URI,
                                                                                    "baseVersion");
-
+  /**
+   * jcr:isCheckedOut internal name.
+   */
   public static final InternalQName JCR_ISCHECKEDOUT           = new InternalQName(NS_JCR_URI,
                                                                                    "isCheckedOut");
-
+  /**
+   * jcr:versionLabels internal name.
+   */
   public static final InternalQName JCR_VERSIONLABELS          = new InternalQName(NS_JCR_URI,
                                                                                    "versionLabels");
-
+  /**
+   * jcr:versionStorage internal name.
+   */
   public static final InternalQName JCR_VERSIONSTORAGE         = new InternalQName(NS_JCR_URI,
                                                                                    "versionStorage");
-
+  /**
+   * jcr:versionableUuid internal name.
+   */
   public static final InternalQName JCR_VERSIONABLEUUID        = new InternalQName(NS_JCR_URI,
                                                                                    "versionableUuid");
-
+  /**
+   * jcr:predecessors internal name.
+   */
   public static final InternalQName JCR_PREDECESSORS           = new InternalQName(NS_JCR_URI,
                                                                                    "predecessors");
-
+  /**
+   * jcr:rootVersion internal name.
+   */
   public static final InternalQName JCR_ROOTVERSION            = new InternalQName(NS_JCR_URI,
                                                                                    "rootVersion");
-
+  /**
+   * jcr:created internal name.
+   */
   public static final InternalQName JCR_CREATED                = new InternalQName(NS_JCR_URI,
                                                                                    "created");
-
+  /**
+   * jcr:mimeType internal name.
+   */
   public static final InternalQName JCR_MIMETYPE               = new InternalQName(NS_JCR_URI,
                                                                                    "mimeType");
-
+  /**
+   * jcr:encoding internal name.
+   */
   public static final InternalQName JCR_ENCODING               = new InternalQName(NS_JCR_URI,
                                                                                    "encoding");
-
+  /**
+   * jcr:content internal name.
+   */
   public static final InternalQName JCR_CONTENT                = new InternalQName(NS_JCR_URI,
                                                                                    "content");
-
+  /**
+   * jcr:content internal name.
+   */
   public static final InternalQName JCR_XMLTEXT                = new InternalQName(NS_JCR_URI,
                                                                                    "xmltext");
-
+  /**
+   * jcr:xmlcharacters internal name.
+   */
   public static final InternalQName JCR_XMLCHARACTERS          = new InternalQName(NS_JCR_URI,
                                                                                    "xmlcharacters");
-
+  /**
+   * jcr:score internal name.
+   */
   public static final InternalQName JCR_SCORE                  = new InternalQName(NS_JCR_URI,
                                                                                    "score");
-
+  /**
+   * jcr:nodeTypeName internal name.
+   */
   public static final InternalQName JCR_NODETYPENAME           = new InternalQName(NS_JCR_URI,
                                                                                    "nodeTypeName");
-
+  /**
+   * jcr:isMixin internal name.
+   */
   public static final InternalQName JCR_ISMIXIN                = new InternalQName(NS_JCR_URI,
                                                                                    "isMixin");
-
+  /**
+   * jcr:hasOrderableChildNodes internal name.
+   */
   public static final InternalQName JCR_HASORDERABLECHILDNODES = new InternalQName(NS_JCR_URI,
                                                                                    "hasOrderableChildNodes");
-
+  /**
+   * jcr:primaryItemName internal name.
+   */
   public static final InternalQName JCR_PRIMARYITEMNAME        = new InternalQName(NS_JCR_URI,
                                                                                    "primaryItemName");
-
+  /**
+   * jcr:frozenNode internal name.
+   */
   public static final InternalQName JCR_SUPERTYPES             = new InternalQName(NS_JCR_URI,
                                                                                    "supertypes");
-
+  /**
+   * jcr:supertypes internal name.
+   */
   public static final InternalQName JCR_PROPERTYDEFINITION     = new InternalQName(NS_JCR_URI,
                                                                                    "propertyDefinition");
-
+  /**
+   * jcr:childNodeDefinition internal name.
+   */
   public static final InternalQName JCR_CHILDNODEDEFINITION    = new InternalQName(NS_JCR_URI,
                                                                                    "childNodeDefinition");
-
+  /**
+   * jcr:name internal name.
+   */
   public static final InternalQName JCR_NAME                   = new InternalQName(NS_JCR_URI,
                                                                                    "name");
-
+  /**
+   * jcr:autoCreated internal name.
+   */
   public static final InternalQName JCR_AUTOCREATED            = new InternalQName(NS_JCR_URI,
                                                                                    "autoCreated");
-
+  /**
+   * jcr:protected internal name.
+   */
   public static final InternalQName JCR_PROTECTED              = new InternalQName(NS_JCR_URI,
                                                                                    "protected");
-
+  /**
+   * jcr:multiple internal name.
+   */
   public static final InternalQName JCR_MULTIPLE               = new InternalQName(NS_JCR_URI,
                                                                                    "multiple");
-
+  /**
+   * jcr:onParentVersion internal name.
+   */
   public static final InternalQName JCR_ONPARENTVERSION        = new InternalQName(NS_JCR_URI,
                                                                                    "onParentVersion");
-
+  /**
+   * jcr:mandatory internal name.
+   */
   public static final InternalQName JCR_MANDATORY              = new InternalQName(NS_JCR_URI,
                                                                                    "mandatory");
-
+  /**
+   * jcr:requiredType internal name.
+   */
   public static final InternalQName JCR_REQUIREDTYPE           = new InternalQName(NS_JCR_URI,
                                                                                    "requiredType");
-
+  /**
+   * jcr:requiredType internal name.
+   */
   public static final InternalQName JCR_VALUECONSTRAINTS       = new InternalQName(NS_JCR_URI,
                                                                                    "valueConstraints");
-
+  /**
+   * jcr:defaultValues internal name.
+   */
   public static final InternalQName JCR_DEFAULTVALUES          = new InternalQName(NS_JCR_URI,
                                                                                    "defaultValues");
-
+  /**
+   * jcr:requiredPrimaryTypes internal name.
+   */
   public static final InternalQName JCR_REQUIREDPRIMARYTYPES   = new InternalQName(NS_JCR_URI,
                                                                                    "requiredPrimaryTypes");
-
+  /**
+   * jcr:sameNameSiblings internal name.
+   */
   public static final InternalQName JCR_SAMENAMESIBLINGS       = new InternalQName(NS_JCR_URI,
                                                                                    "sameNameSiblings");
-
+  /**
+   * jcr:defaultPrimaryType internal name.
+   */
   public static final InternalQName JCR_DEFAULTPRIMNARYTYPE    = new InternalQName(NS_JCR_URI,
                                                                                    "defaultPrimaryType");
-
+  /**
+   * jcr:mergeFailed internal name.
+   */
   public static final InternalQName JCR_MERGEFAILED            = new InternalQName(NS_JCR_URI,
                                                                                    "mergeFailed");
-
+  /**
+   * jcr:lockOwner internal name.
+   */
   public static final InternalQName JCR_LOCKOWNER              = new InternalQName(NS_JCR_URI,
                                                                                    "lockOwner");
-
+  /**
+   * jcr:lockIsDeep internal name.
+   */
   public static final InternalQName JCR_LOCKISDEEP             = new InternalQName(NS_JCR_URI,
                                                                                    "lockIsDeep");
-
+  /**
+   * jcr:nodetypes internal name.
+   */
   public static final InternalQName JCR_NODETYPES              = new InternalQName(NS_JCR_URI,
                                                                                    "nodetypes");
-
+  /**
+   * jcr:frozenPrimaryType internal name.
+   */
   public static final InternalQName JCR_FROZENPRIMARYTYPE      = new InternalQName(NS_JCR_URI,
                                                                                    "frozenPrimaryType");
-
+  /**
+   * jcr:frozenMixinTypes internal name.
+   */
   public static final InternalQName JCR_FROZENMIXINTYPES       = new InternalQName(NS_JCR_URI,
                                                                                    "frozenMixinTypes");
-
+  /**
+   * jcr:successors internal name.
+   */
   public static final InternalQName JCR_SUCCESSORS             = new InternalQName(NS_JCR_URI,
                                                                                    "successors");
-
+  /**
+   * jcr:language internal name.
+   */
   public static final InternalQName JCR_LANGUAGE               = new InternalQName(NS_JCR_URI,
                                                                                    "language");
-
+  /**
+   * jcr:statement internal name.
+   */
   public static final InternalQName JCR_STATEMENT              = new InternalQName(NS_JCR_URI,
                                                                                    "statement");
-
+  /**
+   * jcr:data internal name.
+   */
   public static final InternalQName JCR_DATA                   = new InternalQName(NS_JCR_URI,
                                                                                    "data");
-
+  /**
+   * jcr:lastModified internal name.
+   */
   public static final InternalQName JCR_LASTMODIFIED           = new InternalQName(NS_JCR_URI,
                                                                                    "lastModified");
-
+  /**
+   * nt:base internal name.
+   */
   public static final InternalQName NT_BASE                    = new InternalQName(NS_NT_URI,
                                                                                    "base");
-
+  /**
+   * mix:referenceable internal name.
+   */
   public static final InternalQName MIX_REFERENCEABLE          = new InternalQName(NS_MIX_URI,
                                                                                    "referenceable");
-
+  /**
+   * mix:versionable internal name.
+   */
   public static final InternalQName MIX_VERSIONABLE            = new InternalQName(NS_MIX_URI,
                                                                                    "versionable");
-
+  /**
+   * mix:lockable internal name.
+   */
   public static final InternalQName MIX_LOCKABLE               = new InternalQName(NS_MIX_URI,
                                                                                    "lockable");
-
+  /**
+   * nt:versionHistory internal name.
+   */
   public static final InternalQName NT_VERSIONHISTORY          = new InternalQName(NS_NT_URI,
                                                                                    "versionHistory");
-
+  /**
+   * nt:versionLabels internal name.
+   */
   public static final InternalQName NT_VERSIONLABELS           = new InternalQName(NS_NT_URI,
                                                                                    "versionLabels");
-
+  /**
+   * nt:version internal name.
+   */
   public static final InternalQName NT_VERSION                 = new InternalQName(NS_NT_URI,
                                                                                    "version");
-
+  /**
+   * nt:frozenNode internal name.
+   */
   public static final InternalQName NT_FROZENNODE              = new InternalQName(NS_NT_URI,
                                                                                    "frozenNode");
-
+  /**
+   * nt:unstructured internal name.
+   */
   public static final InternalQName NT_UNSTRUCTURED            = new InternalQName(NS_NT_URI,
                                                                                    "unstructured");
-
+  /**
+   * nt:resource internal name.
+   */
   public static final InternalQName NT_RESOURCE                = new InternalQName(NS_NT_URI,
                                                                                    "resource");
-
+  /**
+   * nt:nodeType internal name.
+   */
   public static final InternalQName NT_NODETYPE                = new InternalQName(NS_NT_URI,
                                                                                    "nodeType");
-
+  /**
+   * nt:propertyDefinition internal name.
+   */
   public static final InternalQName NT_PROPERTYDEFINITION      = new InternalQName(NS_NT_URI,
                                                                                    "propertyDefinition");
-
+  /**
+   * nt:childNodeDefinition internal name.
+   */
   public static final InternalQName NT_CHILDNODEDEFINITION     = new InternalQName(NS_NT_URI,
                                                                                    "childNodeDefinition");
-
+  /**
+   * nt:hierarchyNode internal name.
+   */
   public static final InternalQName NT_HIERARCHYNODE           = new InternalQName(NS_NT_URI,
                                                                                    "hierarchyNode");
-
+  /**
+   * nt:versionedChild internal name.
+   */
   public static final InternalQName NT_VERSIONEDCHILD          = new InternalQName(NS_NT_URI,
                                                                                    "versionedChild");
-
+  /**
+   * nt:query internal name.
+   */
   public static final InternalQName NT_QUERY                   = new InternalQName(NS_NT_URI,
                                                                                    "query");
-
+  /**
+   * nt:file internal name.
+   */
   public static final InternalQName NT_FILE                    = new InternalQName(NS_NT_URI,
                                                                                    "file");
-
+  /**
+   * nt:folder internal name.
+   */
   public static final InternalQName NT_FOLDER                  = new InternalQName(NS_NT_URI,
                                                                                    "folder");
 
@@ -353,18 +504,33 @@ public class Constants {
   public static final String        ROOT_UUID                  = "00exo0jcr0root0uuid0000000000000";
 
   /**
-   * jcr:system UUID.
+   * /jcr:system UUID.
    */
   public static final String        SYSTEM_UUID                = "00exo0jcr0system0uuid00000000000";
 
+  /**
+   * /jcr:system/jcr:versionStorage UUID.
+   */
   public static final String        VERSIONSTORAGE_UUID        = "00exo0jcr0version0storage0uuid00";
 
+  /**
+   * /jcr:system/jcr:nodetypes UUID.
+   */
   public static final String        NODETYPESROOT_UUID         = "00exo0jcr0node0types0root0uuid00";
 
+  /**
+   * JCR base URI.
+   */
   public static final String        JCR_URI                    = "[http://www.jcp.org/jcr/1.0]";
 
+  /**
+   * jcr:primaryType URI.
+   */
   public static final String        PRIMARY_TYPE_URI           = "[http://www.jcp.org/jcr/1.0]primaryType";
 
+  /**
+   * jcr:mixinTypes URI.
+   */
   public static final String        MIXIN_TYPE_URI             = "[http://www.jcp.org/jcr/1.0]mixinTypes";
 
   public static final String        ACCESS_TYPE_URI            = "[http://www.exoplatform.com/jcr/exo/1.0]accessControllable";
@@ -444,50 +610,59 @@ public class Constants {
   public static final String        EXO_MULTIVALUED            = "multivalued";
 
   /**
-   * sv:node.
+   * sv:node internal name.
    */
   public static final InternalQName SV_NODE_NAME               = new InternalQName(NS_SV_URI,
                                                                                    SV_NODE);
 
   /**
-   * sv:property.
+   * sv:property internal name.
    */
   public static final InternalQName SV_PROPERTY_NAME           = new InternalQName(NS_SV_URI,
                                                                                    SV_PROPERTY);
 
   /**
-   * sv:value.
+   * sv:value internal name.
    */
   public static final InternalQName SV_VALUE_NAME              = new InternalQName(NS_SV_URI,
                                                                                    SV_VALUE);
 
   /**
-   * sv:type.
+   * sv:type internal name.
    */
   public static final InternalQName SV_TYPE_NAME               = new InternalQName(NS_SV_URI,
                                                                                    SV_TYPE);
 
   /**
-   * sv:name.
+   * sv:name internal name.
    */
   public static final InternalQName SV_NAME_NAME               = new InternalQName(NS_SV_URI,
                                                                                    SV_NAME);
 
   /**
-   * exo:id.
+   * exo:id internal name.
    */
   public static final InternalQName EXO_ID_NAME                = new InternalQName(NS_EXO_URI,
                                                                                    EXO_ID);
 
+  /**
+   * /jcr:system/jcr:versionStorage internal path.
+   */
   public static QPath               JCR_VERSION_STORAGE_PATH;
 
+  /**
+   * /jcr:system/jcr:nodetypes internal path.
+   */
   public static QPath               JCR_NODETYPES_PATH;
 
   /**
-   * jcr:system path.
+   * /jcr:system internal path.
    */
   public static QPath               JCR_SYSTEM_PATH;
 
+  /**
+   * /jcr:system/exo:namespaces internal path.
+   */
   public static QPath               EXO_NAMESPACES_PATH;
 
   /**
@@ -498,12 +673,12 @@ public class Constants {
   /**
    * Chars quantity in a UUID String.
    */
-  public static int                 UUID_UNFORMATTED_LENGTH    = 32;
+  public static final int                 UUID_UNFORMATTED_LENGTH    = 32;
 
   /**
    * Chars quantity in a UUID String.
    */
-  public static int                 UUID_FORMATTED_LENGTH      = 32;
+  public static final int                 UUID_FORMATTED_LENGTH      = 32;
 
   /**
    * eXo JCR default Strings encoding.
