@@ -31,24 +31,9 @@ import org.exoplatform.services.organization.User;
 public class UserImpl implements User {
 
   /**
-   * The user name
+   * The user's created date
    */
-  private String           userName;
-
-  /**
-   * The password of the user
-   */
-  private transient String password;
-
-  /**
-   * The first name of the user
-   */
-  private String           firstName;
-
-  /**
-   * The last name of the user
-   */
-  private String           lastName;
+  private Date             createdDate;
 
   /**
    * The email of the user
@@ -56,9 +41,9 @@ public class UserImpl implements User {
   private String           email;
 
   /**
-   * The user's created date
+   * The first name of the user
    */
-  private Date             createdDate;
+  private String           firstName;
 
   /**
    * The last login time of the user
@@ -66,166 +51,183 @@ public class UserImpl implements User {
   private Date             lastLoginTime;
 
   /**
+   * The last name of the user
+   */
+  private String           lastName;
+
+  /**
+   * The password of the user
+   */
+  private transient String password;
+
+  /**
+   * The user name
+   */
+  private String           userName;
+
+  /**
    * The UUId of the user in the storage
    */
   private final String     UUId;
 
+  /**
+   * UserImpl constructor.
+   */
   UserImpl() {
     this.UUId = null;
   }
 
+  /**
+   * UserImpl constructor.
+   * 
+   * @param name
+   *          The user name
+   */
   UserImpl(String name) {
     this.userName = name;
     this.UUId = null;
   }
 
+  /**
+   * UserImpl constructor.
+   * 
+   * @param name
+   *          The user name
+   * @param UUId
+   *          The UUId of the use in the storage
+   */
   UserImpl(String name, String UUId) {
     this.userName = name;
     this.UUId = UUId;
   }
 
   /**
-   * @return The date that the user register or create the account
+   * {@inheritDoc}
    */
   public Date getCreatedDate() {
     return createdDate;
   }
 
   /**
-   * @return The email address of the user
+   * {@inheritDoc}
    */
   public String getEmail() {
     return email;
   }
 
   /**
-   * @return This method return the first name of the user
+   * {@inheritDoc}
    */
   public String getFirstName() {
     return firstName;
   }
 
   /**
-   * @return return the full name of the user. The full name shoul have the format: first name, last
-   *         name by default
+   * {@inheritDoc}
    */
   public String getFullName() {
     return getFirstName() + " " + getLastName();
   }
 
   /**
-   * @return Return the last time that the user access the account
+   * {@inheritDoc}
    */
   public Date getLastLoginTime() {
     return lastLoginTime;
   }
 
   /**
-   * @return The last name of the user
+   * {@inheritDoc}
    */
   public String getLastName() {
     return lastName;
   }
 
   /**
-   * @return the id of organization the user belongs to or null if not applicable
+   * {@inheritDoc}
    */
   public String getOrganizationId() {
     return null;
   }
 
   /**
-   * @return This method return the password of the user account
+   * {@inheritDoc}
    */
   public String getPassword() {
     return password;
   }
 
   /**
-   * This method should return the username of the user. The username should be unique and the user
-   * database should not have 2 user record with the same username
-   * 
-   * @return
+   * {@inheritDoc}
    */
   public String getUserName() {
     return userName;
   }
 
   /**
-   * @param t
-   * @deprecated The third party should not used this method.
+   * {@inheritDoc}
    */
   public void setCreatedDate(Date t) {
     createdDate = t;
   }
 
   /**
-   * @param s
-   *          The new user email address
+   * {@inheritDoc}
    */
   public void setEmail(String s) {
     email = s;
   }
 
   /**
-   * @param s
-   *          the new first name
+   * {@inheritDoc}
    */
   public void setFirstName(String s) {
     firstName = s;
   }
 
   /**
-   * @param s
-   *          The name that should show in the full name
+   * {@inheritDoc}
    */
   public void setFullName(String s) {
   }
 
   /**
-   * @param t
-   * @deprecated The third party developer should not aware of this method
+   * {@inheritDoc}
    */
   public void setLastLoginTime(Date t) {
     lastLoginTime = t;
   }
 
   /**
-   * @param s
-   *          The new last name of the user
+   * {@inheritDoc}
    */
   public void setLastName(String s) {
     lastName = s;
   }
 
   /**
-   * sets the prganizationId
+   * {@inheritDoc}
    */
   public void setOrganizationId(String s) {
   }
 
   /**
-   * This method is used to change the user account password.
-   * 
-   * @param s
+   * {@inheritDoc}
    */
   public void setPassword(String s) {
     password = s;
   }
 
   /**
-   * This method is used to change the username
-   * 
-   * @param s
-   * @deprecated The third party developer should not used this method TODO: I think we should not
-   *             have this method. the username should be set only for the first time. So we can
-   *             pass the username to the @see UserHandler createUserInstance() method.
+   * {@inheritDoc}
    */
   public void setUserName(String s) {
     userName = s;
   }
 
   /**
+   * Get user UUId.
+   * 
    * @return UUId of the user in the storage
    */
   String getUUId() {

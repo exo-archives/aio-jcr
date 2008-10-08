@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -37,66 +38,51 @@ import org.exoplatform.services.organization.UserProfileHandler;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class UserProfileHandlerImpl implements UserProfileHandler {
+public class UserProfileHandlerImpl extends CommonHandler implements UserProfileHandler {
 
   public static final String                     STORAGE_EXO_ATTRIBUTES = "exo:attributes";
 
-  protected final JCROrganizationServiceImpl     service;
-
   protected final List<UserProfileEventListener> listeners              = new ArrayList<UserProfileEventListener>();
 
+  /**
+   * Organization service implementation covering the handler.
+   */
+  protected final JCROrganizationServiceImpl     service;
+
+  /**
+   * UserProfileHandlerImpl constructor.
+   * 
+   * @param service
+   *          The initialization data
+   */
   UserProfileHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
 
   /**
-   * When a method save, remove are called, the will broadcast an event. You can use this method to
-   * register a listener to catch those events
-   * 
-   * @param listener
-   *          The listener instance
-   * @see UserProfileEventListener
+   * {@inheritDoc}
    */
+
   public void addUserProfileEventListener(UserProfileEventListener listener) {
     listeners.add(listener);
   }
 
   /**
-   * Remove registered listener
-   * 
-   * @param listener
-   *          The registered listener for removing
-   */
-  public void removeUserProfileEventListener(UserProfileEventListener listener) {
-    listeners.remove(listener);
-  }
-
-  /**
-   * @return return a new UserProfile implementation instance. This instance is not persisted yet
+   * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance() {
     return new UserProfileImpl();
   }
 
   /**
-   * @return return a new UserProfile implementation instance. This instance is not persisted yet
-   * @param userName
-   *          The user profile record with the username
+   * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance(String userName) {
     return new UserProfileImpl(userName);
   }
 
   /**
-   * This method should search for and return UserProfile record according to the username
-   * 
-   * @param userName
-   * @return return null if no record match the userName. return an UserProfile instance if a record
-   *         match the username.
-   * @throws Exception
-   *           Throw Exception if the method fail to access the database or find more than one
-   *           record that match the username.
-   * @see UserProfile
+   * {@inheritDoc}
    */
   public UserProfile findUserProfileByName(String userName) throws Exception {
     Session session = service.getStorageSession();
@@ -112,21 +98,21 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
           userProfile.setAttribute(prop.getName(), prop.getString());
         }
         return userProfile;
-      } finally {
+      } catch (Exception e) {
+        throw new OrganizationServiceException("Can not find user profile", e);
       }
+
     } catch (PathNotFoundException e) {
       return null;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find user profile", e);
     } finally {
       session.logout();
     }
   }
 
   /**
-   * Find and return all the UserProfile record in the database
-   * 
-   * @return
-   * @throws Exception
-   *           Throw exception if the method fail to access the database
+   * {@inheritDoc}
    */
   public Collection findUserProfiles() throws Exception {
     Session session = service.getStorageSession();
@@ -140,6 +126,8 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
         types.add(findUserProfileByName(uNode.getName()));
       }
       return types;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find user profile", e);
     } finally {
       session.logout();
     }
@@ -147,18 +135,7 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
   }
 
   /**
-   * This method should remove the user profile record in the database. If any listener fail to
-   * handle event. The record should not be removed from the database.
-   * 
-   * @param userName
-   *          The user profile record with the username should be removed from the database
-   * @param broadcast
-   *          Broadcast the event the listeners if broadcast is true.
-   * @return The UserProfile instance that has been removed.
-   * @throws Exception
-   *           Throw exception if the method fail to remove the record or any listener fail to
-   *           handle the event TODO Should we provide this method or the user profile should be
-   *           removed only when the user is removed
+   * {@inheritDoc}
    */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
     // TODO Implement broadcast
@@ -176,23 +153,25 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
         throw new OrganizationServiceException("Can not find user " + userName
             + " for remove profile.");
       }
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not remove user profile for user " + userName, e);
     } finally {
       session.logout();
     }
   }
 
   /**
-   * This method should persist the profile instance to the database. If the profile is not existed
-   * yet, the method should create a new user profile record. If there is an existed record. The
-   * method should merge the data with the existed record
+   * Remove registered listener
    * 
-   * @param profile
-   *          the profile instance to persist.
-   * @param broadcast
-   *          broadcast the event to the listener if broadcast is true
-   * @throws Exception
-   *           throw exception if the method fail to access the database or any listener fail to
-   *           handle the event.
+   * @param listener
+   *          The registered listener for removing
+   */
+  public void removeUserProfileEventListener(UserProfileEventListener listener) {
+    listeners.remove(listener);
+  }
+
+  /**
+   * {@inheritDoc}
    */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
     // TODO implement broadcast
@@ -215,9 +194,35 @@ public class UserProfileHandlerImpl implements UserProfileHandler {
 
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find user " + profile.getUserName()
-          + " for save profile.");
+          + " for save profile.", e);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not save user profile for user "
+          + profile.getUserName(), e);
     } finally {
       session.logout();
     }
+  }
+
+  @Override
+  void checkMandatoryProperties(Object obj) throws Exception {
+  }
+
+  @Override
+  Date readDateProperty(Node node, String prop) throws Exception {
+    return null;
+  }
+
+  @Override
+  Object readObjectFromNode(Node node) throws Exception {
+    return null;
+  }
+
+  @Override
+  String readStringProperty(Node node, String prop) throws Exception {
+    return null;
+  }
+
+  @Override
+  void writeObjectToNode(Object obj, Node node) throws Exception {
   }
 }

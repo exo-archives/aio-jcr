@@ -43,9 +43,22 @@ public class MembershipImpl implements Membership {
    */
   private String userName;
 
+  /**
+   * MembershipImpl constructor.
+   */
   MembershipImpl() {
   }
 
+  /**
+   * MembershipImpl constructor.
+   * 
+   * @param userName
+   *          The user name
+   * @param groupId
+   *          The group id
+   * @param membershipType
+   *          The membership type
+   */
   MembershipImpl(String userName, String groupId, String membershipType) {
     this.userName = userName;
     this.groupId = groupId;
@@ -53,39 +66,35 @@ public class MembershipImpl implements Membership {
   }
 
   /**
-   * @return The group id
+   * {@inheritDoc}
    */
   public String getGroupId() {
     return groupId;
   }
 
   /**
-   * @deprecated This method is not used
-   * @return The id of the membership
+   * {@inheritDoc}
    */
   public String getId() {
     return null;
   }
 
   /**
-   * @return The membership type id
+   * {@inheritDoc}
    */
   public String getMembershipType() {
     return membershipType;
   }
 
   /**
-   * @return The user name which belong to this membership
+   * {@inheritDoc}
    */
   public String getUserName() {
     return userName;
   }
 
   /**
-   * Set membership type
-   * 
-   * @param type
-   *          The new membership type
+   * {@inheritDoc}
    */
   public void setMembershipType(String type) {
     membershipType = type;

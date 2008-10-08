@@ -28,33 +28,67 @@ import org.exoplatform.services.organization.Group;
  */
 public class GroupImpl implements Group {
 
-  private String parentId;
+  /**
+   * The group's description.
+   */
+  private String       description;
 
-  private String label;
+  /**
+   * The group's id. It is have a form /ancestor/parent/groupname.
+   */
+  private String       groupId;
 
-  private String description;
+  /**
+   * The group's name.
+   */
+  private String       groupName;
 
-  private String groupName;
-  
-  private String groupId;
+  /**
+   * The group's label.
+   */
+  private String       label;
 
+  /**
+   * The group's parentId. It is have a form /ancestor/parent.
+   */
+  private String       parentId;
+
+  /**
+   * The UUId of the group in the storage.
+   */
+  private final String UUId;
+
+  /**
+   * GroupImpl constructor.
+   */
   GroupImpl() {
-  }
-
-  GroupImpl(String name, String parendId) {
-    this.groupName = name;
-    this.parentId = parendId;
+    UUId = null;
   }
 
   /**
-   * @return The group description
+   * GroupImpl constructor.
+   * 
+   * @param name
+   *          The name of the group
+   * @param parendId
+   *          The parentId of the group * @param UUId The group's UUId in the storage
+   */
+  GroupImpl(String name, String groupId, String UUId) {
+    this.groupName = name;
+    this.groupId = groupId;
+    this.UUId = UUId;
+    this.parentId = groupId.substring(0, groupId.lastIndexOf('/'));
+  }
+
+  /**
+   * {@inheritDoc}
    */
   public String getDescription() {
     return description;
   }
 
   /**
-   * @return The local name of the group
+   * {@inheritDoc}
    */
   public String getGroupName() {
     return groupName;
@@ -68,41 +102,51 @@ public class GroupImpl implements Group {
   }
 
   /**
-   * @return The display label of the group.
+   * {@inheritDoc}
    */
   public String getLabel() {
     return label;
   }
 
   /**
-   * @return the id of the parent group. if the parent id is null , it mean that the group is at the
-   *         first level. the child of root group.
+   * {@inheritDoc}
    */
   public String getParentId() {
     return parentId;
   }
 
   /**
-   * @param desc
-   *          The new description of the group
+   * {@inheritDoc}
    */
   public void setDescription(String desc) {
     description = desc;
   }
 
   /**
-   * {@inheritDoc}
+   * Set the new name of the group.
+   * 
+   * @param name
+   *          The name of the group.
    */
   public void setGroupName(String name) {
     groupName = name;
+    groupId = this.getParentId() + "/" + groupName;
   }
 
   /**
-   * @param name
-   *          The new label of the group
+   * {@inheritDoc}
    */
   public void setLabel(String name) {
     label = name;
+  }
+
+  /**
+   * Get group's UUId.
+   * 
+   * @return The UUId of the group in the storage
+   */
+  public String getUUId() {
+    return UUId;
   }
 
 }

@@ -29,65 +29,72 @@ import org.exoplatform.services.organization.UserProfile;
  */
 public class UserProfileImpl implements UserProfile {
 
+  /**
+   * The profile attributes.
+   */
   private Map<String, String> attributes;
 
+  /**
+   * The name of user.
+   */
   private String              userName;
 
+  /**
+   * UserProfileImpl constructor.
+   */
   public UserProfileImpl() {
     attributes = new HashMap<String, String>();
   }
 
+  /**
+   * UserProfileImpl constructor.
+   * 
+   * @param name
+   *          The user name
+   */
   public UserProfileImpl(String name) {
     attributes = new HashMap<String, String>();
     userName = name;
   }
 
   /**
-   * @param attName
-   *          The key name of an attribute in the user info map.
-   * @return null if no key is matched in the user info map or a String value.
+   * {@inheritDoc}
    */
   public String getAttribute(String attName) {
     return attributes.get(attName);
   }
 
   /**
-   * @return The map that contains the user information. The map should only accept the
-   *         java.lang.String for the key and the value.
+   * {@inheritDoc}
    */
   public Map<String, String> getUserInfoMap() {
     return attributes;
   }
 
   /**
-   * @return the username, the identifier of an user profile instance
+   * {@inheritDoc}
    */
   public String getUserName() {
     return userName;
   }
 
   /**
-   * Use this method to change or add a new attribute to the user info map.
-   * 
-   * @param key
-   *          The attribute name of the info
-   * @param value
-   *          An info of the user.
+   * {@inheritDoc}
    */
   public void setAttribute(String key, String value) {
     attributes.put(key, value);
   }
 
   /**
-   * @param map
-   *          The map that contains the extra user information. The map should contains only the
-   *          java.lang.String as the key and the value.
+   * {@inheritDoc}
    */
   public void setUserInfoMap(Map<String, String> map) {
     attributes = map;
   }
 
   /**
+   * Set user name
+   * 
    *@deprecated The third party developer should not used this method. We should pass the username
    *             to the @see UserProfileHandler.createUserInstance() and set the username for the
    *             instance once only.

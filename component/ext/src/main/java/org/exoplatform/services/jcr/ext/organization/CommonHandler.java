@@ -34,17 +34,18 @@ import javax.jcr.Node;
 public abstract class CommonHandler {
 
   /**
-   * Checking if one of mandatory properties of nodeType is null.
+   * Checking if one of mandatory properties of the object is null.
    * 
-   * @param nodeType
-   *          The nodeType to check
+   * @param obj
+   *          The object to check
    * @throws Exception
-   *           An exception is thrown if some of mandatory properties is null
+   *           An exception is thrown if some of mandatory properties is null or the method cannot
+   *           access the database
    */
-  abstract void checkMandatoryProperties(Object nodeType) throws Exception;
+  abstract void checkMandatoryProperties(Object obj) throws Exception;
 
   /**
-   * This method read property data.
+   * This method read property data from node in the storage.
    * 
    * @param node
    *          The node to read from
@@ -55,6 +56,17 @@ public abstract class CommonHandler {
    *           An exception is thrown if the method cannot access the database
    */
   abstract Date readDateProperty(Node node, String prop) throws Exception;
+
+  /**
+   * Get object from node with all properties.
+   * 
+   * @param node
+   *          The node to get data from
+   * @return
+   * @throws Exception
+   *           An exception is thrown the method cannot access the database
+   */
+  abstract Object readObjectFromNode(Node node) throws Exception;
 
   /**
    * This method read property data.
@@ -68,4 +80,16 @@ public abstract class CommonHandler {
    *           An exception is thrown if the method cannot access the database
    */
   abstract String readStringProperty(Node node, String prop) throws Exception;
+
+  /**
+   * This method write object's properties to the node in the storage.
+   * 
+   * @param obj
+   *          The object which properties need to write
+   * @param node
+   *          The node to write properties in
+   * @throws Exception
+   *           An exception is thrown if the method cannot access the database
+   */
+  abstract void writeObjectToNode(Object obj, Node node) throws Exception;
 }

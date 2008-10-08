@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.jcr.ItemExistsException;
@@ -43,7 +44,7 @@ import org.exoplatform.services.organization.UserHandler;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class UserHandlerImpl implements UserHandler {
+public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
   public static final String                 STORAGE_EXO_CREATED_DATE    = "exo:createdDate";
 
@@ -65,30 +66,30 @@ public class UserHandlerImpl implements UserHandler {
 
   protected final List<UserEventListener>    listeners                   = new ArrayList<UserEventListener>();
 
+  /**
+   * Organization service implementation covering the handler.
+   */
   protected final JCROrganizationServiceImpl service;
 
+  /**
+   * UserHandlerImpl constructor.
+   * 
+   * @param service
+   *          The initialization data.
+   */
   UserHandlerImpl(JCROrganizationServiceImpl service) {
     this.service = service;
   }
 
   /**
-   * This method is used to register an user event listener
-   * 
-   * @param listener
+   * {@inheritDoc}
    */
   public void addUserEventListener(UserEventListener listener) {
     listeners.add(listener);
   }
 
   /**
-   * Check if the username and the password of an user is valid.
-   * 
-   * @param username
-   * @param password
-   * @return return true if the username and the password is match with an user record in the
-   *         database, else return false.
-   * @throws Exception
-   *           throw an exception if cannot access the database
+   * {@inheritDoc}
    */
   public boolean authenticate(String username, String password) throws Exception {
     User user = findUserByName(username);
@@ -96,53 +97,18 @@ public class UserHandlerImpl implements UserHandler {
   }
 
   /**
-   * This method is used to persist a new user object.
-   * 
-   * @param user
-   *          The user object to save
-   * @param broadcast
-   *          If the broadcast value is true , then the UserHandler should broadcast the event to
-   *          all the listener that register with the organization service. For example, the portal
-   *          service register an user event listener with the organization service. when a new
-   *          account is created, a portal configuration should be created for the new user account
-   *          at the same time. In this case the portal user event listener will be called in the
-   *          createUser method.
-   * @throws Exception
-   *           The exception can be throwed if the the UserHandler cannot persist the user object or
-   *           any listeners fail to handle the user event.
+   * {@inheritDoc}
    */
   public void createUser(User user, boolean broadcast) throws Exception {
     // TODO Implement broadcast
 
-    if (user.getUserName() == null) {
-      throw new OrganizationServiceException("Can not create user without name.");
-    } else if (user.getFirstName() == null) {
-      throw new OrganizationServiceException("Can not create user without first name.");
-    } else if (user.getLastName() == null) {
-      throw new OrganizationServiceException("Can not create user without last name.");
-    } else if (user.getPassword() == null) {
-      throw new OrganizationServiceException("Can not create user without password.");
-    } else if (user.getCreatedDate() == null) {
-      throw new OrganizationServiceException("Can not create user without created date.");
-    }
+    checkMandatoryProperties(user);
 
     Session session = service.getStorageSession();
     try {
       Node storageNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS);
       Node uNode = storageNode.addNode(user.getUserName());
-
-      Calendar calendar = Calendar.getInstance();
-      uNode.setProperty(STORAGE_EXO_EMAIL, user.getEmail());
-      uNode.setProperty(STORAGE_EXO_FIRST_NAME, user.getFirstName());
-      uNode.setProperty(STORAGE_EXO_LAST_NAME, user.getLastName());
-      uNode.setProperty(STORAGE_EXO_PASSWORD, user.getPassword());
-
-      // TODO is it correct?
-      calendar.setTime(user.getCreatedDate());
-      uNode.setProperty(STORAGE_EXO_CREATED_DATE, calendar);
-      calendar.setTime(user.getLastLoginTime());
-      uNode.setProperty(STORAGE_EXO_LAST_LOGIN_TIME, calendar);
-
+      writeObjectToNode(user, uNode);
       session.save();
     } finally {
       session.logout();
@@ -150,72 +116,44 @@ public class UserHandlerImpl implements UserHandler {
   }
 
   /**
-   * @deprecated This method create an User instance that implement the User interface. The user
-   *             instance is not persisted yet
-   * @return new user instance
+   * {@inheritDoc}
    */
   public User createUserInstance() {
     return new UserImpl();
   }
 
   /**
-   * This method create an User instance that implement the User interface. The user instance is not
-   * persisted yet
-   * 
-   * @param username
-   *          Username for new user instance.
-   * @return new user instance
+   * {@inheritDoc}
    */
   public User createUserInstance(String username) {
     return new UserImpl(username);
   }
 
   /**
-   * @param userName
-   *          the user that the user handler should search for
-   * @return The method return null if there no user matches the given username. The method return
-   *         an User object if an user that match the username.
-   * @throws Exception
-   *           The exception is throwed if the method fail to access the user database or more than
-   *           one user object with the same username is found
+   * {@inheritDoc}
    */
   public User findUserByName(String userName) throws Exception {
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS + "/"
           + userName);
-      try {
-        User user = new UserImpl(userName, uNode.getUUID());
-        user.setCreatedDate(uNode.getProperty(STORAGE_EXO_CREATED_DATE).getDate().getTime());
-        user.setLastLoginTime(uNode.getProperty(STORAGE_EXO_LAST_LOGIN_TIME).getDate().getTime());
-        user.setEmail(uNode.getProperty(STORAGE_EXO_EMAIL).getString());
-        user.setPassword(uNode.getProperty(STORAGE_EXO_PASSWORD).getString());
-        user.setFirstName(uNode.getProperty(STORAGE_EXO_FIRST_NAME).getString());
-        user.setLastName(uNode.getProperty(STORAGE_EXO_LAST_NAME).getString());
-        return user;
-      } finally {
-      }
+      return (User) readObjectFromNode(uNode);
     } catch (PathNotFoundException e) {
       return null;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find user " + userName, e);
     } finally {
       session.logout();
     }
   }
 
   /**
-   * This method search for the users according to a search criteria, the query
-   * 
-   * @param query
-   *          The query object contains the search criteria.
-   * @return return the found users in a page list according to the query.
-   * @throws Exception
-   *           throw exception if the service cannot access the database
+   * {@inheritDoc}
    */
   public PageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
     String where = "";
     if (query.getUserName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + "jcr:path LIKE "
-          + service.getStoragePath() + STORAGE_EXO_USERS + "/" + query.getUserName());
+      where.concat((where.length() == 0 ? "" : " AND ") + "jcr:name LIKE " + query.getUserName());
     }
     if (query.getEmail() != null) {
       where.concat((where.length() == 0 ? "" : " AND ") + STORAGE_EXO_EMAIL + " LIKE "
@@ -258,57 +196,62 @@ public class UserHandlerImpl implements UserHandler {
   }
 
   /**
-   * This method should search and return the list of the users in a given group.
-   * 
-   * @param groupId
-   *          id of the group. The return users list should be in this group
-   * @return return a page list iterator of a group of the user in the database
-   * @throws Exception
+   * {@inheritDoc}
    */
   public PageList findUsersByGroup(String groupId) throws Exception {
     List<User> users = new ArrayList<User>();
+    String groupName = groupId.substring(groupId.lastIndexOf('/') + 1);
+    Session session = service.getStorageSession();
+    try {
+      // get UUId of the group
+      Node gNode = (Node) session.getItem(service.getStoragePath()
+          + GroupHandlerImpl.STORAGE_EXO_GROUPS + "/" + groupName);
 
-    // find group
-    String statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_GROUP
-        + " where jcr:uuid='" + groupId + "'";
-    Query gquery = service.getStorageSession()
-                          .getWorkspace()
-                          .getQueryManager()
-                          .createQuery(statement, Query.SQL);
-    QueryResult gres = gquery.execute();
-    if (gres.getNodes().hasNext()) {
-      // has group
-      Node groupNode = gres.getNodes().nextNode();
-
-      // find memberships
-      statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP + " where "
-          + MembershipHandlerImpl.STORAGE_EXO_GROUP + "='" + groupNode.getUUID() + "'";
-      Query mquery = service.getStorageSession()
+      // find group
+      String statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_GROUP
+          + " where jcr:uuid='" + gNode.getUUID() + "'";
+      Query gquery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
                             .createQuery(statement, Query.SQL);
-      QueryResult mres = mquery.execute();
-      for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
-        Node membership = membs.nextNode();
-        Node userNode = membership.getParent();
-        User user = findUserByName(userNode.getName());
-        if (user != null) {
-          users.add(user);
+      QueryResult gres = gquery.execute();
+      if (gres.getNodes().hasNext()) {
+        // has group
+        Node groupNode = gres.getNodes().nextNode();
+
+        // find memberships
+        statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP
+            + " where " + MembershipHandlerImpl.STORAGE_EXO_GROUP + "='" + groupNode.getUUID()
+            + "'";
+        Query mquery = service.getStorageSession()
+                              .getWorkspace()
+                              .getQueryManager()
+                              .createQuery(statement, Query.SQL);
+        QueryResult mres = mquery.execute();
+        for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
+          Node membership = membs.nextNode();
+          Node userNode = membership.getParent();
+          User user = findUserByName(userNode.getName());
+          if (user != null) {
+            users.add(user);
+          }
         }
       }
+
+      return new ObjectPageList(users, 10);
+
+    } catch (PathNotFoundException e) {
+      throw new OrganizationServiceException("Can not find group " + groupName, e);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find group ", e);
+    } finally {
+      session.logout();
     }
 
-    return new ObjectPageList(users, 10);
   }
 
   /**
-   * This method is used to get all the users in the database
-   * 
-   * @param pageSize
-   *          The number of user in each page
-   * @return return a page list iterator. The page list should allow the developer get all the users
-   *         or get a page of users if the return number of users is too large.
-   * @throws Exception
+   * {@inheritDoc}
    */
   public PageList getUserPageList(int pageSize) throws Exception {
     Session session = service.getStorageSession();
@@ -323,23 +266,15 @@ public class UserHandlerImpl implements UserHandler {
         }
       }
       return new ObjectPageList(types, 10);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find group ", e);
     } finally {
       session.logout();
     }
   }
 
   /**
-   * Remove an user and broadcast the event to all the registered listener. When the user is removed
-   * , the user profile and all the membership of the user should be removed as well.
-   * 
-   * @param userName
-   *          The user should be removed from the user database
-   * @param broadcast
-   *          If broadcast is true, the the delete user event should be broadcasted to all
-   *          registered listener
-   * @return return the User object after that user has been removed from database
-   * @throws Exception
-   * @TODO Should we broadcast the membership remove event when a user is removed ??
+   * {@inheritDoc}
    */
   public User removeUser(String userName, boolean broadcast) throws Exception {
     // TODO implement broadcast
@@ -347,15 +282,15 @@ public class UserHandlerImpl implements UserHandler {
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS + "/"
           + userName);
-      try {
-        User user = findUserByName(userName);
-        uNode.remove();
-        session.save();
-        return user;
-      } finally {
-      }
+      User user = findUserByName(userName);
+      uNode.remove();
+      session.save();
+      return user;
+
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find user " + userName + " for delete");
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find group ", e);
     } finally {
       session.logout();
     }
@@ -372,64 +307,131 @@ public class UserHandlerImpl implements UserHandler {
   }
 
   /**
-   * This method is used to update an existing User object
-   * 
-   * @param user
-   *          The user object to update
-   * @param broadcast
-   *          If the broadcast is true , then all the user event listener that register with the
-   *          organization service will be called
-   * @throws Exception
-   *           The exception can be throwed if the the UserHandler cannot save the user object or
-   *           any listeners fail to handle the user event.
+   * {@inheritDoc}
    */
   public void saveUser(User user, boolean broadcast) throws Exception {
     // TODO implement broadcast
+    checkMandatoryProperties(user);
+
     Session session = service.getStorageSession();
     try {
-      UserImpl userImpl = (UserImpl) user;
-      if (userImpl.getUUId() == null) {
+      UserImpl uImpl = (UserImpl) user;
+      if (uImpl.getUUId() == null) {
         throw new OrganizationServiceException("Can not find user for save changes because UUId is null.");
       }
 
       try {
-        Node uNode = session.getNodeByUUID(userImpl.getUUId());
+        Node uNode = session.getNodeByUUID(uImpl.getUUId());
         String srcPath = uNode.getPath();
         int pos = srcPath.lastIndexOf('/');
         String prevName = srcPath.substring(pos + 1);
         String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
 
         try {
-          session.move(srcPath, destPath);
+          if (!prevName.equals(user.getUserName())) {
+            session.move(srcPath, destPath);
+          }
           try {
-            Calendar calendar = Calendar.getInstance();
-            uNode.setProperty(STORAGE_EXO_EMAIL, user.getEmail());
-            uNode.setProperty(STORAGE_EXO_FIRST_NAME, user.getFirstName());
-            uNode.setProperty(STORAGE_EXO_LAST_NAME, user.getLastName());
-            uNode.setProperty(STORAGE_EXO_PASSWORD, user.getPassword());
-
-            // TODO is it correct?
-            calendar.setTime(user.getCreatedDate());
-            uNode.setProperty(STORAGE_EXO_CREATED_DATE, calendar);
-            calendar.setTime(user.getLastLoginTime());
-            uNode.setProperty(STORAGE_EXO_LAST_LOGIN_TIME, calendar);
+            Node nmtNode = (Node) session.getItem(destPath);
+            writeObjectToNode(user, nmtNode);
             session.save();
-
-          } finally {
+          } catch (PathNotFoundException e) {
+            throw new OrganizationServiceException("The membership type " + user.getUserName()
+                + " is absent and can not be save", e);
           }
         } catch (PathNotFoundException e) {
-          throw new OrganizationServiceException("The user " + prevName
-              + " is absent and can not be save.");
+          throw new OrganizationServiceException("The membership type " + prevName
+              + " is absent and can not be save", e);
         } catch (ItemExistsException e) {
-          throw new OrganizationServiceException("Can not save user " + prevName
-              + " because new user " + user.getUserName() + " is exist.");
+          throw new OrganizationServiceException("Can not save membership type " + prevName
+              + " because new membership type " + user.getUserName() + " is exist", e);
         }
 
       } catch (ItemNotFoundException e) {
-        throw new OrganizationServiceException("Can not user for save changes by UUId.");
+        throw new OrganizationServiceException("Can not find membership type for save changes by UUId",
+                                               e);
       }
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not save membership type", e);
     } finally {
       session.logout();
+    }
+
+  }
+
+  @Override
+  void checkMandatoryProperties(Object obj) throws Exception {
+    User user = (User) obj;
+    if (user.getUserName() == null || user.getUserName().length() == 0) {
+      throw new OrganizationServiceException("Can not create user without name.");
+    } else if (user.getFirstName() == null || user.getFirstName().length() == 0) {
+      throw new OrganizationServiceException("Can not create user without first name.");
+    } else if (user.getLastName() == null || user.getLastName().length() == 0) {
+      throw new OrganizationServiceException("Can not create user without last name.");
+    } else if (user.getPassword() == null || user.getPassword().length() == 0) {
+      throw new OrganizationServiceException("Can not create user without password.");
+    } else if (user.getCreatedDate() == null) {
+      throw new OrganizationServiceException("Can not create user without created date.");
+    }
+
+  }
+
+  @Override
+  Date readDateProperty(Node node, String prop) throws Exception {
+    try {
+      return node.getProperty(prop).getDate().getTime();
+    } catch (PathNotFoundException e) {
+      return null;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not read property " + prop, e);
+    }
+  }
+
+  @Override
+  Object readObjectFromNode(Node node) throws Exception {
+    try {
+      User user = new UserImpl(node.getName(), node.getUUID());
+      user.setCreatedDate(readDateProperty(node, STORAGE_EXO_CREATED_DATE));
+      user.setLastLoginTime(readDateProperty(node, STORAGE_EXO_LAST_LOGIN_TIME));
+      user.setEmail(readStringProperty(node, STORAGE_EXO_EMAIL));
+      user.setPassword(readStringProperty(node, STORAGE_EXO_PASSWORD));
+      user.setFirstName(readStringProperty(node, STORAGE_EXO_FIRST_NAME));
+      user.setLastName(readStringProperty(node, STORAGE_EXO_LAST_NAME));
+      return user;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not read user properties", e);
+    }
+  }
+
+  @Override
+  String readStringProperty(Node node, String prop) throws Exception {
+    try {
+      return node.getProperty(prop).getString();
+    } catch (PathNotFoundException e) {
+      return null;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not read property " + prop, e);
+    }
+  }
+
+  @Override
+  void writeObjectToNode(Object obj, Node node) throws Exception {
+    User user = (User) obj;
+
+    try {
+      Calendar calendar = Calendar.getInstance();
+      node.setProperty(STORAGE_EXO_EMAIL, user.getEmail());
+      node.setProperty(STORAGE_EXO_FIRST_NAME, user.getFirstName());
+      node.setProperty(STORAGE_EXO_LAST_NAME, user.getLastName());
+      node.setProperty(STORAGE_EXO_PASSWORD, user.getPassword());
+
+      // TODO is it correct?
+      calendar.setTime(user.getCreatedDate());
+      node.setProperty(STORAGE_EXO_CREATED_DATE, calendar);
+      calendar.setTime(user.getLastLoginTime());
+      node.setProperty(STORAGE_EXO_LAST_LOGIN_TIME, calendar);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not write user properties", e);
     }
   }
 }

@@ -63,22 +63,6 @@ public class MembershipTypeImpl implements MembershipType {
   }
 
   /**
-   * MembershipTypeImpl constructor.
-   * 
-   * @param name
-   *          membership name
-   * @param description
-   *          membership description
-   * @param UUId
-   *          membership node id
-   */
-  MembershipTypeImpl(String name, String description, String UUId) {
-    this.name = name;
-    this.UUId = UUId;
-    this.description = description;
-  }
-
-  /**
    * Get the date when the membership type was created to the database.
    * 
    * @deprecated This method is not used.
