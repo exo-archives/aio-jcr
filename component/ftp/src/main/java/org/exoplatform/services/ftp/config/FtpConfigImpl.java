@@ -154,30 +154,30 @@ public class FtpConfigImpl implements FtpConfig {
       _timeOutValue = new Integer(pTimeOut.getValue());
     }
 
-    if (ENABLE_TRACE) {
-      log.info(INIT_PARAM_COMMAND_PORT + " = " + _commandPort);
-      log.info(INIT_PARAM_DATA_MIN_PORT + " = " + _dataMinPort);
-      log.info(INIT_PARAM_DATA_MAX_PORT + " = " + _dataMaxPort);
-      log.info(INIT_PARAM_SYSTEM + " = " + _system);
-      log.info(INIT_PARAM_CLIENT_SIDE_ENCODING + " = " + _clientSideEncoding);
-      log.info(INIT_PARAM_DEF_FOLDER_NODE_TYPE + " = " + _defFolderNodeType);
-      log.info(INIT_PARAM_DEF_FILE_NODE_TYPE + " = " + _defFileNodeType);
-      log.info(INIT_PARAM_DEF_FILE_MIME_TYPE + " = " + _defFileMimeType);
-      log.info(INIT_PARAM_CACHE_FOLDER_NAME + " = " + _cacheFolderName);
+    if (log.isDebugEnabled()) {
+      log.debug(INIT_PARAM_COMMAND_PORT + " = " + _commandPort);
+      log.debug(INIT_PARAM_DATA_MIN_PORT + " = " + _dataMinPort);
+      log.debug(INIT_PARAM_DATA_MAX_PORT + " = " + _dataMaxPort);
+      log.debug(INIT_PARAM_SYSTEM + " = " + _system);
+      log.debug(INIT_PARAM_CLIENT_SIDE_ENCODING + " = " + _clientSideEncoding);
+      log.debug(INIT_PARAM_DEF_FOLDER_NODE_TYPE + " = " + _defFolderNodeType);
+      log.debug(INIT_PARAM_DEF_FILE_NODE_TYPE + " = " + _defFileNodeType);
+      log.debug(INIT_PARAM_DEF_FILE_MIME_TYPE + " = " + _defFileMimeType);
+      log.debug(INIT_PARAM_CACHE_FOLDER_NAME + " = " + _cacheFolderName);
 
-      log.info(INIT_PARAM_UPLOAD_SPEED_LIMIT + " = " + _needSlowUpLoad);
+      log.debug(INIT_PARAM_UPLOAD_SPEED_LIMIT + " = " + _needSlowUpLoad);
       if (_needSlowUpLoad) {
-        log.info(INIT_PARAM_UPLOAD_SPEED_LIMIT + ".value = " + _upLoadSpeed);
+        log.debug(INIT_PARAM_UPLOAD_SPEED_LIMIT + ".value = " + _upLoadSpeed);
       }
 
-      log.info(INIT_PARAM_DOWNLOAD_SPEED_LIMIT + " = " + _needSlowDownLoad);
+      log.debug(INIT_PARAM_DOWNLOAD_SPEED_LIMIT + " = " + _needSlowDownLoad);
       if (_needSlowDownLoad) {
-        log.info(INIT_PARAM_DOWNLOAD_SPEED_LIMIT + ".value = " + _downLoadSpeed);
+        log.debug(INIT_PARAM_DOWNLOAD_SPEED_LIMIT + ".value = " + _downLoadSpeed);
       }
 
       log.info(INIT_PARAM_TIME_OUT + " = " + _needTimeOut);
       if (_needTimeOut) {
-        log.info(INIT_PARAM_TIME_OUT + ".value = " + _timeOutValue);
+        log.debug(INIT_PARAM_TIME_OUT + ".value = " + _timeOutValue);
       }
     }
 
