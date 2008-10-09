@@ -486,8 +486,11 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  Object readObjectFromNode(Node node) throws Exception {
+  Object readObjectFromNode(Node node) throws Exception { // TODO return Membership
     try {
       String groupUUId = readStringProperty(node, STORAGE_EXO_GROUP);
       String membershipTypeUUId = readStringProperty(node, STORAGE_EXO_MEMBERSHIP_TYPE);

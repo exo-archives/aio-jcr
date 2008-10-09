@@ -166,7 +166,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
 
-        // find users
+        // find users TODO (same query as before in mStatement, what we're doing here?)
         String uStatement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP
             + " where " + MembershipHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPE + "="
             + mtNode.getUUID();
@@ -209,8 +209,9 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     try {
       List<Group> types = new ArrayList<Group>();
 
+      // TODO wrog query stat
       String statement = "select * from " + STORAGE_EXO_GROUPS.substring(1) + " where "
-          + STORAGE_EXO_GROUP_ID + "=" + parentId + "/jcr:name";
+          + STORAGE_EXO_GROUP_ID + "=" + parentId + "/jcr:name"; // <<<<< here
       Query query = service.getStorageSession()
                            .getWorkspace()
                            .getQueryManager()
