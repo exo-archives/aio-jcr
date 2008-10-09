@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import javax.jcr.ItemExistsException;
-import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -59,7 +57,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
   public static final String                 EXO_PASSWORD        = "exo:password";
 
-  public static final String                 EXO_PROFILE = "exo:profile";
+  public static final String                 EXO_PROFILE         = "exo:profile";
 
   public static final String                 STORAGE_EXO_USERS   = "exo:users";
 
@@ -100,7 +98,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    */
   public void createUser(User user, boolean broadcast) throws Exception {
     // TODO Implement broadcast
-
     checkMandatoryProperties(user);
 
     Session session = service.getStorageSession();
@@ -109,6 +106,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       Node uNode = storageNode.addNode(user.getUserName());
       writeObjectToNode(user, uNode);
       session.save();
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not create user " + user.getUserName(), e);
     } finally {
       session.logout();
     }
@@ -136,7 +136,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
           + userName);
-      return (User) readObjectFromNode(uNode);
+      return readObjectFromNode(uNode);
+
     } catch (PathNotFoundException e) {
       return null;
     } catch (Exception e) {
@@ -152,26 +153,32 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   public PageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
     String where = "";
     if (query.getUserName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + "jcr:name LIKE " + query.getUserName());
+      where.concat((where.length() == 0 ? "" : " AND ")
+          + ("jcr:name LIKE '" + query.getUserName() + "'"));
     }
     if (query.getEmail() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + EXO_EMAIL + " LIKE " + query.getEmail());
+      where.concat((where.length() == 0 ? "" : " AND ")
+          + ("exo:email LIKE '" + query.getEmail() + "'"));
     }
     if (query.getFirstName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + EXO_FIRST_NAME + " LIKE "
-          + query.getFirstName());
+      where.concat((where.length() == 0 ? "" : " AND ")
+          + ("exo:firstName LIKE '" + query.getFirstName() + "'"));
     }
     if (query.getLastName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + EXO_LAST_NAME + " LIKE "
-          + query.getLastName());
+      where.concat((where.length() == 0 ? "" : " AND ")
+          + ("exo:lastName LIKE '" + query.getLastName() + "'"));
     }
+
+    // TODO is it correct
     if (query.getFromLoginDate() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + EXO_LAST_LOGIN_TIME + ">="
-          + query.getFromLoginDate());
+      where.concat((where.length() == 0 ? "" : " AND ")
+          + ("exo:lastLoginTime >='" + query.getFromLoginDate() + "'"));
     }
+
+    // TODO is it correct
     if (query.getToLoginDate() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + EXO_LAST_LOGIN_TIME + "<="
-          + query.getToLoginDate());
+      where.concat((where.length() == 0 ? "" : " AND ")
+          + ("exo:lastLoginTime <=" + query.getToLoginDate() + "'"));
     }
 
     List<User> types = new ArrayList<User>();
@@ -196,17 +203,17 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList findUsersByGroup(String groupId) throws Exception {
-    List<User> users = new ArrayList<User>();
     String groupName = groupId.substring(groupId.lastIndexOf('/') + 1);
     Session session = service.getStorageSession();
     try {
+      List<User> users = new ArrayList<User>();
+
       // get UUId of the group
       Node gNode = (Node) session.getItem(service.getStoragePath() + "/"
           + GroupHandlerImpl.STORAGE_EXO_GROUPS + "/" + groupName);
 
       // find group
-      String statement = "select * from " + MembershipHandlerImpl.EXO_GROUP + " where jcr:uuid='"
-          + gNode.getUUID() + "'";
+      String statement = "select * from exo:group where jcr:uuid='" + gNode.getUUID() + "'";
       Query gquery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
@@ -217,8 +224,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
         Node groupNode = gres.getNodes().nextNode();
 
         // find memberships
-        statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP
-            + " where " + MembershipHandlerImpl.EXO_GROUP + "='" + groupNode.getUUID() + "'";
+        statement = "select * from exo:userMembership where exo:group='" + groupNode.getUUID()
+            + "'";
         Query mquery = service.getStorageSession()
                               .getWorkspace()
                               .getQueryManager()
@@ -236,8 +243,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
       return new ObjectPageList(users, 10);
 
-    } catch (PathNotFoundException e) {
-      throw new OrganizationServiceException("Can not find group " + groupName, e);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group ", e);
     } finally {
@@ -253,7 +258,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     Session session = service.getStorageSession();
     try {
       List<User> types = new ArrayList<User>();
-      Node storageNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS);
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
       for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
         Node uNode = uNodes.nextNode();
         User user = findUserByName(uNode.getName());
@@ -262,6 +267,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
         }
       }
       return new ObjectPageList(types, 10);
+
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group ", e);
     } finally {
@@ -276,7 +282,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS + "/"
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
           + userName);
       User user = findUserByName(userName);
       uNode.remove();
@@ -316,47 +322,36 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
         throw new OrganizationServiceException("Can not find user for save changes because UUId is null.");
       }
 
-      try {
-        Node uNode = session.getNodeByUUID(uImpl.getUUId());
-        String srcPath = uNode.getPath();
-        int pos = srcPath.lastIndexOf('/');
-        String prevName = srcPath.substring(pos + 1);
-        String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
+      Node uNode = session.getNodeByUUID(uImpl.getUUId());
+      String srcPath = uNode.getPath();
+      int pos = srcPath.lastIndexOf('/');
+      String prevName = srcPath.substring(pos + 1);
+      String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
 
-        try {
-          if (!prevName.equals(user.getUserName())) {
-            session.move(srcPath, destPath);
-          }
-          try {
-            Node nmtNode = (Node) session.getItem(destPath);
-            writeObjectToNode(user, nmtNode);
-            session.save();
-          } catch (PathNotFoundException e) {
-            throw new OrganizationServiceException("The membership type " + user.getUserName()
-                + " is absent and can not be save", e);
-          }
-        } catch (PathNotFoundException e) {
-          throw new OrganizationServiceException("The membership type " + prevName
-              + " is absent and can not be save", e);
-        } catch (ItemExistsException e) {
-          throw new OrganizationServiceException("Can not save membership type " + prevName
-              + " because new membership type " + user.getUserName() + " is exist", e);
-        }
-
-      } catch (ItemNotFoundException e) {
-        throw new OrganizationServiceException("Can not find membership type for save changes by UUId",
-                                               e);
+      if (!prevName.equals(user.getUserName())) {
+        session.move(srcPath, destPath);
       }
+
+      Node nmtNode = (Node) session.getItem(destPath);
+      writeObjectToNode(user, nmtNode);
+      session.save();
+
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save membership type", e);
+      throw new OrganizationServiceException("Can not save user " + user.getUserName(), e);
     } finally {
       session.logout();
     }
-
   }
 
-  private void checkMandatoryProperties(Object obj) throws Exception {
-    User user = (User) obj;
+  /**
+   * Check that all mandatory properties of the user type have a value.
+   * 
+   * @param mt
+   *          The user to check
+   * @throws Exception
+   *           If one of properties is null or is empty.
+   */
+  private void checkMandatoryProperties(User user) throws Exception {
     if (user.getUserName() == null || user.getUserName().length() == 0) {
       throw new OrganizationServiceException("Can not create user without name.");
     } else if (user.getFirstName() == null || user.getFirstName().length() == 0) {
@@ -371,7 +366,16 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
   }
 
-  private Object readObjectFromNode(Node node) throws Exception {
+  /**
+   * Read user properties from the node in the storage.
+   * 
+   * @param node
+   *          The node to read from
+   * @return The user
+   * @throws Exception
+   *           An exception is thrown if method can not get access to the database
+   */
+  private User readObjectFromNode(Node node) throws Exception {
     try {
       User user = new UserImpl(node.getName(), node.getUUID());
       user.setCreatedDate(readDateProperty(node, EXO_CREATED_DATE));
@@ -386,9 +390,17 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     }
   }
 
-  private void writeObjectToNode(Object obj, Node node) throws Exception {
-    User user = (User) obj;
-
+  /**
+   * Write user properties to the node
+   * 
+   * @param usr
+   *          The user
+   * @param node
+   *          The node in the storage
+   * @throws Exception
+   *           An exception is thrown if method can not get access to the database
+   */
+  private void writeObjectToNode(User user, Node node) throws Exception {
     try {
       Calendar calendar = Calendar.getInstance();
       node.setProperty(EXO_EMAIL, user.getEmail());

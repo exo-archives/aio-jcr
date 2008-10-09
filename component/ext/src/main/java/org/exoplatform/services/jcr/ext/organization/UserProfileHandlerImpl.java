@@ -41,7 +41,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
 
   public static final String                     EXO_ATTRIBUTES = "exo:attributes";
 
-  protected final List<UserProfileEventListener> listeners              = new ArrayList<UserProfileEventListener>();
+  protected final List<UserProfileEventListener> listeners      = new ArrayList<UserProfileEventListener>();
 
   /**
    * Organization service implementation covering the handler.
@@ -61,7 +61,6 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * {@inheritDoc}
    */
-
   public void addUserProfileEventListener(UserProfileEventListener listener) {
     listeners.add(listener);
   }
@@ -89,17 +88,14 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
-      try {
-        Node profileNode = uNode.getNode(EXO_ATTRIBUTES);
-        UserProfile userProfile = new UserProfileImpl(userName);
-        for (PropertyIterator props = profileNode.getProperties(); props.hasNext();) {
-          Property prop = props.nextProperty();
-          userProfile.setAttribute(prop.getName(), prop.getString());
-        }
-        return userProfile;
-      } catch (Exception e) {
-        throw new OrganizationServiceException("Can not find user profile", e);
+      Node profileNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE);
+      Node attrNode = profileNode.getNode(EXO_ATTRIBUTES);
+      UserProfile userProfile = new UserProfileImpl(userName);
+      for (PropertyIterator props = attrNode.getProperties(); props.hasNext();) {
+        Property prop = props.nextProperty();
+        userProfile.setAttribute(prop.getName(), prop.getString());
       }
+      return userProfile;
 
     } catch (PathNotFoundException e) {
       return null;
@@ -122,9 +118,13 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
           + UserHandlerImpl.STORAGE_EXO_USERS);
       for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
         Node uNode = nodes.nextNode();
-        types.add(findUserProfileByName(uNode.getName()));
+        UserProfile userProfile = findUserProfileByName(uNode.getName());
+        if (userProfile != null) {
+          types.add(userProfile);
+        }
       }
       return types;
+
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find user profile", e);
     } finally {
@@ -148,10 +148,10 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
         profileNode.remove();
         session.save();
         return userProfile;
-      } else {
-        throw new OrganizationServiceException("Can not find user " + userName
-            + " for remove profile.");
       }
+      throw new OrganizationServiceException("Can not find user " + userName
+          + " for remove profile.");
+
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove user profile for user " + userName, e);
     } finally {
@@ -180,20 +180,23 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
           + profile.getUserName();
 
       Node uNode = (Node) session.getItem(userPath);
+
       if (!session.itemExists(userPath + "/" + UserHandlerImpl.EXO_PROFILE)) {
         uNode.addNode(UserHandlerImpl.EXO_PROFILE);
       }
-
       Node profileNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE);
+
+      if (!session.itemExists(userPath + "/" + UserHandlerImpl.EXO_PROFILE + "/" + EXO_ATTRIBUTES)) {
+        profileNode.addNode(EXO_ATTRIBUTES);
+      }
+      Node attrNode = profileNode.getNode(EXO_ATTRIBUTES);
+
       String keys[] = (String[]) profile.getUserInfoMap().keySet().toArray();
       for (int i = 0; i < keys.length; i++) {
-        profileNode.setProperty(keys[i], profile.getAttribute(keys[i]));
+        attrNode.setProperty(keys[i], profile.getAttribute(keys[i]));
       }
       session.save();
 
-    } catch (PathNotFoundException e) {
-      throw new OrganizationServiceException("Can not find user " + profile.getUserName()
-          + " for save profile.", e);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save user profile for user "
           + profile.getUserName(), e);
@@ -202,13 +205,4 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     }
   }
 
-  private void checkMandatoryProperties(Object obj) throws Exception {
-  }
-
-  private Object readObjectFromNode(Node node) throws Exception {
-    return null;
-  }
-
-  private void writeObjectToNode(Object obj, Node node) throws Exception {
-  }
 }
