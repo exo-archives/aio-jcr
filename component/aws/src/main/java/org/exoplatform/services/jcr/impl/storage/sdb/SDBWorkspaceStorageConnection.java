@@ -80,7 +80,7 @@ import com.amazonaws.sdb.model.ReplaceableAttribute;
  * <br/>Date: 30.09.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SDBWorkspaceStorageConnection.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id$
  */
 public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection, SDBConstants {
 
@@ -391,23 +391,19 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * @throws AmazonSimpleDBException
      *           in case of SimpleDB service error
      */
-    abstract Object rollback() throws AmazonSimpleDBException;
+    abstract Object rollback() throws RepositoryException;
 
     /**
      * 
      * Execute write operation.
      * 
      * @return SimpleDB responce for the operation or error
-     * @throws AmazonSimpleDBException
-     *           in case of SimpleDB service error
+     * @throws RepositoryException
+     *           in case of Repository error
      * @throws IOException
-     *           if Value save fails
-     * @throws SDBItemValueLengthExceeded
-     *           if SimpleDB error occured
+     *           if modofication fails
      */
-    abstract Object execute() throws AmazonSimpleDBException,
-                             SDBItemValueLengthExceeded,
-                             IOException;
+    abstract Object execute() throws RepositoryException, IOException;
 
     /**
      * Get operation Item path.
@@ -465,7 +461,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * {@inheritDoc}
      */
     @Override
-    Object execute() throws AmazonSimpleDBException {
+    Object execute() throws RepositoryException {
+      // validate
+      validateItemAdd(node);
+
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
 
       list.add(new ReplaceableAttribute(ID, node.getIdentifier(), false));
@@ -479,15 +478,25 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       // list.add(new ReplaceableAttribute(ORDERNUM, String.valueOf(node.getOrderNumber()), false));
       list.add(new ReplaceableAttribute(IDATA, formatIData(node), false));
 
-      return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(add) Node " + node.getQPath().getAsString() + " "
+            + node.getIdentifier() + " add fails " + e, e);
+      }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    Object rollback() throws AmazonSimpleDBException {
-      return deleteItem(sdbService, domainName, node.getIdentifier());
+    Object rollback() throws RepositoryException {
+      try {
+        return deleteItem(sdbService, domainName, node.getIdentifier());
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(add) Node " + node.getQPath().getAsString() + " "
+            + node.getIdentifier() + " rollback fails " + e, e);
+      }
     }
 
   }
@@ -523,7 +532,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * {@inheritDoc}
      */
     @Override
-    Object execute() throws AmazonSimpleDBException, SDBItemValueLengthExceeded, IOException {
+    Object execute() throws IOException, RepositoryException {
+
+      // validate
+      validateItemAdd(property);
 
       // process Values firts,
       // if some Values matches VS filters they will be stored there.
@@ -557,15 +569,25 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       for (String value : values)
         list.add(new ReplaceableAttribute(DATA, value, false));
 
-      return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(add) Property " + property.getQPath().getAsString() + " "
+            + property.getIdentifier() + " add fails " + e, e);
+      }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    Object rollback() throws AmazonSimpleDBException {
-      return deleteItem(sdbService, domainName, property.getIdentifier());
+    Object rollback() throws RepositoryException {
+      try {
+        return deleteItem(sdbService, domainName, property.getIdentifier());
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(add) Property " + property.getQPath().getAsString() + " "
+            + property.getIdentifier() + " rollback fails " + e, e);
+      }
     }
   }
 
@@ -600,7 +622,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * {@inheritDoc}
      */
     @Override
-    Object execute() throws AmazonSimpleDBException {
+    Object execute() throws RepositoryException {
+
+      // validate
+      validateItemChange(node, ITEM_UPDATE);
+
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
 
       // list.add(new ReplaceableAttribute(ID, node.getIdentifier(), true));
@@ -615,14 +641,19 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       // list.add(new ReplaceableAttribute(ORDERNUM, String.valueOf(node.getOrderNumber()), true));
       list.add(new ReplaceableAttribute(IDATA, formatIData(node), true));
 
-      return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(update) Node " + node.getQPath().getAsString() + " "
+            + node.getIdentifier() + " update fails " + e, e);
+      }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    Object rollback() throws AmazonSimpleDBException {
+    Object rollback() {
       // delete
       // and back previous
       // TODO ..but now rollback isn't provided
@@ -662,9 +693,14 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws IOException
      */
     @Override
-    Object execute() throws AmazonSimpleDBException, SDBItemValueLengthExceeded, IOException {
+    Object execute() throws RepositoryException, IOException {
+
+      // validate
+      validateItemChange(property, ITEM_UPDATE);
 
       // process Values firts,
       // if some Values matches VS filters they will be stored there.
@@ -698,14 +734,19 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       for (String value : values)
         list.add(new ReplaceableAttribute(DATA, value, true));
 
-      return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(update) Property " + property.getQPath().getAsString()
+            + " " + property.getIdentifier() + " update fails " + e, e);
+      }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    Object rollback() throws AmazonSimpleDBException {
+    Object rollback() {
       // delete
       // and back previous
       // TODO ..but now rollback isn't provided
@@ -747,26 +788,39 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * {@inheritDoc}
      */
     @Override
-    Object execute() throws AmazonSimpleDBException {
+    Object execute() throws RepositoryException {
+
+      // validate
+      validateItemChange(node, ITEM_DELETE);
 
       // update existsing Item ID to deleted 'D'
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
       list.add(new ReplaceableAttribute(ID, ITEM_DELETED_ID, true));
 
-      return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(delete) Node " + node.getQPath().getAsString() + " "
+            + node.getIdentifier() + " delete fails " + e, e);
+      }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    Object rollback() throws AmazonSimpleDBException {
+    Object rollback() throws RepositoryException {
 
       // back Item ID to the actual
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
       list.add(new ReplaceableAttribute(ID, node.getIdentifier(), false));
 
-      return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(delete) Node " + node.getQPath().getAsString() + " "
+            + node.getIdentifier() + " delete rollback fails " + e, e);
+      }
     }
 
   }
@@ -802,26 +856,39 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * {@inheritDoc}
      */
     @Override
-    Object execute() throws AmazonSimpleDBException {
+    Object execute() throws RepositoryException {
+
+      // validate
+      validateItemChange(property, ITEM_DELETE);
 
       // update existsing Item ID to deleted 'D'
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
       list.add(new ReplaceableAttribute(ID, ITEM_DELETED_ID, true));
 
-      return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(delete) Property " + property.getQPath().getAsString()
+            + " " + property.getIdentifier() + " delete fails " + e, e);
+      }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    Object rollback() throws AmazonSimpleDBException {
+    Object rollback() throws RepositoryException {
 
       // back Item ID to the actual
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
       list.add(new ReplaceableAttribute(ID, property.getIdentifier(), false));
 
-      return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      try {
+        return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+      } catch (AmazonSimpleDBException e) {
+        throw new SDBStorageException("(delete) Property " + property.getQPath().getAsString()
+            + " " + property.getIdentifier() + " delete rollback fails " + e, e);
+      }
     }
   }
 
@@ -1563,10 +1630,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           + "'. Error " + e, e);
     }
   }
-  
+
   /**
    * Load PropertyData from SimpleDb Item.
-   *
+   * 
    * @param parent
    *          - parent NodeData
    * @param atts
@@ -1600,9 +1667,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             values.add(new ByteArrayPersistedValueData(Base64.decode(value), i));
           } catch (DecodingException e) {
             throw new SDBAttributeValueCorruptedException("(child properties) Node "
-                + parent.getQPath().getAsString() + " " + parent.getIdentifier()
-                + ". Property " + property.getQPath().getName().getAsString() + " value[" + i
-                + "] decoding error " + e, e);
+                + parent.getQPath().getAsString() + " " + parent.getIdentifier() + ". Property "
+                + property.getQPath().getName().getAsString() + " value[" + i + "] decoding error "
+                + e, e);
           }
         } else if (vp == VALUEPREFIX_STORAGEID) {
           // data in external Value Storage
@@ -1613,14 +1680,14 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           } catch (IOException e) {
             throw new RepositoryException("(child properties) Node "
                 + parent.getQPath().getAsString() + " " + parent.getIdentifier()
-                + ". Node's Property " + property.getQPath().getName().getAsString()
-                + " value[" + i + "] read I/O error " + e, e);
+                + ". Node's Property " + property.getQPath().getName().getAsString() + " value["
+                + i + "] read I/O error " + e, e);
           }
         }
       }
 
       property.setValues(values);
-      return property; 
+      return property;
     } catch (IllegalNameException e) {
       throw new SDBAttributeValueFormatException("(child properties) Node "
           + parent.getQPath().getAsString() + " " + parent.getIdentifier()
@@ -1628,15 +1695,13 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           + "'. Error " + e, e);
     }
   }
+
   // Interface impl
 
   /**
    * {@inheritDoc}
    */
   public void add(NodeData data) throws ItemExistsException, RepositoryException {
-
-    // validate
-    validateItemAdd(data);
 
     // put in changes queue
     changes.add(new AddNodeOperation(data));
@@ -1646,9 +1711,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * {@inheritDoc}
    */
   public void add(PropertyData data) throws ItemExistsException, RepositoryException {
-
-    // validate if Item aready exists
-    validateItemAdd(data);
 
     // add
     changes.add(new AddPropertyOperation(data));
@@ -1666,10 +1728,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         o.execute();
         o.markProcessed();
       }
-    } catch (AmazonSimpleDBException e) {
-      throw new RepositoryException("Storage commit error "
-          + (o != null ? "on item " + o.getPath().getAsString() + ", " : "") + e, e);
     } catch (IOException e) {
+      // TODO handle IO error in dedicated operation
       throw new RepositoryException("Storage commit I/O error "
           + (o != null ? "on item " + o.getPath().getAsString() + ", " : "") + e, e);
     }
@@ -1680,16 +1740,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * {@inheritDoc}
    */
   public void rollback() throws IllegalStateException, RepositoryException {
-    try {
-      // iter backward
-      for (int i = changes.size() - 1; i > 0; i--) {
-        WriteOperation o = changes.get(i);
-        if (!o.isProcessed())
-          o.rollback();
-      }
-    } catch (AmazonSimpleDBException e) {
-      // throw an error
-      throw new RepositoryException("Storage rollback error " + e, e);
+    // iter backward
+    for (int i = changes.size() - 1; i > 0; i--) {
+      WriteOperation o = changes.get(i);
+      if (!o.isProcessed())
+        o.rollback();
     }
   }
 
@@ -1697,9 +1752,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * {@inheritDoc}
    */
   public void delete(NodeData data) throws RepositoryException, InvalidItemStateException {
-
-    // validate
-    validateItemChange(data, ITEM_DELETE);
 
     // delete
     changes.add(new DeleteNodeOperation(data));
@@ -1709,8 +1761,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * {@inheritDoc}
    */
   public void delete(PropertyData data) throws RepositoryException, InvalidItemStateException {
-    // validate
-    validateItemChange(data, ITEM_DELETE);
 
     // delete
     changes.add(new DeletePropertyOperation(data));
@@ -1724,9 +1774,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                    InvalidItemStateException,
                                    IllegalStateException {
 
-    // validate
-    validateItemChange(data, ITEM_UPDATE);
-
     // upadate
     changes.add(new UpdateNodeOperation(data));
   }
@@ -1738,9 +1785,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                        UnsupportedOperationException,
                                        InvalidItemStateException,
                                        IllegalStateException {
-    // validate
-    validateItemChange(data, ITEM_UPDATE);
-
     // upadate
     changes.add(new UpdatePropertyOperation(data));
   }
@@ -1753,9 +1797,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                    InvalidItemStateException,
                                    IllegalStateException {
     // TODO seems same as Update
-
-    // validate
-    validateItemChange(data, ITEM_UPDATE);
 
     // upadate
     changes.add(new UpdateNodeOperation(data));
@@ -1876,7 +1917,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(item) Id " + identifier + ". Read request fails " + e, e);
     }
-    
+
     return null;
   }
 
