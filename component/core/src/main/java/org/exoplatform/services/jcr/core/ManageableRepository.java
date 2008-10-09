@@ -39,6 +39,11 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
  */
 
 public interface ManageableRepository extends Repository {
+  
+  static final int OFFLINE = 0;
+  static final int ONLINE = 1;
+  static final int READONLY = 2;
+  
   /**
    * Add the items persistence listener to the named workspace.
    * 
@@ -157,4 +162,18 @@ public interface ManageableRepository extends Repository {
    */
   WorkspaceContainerFacade getWorkspaceContainer(String workspaceName);
 
+  /**
+   * Set repository state.
+   * 
+   * @param OFFLINE, ONLINE, READONLY state
+   */
+  void setState(int state);
+  
+  /**
+   * Returns repository state.
+   * 
+   * @return repository state
+   */
+  int getState();
+  
 }

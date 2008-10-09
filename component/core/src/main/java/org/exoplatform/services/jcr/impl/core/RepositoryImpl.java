@@ -57,6 +57,7 @@ import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataMan
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
 
@@ -102,6 +103,8 @@ public class RepositoryImpl implements ManageableRepository {
   private final RepositoryEntry          config;
 
   private final AuthenticationPolicy     authenticationPolicy;
+  
+  private int state = OFFLINE;
 
   public RepositoryImpl(RepositoryContainer container) throws RepositoryException,
       RepositoryConfigurationException {
@@ -114,6 +117,7 @@ public class RepositoryImpl implements ManageableRepository {
     this.systemWorkspaceName = config.getSystemWorkspaceName();
     this.repositoryContainer = container;
 
+    setState(ONLINE);
   }
 
   /*
@@ -492,5 +496,41 @@ public class RepositoryImpl implements ManageableRepository {
   public WorkspaceContainerFacade getWorkspaceContainer(String workspaceName) {
     return new WorkspaceContainerFacade(workspaceName,
                                         repositoryContainer.getWorkspaceContainer(workspaceName));
+  }
+
+  public int getState() {
+    return state;
+  }
+
+  public void setState(int state) {
+    switch(state){
+    case ONLINE:
+      // set ONLINE all workspaces
+      setAllWorkspacesReadOnly(false);
+      break;
+    case OFFLINE:
+      // do nothing
+      break;
+    case READONLY:
+      // set READONLY all workspaces
+      setAllWorkspacesReadOnly(true);
+      break;
+    }
+    
+    this.state=state;
+  }
+
+  /**
+   * Set all repository workspaces ReadOnly status.
+   * 
+   * @param wsStatus ReadOnly workspace status
+   */
+  private void setAllWorkspacesReadOnly(boolean wsStatus){
+    WorkspaceContainerFacade wsFacade;
+    for(String workspaceName : getWorkspaceNames()){
+      wsFacade = getWorkspaceContainer(workspaceName);
+      WorkspaceDataContainer dataContainer = (WorkspaceDataContainer)wsFacade.getComponent(WorkspaceDataContainer.class);
+      dataContainer.setReadOnly(wsStatus);
+    }
   }
 }

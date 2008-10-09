@@ -51,8 +51,8 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 public class BindableRepositoryImpl implements Serializable, Referenceable, ManageableRepository {
 
   private transient ManageableRepository delegatee = null;
-
-  /**
+  
+    /**
    * @param rep
    *          real repository impl
    */
@@ -207,4 +207,15 @@ public class BindableRepositoryImpl implements Serializable, Referenceable, Mana
   public WorkspaceContainerFacade getWorkspaceContainer(String workspaceName) {
     return delegatee.getWorkspaceContainer(workspaceName);
   }
+  
+  public int getState() {
+    return delegatee.getState();
+  }
+
+  public void setState(int state) {
+    delegatee.setState(state);
+  }
+
+ 
+  
 }
