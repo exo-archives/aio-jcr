@@ -44,6 +44,11 @@ public class MembershipImpl implements Membership {
   private String userName;
 
   /**
+   * The id of the membership
+   */
+  private String id;
+
+  /**
    * MembershipImpl constructor.
    */
   MembershipImpl() {
@@ -59,7 +64,8 @@ public class MembershipImpl implements Membership {
    * @param membershipType
    *          The membership type
    */
-  MembershipImpl(String userName, String groupId, String membershipType) {
+  MembershipImpl(String id, String userName, String groupId, String membershipType) {
+    this.id = id;
     this.userName = userName;
     this.groupId = groupId;
     this.membershipType = membershipType;
@@ -76,7 +82,7 @@ public class MembershipImpl implements Membership {
    * {@inheritDoc}
    */
   public String getId() {
-    return null;
+    return id;
   }
 
   /**
