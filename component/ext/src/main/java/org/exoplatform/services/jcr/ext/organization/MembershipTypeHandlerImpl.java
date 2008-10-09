@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import javax.jcr.ItemExistsException;
@@ -26,7 +25,6 @@ import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
-import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.exoplatform.services.organization.MembershipType;
@@ -40,9 +38,9 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
  */
 public class MembershipTypeHandlerImpl extends CommonHandler implements MembershipTypeHandler {
 
-  public static final String                 STORAGE_EXO_DESCRIPTION      = "exo:description";
+  public static final String                 EXO_DESCRIPTION      = "exo:description";
 
-  public static final String                 STORAGE_EXO_MEMBERSHIP_TYPES = "/exo:membershipTypes";
+  public static final String                 STORAGE_EXO_MEMBERSHIP_TYPES = "exo:membershipTypes";
 
   /**
    * Organization service implementation covering the handler.
@@ -68,7 +66,7 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
 
     Session session = service.getStorageSession();
     try {
-      Node storagePath = (Node) session.getItem(service.getStoragePath()
+      Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES);
       try {
         Node mtNode = storagePath.addNode(mt.getName());
@@ -99,8 +97,8 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   public MembershipType findMembershipType(String name) throws Exception {
     Session session = service.getStorageSession();
     try {
-      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
-          + "/" + name);
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
       return (MembershipType) readObjectFromNode(mtNode);
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("The membership type " + name + " is absent.");
@@ -119,7 +117,7 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     try {
       List<MembershipType> types = new ArrayList<MembershipType>();
 
-      Node storageNode = (Node) session.getItem(service.getStoragePath()
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES);
       for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
         Node mtNode = nodes.nextNode();
@@ -141,8 +139,8 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      Node mtNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_MEMBERSHIP_TYPES
-          + "/" + name);
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
 
       MembershipType mt = (MembershipType) readObjectFromNode(mtNode);
       mtNode.remove();
@@ -210,53 +208,28 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     }
   }
 
-  @Override
-  void checkMandatoryProperties(Object obj) throws Exception {
+  private void checkMandatoryProperties(Object obj) throws Exception {
     MembershipType mt = (MembershipType) obj;
     if (mt.getName() == null || mt.getName().length() == 0) {
       throw new OrganizationServiceException("The name of membership type can not be null or empty.");
     }
   }
 
-  @Override
-  Date readDateProperty(Node node, String prop) throws Exception {
-    try {
-      return node.getProperty(prop).getDate().getTime();
-    } catch (PathNotFoundException e) {
-      return null;
-    } catch (RepositoryException e) {
-      throw new OrganizationServiceException("Can not read property " + prop, e);
-    }
-  }
-
-  @Override
-  Object readObjectFromNode(Node node) throws Exception {
+  private Object readObjectFromNode(Node node) throws Exception {
     try {
       MembershipType mt = new MembershipTypeImpl(node.getUUID());
       mt.setName(node.getName());
-      mt.setDescription(readStringProperty(node, STORAGE_EXO_DESCRIPTION));
+      mt.setDescription(readStringProperty(node, EXO_DESCRIPTION));
       return mt;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not read membership type properties", e);
     }
   }
 
-  @Override
-  String readStringProperty(Node node, String prop) throws Exception {
-    try {
-      return node.getProperty(prop).getString();
-    } catch (PathNotFoundException e) {
-      return null;
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not read property " + prop, e);
-    }
-  }
-
-  @Override
-  void writeObjectToNode(Object obj, Node node) throws Exception {
+  private void writeObjectToNode(Object obj, Node node) throws Exception {
     MembershipType mt = (MembershipType) obj;
     try {
-      node.setProperty(STORAGE_EXO_DESCRIPTION, mt.getDescription());
+      node.setProperty(EXO_DESCRIPTION, mt.getDescription());
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write membership type properties", e);
     }

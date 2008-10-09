@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.jcr.ItemExistsException;
@@ -46,25 +45,25 @@ import org.exoplatform.services.organization.UserHandler;
  */
 public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
-  public static final String                 STORAGE_EXO_CREATED_DATE    = "exo:createdDate";
+  public static final String                 EXO_CREATED_DATE    = "exo:createdDate";
 
-  public static final String                 STORAGE_EXO_EMAIL           = "exo:email";
+  public static final String                 EXO_EMAIL           = "exo:email";
 
-  public static final String                 STORAGE_EXO_FIRST_NAME      = "exo:firstName";
+  public static final String                 EXO_FIRST_NAME      = "exo:firstName";
 
-  public static final String                 STORAGE_EXO_LAST_LOGIN_TIME = "exo:lastLoginTime";
+  public static final String                 EXO_LAST_LOGIN_TIME = "exo:lastLoginTime";
 
-  public static final String                 STORAGE_EXO_LAST_NAME       = "exo:lastName";
+  public static final String                 EXO_LAST_NAME       = "exo:lastName";
 
-  public static final String                 STORAGE_EXO_MEMBERSHIP      = "exo:membership";
+  public static final String                 EXO_MEMBERSHIP      = "exo:membership";
 
-  public static final String                 STORAGE_EXO_PASSWORD        = "exo:password";
+  public static final String                 EXO_PASSWORD        = "exo:password";
 
-  public static final String                 STORAGE_EXO_PROFILE         = "exo:profile";
+  public static final String                 EXO_PROFILE = "exo:profile";
 
-  public static final String                 STORAGE_EXO_USERS           = "/exo:users";
+  public static final String                 STORAGE_EXO_USERS   = "exo:users";
 
-  protected final List<UserEventListener>    listeners                   = new ArrayList<UserEventListener>();
+  protected final List<UserEventListener>    listeners           = new ArrayList<UserEventListener>();
 
   /**
    * Organization service implementation covering the handler.
@@ -106,7 +105,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
     Session session = service.getStorageSession();
     try {
-      Node storageNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS);
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
       Node uNode = storageNode.addNode(user.getUserName());
       writeObjectToNode(user, uNode);
       session.save();
@@ -135,7 +134,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   public User findUserByName(String userName) throws Exception {
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath() + STORAGE_EXO_USERS + "/"
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
           + userName);
       return (User) readObjectFromNode(uNode);
     } catch (PathNotFoundException e) {
@@ -156,30 +155,28 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       where.concat((where.length() == 0 ? "" : " AND ") + "jcr:name LIKE " + query.getUserName());
     }
     if (query.getEmail() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + STORAGE_EXO_EMAIL + " LIKE "
-          + query.getEmail());
+      where.concat((where.length() == 0 ? "" : " AND ") + EXO_EMAIL + " LIKE " + query.getEmail());
     }
     if (query.getFirstName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + STORAGE_EXO_FIRST_NAME + " LIKE "
+      where.concat((where.length() == 0 ? "" : " AND ") + EXO_FIRST_NAME + " LIKE "
           + query.getFirstName());
     }
     if (query.getLastName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + STORAGE_EXO_LAST_NAME + " LIKE "
+      where.concat((where.length() == 0 ? "" : " AND ") + EXO_LAST_NAME + " LIKE "
           + query.getLastName());
     }
     if (query.getFromLoginDate() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + STORAGE_EXO_LAST_LOGIN_TIME + ">="
+      where.concat((where.length() == 0 ? "" : " AND ") + EXO_LAST_LOGIN_TIME + ">="
           + query.getFromLoginDate());
     }
     if (query.getToLoginDate() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ") + STORAGE_EXO_LAST_LOGIN_TIME + "<="
+      where.concat((where.length() == 0 ? "" : " AND ") + EXO_LAST_LOGIN_TIME + "<="
           + query.getToLoginDate());
     }
 
     List<User> types = new ArrayList<User>();
 
-    String statement = "select * from " + STORAGE_EXO_USERS.substring(1)
-        + (where.length() == 0 ? "" : " where " + where);
+    String statement = "select * from exo:user " + (where.length() == 0 ? "" : " where " + where);
     Query uQuery = service.getStorageSession()
                           .getWorkspace()
                           .getQueryManager()
@@ -204,12 +201,12 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     Session session = service.getStorageSession();
     try {
       // get UUId of the group
-      Node gNode = (Node) session.getItem(service.getStoragePath()
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/"
           + GroupHandlerImpl.STORAGE_EXO_GROUPS + "/" + groupName);
 
       // find group
-      String statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_GROUP
-          + " where jcr:uuid='" + gNode.getUUID() + "'";
+      String statement = "select * from " + MembershipHandlerImpl.EXO_GROUP + " where jcr:uuid='"
+          + gNode.getUUID() + "'";
       Query gquery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
@@ -221,8 +218,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
         // find memberships
         statement = "select * from " + MembershipHandlerImpl.STORAGE_EXO_USER_MEMBERSHIP
-            + " where " + MembershipHandlerImpl.STORAGE_EXO_GROUP + "='" + groupNode.getUUID()
-            + "'";
+            + " where " + MembershipHandlerImpl.EXO_GROUP + "='" + groupNode.getUUID() + "'";
         Query mquery = service.getStorageSession()
                               .getWorkspace()
                               .getQueryManager()
@@ -359,8 +355,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
   }
 
-  @Override
-  void checkMandatoryProperties(Object obj) throws Exception {
+  private void checkMandatoryProperties(Object obj) throws Exception {
     User user = (User) obj;
     if (user.getUserName() == null || user.getUserName().length() == 0) {
       throw new OrganizationServiceException("Can not create user without name.");
@@ -376,60 +371,36 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
   }
 
-  @Override
-  Date readDateProperty(Node node, String prop) throws Exception {
-    try {
-      return node.getProperty(prop).getDate().getTime();
-    } catch (PathNotFoundException e) {
-      return null;
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not read property " + prop, e);
-    }
-  }
-
-  @Override
-  Object readObjectFromNode(Node node) throws Exception {
+  private Object readObjectFromNode(Node node) throws Exception {
     try {
       User user = new UserImpl(node.getName(), node.getUUID());
-      user.setCreatedDate(readDateProperty(node, STORAGE_EXO_CREATED_DATE));
-      user.setLastLoginTime(readDateProperty(node, STORAGE_EXO_LAST_LOGIN_TIME));
-      user.setEmail(readStringProperty(node, STORAGE_EXO_EMAIL));
-      user.setPassword(readStringProperty(node, STORAGE_EXO_PASSWORD));
-      user.setFirstName(readStringProperty(node, STORAGE_EXO_FIRST_NAME));
-      user.setLastName(readStringProperty(node, STORAGE_EXO_LAST_NAME));
+      user.setCreatedDate(readDateProperty(node, EXO_CREATED_DATE));
+      user.setLastLoginTime(readDateProperty(node, EXO_LAST_LOGIN_TIME));
+      user.setEmail(readStringProperty(node, EXO_EMAIL));
+      user.setPassword(readStringProperty(node, EXO_PASSWORD));
+      user.setFirstName(readStringProperty(node, EXO_FIRST_NAME));
+      user.setLastName(readStringProperty(node, EXO_LAST_NAME));
       return user;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not read user properties", e);
     }
   }
 
-  @Override
-  String readStringProperty(Node node, String prop) throws Exception {
-    try {
-      return node.getProperty(prop).getString();
-    } catch (PathNotFoundException e) {
-      return null;
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not read property " + prop, e);
-    }
-  }
-
-  @Override
-  void writeObjectToNode(Object obj, Node node) throws Exception {
+  private void writeObjectToNode(Object obj, Node node) throws Exception {
     User user = (User) obj;
 
     try {
       Calendar calendar = Calendar.getInstance();
-      node.setProperty(STORAGE_EXO_EMAIL, user.getEmail());
-      node.setProperty(STORAGE_EXO_FIRST_NAME, user.getFirstName());
-      node.setProperty(STORAGE_EXO_LAST_NAME, user.getLastName());
-      node.setProperty(STORAGE_EXO_PASSWORD, user.getPassword());
+      node.setProperty(EXO_EMAIL, user.getEmail());
+      node.setProperty(EXO_FIRST_NAME, user.getFirstName());
+      node.setProperty(EXO_LAST_NAME, user.getLastName());
+      node.setProperty(EXO_PASSWORD, user.getPassword());
 
       // TODO is it correct?
       calendar.setTime(user.getCreatedDate());
-      node.setProperty(STORAGE_EXO_CREATED_DATE, calendar);
+      node.setProperty(EXO_CREATED_DATE, calendar);
       calendar.setTime(user.getLastLoginTime());
-      node.setProperty(STORAGE_EXO_LAST_LOGIN_TIME, calendar);
+      node.setProperty(EXO_LAST_LOGIN_TIME, calendar);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write user properties", e);
     }

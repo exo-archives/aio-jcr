@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -40,7 +39,7 @@ import org.exoplatform.services.organization.UserProfileHandler;
  */
 public class UserProfileHandlerImpl extends CommonHandler implements UserProfileHandler {
 
-  public static final String                     STORAGE_EXO_ATTRIBUTES = "exo:attributes";
+  public static final String                     EXO_ATTRIBUTES = "exo:attributes";
 
   protected final List<UserProfileEventListener> listeners              = new ArrayList<UserProfileEventListener>();
 
@@ -87,11 +86,11 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   public UserProfile findUserProfileByName(String userName) throws Exception {
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath()
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
       try {
-        Node profileNode = uNode.getNode(STORAGE_EXO_ATTRIBUTES);
+        Node profileNode = uNode.getNode(EXO_ATTRIBUTES);
         UserProfile userProfile = new UserProfileImpl(userName);
         for (PropertyIterator props = profileNode.getProperties(); props.hasNext();) {
           Property prop = props.nextProperty();
@@ -119,7 +118,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     try {
       List<UserProfile> types = new ArrayList<UserProfile>();
 
-      Node storagePath = (Node) session.getItem(service.getStoragePath()
+      Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS);
       for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
         Node uNode = nodes.nextNode();
@@ -143,9 +142,9 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     try {
       UserProfile userProfile = findUserProfileByName(userName);
       if (userProfile != null) {
-        Node profileNode = (Node) session.getItem(service.getStoragePath()
+        Node profileNode = (Node) session.getItem(service.getStoragePath() + "/"
             + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/"
-            + UserHandlerImpl.STORAGE_EXO_PROFILE);
+            + UserHandlerImpl.EXO_PROFILE);
         profileNode.remove();
         session.save();
         return userProfile;
@@ -177,15 +176,15 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      String userPath = service.getStoragePath() + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+      String userPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
           + profile.getUserName();
 
       Node uNode = (Node) session.getItem(userPath);
-      if (!session.itemExists(userPath + "/" + UserHandlerImpl.STORAGE_EXO_PROFILE)) {
-        uNode.addNode(UserHandlerImpl.STORAGE_EXO_PROFILE);
+      if (!session.itemExists(userPath + "/" + UserHandlerImpl.EXO_PROFILE)) {
+        uNode.addNode(UserHandlerImpl.EXO_PROFILE);
       }
 
-      Node profileNode = uNode.getNode(UserHandlerImpl.STORAGE_EXO_PROFILE);
+      Node profileNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE);
       String keys[] = (String[]) profile.getUserInfoMap().keySet().toArray();
       for (int i = 0; i < keys.length; i++) {
         profileNode.setProperty(keys[i], profile.getAttribute(keys[i]));
@@ -203,26 +202,13 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     }
   }
 
-  @Override
-  void checkMandatoryProperties(Object obj) throws Exception {
+  private void checkMandatoryProperties(Object obj) throws Exception {
   }
 
-  @Override
-  Date readDateProperty(Node node, String prop) throws Exception {
+  private Object readObjectFromNode(Node node) throws Exception {
     return null;
   }
 
-  @Override
-  Object readObjectFromNode(Node node) throws Exception {
-    return null;
-  }
-
-  @Override
-  String readStringProperty(Node node, String prop) throws Exception {
-    return null;
-  }
-
-  @Override
-  void writeObjectToNode(Object obj, Node node) throws Exception {
+  private void writeObjectToNode(Object obj, Node node) throws Exception {
   }
 }

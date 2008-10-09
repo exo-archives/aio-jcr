@@ -87,9 +87,9 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService {
       Node storage = session.getRootNode().addNode(this.storagePath.substring(1),
                                                    "exo:organizationStorage");
 
-      storage.addNode(UserHandlerImpl.STORAGE_EXO_USERS.substring(1), "exo:organizationUsers");
-      storage.addNode(GroupHandlerImpl.STORAGE_EXO_GROUPS.substring(1), "exo:organizationGroups");
-      storage.addNode(MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES.substring(1),
+      storage.addNode(UserHandlerImpl.STORAGE_EXO_USERS, "exo:organizationUsers");
+      storage.addNode(GroupHandlerImpl.STORAGE_EXO_GROUPS, "exo:organizationGroups");
+      storage.addNode(MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES,
                       "exo:organizationMembershipTypes");
 
       session.save(); // storage done

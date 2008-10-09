@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -46,9 +45,9 @@ import org.exoplatform.services.organization.User;
  */
 public class MembershipHandlerImpl extends CommonHandler implements MembershipHandler {
 
-  public static final String                    STORAGE_EXO_GROUP           = "exo:group";
+  public static final String                    EXO_GROUP                   = "exo:group";
 
-  public static final String                    STORAGE_EXO_MEMBERSHIP_TYPE = "exo:membershipType";
+  public static final String                    EXO_MEMBERSHIP_TYPE = "exo:membershipType";
 
   public static final String                    STORAGE_EXO_USER_MEMBERSHIP = "exo:userMembership";
 
@@ -116,9 +115,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       String groupUUId = getGroupReferenceByName(groupName);
       String membershipTypeUUId = getMembershipTypeReferenceByName(type);
 
-      String mStatement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP + " where "
-          + STORAGE_EXO_GROUP + "=" + groupUUId + " and " + STORAGE_EXO_MEMBERSHIP_TYPE + "="
-          + membershipTypeUUId;
+      String mStatement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP + " where " + EXO_GROUP
+          + "=" + groupUUId + " and " + EXO_MEMBERSHIP_TYPE + "=" + membershipTypeUUId;
       Query mQuery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
@@ -126,8 +124,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
-        String uStatement = "select * from " + UserHandlerImpl.STORAGE_EXO_USERS.substring(1)
-            + " where " + UserHandlerImpl.STORAGE_EXO_MEMBERSHIP + "=" + mNode.getUUID();
+        String uStatement = "select * from exo:user where "
+            + UserHandlerImpl.EXO_MEMBERSHIP + "=" + mNode.getUUID();
         Query uQuery = service.getStorageSession()
                               .getWorkspace()
                               .getQueryManager()
@@ -164,8 +162,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       List<Membership> types = new ArrayList<Membership>();
       String groupUUId = getGroupReferenceByName(group.getGroupName());
 
-      String statement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP + " where "
-          + STORAGE_EXO_GROUP + "=" + groupUUId;
+      String statement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP + " where " + EXO_GROUP
+          + "=" + groupUUId;
       Query mQuery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
@@ -200,8 +198,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
-        String uStatement = "select * from " + UserHandlerImpl.STORAGE_EXO_USERS.substring(1)
-            + " where " + UserHandlerImpl.STORAGE_EXO_MEMBERSHIP + "=" + mNode.getUUID();
+        String uStatement = "select * from exo:user where "
+            + UserHandlerImpl.EXO_MEMBERSHIP + "=" + mNode.getUUID();
         Query uQuery = service.getStorageSession()
                               .getWorkspace()
                               .getQueryManager()
@@ -234,8 +232,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
       List<Membership> types = new ArrayList<Membership>();
 
-      String mStatement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP + " where "
-          + STORAGE_EXO_GROUP + "=" + groupUUId;
+      String mStatement = "select * from " + STORAGE_EXO_USER_MEMBERSHIP + " where " + EXO_GROUP
+          + "=" + groupUUId;
       Query mQuery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
@@ -243,8 +241,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
-        String uStatement = "select * from " + UserHandlerImpl.STORAGE_EXO_USERS.substring(1)
-            + " where " + UserHandlerImpl.STORAGE_EXO_MEMBERSHIP + "=" + mNode.getUUID();
+        String uStatement = "select * from exo:user where "
+            + UserHandlerImpl.EXO_MEMBERSHIP + "=" + mNode.getUUID();
         Query uQuery = service.getStorageSession()
                               .getWorkspace()
                               .getQueryManager()
@@ -274,7 +272,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     // TODO Implement broadcast
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath()
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName());
 
       Membership membership = new MembershipImpl(null,
@@ -322,7 +320,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     // TODO broadcast
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath()
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
       List<Membership> types = new ArrayList<Membership>();
@@ -367,6 +365,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private String getMembershipTypeReferenceByName(String type) throws Exception {
     try {
+      // TODO '/'
       String Statement = "select * from "
           + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES.substring(1)
           + " where jcr:name=" + type;
@@ -396,8 +395,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private String getGroupReferenceByName(String groupName) throws Exception {
     try {
-      String Statement = "select * from " + GroupHandlerImpl.STORAGE_EXO_GROUPS.substring(1)
-          + " where jcr:name=" + groupName;
+      String Statement = "select * from exo:group where jcr:name=" + groupName;
       Query query = service.getStorageSession()
                            .getWorkspace()
                            .getQueryManager()
@@ -424,6 +422,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private String getMembershipTypeNameByReference(String UUId) throws Exception {
     try {
+      // TODO '/'
       String Statement = "select * from "
           + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES.substring(1)
           + " where jcr:uuid=" + UUId;
@@ -453,7 +452,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private String getGroupIdByReference(String UUId) throws Exception {
     try {
-      String Statement = "select * from " + GroupHandlerImpl.STORAGE_EXO_GROUPS.substring(1)
+      String Statement = "select * from " + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS.substring(1)
           + " where jcr:uuid=" + UUId;
       Query query = service.getStorageSession()
                            .getWorkspace()
@@ -464,15 +463,14 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
         throw new OrganizationServiceException("Can not find group by uuid " + UUId);
       }
       Node gNode = res.getNodes().nextNode();
-      return readStringProperty(gNode, GroupHandlerImpl.STORAGE_EXO_GROUP_ID);
+      return readStringProperty(gNode, GroupHandlerImpl.EXO_GROUP_ID);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group by uuid " + UUId, e);
     }
   }
 
-  @Override
-  void checkMandatoryProperties(Object obj) throws Exception {
+  private void checkMandatoryProperties(Object obj) throws Exception {
     Membership m = (Membership) obj;
     if (m.getGroupId() == null || m.getGroupId().length() == 0) {
       throw new OrganizationServiceException("The group id of the membership can not be null or empty");
@@ -481,19 +479,10 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
   }
 
-  @Override
-  Date readDateProperty(Node node, String prop) throws Exception {
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  Object readObjectFromNode(Node node) throws Exception { // TODO return Membership
+  private Object readObjectFromNode(Node node) throws Exception {
     try {
-      String groupUUId = readStringProperty(node, STORAGE_EXO_GROUP);
-      String membershipTypeUUId = readStringProperty(node, STORAGE_EXO_MEMBERSHIP_TYPE);
+      String groupUUId = readStringProperty(node, EXO_GROUP);
+      String membershipTypeUUId = readStringProperty(node, EXO_MEMBERSHIP_TYPE);
 
       String groupId = getGroupIdByReference(groupUUId);
       String membershipType = getMembershipTypeNameByReference(membershipTypeUUId);
@@ -505,19 +494,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
   }
 
-  @Override
-  String readStringProperty(Node node, String prop) throws Exception {
-    try {
-      return node.getProperty(prop).getString();
-    } catch (PathNotFoundException e) {
-      return null;
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not read property " + prop, e);
-    }
-  }
-
-  @Override
-  void writeObjectToNode(Object obj, Node node) throws Exception {
+  private void writeObjectToNode(Object obj, Node node) throws Exception {
     Membership m = (Membership) obj;
     checkMandatoryProperties(m);
 
@@ -526,8 +503,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       String groupUUId = getGroupReferenceByName(groupName);
       String membershipTypeUUId = getMembershipTypeReferenceByName(m.getMembershipType());
 
-      node.setProperty(STORAGE_EXO_GROUP, groupUUId);
-      node.setProperty(STORAGE_EXO_MEMBERSHIP_TYPE, membershipTypeUUId);
+      node.setProperty(EXO_GROUP, groupUUId);
+      node.setProperty(EXO_MEMBERSHIP_TYPE, membershipTypeUUId);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write membership properties", e);

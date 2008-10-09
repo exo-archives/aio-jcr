@@ -22,6 +22,7 @@ package org.exoplatform.services.jcr.ext.organization;
 import java.util.Date;
 
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -34,17 +35,6 @@ import javax.jcr.Node;
 public abstract class CommonHandler {
 
   /**
-   * Checking if one of mandatory properties of the object is null.
-   * 
-   * @param obj
-   *          The object to check
-   * @throws Exception
-   *           An exception is thrown if some of mandatory properties is null or the method cannot
-   *           access the database
-   */
-  abstract void checkMandatoryProperties(Object obj) throws Exception;
-
-  /**
    * This method read property data from node in the storage.
    * 
    * @param node
@@ -55,18 +45,15 @@ public abstract class CommonHandler {
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  abstract Date readDateProperty(Node node, String prop) throws Exception;
-
-  /**
-   * Get object from node with all properties.
-   * 
-   * @param node
-   *          The node to get data from
-   * @return
-   * @throws Exception
-   *           An exception is thrown the method cannot access the database
-   */
-  abstract Object readObjectFromNode(Node node) throws Exception;
+  public Date readDateProperty(Node node, String prop) throws Exception {
+    try {
+      return node.getProperty(prop).getDate().getTime();
+    } catch (PathNotFoundException e) {
+      return null;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not read property " + prop, e);
+    }
+  }
 
   /**
    * This method read property data.
@@ -79,17 +66,13 @@ public abstract class CommonHandler {
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  abstract String readStringProperty(Node node, String prop) throws Exception;
-
-  /**
-   * This method write object's properties to the node in the storage.
-   * 
-   * @param obj
-   *          The object which properties need to write
-   * @param node
-   *          The node to write properties in
-   * @throws Exception
-   *           An exception is thrown if the method cannot access the database
-   */
-  abstract void writeObjectToNode(Object obj, Node node) throws Exception;
+  public String readStringProperty(Node node, String prop) throws Exception {
+    try {
+      return node.getProperty(prop).getString();
+    } catch (PathNotFoundException e) {
+      return null;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not read property " + prop, e);
+    }
+  }
 }

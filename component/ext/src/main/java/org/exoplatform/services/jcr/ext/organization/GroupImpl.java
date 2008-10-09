@@ -73,11 +73,11 @@ public class GroupImpl implements Group {
    * @param parendId
    *          The parentId of the group * @param UUId The group's UUId in the storage
    */
-  GroupImpl(String name, String groupId, String UUId) {
+  GroupImpl(String name, String parentId, String UUId) {
     this.groupName = name;
-    this.groupId = groupId;
     this.UUId = UUId;
-    this.parentId = groupId.substring(0, groupId.lastIndexOf('/'));
+    this.parentId = (parentId == null || parentId.length() == 0 ? null : parentId);
+    this.groupId = (this.parentId == null ? "" : this.parentId) + "/" + this.groupName;
   }
 
   /**
@@ -116,6 +116,15 @@ public class GroupImpl implements Group {
   }
 
   /**
+   * Get group's UUId.
+   * 
+   * @return The UUId of the group in the storage
+   */
+  public String getUUId() {
+    return UUId;
+  }
+
+  /**
    * {@inheritDoc}
    */
   public void setDescription(String desc) {
@@ -138,15 +147,6 @@ public class GroupImpl implements Group {
    */
   public void setLabel(String name) {
     label = name;
-  }
-
-  /**
-   * Get group's UUId.
-   * 
-   * @return The UUId of the group in the storage
-   */
-  public String getUUId() {
-    return UUId;
   }
 
 }
