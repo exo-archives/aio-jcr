@@ -41,13 +41,9 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
     super(channelManagerpu, ownPriority, ownName, otherParticipants);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.replication.priority.PriorityChecker#receive(org.exoplatform
-   *      .services.jcr.ext.replication.Packet)
+  /**
+   * {@inheritDoc}
    */
-  @Override
   public void receive(Packet packet) {
 
     if (log.isDebugEnabled())
@@ -94,7 +90,9 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
     }
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public boolean isMaxPriority() {
     return ownPriority == MAX_PRIORITY;
   }

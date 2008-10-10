@@ -309,7 +309,11 @@ public class RecoveryWriter extends AbstractFSAccess {
   }
 }
 
-// The thread will be remove ChangesLog, saved as binary file.
+
+/**
+ * FileRemover.
+ *   The thread will be remove ChangesLog, saved as binary file.
+ */
 class FileRemover extends Thread {
   private static Log          log        = ExoLogger.getLogger("ext.FileRemover");
 
@@ -336,7 +340,9 @@ class FileRemover extends Thread {
     log.info(getName() + " has been inited");
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public void run() {
     while (true) {
       try {

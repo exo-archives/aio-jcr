@@ -52,10 +52,9 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
     replicationService = service;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister#start()
+  
+  /**
+   * {@inheritDoc}
    */
   public void start() {
     log.info("start");
@@ -68,10 +67,8 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
     super.start();
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister#stop()
+  /**
+   * {@inheritDoc}
    */
   public void stop() {
     log.info("stop");

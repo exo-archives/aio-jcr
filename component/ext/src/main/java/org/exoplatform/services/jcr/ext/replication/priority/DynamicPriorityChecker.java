@@ -45,13 +45,9 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
     super(channelManager, ownPriority, ownName, otherParticipants);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.ext.replication.priority.PriorityChecker#receive(org.exoplatform
-   *      .services.jcr.ext.replication.Packet)
+  /**
+   * {@inheritDoc}
    */
-  @Override
   public void receive(Packet packet) {
     if (log.isDebugEnabled())
       log.info(" ------->>> MessageListener.receive(), byte == " + packet.getByteArray());
@@ -115,7 +111,9 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
     return max == Integer.MIN_VALUE ? ownPriority : max;
   }
 
-  @Override
+  /**
+   * {@inheritDoc}
+   */
   public boolean isMaxPriority() {
     if (otherPartisipants.size() == 1)
       return ownPriority == MAX_PRIORITY;

@@ -40,6 +40,7 @@ import org.jgroups.View;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ConectionFailDetector.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public class ConnectionFailDetector implements ChannelListener, MembershipListener, MemberListener {
   private static Log                    log          = ExoLogger.getLogger("ext.ConnectionFailDetector");
 

@@ -91,9 +91,7 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
             log.info(pcl.dump());
           }
         }
-
-        // TODO
-        // String identifier = this.send(changesLog);
+        
         String identifier = this.sendAsBinaryFile(changesLog);
 
         if (log.isDebugEnabled()) {

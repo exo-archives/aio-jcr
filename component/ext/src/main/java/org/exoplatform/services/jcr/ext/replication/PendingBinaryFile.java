@@ -77,19 +77,9 @@ public class PendingBinaryFile {
   }
 
   public RandomAccessFile getRandomAccessFile(String ownName, String fileName) throws Exception {
-
     HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownName);
 
-    // try {
     return fileMap.get(fileName).getRandomAccessFile();
-    /*} catch (NullPointerException e) {
-      try {
-      
-      return fileMap.get(fileName).getRandomAccessFile();
-      } catch (NullPointerException ex) {
-        throw new Exception("Can't finded the RandomAccessFile to '" + fileName + "'", ex);
-      }
-    }*/
   }
 
   public FileDescriptor getFileDescriptor(String ownName, String fileName) throws IOException {
@@ -138,17 +128,6 @@ public class PendingBinaryFile {
 
     return list;
   }
-
-  /*
-   * class FileDescriptor implements Comparable<FileDescriptor> { private File
-   * file; private RandomAccessFile randomAccessFile; private final String
-   * systemId; public FileDescriptor(File f, RandomAccessFile raf, String
-   * systemId) { this.file = f; this.randomAccessFile = raf; this.systemId =
-   * systemId; } public File getFile() { return file; } public RandomAccessFile
-   * getRandomAccessFile() { return randomAccessFile; } public String
-   * getSystemId() { return systemId; } public int compareTo(FileDescriptor o) {
-   * return file.getName().compareTo(o.getFile().getName()); } }
-   */
 
   public long getNeedTransferCounter() {
     return needTransferCounter;

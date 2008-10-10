@@ -90,7 +90,6 @@ public abstract class AbstractPriorityChecker implements PacketListener {
         Thread.sleep(INFORM_TIMOUT);
       } catch (InterruptedException ie) {
         // ignored InterruptedException
-        
         if (log.isDebugEnabled()) {
           log.debug("InterruptedException");
           log.debug("--> isInterrupted == " + Thread.currentThread().isInterrupted());

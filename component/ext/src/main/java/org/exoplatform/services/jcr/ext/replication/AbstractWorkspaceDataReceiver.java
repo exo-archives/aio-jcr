@@ -342,8 +342,6 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         }
         break;
 
-      // prouf concept
-      // --------------------------------------------------------------------------------
       case Packet.PacketType.BINARY_CHANGESLOG_FIRST_PACKET:
         if (mapPendingBinaryFile.containsKey(packet.getIdentifier()) == false)
           mapPendingBinaryFile.put(packet.getIdentifier(), new PendingBinaryFile());
@@ -359,12 +357,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
           pbf = mapPendingBinaryFile.get(packet.getIdentifier());
 
-//          log.info("Pocket namber : " + packet.getSize());
-//          RandomAccessFile randomAccessFile = pbf.getRandomAccessFile(packet.getOwnerName(), packet
-//              .getFileName());
           FileDescriptor fd = pbf.getFileDescriptor(packet.getOwnerName(), packet.getFileName());
-          RandomAccessFile randomAccessFile = fd.getRandomAccessFile(); 
-          
+          RandomAccessFile randomAccessFile = fd.getRandomAccessFile();
 
           if (randomAccessFile != null) {
             if (log.isDebugEnabled())
@@ -382,8 +376,8 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
         if (mapPendingBinaryFile.containsKey(packet.getIdentifier())) {
           pbf = mapPendingBinaryFile.get(packet.getIdentifier());
 
-          RandomAccessFile randomAccessFile = pbf.getRandomAccessFile(packet.getOwnerName(), packet
-              .getFileName());
+          RandomAccessFile randomAccessFile = pbf.getRandomAccessFile(packet.getOwnerName(),
+                                                                      packet.getFileName());
 
           if (randomAccessFile != null) {
             if (log.isDebugEnabled())
@@ -391,22 +385,13 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
             randomAccessFile.seek(packet.getOffset());
             randomAccessFile.write(packet.getByteArray());
-//            randomAccessFile.close();
-            
-            //save to JCR
-            /*log.info("OwnerName  : " + packet.getOwnerName());
-            log.info("FileName   : " + packet.getFileName());
-            log.info("Identifire : " + packet.getIdentifier());*/
-            
-            
+
+            // save to JCR
             randomAccessFile.close();
-            FileDescriptor fd = pbf.getFileDescriptor(packet.getOwnerName(), packet
-                .getFileName());
+            FileDescriptor fd = pbf.getFileDescriptor(packet.getOwnerName(), packet.getFileName());
             saveChangesLog(fd, packet.getIdentifier());
-            
-            
-            
-            //remove
+
+            // remove
             fileCleaner.addFile(fd.getFile());
             mapPendingBinaryFile.remove(packet.getIdentifier());
 
@@ -417,7 +402,6 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
                 + "\nfile name - \t" + packet.getFileName());
         }
         break;
-      // --------------------------------------------------------------------------------
 
       default:
         break;
@@ -455,8 +439,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
   }
 
   private void saveChangesLog(FileDescriptor fileDescriptor, String identifire) throws Exception {
-    TransactionChangesLog transactionChangesLog = recoveryManager.getRecoveryReader().getChangesLog(fileDescriptor
-        .getFile().getAbsolutePath());
+    TransactionChangesLog transactionChangesLog = recoveryManager.getRecoveryReader()
+                                                                 .getChangesLog(fileDescriptor.getFile()
+                                                                                              .getAbsolutePath());
 
     if (log.isDebugEnabled()) {
       log.debug("Save to JCR : " + fileDescriptor.getFile().getAbsolutePath());
@@ -472,6 +457,6 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
       }
     }
 
-    this.receive((ItemStateChangesLog)transactionChangesLog, identifire);
+    this.receive((ItemStateChangesLog) transactionChangesLog, identifire);
   }
 }

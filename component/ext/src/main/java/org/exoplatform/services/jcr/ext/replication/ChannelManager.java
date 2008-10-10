@@ -212,68 +212,6 @@ public class ChannelManager implements RequestHandler {
       destination[i] = sourceData[i + (int) startPos];
   }
 
-  /*public synchronized void sendBinaryFile(String filePath,
-                                          String ownerName,
-                                          String identifier,
-                                          String systemId) throws Exception {
-    if (log.isDebugEnabled())
-      log.debug("Begin send : " + filePath);
-
-    File f = new File(filePath);
-    InputStream in = new FileInputStream(f);
-
-    Packet packet = new Packet(Packet.PacketType.BINARY_FILE_FIRST_PACKET,
-                               identifier,
-                               ownerName,
-                               f.getName());
-    packet.setSystemId(systemId);
-    sendPacket(packet);
-
-    byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
-    int len;
-    long offset = 0;
-
-    while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-      packet = new Packet(Packet.PacketType.BINARY_FILE_MIDDLE_PACKET,
-                          new FixupStream(),
-                          identifier,
-                          buf);
-
-      packet.setOffset(offset);
-      packet.setOwnName(ownerName);
-      packet.setFileName(f.getName());
-      sendPacket(packet);
-
-      offset += len;
-      if (log.isDebugEnabled())
-        log.debug("Send  --> " + offset);
-
-      Thread.sleep(1);
-    }
-
-    if (len < Packet.MAX_PACKET_SIZE) {
-      // check if empty stream
-      len = (len == -1 ? 0 : len);
-
-      byte[] buffer = new byte[len];
-
-      for (int i = 0; i < len; i++)
-        buffer[i] = buf[i];
-
-      packet = new Packet(Packet.PacketType.BINARY_FILE_LAST_PACKET,
-                          new FixupStream(),
-                          identifier,
-                          buffer);
-      packet.setOffset(offset);
-      packet.setOwnName(ownerName);
-      packet.setFileName(f.getName());
-      sendPacket(packet);
-    }
-
-    if (log.isDebugEnabled())
-      log.debug("End send : " + filePath);
-  }*/
-
   public synchronized void sendBinaryFile(String filePath,
                                           String ownerName,
                                           String identifier,
@@ -352,9 +290,7 @@ public class ChannelManager implements RequestHandler {
       Packet packet = Packet.getAsPacket(message.getBuffer());
 
       for (PacketListener handler : packetListeners) {
-        // synchronized (handler) {
         handler.receive(packet);
-        // }
       }
 
     } catch (IOException e) {

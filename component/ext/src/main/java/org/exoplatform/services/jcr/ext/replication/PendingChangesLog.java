@@ -165,7 +165,6 @@ public class PendingChangesLog {
             if (!(propertyData.getValues().get(j).isByteArray())) {
               listFixupStream.add(new FixupStream(i, j));
 
-              // TODO
               InputStream inputStream;
               if (itemState.isDeleted())
                 inputStream = new ByteArrayInputStream("".getBytes());
@@ -175,7 +174,6 @@ public class PendingChangesLog {
               listInputStream.add(inputStream);
               itemDataChangesLogType = PendingChangesLog.Type.CHANGESLOG_WITH_STREAM;
             }
-
       }
 
       if (itemData instanceof TransientNodeData) {

@@ -143,6 +143,7 @@ public class Packet implements Externalizable {
 
     /**
      * NEED_TRANSFER_COUNTER.
+     *   the pocket type for information of how much ChangesLogs will be transfered
      */  
     public static final int NEED_TRANSFER_COUNTER                = 24;
 
@@ -180,7 +181,6 @@ public class Packet implements Externalizable {
    */
   public static final int MAX_PACKET_SIZE = 1024 * 16;
 
-  // TODO [rainf0x] need normalization the name of fields
   private byte[]          buffer;
 
   private long            size;
