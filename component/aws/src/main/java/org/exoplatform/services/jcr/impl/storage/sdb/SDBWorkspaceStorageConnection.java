@@ -17,7 +17,7 @@
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
+import org.exoplatform.services.jcr.datamodel.IllegalACLException;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -1245,15 +1246,23 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
-   * parseNodeIData.
+   * Parse Node IData.
    * 
    * @param field
-   * @return
+   *          IData content
+   * @param parentACL
+   *          - parent ACL
+   * @return NodeIData
    * @throws IllegalNameException
+   *           if QName stored in SimpleDB is wrong
+   * @throws IllegalACLException
+   *           - if ACL stored in SimpleDB is wrong
    * @throws NumberFormatException
+   *           - if numeric values stored in SimpleDB is wrong
    */
-  protected NodeIData parseNodeIData(String field) throws IllegalNameException,
-                                                  NumberFormatException {
+  protected NodeIData parseNodeIData(String field, AccessControlList parentACL) throws IllegalNameException,
+                                                                               IllegalACLException,
+                                                                               NumberFormatException {
 
     String[] fs = field.split(IDATA_DELIMITER);
 
@@ -1266,22 +1275,46 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       String s = fs[i];
       if (i == 0) {
         // version
-        idata.setVersion(Integer.valueOf(s));
+        try {
+          idata.setVersion(Integer.valueOf(s));
+        } catch (final NumberFormatException e) {
+          throw new SDBValueNumberFormatException("Node persisted version contains wrong value '"
+              + s + "'. Error " + e, e);
+        }
       } else if (i == 1) {
         // orderNumber
-        idata.setOrderNumber(Integer.valueOf(s));
+        try {
+          idata.setOrderNumber(Integer.valueOf(s));
+        } catch (final NumberFormatException e) {
+          throw new SDBValueNumberFormatException("Node order number contains wrong value '" + s
+              + "'. Error " + e, e);
+        }
       } else if (i == 2) {
         // primaryType
-        idata.setPrimaryType(InternalQName.parse(s));
+        try {
+          idata.setPrimaryType(InternalQName.parse(s));
+        } catch (IllegalNameException e) {
+          throw new IllegalNameException("Node jcr:primaryType contains wrong value '" + s
+              + "'. Error " + e, e);
+        }
       } else {
         // parse for mixins and ACL
         String value = s.substring(2);
         if (s.startsWith(IDATA_MIXINTYPE)) {
           // mixin
-          idata.addMixinType(InternalQName.parse(value));
+          try {
+            idata.addMixinType(InternalQName.parse(value));
+          } catch (IllegalNameException e) {
+            throw new IllegalNameException("Node jcr:mixinTypes contains wrong value '" + value
+                + "'. Error " + e, e);
+          }
         } else if (s.startsWith(IDATA_ACL_PERMISSION)) {
           // ACL permission
           String[] aclp = value.split(AccessControlEntry.DELIMITER);
+
+          if (aclp.length != 2)
+            throw new IllegalACLException("Node ACL permission contains wrong value '" + value
+                + "'. ACL string format is 'IDENTITY PERMISSION'");
 
           if (aclPermissions == null)
             aclPermissions = new ArrayList<AccessControlEntry>();
@@ -1294,18 +1327,37 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       }
     }
 
-    // ACL TODO (use JDBC conn logic)
+    // ACL
     if (aclOwner != null || aclPermissions != null) {
       AccessControlList acl;
       if (aclOwner != null && aclPermissions != null) {
         acl = new AccessControlList(aclOwner, aclPermissions);
       } else if (aclOwner != null && aclPermissions == null) {
-        acl = new AccessControlList();
-        acl.setOwner(aclOwner);
+        if (parentACL != null && parentACL.hasPermissions())
+          // use permissions from existed parent
+          acl = new AccessControlList(aclOwner, parentACL.getPermissionEntries());
+        else
+          // have to search nearest ancestor permissions in ACL manager
+          acl = new AccessControlList(aclOwner, null);
       } else if (aclOwner == null && aclPermissions != null) {
-        acl = new AccessControlList();
-        // acl.addPermissions(rawData)
+        if (parentACL != null)
+          // use permissions from existed parent
+          acl = new AccessControlList(parentACL.getOwner(), aclPermissions);
+        else
+          // have to search nearest ancestor owner in ACL manager
+          acl = new AccessControlList(null, aclPermissions);
+      } else {
+        if (parentACL != null)
+          // construct ACL from existed parent ACL
+          acl = new AccessControlList(parentACL.getOwner(), parentACL.hasPermissions()
+              ? parentACL.getPermissionEntries()
+              : null);
+        else
+          // have to search nearest ancestor ACL in ACL manager
+          acl = null;
       }
+
+      idata.setAcl(acl);
     }
 
     return idata;
@@ -1541,7 +1593,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             try {
               int v;
               if (data.isNode()) {
-                v = parseNodeIData(idv).getVersion();
+                v = parseNodeIData(idv, null).getVersion();
               } else {
                 v = parsePropertyIData(idv).getVersion();
               }
@@ -1555,6 +1607,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                   + ") Persisted Version attribute contains wrong data '" + idv + "'. " + itemClass
                   + " " + data.getQPath().getAsString(), nfe);
             } catch (IllegalNameException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            } catch (IllegalACLException e) {
               // TODO Auto-generated catch block
               e.printStackTrace();
             }
@@ -1586,36 +1641,140 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
+   * Find parent path in db by cpid
+   * 
+   * @param cpid
+   *          - initial parent id
+   * @return
+   * @throws SQLException
+   *           - if SimpleDB error occurs
+   * @throws InvalidItemStateException
+   *           - if parent not found
+   * @throws IllegalNameException
+   *           - if name on the path is wrong
+   * @throws SDBRepositoryException
+   *           - if storage inconsistency detected
+   * @throws AmazonSimpleDBException
+   *           - if storage error occurs
+   */
+  private QPath traverseQPath(String parentId) throws 
+                                              InvalidItemStateException,
+                                              IllegalNameException,
+                                              SDBRepositoryException,
+                                              AmazonSimpleDBException {
+    // get item by Identifier usecase
+    List<QPathEntry> qrpath = new ArrayList<QPathEntry>(); // reverted path
+    String ancestorId = parentId; // ancestor id
+    do {
+      QueryWithAttributesResponse resp = queryItemAttr(sdbService,
+                                                       domainName,
+                                                       ancestorId,
+                                                       PID,
+                                                       NAME,
+                                                       ICLASS);
+
+      if (resp.isSetQueryWithAttributesResult()) {
+        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+        List<Item> items = res.getItem();
+        if (items.size() == 1) {
+          // got one item
+          List<Attribute> atts = items.get(0).getAttribute();
+
+          String iclass = getAttribute(atts, ICLASS);
+          if (NODE_ICLASS.equals(iclass)) {
+            // good - it's a next ancestor
+            ancestorId = getAttribute(atts, PID);
+            qrpath.add(QPathEntry.parse(getAttribute(atts, NAME)));
+          } else
+            throw new SDBRepositoryException("(item) FATAL Item with Id " + ancestorId
+                + " shoudl be a Node but "
+                + (PROPERTY_ICLASS.equals(iclass) ? "Property found." : "Undefined type found."));
+        } else if (items.size() > 0) {
+          // TODO much descriptive exception (location(name), is it Node or Property)
+          throw new SDBRepositoryException("(item) FATAL Id '" + ancestorId
+              + "' match multiple items in storage");
+        } else
+          throw new InvalidItemStateException("(item) Parent not found, Id " + ancestorId);
+      }
+    } while (!ancestorId.equals(Constants.ROOT_PARENT_UUID));
+
+    QPathEntry[] qentries = new QPathEntry[qrpath.size()];
+    int qi = 0;
+    for (int i = qrpath.size() - 1; i >= 0; i--) {
+      qentries[qi++] = qrpath.get(i);
+    }
+    return new QPath(qentries);
+  }
+
+  /**
    * Load NodeData from SimpleDB Item.
    * 
-   * @param parent
-   *          - parent NodeData
+   * @param parentPath
+   *          - parent path, can be null (getItemData by Id)
+   * @param parentACL
+   *          - parent ACL, can be null (getItemData by Id)
    * @param atts
    *          - SimpleDB Item attributes
    * @return NodeData
-   * @throws SDBAttributeValueFormatException
-   *           if SimpleDB Item record contains wrong value
+   * @throws IllegalNameException
+   *           if QName stored in SimpleDB is wrong
+   * @throws IllegalACLException
+   *           - if ACL stored in SimpleDB is wrong
+   * @throws NumberFormatException
+   *           - if numeric values stored in SimpleDB is wrong
+   * @throws AmazonSimpleDBException
+   * @throws SDBRepositoryException
+   * @throws InvalidItemStateException
    */
-  protected NodeData loadNodeData(final NodeData parent, final List<Attribute> atts) throws SDBAttributeValueFormatException {
+  protected NodeData loadNodeData(final QPath parentPath,
+                                  final AccessControlList parentACL,
+                                  final List<Attribute> atts) throws NumberFormatException,
+                                                             IllegalNameException,
+                                                             IllegalACLException,
+                                                             InvalidItemStateException,
+                                                             SDBRepositoryException,
+                                                             AmazonSimpleDBException {
     // TODO null parent
-    NodeIData idata;
+    String parentId = getAttribute(atts, PID);
+
+    NodeIData idata = parseNodeIData(getAttribute(atts, IDATA), parentACL);
+    // } catch (IllegalNameException e) {
+    // throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath.getAsString()
+    // + " " + parentId + ". Node's nodetype (" + IDATA
+    // + " jcr:primaryType or jcr:mixinTypes) contains wrong value '"
+    // + getAttribute(atts, IDATA) + "'. Error " + e, e);
+    // } catch (NumberFormatException e) {
+    // throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath.getAsString()
+    // + " " + parentId + " " + IDATA
+    // + " attribute (version or orderNumber) contains wrong integer value '"
+    // + getAttribute(atts, IDATA) + "'. Error " + e, e);
+    // } catch (IllegalACLException e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+
     try {
-      idata = parseNodeIData(getAttribute(atts, IDATA));
-    } catch (IllegalNameException e) {
-      throw new SDBAttributeValueFormatException("(child nodes) Node "
-          + parent.getQPath().getAsString() + " " + parent.getIdentifier() + ". Node's nodetype ("
-          + IDATA + " jcr:primaryType or jcr:mixinTypes) contains wrong value '"
-          + getAttribute(atts, IDATA) + "'. Error " + e, e);
-    } catch (NumberFormatException e) {
-      throw new SDBAttributeValueFormatException("(child nodes) Node " + parent.getIdentifier()
-          + " (" + parent.getQPath().getAsString() + ") " + IDATA
-          + " attribute (version or orderNumber) contains wrong integer value '"
-          + getAttribute(atts, IDATA) + "'. Error " + e, e);
-    }
-    try {
+      QPath qpath;
+      String pid;
+      if (parentPath != null) {
+        // get by parent and name
+        qpath = QPath.makeChildPath(parentPath, QPathEntry.parse(getAttribute(atts, NAME)));
+        pid = parentId;
+      } else {
+        // get by id
+        if (parentId.equals(Constants.ROOT_PARENT_UUID)) {
+          // root node
+          qpath = Constants.ROOT_PATH;
+          pid = null;
+        } else {
+          // qpath = QPath.makeChildPath(traverseQPath(cpid), qname, cindex);
+          qpath = traverseQPath(parentId); // TODO
+          pid = parentId;
+        }
+      }
+
       return new PersistedNodeData(getAttribute(atts, ID),
-                                   QPath.makeChildPath(parent.getQPath(),
-                                                       InternalQName.parse(getAttribute(atts, NAME))),
+                                   qpath,
                                    getAttribute(atts, PID),
                                    idata.getVersion(),
                                    idata.getOrderNumber(),
@@ -1624,9 +1783,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                         .toArray(new InternalQName[idata.getMixinTypes().size()]),
                                    idata.getACL());
     } catch (IllegalNameException e) {
-      throw new SDBAttributeValueFormatException("(child nodes) Node "
-          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
-          + ". Node's child Node name contains wrong value '" + getAttribute(atts, NAME)
+      throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath + " "
+          + parentId + ". Node's child Node name contains wrong value '" + getAttribute(atts, NAME)
           + "'. Error " + e, e);
     }
   }
@@ -1642,14 +1800,16 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * @throws RepositoryException
    *           if SimpleDB Item record contains wrong value
    */
-  protected PropertyData loadPropertyData(final NodeData parent, final List<Attribute> atts) throws RepositoryException {
+  protected PropertyData loadPropertyData(final QPath parentPath,
+                                          final String parentId,
+                                          final List<Attribute> atts) throws RepositoryException {
     // TODO null parent
     PropertyIData idata = parsePropertyIData(getAttribute(atts, IDATA));
     try {
       PersistedPropertyData property = new PersistedPropertyData(getAttribute(atts, ID),
-                                                                 QPath.makeChildPath(parent.getQPath(),
-                                                                                     InternalQName.parse(getAttribute(atts,
-                                                                                                                      NAME))),
+                                                                 QPath.makeChildPath(parentPath,
+                                                                                     QPathEntry.parse(getAttribute(atts,
+                                                                                                                   NAME))),
                                                                  getAttribute(atts, PID),
                                                                  idata.getVersion(),
                                                                  idata.getType(),
@@ -1667,7 +1827,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             values.add(new ByteArrayPersistedValueData(Base64.decode(value), i));
           } catch (DecodingException e) {
             throw new SDBAttributeValueCorruptedException("(child properties) Node "
-                + parent.getQPath().getAsString() + " " + parent.getIdentifier() + ". Property "
+                + parentPath.getAsString() + " " + parentId + ". Property "
                 + property.getQPath().getName().getAsString() + " value[" + i + "] decoding error "
                 + e, e);
           }
@@ -1678,8 +1838,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
             values.add(channel.read(property.getIdentifier(), i, maxBufferSize));
           } catch (IOException e) {
-            throw new RepositoryException("(child properties) Node "
-                + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+            throw new RepositoryException("(child properties) Node " + parentPath + " " + parentId
                 + ". Node's Property " + property.getQPath().getName().getAsString() + " value["
                 + i + "] read I/O error " + e, e);
           }
@@ -1689,9 +1848,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       property.setValues(values);
       return property;
     } catch (IllegalNameException e) {
-      throw new SDBAttributeValueFormatException("(child properties) Node "
-          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
-          + ". Node's Property name contains wrong value '" + getAttribute(atts, NAME)
+      throw new SDBAttributeValueFormatException("(child properties) Node " + parentPath + " "
+          + parentId + ". Node's Property name contains wrong value '" + getAttribute(atts, NAME)
           + "'. Error " + e, e);
     }
   }
@@ -1826,13 +1984,25 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
         List<Item> items = res.getItem();
         for (Item item : items)
-          childItems.add(loadNodeData(parent, item.getAttribute()));
+          childItems.add(loadNodeData(parent.getQPath(), parent.getACL(), item.getAttribute()));
       }
 
       return childItems;
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(child properties) Node " + parent.getQPath().getAsString()
           + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+    } catch (NumberFormatException e) {
+      // TODO Auto-generated catch block
+      throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
+                                    + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+    } catch (IllegalNameException e) {
+      // TODO Auto-generated catch block
+      throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
+                                    + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+    } catch (IllegalACLException e) {
+      // TODO Auto-generated catch block
+      throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
+                                    + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     }
   }
 
@@ -1860,7 +2030,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
         List<Item> items = res.getItem();
         for (Item item : items)
-          childItems.add(loadPropertyData(parent, item.getAttribute()));
+          childItems.add(loadPropertyData(parent.getQPath(),
+                                          parent.getIdentifier(),
+                                          item.getAttribute()));
       }
 
       return childItems;
@@ -1900,10 +2072,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           String iclass = getAttribute(atts, ICLASS);
           if (NODE_ICLASS.equals(iclass)) {
             // Node
-            return loadNodeData(null, atts);
+            return loadNodeData(null, null, atts);
           } else if (PROPERTY_ICLASS.equals(iclass)) {
             // Property
-            return loadPropertyData(null, atts);
+            return loadPropertyData(null, null, atts);
           } else
             throw new SDBRepositoryException("(item) FATAL Item with Id " + identifier
                 + " has undefined type (" + ICLASS + "=" + iclass + ")");
@@ -1916,6 +2088,15 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       }
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(item) Id " + identifier + ". Read request fails " + e, e);
+    } catch (NumberFormatException e) {
+      // TODO Auto-generated catch block
+      throw new SDBRepositoryException("(item) Id " + identifier + ". Read request fails " + e, e);
+    } catch (IllegalNameException e) {
+      // TODO Auto-generated catch block
+      throw new SDBRepositoryException("(item) Id " + identifier + ". Read request fails " + e, e);
+    } catch (IllegalACLException e) {
+      // TODO Auto-generated catch block
+      throw new SDBRepositoryException("(item) Id " + identifier + ". Read request fails " + e, e);
     }
 
     return null;
