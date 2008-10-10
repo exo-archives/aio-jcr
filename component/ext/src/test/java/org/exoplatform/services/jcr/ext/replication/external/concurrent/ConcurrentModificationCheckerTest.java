@@ -71,6 +71,8 @@ public class ConcurrentModificationCheckerTest extends BaseTestCaseChecker {
       assertEquals(result, "ok");
     }
 
+    Thread.sleep(5000);
+    
     // start two threads for update the binary value
     for (int i = 0; i < 2; i++) {
       {

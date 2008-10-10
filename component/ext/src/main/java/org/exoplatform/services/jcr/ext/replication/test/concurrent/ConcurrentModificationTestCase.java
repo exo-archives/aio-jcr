@@ -29,11 +29,12 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ConcurrentModificationTestCase.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
   public ConcurrentModificationTestCase(RepositoryService repositoryService,
@@ -76,7 +77,7 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
       end = System.currentTimeMillis();
 
-      log.info("The time of the adding of nt:file : " + ((end - start) / 1000) + " sec");
+      log.info("The time of the adding of nt:file : " + ((end - start) / BaseReplicationTestCase.ONE_SECONDS) + " sec");
       sb.append("ok");
     } catch (Exception e) {
       log.error("Can't save nt:file : ", e);

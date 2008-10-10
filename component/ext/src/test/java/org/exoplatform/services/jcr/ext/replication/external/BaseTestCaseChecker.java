@@ -36,12 +36,12 @@ public class BaseTestCaseChecker extends TestCase {
 
   protected final String     workingRepository = "repository";
 
-  protected final String     workingWorkspace  = "backup";
+  protected final String     workingWorkspace  = "production";
 
   private final MemberInfo[] members           = new MemberInfo[] {
       new MemberInfo("192.168.0.15", 8080, "root", "exo", 100),
-      /*new MemberInfo("192.168.0.15", 8081, "root", "exo", 50),*/
-      new MemberInfo("192.168.0.20", 8081, "root", "exo", 30) };
+      new MemberInfo("192.168.0.15", 8081, "root", "exo", 50),
+      new MemberInfo("192.168.0.15", 8082, "root", "exo", 30) };
 
   private int                maxPriorityMemberIndex;
 

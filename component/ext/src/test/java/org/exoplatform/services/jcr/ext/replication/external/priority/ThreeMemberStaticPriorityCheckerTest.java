@@ -70,6 +70,8 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
+    
+    Thread.sleep(2000);
 
     // check is read-only min and middle member
     for (MemberInfo member : otherMember) {
@@ -161,7 +163,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
     List<MemberInfo> otherMember = new ArrayList<MemberInfo>();
     otherMember.add(getMiddlePriorityMember());
 
-    // disconnect min and middle priority member
+    // disconnect middle priority member
     for (MemberInfo member : otherMember) {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
@@ -176,8 +178,10 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
+    
+    Thread.sleep(2000);
 
-    // check is read-only min and middle member
+    // check is read-only middle member
     for (MemberInfo member : otherMember) {
       String disconnectUrl = "http://" + member.getIpAddress() + ":" + member.getPort()
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"

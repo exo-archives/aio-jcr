@@ -33,9 +33,9 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: PendingBinaryFile.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public class PendingBinaryFile {
-  private static Log                                       log = ExoLogger
-                                                                   .getLogger("ext.PendingBinaryFile");
+  private static Log                                       log = ExoLogger.getLogger("ext.PendingBinaryFile");
 
   private HashMap<String, HashMap<String, FileDescriptor>> mapFilePerOwner;
 
@@ -80,8 +80,8 @@ public class PendingBinaryFile {
 
     HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownName);
 
-//    try {
-      return fileMap.get(fileName).getRandomAccessFile();
+    // try {
+    return fileMap.get(fileName).getRandomAccessFile();
     /*} catch (NullPointerException e) {
       try {
       

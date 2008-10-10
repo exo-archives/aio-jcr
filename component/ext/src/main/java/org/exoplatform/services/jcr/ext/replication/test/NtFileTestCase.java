@@ -29,9 +29,12 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.RepositoryService;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 19.05.2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
+
 public class NtFileTestCase extends BaseReplicationTestCase {
 
   public NtFileTestCase(RepositoryService repositoryService,
@@ -56,7 +59,7 @@ public class NtFileTestCase extends BaseReplicationTestCase {
       FileOutputStream fos = new FileOutputStream(tempFile);
 
       for (int i = 0; i < buf.length; i++)
-        buf[i] = (byte) (i % 255);
+        buf[i] = (byte) (i % DIVIDER);
 
       for (long i = 0; i < fileSize / BUFFER_SIZE; i++)
         fos.write(buf);
@@ -77,7 +80,7 @@ public class NtFileTestCase extends BaseReplicationTestCase {
 
       end = System.currentTimeMillis();
 
-      log.info("The time of the adding of nt:file : " + ((end - start) / 1000) + " sec");
+      log.info("The time of the adding of nt:file : " + ((end - start) / ONE_SECONDS) + " sec");
       sb.append("ok");
     } catch (Exception e) {
       log.error("Can't save nt:file : ", e);

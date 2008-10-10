@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.RepositoryService;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class DeleteTestCase extends BaseReplicationTestCase {
 
   public DeleteTestCase(RepositoryService repositoryService,

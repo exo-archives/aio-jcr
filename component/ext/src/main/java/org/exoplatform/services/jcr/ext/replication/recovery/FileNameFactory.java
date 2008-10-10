@@ -29,6 +29,7 @@ import java.util.Date;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class FileNameFactory {
   private DateFormat       datefName        = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");
 

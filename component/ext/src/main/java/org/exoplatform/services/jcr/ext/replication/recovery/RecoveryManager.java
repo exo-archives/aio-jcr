@@ -39,6 +39,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class RecoveryManager {
 
   private static Log                                              log = ExoLogger.getLogger("ext.RecoveryManager");
@@ -46,7 +47,7 @@ public class RecoveryManager {
   private FileNameFactory                                         fileNameFactory;
 
   private RecoveryWriter                                          recoveryWriter;
-  
+
   private RecoveryReader                                          recoveryReader;
 
   private File                                                    recoveryDir;

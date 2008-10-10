@@ -36,74 +36,79 @@ import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 16.05.2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
 
 @URITemplate("/replication-test/")
 @OutputTransformer(StringOutputTransformer.class)
 public class ReplicationTestService implements ResourceContainer {
   public class Constants {
-    public final static String BASE_URL         = "/rest/replication-test";
+    public static final String BASE_URL         = "/rest/replication-test";
 
-    public final static String OPERATION_PREFIX = "?operation=";
+    public static final String OPERATION_PREFIX = "?operation=";
 
     public class OperationType {
-      public final static String ADD_NT_FILE                   = "addNTFile";
+      public static final String ADD_NT_FILE                   = "addNTFile";
 
-      public final static String CHECK_NT_FILE                 = "checkNTFile";
+      public static final String CHECK_NT_FILE                 = "checkNTFile";
 
-      public final static String START_BACKUP                  = "startBackup";
+      public static final String START_BACKUP                  = "startBackup";
 
-      public final static String SET_LOCK                      = "lock";
+      public static final String SET_LOCK                      = "lock";
 
-      public final static String CECK_LOCK                     = "checkLock";
+      public static final String CECK_LOCK                     = "checkLock";
 
-      public final static String ADD_VERSIONODE                = "addVersionNode";
+      public static final String ADD_VERSIONODE                = "addVersionNode";
 
-      public final static String CHECK_VERSION_NODE            = "checkVersionNode";
+      public static final String CHECK_VERSION_NODE            = "checkVersionNode";
 
-      public final static String ADD_NEW_VERSION               = "addNewVersion";
+      public static final String ADD_NEW_VERSION               = "addNewVersion";
 
-      public final static String RESTORE_RPEVIOUS_VERSION      = "restorePreviousVersion";
+      public static final String RESTORE_RPEVIOUS_VERSION      = "restorePreviousVersion";
 
-      public final static String RESTORE_BASE_VERSION          = "restoreBaseVersion";
+      public static final String RESTORE_BASE_VERSION          = "restoreBaseVersion";
 
-      public final static String DELETE                        = "delete";
+      public static final String DELETE                        = "delete";
 
-      public final static String CHECK_DELETE                  = "checkDelete";
+      public static final String CHECK_DELETE                  = "checkDelete";
 
-      public final static String WORKSPACE_COPY                = "workspaceCopy";
+      public static final String WORKSPACE_COPY                = "workspaceCopy";
 
-      public final static String WORKSPASE_MOVE                = "workspaceMove";
+      public static final String WORKSPASE_MOVE                = "workspaceMove";
 
-      public final static String SESSION_MOVE                  = "sessionMove";
+      public static final String SESSION_MOVE                  = "sessionMove";
 
-      public final static String CHECK_COPY_MOVE_NODE          = "checkCopyMoveNode";
+      public static final String CHECK_COPY_MOVE_NODE          = "checkCopyMoveNode";
 
-      public final static String DISCONNECT_CLUSTER_NODE       = "disconnectClusterNode";
+      public static final String DISCONNECT_CLUSTER_NODE       = "disconnectClusterNode";
 
-      public final static String DISCONNECT_CLUSTER_NODE_BY_ID = "disconnectClusterNodeById";
+      public static final String DISCONNECT_CLUSTER_NODE_BY_ID = "disconnectClusterNodeById";
 
-      public final static String ALLOW_CONNECT                 = "allowConnect";
+      public static final String ALLOW_CONNECT                 = "allowConnect";
 
-      public final static String ALLOW_CONNECT_FORCED          = "allowConnectForced";
+      public static final String ALLOW_CONNECT_FORCED          = "allowConnectForced";
 
-      public final static String WORKSPACE_IS_READ_ONLY        = "workspaceIsReadOnly";
+      public static final String WORKSPACE_IS_READ_ONLY        = "workspaceIsReadOnly";
 
-      public final static String CREATE_CONTENT                = "createContent";
+      public static final String CREATE_CONTENT                = "createContent";
 
-      public final static String COMPARE_DATA                  = "compareData";
+      public static final String COMPARE_DATA                  = "compareData";
 
-      public final static String START_THREAD_UPDATER          = "startThreadUpdater";
+      public static final String START_THREAD_UPDATER          = "startThreadUpdater";
 
-      public final static String CREATE_BASE_NODE              = "createBaseNode";
+      public static final String CREATE_BASE_NODE              = "createBaseNode";
 
-      public final static String ADD_EMPTY_NODE                = "addEmptyNode";
+      public static final String ADD_EMPTY_NODE                = "addEmptyNode";
 
-      public final static String ADD_STRING_PROPETY_ONLY       = "addStringPropertyOnly";
+      public static final String ADD_STRING_PROPETY_ONLY       = "addStringPropertyOnly";
 
-      public final static String ADD_BINARY_PROPERTY_ONLY      = "addBinaryPropertyOnly";
+      public static final String ADD_BINARY_PROPERTY_ONLY      = "addBinaryPropertyOnly";
+    }
+    
+    private Constants() {
     }
   }
 

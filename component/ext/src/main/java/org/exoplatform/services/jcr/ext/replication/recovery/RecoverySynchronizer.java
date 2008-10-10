@@ -49,6 +49,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class RecoverySynchronizer {
   private static Log                         log = ExoLogger.getLogger("ext.RecoverySynchronizer");
 
@@ -91,10 +92,10 @@ public class RecoverySynchronizer {
     this.ownName = ownName;
     this.systemId = systemId;
 
-    //TODO
-    //recoveryReader = new RecoveryReader(fileCleaner, recoveryDir);
+    // TODO
+    // recoveryReader = new RecoveryReader(fileCleaner, recoveryDir);
     this.recoveryReader = recoveryReader;
-    
+
     this.recoveryWriter = recoveryWriter;
     mapPendingBinaryFile = new HashMap<String, PendingBinaryFile>();
 
@@ -342,13 +343,13 @@ public class RecoverySynchronizer {
 
       if (filePathList.size() > 0) {
         for (String filePath : filePathList) {
-          channelManager.sendBinaryFile(filePath, 
-              ownerName, 
-              identifier, 
-              systemId,
-              Packet.PacketType.BINARY_FILE_FIRST_PACKET,
-              Packet.PacketType.BINARY_FILE_MIDDLE_PACKET,
-              Packet.PacketType.BINARY_FILE_LAST_PACKET);
+          channelManager.sendBinaryFile(filePath,
+                                        ownerName,
+                                        identifier,
+                                        systemId,
+                                        Packet.PacketType.BINARY_FILE_FIRST_PACKET,
+                                        Packet.PacketType.BINARY_FILE_MIDDLE_PACKET,
+                                        Packet.PacketType.BINARY_FILE_LAST_PACKET);
         }
 
         Packet endPocket = new Packet(Packet.PacketType.ALL_BINARY_FILE_TRANSFERRED_OK, identifier);

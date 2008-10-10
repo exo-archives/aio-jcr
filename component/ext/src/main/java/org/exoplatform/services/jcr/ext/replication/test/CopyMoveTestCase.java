@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.RepositoryService;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class CopyMoveTestCase extends BaseReplicationTestCase {
 
   public CopyMoveTestCase(RepositoryService repositoryService,

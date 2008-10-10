@@ -46,6 +46,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class RecoveryWriter extends AbstractFSAccess {
 
   private static Log        log             = ExoLogger.getLogger("ext.RecoveryWriter");
@@ -137,7 +138,7 @@ public class RecoveryWriter extends AbstractFSAccess {
       raf.close();
     }
   }
-  
+
   private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);

@@ -27,14 +27,17 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: BandwidthAllocationTestCase.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
 
-  private final String alphabet = "qwertyuiop[]asdfghjkl;'zxcvbnm,./1234567890-=!@#$%^&*()_+|:?><";
+  private static final String ALPHBET = "qwertyuiop[]asdfghjkl;'zxcvbnm,./1234567890-=!@#$%^&*()_+|:?><";
+  
+  private static final int RANDOM_VALUE = 1124517;
 
   public BandwidthAllocationTestCase(RepositoryService repositoryService,
                                      String reposytoryName,
@@ -92,8 +95,8 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
       // create random value
       String sValue = "";
       for (int i = 0; i < size; i++) {
-        int sIndex = (int) (Math.random() * 1124517) % alphabet.length();
-        sValue += alphabet.substring(sIndex, sIndex + 1);
+        int sIndex = (int) (Math.random() * RANDOM_VALUE) % ALPHBET.length();
+        sValue += ALPHBET.substring(sIndex, sIndex + 1);
       }
 
       for (int i = 0; i < iterations; i++) {
@@ -128,7 +131,7 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
       FileOutputStream fos = new FileOutputStream(tempFile);
 
       for (int i = 0; i < buf.length; i++)
-        buf[i] = (byte) (i % 255);
+        buf[i] = (byte) (i % BaseReplicationTestCase.DIVIDER);
 
       for (long i = 0; i < size / BUFFER_SIZE; i++)
         fos.write(buf);
@@ -147,7 +150,7 @@ public class BandwidthAllocationTestCase extends BaseReplicationTestCase {
       end = System.currentTimeMillis();
 
       log.info("The time of the adding of nt:file + " + iterations + "( " + tempFile.length()
-          + " B ) : " + ((end - start) / 1000) + " sec");
+          + " B ) : " + ((end - start) / BaseReplicationTestCase.ONE_SECONDS) + " sec");
 
       sb.append("ok");
     } catch (Exception e) {

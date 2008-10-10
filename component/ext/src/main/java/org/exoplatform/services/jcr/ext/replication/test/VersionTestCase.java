@@ -23,9 +23,12 @@ import javax.jcr.version.Version;
 import org.exoplatform.services.jcr.RepositoryService;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 30.06.2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
+
 public class VersionTestCase extends BaseReplicationTestCase {
 
   public VersionTestCase(RepositoryService repositoryService,

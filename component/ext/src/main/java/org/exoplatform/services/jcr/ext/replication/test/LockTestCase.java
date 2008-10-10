@@ -24,9 +24,12 @@ import javax.jcr.lock.LockException;
 import org.exoplatform.services.jcr.RepositoryService;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 27.06.2008
+ * Created by The eXo Platform SAS.
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
+
 public class LockTestCase extends BaseReplicationTestCase {
 
   public LockTestCase(RepositoryService repositoryService,

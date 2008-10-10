@@ -21,10 +21,11 @@ import java.io.RandomAccessFile;
 
 /**
  * Created by The eXo Platform SAS.
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: FileDescriptor.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public class FileDescriptor implements Comparable<FileDescriptor> {
   private File             file;
 

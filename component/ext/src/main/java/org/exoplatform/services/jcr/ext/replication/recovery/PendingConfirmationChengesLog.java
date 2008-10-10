@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class PendingConfirmationChengesLog {
   private List<String>        confirmationList;
 

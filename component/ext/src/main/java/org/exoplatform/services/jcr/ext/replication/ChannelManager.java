@@ -42,6 +42,7 @@ import org.jgroups.blocks.RequestHandler;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ChannelManager.java 111 2008-11-11 11:11:11Z rainf0x $
  */
+
 public class ChannelManager implements RequestHandler {
 
   private static Log           log = ExoLogger.getLogger("ext.ChannelManager");
@@ -272,43 +273,37 @@ public class ChannelManager implements RequestHandler {
     if (log.isDebugEnabled())
       log.debug("End send : " + filePath);
   }*/
-  
+
   public synchronized void sendBinaryFile(String filePath,
-                                        String ownerName,
-                                        String identifier,
-                                        String systemId,
-                                        int firstPacketType, 
-                                        int middlePocketType, 
-                                        int lastPocketType) throws Exception {
+                                          String ownerName,
+                                          String identifier,
+                                          String systemId,
+                                          int firstPacketType,
+                                          int middlePocketType,
+                                          int lastPocketType) throws Exception {
     long count = 0;
-    
+
     if (log.isDebugEnabled())
       log.debug("Begin send : " + filePath);
 
     File f = new File(filePath);
     InputStream in = new FileInputStream(f);
 
-    Packet packet = new Packet(firstPacketType,
-        identifier,
-        ownerName,
-        f.getName());
+    Packet packet = new Packet(firstPacketType, identifier, ownerName, f.getName());
     packet.setSystemId(systemId);
     //
     packet.setSize(count);
     count++;
     //
     sendPacket(packet);
-    
+
     byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
-    
+
     while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-      packet = new Packet(middlePocketType,
-          new FixupStream(),
-          identifier,
-          buf);
-      
+      packet = new Packet(middlePocketType, new FixupStream(), identifier, buf);
+
       packet.setOffset(offset);
       packet.setOwnName(ownerName);
       packet.setFileName(f.getName());
@@ -317,27 +312,24 @@ public class ChannelManager implements RequestHandler {
       count++;
       //
       sendPacket(packet);
-      
+
       offset += len;
       if (log.isDebugEnabled())
         log.debug("Send  --> " + offset);
-      
+
       Thread.sleep(1);
     }
-    
+
     if (len < Packet.MAX_PACKET_SIZE) {
       // check if empty stream
       len = (len == -1 ? 0 : len);
-      
+
       byte[] buffer = new byte[len];
 
       for (int i = 0; i < len; i++)
         buffer[i] = buf[i];
 
-      packet = new Packet(lastPocketType,
-          new FixupStream(),
-          identifier,
-          buffer);
+      packet = new Packet(lastPocketType, new FixupStream(), identifier, buffer);
       packet.setOffset(offset);
       packet.setOwnName(ownerName);
       packet.setFileName(f.getName());
@@ -350,8 +342,8 @@ public class ChannelManager implements RequestHandler {
 
     if (log.isDebugEnabled())
       log.debug("End send : " + filePath);
-    
-    //TODO
+
+    // TODO
     in.close();
   }
 

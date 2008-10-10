@@ -50,6 +50,7 @@ import org.picocontainer.Startable;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class ReplicationService implements Startable {
 
   private static Log          log                   = ExoLogger.getLogger("ext.ReplicationService");

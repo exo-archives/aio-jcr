@@ -37,10 +37,15 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public abstract class BaseReplicationTestCase {
   protected static Log       log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
 
   protected static final int BUFFER_SIZE = 1024;
+
+  public static final int    DIVIDER     = 255;
+
+  public static final double ONE_SECONDS = 1000;
 
   protected Session          session;
 

@@ -22,6 +22,7 @@ package org.exoplatform.services.jcr.ext.replication;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
+
 public class ReplicationException extends Exception {
   public ReplicationException(String message) {
     super(message);

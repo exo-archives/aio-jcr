@@ -71,6 +71,8 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       assertEquals(result, "ok");
     }
 
+    Thread.sleep(2000);
+    
     // check is read-only max priority member
     {
       String disconnectUrl = "http://" + getMaxPriorityMember().getIpAddress() + ":"
@@ -179,6 +181,8 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       assertEquals(result, "ok");
     }
 
+    Thread.sleep(2000);
+    
     // check is read-only min priority member
     {
       String disconnectUrl = "http://" + getMinPriorityMember().getIpAddress() + ":"
@@ -286,6 +290,8 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
+    
+    Thread.sleep(2000);
 
     // check is read-only middle priority member
     {
@@ -345,7 +351,7 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
       assertEquals(result, "ok");
     }
 
-    // wait 4 minutes (reconnect + restore will be finished)
+    // wait 3 minutes (reconnect + restore will be finished)
     Thread.sleep(3 * 60 * 1000);
 
     // check nt:file in members
@@ -396,6 +402,8 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
+    
+    Thread.sleep(2000);
 
     // check is read-only max priority member
     {
@@ -454,6 +462,8 @@ public class ThreeMemberDynamicPriorityCheckerTest extends BaseTestCaseChecker {
 
       assertEquals(result, "ok");
     }
+    
+    Thread.sleep(2000);
 
     // check is read-only min priority member
     {
