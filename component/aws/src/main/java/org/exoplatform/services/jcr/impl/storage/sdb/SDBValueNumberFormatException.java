@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 /*
  * Copyright (C) 2003-2007 eXo Platform SAS.
  *
@@ -16,24 +19,40 @@
  */
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 08.10.2008
+ * <br/>Date: 10.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class SDBAttributeValueCorruptedException extends SDBRepositoryException {
+public class SDBValueNumberFormatException extends NumberFormatException {
 
   /**
-   * SDBAttributeValueCorruptedException  constructor.
-   *
-   * @param message - error description
-   * @param rootCause - cause
+   * Error cause.
    */
-  public SDBAttributeValueCorruptedException(String message, Exception rootCause) {
-    super(message, rootCause);
+  private final Throwable cause;
+
+  /**
+   * SDBValueNumberFormatException constructor.
+   * 
+   * @param message
+   *          - error message
+   * @param cause
+   *          - error cause
+   */
+  public SDBValueNumberFormatException(String message, Throwable cause) {
+    super(message);
+    this.cause = cause;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Throwable getCause() {
+    return this.cause;
+  }
+
 }

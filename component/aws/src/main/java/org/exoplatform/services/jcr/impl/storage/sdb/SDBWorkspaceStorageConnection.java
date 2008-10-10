@@ -1657,8 +1657,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * @throws AmazonSimpleDBException
    *           - if storage error occurs
    */
-  private QPath traverseQPath(String parentId) throws 
-                                              InvalidItemStateException,
+  private QPath traverseQPath(String parentId) throws InvalidItemStateException,
                                               IllegalNameException,
                                               SDBRepositoryException,
                                               AmazonSimpleDBException {
@@ -1735,7 +1734,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                              SDBRepositoryException,
                                                              AmazonSimpleDBException {
     // TODO null parent
-    String parentId = getAttribute(atts, PID);
 
     NodeIData idata = parseNodeIData(getAttribute(atts, IDATA), parentACL);
     // } catch (IllegalNameException e) {
@@ -1753,40 +1751,42 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     // e.printStackTrace();
     // }
 
-    try {
-      QPath qpath;
-      String pid;
-      if (parentPath != null) {
-        // get by parent and name
-        qpath = QPath.makeChildPath(parentPath, QPathEntry.parse(getAttribute(atts, NAME)));
-        pid = parentId;
-      } else {
-        // get by id
-        if (parentId.equals(Constants.ROOT_PARENT_UUID)) {
-          // root node
-          qpath = Constants.ROOT_PATH;
-          pid = null;
-        } else {
-          // qpath = QPath.makeChildPath(traverseQPath(cpid), qname, cindex);
-          qpath = traverseQPath(parentId); // TODO
-          pid = parentId;
-        }
-      }
+    String pid = getAttribute(atts, PID);
 
-      return new PersistedNodeData(getAttribute(atts, ID),
-                                   qpath,
-                                   getAttribute(atts, PID),
-                                   idata.getVersion(),
-                                   idata.getOrderNumber(),
-                                   idata.getPrimaryType(),
-                                   idata.getMixinTypes()
-                                        .toArray(new InternalQName[idata.getMixinTypes().size()]),
-                                   idata.getACL());
-    } catch (IllegalNameException e) {
-      throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath + " "
-          + parentId + ". Node's child Node name contains wrong value '" + getAttribute(atts, NAME)
-          + "'. Error " + e, e);
+    // try {
+    QPath qpath;
+    String parentId;
+    if (pid != null) {
+      // get by parent and name
+      qpath = QPath.makeChildPath(parentPath, QPathEntry.parse(getAttribute(atts, NAME)));
+      parentId = pid;
+    } else {
+      // get by id
+      if (Constants.ROOT_PARENT_UUID.equals(pid)) {
+        // root node
+        qpath = Constants.ROOT_PATH;
+        parentId = null;
+      } else {
+        // qpath = QPath.makeChildPath(traverseQPath(cpid), qname, cindex);
+        qpath = traverseQPath(pid); // TODO
+        parentId = pid;
+      }
     }
+
+    return new PersistedNodeData(getAttribute(atts, ID),
+                                 qpath,
+                                 parentId,
+                                 idata.getVersion(),
+                                 idata.getOrderNumber(),
+                                 idata.getPrimaryType(),
+                                 idata.getMixinTypes()
+                                      .toArray(new InternalQName[idata.getMixinTypes().size()]),
+                                 idata.getACL());
+    // } catch (IllegalNameException e) {
+    // throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath + " "
+    // + parentId + ". Node's child Node name contains wrong value '" + getAttribute(atts, NAME)
+    // + "'. Error " + e, e);
+    // }
   }
 
   /**
@@ -1994,15 +1994,15 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     } catch (NumberFormatException e) {
       // TODO Auto-generated catch block
       throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
-                                    + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+          + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     } catch (IllegalNameException e) {
       // TODO Auto-generated catch block
       throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
-                                    + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+          + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     } catch (IllegalACLException e) {
       // TODO Auto-generated catch block
       throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
-                                    + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+          + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     }
   }
 

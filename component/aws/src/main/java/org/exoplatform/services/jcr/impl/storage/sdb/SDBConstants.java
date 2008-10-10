@@ -22,7 +22,7 @@ package org.exoplatform.services.jcr.impl.storage.sdb;
  * <br/>Date: 03.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SDBConstants.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id$
  */
 public interface SDBConstants {
 
