@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.organization.BaseOrganizationService;
+import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>
@@ -39,7 +40,7 @@ import org.exoplatform.services.organization.BaseOrganizationService;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class JCROrganizationServiceImpl extends BaseOrganizationService {
+public class JCROrganizationServiceImpl extends BaseOrganizationService implements Startable {
 
   public static final String           STORAGE_WORKSPACE    = "storage-workspace";
 
@@ -124,4 +125,23 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService {
     return storagePath;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void start() {
+    // TODO Auto-generated method stub
+    super.start();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void stop() {
+    // do nothing
+    super.stop();
+  }
+
+  
 }
