@@ -83,7 +83,21 @@ public abstract class AbstractPriorityChecker implements PacketListener {
                                       (long) ownPriority,
                                       identifier);
       channelManager.sendPacket(pktInformer);
-      Thread.sleep(INFORM_TIMOUT);
+      try {
+        if (log.isDebugEnabled())
+         log.debug("<!-- isInterrupted == " + Thread.currentThread().isInterrupted());
+        
+        Thread.sleep(INFORM_TIMOUT);
+      } catch (InterruptedException ie) {
+        // ignored InterruptedException
+        
+        if (log.isDebugEnabled()) {
+          log.debug("InterruptedException");
+          log.debug("--> isInterrupted == " + Thread.currentThread().isInterrupted());
+        }
+        
+        Thread.sleep(INFORM_TIMOUT);
+      }
     } catch (Exception e) {
       log.error("Can not informed the other participants", e);
     }
