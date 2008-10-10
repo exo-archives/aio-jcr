@@ -103,7 +103,7 @@ public class VersionableWorkspaceDataManager extends ACLInheritanceSupportedWork
 
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     if (parentData != null) {
-      final QPath ipath = QPath.makeChildPath(parentData.getQPath(), new QPathEntry[] { name });
+      final QPath ipath = QPath.makeChildPath(parentData.getQPath(), name);
       if (isSystemDescendant(ipath) && !this.equals(versionDataManager)) {
         return versionDataManager.getItemData(parentData, name);
       }

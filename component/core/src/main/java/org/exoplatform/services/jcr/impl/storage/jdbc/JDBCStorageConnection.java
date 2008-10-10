@@ -673,8 +673,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *          - initial parent id
    * @return
    * @throws SQLException
+   *           - if database error occurs
    * @throws InvalidItemStateException
+   *           - if parent not found
    * @throws IllegalNameException
+   *           - if name on the path is wrong
    */
   private QPath traverseQPath(String cpid) throws SQLException,
                                           InvalidItemStateException,

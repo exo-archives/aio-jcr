@@ -25,18 +25,42 @@ package org.exoplatform.services.jcr.datamodel;
  */
 public class IllegalACLException extends Exception {
 
+  /**
+   * IllegalACLException constructor.
+   * 
+   */
   public IllegalACLException() {
     super();
   }
 
+  /**
+   * IllegalACLException constructor.
+   * 
+   * @param message
+   *          - error message
+   * @param cause
+   *          - error casue
+   */
   public IllegalACLException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * IllegalACLException constructor.
+   * 
+   * @param message
+   *          - error message
+   */
   public IllegalACLException(String message) {
     super(message);
   }
 
+  /**
+   * IllegalACLException constructor.
+   * 
+   * @param cause
+   *          - error casue
+   */
   public IllegalACLException(Throwable cause) {
     super(cause);
   }

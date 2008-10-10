@@ -250,7 +250,7 @@ public class SessionDataManager implements ItemDataConsumer {
       session.getActionHandler().postRead(item);
       if (!item.hasPermission(PermissionType.READ)) {
         throw new AccessDeniedException("Access denied "
-            + QPath.makeChildPath(parent.getQPath(), new QPathEntry[] { name }).getAsString()
+            + QPath.makeChildPath(parent.getQPath(), name).getAsString()
             + " for " + session.getUserID() + " (get item by path)");
       }
 

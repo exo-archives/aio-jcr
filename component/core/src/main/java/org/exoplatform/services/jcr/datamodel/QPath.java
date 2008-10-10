@@ -366,7 +366,7 @@ public class QPath implements Comparable<QPath> {
     return path;
   }
 
-  public static QPath makeChildPath(final QPath parent, final QPathEntry[] relEntries) {
+  public static QPath makeChildPath(final QPath parent, final QPathEntry... relEntries) {
 
     final QPathEntry[] parentEntries = parent.getEntries();
     final QPathEntry[] names = new QPathEntry[parentEntries.length + relEntries.length];
