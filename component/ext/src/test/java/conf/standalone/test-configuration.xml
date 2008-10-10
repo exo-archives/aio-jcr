@@ -325,7 +325,7 @@
     </init-params>
   </component>
 
-  <component>
+  <!--component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.jcr.ext.organization.JCROrganizationServiceImpl</type>
     <init-params>
@@ -340,7 +340,7 @@
         <value>/exo:organization</value>
       </value-param>
     </init-params>
-  </component>
+  </component-->
 
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
