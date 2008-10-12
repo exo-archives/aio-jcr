@@ -667,11 +667,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Find parent path in db by cpid
+   * Build Item path by id.
    * 
    * @param cpid
-   *          - initial parent id
-   * @return
+   *          - Item id (container id)
+   * @return Item QPath
    * @throws SQLException
    *           - if database error occurs
    * @throws InvalidItemStateException
