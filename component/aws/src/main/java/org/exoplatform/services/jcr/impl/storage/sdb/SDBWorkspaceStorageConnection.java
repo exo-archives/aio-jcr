@@ -163,7 +163,15 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   /**
    * Get Item by ID query.
    */
-  protected static final String              QUERY_GET_ITEM            = "['" + ID + "' = '%s']";
+  protected static final String              QUERY_GET_ITEM_BY_ID      = "['" + ID + "' = '%s']";
+
+  /**
+   * Get Item by parent ID and name query.
+   */
+  protected static final String              QUERY_GET_ITEM_BY_NAME    = "['"
+                                                                           + PID
+                                                                           + "' = '%s'] intersection ['"
+                                                                           + NAME + "' = '%s']";
 
   /**
    * Get Node child Nodes by parent ID query.
@@ -182,6 +190,18 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                            + "' = '%s'] intersection ['"
                                                                            + ICLASS + "' = '"
                                                                            + PROPERTY_ICLASS + "']";
+
+  /**
+   * Get REFERENCE Properties by Node ID query.
+   */
+  protected static final String              QUERY_GET_REFERENCES      = "['" + ICLASS + "' = '"
+                                                                           + PROPERTY_ICLASS
+                                                                           + "'] intersection ['"
+                                                                           // + PTYPE + "' = '"
+                                                                           // + PROPERTY_ICLASS
+                                                                           // +
+                                                                           // "']  intersection ['"
+                                                                           + DATA + "' = '%s']";
 
   /**
    * SimpleDB service.
@@ -1106,12 +1126,46 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * @throws AmazonSimpleDBException
    *           in case of SDB error
    */
-  protected QueryWithAttributesResponse queryItemAttr(final AmazonSimpleDB service,
-                                                      final String domainName,
-                                                      final String itemId,
-                                                      final String... attributes) throws AmazonSimpleDBException {
+  protected QueryWithAttributesResponse queryItemAttrByID(final AmazonSimpleDB service,
+                                                          final String domainName,
+                                                          final String itemId,
+                                                          final String... attributes) throws AmazonSimpleDBException {
 
-    String query = String.format(QUERY_GET_ITEM, itemId);
+    String query = String.format(QUERY_GET_ITEM_BY_ID, itemId);
+    QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
+                                                                         .withQueryExpression(query);
+
+    if (attributes != null)
+      request.withAttributeName(attributes);
+
+    return service.queryWithAttributes(request);
+  }
+
+  /**
+   * Query item attributes by parent ID and name (QueryWithAttributes).
+   * 
+   * @param service
+   *          SimpleDB service
+   * @param domainName
+   *          targeted domain name
+   * @param parentId
+   *          JCR Item parent Id
+   * @param name
+   *          JCR Item name
+   * @param attributes
+   *          SimpleDB item attributes for responce. If <code>null</code> all attributes will be
+   *          returned
+   * @return QueryWithAttributesResponse
+   * @throws AmazonSimpleDBException
+   *           in case of SDB error
+   */
+  protected QueryWithAttributesResponse queryItemAttrByName(final AmazonSimpleDB service,
+                                                            final String domainName,
+                                                            final String parentId,
+                                                            final String name,
+                                                            final String... attributes) throws AmazonSimpleDBException {
+
+    String query = String.format(QUERY_GET_ITEM_BY_NAME, parentId, name);
     QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
                                                                          .withQueryExpression(query);
 
@@ -1170,6 +1224,37 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                  final String... attributes) throws AmazonSimpleDBException {
 
     String query = String.format(QUERY_GET_CHILDPROPERTIES, itemId);
+    QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
+                                                                         .withQueryExpression(query)
+                                                                         .withAttributeName(attributes);
+
+    return service.queryWithAttributes(request);
+  }
+
+  /**
+   * Query Node references properties by node ID (QueryWithAttributes).
+   * 
+   * <br/>NOTE: REFERENCE Properties SHOULD be stored in SimpleDB storage (not in External Values
+   * Storage).
+   * 
+   * @param service
+   *          SimpleDB service
+   * @param domainName
+   *          targeted domain name
+   * @param nodeId
+   *          JCR Node Id (target of REFERENCE Properties)
+   * @param attributes
+   *          SimpleDB item attributes for responce
+   * @return QueryWithAttributesResponse
+   * @throws AmazonSimpleDBException
+   *           in case of SDB error
+   */
+  protected QueryWithAttributesResponse queryReferencesAttr(final AmazonSimpleDB service,
+                                                            final String domainName,
+                                                            final String nodeId,
+                                                            final String... attributes) throws AmazonSimpleDBException {
+
+    String query = String.format(QUERY_GET_REFERENCES, nodeId);
     QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
                                                                          .withQueryExpression(query)
                                                                          .withAttributeName(attributes);
@@ -1257,12 +1342,12 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    *           if QName stored in SimpleDB is wrong
    * @throws IllegalACLException
    *           - if ACL stored in SimpleDB is wrong
-   * @throws NumberFormatException
+   * @throws SDBValueNumberFormatException
    *           - if numeric values stored in SimpleDB is wrong
    */
   protected NodeIData parseNodeIData(String field, AccessControlList parentACL) throws IllegalNameException,
                                                                                IllegalACLException,
-                                                                               NumberFormatException {
+                                                                               SDBValueNumberFormatException {
 
     String[] fs = field.split(IDATA_DELIMITER);
 
@@ -1363,6 +1448,14 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     return idata;
   }
 
+  /**
+   * Parse Property IData.
+   * 
+   * @param field
+   *          - IData content
+   * 
+   * @return PropertyIData instance
+   */
   protected PropertyIData parsePropertyIData(String field) {
 
     String[] fs = field.split(IDATA_DELIMITER);
@@ -1480,10 +1573,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     final String itemClass = data.isNode() ? "Node" : "Property";
     try {
       // 1. check if Item doesn't exist
-      QueryWithAttributesResponse resp = queryItemAttr(sdbService,
-                                                       domainName,
-                                                       data.getIdentifier(),
-                                                       ID);
+      QueryWithAttributesResponse resp = queryItemAttrByID(sdbService,
+                                                           domainName,
+                                                           data.getIdentifier(),
+                                                           ID);
       if (resp.isSetQueryWithAttributesResult()) {
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
         // SDB items
@@ -1498,7 +1591,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
       // 2. check if Parent exists (except of root)
       if (!Constants.ROOT_PARENT_UUID.equals(data.getParentIdentifier())) {
-        resp = queryItemAttr(sdbService, domainName, data.getParentIdentifier(), ID);
+        resp = queryItemAttrByID(sdbService, domainName, data.getParentIdentifier(), ID);
         if (resp.isSetQueryWithAttributesResult()) {
           QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
           // SDB items
@@ -1544,20 +1637,17 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    *           - if storage error occurs
    * @throws InvalidItemStateException
    *           - if Item in invalid state
-   * @throws SDBAttributeValueFormatException
-   *           - if persisted Version attribute format is invalid
    * @see ITEM_DELETE, ITEM_UPDATE
    */
   protected void validateItemChange(ItemData data, String modification) throws SDBRepositoryException,
-                                                                       InvalidItemStateException,
-                                                                       SDBAttributeValueFormatException {
+                                                                       InvalidItemStateException {
 
     final String itemClass = data.isNode() ? "Node" : "Property";
     try {
-      QueryWithAttributesResponse resp = queryItemAttr(sdbService,
-                                                       domainName,
-                                                       data.getIdentifier(),
-                                                       IDATA);
+      QueryWithAttributesResponse resp = queryItemAttrByID(sdbService,
+                                                           domainName,
+                                                           data.getIdentifier(),
+                                                           IDATA);
 
       if (resp.isSetQueryWithAttributesResult()) {
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
@@ -1602,16 +1692,18 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                 LOG.warn(">>>>> InvalidItemState. " + itemClass + " "
                     + data.getQPath().getAsString());
               }
-            } catch (NumberFormatException nfe) {
-              throw new SDBAttributeValueFormatException("(" + modification
-                  + ") Persisted Version attribute contains wrong data '" + idv + "'. " + itemClass
-                  + " " + data.getQPath().getAsString(), nfe);
+            } catch (SDBValueNumberFormatException e) {
+              throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+                  + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+                  + " attribute error. " + e, e);
             } catch (IllegalNameException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
+              throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+                  + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+                  + " attribute error. " + e, e);
             } catch (IllegalACLException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
+              throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+                  + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+                  + " attribute error. " + e, e);
             }
           } else {
             // error state
@@ -1641,36 +1733,34 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
-   * Find parent path in db by cpid
+   * Build Item path by id.
    * 
-   * @param cpid
-   *          - initial parent id
-   * @return
-   * @throws SQLException
-   *           - if SimpleDB error occurs
+   * @param itemId
+   *          - Item id
+   * @return QPath of
    * @throws InvalidItemStateException
-   *           - if parent not found
+   *           - if Item (or ancestor) not found
    * @throws IllegalNameException
    *           - if name on the path is wrong
    * @throws SDBRepositoryException
    *           - if storage inconsistency detected
    * @throws AmazonSimpleDBException
-   *           - if storage error occurs
+   *           - if SimpleDB storage error occurs
    */
-  private QPath traverseQPath(String parentId) throws InvalidItemStateException,
-                                              IllegalNameException,
-                                              SDBRepositoryException,
-                                              AmazonSimpleDBException {
+  private QPath traverseQPath(String itemId) throws InvalidItemStateException,
+                                            IllegalNameException,
+                                            SDBRepositoryException,
+                                            AmazonSimpleDBException {
     // get item by Identifier usecase
     List<QPathEntry> qrpath = new ArrayList<QPathEntry>(); // reverted path
-    String ancestorId = parentId; // ancestor id
+    String ancestorId = itemId; // ancestor id
     do {
-      QueryWithAttributesResponse resp = queryItemAttr(sdbService,
-                                                       domainName,
-                                                       ancestorId,
-                                                       PID,
-                                                       NAME,
-                                                       ICLASS);
+      QueryWithAttributesResponse resp = queryItemAttrByID(sdbService,
+                                                           domainName,
+                                                           ancestorId,
+                                                           PID,
+                                                           NAME,
+                                                           ICLASS);
 
       if (resp.isSetQueryWithAttributesResult()) {
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
@@ -1699,9 +1789,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
     QPathEntry[] qentries = new QPathEntry[qrpath.size()];
     int qi = 0;
-    for (int i = qrpath.size() - 1; i >= 0; i--) {
+    for (int i = qrpath.size() - 1; i >= 0; i--)
       qentries[qi++] = qrpath.get(i);
-    }
+
     return new QPath(qentries);
   }
 
@@ -1722,8 +1812,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * @throws NumberFormatException
    *           - if numeric values stored in SimpleDB is wrong
    * @throws AmazonSimpleDBException
-   * @throws SDBRepositoryException
-   * @throws InvalidItemStateException
+   *           - if SimpleDB storage error occurs
    */
   protected NodeData loadNodeData(final QPath parentPath,
                                   final AccessControlList parentACL,
@@ -1733,45 +1822,35 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                              InvalidItemStateException,
                                                              SDBRepositoryException,
                                                              AmazonSimpleDBException {
-    // TODO null parent
-
-    NodeIData idata = parseNodeIData(getAttribute(atts, IDATA), parentACL);
-    // } catch (IllegalNameException e) {
-    // throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath.getAsString()
-    // + " " + parentId + ". Node's nodetype (" + IDATA
-    // + " jcr:primaryType or jcr:mixinTypes) contains wrong value '"
-    // + getAttribute(atts, IDATA) + "'. Error " + e, e);
-    // } catch (NumberFormatException e) {
-    // throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath.getAsString()
-    // + " " + parentId + " " + IDATA
-    // + " attribute (version or orderNumber) contains wrong integer value '"
-    // + getAttribute(atts, IDATA) + "'. Error " + e, e);
-    // } catch (IllegalACLException e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
 
     String pid = getAttribute(atts, PID);
 
-    // try {
     QPath qpath;
     String parentId;
-    if (pid != null) {
-      // get by parent and name
-      qpath = QPath.makeChildPath(parentPath, QPathEntry.parse(getAttribute(atts, NAME)));
-      parentId = pid;
-    } else {
-      // get by id
-      if (Constants.ROOT_PARENT_UUID.equals(pid)) {
-        // root node
-        qpath = Constants.ROOT_PATH;
-        parentId = null;
-      } else {
-        // qpath = QPath.makeChildPath(traverseQPath(cpid), qname, cindex);
-        qpath = traverseQPath(pid); // TODO
+
+    try {
+      if (pid != null) {
+        // get by parent and name
+        qpath = QPath.makeChildPath(parentPath, QPathEntry.parse(getAttribute(atts, NAME)));
         parentId = pid;
+      } else {
+        // get by id
+        if (Constants.ROOT_PARENT_UUID.equals(pid)) {
+          // root node
+          qpath = Constants.ROOT_PATH;
+          parentId = null;
+        } else {
+          qpath = QPath.makeChildPath(traverseQPath(pid),
+                                      (QPathEntry) QPathEntry.parse(getAttribute(atts, NAME)));
+          parentId = pid;
+        }
       }
+    } catch (IllegalNameException e) {
+      throw new IllegalNameException("Node name contains wrong value '" + getAttribute(atts, NAME)
+          + "'. Error " + e, e);
     }
+
+    NodeIData idata = parseNodeIData(getAttribute(atts, IDATA), parentACL);
 
     return new PersistedNodeData(getAttribute(atts, ID),
                                  qpath,
@@ -1782,40 +1861,53 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                  idata.getMixinTypes()
                                       .toArray(new InternalQName[idata.getMixinTypes().size()]),
                                  idata.getACL());
-    // } catch (IllegalNameException e) {
-    // throw new SDBAttributeValueFormatException("(child nodes) Node " + parentPath + " "
-    // + parentId + ". Node's child Node name contains wrong value '" + getAttribute(atts, NAME)
-    // + "'. Error " + e, e);
-    // }
   }
 
   /**
    * Load PropertyData from SimpleDb Item.
    * 
-   * @param parent
-   *          - parent NodeData
+   * @param parentPath
+   *          - parent path
    * @param atts
    *          - SimpleDB Item attributes
-   * @return PropertyData
+   * @param withValues
+   *          - indicate if Property Value(s) data will be loaded
+   * @return PropertyData instance
+   * @throws IllegalNameException
+   *           if QName stored in SimpleDB is wrong
+   * @throws NumberFormatException
+   *           - if numeric values stored in SimpleDB is wrong
+   * @throws AmazonSimpleDBException
+   *           - if SimpleDB storage error occurs
    * @throws RepositoryException
    *           if SimpleDB Item record contains wrong value
+   * 
+   * @see SDBWorkspaceStorageConnection.listChildPropertiesData()
    */
   protected PropertyData loadPropertyData(final QPath parentPath,
-                                          final String parentId,
-                                          final List<Attribute> atts) throws RepositoryException {
-    // TODO null parent
-    PropertyIData idata = parsePropertyIData(getAttribute(atts, IDATA));
-    try {
-      PersistedPropertyData property = new PersistedPropertyData(getAttribute(atts, ID),
-                                                                 QPath.makeChildPath(parentPath,
-                                                                                     QPathEntry.parse(getAttribute(atts,
-                                                                                                                   NAME))),
-                                                                 getAttribute(atts, PID),
-                                                                 idata.getVersion(),
-                                                                 idata.getType(),
-                                                                 idata.isMultivalued());
+                                          final List<Attribute> atts,
+                                          final boolean withValues) throws NumberFormatException,
+                                                                   IllegalNameException,
+                                                                   AmazonSimpleDBException,
+                                                                   RepositoryException {
 
-      // Value
+    String pid = getAttribute(atts, PID);
+
+    PropertyIData idata = parsePropertyIData(getAttribute(atts, IDATA));
+
+    PersistedPropertyData property = new PersistedPropertyData(getAttribute(atts, ID),
+                                                               QPath.makeChildPath(parentPath == null
+                                                                                       ? traverseQPath(pid)
+                                                                                       : parentPath,
+                                                                                   QPathEntry.parse(getAttribute(atts,
+                                                                                                                 NAME))),
+                                                               pid,
+                                                               idata.getVersion(),
+                                                               idata.getType(),
+                                                               idata.isMultivalued());
+
+    // Value
+    if (withValues) {
       String[] vals = getAttributes(atts, DATA);
       List<ValueData> values = new ArrayList<ValueData>(vals.length);
       for (int i = 0; i < vals.length; i++) {
@@ -1826,8 +1918,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           try {
             values.add(new ByteArrayPersistedValueData(Base64.decode(value), i));
           } catch (DecodingException e) {
-            throw new SDBAttributeValueCorruptedException("(child properties) Node "
-                + parentPath.getAsString() + " " + parentId + ". Property "
+            throw new SDBAttributeValueCorruptedException("Property "
                 + property.getQPath().getName().getAsString() + " value[" + i + "] decoding error "
                 + e, e);
           }
@@ -1838,20 +1929,15 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
             values.add(channel.read(property.getIdentifier(), i, maxBufferSize));
           } catch (IOException e) {
-            throw new RepositoryException("(child properties) Node " + parentPath + " " + parentId
-                + ". Node's Property " + property.getQPath().getName().getAsString() + " value["
-                + i + "] read I/O error " + e, e);
+            throw new RepositoryException("Property " + property.getQPath().getName().getAsString()
+                + " value[" + i + "] read I/O error " + e, e);
           }
         }
       }
-
       property.setValues(values);
-      return property;
-    } catch (IllegalNameException e) {
-      throw new SDBAttributeValueFormatException("(child properties) Node " + parentPath + " "
-          + parentId + ". Node's Property name contains wrong value '" + getAttribute(atts, NAME)
-          + "'. Error " + e, e);
     }
+
+    return property;
   }
 
   // Interface impl
@@ -1989,19 +2075,16 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
       return childItems;
     } catch (AmazonSimpleDBException e) {
-      throw new SDBStorageException("(child properties) Node " + parent.getQPath().getAsString()
-          + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+      throw new SDBStorageException("(child nodes) Parent " + parent.getQPath().getAsString() + " "
+          + parent.getIdentifier() + ". Read request fails " + e, e);
     } catch (NumberFormatException e) {
-      // TODO Auto-generated catch block
-      throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
+      throw new SDBRepositoryException("(child nodes) Parent " + parent.getQPath().getAsString()
           + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     } catch (IllegalNameException e) {
-      // TODO Auto-generated catch block
-      throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
+      throw new SDBRepositoryException("(child nodes) Parent " + parent.getQPath().getAsString()
           + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     } catch (IllegalACLException e) {
-      // TODO Auto-generated catch block
-      throw new SDBRepositoryException("(child properties) Node " + parent.getQPath().getAsString()
+      throw new SDBRepositoryException("(child nodes) Parent " + parent.getQPath().getAsString()
           + " " + parent.getIdentifier() + ". Read request fails " + e, e);
     }
   }
@@ -2030,23 +2113,78 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
         List<Item> items = res.getItem();
         for (Item item : items)
-          childItems.add(loadPropertyData(parent.getQPath(),
-                                          parent.getIdentifier(),
-                                          item.getAttribute()));
+          childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), true));
       }
 
       return childItems;
     } catch (AmazonSimpleDBException e) {
-      throw new SDBStorageException("(child properties) Node " + parent.getQPath().getAsString()
+      throw new SDBStorageException("(child properties) Parent " + parent.getQPath().getAsString()
           + " " + parent.getIdentifier() + ". Read request fails " + e, e);
+    } catch (NumberFormatException e) {
+      throw new SDBRepositoryException("(child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
+    } catch (IllegalNameException e) {
+      throw new SDBRepositoryException("(child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException,
-                                                                   IllegalStateException {
+  public ItemData getItemData(NodeData parent, QPathEntry qname) throws RepositoryException,
+                                                                IllegalStateException {
+
+    final String parentId = parent.getIdentifier();
+    final String name = qname.getAsString();
+    try {
+      QueryWithAttributesResponse resp = queryItemAttrByName(sdbService,
+                                                             domainName,
+                                                             parentId,
+                                                             name,
+                                                             (String[]) null);
+
+      if (resp.isSetQueryWithAttributesResult()) {
+        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+        List<Item> items = res.getItem();
+        if (items.size() == 1) {
+          // got one item
+          List<Attribute> atts = items.get(0).getAttribute();
+
+          String iclass = getAttribute(atts, ICLASS);
+          if (NODE_ICLASS.equals(iclass)) {
+            // Node
+            return loadNodeData(parent.getQPath(), parent.getACL(), atts);
+          } else if (PROPERTY_ICLASS.equals(iclass)) {
+            // Property
+            return loadPropertyData(parent.getQPath(), atts, true);
+          } else
+            throw new SDBRepositoryException("(item) FATAL Item " + parent.getQPath().getAsString()
+                + name + " (parentId=" + parentId + ") has undefined type (" + ICLASS + "="
+                + iclass + ")");
+
+        } else if (items.size() > 0) {
+          // TODO much descriptive exception (location(name), is it Node or Property)
+          throw new SDBRepositoryException("(item) FATAL Location "
+              + parent.getQPath().getAsString() + name + " (parentId=" + parentId
+              + ") match multiple items in storage");
+        }
+      }
+    } catch (AmazonSimpleDBException e) {
+      throw new SDBStorageException("(item) " + parent.getQPath().getAsString() + name
+          + " (parentId=" + parentId + "). Read request fails " + e, e);
+    } catch (NumberFormatException e) {
+      throw new SDBRepositoryException("(item) " + parent.getQPath().getAsString() + name
+          + " (parentId=" + parentId + "). Read request fails " + e, e);
+    } catch (IllegalNameException e) {
+      throw new SDBRepositoryException("(item) " + parent.getQPath().getAsString() + name
+          + " (parentId=" + parentId + "). Read request fails " + e, e);
+    } catch (IllegalACLException e) {
+      throw new SDBRepositoryException("(item) " + parent.getQPath().getAsString() + name
+          + " (parentId=" + parentId + "). Read request fails " + e, e);
+    }
 
     return null;
   }
@@ -2055,12 +2193,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * {@inheritDoc}
    */
   public ItemData getItemData(String identifier) throws RepositoryException, IllegalStateException {
-
     try {
-      QueryWithAttributesResponse resp = queryItemAttr(sdbService,
-                                                       domainName,
-                                                       identifier,
-                                                       (String[]) null);
+      QueryWithAttributesResponse resp = queryItemAttrByID(sdbService,
+                                                           domainName,
+                                                           identifier,
+                                                           (String[]) null);
 
       if (resp.isSetQueryWithAttributesResult()) {
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
@@ -2075,27 +2212,24 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             return loadNodeData(null, null, atts);
           } else if (PROPERTY_ICLASS.equals(iclass)) {
             // Property
-            return loadPropertyData(null, null, atts);
+            return loadPropertyData(null, atts, true);
           } else
             throw new SDBRepositoryException("(item) FATAL Item with Id " + identifier
                 + " has undefined type (" + ICLASS + "=" + iclass + ")");
 
         } else if (items.size() > 0) {
           // TODO much descriptive exception (location(name), is it Node or Property)
-          throw new SDBRepositoryException("(item) FATAL Id '" + identifier
-              + "' match multiple items in storage");
+          throw new SDBRepositoryException("(item) FATAL Id " + identifier
+              + " match multiple items in storage");
         }
       }
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(item) Id " + identifier + ". Read request fails " + e, e);
     } catch (NumberFormatException e) {
-      // TODO Auto-generated catch block
       throw new SDBRepositoryException("(item) Id " + identifier + ". Read request fails " + e, e);
     } catch (IllegalNameException e) {
-      // TODO Auto-generated catch block
       throw new SDBRepositoryException("(item) Id " + identifier + ". Read request fails " + e, e);
     } catch (IllegalACLException e) {
-      // TODO Auto-generated catch block
       throw new SDBRepositoryException("(item) Id " + identifier + ". Read request fails " + e, e);
     }
 
@@ -2108,8 +2242,41 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   public List<PropertyData> getReferencesData(String nodeIdentifier) throws RepositoryException,
                                                                     IllegalStateException,
                                                                     UnsupportedOperationException {
-    // TODO Auto-generated method stub
-    return null;
+    // NOTE: REFERENCE Properties SHOULD be stored in SimpleDB storage (not in VS).
+
+    try {
+      // TODO nextToken for large list
+
+      QueryWithAttributesResponse resp = queryReferencesAttr(sdbService,
+                                                             domainName,
+                                                             nodeIdentifier,
+                                                             ID,
+                                                             PID,
+                                                             NAME,
+                                                             ICLASS,
+                                                             IDATA,
+                                                             DATA);
+
+      List<PropertyData> refProps = new ArrayList<PropertyData>();
+
+      if (resp.isSetQueryWithAttributesResult()) {
+        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+        List<Item> items = res.getItem();
+        for (Item item : items)
+          refProps.add(loadPropertyData(null, item.getAttribute(), true));
+      }
+
+      return refProps;
+    } catch (AmazonSimpleDBException e) {
+      throw new SDBStorageException("(references) Node Id " + nodeIdentifier
+          + ". Read request fails " + e, e);
+    } catch (NumberFormatException e) {
+      throw new SDBRepositoryException("(references) Node Id " + nodeIdentifier
+          + ". Read request fails " + e, e);
+    } catch (IllegalNameException e) {
+      throw new SDBRepositoryException("(references) Node Id " + nodeIdentifier
+          + ". Read request fails " + e, e);
+    }
   }
 
   /**
@@ -2125,8 +2292,41 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    */
   public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException,
                                                                     IllegalStateException {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      // TODO nextToken for large list
+
+      QueryWithAttributesResponse resp = queryChildPropertiesAttr(sdbService,
+                                                                  domainName,
+                                                                  parent.getIdentifier(),
+                                                                  ID,
+                                                                  PID,
+                                                                  NAME,
+                                                                  ICLASS,
+                                                                  IDATA);
+
+      List<PropertyData> childItems = new ArrayList<PropertyData>();
+
+      if (resp.isSetQueryWithAttributesResult()) {
+        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+        List<Item> items = res.getItem();
+        for (Item item : items)
+          childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), false));
+      }
+
+      return childItems;
+    } catch (AmazonSimpleDBException e) {
+      throw new SDBStorageException("(list child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
+    } catch (NumberFormatException e) {
+      throw new SDBRepositoryException("(list child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
+    } catch (IllegalNameException e) {
+      throw new SDBRepositoryException("(list child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
+    }
   }
 
 }
