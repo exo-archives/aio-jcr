@@ -456,7 +456,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       list.add(new ReplaceableAttribute(ID, node.getIdentifier(), false));
       list.add(new ReplaceableAttribute(PID, node.getParentIdentifier(), false));
       list.add(new ReplaceableAttribute(NAME,
-                                        node.getQPath().getEntries()[node.getQPath().getEntries().length - 1].getAsString(),
+                                        node.getQPath().getEntries()[node.getQPath().getEntries().length - 1].getAsString(true),
                                         false));
       list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, false));
       // list.add(new ReplaceableAttribute(VERSION, String.valueOf(node.getPersistedVersion()),
@@ -534,7 +534,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         list.add(new ReplaceableAttribute(PID, property.getParentIdentifier(), false));
         list.add(new ReplaceableAttribute(NAME,
                                           property.getQPath().getEntries()[property.getQPath()
-                                                                                   .getEntries().length - 1].getAsString(),
+                                                                                   .getEntries().length - 1].getAsString(true),
                                           false));
         list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, false));
         // list.add(new ReplaceableAttribute(VERSION,
@@ -623,7 +623,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       // list.add(new ReplaceableAttribute(ID, node.getIdentifier(), true));
       list.add(new ReplaceableAttribute(PID, node.getParentIdentifier(), true));
       list.add(new ReplaceableAttribute(NAME,
-                                        node.getQPath().getEntries()[node.getQPath().getEntries().length - 1].getAsString(),
+                                        node.getQPath().getEntries()[node.getQPath().getEntries().length - 1].getAsString(true),
                                         true));
       // list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, true));
 
@@ -704,7 +704,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         list.add(new ReplaceableAttribute(PID, property.getParentIdentifier(), true));
         list.add(new ReplaceableAttribute(NAME,
                                           property.getQPath().getEntries()[property.getQPath()
-                                                                                   .getEntries().length - 1].getAsString(),
+                                                                                   .getEntries().length - 1].getAsString(true),
                                           true));
         // list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, true));
 
@@ -897,7 +897,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    *          - Amazon secret key
    * @param domainName
    *          - SimpleDb domain name
-   *          @param maxBufferSize - maximum size of Value stored in  
+   * @param maxBufferSize
+   *          - maximum size of Value stored in
    * @param valueStorageProvider
    *          - External Value Storages provider
    * @throws RepositoryException
@@ -974,17 +975,18 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           throw new SDBRepositoryException("FATAL Storage domain (" + domainName
               + ") exists but Version Item not found " + STORAGE_VERSION_ID + ".");
 
-        if (!containerName.equals(userContainer)) {
-          // warn, domain in use by anoother container
-          LOG.warn("Storage in use by another Workspace container '"
-              + userContainer
-              + "'. User container name and current should be same. User storage version is "
-              + userVersion + ".");
-        }
-
         // just return current version,
         // container will decide what to do.
-        return userVersion;
+        if (userContainer != null && userVersion != null) {
+          if (!containerName.equals(userContainer)) {
+            // warn, domain in use by anoother container
+            LOG.warn("Storage in use by another Workspace container '" + userContainer
+                + "'. User container name and current should be same. User storage version is "
+                + userVersion + ".");
+          }
+          
+          return userVersion;
+        }
       }
     } catch (AmazonSimpleDBException e) {
       throw new SDBRepositoryException("Can not create SDB domain " + this.domainName, e);
@@ -1332,23 +1334,34 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     // idata.append(IDATA_PRIMARYTYPE);
     idata.append(node.getPrimaryTypeName().getAsString());
 
+    boolean isPrivilegeable = false;
+    boolean isOwneable = false;
     for (InternalQName mixin : node.getMixinTypeNames()) {
       idata.append(IDATA_DELIMITER);
       idata.append(IDATA_MIXINTYPE);
       idata.append(mixin.getAsString());
+      
+      if (Constants.EXO_PRIVILEGEABLE.equals(mixin)) 
+        isPrivilegeable = true;
+      else if (Constants.EXO_OWNEABLE.equals(mixin)) 
+        isOwneable = true;
     }
 
     AccessControlList acl = node.getACL();
     if (acl != null) {
-      for (AccessControlEntry ace : node.getACL().getPermissionEntries()) {
-        idata.append(IDATA_DELIMITER);
-        idata.append(IDATA_ACL_PERMISSION);
-        idata.append(ace.getAsString());
-      }
+      final boolean root = Constants.ROOT_PATH.equals(node.getQPath()); // equals by hash code
+      if (isPrivilegeable || root)
+        for (AccessControlEntry ace : node.getACL().getPermissionEntries()) {
+          idata.append(IDATA_DELIMITER);
+          idata.append(IDATA_ACL_PERMISSION);
+          idata.append(ace.getAsString());
+        }
 
-      idata.append(IDATA_DELIMITER);
-      idata.append(IDATA_ACL_OWNER);
-      idata.append(node.getACL().getOwner());
+      if (isOwneable || root) {
+        idata.append(IDATA_DELIMITER);
+        idata.append(IDATA_ACL_OWNER);
+        idata.append(node.getACL().getOwner());
+      }
     }
 
     return idata.toString();
@@ -2178,7 +2191,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                 IllegalStateException {
 
     final String parentId = parent.getIdentifier();
-    final String name = qname.getAsString();
+    final String name = qname.getAsString(true);
     try {
       QueryWithAttributesResponse resp = queryItemAttrByName(sdbService,
                                                              domainName,

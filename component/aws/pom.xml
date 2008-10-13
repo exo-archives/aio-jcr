@@ -119,7 +119,7 @@
           </testFailureIgnore>
           <forkMode>${exo.test.forkMode}</forkMode>
           <includes>
-            <include>**/Test*.java</include>
+            <include>**/SDBWorkspaceStorageConnectionTest.java</include>
           </includes>
         </configuration>
       </plugin>

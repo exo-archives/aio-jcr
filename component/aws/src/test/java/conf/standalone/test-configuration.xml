@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<configuration>
+  <component>
+    <key>org.exoplatform.services.log.LogConfigurationInitializer</key>
+    <type>org.exoplatform.services.log.LogConfigurationInitializer</type>
+    <init-params>
+      <value-param>
+        <name>logger</name>
+        <value>org.exoplatform.services.log.impl.BufferedLog4JLogger</value>
+      </value-param>
+      <value-param>
+        <name>configurator</name>
+        <value>org.exoplatform.services.log.impl.Log4JConfigurator</value>
+      </value-param>
+      <properties-param>
+        <name>properties</name>
+        <description>Log4J properties</description>
+        <property name="log4j.rootLogger" value="INFO, stdout, file"/>
+        
+        <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
+        <property name="log4j.appender.stdout.threshold" value="DEBUG"/>
+        
+        <property name="log4j.appender.stdout.layout" value="org.apache.log4j.PatternLayout"/>
+        <property name="log4j.appender.stdout.layout.ConversionPattern"
+          value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+        
+        <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
+        <property name="log4j.appender.file.File" value="target/jcr.log"/>
+        
+        <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
+        <property name="log4j.appender.file.layout.ConversionPattern"
+          value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+        
+        <property name="log4j.category.jcr.FileCleaner" value="DEBUG"/>
+        
+        <!-- property name="log4j.category.jcr.JDBCStorageConnection" value="DEBUG"/>
+        <property name="log4j.category.jcr.NodeImpl" value="DEBUG"/ -->
+        
+        <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/ -->
+        <!-- property name="log4j.category.database.DBSchemaCreator" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.WorkspaceDataReplicator" value="DEBUG"/ -->
+        
+        <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/ -->
+        <!-- property name="log4j.category.jcr.SessionDataManager" value="DEBUG"/ -->
+      </properties-param>
+    </init-params>
+  </component>
+    
+  <component>
+    <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
+    <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
+    <init-params>
+      <value-param>
+        <name>conf-path</name>
+        <description>JCR configuration file</description>
+        <value>jar:/conf/standalone/test-jcr-config.xml</value>
+      </value-param>
+    </init-params>
+  </component>
+  
+  <component>
+    <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
+  </component>
+  
+  <component>
+    <key>org.exoplatform.services.security.Authenticator</key>
+    <type>org.exoplatform.services.organization.auth.OrganizationAuthenticatorImpl</type>
+  </component>
+  
+  <component>
+    <type>org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog</type>
+  </component>
+  
+  <component>
+    <key>org.exoplatform.services.transaction.TransactionService</key>
+    <type>org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl</type>
+    <init-params>
+      <value-param>
+        <name>timeout</name>
+        <value>5</value>
+      </value-param>
+    </init-params>
+  </component>
+  
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
+    <component-plugin>
+      <name>jotm.tx</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+      <init-params>
+        <value-param>
+          <name>bind-name</name>
+          <value>UserTransaction</value>
+        </value-param>
+        <value-param>
+          <name>class-name</name>
+          <value>javax.transaction.UserTransaction</value>
+        </value-param>
+        <value-param>
+          <name>factory</name>
+          <value>org.objectweb.jotm.UserTransactionFactory</value>
+        </value-param>
+        <properties-param>
+          <name>ref-addresses</name>
+          <description>ref-addresses</description>
+          <property name="jotm.timeout" value="60"/>
+        </properties-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>bind.jcr</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+      <init-params>
+        <value-param>
+          <name>bind-name</name>
+          <value>repo</value>
+        </value-param>
+        <value-param>
+          <name>class-name</name>
+          <value>javax.jcr.Repository</value>
+        </value-param>
+        <value-param>
+          <name>factory</name>
+          <value>org.exoplatform.services.jcr.impl.jndi.BindableRepositoryFactory</value>
+        </value-param>
+        <properties-param>
+          <name>ref-addresses</name>
+          <description>ref-addresses</description>
+          <property name="repositoryName" value="db1"/>
+          <!-- property name="containerConfig" value="exo-configuration.xml"/ -->
+        </properties-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>rmi.jcr</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
+      <init-params>
+        <value-param>
+          <name>bind-name</name>
+          <value>rmirepository</value>
+        </value-param>
+        <value-param>
+          <name>class-name</name>
+          <value>javax.jcr.Repository</value>
+        </value-param>
+        <value-param>
+          <name>factory</name>
+          <value>org.exoplatform.services.jcr.rmi.RepositoryFactory</value>
+        </value-param>
+        <properties-param>
+          <name>ref-addresses</name>
+          <description>ref-addresses</description>
+          <property name="url" value="//localhost:9999/repository"/>
+        </properties-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+  
+  <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
+</configuration>

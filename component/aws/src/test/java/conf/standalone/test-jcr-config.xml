@@ -1,0 +1,183 @@
+<repository-service default-repository="db1">
+  <repositories>
+    <repository name="db1" system-workspace="ws" default-workspace="ws">
+      <security-domain>exo-domain</security-domain>
+      <!-- access-control>optional</access-control -->
+      <!-- access-control>disable</access-control -->
+      <session-max-age>1h</session-max-age>
+      <authentication-policy>org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator</authentication-policy>
+      <workspaces>
+        <workspace name="ws">
+          <container class="org.exoplatform.services.jcr.impl.storage.sdb.SDBWorkspaceDataContainer">
+            <properties>
+              <property name="max-buffer-size" value="200k"/>
+              <property name="swap-directory" value="target/temp/swap/ws"/>
+			  <property name="aws-access-key" value=""/>
+			  <property name="aws-secret-key" value=""/>
+			  <property name="domain-name" value="exo-aws-test-ws"/>
+            </properties>
+            <!-- value-storages>
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
+                <properties>
+                  <property name="bucket" value="jcr"/>
+                  <property name="aws-access-key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
+                  <property name="aws-secret-access-key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                  <property name="s3-swap-directory" value="target/temp/s3swap/ws"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage>
+            </value-storages -->
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="max-size" value="2k"/>
+              <property name="live-time" value="20m"/>
+              <property name="statistic-period" value="30"/>
+              <property name="statistic-log" value="true"/>
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="index-dir" value="target/temp/index/db1/ws"/>
+              <property name="synonymprovider-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider"/>
+              <property name="synonymprovider-config-path" value="/synonyms.properties"/>
+              <property name="support-highlighting" value="true"/>
+              <property name="indexing-configuration-path" value="/indexing-configuration.xml"/>
+              <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+            </properties>
+          </query-handler>
+          <lock-manager>
+            <time-out>15m</time-out>
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="target/temp/lock/ws"/>
+              </properties>
+            </persister>
+          </lock-manager>
+        </workspace>
+        
+        <workspace name="ws1">
+          <container class="org.exoplatform.services.jcr.impl.storage.sdb.SDBWorkspaceDataContainer">
+            <properties>
+              <property name="max-buffer-size" value="200k"/>
+              <property name="swap-directory" value="target/temp/swap/ws1"/>
+			  <property name="aws-access-key" value=""/>
+			  <property name="aws-secret-key" value=""/>
+			  <property name="domain-name" value="exo-aws-test-ws1"/>
+            </properties>
+            <!-- value-storages>
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
+                <properties>
+                  <property name="bucket" value="jcr"/>
+                  <property name="aws-access-key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
+                  <property name="aws-secret-access-key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                  <property name="s3-swap-directory" value="target/temp/s3swap/ws1"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage>
+            </value-storages -->
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="max-size" value="2k"/>
+              <property name="live-time" value="20m"/>
+              <property name="statistic-period" value="30"/>
+              <property name="statistic-log" value="true"/>
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="index-dir" value="target/temp/index/db1/ws1"/>
+              <property name="synonymprovider-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider"/>
+              <property name="synonymprovider-config-path" value="/synonyms.properties"/>
+              <property name="support-highlighting" value="true"/>
+              <property name="indexing-configuration-path" value="/indexing-configuration.xml"/>
+              <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+            </properties>
+          </query-handler>
+          <lock-manager>
+            <time-out>15m</time-out>
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="target/temp/lock/ws1"/>
+              </properties>
+            </persister>
+          </lock-manager>
+        </workspace>
+        
+        <workspace name="ws2">
+          <container class="org.exoplatform.services.jcr.impl.storage.sdb.SDBWorkspaceDataContainer">
+            <properties>
+              <property name="max-buffer-size" value="200k"/>
+              <property name="swap-directory" value="target/temp/swap/ws2"/>
+			  <property name="aws-access-key" value=""/>
+			  <property name="aws-secret-key" value=""/>
+			  <property name="domain-name" value="exo-aws-test-ws2"/>
+            </properties>
+            <!-- value-storages>
+              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
+                <properties>
+                  <property name="bucket" value="jcr"/>
+                  <property name="aws-access-key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
+                  <property name="aws-secret-access-key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                  <property name="s3-swap-directory" value="target/temp/s3swap/ws2"/>
+                </properties>
+                <filters>
+                  <filter property-type="Binary"/>
+                </filters>
+              </value-storage>
+            </value-storages -->
+          </container>
+          <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+            </properties>
+          </initializer>
+          <cache enabled="true">
+            <properties>
+              <property name="max-size" value="2k"/>
+              <property name="live-time" value="20m"/>
+              <property name="statistic-period" value="30"/>
+              <property name="statistic-log" value="true"/>
+            </properties>
+          </cache>
+          <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
+            <properties>
+              <property name="index-dir" value="target/temp/index/db1/ws2"/>
+              <property name="synonymprovider-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.PropertiesSynonymProvider"/>
+              <property name="synonymprovider-config-path" value="/synonyms.properties"/>
+              <property name="support-highlighting" value="true"/>
+              <property name="indexing-configuration-path" value="/indexing-configuration.xml"/>
+              <property name="query-class" value="org.exoplatform.services.jcr.impl.core.query.QueryImpl"/>
+              <property name="spellchecker-class" value="org.exoplatform.services.jcr.impl.core.query.lucene.spell.LuceneSpellChecker$FiveSecondsRefreshInterval"/>
+            </properties>
+          </query-handler>
+          <lock-manager>
+            <time-out>15m</time-out>
+            <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
+              <properties>
+                <property name="path" value="target/temp/lock/ws2"/>
+              </properties>
+            </persister>
+          </lock-manager>
+        </workspace>
+      </workspaces>
+    </repository>
+  </repositories>
+</repository-service>

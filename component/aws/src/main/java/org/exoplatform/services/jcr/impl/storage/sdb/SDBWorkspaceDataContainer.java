@@ -50,12 +50,12 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
   /**
    * AWS secret key parameter name.
    */
-  public static final String SDB_SECRETKEY  = "aws-secret-key";
+  public static final String SDB_SECRETKEY  = "aws-secret-access-key";
 
   /**
    * AWS SimpleDB domain name will be used. If name doesn't exist it will be created.
    */
-  public static final String SDB_DOMAINNAME = "sdb-domain-name";
+  public static final String SDB_DOMAINNAME = "domain-name";
 
   /**
    * Container logger.
