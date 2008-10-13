@@ -35,20 +35,44 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class PendingBinaryFile {
+  /**
+   * The apache logger.
+   */
   private static Log                                       log = ExoLogger.getLogger("ext.PendingBinaryFile");
 
+  /**
+   * The map for FileDesctiptor per owner. 
+   */
   private HashMap<String, HashMap<String, FileDescriptor>> mapFilePerOwner;
 
+  /**
+   * Need transfer counter.
+   */
   private long                                             needTransferCounter;
 
+  /**
+   * Successful transfer counter.
+   */
   private long                                             successfulTransferCounter;
 
+  /**
+   * Removed old ChangesLog counter.
+   */
   private long                                             removedOldChangesLogCounter;
 
+  /**
+   * Successful transfer 'flag'.
+   */
   private boolean                                          isSuccessfulTransfer;
 
+  /**
+   * Successful save 'flag'.
+   */
   private boolean                                          isSuccessfulSave;
 
+  /**
+   * PendingBinaryFile  constructor.
+   */
   public PendingBinaryFile() {
     mapFilePerOwner = new HashMap<String, HashMap<String, FileDescriptor>>();
     needTransferCounter = 0;
@@ -58,6 +82,18 @@ public class PendingBinaryFile {
     isSuccessfulSave = false;
   }
 
+  /**
+   * addBinaryFile.
+   *
+   * @param ownerName
+   *          owner name
+   * @param fileName
+   *          name of file
+   * @param systemId
+   *          String of system identification 
+   * @throws IOException
+   *           will be generated IOException 
+   */
   public void addBinaryFile(String ownerName, String fileName, String systemId) throws IOException {
     File f = File.createTempFile(fileName, "");
     RandomAccessFile binaryFile = new RandomAccessFile(f, "rw");
@@ -76,12 +112,36 @@ public class PendingBinaryFile {
     fileMap.put(fileName, fileDescriptor);
   }
 
+  /**
+   * getRandomAccessFile.
+   *
+   * @param ownName
+   *          owner name
+   * @param fileName
+   *          name of file
+   * @return RandomAccessFile
+   *           the RandomAccessFile
+   * @throws Exception
+   *           will be generated Exception
+   */
   public RandomAccessFile getRandomAccessFile(String ownName, String fileName) throws Exception {
     HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownName);
 
     return fileMap.get(fileName).getRandomAccessFile();
   }
 
+  /**
+   * getFileDescriptor.
+   *
+   * @param ownName
+   *          owner name
+   * @param fileName
+   *          name of file
+   * @return FileDescriptor
+   *           return the FileDescriptor 
+   * @throws IOException
+   *           will be generated IOException
+   */
   public FileDescriptor getFileDescriptor(String ownName, String fileName) throws IOException {
     if (mapFilePerOwner.containsKey(ownName)) {
       HashMap<String, FileDescriptor> fileMap = mapFilePerOwner.get(ownName);
@@ -92,6 +152,12 @@ public class PendingBinaryFile {
     }
   }
 
+  /**
+   * getSortedFilesDescriptorList.
+   *
+   * @return List
+   *           return the list of FileDescriptors
+   */
   public List<FileDescriptor> getSortedFilesDescriptorList() {
 
     ArrayList<FileDescriptor> fileDescriptorhList = new ArrayList<FileDescriptor>();
@@ -116,6 +182,12 @@ public class PendingBinaryFile {
     return fileDescriptorhList;
   }
 
+  /**
+   * getFileNameList.
+   *
+   * @return List
+   *           return the list of names of files
+   */
   public List<String> getFileNameList() {
     ArrayList<String> list = new ArrayList<String>();
 
@@ -129,49 +201,116 @@ public class PendingBinaryFile {
     return list;
   }
 
+  /**
+   * getNeedTransferCounter.
+   *
+   * @return long 
+   *           return the needTransferCounter
+   */
   public long getNeedTransferCounter() {
     return needTransferCounter;
   }
 
+  /**
+   * setNeedTransferCounter.
+   *
+   * @param needTransferCounter
+   *          set the needTransferCounter 
+   */
   public void setNeedTransferCounter(long needTransferCounter) {
     this.needTransferCounter = needTransferCounter;
   }
 
+  /**
+   * getRemovedOldChangesLogCounter.
+   *
+   * @return long
+   *           return the removedOldChangesLogCounter
+   */
   public long getRemovedOldChangesLogCounter() {
     return removedOldChangesLogCounter;
   }
 
+  /**
+   * setRemovedOldChangesLogCounter.
+   *
+   * @param needRemoveOldChangesLogCounter
+   *          set the removedOldChangesLogCounter
+   */
   public void setRemovedOldChangesLogCounter(long needRemoveOldChangesLogCounter) {
     this.removedOldChangesLogCounter = needRemoveOldChangesLogCounter;
   }
 
+  /**
+   * isAllOldChangesLogsRemoved.
+   *
+   * @return boolean
+   *           return 'true' if  all old ChangesLogs was removed 
+   */
   public boolean isAllOldChangesLogsRemoved() {
     return (needTransferCounter == removedOldChangesLogCounter ? true : false);
   }
 
+  /**
+   * getSuccessfulTransferCounter.
+   *
+   * @return long
+   *          return the successfulTransferCounter
+   */ 
   public long getSuccessfulTransferCounter() {
     return successfulTransferCounter;
   }
 
+  /**
+   * setSuccessfulTransferCounter.
+   *
+   * @param successfulTransferCounter
+   *          set the successfulTransferCounter
+   */
   public void setSuccessfulTransferCounter(long successfulTransferCounter) {
     this.successfulTransferCounter = successfulTransferCounter;
   }
 
+  /**
+   * isSuccessfulTransfer.
+   *
+   * @return boolean
+   *           return 'true' if is successful transfer
+   */
   public boolean isSuccessfulTransfer() {
     return isSuccessfulTransfer;
   }
 
-  public void addToSuccessfulTransferCounter(long c) {
-    successfulTransferCounter += c;
+  /**
+   * addToSuccessfulTransferCounter.
+   *
+   * @param count
+   *          add the 'count' to successfulTransferCounter
+   *         
+   */
+  public void addToSuccessfulTransferCounter(long count) {
+    successfulTransferCounter += count;
 
     isSuccessfulTransfer = (needTransferCounter == successfulTransferCounter ? true : false);
   }
 
+  /**
+   * isSuccessfulSave.
+   *
+   * @return boolean
+   *           return the 'true' if successful save
+   */
   public boolean isSuccessfulSave() {
     return isSuccessfulSave;
   }
 
-  public void setSuccessfulSave(boolean isSuccessfulSave) {
-    this.isSuccessfulSave = isSuccessfulSave;
+  /**
+   * setSuccessfulSave.
+   *
+   * @param successfulSave
+   *           set the isSuccessfulSave
+   */
+  public void setSuccessfulSave(boolean successfulSave) {
+    this.isSuccessfulSave = successfulSave;
   }
 }

@@ -30,28 +30,72 @@ import java.io.ObjectOutput;
 
 public class FixupStream implements Externalizable {
 
+  /**
+   * serialVersionUID.
+   *   Determinate the version of serialization.
+   */
   private static final long serialVersionUID = 6453641729031051616L;
 
+  /**
+   * iItemStateId.
+   *   Index of ItemState in ChangesLog.
+   */
   private int               iItemStateId     = -1;
 
+  /**
+   * iValueDataId.
+   *   Index of ValueData in ItemState.
+   */
   private int               iValueDataId     = -1;
 
+  /**
+   * FixupStream  constructor.
+   *  Empty constructor is necessary to Externalizable.  
+   */
   public FixupStream() {
   }
 
+  /**
+   * FixupStream  constructor.
+   *
+   * @param itemState
+   *          index of ItemState in ChangesLog
+   * @param valueData
+   *          index of ValueData in ItemState
+   */
   public FixupStream(int itemState, int valueData) {
     this.iItemStateId = itemState;
     this.iValueDataId = valueData;
   }
 
+  /**
+   * getItemSateId.
+   *
+   * @return int
+   *           return the iItemStateId
+   */
   public int getItemSateId() {
     return iItemStateId;
   }
 
+  /**
+   * getValueDataId.
+   *
+   * @return int
+   *           return the iValueDataId
+   */
   public int getValueDataId() {
     return iValueDataId;
   }
 
+  /**
+   * compare.
+   *
+   * @param fs
+   *          FixupStream.
+   * @return boolean
+   *           return 'true' if this == fs
+   */
   public boolean compare(FixupStream fs) {
     boolean b = true;
     if (fs.getItemSateId() != this.getItemSateId())
@@ -61,11 +105,17 @@ public class FixupStream implements Externalizable {
     return b;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     iItemStateId = in.readInt();
     iValueDataId = in.readInt();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(iItemStateId);
     out.writeInt(iValueDataId);

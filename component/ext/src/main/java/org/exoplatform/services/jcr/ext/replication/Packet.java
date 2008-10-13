@@ -169,38 +169,69 @@ public class Packet implements Externalizable {
 
     /**
      * Private PacketType constructor.
-     * 
      */
     private PacketType() {
     }
   }
 
   /**
-   * MAX_PACKET_SIZE. 
    * The definition of max packet size.
    */
   public static final int MAX_PACKET_SIZE = 1024 * 16;
 
+  /**
+   * Array of byte to binary data.
+   */
   private byte[]          buffer;
 
+  /**
+   * Field to size.   
+   */
   private long            size;
 
+  /**
+   * Packet type.
+   */
   private int             type;
 
+  /**
+   * Offset to large file.
+   */
   private long            offset;
 
+  /**
+   * The packet identifier.
+   */
   private String          identifier;
 
+  /**
+   * FixupStream  to large file.
+   */
   private FixupStream     fixupStream;
 
+  /**
+   * Owner name.
+   */
   private String          ownName         = new String(" ");
 
+  /**
+   * Time stamp.
+   */
   private Calendar        timeStamp       = Calendar.getInstance();
 
+  /**
+   * Name of file.
+   */
   private String          fileName        = new String(" ");
 
+  /**
+   * The system identifier.
+   */
   private String          systemId        = new String(" ");
 
+  /**
+   * The names of files .
+   */
   private List<String>    fileNameList    = new ArrayList<String>();
 
   /**

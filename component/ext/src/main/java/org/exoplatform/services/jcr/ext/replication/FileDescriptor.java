@@ -27,30 +27,73 @@ import java.io.RandomAccessFile;
  */
 
 public class FileDescriptor implements Comparable<FileDescriptor> {
+  /**
+   * file.
+   *   The File object to file.
+   */
   private File             file;
 
+  /**
+   * randomAccessFile.
+   *   The RandomAccessFile object to file.
+   */
   private RandomAccessFile randomAccessFile;
 
+  /**
+   * systemId.
+   *   The system identification String.
+   */
   private final String     systemId;
 
+  /**
+   * FileDescriptor  constructor.
+   *
+   * @param f
+   *         the File object
+   * @param raf
+   *          the RandomAccessFile object
+   * @param systemId
+   *          The system identification String
+   */
   public FileDescriptor(File f, RandomAccessFile raf, String systemId) {
     this.file = f;
     this.randomAccessFile = raf;
     this.systemId = systemId;
   }
 
+  /**
+   * getFile.
+   *
+   * @return File
+   *           return the File object
+   */
   public File getFile() {
     return file;
   }
 
+  /**
+   * getRandomAccessFile.
+   *
+   * @return RandomAccessFile
+   *           return the RandomAccessFile object
+   */
   public RandomAccessFile getRandomAccessFile() {
     return randomAccessFile;
   }
 
+  /**
+   * getSystemId.
+   *
+   * @return String
+   *           return the system identification String
+   */
   public String getSystemId() {
     return systemId;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int compareTo(FileDescriptor o) {
     return file.getName().compareTo(o.getFile().getName());
   }
