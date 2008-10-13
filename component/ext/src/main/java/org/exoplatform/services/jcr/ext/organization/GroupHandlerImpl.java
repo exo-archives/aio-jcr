@@ -71,7 +71,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    */
   public void addChild(Group parent, Group child, boolean broadcast) throws Exception {
     // TODO implement broadcast
-    checkMandatoryProperties(child);
     Session session = service.getStorageSession();
 
     try {
@@ -87,7 +86,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       session.save();
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not add child group", e);
+      throw new OrganizationServiceException("Can not add child group '" + child.getId() + "'", e);
     } finally {
       session.logout();
     }
@@ -129,7 +128,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     } catch (PathNotFoundException e) {
       return null;
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find group " + groupId, e);
+      throw new OrganizationServiceException("Can not find group '" + groupId + "'", e);
     } finally {
       session.logout();
     }
@@ -270,8 +269,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
                            .createQuery(statement, Query.SQL);
       QueryResult res = query.execute();
       if (res.getNodes().hasNext()) {
-        throw new OrganizationServiceException("Can not remove group " + group.getGroupName()
-            + ". The group has a child group.");
+        throw new OrganizationServiceException("Can not remove group '" + group.getGroupName()
+            + "'. The group has a child group.");
       }
 
       // remove membership
@@ -295,7 +294,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       return g;
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not remove group " + group.getGroupName(), e);
+      throw new OrganizationServiceException("Can not remove group '" + group.getGroupName() + "'",
+                                             e);
     } finally {
       session.logout();
     }
@@ -317,8 +317,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    */
   public void saveGroup(Group group, boolean broadcast) throws Exception {
     // TODO implement broadcast
-    checkMandatoryProperties(group);
-
     Session session = service.getStorageSession();
     try {
       GroupImpl gImpl = (GroupImpl) group;
@@ -341,25 +339,9 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       session.save();
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save membership type", e);
+      throw new OrganizationServiceException("Can not save group '" + group.getGroupName() + "'", e);
     } finally {
       session.logout();
-    }
-  }
-
-  /**
-   * Check all mandatory properties.
-   * 
-   * @param group
-   *          The group to check
-   * @throws Exception
-   *           An exception is thrown if some of mandatory properties is null or empty
-   */
-  private void checkMandatoryProperties(Group group) throws Exception {
-    if (group.getGroupName() == null || group.getGroupName().length() == 0) {
-      throw new OrganizationServiceException("The name of group can not be null or empty.");
-    } else if (group.getLabel() == null || group.getLabel().length() == 0) {
-      throw new OrganizationServiceException("The label of group can not be null or empty.");
     }
   }
 

@@ -59,8 +59,6 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO implement broadcast
-    checkMandatoryProperties(mt);
-
     Session session = service.getStorageSession();
     try {
       Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
@@ -71,7 +69,8 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       return readObjectFromNode(mtNode);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not create membership type", e);
+      throw new OrganizationServiceException("Can not create membership type '" + mt.getName()
+          + "'", e);
     } finally {
       session.logout();
     }
@@ -95,7 +94,7 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       return readObjectFromNode(mtNode);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership type", e);
+      throw new OrganizationServiceException("Can not find membership type '" + name + "'", e);
     } finally {
       session.logout();
     }
@@ -139,7 +138,7 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       return mt;
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not remove membership type", e);
+      throw new OrganizationServiceException("Can not remove membership type '" + name + "'", e);
     } finally {
       session.logout();
     }
@@ -150,8 +149,6 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     // TODO implement broadcast
-    checkMandatoryProperties(mt);
-
     Session session = service.getStorageSession();
     try {
       MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
@@ -175,23 +172,10 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       return readObjectFromNode(nmtNode);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save membership type", e);
+      throw new OrganizationServiceException("Can not save membership type '" + mt.getName() + "'",
+                                             e);
     } finally {
       session.logout();
-    }
-  }
-
-  /**
-   * Check that all mandatory properties of the membership type have a value.
-   * 
-   * @param mt
-   *          The membership type to check
-   * @throws Exception
-   *           If one of properties is null or is empty.
-   */
-  private void checkMandatoryProperties(MembershipType mt) throws Exception {
-    if (mt.getName() == null || mt.getName().length() == 0) {
-      throw new OrganizationServiceException("The name of membership type can not be null or empty.");
     }
   }
 

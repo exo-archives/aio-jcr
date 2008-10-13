@@ -286,7 +286,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
                                                  user.getUserName(),
                                                  group.getId(),
                                                  m.getName());
-      checkMandatoryProperties(membership);
       Node mNode = uNode.addNode(STORAGE_EXO_USER_MEMBERSHIP);
       writeObjectToNode(membership, mNode);
 
@@ -465,22 +464,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group by uuid " + UUId, e);
-    }
-  }
-
-  /**
-   * Check that all mandatory properties of the membership have a value.
-   * 
-   * @param mt
-   *          The membership to check
-   * @throws Exception
-   *           If one of properties is null or is empty.
-   */
-  private void checkMandatoryProperties(Membership m) throws Exception {
-    if (m.getGroupId() == null || m.getGroupId().length() == 0) {
-      throw new OrganizationServiceException("The group id of the membership can not be null or empty");
-    } else if (m.getMembershipType() == null || m.getMembershipType().length() == 0) {
-      throw new OrganizationServiceException("The membership type of the membership can not be null or empty");
     }
   }
 

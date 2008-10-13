@@ -98,8 +98,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    */
   public void createUser(User user, boolean broadcast) throws Exception {
     // TODO Implement broadcast
-    checkMandatoryProperties(user);
-
     Session session = service.getStorageSession();
     try {
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
@@ -108,7 +106,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       session.save();
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not create user " + user.getUserName(), e);
+      throw new OrganizationServiceException("Can not create user '" + user.getUserName() + "'", e);
     } finally {
       session.logout();
     }
@@ -141,7 +139,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     } catch (PathNotFoundException e) {
       return null;
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find user " + userName, e);
+      throw new OrganizationServiceException("Can not find user '" + userName + "'", e);
     } finally {
       session.logout();
     }
@@ -244,7 +242,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       return new ObjectPageList(users, 10);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find group ", e);
+      throw new OrganizationServiceException("Can not users by group '" + groupId + "'", e);
     } finally {
       session.logout();
     }
@@ -269,7 +267,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       return new ObjectPageList(types, 10);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find group ", e);
+      throw new OrganizationServiceException("Can not find users", e);
     } finally {
       session.logout();
     }
@@ -290,9 +288,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       return user;
 
     } catch (PathNotFoundException e) {
-      throw new OrganizationServiceException("Can not find user " + userName + " for delete");
+      throw new OrganizationServiceException("Can not find user '" + userName + "' for remove");
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find group ", e);
+      throw new OrganizationServiceException("Can not remove user '" + userName + "'", e);
     } finally {
       session.logout();
     }
@@ -313,8 +311,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    */
   public void saveUser(User user, boolean broadcast) throws Exception {
     // TODO implement broadcast
-    checkMandatoryProperties(user);
-
     Session session = service.getStorageSession();
     try {
       UserImpl uImpl = (UserImpl) user;
@@ -337,33 +333,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       session.save();
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save user " + user.getUserName(), e);
+      throw new OrganizationServiceException("Can not save user '" + user.getUserName() + "'", e);
     } finally {
       session.logout();
     }
-  }
-
-  /**
-   * Check that all mandatory properties of the user type have a value.
-   * 
-   * @param mt
-   *          The user to check
-   * @throws Exception
-   *           If one of properties is null or is empty.
-   */
-  private void checkMandatoryProperties(User user) throws Exception {
-    if (user.getUserName() == null || user.getUserName().length() == 0) {
-      throw new OrganizationServiceException("Can not create user without name.");
-    } else if (user.getFirstName() == null || user.getFirstName().length() == 0) {
-      throw new OrganizationServiceException("Can not create user without first name.");
-    } else if (user.getLastName() == null || user.getLastName().length() == 0) {
-      throw new OrganizationServiceException("Can not create user without last name.");
-    } else if (user.getPassword() == null || user.getPassword().length() == 0) {
-      throw new OrganizationServiceException("Can not create user without password.");
-    } else if (user.getCreatedDate() == null) {
-      throw new OrganizationServiceException("Can not create user without created date.");
-    }
-
   }
 
   /**
@@ -408,11 +381,11 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       node.setProperty(EXO_LAST_NAME, user.getLastName());
       node.setProperty(EXO_PASSWORD, user.getPassword());
 
-      // TODO is it correct?
-      calendar.setTime(user.getCreatedDate());
-      node.setProperty(EXO_CREATED_DATE, calendar);
       calendar.setTime(user.getLastLoginTime());
       node.setProperty(EXO_LAST_LOGIN_TIME, calendar);
+      calendar.setTime(user.getCreatedDate());
+      node.setProperty(EXO_CREATED_DATE, calendar);
+
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write user properties", e);
     }
