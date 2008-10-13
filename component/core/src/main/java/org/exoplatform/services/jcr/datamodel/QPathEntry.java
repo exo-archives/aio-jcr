@@ -75,7 +75,7 @@ public class QPathEntry extends InternalQName implements Comparable<QPathEntry> 
 
     int delimIndex = qEntry.lastIndexOf(QPath.PREFIX_DELIMITER);
     String qnameString = qEntry.substring(0, delimIndex);
-    String indexString = qEntry.substring(delimIndex);
+    String indexString = qEntry.substring(delimIndex + 1);
 
     InternalQName qname = InternalQName.parse(qnameString);
     return new QPathEntry(qname, Integer.valueOf(indexString));
