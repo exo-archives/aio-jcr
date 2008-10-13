@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
@@ -127,7 +128,25 @@ public class NtFileNodeRepresentation implements NodeRepresentation {
    */
   public Collection<HierarchicalProperty> getProperties(String name) throws RepositoryException {
     ArrayList<HierarchicalProperty> props = new ArrayList<HierarchicalProperty>();
-    props.add(getProperty(name));
+    if ("jcr:primaryType".equals(name) || "jcr:mixinTypes".equals(name))
+      return null;
+
+    if (content != null && content.getProperty(name) != null) {
+      props.addAll(content.getProperties(name));
+    }
+
+    try {
+      String ns = ((ExtendedSession) node.getSession()).getLocationFactory()
+                                                       .parseJCRName(name)
+                                                       .getNamespace();
+      PropertyIterator iter = node.getProperties(name);
+      while (iter.hasNext()) {
+        Property prop = iter.nextProperty();
+        props.add(new HierarchicalProperty(name, prop.getString(), ns));
+      }
+    } catch (PathNotFoundException e) {
+      return null;
+    }
     return props;
   }
 
