@@ -1410,7 +1410,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                                IllegalACLException,
                                                                                SDBValueNumberFormatException {
 
-    String[] fs = field.split(IDATA_DELIMITER);
+    String[] fs = field.split(IDATA_DELIMITER_REGEXP);
 
     NodeIData idata = new NodeIData();
 
@@ -1519,7 +1519,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    */
   protected PropertyIData parsePropertyIData(String field) {
 
-    String[] fs = field.split(IDATA_DELIMITER);
+    String[] fs = field.split(IDATA_DELIMITER_REGEXP);
 
     PropertyIData idata = new PropertyIData();
 

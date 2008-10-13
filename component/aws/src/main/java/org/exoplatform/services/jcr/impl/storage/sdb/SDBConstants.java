@@ -85,6 +85,11 @@ public interface SDBConstants {
    * IData fields delimiter.
    */
   String IDATA_DELIMITER               = "|";
+  
+  /**
+   * IData fields delimiter regexp for <code>String.split()</code>.
+   */
+  String IDATA_DELIMITER_REGEXP               = "\\" + IDATA_DELIMITER;
 
   /**
    * IData mixinType field key.

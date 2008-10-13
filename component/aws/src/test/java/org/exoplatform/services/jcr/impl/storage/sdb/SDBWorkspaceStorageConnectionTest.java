@@ -25,6 +25,7 @@ import javax.jcr.RepositoryException;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.config.AccessManagerEntry;
 import org.exoplatform.services.jcr.config.CacheEntry;
@@ -35,6 +36,7 @@ import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -52,7 +54,6 @@ import com.amazonaws.sdb.AmazonSimpleDBClient;
 import com.amazonaws.sdb.AmazonSimpleDBConfig;
 import com.amazonaws.sdb.AmazonSimpleDBException;
 import com.amazonaws.sdb.model.Attribute;
-import com.amazonaws.sdb.model.DeleteAttributesRequest;
 import com.amazonaws.sdb.model.DeleteDomainRequest;
 import com.amazonaws.sdb.model.GetAttributesRequest;
 import com.amazonaws.sdb.model.GetAttributesResponse;
@@ -64,7 +65,7 @@ import com.amazonaws.sdb.model.GetAttributesResult;
  * <br/>Date: 13.10.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SDBWorkspaceStorageConnectionTest.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id$
  */
 public class SDBWorkspaceStorageConnectionTest extends TestCase {
 
@@ -257,7 +258,9 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
   protected void tearDown() throws Exception {
     try {
       DeleteDomainRequest request = new DeleteDomainRequest(SDB_DOMAIN_NAME);
-      //DeleteAttributesRequest request = new DeleteAttributesRequest().withDomainName(SDB_DOMAIN_NAME).withItemName(jcrRoot.getIdentifier());
+      // DeleteAttributesRequest request = new
+      // DeleteAttributesRequest().withDomainName(SDB_DOMAIN_NAME
+      // ).withItemName(jcrRoot.getIdentifier());
       sdbClient.deleteDomain(request);
     } catch (Throwable e) {
       LOG.error("teardown error", e);
@@ -299,7 +302,8 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
   }
 
   /**
-   * Test add item.
+   * Test add Node. Test if Node storage metadata (persisted version, order number, nodetypes, ACL)
+   * stored well.
    * 
    * @throws AmazonSimpleDBException
    *           - SDB error
@@ -342,8 +346,139 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
 
       assertEquals("Id doesn't match", jcrRoot.getIdentifier(), id);
       assertEquals("Parent id doesn't match", jcrRoot.getParentIdentifier(), pid);
-      assertEquals("Name doesn't match", jcrRoot.getQPath().getEntries()[jcrRoot.getQPath().getEntries().length - 1].getAsString(true), name);
+      assertEquals("Item class should be Node ", "1", iclass);
+      assertEquals("Name doesn't match",
+                   jcrRoot.getQPath().getEntries()[jcrRoot.getQPath().getEntries().length - 1].getAsString(true),
+                   name);
+
+      // get IData metas
+      String[] idms = idata.split(SDBConstants.IDATA_DELIMITER_REGEXP);
+      assertEquals("Node IData has wrong size ", 8, idms.length);
+      try {
+        assertEquals("Persisted version should match ", "1", idms[0]);
+        assertEquals("Order number should match ", "1", idms[1]);
+
+        InternalQName primary = InternalQName.parse(idms[2]);
+        assertEquals("nt:unstructured expected.", Constants.NT_UNSTRUCTURED, primary);
+
+        // ACL permissions
+        List<AccessControlEntry> perms = jcrRoot.getACL().getPermissionEntries();
+        
+        assertEquals("Permission should match ", perms.get(0).getAsString(), idms[3].substring(2));
+        assertEquals("Permission should match ", perms.get(1).getAsString(), idms[4].substring(2));
+        assertEquals("Permission should match ", perms.get(2).getAsString(), idms[5].substring(2));
+        assertEquals("Permission should match ", perms.get(3).getAsString(), idms[6].substring(2));
+        
+        // ACL owner
+        assertEquals("Owner should match ", jcrRoot.getACL().getOwner(), idms[7].substring(2));
+        
+      } catch (IndexOutOfBoundsException e) {
+        fail("IData value is wrong " + e.getMessage());
+      } catch (IllegalNameException e) {
+        fail(e.getMessage());
+      }
     } else
       fail("Not initialized");
   }
+
+  /**
+   * Test if add node will fails on save without parent in Repository.
+   * 
+   * @throws AmazonSimpleDBException
+   *           - SDB error
+   */
+  public void testFailNoParent() throws AmazonSimpleDBException {
+
+    try {
+      sdbConn.add(testRoot);
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("add Node error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      if (e.getMessage().indexOf("parent not found") < 0) {
+        LOG.error("add Node error", e);
+        fail(e.getMessage());
+      }
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
+    } else
+      fail("Not a result");
+  }
+
+  /**
+   * Test if Node storage metadata (persisted version, order number, nodetypes) stored well.
+   * 
+   * @throws AmazonSimpleDBException
+   *           - SDB error
+   */
+  public void testAddNodeWithMixin() throws AmazonSimpleDBException {
+
+    try {
+      sdbConn.add(jcrRoot); // parent
+      sdbConn.add(testRoot);
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("add Node error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      LOG.error("add Node error", e);
+      fail(e.getMessage());
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      String pid = null;
+      String name = null;
+      String iclass = null;
+      String idata = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.PID))
+          pid = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.NAME))
+          name = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.ICLASS))
+          iclass = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.IDATA))
+          idata = attr.getValue();
+      }
+
+      assertEquals("Id doesn't match", testRoot.getIdentifier(), id);
+      assertEquals("Parent id doesn't match", testRoot.getParentIdentifier(), pid);
+      assertEquals("Item class should be Node ", "1", iclass);
+      assertEquals("Name doesn't match",
+                   testRoot.getQPath().getEntries()[testRoot.getQPath().getEntries().length - 1].getAsString(true),
+                   name);
+
+      // get IData metas
+      String[] idms = idata.split(SDBConstants.IDATA_DELIMITER_REGEXP);
+      assertEquals("Node IData has wrong size ", 4, idms.length);
+      try {
+        assertEquals("Persisted version should match ", "1", idms[0]);
+        assertEquals("Order number should match ", "1", idms[1]);
+
+        InternalQName primary = InternalQName.parse(idms[2]);
+        assertEquals("nt:file expected.", Constants.NT_FILE, primary);
+
+        InternalQName mixin = InternalQName.parse(idms[3]);
+        assertEquals("mix:referenceable mixin expected.", Constants.MIX_REFERENCEABLE, mixin);
+      } catch (IllegalNameException e) {
+        fail(e.getMessage());
+      }
+    } else
+      fail("Not initialized");
+  }
+
 }

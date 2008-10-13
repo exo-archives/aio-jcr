@@ -28,7 +28,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS .
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SDBWorkspaceDataContainer.java 21288 2008-10-13 10:52:30Z pnedonosko $
+ * @version $Id$
  */
 public abstract class StandaloneTestBase extends TestCase {
 

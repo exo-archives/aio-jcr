@@ -25,7 +25,7 @@ import java.security.SecureRandom;
  * Standalone IDGenerator. For testing purpose. Logic wrapped from IdGenerator/IdGeneratorService
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: SIDGenerator.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class SIDGenerator {
 
