@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -64,6 +63,7 @@ import com.amazonaws.sdb.model.DeleteDomainRequest;
 import com.amazonaws.sdb.model.DeleteDomainResponse;
 import com.amazonaws.sdb.model.GetAttributesRequest;
 import com.amazonaws.sdb.model.GetAttributesResponse;
+import com.amazonaws.sdb.model.GetAttributesResult;
 import com.amazonaws.sdb.model.Item;
 import com.amazonaws.sdb.model.ListDomainsRequest;
 import com.amazonaws.sdb.model.ListDomainsResponse;
@@ -91,16 +91,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   protected static final Log                 LOG                       = ExoLogger.getLogger("jcr.SDBWorkspaceStorageConnection");
 
   /**
-   * Value prefix for actual data stored in Property Data attribute.
-   */
-  protected static final char                VALUEPREFIX_DATA          = 'D';
-
-  /**
-   * Value prefix for storage-id stored in Property Data attribute.
-   */
-  protected static final char                VALUEPREFIX_STORAGEID     = 'S';
-
-  /**
    * Item Delete operation constant. Should be INTERNED.
    */
   protected static final String              ITEM_DELETE               = "delete".intern();
@@ -109,56 +99,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * Item Update operation constant. Should be INTERNED.
    */
   protected static final String              ITEM_UPDATE               = "update".intern();
-
-  /**
-   * IData fields delimiter.
-   */
-  protected static final String              IDATA_DELIMITER           = "|";
-
-  /**
-   * IData version field key.
-   */
-  @Deprecated
-  protected static final String              IDATA_VERSION             = "VN";
-
-  /**
-   * IData orderNumber field key.
-   */
-  @Deprecated
-  protected static final String              IDATA_ORDERNUMBER         = "NN";
-
-  /**
-   * IData primaryType field key.
-   */
-  @Deprecated
-  protected static final String              IDATA_PRIMARYTYPE         = "NT";
-
-  /**
-   * IData mixinType field key.
-   */
-  protected static final String              IDATA_MIXINTYPE           = "NM";
-
-  /**
-   * IData Property type field key.
-   */
-  @Deprecated
-  protected static final String              IDATA_PTYPE               = "PT";
-
-  /**
-   * IData multiValued field key.
-   */
-  @Deprecated
-  protected static final String              IDATA_MULTIVALUED         = "PM";
-
-  /**
-   * IData ACL permission field key.
-   */
-  protected static final String              IDATA_ACL_PERMISSION      = "AP";
-
-  /**
-   * IData ACL owner field key.
-   */
-  protected static final String              IDATA_ACL_OWNER           = "AO";
 
   /**
    * Get Item by ID query.
@@ -233,14 +173,29 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    */
   public class NodeIData {
 
+    /**
+     * Node persistent version.
+     */
     private int                       version;
 
+    /**
+     * Node orderNumber.
+     */
     private int                       orderNumber;
 
+    /**
+     * Node primaryType.
+     */
     private InternalQName             primaryType;
 
+    /**
+     * Node mixinTypes. Empty if no mixins.
+     */
     private final List<InternalQName> mixinTypes = new ArrayList<InternalQName>();
 
+    /**
+     * Node ACL.
+     */
     private AccessControlList         acl;
 
     /**
@@ -326,12 +281,24 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    */
   public class PropertyIData {
 
+    /**
+     * Property persistent version.
+     */
     private int     version;
 
+    /**
+     * Property type.
+     */
     private int     ptype;
 
+    /**
+     * Property Value multivalued status.
+     */
     private boolean multivalued;
 
+    /**
+     * Property Value storageKey (if in External Value Storage).
+     */
     private String  storageKey;
 
     /**
@@ -409,7 +376,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * Rollback write operation.
      * 
      * @return SimpleDB responce for the operation or error
-     * @throws AmazonSimpleDBException
+     * @throws RepositoryException
      *           in case of SimpleDB service error
      */
     abstract Object rollback() throws RepositoryException;
@@ -421,10 +388,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * @return SimpleDB responce for the operation or error
      * @throws RepositoryException
      *           in case of Repository error
-     * @throws IOException
-     *           if modofication fails
      */
-    abstract Object execute() throws RepositoryException, IOException;
+    abstract Object execute() throws RepositoryException;
 
     /**
      * Get operation Item path.
@@ -553,48 +518,53 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * {@inheritDoc}
      */
     @Override
-    Object execute() throws IOException, RepositoryException {
+    Object execute() throws RepositoryException {
 
       // validate
       validateItemAdd(property);
 
       // process Values firts,
       // if some Values matches VS filters they will be stored there.
-      String[] values = addValues(property);
-
-      final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
-
-      list.add(new ReplaceableAttribute(ID, property.getIdentifier(), false));
-      list.add(new ReplaceableAttribute(PID, property.getParentIdentifier(), false));
-      list.add(new ReplaceableAttribute(NAME,
-                                        property.getQPath().getEntries()[property.getQPath()
-                                                                                 .getEntries().length - 1].getAsString(),
-                                        false));
-      list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, false));
-      // list.add(new ReplaceableAttribute(VERSION,
-      // String.valueOf(property.getPersistedVersion()),
-      // false));
-      // list.add(new ReplaceableAttribute(PTYPE, String.valueOf(property.getType()), false));
-      // list.add(new ReplaceableAttribute(MULTIVALUED,
-      // String.valueOf(property.isMultiValued()),
-      // false));
-      list.add(new ReplaceableAttribute(IDATA, formatIData(property), false));
-
-      // add Values to SimpleDB
-      // TODO think about this too
-      // Attributes are uniquely identified in an item by their name/value combination.
-      // For example, a single item can have the attributes { "first_name", "first_value" } and {
-      // "first_name", second_value" }.
-      // However, it cannot have two attribute instances where both the Attribute.X.Name and
-      // Attribute.X.Value are the same.
-      for (String value : values)
-        list.add(new ReplaceableAttribute(DATA, value, false));
-
       try {
-        return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
-      } catch (AmazonSimpleDBException e) {
-        throw new SDBStorageException("(add) Property " + property.getQPath().getAsString() + " "
-            + property.getIdentifier() + " add fails " + e, e);
+        String[] values = addValues(property);
+
+        final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
+
+        list.add(new ReplaceableAttribute(ID, property.getIdentifier(), false));
+        list.add(new ReplaceableAttribute(PID, property.getParentIdentifier(), false));
+        list.add(new ReplaceableAttribute(NAME,
+                                          property.getQPath().getEntries()[property.getQPath()
+                                                                                   .getEntries().length - 1].getAsString(),
+                                          false));
+        list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, false));
+        // list.add(new ReplaceableAttribute(VERSION,
+        // String.valueOf(property.getPersistedVersion()),
+        // false));
+        // list.add(new ReplaceableAttribute(PTYPE, String.valueOf(property.getType()), false));
+        // list.add(new ReplaceableAttribute(MULTIVALUED,
+        // String.valueOf(property.isMultiValued()),
+        // false));
+        list.add(new ReplaceableAttribute(IDATA, formatIData(property), false));
+
+        // add Values to SimpleDB
+        // TODO think about this too
+        // Attributes are uniquely identified in an item by their name/value combination.
+        // For example, a single item can have the attributes { "first_name", "first_value" } and {
+        // "first_name", second_value" }.
+        // However, it cannot have two attribute instances where both the Attribute.X.Name and
+        // Attribute.X.Value are the same.
+        for (String value : values)
+          list.add(new ReplaceableAttribute(DATA, value, false));
+
+        try {
+          return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+        } catch (AmazonSimpleDBException e) {
+          throw new SDBStorageException("(add) Property " + property.getQPath().getAsString() + " "
+              + property.getIdentifier() + " add fails " + e, e);
+        }
+      } catch (IOException e) {
+        throw new SDBRepositoryException("(add) Property " + property.getQPath().getAsString()
+            + " " + property.getIdentifier() + " add fails with I/O error " + e, e);
       }
     }
 
@@ -718,48 +688,53 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      * @throws IOException
      */
     @Override
-    Object execute() throws RepositoryException, IOException {
+    Object execute() throws RepositoryException {
 
       // validate
       validateItemChange(property, ITEM_UPDATE);
 
       // process Values firts,
       // if some Values matches VS filters they will be stored there.
-      String[] values = addValues(property);
-
-      final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
-
-      // list.add(new ReplaceableAttribute(ID, property.getIdentifier(), true));
-      list.add(new ReplaceableAttribute(PID, property.getParentIdentifier(), true));
-      list.add(new ReplaceableAttribute(NAME,
-                                        property.getQPath().getEntries()[property.getQPath()
-                                                                                 .getEntries().length - 1].getAsString(),
-                                        true));
-      // list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, true));
-
-      // list.add(new ReplaceableAttribute(VERSION,
-      // String.valueOf(property.getPersistedVersion()),
-      // true));
-      // list.add(new ReplaceableAttribute(PTYPE, String.valueOf(property.getType()), true));
-      // list.add(new ReplaceableAttribute(MULTIVALUED, String.valueOf(property.isMultiValued()),
-      // true));
-      list.add(new ReplaceableAttribute(IDATA, formatIData(property), true));
-
-      // add Values to SimpleDB
-      // TODO think about this too
-      // Attributes are uniquely identified in an item by their name/value combination.
-      // For example, a single item can have the attributes { "first_name", "first_value" } and {
-      // "first_name", second_value" }.
-      // However, it cannot have two attribute instances where both the Attribute.X.Name and
-      // Attribute.X.Value are the same.
-      for (String value : values)
-        list.add(new ReplaceableAttribute(DATA, value, true));
-
       try {
-        return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
-      } catch (AmazonSimpleDBException e) {
-        throw new SDBStorageException("(update) Property " + property.getQPath().getAsString()
-            + " " + property.getIdentifier() + " update fails " + e, e);
+        String[] values = addValues(property);
+
+        final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
+
+        // list.add(new ReplaceableAttribute(ID, property.getIdentifier(), true));
+        list.add(new ReplaceableAttribute(PID, property.getParentIdentifier(), true));
+        list.add(new ReplaceableAttribute(NAME,
+                                          property.getQPath().getEntries()[property.getQPath()
+                                                                                   .getEntries().length - 1].getAsString(),
+                                          true));
+        // list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, true));
+
+        // list.add(new ReplaceableAttribute(VERSION,
+        // String.valueOf(property.getPersistedVersion()),
+        // true));
+        // list.add(new ReplaceableAttribute(PTYPE, String.valueOf(property.getType()), true));
+        // list.add(new ReplaceableAttribute(MULTIVALUED, String.valueOf(property.isMultiValued()),
+        // true));
+        list.add(new ReplaceableAttribute(IDATA, formatIData(property), true));
+
+        // add Values to SimpleDB
+        // TODO think about this too
+        // Attributes are uniquely identified in an item by their name/value combination.
+        // For example, a single item can have the attributes { "first_name", "first_value" } and {
+        // "first_name", second_value" }.
+        // However, it cannot have two attribute instances where both the Attribute.X.Name and
+        // Attribute.X.Value are the same.
+        for (String value : values)
+          list.add(new ReplaceableAttribute(DATA, value, true));
+
+        try {
+          return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+        } catch (AmazonSimpleDBException e) {
+          throw new SDBStorageException("(update) Property " + property.getQPath().getAsString()
+              + " " + property.getIdentifier() + " update fails " + e, e);
+        }
+      } catch (IOException e) {
+        throw new SDBRepositoryException("(update) Property " + property.getQPath().getAsString()
+            + " " + property.getIdentifier() + " add fails with I/O error " + e, e);
       }
     }
 
@@ -922,6 +897,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    *          - Amazon secret key
    * @param domainName
    *          - SimpleDb domain name
+   *          @param maxBufferSize - maximum size of Value stored in  
    * @param valueStorageProvider
    *          - External Value Storages provider
    * @throws RepositoryException
@@ -945,17 +921,89 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
     this.valueStorageProvider = valueStorageProvider;
 
+    this.changes = new ArrayList<WriteOperation>();
+  }
+
+  /**
+   * Init SimpleDB storage. <br/> Check if domain exists. Will create one new if there is not. Write
+   * version value in special row.
+   * 
+   * <br/> If current storage (domain) contains version row (already initialized) will check if
+   * container name matches to the given.
+   * 
+   * <br/> If the given and stored container names are not same the WARNING will be printed.
+   * 
+   * @param containerName
+   *          - Workspace container name
+   * @param version
+   *          - version
+   * @throws RepositoryException
+   *           - if storage error occurs.
+   * @return String with storage version
+   */
+  String initStorage(String containerName, String version) throws RepositoryException {
     try {
       List<String> domains = getDomainsList();
-      if (!domains.contains(this.domainName)) {
+      if (!domains.contains(domainName)) {
         // create
-        createDomain(sdbService, this.domainName);
+        createDomain(sdbService, domainName);
+      } else {
+        // read version
+        String userContainer = null;
+        String userVersion = null;
+        GetAttributesResponse resp = readItem(sdbService, domainName, STORAGE_VERSION_ID);
+        if (resp.isSetGetAttributesResult()) {
+          GetAttributesResult res = resp.getGetAttributesResult();
+          List<Attribute> attributeList = res.getAttribute();
+          for (Attribute attr : attributeList) {
+            if (attr.getName().equals(STORAGE_VERSION)) {
+              if (attr.isSetValue()) {
+                userVersion = attr.getValue();
+              } else
+                throw new SDBRepositoryException("FATAL Storage Version Item attribute "
+                    + STORAGE_VERSION + " doesn't contains information.");
+            } else if (attr.getName().equals(STORAGE_CONTAINER_NAME)) {
+              if (attr.isSetValue()) {
+                userContainer = attr.getValue();
+              } else
+                throw new SDBRepositoryException("FATAL Storage Version Item attribute "
+                    + STORAGE_CONTAINER_NAME + " doesn't contains information.");
+            }
+          }
+        } else
+          throw new SDBRepositoryException("FATAL Storage domain (" + domainName
+              + ") exists but Version Item not found " + STORAGE_VERSION_ID + ".");
+
+        if (!containerName.equals(userContainer)) {
+          // warn, domain in use by anoother container
+          LOG.warn("Storage in use by another Workspace container '"
+              + userContainer
+              + "'. User container name and current should be same. User storage version is "
+              + userVersion + ".");
+        }
+
+        // just return current version,
+        // container will decide what to do.
+        return userVersion;
       }
     } catch (AmazonSimpleDBException e) {
       throw new SDBRepositoryException("Can not create SDB domain " + this.domainName, e);
     }
 
-    this.changes = new ArrayList<WriteOperation>();
+    // add version record
+
+    final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
+
+    list.add(new ReplaceableAttribute(STORAGE_VERSION, version, false));
+    list.add(new ReplaceableAttribute(STORAGE_CONTAINER_NAME, containerName, false));
+
+    try {
+      createReplaceItem(sdbService, domainName, STORAGE_VERSION_ID, list);
+      return version;
+    } catch (AmazonSimpleDBException e) {
+      throw new SDBStorageException("(init) Storage initialization fails " + e, e);
+    }
+
   }
 
   /**
@@ -1965,19 +2013,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    */
   public void commit() throws IllegalStateException, RepositoryException {
     // execute changes operations
-    WriteOperation o = null;
-    try {
-      for (Iterator<WriteOperation> iter = changes.iterator(); iter.hasNext();) {
-        o = iter.next();
-        o.execute();
-        o.markProcessed();
-      }
-    } catch (IOException e) {
-      // TODO handle IO error in dedicated operation
-      throw new RepositoryException("Storage commit I/O error "
-          + (o != null ? "on item " + o.getPath().getAsString() + ", " : "") + e, e);
+    for (Iterator<WriteOperation> iter = changes.iterator(); iter.hasNext();) {
+      WriteOperation o = iter.next();
+      o.execute();
+      o.markProcessed();
     }
-
   }
 
   /**

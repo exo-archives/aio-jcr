@@ -29,84 +29,101 @@ public interface SDBConstants {
   /**
    * Item ID attribute name.
    */
-  String ID          = "ID";
+  String ID                            = "ID";
 
   /**
    * Parent ID attribute name.
    */
-  String PID         = "PID";
+  String PID                           = "PID";
 
   /**
    * Item name attribute name (not SimpleDB Item Name).
    */
-  String NAME        = "Name";
+  String NAME                          = "Name";
 
   /**
    * Item class (Node or Property) attribute name.
    */
-  String ICLASS      = "IClass";
-  
+  String ICLASS                        = "IClass";
+
   /**
    * Item data descriptor (IData) attribute name.
    */
-  String IDATA      = "IData";
-
-//  /**
-//   * Item version attribute name.
-//   */
-//  @Deprecated
-//  String VERSION     = "Version";
-//  /**
-//   * Node order number attribute name.
-//   */
-//  @Deprecated
-//  String ORDERNUM    = "OrderNum";
-//
-//  /**
-//   * Property type attribute name.
-//   */
-//  @Deprecated
-//  String PTYPE       = "PType";
-//
-//  /**
-//   * Property multivalued status attribute name.
-//   */
-//  @Deprecated
-//  String MULTIVALUED = "MultiValued";
+  String IDATA                         = "IData";
 
   /**
    * Property data attribute name.
    */
-  String DATA        = "Data";
-
-  /**
-   * Property storage attribute name.
-   */
-  String STORAGE     = "Storage";
+  String DATA                          = "Data";
 
   /**
    * Node IClass value = 1.
    */
-  String NODE_ICLASS = "1";
+  String NODE_ICLASS                   = "1";
 
   /**
    * Property IClass value = 2.
    */
-  String PROPERTY_ICLASS = "2";
-  
+  String PROPERTY_ICLASS               = "2";
+
   /**
    * Item DELETED status mark for ID attribute.
    */
-  String ITEM_DELETED_ID = "D";
+  String ITEM_DELETED_ID               = "D";
+
+  /**
+   * Value prefix for actual data stored in Property Data attribute.
+   */
+  char   VALUEPREFIX_DATA              = 'D';
+
+  /**
+   * Value prefix for storage-id stored in Property Data attribute.
+   */
+  char   VALUEPREFIX_STORAGEID         = 'S';
+
+  /**
+   * IData fields delimiter.
+   */
+  String IDATA_DELIMITER               = "|";
+
+  /**
+   * IData mixinType field key.
+   */
+  String IDATA_MIXINTYPE               = "NM";
+
+  /**
+   * IData ACL permission field key.
+   */
+  String IDATA_ACL_PERMISSION          = "AP";
+
+  /**
+   * IData ACL owner field key.
+   */
+  String IDATA_ACL_OWNER               = "AO";
+
+  /**
+   * SimpleDB Attribute value length maximum (1024 - 3 bytes).
+   */
+  long   SDB_ATTRIBUTE_VALUE_MAXLENGTH = 1021;
+
+  /**
+   * SimpleDB Maximum ItemName length (1024 bytes).
+   */
+  long   SDB_ITEMNAME_MAXLENGTH        = 1024;
   
   /**
-   * SimpleDB Attribute value length maximum (1024 - 3 bytes). 
+   * Storage version SimpleDB Item name.
    */
-  long SDB_ATTRIBUTE_VALUE_MAXLENGTH = 1021; 
+  String STORAGE_VERSION_ID               = "$EXO_STORAGE_VERSION";
   
   /**
-   * SimpleDB Maximum ItemName length (1024 bytes). 
+   * Storage version attribute.
    */
-  long SDB_ITEMNAME_MAXLENGTH = 1024;
+  String STORAGE_VERSION               = "Version";
   
+  /**
+   * Storage container name attribute.
+   */
+  String STORAGE_CONTAINER_NAME               = "Container";
+
 }

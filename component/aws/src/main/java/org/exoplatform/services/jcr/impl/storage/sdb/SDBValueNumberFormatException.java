@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2007 eXo Platform SAS.
  *
@@ -30,19 +27,24 @@ package org.exoplatform.services.jcr.impl.storage.sdb;
 public class SDBValueNumberFormatException extends NumberFormatException {
 
   /**
-   * Error cause.
+   * serialVersionUID.
    */
-  private final Throwable cause;
+  private static final long serialVersionUID = 1571003452126509704L;
+
+  /**
+   * Cause exception.
+   */
+  private final Throwable   cause;
 
   /**
    * SDBValueNumberFormatException constructor.
    * 
    * @param message
-   *          - error message
+   *          - error message.
    * @param cause
-   *          - error cause
+   *          - error cause.
    */
-  public SDBValueNumberFormatException(String message, Throwable cause) {
+  SDBValueNumberFormatException(String message, Throwable cause) {
     super(message);
     this.cause = cause;
   }

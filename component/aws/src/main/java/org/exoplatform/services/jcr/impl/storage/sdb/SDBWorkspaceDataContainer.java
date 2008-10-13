@@ -16,35 +16,16 @@
  */
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
-
-import sun.nio.cs.SingleByteDecoder;
-
-import com.amazonaws.sdb.AmazonSimpleDB;
-import com.amazonaws.sdb.AmazonSimpleDBClient;
-import com.amazonaws.sdb.AmazonSimpleDBConfig;
-import com.amazonaws.sdb.AmazonSimpleDBException;
-import com.amazonaws.sdb.model.CreateDomainRequest;
-import com.amazonaws.sdb.model.CreateDomainResponse;
-import com.amazonaws.sdb.model.DeleteDomainRequest;
-import com.amazonaws.sdb.model.DeleteDomainResponse;
-import com.amazonaws.sdb.model.GetAttributesRequest;
-import com.amazonaws.sdb.model.GetAttributesResponse;
-import com.amazonaws.sdb.model.ListDomainsRequest;
-import com.amazonaws.sdb.model.ListDomainsResponse;
-import com.amazonaws.sdb.model.ListDomainsResult;
-import com.amazonaws.sdb.model.PutAttributesRequest;
-import com.amazonaws.sdb.model.PutAttributesResponse;
-import com.amazonaws.sdb.model.ReplaceableAttribute;
+import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -56,6 +37,11 @@ import com.amazonaws.sdb.model.ReplaceableAttribute;
  */
 public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
 
+  /**
+   * Container storage version of the implementation .
+   */
+  public static final String CURRENT_STORAGE_VERSION  = "1.0-b";
+  
   /**
    * AWS access key parameter name.
    */
@@ -72,6 +58,22 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
   public static final String SDB_DOMAINNAME = "sdb-domain-name";
 
   /**
+   * Container logger.
+   */
+  protected static final Log LOG            = ExoLogger.getLogger("jcr.SDBWorkspaceDataContainer");
+
+  
+  /**
+   * Container name.
+   */
+  protected final String containerName;
+  
+  /**
+   * Actual container storage version.
+   */
+  protected final String storageVersion;
+  
+  /**
    * AWS access key.
    */
   protected final String     accessKey;
@@ -87,15 +89,32 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
   protected final String     domainName;
 
   /**
+   * External Value Storages provider to save Properties using configured filters.
+   */
+  protected final ValueStoragePluginProvider valueStorageProvider;
+  
+  /**
+   * Max buffer size used by External Value Storages provider to match storage per Property.
+   */
+  protected final int     maxBufferSize;
+
+  /**
    * Create container using repository and workspace configuration.
    * 
    * @param wsConfig
    *          Workspace configuration
    * @param repConfig
    *          Repositiry configuration
+   * @param valueStorageProvider
+   *          - External Value Storages provider component
+   * @throws RepositoryException
+   *           - if init procedure fails
    * @throws RepositoryConfigurationException
+   *           - if Workspace configuration is wrong
    */
-  public SDBWorkspaceDataContainer(WorkspaceEntry wsConfig, RepositoryEntry repConfig) throws RepositoryConfigurationException,
+  public SDBWorkspaceDataContainer(WorkspaceEntry wsConfig,
+                                   RepositoryEntry repConfig,
+                                   ValueStoragePluginProvider valueStorageProvider) throws RepositoryConfigurationException,
       RepositoryException {
 
     String myAccessKey = wsConfig.getContainer().getParameterValue(SDB_ACCESSKEY);
@@ -109,12 +128,34 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
     String myDomainName = wsConfig.getContainer().getParameterValue(SDB_DOMAINNAME);
     if (myDomainName == null || myDomainName.length() <= 0)
       throw new RepositoryConfigurationException("AWS (SimpleDB) domain name required");
-    
+
     accessKey = myAccessKey;
-    
+
     secretKey = mySecretKey;
-    
+
     domainName = myDomainName;
+
+    // External storage
+    this.valueStorageProvider = valueStorageProvider;
+    
+    int maxbs;
+    try {
+      maxbs = wsConfig.getContainer().getParameterInteger(MAXBUFFERSIZE);
+    } catch (RepositoryConfigurationException e) {
+      maxbs = DEF_MAXBUFFERSIZE;
+    }
+    this.maxBufferSize = maxbs;
+
+    this.containerName = wsConfig.getName();
+    
+    SDBWorkspaceStorageConnection conn = new SDBWorkspaceStorageConnection(accessKey,
+                                      secretKey,
+                                      domainName,
+                                      maxBufferSize,
+                                      valueStorageProvider);
+    this.storageVersion = conn.initStorage(containerName, CURRENT_STORAGE_VERSION);
+
+    LOG.info(getInfo());
   }
 
   // Interfaces implementaion.
@@ -123,40 +164,44 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
    * {@inheritDoc}
    */
   public WorkspaceStorageConnection openConnection() throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    return new SDBWorkspaceStorageConnection(accessKey,
+                                             secretKey,
+                                             domainName,
+                                             maxBufferSize,
+                                             valueStorageProvider);
   }
 
   /**
    * {@inheritDoc}
    */
   public WorkspaceStorageConnection reuseConnection(WorkspaceStorageConnection original) throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    // There are no actual difference for the SimpleDB impl.
+    return openConnection();
   }
 
   /**
    * {@inheritDoc}
    */
   public String getInfo() {
-    // TODO Auto-generated method stub
-    return null;
+    String str = "SimpleDB based JCR Workspace Data container \n" + "container name: " + containerName
+    + " \n" + "domain name: " + domainName + "\n" 
+    + "\n" + "storage version: " + storageVersion + "\n" + "value storage provider: "
+    + valueStorageProvider + "\n" + "max buffer size (bytes): " + maxBufferSize;
+    return str;
   }
 
   /**
    * {@inheritDoc}
    */
   public String getName() {
-    // TODO Auto-generated method stub
-    return null;
+    return containerName;
   }
 
   /**
    * {@inheritDoc}
    */
   public String getStorageVersion() {
-    // TODO Auto-generated method stub
-    return null;
+    return storageVersion;
   }
 
 }
