@@ -7,17 +7,12 @@
   <!-- JCR Organization service -->
   
   <nodeType name="exo:membershipType" isMixin="false"
-    hasOrderableChildNodes="false" primaryItemName="exo:label">
+    hasOrderableChildNodes="false" primaryItemName="exo:description">
     <supertypes>
       <supertype>nt:base</supertype>
       <supertype>mix:referenceable</supertype>
     </supertypes>
     <propertyDefinitions>
-      <propertyDefinition name="exo:label" requiredType="String"
-        autoCreated="false" mandatory="true" onParentVersion="COPY"
-        protected="false" multiple="false">
-        <valueConstraints/>
-      </propertyDefinition>
       <propertyDefinition name="exo:description" requiredType="String"
         autoCreated="false" mandatory="false" onParentVersion="COPY"
         protected="false" multiple="false">

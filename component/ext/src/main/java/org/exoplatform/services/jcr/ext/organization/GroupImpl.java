@@ -139,7 +139,7 @@ public class GroupImpl implements Group {
    */
   public void setGroupName(String name) {
     groupName = name;
-    groupId = this.getParentId() + "/" + groupName;
+    groupId = ((this.getParentId() == null) ? "" : this.getParentId()) + "/" + groupName;
   }
 
   /**

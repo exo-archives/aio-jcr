@@ -24,13 +24,13 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
+import org.picocontainer.Startable;
+
 import org.exoplatform.container.configuration.ConfigurationException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.organization.BaseOrganizationService;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>
@@ -42,60 +42,94 @@ import org.picocontainer.Startable;
  */
 public class JCROrganizationServiceImpl extends BaseOrganizationService implements Startable {
 
-  public static final String           STORAGE_WORKSPACE    = "storage-workspace";
+  public static final String     STORAGE_PATH         = "storage-path";
 
-  public static final String           STORAGE_PATH         = "storage-path";
+  public static final String     STORAGE_PATH_DEFAULT = "/exo:organization";
 
-  public static final String           STORAGE_PATH_DEFAULT = "/exo:organization";
+  public static final String     STORAGE_WORKSPACE    = "storage-workspace";
 
-  protected final ManageableRepository repository;
+  protected ManageableRepository repository;
 
-  protected final String               storageWorkspace;
+  protected RepositoryService    repositoryService;
 
-  protected final String               storagePath;
+  protected String               storagePath;
 
-  public JCROrganizationServiceImpl(RepositoryService repositoryService, InitParams params) throws ConfigurationException,
-      RepositoryException,
-      RepositoryConfigurationException {
+  protected String               storageWorkspace;
+
+  public JCROrganizationServiceImpl(RepositoryService repositoryService,
+                                    String workspace,
+                                    String path) throws ConfigurationException {
     // TODO Searching Repository Content should be enabled
-
-    String storageWorkspace = params.getValueParam(STORAGE_WORKSPACE).getValue();
-    String storagePath = params.getValueParam(STORAGE_PATH).getValue();
-
-    repository = repositoryService.getDefaultRepository();
-
-    if (storageWorkspace != null)
-      this.storageWorkspace = storageWorkspace;
-    else
-      // use default
-      this.storageWorkspace = repository.getConfiguration().getDefaultWorkspaceName();
-
-    if (storagePath != null) {
-      if (storagePath.equals("/"))
+    if (path != null) {
+      if (path.equals("/")) {
         throw new ConfigurationException(STORAGE_PATH + " can not be a root node");
-
-      this.storagePath = storagePath;
-    } else
+      }
+      this.storagePath = path;
+    } else {
       this.storagePath = STORAGE_PATH_DEFAULT;
+    }
+    this.storageWorkspace = workspace;
+    this.repositoryService = repositoryService;
+  }
+
+  public JCROrganizationServiceImpl(RepositoryService repositoryService, InitParams params) throws ConfigurationException {
+    // TODO Searching Repository Content should be enabled
+    String workspace = params.getValueParam(STORAGE_WORKSPACE).getValue();
+    String path = params.getValueParam(STORAGE_PATH).getValue();
+
+    if (path != null) {
+      if (path.equals("/")) {
+        throw new ConfigurationException(STORAGE_PATH + " can not be a root node");
+      }
+
+      this.storagePath = path;
+    } else {
+      this.storagePath = STORAGE_PATH_DEFAULT;
+    }
+    this.storageWorkspace = workspace;
+    this.repositoryService = repositoryService;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void start() {
+    super.start();
+
+    try {
+      repository = repositoryService.getDefaultRepository();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    if (storageWorkspace == null) {
+      storageWorkspace = repository.getConfiguration().getDefaultWorkspaceName();
+    }
 
     // create /exo:organization
-    Session session = getStorageSession();
+    Session session;
     try {
-      session.getItem(this.storagePath);
-      // if found do nothing, the storage was initialized before.
-    } catch (PathNotFoundException e) {
-      // will create new
-      Node storage = session.getRootNode().addNode(this.storagePath.substring(1),
-                                                   "exo:organizationStorage");
+      session = getStorageSession();
+      try {
+        session.getItem(this.storagePath);
+        // if found do nothing, the storage was initialized before.
+      } catch (PathNotFoundException e) {
+        // will create new
+        Node storage = session.getRootNode().addNode(storagePath.substring(1),
+                                                     "exo:organizationStorage");
 
-      storage.addNode(UserHandlerImpl.STORAGE_EXO_USERS, "exo:organizationUsers");
-      storage.addNode(GroupHandlerImpl.STORAGE_EXO_GROUPS, "exo:organizationGroups");
-      storage.addNode(MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES,
-                      "exo:organizationMembershipTypes");
+        storage.addNode("exo:users", "exo:organizationUsers");
+        storage.addNode("exo:groups", "exo:organizationGroups");
+        storage.addNode("exo:membershipTypes", "exo:organizationMembershipTypes");
 
-      session.save(); // storage done
-    } finally {
-      session.logout();
+        session.save(); // storage done
+
+      } finally {
+        session.logout();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
     }
 
     // create DAO object
@@ -107,13 +141,12 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   }
 
   /**
-   * Return system Session to org-service storage workspace. For internal use only.
-   * 
-   * @return
-   * @throws RepositoryException
+   * {@inheritDoc}
    */
-  Session getStorageSession() throws RepositoryException {
-    return repository.getSystemSession(storageWorkspace);
+  @Override
+  public void stop() {
+    // do nothing
+    super.stop();
   }
 
   /**
@@ -126,22 +159,13 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   }
 
   /**
-   * {@inheritDoc}
+   * Return system Session to org-service storage workspace. For internal use only.
+   * 
+   * @return
+   * @throws RepositoryException
    */
-  @Override
-  public void start() {
-    // TODO Auto-generated method stub
-    super.start();
+  Session getStorageSession() throws RepositoryException {
+    return repository.getSystemSession(storageWorkspace);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void stop() {
-    // do nothing
-    super.stop();
-  }
-
-  
 }
