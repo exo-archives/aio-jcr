@@ -130,11 +130,13 @@ public class PropPatchResponseEntity implements SerializableEntity {
         String propertyName = WebDavNamespaceContext.createName(setProperty.getName());
 
         try {
-          contentNode().setProperty(propertyName, setProperty.getValue());
+          node.setProperty(propertyName, setProperty.getValue());
+          node.save();
         } catch (RepositoryException exc) {
           String[] value = new String[1];
           value[0] = setProperty.getValue();
           node.setProperty(propertyName, value);
+          node.save();
         }
 
         statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
