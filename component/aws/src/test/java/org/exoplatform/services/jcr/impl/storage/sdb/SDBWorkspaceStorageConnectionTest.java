@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -29,7 +28,6 @@ import javax.jcr.RepositoryException;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
-import org.apache.poi.hdf.model.hdftypes.FileInformationBlock;
 import org.apache.ws.commons.util.Base64;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
@@ -40,7 +38,6 @@ import org.exoplatform.services.jcr.config.LockManagerEntry;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -52,8 +49,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import org.exoplatform.services.jcr.util.SIDGenerator;
@@ -1154,8 +1149,8 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
 
       // get IData metas
       String[] idms = idata.split(SDBConstants.IDATA_DELIMITER_REGEXP);
+      assertEquals("Property IData has wrong size ", 3, idms.length);
       try {
-        assertEquals("Property IData has wrong size ", 3, idms.length);
         assertEquals("Property persisted version should match ", "2", idms[0]);
         assertEquals("Property type should match ", String.valueOf(PropertyType.STRING), idms[1]);
         assertEquals("Property multivalued status should match ", "true", idms[2]);

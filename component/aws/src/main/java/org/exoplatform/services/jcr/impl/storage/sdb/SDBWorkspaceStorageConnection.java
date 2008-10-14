@@ -1577,45 +1577,71 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
-   * Property Values processing. Extract Value data into String representation. If Vaslue is
+   * Property Values processing. Extract Value data into String representation. If Value is
    * multivalued return sequence of Strings.
+   * 
+   * <br/> Each Value will be stored as a String with fixed prefix of 4 chars XNNN. Where X - 'D'
+   * for data or 'S' for external storage link; NNN - Value order number.
    * 
    * @param data
    *          - Value data
    * @return sequence of Strings
    * @throws IOException
    *           - if I/O error occurs
-   * @throws SDBItemValueLengthExceeded
-   *           - if storage error occurs
+   * @throws SDBRepositoryException
+   *           if Property has move of 100 Values
    */
-  protected String[] addValues(PropertyData data) throws IOException, SDBItemValueLengthExceeded {
+  protected String[] addValues(final PropertyData data) throws IOException, SDBRepositoryException {
 
     List<ValueData> vdata = data.getValues();
+
+    if (vdata.size() > SDB_ATTRIBUTE_PER_PUT)
+      throw new SDBRepositoryException("Property " + data.getQPath().getAsString()
+          + " can has only " + SDB_ATTRIBUTE_PER_PUT + " Values (SimpleDB request limit).");
+
     String[] vseq = new String[vdata.size()];
     for (int i = 0; i < vdata.size(); i++) {
       ValueData vd = vdata.get(i);
       vd.setOrderNumber(i); // TODO do we have to do it here?
+
+      // prepare prefix with data location flag and order number (for multivalued)
+      char[] vprefix = new char[VALUEPREFIX_LENGTH];
+      if (data.isMultiValued()) {
+        vprefix = new char[VALUEPREFIX_LENGTH];
+        // fill last 3 chars with order number (with zero padding)
+        char[] orderNum = String.valueOf(i).toCharArray();
+        int oi = orderNum.length - 1;
+        for (int ci = vprefix.length - 1; ci > 0; ci--)
+          vprefix[ci] = oi >= 0 ? orderNum[oi--] : '0';
+      } else
+        vprefix = new char[0];
+
       ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
+
       String v;
       if (channel == null) {
         // store in SDB
-        if (data.getType() == PropertyType.BINARY)
-          v = VALUEPREFIX_DATA + Base64.encode(vd.getAsByteArray());
-        else
-          v = VALUEPREFIX_DATA + new String(vd.getAsByteArray(), Constants.DEFAULT_ENCODING);
+        vprefix[0] = VALUEPREFIX_DATA;
+        if (data.getType() == PropertyType.BINARY) {
+          byte[] ba = vd.getAsByteArray();
+          // encode(byte[] pBuffer, int pOffset, int pLength, int pLineSize, java.lang.String pSeparator)
+          v = new String(vprefix) + Base64.encode(ba, 0, ba.length, SDB_ATTRIBUTE_VALUE_MAXLENGTH, "\n");
+        } else
+          v = new String(vprefix) + new String(vd.getAsByteArray(), Constants.DEFAULT_ENCODING);
         // TODO it's SDB stuff, so leave it as is (SDB will throws an error)
-//        if (v.getBytes(Constants.DEFAULT_ENCODING).length > SDB_ATTRIBUTE_VALUE_MAXLENGTH) {
-//          // error
-//          throw new SDBItemValueLengthExceeded("Property '" + data.getQPath().getAsString()
-//              + "' value size too large. Maximum Value size can be stored in SimpleDB is "
-//              + SDB_ATTRIBUTE_VALUE_MAXLENGTH
-//              + " bytes. Use Extenal Value Storage (to Amazon S3) for large Values. "
-//              + "NOTE: Size for Binary data calculated on BASE64 encoded String of the data");
-//        }
+        // if (v.getBytes(Constants.DEFAULT_ENCODING).length > SDB_ATTRIBUTE_VALUE_MAXLENGTH) {
+        // // error
+        // throw new SDBItemValueLengthExceeded("Property '" + data.getQPath().getAsString()
+        // + "' value size too large. Maximum Value size can be stored in SimpleDB is "
+        // + SDB_ATTRIBUTE_VALUE_MAXLENGTH
+        // + " bytes. Use Extenal Value Storage (to Amazon S3) for large Values. "
+        // + "NOTE: Size for Binary data calculated on BASE64 encoded String of the data");
+        // }
       } else {
         // store in External storage
         channel.write(data.getIdentifier(), vd);
-        v = VALUEPREFIX_STORAGEID + channel.getStorageId();
+        vprefix[0] = VALUEPREFIX_STORAGEID;
+        v = new String(vprefix) + channel.getStorageId();
       }
       vseq[i] = v;
     }
@@ -2025,7 +2051,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       List<ValueData> values = new ArrayList<ValueData>(vals.length);
       for (int i = 0; i < vals.length; i++) {
         char vp = vals[i].charAt(0);
-        if (vp == VALUEPREFIX_DATA) {
+        if (vp == VALUEPREFIX_DATA) {// TODO multivalued
           // data in SimpleDB
           String value = vals[i].substring(1);
           if (property.getType() == PropertyType.BINARY)

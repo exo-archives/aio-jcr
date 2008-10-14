@@ -80,6 +80,11 @@ public interface SDBConstants {
    * Value prefix for storage-id stored in Property Data attribute.
    */
   char   VALUEPREFIX_STORAGEID         = 'S';
+  
+  /**
+   * Value prefix length (incl. 3 char for Value order number).
+   */
+  int   VALUEPREFIX_LENGTH        = 4;
 
   /**
    * IData fields delimiter.
@@ -109,12 +114,17 @@ public interface SDBConstants {
   /**
    * SimpleDB Attribute value length maximum (1024 bytes).
    */
-  long   SDB_ATTRIBUTE_VALUE_MAXLENGTH = 1024;
+  int   SDB_ATTRIBUTE_VALUE_MAXLENGTH = 1024;
 
   /**
    * SimpleDB Maximum ItemName length (1024 bytes).
    */
-  long   SDB_ITEMNAME_MAXLENGTH        = 1024;
+  int   SDB_ITEMNAME_MAXLENGTH        = 1024;
+  
+  /**
+   * SimpleDB Maximum Attributes per PutAttributes operation.
+   */
+  long   SDB_ATTRIBUTE_PER_PUT        = 100;
   
   /**
    * Storage version SimpleDB Item name.
