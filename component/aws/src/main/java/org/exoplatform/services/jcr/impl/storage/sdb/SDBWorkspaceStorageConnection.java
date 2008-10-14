@@ -17,12 +17,16 @@
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.ItemExistsException;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -157,6 +161,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * Changes applied before the last commit (to be used for rollback on fail).
    */
   protected final List<WriteOperation>       changes;
+
+  /**
+   * Changed nodes Identifiers. Uses for 'parent not found' validation.
+   */
+  protected final Set<String>                addedNodes;
 
   /**
    * Maximim buffer size (see configuration).
@@ -465,7 +474,12 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       list.add(new ReplaceableAttribute(IDATA, formatIData(node), false));
 
       try {
-        return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+        PutAttributesResponse resp = createReplaceItem(sdbService,
+                                                       domainName,
+                                                       node.getIdentifier(),
+                                                       list);
+        addedNodes.add(node.getIdentifier());
+        return resp;
       } catch (AmazonSimpleDBException e) {
         throw new SDBStorageException("(add) Node " + node.getQPath().getAsString() + " "
             + node.getIdentifier() + " add fails " + e, e);
@@ -536,7 +550,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                           property.getQPath().getEntries()[property.getQPath()
                                                                                    .getEntries().length - 1].getAsString(true),
                                           false));
-        list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, false));
+        list.add(new ReplaceableAttribute(ICLASS, PROPERTY_ICLASS, false));
         // list.add(new ReplaceableAttribute(VERSION,
         // String.valueOf(property.getPersistedVersion()),
         // false));
@@ -923,6 +937,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     this.valueStorageProvider = valueStorageProvider;
 
     this.changes = new ArrayList<WriteOperation>();
+    this.addedNodes = new HashSet<String>();
   }
 
   /**
@@ -984,7 +999,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                 + "'. User container name and current should be same. User storage version is "
                 + userVersion + ".");
           }
-          
+
           return userVersion;
         }
       }
@@ -1340,10 +1355,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       idata.append(IDATA_DELIMITER);
       idata.append(IDATA_MIXINTYPE);
       idata.append(mixin.getAsString());
-      
-      if (Constants.EXO_PRIVILEGEABLE.equals(mixin)) 
+
+      if (Constants.EXO_PRIVILEGEABLE.equals(mixin))
         isPrivilegeable = true;
-      else if (Constants.EXO_OWNEABLE.equals(mixin)) 
+      else if (Constants.EXO_OWNEABLE.equals(mixin))
         isOwneable = true;
     }
 
@@ -1523,8 +1538,29 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
     PropertyIData idata = new PropertyIData();
 
-    for (String s : fs) {
-      // TODO
+    for (int i = 0; i < fs.length; i++) {
+      String s = fs[i];
+      if (i == 0) {
+        // version
+        try {
+          idata.setVersion(Integer.valueOf(s));
+        } catch (final NumberFormatException e) {
+          throw new SDBValueNumberFormatException("Property persisted version contains wrong value '"
+                                                      + s + "'. Error " + e,
+                                                  e);
+        }
+      } else if (i == 1) {
+        // property type
+        try {
+          idata.setPtype(Integer.valueOf(s));
+        } catch (final NumberFormatException e) {
+          throw new SDBValueNumberFormatException("Property type contains wrong value '" + s
+              + "'. Error " + e, e);
+        }
+      } else if (i == 2) {
+        // multivalued
+        idata.setMultivalued(Boolean.valueOf(s));
+      }
     }
 
     return idata;
@@ -1555,7 +1591,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         // store in SDB
         byte[] bytes = vd.getAsByteArray();
         if (bytes.length < SDB_ATTRIBUTE_VALUE_MAXLENGTH) {
-          v = VALUEPREFIX_DATA + Base64.encode(bytes);
+          if (data.getType() == PropertyType.BINARY)
+            v = VALUEPREFIX_DATA + Base64.encode(bytes);
+          else
+            v = VALUEPREFIX_DATA + new String(bytes, Constants.DEFAULT_ENCODING);
         } else {
           // error
           throw new SDBItemValueLengthExceeded("Property '" + data.getQPath().getAsString()
@@ -1652,25 +1691,29 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
       // 2. check if Parent exists (except of root)
       if (!Constants.ROOT_PARENT_UUID.equals(data.getParentIdentifier())) {
-        resp = queryItemAttrByID(sdbService, domainName, data.getParentIdentifier(), ID);
-        if (resp.isSetQueryWithAttributesResult()) {
-          QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
-          // SDB items
-          List<Item> items = res.getItem();
-          if (items.size() > 1) {
-            // TODO list duplicated Items in error message
-            throw new SDBRepositoryException("(add) FATAL Storage contains more of one Item with ID: "
-                + data.getParentIdentifier()
-                + ". Check of "
-                + itemClass
-                + " "
-                + data.getQPath().getAsString() + " Item parent.");
-          } else if (items.size() <= 0) {
-            // Parent not found
-            throw new SDBRepositoryException("(add) " + itemClass + " "
-                + data.getQPath().getAsString() + " parent not found. Parent ID: "
-                + data.getParentIdentifier());
-          } // else - Parent exists
+        // check in current transaction changes
+        if (!addedNodes.contains(data.getParentIdentifier())) {
+          // check in SDB storage
+          resp = queryItemAttrByID(sdbService, domainName, data.getParentIdentifier(), ID);
+          if (resp.isSetQueryWithAttributesResult()) {
+            QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+            // SDB items
+            List<Item> items = res.getItem();
+            if (items.size() > 1) {
+              // TODO list duplicated Items in error message
+              throw new SDBRepositoryException("(add) FATAL Storage contains more of one Item with ID: "
+                  + data.getParentIdentifier()
+                  + ". Check of "
+                  + itemClass
+                  + " "
+                  + data.getQPath().getAsString() + " Item parent.");
+            } else if (items.size() <= 0) {
+              // Parent not found
+              throw new SDBRepositoryException("(add) " + itemClass + " "
+                  + data.getQPath().getAsString() + " parent not found. Parent ID: "
+                  + data.getParentIdentifier());
+            } // else - Parent exists
+          }
         }
       }
     } catch (AmazonSimpleDBException e) {
@@ -1715,7 +1758,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         // SDB items
         List<Item> items = res.getItem();
         if (items.size() <= 0) {
-          // if Item exists...
           // item doesn't exist - error
           throw new JCRInvalidItemStateException("("
                                                      + modification
@@ -1976,13 +2018,23 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         if (vp == VALUEPREFIX_DATA) {
           // data in SimpleDB
           String value = vals[i].substring(1);
-          try {
-            values.add(new ByteArrayPersistedValueData(Base64.decode(value), i));
-          } catch (DecodingException e) {
-            throw new SDBAttributeValueCorruptedException("Property "
-                + property.getQPath().getName().getAsString() + " value[" + i + "] decoding error "
-                + e, e);
-          }
+          if (property.getType() == PropertyType.BINARY)
+            try {
+              values.add(new ByteArrayPersistedValueData(Base64.decode(value), i));
+            } catch (DecodingException e) {
+              throw new SDBAttributeValueCorruptedException("Property "
+                  + property.getQPath().getName().getAsString() + " value[" + i
+                  + "] decoding error " + e, e);
+            }
+          else
+            try {
+              values.add(new ByteArrayPersistedValueData(value.getBytes(Constants.DEFAULT_ENCODING),
+                                                         i));
+            } catch (UnsupportedEncodingException e) {
+              throw new SDBAttributeValueFormatException("Property "
+                  + property.getQPath().getName().getAsString() + " value[" + i
+                  + "] decoding error " + e, e);
+            }
         } else if (vp == VALUEPREFIX_STORAGEID) {
           // data in external Value Storage
           String storageId = vals[i].substring(1);
@@ -2031,6 +2083,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       o.execute();
       o.markProcessed();
     }
+
+    changes.clear();
+    addedNodes.clear();
   }
 
   /**
@@ -2038,10 +2093,16 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    */
   public void rollback() throws IllegalStateException, RepositoryException {
     // iter backward
-    for (int i = changes.size() - 1; i > 0; i--) {
-      WriteOperation o = changes.get(i);
-      if (!o.isProcessed())
-        o.rollback();
+    try {
+      for (int i = changes.size() - 1; i > 0; i--) {
+        WriteOperation o = changes.get(i);
+        if (!o.isProcessed())
+          o.rollback();
+      }
+    } finally {
+      // clear all on rollback anyway
+      changes.clear();
+      addedNodes.clear();
     }
   }
 

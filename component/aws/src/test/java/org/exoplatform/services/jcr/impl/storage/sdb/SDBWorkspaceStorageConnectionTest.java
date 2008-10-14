@@ -16,15 +16,20 @@
  */
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.ItemExistsException;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
+import org.apache.poi.hdf.model.hdftypes.FileInformationBlock;
+import org.apache.ws.commons.util.Base64;
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.config.AccessManagerEntry;
@@ -34,16 +39,20 @@ import org.exoplatform.services.jcr.config.LockManagerEntry;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.SimpleParameterEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
-import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.FileStreamPersistedValueData;
 import org.exoplatform.services.jcr.impl.storage.value.StandaloneStoragePluginProvider;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import org.exoplatform.services.jcr.util.SIDGenerator;
@@ -117,7 +126,17 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
   /**
    * testProperty.
    */
-  private PersistedPropertyData         testProperty;
+  private PropertyData         testProperty;
+
+  /**
+   * test Property multivalued.
+   */
+  private PropertyData         testMultivaluedProperty;
+
+  /**
+   * test binary Property.
+   */
+  private PropertyData         testBinaryProperty;
 
   /**
    * Make dummy WorkspaceEntry.
@@ -219,35 +238,66 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
     // test items
 
     AccessControlList acl;
-    jcrRoot = new PersistedNodeData(Constants.ROOT_UUID,
-                                    QPath.parse("[]:1"),
-                                    Constants.ROOT_PARENT_UUID,
-                                    1,
+
+    jcrRoot = new TransientNodeData(QPath.parse("[]:1"),
+                                    Constants.ROOT_UUID,
                                     1,
                                     Constants.NT_UNSTRUCTURED,
                                     new InternalQName[] {},
+                                    1,
+                                    Constants.ROOT_PARENT_UUID,
                                     acl = new AccessControlList());
 
-    testRoot = new PersistedNodeData(SIDGenerator.generate(),
-                                     QPath.makeChildPath(jcrRoot.getQPath(),
+    testRoot = new TransientNodeData(QPath.makeChildPath(jcrRoot.getQPath(),
                                                          QPathEntry.parse("[]sdbTestRoot:1")),
-                                     jcrRoot.getIdentifier(),
-                                     1,
+                                     SIDGenerator.generate(),
                                      1,
                                      Constants.NT_FILE,
                                      new InternalQName[] { Constants.MIX_REFERENCEABLE },
+                                     1,
+                                     jcrRoot.getIdentifier(),
                                      acl);
 
-    testProperty = new PersistedPropertyData(SIDGenerator.generate(),
-                                             QPath.makeChildPath(testRoot.getQPath(),
+    TransientPropertyData testProperty = new TransientPropertyData(QPath.makeChildPath(testRoot.getQPath(),
                                                                  QPathEntry.parse("[]sdbTestProperty:1")),
+                                             SIDGenerator.generate(),
+                                             1,
+                                             PropertyType.STRING,
                                              testRoot.getIdentifier(),
-                                             1,
-                                             1,
                                              false);
     List<ValueData> values = new ArrayList<ValueData>(1);
-    values.add(new ByteArrayPersistedValueData("1234567890qwerty".getBytes(), 1));
+    values.add(new TransientValueData("This is a text property. Have a nice day, SDB."));
     testProperty.setValues(values);
+    this.testProperty = testProperty;
+
+    TransientPropertyData testBinaryProperty = new TransientPropertyData(QPath.makeChildPath(testRoot.getQPath(),
+                                                                                       QPathEntry.parse("[]sdbTest@Binary Property:1")),
+                                                                   SIDGenerator.generate(),
+                                                                   1,
+                                                                   PropertyType.BINARY,
+                                                                   testRoot.getIdentifier(),
+                                                                   false);
+    
+    values = new ArrayList<ValueData>(1);
+    values.add(new TransientValueData(getClass().getClassLoader().getResourceAsStream("images/button-sample.gif")));
+    testBinaryProperty.setValues(values);
+    this.testBinaryProperty = testBinaryProperty;
+
+    TransientPropertyData testMultivaluedProperty = new TransientPropertyData(QPath.makeChildPath(testRoot.getQPath(),
+                                                                                                  QPathEntry.parse("[]sdbTestProperty multivalued:1")),
+                                                                         SIDGenerator.generate(),
+                                                                         1,
+                                                                         PropertyType.STRING,
+                                                                         testRoot.getIdentifier(),
+                                                                         true);
+    values = new ArrayList<ValueData>(5);
+    values.add(new TransientValueData("This is a text value #1"));
+    values.add(new TransientValueData("This is a text value #2"));
+    values.add(new TransientValueData("This is a text value #3"));
+    values.add(new TransientValueData("This is a text value #4"));
+    values.add(new TransientValueData("This is a text value #5"));
+    testMultivaluedProperty.setValues(values);
+    this.testMultivaluedProperty = testMultivaluedProperty;
 
   }
 
@@ -363,15 +413,15 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
 
         // ACL permissions
         List<AccessControlEntry> perms = jcrRoot.getACL().getPermissionEntries();
-        
+
         assertEquals("Permission should match ", perms.get(0).getAsString(), idms[3].substring(2));
         assertEquals("Permission should match ", perms.get(1).getAsString(), idms[4].substring(2));
         assertEquals("Permission should match ", perms.get(2).getAsString(), idms[5].substring(2));
         assertEquals("Permission should match ", perms.get(3).getAsString(), idms[6].substring(2));
-        
+
         // ACL owner
         assertEquals("Owner should match ", jcrRoot.getACL().getOwner(), idms[7].substring(2));
-        
+
       } catch (IndexOutOfBoundsException e) {
         fail("IData value is wrong " + e.getMessage());
       } catch (IllegalNameException e) {
@@ -472,11 +522,258 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
         InternalQName primary = InternalQName.parse(idms[2]);
         assertEquals("nt:file expected.", Constants.NT_FILE, primary);
 
-        InternalQName mixin = InternalQName.parse(idms[3]);
+        InternalQName mixin = InternalQName.parse(idms[3].substring(2));
         assertEquals("mix:referenceable mixin expected.", Constants.MIX_REFERENCEABLE, mixin);
       } catch (IllegalNameException e) {
         fail(e.getMessage());
       }
+    } else
+      fail("Not initialized");
+  }
+
+  /**
+   * Test add of Property. Test if storage metadata (persisted version, property type, multivalue
+   * status) stored well.
+   * 
+   * @throws AmazonSimpleDBException
+   *           SDB error
+   * @throws IOException
+   *           if I/O error
+   * @throws IllegalStateException
+   *           not matter here
+   */
+  public void testAddProperty() throws AmazonSimpleDBException, IllegalStateException, IOException {
+
+    try {
+      sdbConn.add(jcrRoot); // root
+      sdbConn.add(testRoot); // parent
+      sdbConn.add(testProperty); // property
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("add Property error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      LOG.error("add Property error", e);
+      fail(e.getMessage());
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testProperty.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      String pid = null;
+      String name = null;
+      String iclass = null;
+      String idata = null;
+      String data = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.PID))
+          pid = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.NAME))
+          name = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.ICLASS))
+          iclass = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.IDATA))
+          idata = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.DATA))
+          data = attr.getValue();
+      }
+
+      assertEquals("Id doesn't match", testProperty.getIdentifier(), id);
+      assertEquals("Parent id doesn't match", testProperty.getParentIdentifier(), pid);
+      assertEquals("Item class should be Property ", "2", iclass);
+      assertEquals("Name doesn't match",
+                   testProperty.getQPath().getEntries()[testProperty.getQPath().getEntries().length - 1].getAsString(true),
+                   name);
+
+      // get IData metas
+      String[] idms = idata.split(SDBConstants.IDATA_DELIMITER_REGEXP);
+      assertEquals("Property IData has wrong size ", 3, idms.length);
+      assertEquals("Property persisted version should match ", "1", idms[0]);
+      assertEquals("Property type should match ", String.valueOf(PropertyType.STRING), idms[1]);
+      assertEquals("Property multivalued status should match ", "false", idms[2]);
+
+      // check data
+      assertEquals("Property value ",
+                   SDBConstants.VALUEPREFIX_DATA
+                       + new String(testProperty.getValues().get(0).getAsByteArray(),
+                                    Constants.DEFAULT_ENCODING),
+                   data);
+
+    } else
+      fail("Not initialized");
+  }
+
+  /**
+   * Test add of Binary Property. Test if storage metadata (persisted version, property type,
+   * multivalue status) stored well.
+   * 
+   * @throws AmazonSimpleDBException
+   *           SDB error
+   * @throws IOException
+   *           if I/O error
+   * @throws IllegalStateException
+   *           not matter here
+   */
+  public void testAddBinaryProperty() throws AmazonSimpleDBException,
+                                     IllegalStateException,
+                                     IOException {
+
+    try {
+      sdbConn.add(jcrRoot); // root
+      sdbConn.add(testRoot); // parent
+
+      sdbConn.add(testProperty); // any stuff
+
+      sdbConn.add(testBinaryProperty); // property
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("add Property error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      LOG.error("add Property error", e);
+      fail(e.getMessage());
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient,
+                                          SDB_DOMAIN_NAME,
+                                          testBinaryProperty.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      String pid = null;
+      String name = null;
+      String iclass = null;
+      String idata = null;
+      String data = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.PID))
+          pid = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.NAME))
+          name = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.ICLASS))
+          iclass = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.IDATA))
+          idata = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.DATA))
+          data = attr.getValue();
+      }
+
+      assertEquals("Id doesn't match", testBinaryProperty.getIdentifier(), id);
+      assertEquals("Parent id doesn't match", testBinaryProperty.getParentIdentifier(), pid);
+      assertEquals("Item class should be Property ", "2", iclass);
+      assertEquals("Name doesn't match",
+                   testBinaryProperty.getQPath().getEntries()[testBinaryProperty.getQPath()
+                                                                                .getEntries().length - 1].getAsString(true),
+                   name);
+
+      // get IData metas
+      String[] idms = idata.split(SDBConstants.IDATA_DELIMITER_REGEXP);
+      assertEquals("Property IData has wrong size ", 3, idms.length);
+      assertEquals("Property persisted version should match ", "1", idms[0]);
+      assertEquals("Property type should match ", String.valueOf(PropertyType.BINARY), idms[1]);
+      assertEquals("Property multivalued status should match ", "false", idms[2]);
+
+      // check data
+      assertEquals("Property value ", SDBConstants.VALUEPREFIX_DATA
+          + Base64.encode(testBinaryProperty.getValues().get(0).getAsByteArray()), data);
+
+    } else
+      fail("Not initialized");
+  }
+
+  /**
+   * Test add of Multivalued Property. Test if storage metadata (persisted version, property type,
+   * multivalue status) stored well.
+   * 
+   * @throws AmazonSimpleDBException
+   *           SDB error
+   * @throws IOException
+   *           if I/O error
+   * @throws IllegalStateException
+   *           not matter here
+   */
+  public void testAddMultivaluedProperty() throws AmazonSimpleDBException,
+                                          IllegalStateException,
+                                          IOException {
+
+    try {
+      sdbConn.add(jcrRoot); // root
+      sdbConn.add(testRoot); // parent
+
+      sdbConn.add(testProperty); // any stuff
+      sdbConn.add(testBinaryProperty); // any stuff
+
+      sdbConn.add(testMultivaluedProperty); // property
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("add Property error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      LOG.error("add Property error", e);
+      fail(e.getMessage());
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient,
+                                          SDB_DOMAIN_NAME,
+                                          testMultivaluedProperty.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      String pid = null;
+      String name = null;
+      String iclass = null;
+      String idata = null;
+      List<String> data = new ArrayList<String>();
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.PID))
+          pid = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.NAME))
+          name = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.ICLASS))
+          iclass = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.IDATA))
+          idata = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.DATA))
+          data.add(attr.getValue());
+      }
+
+      assertEquals("Id doesn't match", testMultivaluedProperty.getIdentifier(), id);
+      assertEquals("Parent id doesn't match", testMultivaluedProperty.getParentIdentifier(), pid);
+      assertEquals("Item class should be Property ", "2", iclass);
+      assertEquals("Name doesn't match",
+                   testMultivaluedProperty.getQPath().getEntries()[testMultivaluedProperty.getQPath()
+                                                                                          .getEntries().length - 1].getAsString(true),
+                   name);
+
+      // get IData metas
+      String[] idms = idata.split(SDBConstants.IDATA_DELIMITER_REGEXP);
+      assertEquals("Property IData has wrong size ", 3, idms.length);
+      assertEquals("Property persisted version should match ", "1", idms[0]);
+      assertEquals("Property type should match ", String.valueOf(PropertyType.STRING), idms[1]);
+      assertEquals("Property multivalued status should match ", "true", idms[2]);
+
+      // check data
+      for (int i = 0; i < data.size(); i++) {
+        String value = data.get(i);
+
+        assertEquals("Property value ", SDBConstants.VALUEPREFIX_DATA
+            + new String(testMultivaluedProperty.getValues().get(i).getAsByteArray(),
+                         Constants.DEFAULT_ENCODING), value);
+      }
+
     } else
       fail("Not initialized");
   }
