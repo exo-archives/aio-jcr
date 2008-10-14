@@ -81,6 +81,7 @@
         <directory>src/test/resources</directory>
         <includes>
           <include>**/*.gif</include>
+          <include>**/*.html</include>
           <include>**/*.properties</include>
           <include>**/*.xml</include>
         </includes>

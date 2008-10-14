@@ -95,6 +95,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   protected static final Log                 LOG                       = ExoLogger.getLogger("jcr.SDBWorkspaceStorageConnection");
 
   /**
+   * SimpleDB Operation timeout.
+   */
+  protected static final int                 SDB_OPERATION_TIMEOUT     = 2000;
+
+  /**
    * Item Delete operation constant. Should be INTERNED.
    */
   protected static final String              ITEM_DELETE               = "delete".intern();
@@ -963,6 +968,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       if (!domains.contains(domainName)) {
         // create
         createDomain(sdbService, domainName);
+        try {
+          Thread.sleep(SDB_OPERATION_TIMEOUT);
+        } catch (InterruptedException e) {
+          LOG.debug("Init storage sleep error " + e, e);
+        }
       } else {
         // read version
         String userContainer = null;
@@ -1589,19 +1599,19 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       String v;
       if (channel == null) {
         // store in SDB
-        byte[] bytes = vd.getAsByteArray();
-        if (bytes.length < SDB_ATTRIBUTE_VALUE_MAXLENGTH) {
-          if (data.getType() == PropertyType.BINARY)
-            v = VALUEPREFIX_DATA + Base64.encode(bytes);
-          else
-            v = VALUEPREFIX_DATA + new String(bytes, Constants.DEFAULT_ENCODING);
-        } else {
-          // error
-          throw new SDBItemValueLengthExceeded("Property '" + data.getQPath().getAsString()
-              + "' value size too large. Maximum Value size can be stored in SimpleDB is "
-              + SDB_ATTRIBUTE_VALUE_MAXLENGTH
-              + " bytes. Use Extenal Value Storage (to Amazon S3) for large Values.");
-        }
+        if (data.getType() == PropertyType.BINARY)
+          v = VALUEPREFIX_DATA + Base64.encode(vd.getAsByteArray());
+        else
+          v = VALUEPREFIX_DATA + new String(vd.getAsByteArray(), Constants.DEFAULT_ENCODING);
+        // TODO it's SDB stuff, so leave it as is (SDB will throws an error)
+//        if (v.getBytes(Constants.DEFAULT_ENCODING).length > SDB_ATTRIBUTE_VALUE_MAXLENGTH) {
+//          // error
+//          throw new SDBItemValueLengthExceeded("Property '" + data.getQPath().getAsString()
+//              + "' value size too large. Maximum Value size can be stored in SimpleDB is "
+//              + SDB_ATTRIBUTE_VALUE_MAXLENGTH
+//              + " bytes. Use Extenal Value Storage (to Amazon S3) for large Values. "
+//              + "NOTE: Size for Binary data calculated on BASE64 encoded String of the data");
+//        }
       } else {
         // store in External storage
         channel.write(data.getIdentifier(), vd);
@@ -1790,7 +1800,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
               } else {
                 v = parsePropertyIData(idv).getVersion();
               }
-              if (v != data.getPersistedVersion()) {
+              if (v >= data.getPersistedVersion()) {
                 // TODO are we need the check here?
                 LOG.warn(">>>>> InvalidItemState. " + itemClass + " "
                     + data.getQPath().getAsString());

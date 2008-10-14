@@ -107,9 +107,9 @@ public interface SDBConstants {
   String IDATA_ACL_OWNER               = "AO";
 
   /**
-   * SimpleDB Attribute value length maximum (1024 - 3 bytes).
+   * SimpleDB Attribute value length maximum (1024 bytes).
    */
-  long   SDB_ATTRIBUTE_VALUE_MAXLENGTH = 1021;
+  long   SDB_ATTRIBUTE_VALUE_MAXLENGTH = 1024;
 
   /**
    * SimpleDB Maximum ItemName length (1024 bytes).
