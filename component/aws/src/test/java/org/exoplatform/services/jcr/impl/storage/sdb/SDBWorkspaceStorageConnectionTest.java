@@ -309,6 +309,9 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
       // DeleteAttributesRequest().withDomainName(SDB_DOMAIN_NAME
       // ).withItemName(jcrRoot.getIdentifier());
       sdbClient.deleteDomain(request);
+
+      // wait for SDB
+      Thread.sleep(SDBWorkspaceStorageConnection.SDB_OPERATION_TIMEOUT);
     } catch (Throwable e) {
       LOG.error("teardown error", e);
       fail(e.getMessage());
@@ -684,8 +687,13 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
         assertEquals("Property multivalued status should match ", "false", idms[2]);
 
         // check data
+        byte[] vdata = testBinaryProperty.getValues().get(0).getAsByteArray();
         assertEquals("Property value ", SDBConstants.VALUEPREFIX_DATA
-            + Base64.encode(testBinaryProperty.getValues().get(0).getAsByteArray()), data);
+            + Base64.encode(vdata,
+                            0,
+                            vdata.length,
+                            SDBConstants.SDB_ATTRIBUTE_VALUE_MAXLENGTH,
+                            "\n"), data);
       } catch (IndexOutOfBoundsException e) {
         fail("IData value is wrong " + e.getMessage());
       }
@@ -773,9 +781,10 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
         for (int i = 0; i < data.size(); i++) {
           String value = data.get(i);
 
-          assertEquals("Property value ", SDBConstants.VALUEPREFIX_DATA
-              + new String(testMultivaluedProperty.getValues().get(i).getAsByteArray(),
-                           Constants.DEFAULT_ENCODING), value);
+          assertEquals("Property value ",
+                       new String(testMultivaluedProperty.getValues().get(i).getAsByteArray(),
+                                  Constants.DEFAULT_ENCODING),
+                       value.substring(SDBConstants.VALUEPREFIX_MULTIVALUED_LENGTH));
         }
       } catch (IndexOutOfBoundsException e) {
         fail("IData value is wrong " + e.getMessage());
@@ -879,7 +888,6 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
     } else
       fail("Not initialized");
   }
-
 
   /**
    * Test update Property (orderNum and mixin changes). Test if Property storage metadata (persisted
@@ -1054,13 +1062,18 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
       String[] idms = idata.split(SDBConstants.IDATA_DELIMITER_REGEXP);
       assertEquals("Property IData has wrong size ", 3, idms.length);
       try {
-        assertEquals("Property persisted version should match ", "1", idms[0]);
+        assertEquals("Property persisted version should match ", "2", idms[0]);
         assertEquals("Property type should match ", String.valueOf(PropertyType.BINARY), idms[1]);
         assertEquals("Property multivalued status should match ", "false", idms[2]);
 
         // check data
+        byte[] vdata = updated.getValues().get(0).getAsByteArray();
         assertEquals("Property value ", SDBConstants.VALUEPREFIX_DATA
-            + Base64.encode(updated.getValues().get(0).getAsByteArray()), data);
+            + Base64.encode(vdata,
+                            0,
+                            vdata.length,
+                            SDBConstants.SDB_ATTRIBUTE_VALUE_MAXLENGTH,
+                            "\n"), data);
       } catch (IndexOutOfBoundsException e) {
         fail("IData value is wrong " + e.getMessage());
       }
@@ -1160,14 +1173,191 @@ public class SDBWorkspaceStorageConnectionTest extends TestCase {
           String value = data.get(i);
 
           assertEquals("Property value ",
-                       SDBConstants.VALUEPREFIX_DATA
-                           + new String(updated.getValues().get(i).getAsByteArray(),
-                                        Constants.DEFAULT_ENCODING),
-                       value);
+                       new String(updated.getValues().get(i).getAsByteArray(),
+                                  Constants.DEFAULT_ENCODING),
+                       value.substring(SDBConstants.VALUEPREFIX_MULTIVALUED_LENGTH));
         }
       } catch (IndexOutOfBoundsException e) {
         fail("IData value is wrong " + e.getMessage());
       }
+    } else
+      fail("Not initialized");
+  }
+
+  /**
+   * Test delete of Node.
+   * 
+   * @throws Exception
+   *           - SDB error
+   */
+  public void testDeleteNode() throws Exception {
+
+    // prepare
+    sdbConn.add(jcrRoot);
+    sdbConn.add(testRoot);
+    sdbConn.commit();
+
+    // delete
+    TransientNodeData deleted = new TransientNodeData(testRoot.getQPath(),
+                                                      testRoot.getIdentifier(),
+                                                      2,
+                                                      Constants.NT_FILE,
+                                                      new InternalQName[] { Constants.MIX_REFERENCEABLE },
+                                                      2,
+                                                      testRoot.getParentIdentifier(),
+                                                      testRoot.getACL());
+    try {
+      sdbConn.delete(deleted);
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("delete Node error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      LOG.error("delete Node error", e);
+      fail(e.getMessage());
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, deleted.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+      }
+      assertTrue("Node should be deleted", SDBConstants.ITEM_DELETED_ID.equals(id));
+    } else
+      fail("Not initialized");
+  }
+
+  /**
+   * Test delete of Multivalued Property.
+   * 
+   * @throws Exception
+   *           error
+   */
+  public void testDeleteProperty() throws Exception {
+
+    // prepare
+    sdbConn.add(jcrRoot); // root
+    sdbConn.add(testRoot); // parent
+
+    sdbConn.add(testProperty);
+    sdbConn.add(testBinaryProperty);
+    sdbConn.add(testMultivaluedProperty);
+    sdbConn.commit();
+
+    // delete
+    TransientPropertyData deleted = new TransientPropertyData(testMultivaluedProperty.getQPath(),
+                                                              testMultivaluedProperty.getIdentifier(),
+                                                              2,
+                                                              PropertyType.STRING,
+                                                              testMultivaluedProperty.getParentIdentifier(),
+                                                              true);
+    try {
+      sdbConn.delete(deleted);
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("delete Property error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      LOG.error("delete Property error", e);
+      fail(e.getMessage());
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, deleted.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+      }
+      assertTrue("Property should be deleted", SDBConstants.ITEM_DELETED_ID.equals(id));
+    } else
+      fail("Not initialized");
+
+    resp = readItem(sdbClient, SDB_DOMAIN_NAME, testBinaryProperty.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+      }
+      assertTrue("Property should exists", testBinaryProperty.getIdentifier().equals(id));
+    } else
+      fail("Not initialized");
+  }
+
+  /**
+   * Test of container delete cleaner.
+   * 
+   * @throws Exception
+   *           error
+   */
+  public void testContainerCleaner() throws Exception {
+
+    // prepare
+    sdbConn.add(jcrRoot); // root
+    sdbConn.add(testRoot); // parent
+
+    sdbConn.add(testProperty);
+    sdbConn.commit();
+
+    // delete
+    TransientPropertyData deletedProp = new TransientPropertyData(testProperty.getQPath(),
+                                                                  testProperty.getIdentifier(),
+                                                                  2,
+                                                                  PropertyType.STRING,
+                                                                  testProperty.getParentIdentifier(),
+                                                                  true);
+    TransientNodeData deletedNode = new TransientNodeData(testRoot.getQPath(),
+                                                          testRoot.getIdentifier(),
+                                                          2,
+                                                          Constants.NT_FILE,
+                                                          new InternalQName[] { Constants.MIX_REFERENCEABLE },
+                                                          2,
+                                                          testRoot.getParentIdentifier(),
+                                                          testRoot.getACL());
+    try {
+      sdbConn.delete(deletedProp);
+      sdbConn.delete(deletedNode);
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("delete Property error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      LOG.error("delete Property error", e);
+      fail(e.getMessage());
+    }
+
+    // cleaner
+    final int timeout = 2000;
+    StorageCleaner cleaner = new StorageCleaner(sdbConn, timeout);
+    cleaner.start();
+    
+    Thread.sleep(timeout * 2); // wait for SDB too here
+    
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, deletedProp.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Property should be actually deleted", res.getAttribute().size() == 0);
+    } else
+      fail("Not initialized");
+
+    resp = readItem(sdbClient, SDB_DOMAIN_NAME, deletedNode.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Node should be actually deleted", res.getAttribute().size() == 0);
     } else
       fail("Not initialized");
   }

@@ -82,9 +82,14 @@ public interface SDBConstants {
   char   VALUEPREFIX_STORAGEID         = 'S';
   
   /**
-   * Value prefix length (incl. 3 char for Value order number).
+   * Multivalued Property Value prefix length (incl. 3 char for Value order number) in SDB Item value.
    */
-  int   VALUEPREFIX_LENGTH        = 4;
+  int   VALUEPREFIX_MULTIVALUED_LENGTH        = 4;
+  
+  /**
+   * Singlevalued Property Value prefix length in SDB Item value.
+   */
+  int   VALUEPREFIX_SINGLEVALUED_LENGTH        = 1;
 
   /**
    * IData fields delimiter.

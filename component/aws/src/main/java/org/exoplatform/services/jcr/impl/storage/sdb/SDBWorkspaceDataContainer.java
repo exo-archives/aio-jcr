@@ -16,6 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -26,6 +29,11 @@ import org.exoplatform.services.jcr.impl.storage.WorkspaceDataContainerBase;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePluginProvider;
 import org.exoplatform.services.log.ExoLogger;
+
+import com.amazonaws.sdb.AmazonSimpleDBException;
+import com.amazonaws.sdb.model.Item;
+import com.amazonaws.sdb.model.QueryWithAttributesResponse;
+import com.amazonaws.sdb.model.QueryWithAttributesResult;
 
 /**
  * Created by The eXo Platform SAS.
@@ -40,63 +48,72 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
   /**
    * Container storage version of the implementation .
    */
-  public static final String CURRENT_STORAGE_VERSION  = "1.0-b";
-  
+  public static final String                 CURRENT_STORAGE_VERSION = "1.0-b";
+
   /**
    * AWS access key parameter name.
    */
-  public static final String SDB_ACCESSKEY  = "aws-access-key";
+  public static final String                 SDB_ACCESSKEY           = "aws-access-key";
 
   /**
    * AWS secret key parameter name.
    */
-  public static final String SDB_SECRETKEY  = "aws-secret-access-key";
+  public static final String                 SDB_SECRETKEY           = "aws-secret-access-key";
 
   /**
    * AWS SimpleDB domain name will be used. If name doesn't exist it will be created.
    */
-  public static final String SDB_DOMAINNAME = "domain-name";
+  public static final String                 SDB_DOMAINNAME          = "domain-name";
+  
+  /**
+   * Storage cleaner timeout 30min.
+   */
+  protected static final int                 CLEANER_TIMEOUT           = 1 * 60 * 1000; 
 
   /**
    * Container logger.
    */
-  protected static final Log LOG            = ExoLogger.getLogger("jcr.SDBWorkspaceDataContainer");
+  protected static final Log                 LOG                     = ExoLogger.getLogger("jcr.SDBWorkspaceDataContainer");
 
-  
   /**
    * Container name.
    */
-  protected final String containerName;
-  
+  protected final String                     containerName;
+
   /**
    * Actual container storage version.
    */
-  protected final String storageVersion;
-  
+  protected final String                     storageVersion;
+
   /**
    * AWS access key.
    */
-  protected final String     accessKey;
+  protected final String                     accessKey;
 
   /**
    * AWS secret key.
    */
-  protected final String     secretKey;
+  protected final String                     secretKey;
 
   /**
    * SDB domain name.
    */
-  protected final String     domainName;
+  protected final String                     domainName;
 
   /**
    * External Value Storages provider to save Properties using configured filters.
    */
   protected final ValueStoragePluginProvider valueStorageProvider;
-  
+
   /**
    * Max buffer size used by External Value Storages provider to match storage per Property.
    */
-  protected final int     maxBufferSize;
+  protected final int                        maxBufferSize;
+  
+  /**
+   * Storage cleaner.
+   */
+  protected final StorageCleaner                       storageCleaner;
 
   /**
    * Create container using repository and workspace configuration.
@@ -137,7 +154,7 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
 
     // External storage
     this.valueStorageProvider = valueStorageProvider;
-    
+
     int maxbs;
     try {
       maxbs = wsConfig.getContainer().getParameterInteger(MAXBUFFERSIZE);
@@ -147,13 +164,16 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
     this.maxBufferSize = maxbs;
 
     this.containerName = wsConfig.getName();
-    
+
     SDBWorkspaceStorageConnection conn = new SDBWorkspaceStorageConnection(accessKey,
-                                      secretKey,
-                                      domainName,
-                                      maxBufferSize,
-                                      valueStorageProvider);
+                                                                           secretKey,
+                                                                           domainName,
+                                                                           maxBufferSize,
+                                                                           valueStorageProvider);
     this.storageVersion = conn.initStorage(containerName, CURRENT_STORAGE_VERSION);
+    
+    this.storageCleaner = new StorageCleaner(conn, CLEANER_TIMEOUT);
+    this.storageCleaner.start();
 
     LOG.info(getInfo());
   }
@@ -183,10 +203,10 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
    * {@inheritDoc}
    */
   public String getInfo() {
-    String str = "SimpleDB based JCR Workspace Data container \n" + "container name: " + containerName
-    + " \n" + "domain name: " + domainName + "\n" 
-    + "\n" + "storage version: " + storageVersion + "\n" + "value storage provider: "
-    + valueStorageProvider + "\n" + "max buffer size (bytes): " + maxBufferSize;
+    String str = "SimpleDB based JCR Workspace Data container \n" + "container name: "
+        + containerName + " \n" + "domain name: " + domainName + "\n" + "\n" + "storage version: "
+        + storageVersion + "\n" + "value storage provider: " + valueStorageProvider + "\n"
+        + "max buffer size (bytes): " + maxBufferSize;
     return str;
   }
 

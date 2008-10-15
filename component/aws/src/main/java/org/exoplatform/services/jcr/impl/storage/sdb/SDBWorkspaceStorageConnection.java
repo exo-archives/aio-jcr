@@ -19,6 +19,9 @@ package org.exoplatform.services.jcr.impl.storage.sdb;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -95,9 +98,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   protected static final Log                 LOG                       = ExoLogger.getLogger("jcr.SDBWorkspaceStorageConnection");
 
   /**
-   * SimpleDB Operation timeout.
+   * SimpleDB Operation timeout (5sec).
    */
-  protected static final int                 SDB_OPERATION_TIMEOUT     = 2000;
+  protected static final int                 SDB_OPERATION_TIMEOUT     = 5000;
 
   /**
    * Item Delete operation constant. Should be INTERNED.
@@ -908,6 +911,62 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
+   * NodeData comparator.
+   * 
+   */
+  class NodeDataComparator implements Comparator<NodeData> {
+
+    /**
+     * {@inheritDoc}
+     */
+    public int compare(NodeData o1, NodeData o2) {
+      return o1.getOrderNumber() - o2.getOrderNumber();
+    }
+  }
+
+  /**
+   * NOT USED.<br/> PropertyData comparator. Order allways will be following
+   * 
+   * <pre>
+   * 1. jcr:primaryType
+   * 2. jcr:mixinTypes
+   * 3. jcr:uuid
+   * ...
+   * N. other properties unsorted
+   * </pre>
+   */
+  class PropertyDataComparator implements Comparator<PropertyData> {
+
+    /**
+     * {@inheritDoc}
+     */
+    public int compare(PropertyData o1, PropertyData o2) {
+      if (Constants.JCR_PRIMARYTYPE.equals(o1.getQPath().getName()))
+        return Integer.MIN_VALUE;
+      else if (Constants.JCR_MIXINTYPES.equals(o1.getQPath().getName()))
+        return Integer.MIN_VALUE + 1;
+      else if (Constants.JCR_UUID.equals(o1.getQPath().getName()))
+        return Integer.MIN_VALUE + 2;
+      else
+        return 0;
+    }
+  }
+
+  /**
+   * ValueData comparator.
+   * 
+   */
+  class ValueDataComparator implements Comparator<ValueData> {
+
+    /**
+     * {@inheritDoc}
+     */
+    public int compare(ValueData o1, ValueData o2) {
+      return o1.getOrderNumber() - o2.getOrderNumber();
+    }
+  }
+
+  /**
    * SDBWorkspaceStorageConnection constructor.
    * 
    * @param accessKey
@@ -968,11 +1027,22 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       if (!domains.contains(domainName)) {
         // create
         createDomain(sdbService, domainName);
-        try {
-          Thread.sleep(SDB_OPERATION_TIMEOUT);
-        } catch (InterruptedException e) {
-          LOG.debug("Init storage sleep error " + e, e);
-        }
+
+        // wait for SDB sync
+        int iter = 5;
+        boolean notInitilizer = true;
+        do {
+          try {
+            Thread.sleep(SDB_OPERATION_TIMEOUT);
+          } catch (InterruptedException e) {
+            LOG.debug("Init storage sleep error " + e, e);
+          }
+          domains = getDomainsList();
+          iter--;
+        } while (notInitilizer = !domains.contains(domainName) && iter > 0);
+
+        if (notInitilizer)
+          LOG.warn("SimpleDB domain '" + domainName + "' created but still not available.");
       } else {
         // read version
         String userContainer = null;
@@ -1031,6 +1101,44 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       throw new SDBStorageException("(init) Storage initialization fails " + e, e);
     }
 
+  }
+
+  /**
+   * Run cleanup procedure (used from container).
+   * 
+   */
+  void runCleanup() {
+    final List<String> names = new ArrayList<String>();
+
+    try {
+      String nextToken = null;
+
+      do {
+        QueryWithAttributesResponse resp = queryItemAttrByIDWithToken(sdbService,
+                                                             domainName,
+                                                             ITEM_DELETED_ID,
+                                                             nextToken,
+                                                             ICLASS);
+
+        if (resp.isSetQueryWithAttributesResult()) {
+          QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+          nextToken = res.getNextToken();
+          for (Item item : res.getItem()) {
+            names.add(item.getName());
+          }
+        }
+      } while (nextToken != null);
+    } catch (AmazonSimpleDBException e) {
+      LOG.error("(cleaner) Error of deleted Items request " + e, e);
+    }
+
+    for (String name : names) {
+      try {
+        deleteItem(sdbService, domainName, name);
+      } catch (AmazonSimpleDBException e) {
+        LOG.error("(cleaner) Item " + name + " delete error " + e, e);
+      }
+    }
   }
 
   /**
@@ -1183,6 +1291,41 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     DeleteAttributesRequest request = new DeleteAttributesRequest().withDomainName(domainName)
                                                                    .withItemName(itemName);
     return service.deleteAttributes(request);
+  }
+
+  /**
+   * Query item attributes by ID (QueryWithAttributes).
+   * 
+   * @param service
+   *          SimpleDB service
+   * @param domainName
+   *          targeted domain name
+   * @param itemId
+   *          JCR Item Id
+   * @param nextToken
+   *          SDB next token
+   * @param attributes
+   *          SimpleDB item attributes for responce. If <code>null</code> all attributes will be
+   *          returned
+   * @return QueryWithAttributesResponse
+   * @throws AmazonSimpleDBException
+   *           in case of SDB error
+   */
+  protected QueryWithAttributesResponse queryItemAttrByIDWithToken(final AmazonSimpleDB service,
+                                                          final String domainName,
+                                                          final String itemId,
+                                                          final String nextToken,
+                                                          final String... attributes) throws AmazonSimpleDBException {
+
+    String query = String.format(QUERY_GET_ITEM_BY_ID, itemId);
+    QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
+                                                                         .withQueryExpression(query)
+                                                                         .withNextToken(nextToken);
+
+    if (attributes != null)
+      request.withAttributeName(attributes);
+
+    return service.queryWithAttributes(request);
   }
 
   /**
@@ -1605,16 +1748,16 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       vd.setOrderNumber(i); // TODO do we have to do it here?
 
       // prepare prefix with data location flag and order number (for multivalued)
-      char[] vprefix = new char[VALUEPREFIX_LENGTH];
+      char[] vprefix;
       if (data.isMultiValued()) {
-        vprefix = new char[VALUEPREFIX_LENGTH];
+        vprefix = new char[VALUEPREFIX_MULTIVALUED_LENGTH];
         // fill last 3 chars with order number (with zero padding)
         char[] orderNum = String.valueOf(i).toCharArray();
         int oi = orderNum.length - 1;
         for (int ci = vprefix.length - 1; ci > 0; ci--)
           vprefix[ci] = oi >= 0 ? orderNum[oi--] : '0';
       } else
-        vprefix = new char[0];
+        vprefix = new char[VALUEPREFIX_SINGLEVALUED_LENGTH];
 
       ValueIOChannel channel = valueStorageProvider.getApplicableChannel(data, i);
 
@@ -1624,8 +1767,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         vprefix[0] = VALUEPREFIX_DATA;
         if (data.getType() == PropertyType.BINARY) {
           byte[] ba = vd.getAsByteArray();
-          // encode(byte[] pBuffer, int pOffset, int pLength, int pLineSize, java.lang.String pSeparator)
-          v = new String(vprefix) + Base64.encode(ba, 0, ba.length, SDB_ATTRIBUTE_VALUE_MAXLENGTH, "\n");
+          // encode(byte[] pBuffer, int pOffset, int pLength, int pLineSize, java.lang.String
+          // pSeparator)
+          v = new String(vprefix)
+              + Base64.encode(ba, 0, ba.length, SDB_ATTRIBUTE_VALUE_MAXLENGTH, "\n");
         } else
           v = new String(vprefix) + new String(vd.getAsByteArray(), Constants.DEFAULT_ENCODING);
         // TODO it's SDB stuff, so leave it as is (SDB will throws an error)
@@ -2051,38 +2196,59 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       List<ValueData> values = new ArrayList<ValueData>(vals.length);
       for (int i = 0; i < vals.length; i++) {
         char vp = vals[i].charAt(0);
-        if (vp == VALUEPREFIX_DATA) {// TODO multivalued
+
+        int orderNum;
+        String value;
+        if (property.isMultiValued()) {
+          value = vals[i].substring(VALUEPREFIX_MULTIVALUED_LENGTH);
+          // parse order number (3 chars with zero padding)
+          // orderNum = Integer.parseInt(vals[i].substring(VALUEPREFIX_SINGLEVALUED_LENGTH,
+          // VALUEPREFIX_MULTIVALUED_LENGTH));
+          StringBuilder on = new StringBuilder();
+          for (char ch : vals[i].substring(VALUEPREFIX_SINGLEVALUED_LENGTH,
+                                           VALUEPREFIX_MULTIVALUED_LENGTH).toCharArray())
+            if (ch != '0' || on.length() > 0)
+              on.append(ch);
+          orderNum = Integer.parseInt(on.toString());
+        } else {
+          value = vals[i].substring(VALUEPREFIX_SINGLEVALUED_LENGTH);
+          orderNum = 0;
+        }
+        if (vp == VALUEPREFIX_DATA) {
           // data in SimpleDB
-          String value = vals[i].substring(1);
           if (property.getType() == PropertyType.BINARY)
             try {
-              values.add(new ByteArrayPersistedValueData(Base64.decode(value), i));
+              values.add(new ByteArrayPersistedValueData(Base64.decode(value), orderNum));
             } catch (DecodingException e) {
               throw new SDBAttributeValueCorruptedException("Property "
-                  + property.getQPath().getName().getAsString() + " value[" + i
+                  + property.getQPath().getName().getAsString() + " value[" + orderNum
                   + "] decoding error " + e, e);
             }
           else
             try {
               values.add(new ByteArrayPersistedValueData(value.getBytes(Constants.DEFAULT_ENCODING),
-                                                         i));
+                                                         orderNum));
             } catch (UnsupportedEncodingException e) {
               throw new SDBAttributeValueFormatException("Property "
-                  + property.getQPath().getName().getAsString() + " value[" + i
+                  + property.getQPath().getName().getAsString() + " value[" + orderNum
                   + "] decoding error " + e, e);
             }
         } else if (vp == VALUEPREFIX_STORAGEID) {
           // data in external Value Storage
-          String storageId = vals[i].substring(1);
           try {
-            ValueIOChannel channel = valueStorageProvider.getChannel(storageId);
-            values.add(channel.read(property.getIdentifier(), i, maxBufferSize));
+            ValueIOChannel channel = valueStorageProvider.getChannel(value);
+            values.add(channel.read(property.getIdentifier(), orderNum, maxBufferSize));
           } catch (IOException e) {
             throw new RepositoryException("Property " + property.getQPath().getName().getAsString()
-                + " value[" + i + "] read I/O error " + e, e);
+                + " value[" + orderNum + "] read I/O error " + e, e);
           }
         }
       }
+
+      // sort multivalued
+      if (values.size() > 1)
+        Collections.sort(values, new ValueDataComparator());
+
       property.setValues(values);
     }
 
@@ -2222,6 +2388,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         for (Item item : items)
           childItems.add(loadNodeData(parent.getQPath(), parent.getACL(), item.getAttribute()));
       }
+
+      // sort by order number
+      if (childItems.size() > 1)
+        Collections.sort(childItems, new NodeDataComparator());
 
       return childItems;
     } catch (AmazonSimpleDBException e) {
@@ -2433,8 +2603,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * {@inheritDoc}
    */
   public boolean isOpened() {
-    // TODO Auto-generated method stub
-    return false;
+    return true;
   }
 
   /**
