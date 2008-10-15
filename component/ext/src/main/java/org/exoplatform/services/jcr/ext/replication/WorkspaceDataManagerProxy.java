@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -43,10 +43,26 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class WorkspaceDataManagerProxy implements ItemDataKeeper {
 
+  /**
+   * The apache logger.
+   */
   private static Log                     log = ExoLogger.getLogger("jcr.WorkspaceDataManagerProxy");
 
+  /**
+   * The ItemsPersistenceListeners.
+   */
   private List<ItemsPersistenceListener> listeners;
 
+  /**
+   * WorkspaceDataManagerProxy  constructor.
+   *
+   * @param dataManager
+   *          the CacheableWorkspaceDataManager
+   * @param searchIndex
+   *          the SearchManager
+   * @param lockManager
+   *          the LockManagerImpl
+   */
   public WorkspaceDataManagerProxy(CacheableWorkspaceDataManager dataManager,
                                    SearchManager searchIndex,
                                    LockManagerImpl lockManager) {
@@ -62,9 +78,11 @@ public class WorkspaceDataManagerProxy implements ItemDataKeeper {
   /**
    * calls onSaveItems on all registered listeners.
    * 
-   * @throws RepositoryException
-   *           , UnsupportedOperationException
+   * @throws RepositoryException, UnsupportedOperationException,
+   *         InvalidItemStateException
+   *               
    * @param changesLog
+   *          the ChangesLog with data
    */
   public void save(ItemStateChangesLog changesLog) throws InvalidItemStateException,
                                                   UnsupportedOperationException,

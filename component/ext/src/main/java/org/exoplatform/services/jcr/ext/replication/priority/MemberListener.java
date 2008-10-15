@@ -23,5 +23,8 @@ package org.exoplatform.services.jcr.ext.replication.priority;
  * @version $Id: MemberRejoinListener.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public interface MemberListener {
+  /**
+   * Will be called this method when members is rejoin.
+   */
   void memberRejoin();
 }

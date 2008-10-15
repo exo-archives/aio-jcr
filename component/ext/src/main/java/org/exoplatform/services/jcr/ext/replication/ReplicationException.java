@@ -24,14 +24,34 @@ package org.exoplatform.services.jcr.ext.replication;
  */
 
 public class ReplicationException extends Exception {
+  /**
+   * ReplicationException  constructor.
+   *
+   * @param message
+   *          description of ReplicationException
+   */
   public ReplicationException(String message) {
     super(message);
   }
 
+  /**
+   * ReplicationException  constructor.
+   *
+   * @param message
+   *          description of ReplicationException
+   * @param e
+   *          the Throwable object
+   */
   public ReplicationException(String message, Throwable e) {
     super(message, e);
   }
 
+  /**
+   * ReplicationException  constructor.
+   *
+   * @param e
+   *          the Throwable object       
+   */
   public ReplicationException(Throwable e) {
     super(e.getMessage(), e);
   }

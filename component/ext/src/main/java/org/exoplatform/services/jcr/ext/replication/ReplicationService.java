@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -29,8 +28,6 @@ import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.ext.replication.recovery.ConnectionFailDetector;
@@ -53,56 +50,149 @@ import org.picocontainer.Startable;
 
 public class ReplicationService implements Startable {
 
+  /**
+   * The apache logger. 
+   */
   private static Log          log                   = ExoLogger.getLogger("ext.ReplicationService");
 
+  /**
+   * The template for ip-address in configuration. 
+   */
   private static final String IP_ADRESS_TEMPLATE    = "[$]bind-ip-address";
 
+  /**
+   * The persistent mode to replication.
+   */
   private static final String PERSISTENT_MODE       = "persistent";
 
+  /**
+   * The proxy mode to replication.
+   */
   private static final String PROXY_MODE            = "proxy";
 
+  /**
+   * Definition the static type for priority mechanism. 
+   */
   public static final String  PRIORITY_STATIC_TYPE  = "static";
 
+  /**
+   * Definition the dynamic type for priority mechanism.
+   */
   public static final String  PRIORITY_DYNAMIC_TYPE = "dynamic";
 
+  /**
+   * Definition the timeout to FileCLeaner.
+   */
   public static final int     FILE_CLEANRE_TIMEOUT  = 30030;
 
+  /**
+   * The RepositorySerice.
+   */
   private RepositoryService   repoService;
 
+  /**
+   * The testMode using only for testing.
+   */
   private String              testMode;
 
+  /**
+   * If 'enabled' is false then ReplicationServis not started. 
+   */
   private String              enabled;
 
+  /**
+   * The replication mode (persistent or proxy).
+   */
   private String              mode;
 
-  private String              bindIPAdaress;
+  /**
+   * Bind to IP address.
+   */
+  private String              bindIPAddress;
 
+  /**
+   * The channel configuration.
+   */
   private String              channelConfig;
 
+  /**
+   * The list of repositories.
+   * Fore this repositories will be worked replication.
+   */
   private List<String>        repoNamesList;
 
+  /**
+   * If ChangesLog was not delivered, 
+   * then ChangesLog will be saved in this folder. 
+   */
   private File                recoveryDir;
 
+  /**
+   * The name of cluster node.
+   */
   private String              ownName;
 
+  /**
+   * The list of names other participants.
+   */
   private List<String>        participantsClusterList;
 
+  /**
+   * The definition timeout, how many time will be 
+   * waited for successful save the Changeslog. 
+   */
   private long                waitConformation;
 
+  /**
+   * Will be started full backup if 'backupEnabled' is 'true'. 
+   */
   private boolean             backupEnabled;
 
+  /**
+   * The definition of backup folder.
+   */
   private File                backupDir;
 
+  /**
+   * The definition of  backup delay.
+   * Will be waited  'backupDelayTime' milliseconds 
+   * before start full backup. 
+   */
   private long                backupDelayTime       = 0;
 
+  /**
+   * The list of BackupCreators.
+   * The BackupCreator will be started full backup. 
+   */
   private List<BackupCreator> backupCreatorList;
 
+  /**
+   * If 'started' is true then ReplicationServis 
+   * was successful started. 
+   */
   private boolean             started;
 
+  /**
+   * The definition of priority type.
+   * (PRIORITY_STATIC_TYPE or PRIORITY_DYNAMIC_TYPE) 
+   */
   private String              priprityType;
 
+  /**
+   * The definition of priority value. 
+   */
   private int                 ownPriority;
 
+  /**
+   * ReplicationService  constructor.
+   *
+   * @param repoService
+   *          the RepositoryService
+   * @param params
+   *          the configuration parameters
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
+   */
   public ReplicationService(RepositoryService repoService, InitParams params) throws RepositoryConfigurationException {
     started = false;
 
@@ -122,8 +212,8 @@ public class ReplicationService implements Startable {
     else if (!mode.equals(PERSISTENT_MODE) && !mode.equals(PROXY_MODE))
       throw new RepositoryConfigurationException("Parameter 'mode' (persistent|proxy) required for replication configuration");
 
-    bindIPAdaress = pps.getProperty("bind-ip-address");
-    if (bindIPAdaress == null)
+    bindIPAddress = pps.getProperty("bind-ip-address");
+    if (bindIPAddress == null)
       throw new RepositoryConfigurationException("bind-ip-address not specified");
 
     channelConfig = pps.getProperty("channel-config");
@@ -214,6 +304,9 @@ public class ReplicationService implements Startable {
     ownPriority = Integer.valueOf(ownValue);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void start() {
     try {
 
@@ -242,7 +335,7 @@ public class ReplicationService implements Startable {
               dir.mkdirs();
 
               String systemId = IdGenerator.generate();
-              String props = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAdaress);
+              String props = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
               JChannel channel = new JChannel(props);
 
               // get workspace container
@@ -320,18 +413,21 @@ public class ReplicationService implements Startable {
     started = true;
   }
 
-  private String getUniqueName(RepositoryEntry configuration, String workspaceName) {
-    List<WorkspaceEntry> wEntrys = configuration.getWorkspaceEntries();
-
-    for (Iterator iterator = wEntrys.iterator(); iterator.hasNext();) {
-      WorkspaceEntry wEntry = (WorkspaceEntry) iterator.next();
-
-      if (workspaceName.equals(wEntry.getName()))
-        return wEntry.getUniqueName();
-    }
-    return null;
-  }
-
+  /**
+   * initWorkspaceBackup.
+   *   Will be initialized BackupCreator.
+   *
+   * @param repositoryName
+   *          the name of repository
+   * @param workspaceName
+   *          the name of workspace
+   * @return BackupCreator
+   *           return the BackupCreator 
+   * @throws RepositoryException
+   *           will be generated RepositoryException
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
+   */
   private BackupCreator initWorkspaceBackup(String repositoryName, String workspaceName) throws RepositoryException,
                                                                                         RepositoryConfigurationException {
     ManageableRepository manageableRepository = repoService.getRepository(repositoryName);
@@ -342,9 +438,18 @@ public class ReplicationService implements Startable {
     return backupCreator;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void stop() {
   }
 
+  /**
+   * isStarted.
+   *   
+   * @return boolean
+   *           return the isStarted
+   */
   public boolean isStarted() {
     return started;
   }

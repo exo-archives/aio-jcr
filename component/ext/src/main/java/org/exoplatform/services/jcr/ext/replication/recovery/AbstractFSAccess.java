@@ -30,20 +30,51 @@ import java.io.ObjectInputStream;
  */
 
 public class AbstractFSAccess {
+  /**
+   * Definition the name for data folder. 
+   */
   public static final String DATA_DIR_NAME       = "data";
 
+  /**
+   * Definition the prefix string for removed data. 
+   */
   public static final String PREFIX_REMOVED_DATA = "---";
 
+  /**
+   * Definition the prefix char.
+   */
   public static final String PREFIX_CHAR         = "-";
 
+  /**
+   * Definition the suffix string for removed files.
+   */
   public static final String REMOVED_SUFFIX      = ".remove";
 
+  /**
+   * Definition the constant for 1k buffer.  
+   */
   protected static final int BUFFER_1KB          = 1024;
 
+  /**
+   * Definition the constant for 8k buffer.
+   */
   protected static final int BUFFER_8X           = 8;
 
+  /**
+   * Definition the constant for 20k buffer.
+   */
   protected static final int BUFFER_20X          = 20;
 
+  /**
+   * getAsFile.
+   *   The input stream will be spooled to file. 
+   * @param is
+   *          the InputStream
+   * @return File
+   *           return the spooled file  
+   * @throws IOException
+   *           will be generated the IOExceprion 
+   */
   protected File getAsFile(InputStream is) throws IOException {
     byte[] buf = new byte[BUFFER_1KB * BUFFER_20X];
 
@@ -60,6 +91,18 @@ public class AbstractFSAccess {
     return tempFile;
   }
 
+  /**
+   * getAsFile.
+   *
+   * @param ois
+   *          the ObjectInputStream
+   * @param fileSize
+   *          will be read 'fileSize' bytes from stream
+   * @return File
+   *           return the file with data 
+   * @throws IOException
+   *           will be generated the IOException
+   */
   protected File getAsFile(ObjectInputStream ois, long fileSize) throws IOException {
     int bufferSize = BUFFER_1KB * BUFFER_8X;
     byte[] buf = new byte[bufferSize];

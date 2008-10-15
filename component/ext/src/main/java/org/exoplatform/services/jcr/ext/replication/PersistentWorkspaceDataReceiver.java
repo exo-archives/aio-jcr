@@ -28,6 +28,14 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistent
 
 public class PersistentWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 
+  /**
+   * PersistentWorkspaceDataReceiver  constructor.
+   *
+   * @param dataManager
+   *          the WorkspacePersistentDataManager
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
+   */
   public PersistentWorkspaceDataReceiver(WorkspacePersistentDataManager dataManager) throws RepositoryConfigurationException {
     super();
     dataKeeper = dataManager;

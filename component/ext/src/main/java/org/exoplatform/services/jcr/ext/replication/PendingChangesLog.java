@@ -26,7 +26,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -48,39 +47,97 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class PendingChangesLog {
+
+  /**
+   * The apache logger.
+   */
   private static Log log = ExoLogger.getLogger("ext.PendingChangesLog");
 
+  /**
+   * The definition of ChangesLog types.
+   */
   public final class Type {
+    /**
+     * CHANGESLOG_WITHOUT_STREAM.
+     *   The the type fore ChangesLog without streams.
+     */
     public static final int CHANGESLOG_WITHOUT_STREAM = 1;
 
+    /**
+     * CHANGESLOG_WITH_STREAM.
+     *   The the type fore ChangesLog with streams.
+     */
     public static final int CHANGESLOG_WITH_STREAM    = 2;
 
+    /**
+     * Empty constructor.
+     */
     private Type() {
     }
   }
 
+  /**
+   * Minimal sleep timeout.
+   */
   private static final int                       SLEEP_TIME = 5;
 
+  /**
+   * ChangesLog with data.
+   */
   private TransactionChangesLog                  itemDataChangesLog;
 
+  /**
+   * The list of input streams who are contains in ChangesLog.
+   */
   private List<InputStream>                      listInputStream;
 
+  /**
+   * The list of RandomAccessFiles who ate contains in ChangesLog.
+   */
   private List<RandomAccessFile>                 listRandomAccessFile;
 
+  /**
+   * Type of ChangesLog (CHANGESLOG_WITHOUT_STREAM or CHANGESLOG_WITH_STREAM).
+   */
   private int                                    containerType;
 
+  /**
+   * The list of FixupStreams who are indicate the location the input streams in ChangesLog.
+   */
   private List<FixupStream>                      listFixupStream;
 
-  private HashMap<FixupStream, RandomAccessFile> mapFixupStream;
+//  private HashMap<FixupStream, RandomAccessFile> mapFixupStream;
 
+  /**
+   * The list of Files who are contains in ChangesLog.
+   */
   private List<File>                             listFile;
 
+  /**
+   * The identification string for PendingChangesLog.
+   */
   private String                                 identifier;
 
+  /**
+   * The FileCleaner will delete the temporary files.
+   */
   private FileCleaner                            fileCleaner;
 
+  /**
+   * The arrays of bytes for serialized ChangesLog without streams.
+   */
   private byte[]                                 data;
 
+  /**
+   * PendingChangesLog  constructor.
+   *
+   * @param itemDataChangesLog
+   *          ChangesLog with data
+   * @param fileCleaner
+   *          the FileCleaner
+   * @throws IOException
+   *           will be generated the IOExaption
+   */
   public PendingChangesLog(TransactionChangesLog itemDataChangesLog, FileCleaner fileCleaner) throws IOException {
     this.itemDataChangesLog = itemDataChangesLog;
     listInputStream = new ArrayList<InputStream>();
@@ -91,6 +148,20 @@ public class PendingChangesLog {
     this.fileCleaner = fileCleaner;
   }
 
+  /**
+   * PendingChangesLog  constructor.
+   *
+   * @param itemDataChangesLog
+   *          ChangesLog with data
+   * @param identifier
+   *          identifier to this PendingChangesLog.
+   * @param type
+   *          type of PendingChangesLog 
+   * @param fileCleaner
+   *          the FileCleaner
+   * @throws IOException
+   *           will be generated the IOExaption
+   */
   public PendingChangesLog(TransactionChangesLog itemDataChangesLog,
                            String identifier,
                            int type,
@@ -105,11 +176,31 @@ public class PendingChangesLog {
     this.fileCleaner = fileCleaner;
   }
 
+  /**
+   * PendingChangesLog  constructor.
+   *
+   * @param identifier
+   *          identifier to this PendingChangesLog.
+   * @param dataLength
+   *          the length of binary data
+   */
   public PendingChangesLog(String identifier, int dataLength) {
     this.identifier = identifier;
     data = new byte[dataLength];
   }
 
+  /**
+   * PendingChangesLog  constructor.
+   *
+   * @param transactionChangesLog
+   *          ChangesLog with data
+   * @param listFixupStreams
+   *          list of FixupStreams 
+   * @param listFiles
+   *          list of Files
+   * @param fileCleaner
+   *          the FileCleaner
+   */
   public PendingChangesLog(TransactionChangesLog transactionChangesLog,
                            List<FixupStream> listFixupStreams,
                            List<File> listFiles,
@@ -120,35 +211,87 @@ public class PendingChangesLog {
     this.fileCleaner = fileCleaner;
   }
 
+  /**
+   * putData.
+   *
+   * @param offset
+   *          offset in 'data'
+   * @param tempData
+   *          piece of binary data
+   */
   public void putData(int offset, byte[] tempData) {
     for (int i = 0; i < tempData.length; i++)
       data[i + offset] = tempData[i];
   }
 
+  /**
+   * getData.
+   *
+   * @return byte[]
+   *           return the binary data 
+   */
   public byte[] getData() {
     return data;
   }
 
+  /**
+   * getItemDataChangesLog.
+   *
+   * @return TransactionChangesLog
+   *           return the ChangesLog
+   */
   public TransactionChangesLog getItemDataChangesLog() {
     return itemDataChangesLog;
   }
 
+  /**
+   * getInputStreams.
+   *
+   * @return List
+   *           return the list of input streams
+   */
   public List<InputStream> getInputStreams() {
     return listInputStream;
   }
 
+  /**
+   * getListRandomAccessFiles.
+   *
+   * @return List
+   *           return the list of RandomAccessFiles
+   */
   public List<RandomAccessFile> getListRandomAccessFiles() {
     return listRandomAccessFile;
   }
 
+  /**
+   * getListFile.
+   *
+   * @return List
+   *           return list of Files   
+   */
   public List<File> getListFile() {
     return listFile;
   }
 
+  /**
+   * getFixupStreams.
+   *
+   * @return List
+   *           return list of FixupStreams
+   */
   public List<FixupStream> getFixupStreams() {
     return listFixupStream;
   }
 
+  /**
+   * analysisItemDataChangesLog.
+   *
+   * @return int
+   *           type of ChangesLog (CHANGESLOG_WITHOUT_STREAM or CHANGESLOG_WITH_STREAM)
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private int analysisItemDataChangesLog() throws IOException {
     int itemDataChangesLogType = PendingChangesLog.Type.CHANGESLOG_WITHOUT_STREAM;
 
@@ -185,14 +328,37 @@ public class PendingChangesLog {
     return itemDataChangesLogType;
   }
 
+  /**
+   * getConteinerType.
+   *
+   * @return int
+   *           return the type of ChangesLog
+   */
   public int getConteinerType() {
     return containerType;
   }
 
+  /**
+   * getIdentifier.
+   *
+   * @return String
+   *           return the identifier string
+   */
   public String getIdentifier() {
     return identifier;
   }
 
+  /**
+   * getAsByteArray.
+   *   Make the array of bytes from ChangesLog.
+   *
+   * @param dataChangesLog
+   *          the ChangesLog with data
+   * @return byte[]
+   *           return the serialized ChangesLog
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public static byte[] getAsByteArray(TransactionChangesLog dataChangesLog) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -202,6 +368,19 @@ public class PendingChangesLog {
     return bArray;
   }
 
+  /**
+   * getAsItemDataChangesLog.
+   *   Make the ChangesLog from array of bytes.
+   *
+   * @param byteArray
+   *          the serialized ChangesLog
+   * @return TransactionChangesLog
+   *           return the deserialized ChangesLog
+   * @throws IOException
+   *           will be generated the IOException
+   * @throws ClassNotFoundException
+   *           will be generated the ClassNotFoundException
+   */
   public static TransactionChangesLog getAsItemDataChangesLog(byte[] byteArray) throws IOException,
                                                                                ClassNotFoundException {
     ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
@@ -211,6 +390,16 @@ public class PendingChangesLog {
     return objRead;
   }
 
+  /**
+   * getRandomAccessFile.
+   *
+   * @param fs
+   *          the FixupStream
+   * @return RandomAccessFile
+   *           return the RandomAccessFile by FixupStream
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public RandomAccessFile getRandomAccessFile(FixupStream fs) throws IOException {
     int i = 0;
     try {
@@ -244,6 +433,14 @@ public class PendingChangesLog {
     return null;
   }
 
+  /**
+   * addNewStream.
+   *
+   * @param fs
+   *          the FixupStream
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public void addNewStream(FixupStream fs) throws IOException {
     this.getFixupStreams().add(fs);
 
@@ -254,6 +451,12 @@ public class PendingChangesLog {
 
   }
 
+  /**
+   * Restore ChangesLog(set the InputStreams to ValueData).  
+   *
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public void restore() throws IOException {
     for (int i = 0; i < this.listFixupStream.size(); i++) {
       List<ItemState> listItemState = itemDataChangesLog.getAllStates();

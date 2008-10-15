@@ -36,26 +36,68 @@ import org.exoplatform.services.log.ExoLogger;
 
 public abstract class AbstractPriorityChecker implements PacketListener {
 
+  /**
+   * The definition max priority value.
+   */
   public static final int            MAX_PRIORITY  = 100;
 
+  /**
+   * The definition timeout for information. 
+   */
   private static final int           INFORM_TIMOUT = 1000;
 
+  /**
+   * The apache logger.
+   */
   private static Log                 log           = ExoLogger.getLogger("ext.AbstractPriorityChecker");
 
+  /**
+   * The ChannalManager will be transmitted the Packets .
+   */
   protected final ChannelManager     channelManager;
 
+  /**
+   * The own priority value.
+   */
   protected final int                ownPriority;
 
+  /**
+   * The own name in cluster.
+   */
   protected final String             ownName;
 
-  protected final List<String>       otherPartisipants;
+  /**
+   * The list of names to other participants.
+   */
+  protected final List<String>       otherParticipants;
 
-  protected HashMap<String, Integer> currentPartisipants;
+  /**
+   * The HashMap of participants who are now online.
+   */
+  protected HashMap<String, Integer> currentParticipants;
 
+  /**
+   * The identification string.
+   */
   protected String                   identifier;
 
+  /**
+   * The MemberListener.
+   */
   protected MemberListener           memberListener;
 
+  /**
+   * AbstractPriorityChecker  constructor.
+   *
+   * @param channelManager
+   *          the ChannelManager
+   * @param ownPriority
+   *          the own priority value
+   * @param ownName
+   *          the own name
+   * @param otherParticipants
+   *          the list of names to other participants.
+   */
   public AbstractPriorityChecker(ChannelManager channelManager,
                                  int ownPriority,
                                  String ownName,
@@ -63,20 +105,27 @@ public abstract class AbstractPriorityChecker implements PacketListener {
 
     this.ownPriority = ownPriority;
     this.ownName = ownName;
-    this.otherPartisipants = new ArrayList<String>(otherParticipants);
+    this.otherParticipants = new ArrayList<String>(otherParticipants);
 
     this.channelManager = channelManager;
     this.channelManager.addPacketListener(this);
 
-    currentPartisipants = new HashMap<String, Integer>();
+    currentParticipants = new HashMap<String, Integer>();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public abstract void receive(Packet packet);
 
+  /**
+   * informAll.
+   *   If was changed members in cluster, then will be called this method.  
+   */
   public void informAll() {
     try {
       identifier = IdGenerator.generate();
-      currentPartisipants = new HashMap<String, Integer>();
+      currentParticipants = new HashMap<String, Integer>();
 
       Packet pktInformer = new Packet(Packet.PacketType.GET_ALL_PRIORITY,
                                       ownName,
@@ -102,31 +151,59 @@ public abstract class AbstractPriorityChecker implements PacketListener {
     }
   }
 
+  /**
+   * printOnlineMembers.
+   *   Write to console the current members.
+   */
   protected void printOnlineMembers() {
     log.debug(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
-    for (String memberName : currentPartisipants.keySet())
-      log.debug("    " + memberName + ":" + currentPartisipants.get(memberName));
+    for (String memberName : currentParticipants.keySet())
+      log.debug("    " + memberName + ":" + currentParticipants.get(memberName));
   }
 
+  /**
+   * setMemberListener.
+   *
+   * @param memberListener
+   *          the MemberListener
+   */
   public void setMemberListener(MemberListener memberListener) {
     this.memberListener = memberListener;
   }
 
+  /**
+   * isMaxPriority.
+   *
+   * @return boolean
+   *           if current time this is max priority then return 'true' 
+   */
   public abstract boolean isMaxPriority();
 
+  /**
+   * isMaxOnline.
+   *
+   * @return boolean
+   *           if max priority member is online then return 'true'
+   */
   public boolean isMaxOnline() {
 
     if (ownPriority == MAX_PRIORITY)
       return true;
 
-    for (String nodeName : currentPartisipants.keySet())
-      if (currentPartisipants.get(nodeName).intValue() == MAX_PRIORITY)
+    for (String nodeName : currentParticipants.keySet())
+      if (currentParticipants.get(nodeName).intValue() == MAX_PRIORITY)
         return true;
 
     return false;
   }
 
+  /**
+   * isAllOnline.
+   *
+   * @return boolean
+   *           if all member is online then return 'true'
+   */
   public boolean isAllOnline() {
-    return otherPartisipants.size() == currentPartisipants.size();
+    return otherParticipants.size() == currentParticipants.size();
   }
 }

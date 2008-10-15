@@ -44,25 +44,66 @@ import org.jgroups.View;
 
 public class WorkspaceDataTransmitter implements ItemsPersistenceListener, MembershipListener {
 
+  /**
+   * The apache logger.
+   */
   private static Log      log = ExoLogger.getLogger("ext.WorksapeDataTransmitter");
 
+  /**
+   * System identification string.
+   */
   private String          systemId;
 
+  /**
+   * The ChannalManager will be transmitted the Packets. 
+   */
   private ChannelManager  channelManager;
 
+  /**
+   * The FileCleaner will be deleted temporary files.
+   */
   private FileCleaner     fileCleaner;
 
+  /**
+   * The list of address to members.
+   */
   private Vector<Address> members;
 
+  /**
+   * The RecoveryManager will be saved ChangesLogs on FS(file system).
+   */
   private RecoveryManager recoveryManager;
 
+  /**
+   * The own name in cluster.
+   */
   private String          ownName;
 
+  /**
+   * WorkspaceDataTransmitter  constructor.
+   *
+   * @param dataManager
+   *          the CacheableWorkspaceDataManager
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
+   */
   public WorkspaceDataTransmitter(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
     dataManager.addItemPersistenceListener(this);
     this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
   }
 
+  /**
+   * init.
+   *
+   * @param channelManager
+   *          the ChannelManager
+   * @param systemId
+   *          system identification string
+   * @param ownName
+   *          own name
+   * @param recoveryManager
+   *          the RecoveryManager
+   */
   public void init(ChannelManager channelManager,
                    String systemId,
                    String ownName,
@@ -77,6 +118,9 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     log.info("System ID : " + systemId);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void onSaveItems(ItemStateChangesLog isChangesLog) {
     TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
     if (changesLog.getSystemId() == null && !isSessionNull(changesLog)) {
@@ -106,6 +150,16 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     // no needs to broadcast again, ignore silently
   }
 
+  /**
+   * send.
+   *
+   * @param isChangesLog
+   *          the ChangegLog
+   * @return String
+   *           return the identification string for PendingChangesLog
+   * @throws Exception
+   *           will be generated Exception
+   */
   private String send(ItemStateChangesLog isChangesLog) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
     PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
@@ -176,6 +230,16 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     return container.getIdentifier();
   }
 
+  /**
+   * sendAsBinaryFile.
+   *
+   * @param isChangesLog
+   *          the ChangesLog
+   * @return String
+   *           return the identification string for PendingChangesLog
+   * @throws Exception
+   *           will be generated Exception
+   */
   private String sendAsBinaryFile(ItemStateChangesLog isChangesLog) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) isChangesLog;
     PendingChangesLog container = new PendingChangesLog(changesLog, fileCleaner);
@@ -230,6 +294,18 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     return container.getIdentifier();
   }
 
+  /**
+   * sendStream.
+   *
+   * @param in
+   *          the InputStream
+   * @param fixupStream
+   *          the FixupStream
+   * @param identifier
+   *          the identification string for PendingChangesLog
+   * @throws Exception
+   *           will be generated Exception
+   */
   private void sendStream(InputStream in, FixupStream fixupStream, String identifier) throws Exception {
     Packet packet = new Packet(Packet.PacketType.FIRST_PACKET_OF_STREAM, fixupStream, identifier);
     channelManager.sendPacket(packet);
@@ -272,6 +348,16 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     }
   }
 
+  /**
+   * sendBigItemDataChangesLog.
+   *
+   * @param data
+   *          the array of bytes with data
+   * @param identifier
+   *          the identification string for PendingChangesLog
+   * @throws Exception
+   *           will be generated Exception
+   */
   private void sendBigItemDataChangesLog(byte[] data, String identifier) throws Exception {
     long offset = 0;
     byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
@@ -320,6 +406,16 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       log.info("Send of damp --> " + lastPacket.getByteArray().length);
   }
 
+  /**
+   * sendBigItemDataChangesLogWhithStream.
+   *
+   * @param data
+   *          the array of bytes with data
+   * @param identifier
+   *          the identification string for PendingChangesLog
+   * @throws Exception
+   *           will be generated Exception
+   */
   private void sendBigItemDataChangesLogWhithStream(byte[] data, String identifier) throws Exception {
     long offset = 0;
     byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
@@ -368,27 +464,41 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       log.info("Send of damp --> " + lastPacket.getByteArray().length);
   }
 
+  /**
+   * cutData.
+   *
+   * @param sourceData
+   *          source data
+   * @param startPos
+   *          start position in 'sourceData'
+   * @param destination
+   *          destination data 
+   */
   private void cutData(byte[] sourceData, long startPos, byte[] destination) {
     for (int i = 0; i < destination.length; i++)
       destination[i] = sourceData[i + (int) startPos];
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void suspect(Address suspectedMbr) {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void block() {
   }
 
-  public void unblock() {
-  }
-
-  public byte[] getState() {
-    return null;
-  }
-
-  public void setState(byte[] state) {
-  }
-
+  /**
+   * isSessionNull.
+   *
+   * @param changesLog
+   *          the ChangesLog
+   * @return boolean
+   *           return the 'false' if same 'SessionId' is null 
+   */
   private boolean isSessionNull(TransactionChangesLog changesLog) {
     boolean isSessionNull = false;
 
@@ -402,6 +512,9 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
     return isSessionNull;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void viewAccepted(View views) {
     Address localIpAddres = channelManager.getChannel().getLocalAddress();
 
@@ -417,6 +530,12 @@ public class WorkspaceDataTransmitter implements ItemsPersistenceListener, Membe
       log.debug(members.size());
   }
 
+  /**
+   * getChannelManager.
+   *
+   * @return ChannelManager
+   *           return the ChannelManager
+   */
   public ChannelManager getChannelManager() {
     return channelManager;
   }

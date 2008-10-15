@@ -32,13 +32,28 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class StaticPriorityChecker extends AbstractPriorityChecker {
 
+  /**
+   * The apache logger.
+   */
   private static Log log = ExoLogger.getLogger("ext.StaticPriorityChecker");
 
-  public StaticPriorityChecker(ChannelManager channelManagerpu,
+  /**
+   * StaticPriorityChecker  constructor.
+   *
+   * @param channelManager
+   *          the ChannelManager
+   * @param ownPriority
+   *          the own priority
+   * @param ownName
+   *          the own name
+   * @param otherParticipants
+   *          the list of names to other participants  
+   */
+  public StaticPriorityChecker(ChannelManager channelManager,
                                int ownPriority,
                                String ownName,
                                List<String> otherParticipants) {
-    super(channelManagerpu, ownPriority, ownName, otherParticipants);
+    super(channelManager, ownPriority, ownName, otherParticipants);
   }
 
   /**
@@ -65,16 +80,16 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
 
         case Packet.PacketType.OWN_PRIORITY:
           if (identifier.equals(packet.getIdentifier())) {
-            currentPartisipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
+            currentParticipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
 
             if (log.isDebugEnabled()) {
               log.debug(channelManager.getChannel().getClusterName() + " : " + identifier
                   + " : added member :");
               log.debug("   +" + packet.getOwnerName() + ":"
-                  + currentPartisipants.get(packet.getOwnerName()));
+                  + currentParticipants.get(packet.getOwnerName()));
             }
 
-            if (otherPartisipants.size() == currentPartisipants.size())
+            if (otherParticipants.size() == currentParticipants.size())
               memberListener.memberRejoin();
           }
 

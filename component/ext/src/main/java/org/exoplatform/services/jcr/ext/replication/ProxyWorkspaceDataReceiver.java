@@ -30,20 +30,60 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
 
 public class ProxyWorkspaceDataReceiver extends AbstractWorkspaceDataReceiver {
 
+  /**
+   * ProxyWorkspaceDataReceiver  constructor.
+   *
+   * @param dataManager
+   *          the CacheableWorkspaceDataManager
+   * @param lockManager
+   *          the LockManagerImpl
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
+   */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
                                     LockManagerImpl lockManager) throws RepositoryConfigurationException {
     this(dataManager, null, lockManager);
   }
 
+  /**
+   * ProxyWorkspaceDataReceiver  constructor.
+   *
+   * @param dataManager
+   *          the CacheableWorkspaceDataManager
+   * @param searchManager
+   *          the SearchManager
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
+   */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
                                     SearchManager searchManager) throws RepositoryConfigurationException {
     this(dataManager, searchManager, null);
   }
 
+  /**
+   * ProxyWorkspaceDataReceiver  constructor.
+   *
+   * @param dataManager
+   *          the CacheableWorkspaceDataManager
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException
+   */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager) throws RepositoryConfigurationException {
     this(dataManager, null, null);
   }
 
+  /**
+   * ProxyWorkspaceDataReceiver  constructor.
+   *
+   * @param dataManager
+   *          the CacheableWorkspaceDataManager
+   * @param searchManager
+   *          the SearchManager
+   * @param lockManager
+   *          the LockManagerImpl
+   * @throws RepositoryConfigurationException
+   *           will be generated the RepositoryConfigurationException
+   */
   public ProxyWorkspaceDataReceiver(CacheableWorkspaceDataManager dataManager,
                                     SearchManager searchManager,
                                     LockManagerImpl lockManager) throws RepositoryConfigurationException {

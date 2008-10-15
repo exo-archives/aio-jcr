@@ -30,7 +30,6 @@ import org.exoplatform.services.jcr.ext.replication.recovery.RecoveryManager;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -41,34 +40,82 @@ import org.jgroups.Address;
 
 public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
+  /**
+   * The apache logger.
+   */
   private static Log                         log           = ExoLogger.getLogger("ext.AbstractWorkspaceDataReceiver");
 
+  /**
+   * The definition INIT_MODE for AbstractWorkspaceDataReceiver.
+   */
   public static final int                    INIT_MODE     = -1;
 
+  /**
+   * The definition NORMAL_MODE for AbstractWorkspaceDataReceiver.
+   */
   public static final int                    NORMAL_MODE   = 0;
 
+  /**
+   * The definition RECOVERY_MODE for AbstractWorkspaceDataReceiver.
+   */
   public static final int                    RECOVERY_MODE = 1;
 
+  /**
+   * The definition start timeout.
+   */
   private static final int                   START_TIMEOUT = 1000;
 
+  /**
+   * The state of AbstractWorkspaceDataReceiver.
+   */
   private int                                state;
 
+  /**
+   * System identification string.
+   */
   private String                             systemId;
 
+  /**
+   * The ChannalManager will be transmitted the Packets.
+   */
   private ChannelManager                     channelManager;
 
+  /**
+   * The HashMap with PendingChangesLogs.
+   */
   private HashMap<String, PendingChangesLog> mapPendingChangesLog;
 
+  /**
+   * The HashMap with mapPendingBinaryFiles.
+   */
   private HashMap<String, PendingBinaryFile> mapPendingBinaryFile;
 
+  /**
+   * The ChangesLogs will be saved on ItemDataKeeper.
+   */
   protected ItemDataKeeper                   dataKeeper;
 
+  /**
+   * The FileCleaner will be deleted temporary files.
+   */
   private FileCleaner                        fileCleaner;
 
+  /**
+   * The own name in cluster.
+   */
   private String                             ownName;
 
+  /**
+   * The RecoveryManager will be saved ChangesLogs on FS(file system).
+   */
   private RecoveryManager                    recoveryManager;
 
+  /**
+   * AbstractWorkspaceDataReceiver constructor.
+   * 
+   * @throws RepositoryConfigurationException
+   *           will be generated the RepositoryConfigurationException
+   */
   public AbstractWorkspaceDataReceiver() throws RepositoryConfigurationException {
     this.fileCleaner = new FileCleaner(ReplicationService.FILE_CLEANRE_TIMEOUT);
     mapPendingChangesLog = new HashMap<String, PendingChangesLog>();
@@ -77,6 +124,18 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
     state = INIT_MODE;
   }
 
+  /**
+   * init.
+   * 
+   * @param channelManager
+   *          the ChannelManager
+   * @param systemId
+   *          system identification string
+   * @param ownName
+   *          own name
+   * @param recoveryManager
+   *          the RecoveryManager
+   */
   public void init(ChannelManager channelManager,
                    String systemId,
                    String ownName,
@@ -91,6 +150,10 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
 
   }
 
+  /**
+   * The call 'start()' for information other participants.
+   * 
+   */
   public void start() {
     try {
       Packet memberStartedPacket = new Packet(Packet.PacketType.MEMBER_STARTED,
@@ -109,6 +172,16 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
     }
   }
 
+  /**
+   * receive.
+   *
+   * @param itemStatechangesLog
+   *          the received ChangesLog
+   * @param identifier
+   *          the PandingChangeLog or PendingBinaryFile identifier string
+   * @throws Exception
+   *           will be generated the Exception
+   */
   public void receive(ItemStateChangesLog itemStatechangesLog, String identifier) throws Exception {
     TransactionChangesLog changesLog = (TransactionChangesLog) itemStatechangesLog;
     if (changesLog.getSystemId() == null) {
@@ -138,6 +211,9 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void receive(Packet packet) {
     try {
       Packet bigPacket = null;
@@ -418,26 +494,26 @@ public abstract class AbstractWorkspaceDataReceiver implements PacketListener {
     }
   }
 
-  public void suspect(Address suspectedMbr) {
-  }
-
-  public void block() {
-  }
-
-  public void unblock() {
-  }
-
-  public byte[] getState() {
-    return null;
-  }
-
-  public void setState(byte[] state) {
-  }
-
+  /**
+   * getDataKeeper.
+   *
+   * @return ItemDataKeeper
+   *           return the dataKeeper
+   */
   public ItemDataKeeper getDataKeeper() {
     return dataKeeper;
   }
 
+  /**
+   * saveChangesLog.
+   *
+   * @param fileDescriptor
+   *          the FileDescriptor
+   * @param identifire
+   *          the PendingBinaryFile identification string
+   * @throws Exception
+   *           will be generated the Exception
+   */
   private void saveChangesLog(FileDescriptor fileDescriptor, String identifire) throws Exception {
     TransactionChangesLog transactionChangesLog = recoveryManager.getRecoveryReader()
                                                                  .getChangesLog(fileDescriptor.getFile()

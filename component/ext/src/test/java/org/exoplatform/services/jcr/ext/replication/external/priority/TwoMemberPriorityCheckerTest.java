@@ -22,7 +22,7 @@ import org.exoplatform.services.jcr.ext.replication.external.MemberInfo;
 import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: StaticPriorityCheckerTest.java 111 2008-11-11 11:11:11Z rainf0x $
@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.ext.replication.test.ReplicationTestService;
 public class TwoMemberPriorityCheckerTest extends BaseTestCaseChecker {
 
   public void testDisconnectMaxPriority() throws Exception {
-    for (int iteration = 0; iteration < 3; iteration++) {
+    for (int iteration = 0; iteration < 1; iteration++) {
       System.out.println("Begin iteration #" + iteration);
 
       long[] filesSize = new long[] { 12314, 652125, 5212358, 21906584 };

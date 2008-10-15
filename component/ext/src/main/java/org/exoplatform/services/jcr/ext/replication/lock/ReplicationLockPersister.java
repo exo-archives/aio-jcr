@@ -34,14 +34,42 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class ReplicationLockPersister extends FileSystemLockPersister {
+  /**
+   * The RrplicationService.
+   */
   private final ReplicationService replicationService;
 
+  /**
+   * The apache logger.
+   */
   private static Log               log           = ExoLogger.getLogger("ext.ReplicationLockPersister");
 
+  /**
+   * The definition start timeout.
+   */
   private static final int         START_TIMEOUT = 250;
 
+  /**
+   * Delay thread.
+   * The thread wait RrplicationService is successful start and 
+   * call super.start();
+   */
   private Thread                   delayStarterThread;
 
+  /**
+   * ReplicationLockPersister  constructor.
+   *
+   * @param dataManager
+   *          the WorkspacePersistentDataManager
+   * @param config
+   *          the configuration to workspace
+   * @param service
+   *          the ReplicationService
+   * @throws RepositoryConfigurationException
+   *           will be generated RepositoryConfigurationException 
+   * @throws RepositoryException
+   *           will be generated RepositoryException 
+   */
   public ReplicationLockPersister(WorkspacePersistentDataManager dataManager,
                                   WorkspaceEntry config,
                                   ReplicationService service) throws RepositoryConfigurationException,
@@ -63,6 +91,10 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
     delayStarterThread.start();
   }
 
+  /**
+   * superStart.
+   *   will be called super.start()
+   */
   private void superStart() {
     super.start();
   }
@@ -74,7 +106,15 @@ public class ReplicationLockPersister extends FileSystemLockPersister {
     log.info("stop");
   }
 
+  /**
+   * DelaySatrter.
+   *   The DelaySatrter wait RrplicationService is successful start and 
+   * call super.start();
+   */
   class DelaySatrter implements Runnable {
+    /**
+     * {@inheritDoc}
+     */
     public void run() {
       try {
         while (!replicationService.isStarted())

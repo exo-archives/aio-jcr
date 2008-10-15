@@ -32,12 +32,33 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class DynamicPriorityChecker extends AbstractPriorityChecker {
 
+  /**
+   * The apache logger.
+   */
   private static Log log = ExoLogger.getLogger("ext.DynamicPriorityChecker");
 
-  private int        previousPartisipantsCount;
+  /**
+   * The previous participants counter.
+   */
+  private int        previousParticipantsCount;
 
+  /**
+   * The previous max priority value.
+   */
   private int        previousMaxPriority;
 
+  /**
+   * DynamicPriorityChecker  constructor.
+   *
+   * @param channelManager
+   *          the ChannelManager
+   * @param ownPriority
+   *          the own priority
+   * @param ownName
+   *          the own name
+   * @param otherParticipants
+   *          the list of names to other participants  
+   */
   public DynamicPriorityChecker(ChannelManager channelManager,
                                 int ownPriority,
                                 String ownName,
@@ -66,16 +87,16 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
 
         case Packet.PacketType.OWN_PRIORITY:
           if (identifier.equals(packet.getIdentifier())) {
-            currentPartisipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
+            currentParticipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
 
             if (log.isDebugEnabled()) {
               log.info(channelManager.getChannel().getClusterName() + " : " + identifier
                   + " : added member :");
               log.info("   +" + packet.getOwnerName() + ":"
-                  + currentPartisipants.get(packet.getOwnerName()));
+                  + currentParticipants.get(packet.getOwnerName()));
             }
 
-            if (otherPartisipants.size() == currentPartisipants.size())
+            if (otherParticipants.size() == currentParticipants.size())
               memberListener.memberRejoin();
           }
 
@@ -91,19 +112,28 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void informAll() {
-    previousPartisipantsCount = currentPartisipants.size() + 1;
+    previousParticipantsCount = currentParticipants.size() + 1;
     previousMaxPriority = getCurrentMaxPriority();
 
     super.informAll();
   }
 
+  /**
+   * getCurrentMaxPriority.
+   *
+   * @return int
+   *           return the current max value
+   */
   private int getCurrentMaxPriority() {
     int max = Integer.MIN_VALUE;
 
-    for (String nodeName : currentPartisipants.keySet())
-      if (currentPartisipants.get(nodeName) > max)
-        max = currentPartisipants.get(nodeName);
+    for (String nodeName : currentParticipants.keySet())
+      if (currentParticipants.get(nodeName) > max)
+        max = currentParticipants.get(nodeName);
 
     if (ownPriority > max)
       max = ownPriority;
@@ -115,13 +145,13 @@ public class DynamicPriorityChecker extends AbstractPriorityChecker {
    * {@inheritDoc}
    */
   public boolean isMaxPriority() {
-    if (otherPartisipants.size() == 1)
+    if (otherParticipants.size() == 1)
       return ownPriority == MAX_PRIORITY;
-    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0
+    else if (otherParticipants.size() > 1 && currentParticipants.size() == 0
         && ownPriority == MAX_PRIORITY)
       return false;
-    else if (otherPartisipants.size() > 1 && currentPartisipants.size() == 0
-        && previousMaxPriority != ownPriority && previousPartisipantsCount > 1)
+    else if (otherParticipants.size() > 1 && currentParticipants.size() == 0
+        && previousMaxPriority != ownPriority && previousParticipantsCount > 1)
       return false;
     else
       return true;
