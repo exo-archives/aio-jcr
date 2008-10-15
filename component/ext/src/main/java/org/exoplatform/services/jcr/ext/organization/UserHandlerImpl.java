@@ -167,18 +167,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
           + ("exo:lastName LIKE '" + query.getLastName() + "'"));
     }
 
-    // TODO is it correct
-    if (query.getFromLoginDate() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ")
-          + ("exo:lastLoginTime >='" + query.getFromLoginDate().getTime() + "'"));
-    }
-
-    // TODO is it correct
-    if (query.getToLoginDate() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ")
-          + ("exo:lastLoginTime <=" + query.getToLoginDate().getTime() + "'"));
-    }
-
     List<User> types = new ArrayList<User>();
 
     String statement = "select * from exo:user " + (where.length() == 0 ? "" : " where " + where);
