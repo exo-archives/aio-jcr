@@ -68,14 +68,22 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id$
  */
-
 abstract public class JDBCStorageConnection extends DBConstants implements
     WorkspaceStorageConnection {
 
+  /**
+   * Connection logger.
+   */
   protected static final Log                 LOG              = ExoLogger.getLogger("jcr.JDBCStorageConnection");
 
+  /**
+   * NODE type.
+   */
   public static final int                    I_CLASS_NODE     = 1;
 
+  /**
+   * PROPERTY type.
+   */
   public static final int                    I_CLASS_PROPERTY = 2;
 
   protected final ValueStoragePluginProvider valueStorageProvider;
@@ -92,6 +100,24 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
   protected final SQLExceptionHandler        exceptionHandler;
 
+  /**
+   * JDBCStorageConnection constructor.
+   * 
+   * @param dbConnection
+   *          JDBC connection
+   * @param containerName
+   *          Workspace conatiner name
+   * @param valueStorageProvider
+   *          External Value Storage provider
+   * @param maxBufferSize
+   *          maximum buffer size (config)
+   * @param swapDirectory
+   *          swap directory (config)
+   * @param swapCleaner
+   *          swap cleaner (FileCleaner)
+   * @throws SQLException
+   *           database error
+   */
   protected JDBCStorageConnection(Connection dbConnection,
                                   String containerName,
                                   ValueStoragePluginProvider valueStorageProvider,
@@ -121,6 +147,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     this.exceptionHandler = new SQLExceptionHandler(containerName, this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public boolean equals(Object obj) {
     if (obj == this)
@@ -143,17 +172,19 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Prepared queries at start time
+   * Prepared queries at start time.
    * 
    * @throws SQLException
+   *           database error
    */
   abstract protected void prepareQueries() throws SQLException;
 
   /**
-   * Used in Single Db Connection classes for Identifier related queries
+   * Used in Single Db Connection classes for Identifier related queries.
    * 
    * @param identifier
-   * @return
+   *          Item id
+   * @return String with container internal id
    */
   protected abstract String getInternalId(String identifier);
 
@@ -169,7 +200,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
   /**
    * @throws IllegalStateException
-   *           if connection is closed
+   *           if connection is closed.
    */
   protected void checkIfOpened() throws IllegalStateException {
     if (!isOpened())
@@ -177,9 +208,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Check if database connection is opened.
-   * 
-   * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#isOpened()
+   * {@inheritDoc}
    */
   public boolean isOpened() {
     try {
@@ -191,9 +220,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Commit database connection and close it.
-   * 
-   * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#rollback()
+   * {@inheritDoc}
    */
   public final void rollback() throws IllegalStateException, RepositoryException {
     checkIfOpened();
@@ -206,9 +233,7 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
-   * Roll back database connection and close it.
-   * 
-   * @see org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#commit()
+   * {@inheritDoc}
    */
   public final void commit() throws IllegalStateException, RepositoryException {
     checkIfOpened();
@@ -220,11 +245,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#add(org.exoplatform.services
-   * .jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public void add(NodeData data) throws RepositoryException,
                                 UnsupportedOperationException,
@@ -245,11 +267,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#add(org.exoplatform.services
-   * .jcr.datamodel.PropertyData)
+  /**
+   * {@inheritDoc}
    */
   public void add(PropertyData data) throws RepositoryException,
                                     UnsupportedOperationException,
@@ -291,6 +310,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void rename(NodeData data) throws RepositoryException,
                                    UnsupportedOperationException,
                                    InvalidItemStateException,
@@ -317,6 +339,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void delete(NodeData data) throws RepositoryException,
                                    UnsupportedOperationException,
                                    InvalidItemStateException,
@@ -347,6 +372,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void delete(PropertyData data) throws RepositoryException,
                                        UnsupportedOperationException,
                                        InvalidItemStateException,
@@ -392,11 +420,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#update(org.exoplatform.services
-   * .jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public void update(NodeData data) throws RepositoryException,
                                    UnsupportedOperationException,
@@ -429,11 +454,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#update(org.exoplatform.services
-   * .jcr.datamodel.PropertyData)
+  /**
+   * {@inheritDoc}
    */
   public void update(PropertyData data) throws RepositoryException,
                                        UnsupportedOperationException,
@@ -491,11 +513,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getChildNodesData(org.exoplatform
-   * .services.jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException,
                                                           IllegalStateException {
@@ -514,11 +533,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getChildPropertiesData(org.
-   * exoplatform.services.jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException,
                                                                    IllegalStateException {
@@ -526,12 +542,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       ResultSet prop = findChildPropertiesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<PropertyData> children = new ArrayList<PropertyData>();
-      while (prop.next()) {
-        children.add((PropertyData) itemData(parent.getQPath(), prop, I_CLASS_PROPERTY, null)); // property
-        // doesn't
-        // ACL
-        // aware
-      }
+      while (prop.next())
+        children.add((PropertyData) itemData(parent.getQPath(), prop, I_CLASS_PROPERTY, null));
+
       return children;
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -540,6 +553,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException,
                                                                     IllegalStateException {
     checkIfOpened();
@@ -557,10 +573,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getItemData(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public ItemData getItemData(String identifier) throws RepositoryException, IllegalStateException {
     return getItemByIdentifier(getInternalId(identifier));
@@ -577,11 +591,8 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     return getItemByName(null, null, name);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.storage.WorkspaceStorageConnection#getReferencesData(java.lang
-   * .String)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getReferencesData(String nodeIdentifier) throws RepositoryException,
                                                                     IllegalStateException {
@@ -604,6 +615,17 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
   // ------------------ Private methods ---------------
 
+  /**
+   * Get Item By Identifier.
+   * 
+   * @param cid
+   *          Item id (container internal)
+   * @return ItemData
+   * @throws RepositoryException
+   *           Repository error
+   * @throws IllegalStateException
+   *           if connection is closed
+   */
   protected ItemData getItemByIdentifier(String cid) throws RepositoryException,
                                                     IllegalStateException {
     checkIfOpened();
@@ -639,7 +661,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    *          - item name
    * @return - ItemData instance
    * @throws RepositoryException
+   *           Repository error
    * @throws IllegalStateException
+   *           if connection is closed
    */
   protected ItemData getItemByName(NodeData parent, String parentId, QPathEntry name) throws RepositoryException,
                                                                                      IllegalStateException {
@@ -709,6 +733,10 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     return new QPath(qentries);
   }
 
+  /**
+   * ItemLocationInfo.
+   * 
+   */
   class ItemLocationInfo {
     /**
      * Item qpath
@@ -720,8 +748,21 @@ abstract public class JDBCStorageConnection extends DBConstants implements
      */
     final List<String> ancestors;
 
+    /**
+     * Item id.
+     */
     final String       itemId;
 
+    /**
+     * ItemLocationInfo constructor.
+     * 
+     * @param qpath
+     *          Item path
+     * @param ancestors
+     *          ancesstors id list
+     * @param itemId
+     *          Item id
+     */
     ItemLocationInfo(QPath qpath, List<String> ancestors, String itemId) {
       this.qpath = qpath;
       this.ancestors = ancestors;
@@ -908,11 +949,23 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   /**
+   * Build ItemData.
+   * 
    * @param parentPath
+   *          - parent path
    * @param item
-   * @return item data
+   *          database - ResultSet with Item record(s)
+   * @param itemClass
+   *          - Item type (Node or Property)
+   * @param parentACL
+   *          - parent ACL
+   * @return ItemData instance
    * @throws RepositoryException
+   *           Repository error
    * @throws SQLException
+   *           database error
+   * @throws IOException
+   *           I/O error
    */
   private ItemData itemData(QPath parentPath,
                             ResultSet item,
@@ -955,11 +1008,16 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * Read property data without value data. For listChildPropertiesData(NodeData).
    * 
    * @param parentPath
+   *          - parent path
    * @param item
-   * @return
+   *          database - ResultSet with Item record(s)
+   * @return PropertyData instance
    * @throws RepositoryException
+   *           Repository error
    * @throws SQLException
+   *           database error
    * @throws IOException
+   *           I/O error
    */
   private PropertyData propertyData(QPath parentPath, ResultSet item) throws RepositoryException,
                                                                      SQLException,
@@ -994,102 +1052,68 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
-  // protected PersistedNodeData loadNodeRecord(QPath parentPath, String cname,
-  // String cid, String cpid, int cindex, int cversion,
-  // int cnordernumb) throws RepositoryException, SQLException {
-  //
-  // try {
-  // InternalQName qname = InternalQName.parse(cname);
-  // QPath qpath = parentPath != null ? QPath.makeChildPath(parentPath, qname,
-  // cindex) : Constants.ROOT_PATH;
-  //
-  // // PRIMARY
-  // ResultSet ptProp = findPropertyByName(cid,
-  // Constants.JCR_PRIMARYTYPE.getAsString());
-  //
-  // if (!ptProp.next())
-  // throw new PrimaryTypeNotFoundException("FATAL ERROR primary type record not
-  // found. Node " + qpath.getAsString() + ", id "
-  // + cid + ", container " + this.containerName, null);
-  //
-  // byte[] data = ptProp.getBytes(COLUMN_VDATA);
-  // InternalQName ptName = InternalQName.parse(new String((data != null ? data
-  // : new byte[] {})));
-  //
-  // // MIXIN
-  // ResultSet mtProp = findPropertyByName(cid,
-  // Constants.JCR_MIXINTYPES.getAsString());
-  //
-  // List<InternalQName> mts = new ArrayList<InternalQName>();
-  // boolean mixOwneable = false;
-  // boolean mixPrivilegeable = false;
-  // while (mtProp.next()) {
-  // //mts.add();
-  // byte[] mxnb = mtProp.getBytes(COLUMN_VDATA);
-  // if (mxnb != null) {
-  // InternalQName mxn = InternalQName.parse(new String(mxnb));
-  //          
-  // if (Constants.EXO_PRIVILEGEABLE.equals(mxn))
-  // mixPrivilegeable = true;
-  // else if (Constants.EXO_OWNEABLE.equals(mxn))
-  // mixOwneable = true;
-  // } // else, if SQL NULL - skip it
-  // }
-  // InternalQName[] mixinNames = new InternalQName[mts.size()];
-  // mts.toArray(mixinNames);
-  //
-  // // ACL
-  // PropertyData ownerData = null;
-  // PropertyData permData = null;
-  //
-  // if (mixPrivilegeable) {
-  // permData = (PropertyData) getItemByName(qpath, cid, new
-  // QPathEntry(Constants.EXO_PERMISSIONS, 1));
-  // }
-  //
-  // if (mixOwneable) {
-  // ownerData = (PropertyData) getItemByName(qpath, cid, new
-  // QPathEntry(Constants.EXO_OWNER, 1));
-  // }
-  //
-  // AccessControlList acl = null;
-  // if (permData != null || ownerData != null)
-  // acl = new AccessControlList(ownerData, permData);
-  //
-  // return new PersistedNodeData(getIdentifier(cid), qpath,
-  // getIdentifier(cpid), cversion, cnordernumb, ptName, mixinNames,
-  // acl, mixPrivilegeable, mixOwneable);
-  //
-  // } catch (IllegalNameException e) {
-  // throw new RepositoryException(e);
-  // }
-  // }
-
+  /**
+   * Mixin types description (internal use).
+   * 
+   */
   class MixinInfo {
 
+    /**
+     * OWNEABLE constant.
+     */
     static final int          OWNEABLE               = 0x0001;                  // bits 0001
 
+    /**
+     * PRIVILEGEABLE constant.
+     */
     static final int          PRIVILEGEABLE          = 0x0002;                  // bits 0010
 
+    /**
+     * OWNEABLE_PRIVILEGEABLE constant.
+     */
     static final int          OWNEABLE_PRIVILEGEABLE = OWNEABLE | PRIVILEGEABLE; // bits 0011
 
     /**
-     * Mixin types
+     * Mixin types.
      */
     final List<InternalQName> mixinTypes;
 
+    /**
+     * oexo:owneable flag.
+     */
     final boolean             owneable;
 
+    /**
+     * exo:privilegeable flag.
+     */
     final boolean             privilegeable;
 
+    /**
+     * Parent Id.
+     */
     final String              parentId               = null;
 
+    /**
+     * MixinInfo constructor.
+     * 
+     * @param mixinTypes
+     *          mixin types
+     * @param owneable
+     *          exo:owneable flag
+     * @param privilegeable
+     *          exo:privilegeable flag
+     */
     MixinInfo(List<InternalQName> mixinTypes, boolean owneable, boolean privilegeable) {
       this.mixinTypes = mixinTypes;
       this.owneable = owneable;
       this.privilegeable = privilegeable;
     }
 
+    /**
+     * Return Mixin names array.
+     * 
+     * @return InternalQName[] Mixin names array
+     */
     InternalQName[] mixinNames() {
       if (mixinTypes != null) {
         InternalQName[] mns = new InternalQName[mixinTypes.size()];
@@ -1099,15 +1123,36 @@ abstract public class JDBCStorageConnection extends DBConstants implements
         return new InternalQName[0];
     }
 
+    /**
+     * Tell is exo:privilegeable.
+     * 
+     * @return boolean
+     */
     boolean hasPrivilegeable() {
       return privilegeable;
     }
 
+    /**
+     * Tell is exo:owneable.
+     * 
+     * @return boolean
+     */
     boolean hasOwneable() {
       return owneable;
     }
   }
 
+  /**
+   * Read mixins from database.
+   * 
+   * @param cid
+   *          - Item id (internal)
+   * @return MixinInfo
+   * @throws SQLException
+   *           database error
+   * @throws IllegalNameException
+   *           if nodetype name in mixin record is wrong
+   */
   protected MixinInfo readMixins(String cid) throws SQLException, IllegalNameException {
     ResultSet mtrs = findPropertyByName(cid, Constants.JCR_MIXINTYPES.getAsString());
 
@@ -1141,9 +1186,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * Return permission values or throw an exception. We assume the node is mix:privilegeable.
    * 
    * @param cid
-   * @return
+   *          Node id
+   * @return list of ACL entries
    * @throws SQLException
+   *           database error
    * @throws IllegalACLException
+   *           if property exo:permissions is not found for node
    */
   protected List<AccessControlEntry> readACLPermisions(String cid) throws SQLException,
                                                                   IllegalACLException {
@@ -1170,9 +1218,12 @@ abstract public class JDBCStorageConnection extends DBConstants implements
    * Return owner value or throw an exception. We assume the node is mix:owneable.
    * 
    * @param cid
-   * @return
+   *          Node id
+   * @return ACL owner
    * @throws SQLException
+   *           database error
    * @throws IllegalACLException
+   *           Property exo:owner is not found for node
    */
   protected String readACLOwner(String cid) throws SQLException, IllegalACLException {
     ResultSet exoOwner = findPropertyByName(cid, Constants.EXO_OWNER.getAsString());
@@ -1187,6 +1238,31 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * Load NodeData record.
+   * 
+   * @param parentPath
+   *          parent path
+   * @param cname
+   *          Node name
+   * @param cid
+   *          Node id
+   * @param cpid
+   *          Node parent id
+   * @param cindex
+   *          Node index
+   * @param cversion
+   *          Node persistent version
+   * @param cnordernumb
+   *          Node order number
+   * @param parentACL
+   *          Node parent ACL
+   * @return PersistedNodeData
+   * @throws RepositoryException
+   *           Repository error
+   * @throws SQLException
+   *           database error
+   */
   protected PersistedNodeData loadNodeRecord(QPath parentPath,
                                              String cname,
                                              String cid,
@@ -1292,6 +1368,31 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * Load PropertyData record.
+   * 
+   * @param parentPath
+   *          parent path
+   * @param cname
+   *          Property name
+   * @param cid
+   *          Property id
+   * @param cpid
+   *          Property parent id
+   * @param cversion
+   *          Property persistent verison
+   * @param cptype
+   *          Property type
+   * @param cpmultivalued
+   *          Property multivalued status
+   * @return PersistedPropertyData
+   * @throws RepositoryException
+   *           Repository error
+   * @throws SQLException
+   *           database error
+   * @throws IOException
+   *           I/O error
+   */
   protected PersistedPropertyData loadPropertyRecord(QPath parentPath,
                                                      String cname,
                                                      String cid,
@@ -1322,6 +1423,18 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * Delete External Values.
+   * 
+   * @param cid
+   *          Property id
+   * @param pdata
+   *          PropertyData
+   * @throws IOException
+   *           i/O error
+   * @throws ValueDataNotFoundException
+   *           if no ValueData found for Property
+   */
   private void deleteExternalValues(String cid, PropertyData pdata) throws IOException,
                                                                    ValueDataNotFoundException {
 
@@ -1354,6 +1467,19 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * Read Property Values.
+   * 
+   * @param cid
+   *          Property id
+   * @param pdata
+   *          PropertyData
+   * @return list of ValueData
+   * @throws IOException
+   *           i/O error
+   * @throws ValueDataNotFoundException
+   *           if no ValueData found for Property
+   */
   private List<ValueData> readValues(String cid, PropertyData pdata) throws IOException,
                                                                     ValueDataNotFoundException {
 
@@ -1384,6 +1510,23 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     return data;
   }
 
+  /**
+   * Read ValueData from External Storage.
+   * 
+   * @param pdata
+   *          PropertyData
+   * @param orderNumber
+   *          Value order number
+   * @param storageId
+   *          external Value storage id
+   * @return ValueData
+   * @throws SQLException
+   *           database error
+   * @throws IOException
+   *           i/O error
+   * @throws ValueDataNotFoundException
+   *           if no ValueData found for Property
+   */
   protected ValueData readValueData(PropertyData pdata, int orderNumber, String storageId) throws SQLException,
                                                                                           IOException,
                                                                                           ValueDataNotFoundException {
@@ -1395,6 +1538,21 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     }
   }
 
+  /**
+   * Read ValueData from database.
+   * 
+   * @param cid
+   *          Property id
+   * @param orderNumber
+   *          Value order number
+   * @param version
+   *          persistent version (used for BLOB swapping)
+   * @return ValueData
+   * @throws SQLException
+   *           database error
+   * @throws IOException
+   *           I/O error (swap)
+   */
   protected ValueData readValueData(String cid, int orderNumber, int version) throws SQLException,
                                                                              IOException {
 
@@ -1457,6 +1615,16 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     return new ByteArrayPersistedValueData(buffer, orderNumber);
   }
 
+  /**
+   * Add Values to Property record.
+   * 
+   * @param data
+   *          PropertyData
+   * @throws SQLException
+   *           database error
+   * @throws IOException
+   *           I/O error
+   */
   protected void addValues(PropertyData data) throws IOException, SQLException {
     List<ValueData> vdata = data.getValues();
 
@@ -1488,7 +1656,6 @@ abstract public class JDBCStorageConnection extends DBConstants implements
   }
 
   // ---- Data access methods (query wrappers) to override in concrete
-  // connection ------
 
   protected abstract int addNodeRecord(NodeData data) throws SQLException;
 
