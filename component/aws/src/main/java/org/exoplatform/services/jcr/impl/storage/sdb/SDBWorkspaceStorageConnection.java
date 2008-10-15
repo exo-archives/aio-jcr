@@ -120,6 +120,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * Get Item by parent ID and name query.
    */
   protected static final String              QUERY_GET_ITEM_BY_NAME    = "['"
+                                                                           + ID
+                                                                           + "' != '"
+                                                                           + ITEM_DELETED_ID
+                                                                           + "'] intersection ['"
                                                                            + PID
                                                                            + "' = '%s'] intersection ['"
                                                                            + NAME + "' = '%s']";
@@ -128,6 +132,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * Get Node child Nodes by parent ID query.
    */
   protected static final String              QUERY_GET_CHILDNODES      = "['"
+                                                                           + ID
+                                                                           + "' != '"
+                                                                           + ITEM_DELETED_ID
+                                                                           + "'] intersection ['"
                                                                            + PID
                                                                            + "' = '%s'] intersection ['"
                                                                            + ICLASS + "' = '"
@@ -137,6 +145,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * Get Node Properties by parent ID query.
    */
   protected static final String              QUERY_GET_CHILDPROPERTIES = "['"
+                                                                           + ID
+                                                                           + "' != '"
+                                                                           + ITEM_DELETED_ID
+                                                                           + "'] intersection ['"
                                                                            + PID
                                                                            + "' = '%s'] intersection ['"
                                                                            + ICLASS + "' = '"
@@ -145,7 +157,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   /**
    * Get REFERENCE Properties by Node ID query.
    */
-  protected static final String              QUERY_GET_REFERENCES      = "['" + ICLASS + "' = '"
+  protected static final String              QUERY_GET_REFERENCES      = "['" + ID + "' != '"
+                                                                           + ITEM_DELETED_ID
+                                                                           + "'] intersection ['"
+                                                                           + ICLASS + "' = '"
                                                                            + PROPERTY_ICLASS
                                                                            + "'] intersection ['"
                                                                            // + PTYPE + "' = '"
