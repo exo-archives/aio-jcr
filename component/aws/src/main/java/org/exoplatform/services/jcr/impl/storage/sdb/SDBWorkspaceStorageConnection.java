@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.impl.storage.sdb;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -1114,11 +1113,13 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       String nextToken = null;
 
       do {
-        QueryWithAttributesResponse resp = queryItemAttrByIDWithToken(sdbService,
-                                                             domainName,
-                                                             ITEM_DELETED_ID,
-                                                             nextToken,
-                                                             ICLASS);
+        final String query = String.format(QUERY_GET_ITEM_BY_ID, ITEM_DELETED_ID);
+        QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
+                                                                             .withQueryExpression(query)
+                                                                             .withNextToken(nextToken)
+                                                                             .withAttributeName(ICLASS);
+
+        QueryWithAttributesResponse resp = sdbService.queryWithAttributes(request);
 
         if (resp.isSetQueryWithAttributesResult()) {
           QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
@@ -1291,41 +1292,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     DeleteAttributesRequest request = new DeleteAttributesRequest().withDomainName(domainName)
                                                                    .withItemName(itemName);
     return service.deleteAttributes(request);
-  }
-
-  /**
-   * Query item attributes by ID (QueryWithAttributes).
-   * 
-   * @param service
-   *          SimpleDB service
-   * @param domainName
-   *          targeted domain name
-   * @param itemId
-   *          JCR Item Id
-   * @param nextToken
-   *          SDB next token
-   * @param attributes
-   *          SimpleDB item attributes for responce. If <code>null</code> all attributes will be
-   *          returned
-   * @return QueryWithAttributesResponse
-   * @throws AmazonSimpleDBException
-   *           in case of SDB error
-   */
-  protected QueryWithAttributesResponse queryItemAttrByIDWithToken(final AmazonSimpleDB service,
-                                                          final String domainName,
-                                                          final String itemId,
-                                                          final String nextToken,
-                                                          final String... attributes) throws AmazonSimpleDBException {
-
-    String query = String.format(QUERY_GET_ITEM_BY_ID, itemId);
-    QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
-                                                                         .withQueryExpression(query)
-                                                                         .withNextToken(nextToken);
-
-    if (attributes != null)
-      request.withAttributeName(attributes);
-
-    return service.queryWithAttributes(request);
   }
 
   /**

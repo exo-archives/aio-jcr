@@ -80,8 +80,8 @@ public class StorageCleaner extends Thread {
       }
 
       try {
-        wait(timeout);
-      } catch (InterruptedException e) {
+        Thread.sleep(timeout);
+      } catch (Throwable e) {
         LOG.error("Storage cleaner wait is interrupted " + e, e);
       }
     }
