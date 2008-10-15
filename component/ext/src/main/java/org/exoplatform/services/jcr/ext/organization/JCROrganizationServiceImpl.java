@@ -100,7 +100,7 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
     try {
       repository = repositoryService.getDefaultRepository();
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException("Can not get default repository", e);
     }
 
     if (storageWorkspace == null) {
@@ -123,13 +123,13 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
         storage.addNode("exo:groups", "exo:organizationGroups");
         storage.addNode("exo:membershipTypes", "exo:organizationMembershipTypes");
 
-        session.save(); // storage done
+        session.save(); // storage done configure
 
       } finally {
         session.logout();
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException("Can not configure storage", e);
     }
 
     // create DAO object

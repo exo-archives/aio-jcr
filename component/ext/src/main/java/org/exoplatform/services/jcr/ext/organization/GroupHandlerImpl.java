@@ -146,7 +146,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
           ? null
           : ((Node) session.getItem(service.getStoragePath() + "/"
               + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + membershipType)).getUUID();
-      String whereStatement = (mtUUID == null) ? "" : " where jcr:uuid=" + mtUUID + "'";
+      String whereStatement = (mtUUID == null) ? "" : " where exo:membershipType='" + mtUUID + "'";
 
       // find memberships
       String mStatement = "select * from exo:userMembership" + whereStatement;
@@ -157,23 +157,13 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
+        Node uNode = mNode.getParent();
 
-        // find users
-        String uStatement = "select * from exo:user where exo:membership='" + mNode.getUUID() + "'";
-        Query uQuery = service.getStorageSession()
-                              .getWorkspace()
-                              .getQueryManager()
-                              .createQuery(uStatement, Query.SQL);
-        QueryResult uRes = uQuery.execute();
-        for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
-          Node uNode = uNodes.nextNode();
-
-          // check user name
-          if (uNode.getName().equals(userName)) {
-            Node gNode = session.getNodeByUUID(readStringProperty(mNode,
-                                                                  MembershipHandlerImpl.EXO_GROUP));
-            types.add(readObjectFromNode(gNode));
-          }
+        // check user name
+        if (uNode.getName().equals(userName)) {
+          Node gNode = session.getNodeByUUID(readStringProperty(mNode,
+                                                                MembershipHandlerImpl.EXO_GROUP));
+          types.add(readObjectFromNode(gNode));
         }
       }
 

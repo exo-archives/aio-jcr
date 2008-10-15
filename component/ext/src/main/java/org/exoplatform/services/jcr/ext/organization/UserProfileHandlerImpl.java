@@ -90,10 +90,13 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
 
       Node profileNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE);
       Node attrNode = profileNode.getNode(EXO_ATTRIBUTES);
+
       UserProfile userProfile = new UserProfileImpl(userName);
       for (PropertyIterator props = attrNode.getProperties(); props.hasNext();) {
         Property prop = props.nextProperty();
-        userProfile.setAttribute(prop.getName(), prop.getString());
+        if (!(prop.getName()).startsWith("jcr:")) {
+          userProfile.setAttribute(prop.getName(), prop.getString());
+        }
       }
       return userProfile;
 
@@ -149,11 +152,12 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
         session.save();
         return userProfile;
       }
-      throw new OrganizationServiceException("Can not find user " + userName
-          + " for remove profile.");
+      throw new OrganizationServiceException("Can not find user '" + userName
+          + "' for remove profile.");
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not remove user profile for user " + userName, e);
+      throw new OrganizationServiceException("Can not remove user profile for user '" + userName
+          + "'", e);
     } finally {
       session.logout();
     }
@@ -176,33 +180,36 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      String userPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
-          + profile.getUserName();
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + profile.getUserName());
 
-      Node uNode = (Node) session.getItem(userPath);
-
-      if (!session.itemExists(userPath + "/" + UserHandlerImpl.EXO_PROFILE)) {
+      try {
+        uNode.getNode(UserHandlerImpl.EXO_PROFILE);
+      } catch (PathNotFoundException e) {
         uNode.addNode(UserHandlerImpl.EXO_PROFILE);
       }
       Node profileNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE);
 
-      if (!session.itemExists(userPath + "/" + UserHandlerImpl.EXO_PROFILE + "/" + EXO_ATTRIBUTES)) {
+      try {
+        profileNode.getNode(EXO_ATTRIBUTES);
+      } catch (PathNotFoundException e) {
         profileNode.addNode(EXO_ATTRIBUTES);
       }
       Node attrNode = profileNode.getNode(EXO_ATTRIBUTES);
 
-      String keys[] = (String[]) profile.getUserInfoMap().keySet().toArray();
+      Object[] keys = profile.getUserInfoMap().keySet().toArray();
       for (int i = 0; i < keys.length; i++) {
-        attrNode.setProperty(keys[i], profile.getAttribute(keys[i]));
+        String key = (String) keys[i];
+        attrNode.setProperty((String) keys[i], profile.getAttribute((String) keys[i]));
       }
+
       session.save();
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save user profile for user "
-          + profile.getUserName(), e);
+      throw new OrganizationServiceException("Can not save user profile for user '"
+          + profile.getUserName() + "'", e);
     } finally {
       session.logout();
     }
   }
-
 }

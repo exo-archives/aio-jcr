@@ -170,13 +170,13 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     // TODO is it correct
     if (query.getFromLoginDate() != null) {
       where.concat((where.length() == 0 ? "" : " AND ")
-          + ("exo:lastLoginTime >='" + query.getFromLoginDate() + "'"));
+          + ("exo:lastLoginTime >='" + query.getFromLoginDate().getTime() + "'"));
     }
 
     // TODO is it correct
     if (query.getToLoginDate() != null) {
       where.concat((where.length() == 0 ? "" : " AND ")
-          + ("exo:lastLoginTime <=" + query.getToLoginDate() + "'"));
+          + ("exo:lastLoginTime <=" + query.getToLoginDate().getTime() + "'"));
     }
 
     List<User> types = new ArrayList<User>();
@@ -190,7 +190,11 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
       Node uNode = uNodes.nextNode();
       User user = findUserByName(uNode.getName());
-      if (user != null) {
+      if ((user != null)
+          && (query.getFromLoginDate() == null || query.getFromLoginDate().getTime() <= user.getLastLoginTime()
+                                                                                            .getTime())
+          && (query.getToLoginDate() == null || query.getToLoginDate().getTime() >= user.getLastLoginTime()
+                                                                                        .getTime())) {
         types.add(user);
       }
     }
@@ -385,7 +389,20 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       node.setProperty(EXO_LAST_LOGIN_TIME, calendar);
       calendar.setTime(user.getCreatedDate());
       node.setProperty(EXO_CREATED_DATE, calendar);
+      /*
+            try {
+              node.getNode(EXO_PROFILE);
+            } catch (PathNotFoundException e) {
+              node.addNode(EXO_PROFILE);
+            }
 
+            Node pNode = node.getNode(EXO_PROFILE);
+            try {
+              pNode.getNode(UserProfileHandlerImpl.EXO_ATTRIBUTES);
+            } catch (PathNotFoundException e) {
+              pNode.addNode(UserProfileHandlerImpl.EXO_ATTRIBUTES);
+            }
+      */
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write user properties", e);
     }

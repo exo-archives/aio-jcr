@@ -16,10 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.organization;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
 
 /**
  * Created by The eXo Platform SAS.
@@ -31,7 +33,7 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
  */
 public class TestGroupHandlerImpl extends BaseStandaloneTest {
 
-  private GroupHandlerImpl           gHandler;
+  private GroupHandler               gHandler;
 
   private JCROrganizationServiceImpl organizationService;
 
@@ -48,22 +50,22 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
     gHandler = new GroupHandlerImpl(organizationService);
 
     // Create groups
-    GroupImpl g1 = (GroupImpl) gHandler.createGroupInstance();
+    Group g1 = gHandler.createGroupInstance();
     g1.setGroupName("group1");
     g1.setLabel("label1");
     g1.setDescription("desc1");
     gHandler.createGroup(g1, true);
 
-    g1 = (GroupImpl) gHandler.findGroupById("/group1");
-    GroupImpl g2 = (GroupImpl) gHandler.createGroupInstance();
+    g1 = gHandler.findGroupById("/group1");
+    Group g2 = gHandler.createGroupInstance();
     g2.setGroupName("group2");
     g2.setLabel("label2");
     g2.setDescription("desc2");
     gHandler.addChild(g1, g2, true);
   }
 
-  public void testGroupAddChild() throws Exception {
-    GroupImpl g2 = (GroupImpl) gHandler.findGroupById("/group1/group2");
+  public void testAddChild() throws Exception {
+    Group g2 = gHandler.findGroupById("/group1/group2");
     assertTrue("Group '/group1/group2' is not found", g2 != null);
     assertTrue("Group description is not equal 'desc2' but equal '" + g2.getDescription() + "'",
                g2.getDescription().equals("desc2"));
@@ -77,8 +79,8 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
                g2.getParentId().equals("/group1"));
   }
 
-  public void testGroupFindById() throws Exception {
-    GroupImpl g1 = (GroupImpl) gHandler.findGroupById("/group1");
+  public void testFindGroupById() throws Exception {
+    Group g1 = gHandler.findGroupById("/group1");
     assertTrue("Group 'group1' is not found", g1 != null);
     assertTrue("Group description is not equal 'desc1' but equal '" + g1.getDescription() + "'",
                g1.getDescription().equals("desc1"));
@@ -92,26 +94,32 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
                g1.getParentId() == null);
   }
 
-  public void testGroupFindGroups() throws Exception {
-    GroupImpl g1 = (GroupImpl) gHandler.findGroupById("/group1");
+  public void testFindGroups() throws Exception {
+    Group g1 = gHandler.findGroupById("/group1");
 
-    List<GroupImpl> gs = (List<GroupImpl>) gHandler.findGroups(null);
-    assertTrue("Group count must be equal 2 but equal " + gs.size(), gs.size() == 2);
+    Collection list = gHandler.findGroups(null);
+    assertTrue("Found " + list.size() + " groups but 2 is present", list.size() == 2);
 
-    gs = (List<GroupImpl>) gHandler.findGroups(g1);
-    assertTrue("Group count must be equal 1 but equal " + gs.size(), gs.size() == 1);
+    list = gHandler.findGroups(g1);
+    assertTrue("Found " + list.size() + " groups but 1 is present", list.size() == 1);
   }
 
-  public void testGroupRemove() throws Exception {
-    GroupImpl g1 = (GroupImpl) gHandler.findGroupById("/group1");
+  public void testGetAllGroups() throws Exception {
+    Collection list = gHandler.getAllGroups();
+    assertTrue("Found " + list.size() + " groups but 2 is present", list.size() == 2);
 
-    GroupImpl g3 = (GroupImpl) gHandler.createGroupInstance();
+  }
+
+  public void testRemoveGroup() throws Exception {
+    Group g1 = gHandler.findGroupById("/group1");
+
+    Group g3 = gHandler.createGroupInstance();
     g3.setGroupName("group3");
     g3.setLabel("label3");
     g3.setDescription("desc3");
     gHandler.addChild(g1, g3, true);
 
-    g3 = (GroupImpl) gHandler.findGroupById("/group1/group3");
+    g3 = gHandler.findGroupById("/group1/group3");
 
     try {
       gHandler.removeGroup(g1, true);
@@ -119,36 +127,32 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
     } catch (Exception e) {
     }
 
-    try {
-      gHandler.removeGroup(g3, true);
-    } catch (Exception e) {
-      fail("Can not remove group '/group1/group3'");
-    }
+    gHandler.removeGroup(g3, true);
 
     try {
-      g3 = (GroupImpl) gHandler.findGroupById("/group1/group3");
+      g3 = gHandler.findGroupById("/group1/group3");
       assertTrue("Group '/group1/group3' is removed but still present", g3 == null);
     } catch (Exception e) {
     }
   }
 
-  public void testGroupSave() throws Exception {
-    GroupImpl g1 = (GroupImpl) gHandler.findGroupById("/group1");
+  public void testSaveGroup() throws Exception {
+    Group g1 = gHandler.findGroupById("/group1");
 
-    GroupImpl g3 = (GroupImpl) gHandler.createGroupInstance();
+    Group g3 = gHandler.createGroupInstance();
     g3.setGroupName("group3");
     g3.setLabel("label3");
     g3.setDescription("desc3");
     gHandler.addChild(g1, g3, true);
 
-    g3 = (GroupImpl) gHandler.findGroupById("/group1/group3");
+    g3 = gHandler.findGroupById("/group1/group3");
 
     // change name and save
     g3.setGroupName("group4");
     gHandler.saveGroup(g3, true);
 
     // check
-    GroupImpl g4 = (GroupImpl) gHandler.findGroupById("/group1/group4");
+    Group g4 = gHandler.findGroupById("/group1/group4");
     assertTrue("Group '/group3/group4' is not found", g4 != null);
     assertTrue("Group description is not equal 'desc3' but equal '" + g4.getDescription() + "'",
                g4.getDescription().equals("desc3"));
@@ -166,7 +170,7 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
     gHandler.saveGroup(g4, true);
 
     // check
-    g4 = (GroupImpl) gHandler.findGroupById("/group1/group4");
+    g4 = gHandler.findGroupById("/group1/group4");
     assertTrue("Group description is not equal 'desc4' but equal '" + g4.getDescription() + "'",
                g4.getDescription().equals("desc4"));
 

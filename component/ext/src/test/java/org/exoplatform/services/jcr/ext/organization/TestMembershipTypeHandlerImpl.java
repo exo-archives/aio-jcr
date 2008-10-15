@@ -28,13 +28,13 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
 
 /**
  * Created by The eXo Platform SAS.
- *  
+ * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: TestMembershipTypeHandlerImpl.java 111 2008-11-11 11:11:11Z $
  */
 public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
 
-  private MembershipTypeHandler  mtHandler;
+  private MembershipTypeHandler      mtHandler;
 
   private JCROrganizationServiceImpl organizationService;
 
@@ -51,18 +51,11 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
     mtHandler = new MembershipTypeHandlerImpl(organizationService);
 
     // Create membership types
-    MembershipType mt = mtHandler.createMembershipTypeInstance();
-    mt.setName("type1");
-    mt.setDescription("desc1");
-    mtHandler.createMembershipType(mt, true);
-
-    mt = mtHandler.createMembershipTypeInstance();
-    mt.setName("type2");
-    mt.setDescription("desc2");
-    mtHandler.createMembershipType(mt, true);
+    createRecords("type1", "desc1");
+    createRecords("type2", "desc2");
   }
 
-  public void testMembershipTypeFind() throws Exception {
+  public void testFindMembershipType() throws Exception {
     MembershipType mt = mtHandler.findMembershipType("type1");
     assertTrue("Membership type name not equal 'type1' but equal '" + mt.getName() + "'",
                mt.getName().equals("type1"));
@@ -70,22 +63,15 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
         + "'", mt.getDescription().equals("desc1"));
   }
 
-  public void testMembershipTypeFindAll() throws Exception {
+  public void testFindMembershipTypes() throws Exception {
     Collection mts = mtHandler.findMembershipTypes();
     assertTrue("Membership type count must be equal 2 but equal " + mts.size(), mts.size() == 2);
   }
 
-  public void testMembershipTypeRemove() throws Exception {
-    MembershipType mt = mtHandler.createMembershipTypeInstance();
-    mt.setName("type4");
-    mt.setDescription("desc4");
-    mtHandler.createMembershipType(mt, true);
+  public void testRemoveMembershipType() throws Exception {
+    createRecords("type4", "desc4");
 
-    try {
-      mtHandler.removeMembershipType("type4", true);
-    } catch (Exception e) {
-      fail("Can not remove membership type4");
-    }
+    mtHandler.removeMembershipType("type4", true);
 
     try {
       mtHandler.findMembershipType("type4");
@@ -95,7 +81,7 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
 
   }
 
-  public void testMembershipTypeSave() throws Exception {
+  public void testSaveMembershipType() throws Exception {
     MembershipType mt = mtHandler.findMembershipType("type2");
 
     // change name, description and save
@@ -120,11 +106,18 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
     mt.setDescription("desc2");
     mtHandler.saveMembershipType(mt, true);
 
-    mt = (MembershipTypeImpl) mtHandler.findMembershipType("type3");
+    mt = mtHandler.findMembershipType("type3");
     assertTrue("Membership type name not equal 'type3' but equal '" + mt.getName() + "'",
                mt.getName().equals("type3"));
     assertTrue("Membership type description not equal 'desc2' but equal '" + mt.getDescription()
         + "'", mt.getDescription().equals("desc2"));
+  }
+
+  private void createRecords(String type, String desc) throws Exception {
+    MembershipType mt = mtHandler.createMembershipTypeInstance();
+    mt.setName(type);
+    mt.setDescription(desc);
+    mtHandler.createMembershipType(mt, true);
   }
 
   /**
