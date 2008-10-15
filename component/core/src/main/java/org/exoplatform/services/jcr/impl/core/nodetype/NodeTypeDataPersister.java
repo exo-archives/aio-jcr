@@ -194,7 +194,8 @@ public class NodeTypeDataPersister {
     for (NodeType nt : nodetypes) {
       try {
         addNodeType(nt);
-        log.info("Node type " + nt.getName() + " is initialized. ");
+        if(log.isDebugEnabled())
+          log.debug("Node type " + nt.getName() + " is initialized. ");
       } catch (ItemExistsException e) {
         log.warn("Node exists " + nt.getName() + ". Error: " + e.getMessage());
       }

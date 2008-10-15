@@ -149,9 +149,11 @@ public class NamespaceDataPersister {
     while (i.hasNext()) {
       String nsKey = i.next();
       if (nsKey != null) {
-        log.debug("Namespace " + nsKey + " " + namespaces.get(nsKey));
+        if(log.isDebugEnabled())
+          log.debug("Namespace " + nsKey + " " + namespaces.get(nsKey));
         addNamespace(nsKey, namespaces.get(nsKey));
-        log.info("Namespace " + nsKey + " is initialized.");
+        if(log.isDebugEnabled())
+          log.debug("Namespace " + nsKey + " is initialized.");
       } else {
         log.warn("Namespace is " + nsKey + " " + namespaces.get(nsKey));
       }
@@ -272,7 +274,8 @@ public class NamespaceDataPersister {
         String exoPrefix = nsr.getPropertyValue(Constants.EXO_PREFIX).getString();
         namespacesMap.put(exoPrefix, exoUri);
         urisMap.put(exoUri, exoPrefix);
-        log.info("Namespace " + exoPrefix + " is loaded");
+        if(log.isDebugEnabled())
+          log.debug("Namespace " + exoPrefix + " is loaded");
       }
 
       for (NodeData skipedNs : nsReader.getSkiped()) {

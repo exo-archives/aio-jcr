@@ -62,7 +62,9 @@ public class FileCleaner extends WorkerThread {
       start();
 
     registerShutdownHook();
-    log.info("FileCleaner instantiated name= " + getName() + " timeout= " + timeout);
+    if(log.isDebugEnabled()){
+      log.debug("FileCleaner instantiated name= " + getName() + " timeout= " + timeout);
+    }
   }
 
   /**

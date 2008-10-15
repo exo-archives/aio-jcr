@@ -338,7 +338,8 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   }
 
   public void start() {
-    log.info("start");
+    if(log.isDebugEnabled())
+      log.debug("start");
     // Calculating excluded node identifiers
     excludedPaths.add(Constants.JCR_SYSTEM_PATH);
 

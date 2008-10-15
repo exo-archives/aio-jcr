@@ -48,7 +48,8 @@ public class LockRemover extends WorkerThread {
     setPriority(Thread.MIN_PRIORITY);
     setDaemon(true);
     start();
-    log.info("LockRemover instantiated name= " + getName() + " timeout= " + timeout);
+    if(log.isDebugEnabled())
+      log.debug("LockRemover instantiated name= " + getName() + " timeout= " + timeout);
   }
 
   @Override

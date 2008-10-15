@@ -388,12 +388,14 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         log.warn("Error of storing node type " + nodeType.getName()
             + ". May be node type already registered .", e);
       }
-      log.info("NodeType " + nodeType.getName() + " initialized. "
-          + (System.currentTimeMillis() - start) + " ms");
+      if(log.isDebugEnabled())
+        log.debug("NodeType " + nodeType.getName() + " initialized. "
+            + (System.currentTimeMillis() - start) + " ms");
     } else {
-      log.debug("NodeType " + nodeType.getName()
-          + " registered but not initialized (storage is not initialized). "
-          + (System.currentTimeMillis() - start) + " ms");
+      if(log.isDebugEnabled())
+        log.debug("NodeType " + nodeType.getName()
+            + " registered but not initialized (storage is not initialized). "
+            + (System.currentTimeMillis() - start) + " ms");
     }
   }
 
