@@ -94,80 +94,90 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   /**
    * Connection logger.
    */
-  protected static final Log                 LOG                       = ExoLogger.getLogger("jcr.SDBWorkspaceStorageConnection");
+  protected static final Log                 LOG                          = ExoLogger.getLogger("jcr.SDBWorkspaceStorageConnection");
 
   /**
    * SimpleDB Operation timeout (5sec).
    */
-  protected static final int                 SDB_OPERATION_TIMEOUT     = 5000;
+  protected static final int                 SDB_OPERATION_TIMEOUT        = 5000;
 
   /**
    * Item Delete operation constant. Should be INTERNED.
    */
-  protected static final String              ITEM_DELETE               = "delete".intern();
+  protected static final String              ITEM_DELETE                  = "delete".intern();
 
   /**
    * Item Update operation constant. Should be INTERNED.
    */
-  protected static final String              ITEM_UPDATE               = "update".intern();
+  protected static final String              ITEM_UPDATE                  = "update".intern();
 
   /**
    * Get Item by ID query.
    */
-  protected static final String              QUERY_GET_ITEM_BY_ID      = "['" + ID + "' = '%s']";
+  protected static final String              QUERY_GET_ITEM_BY_ID         = "['" + ID + "' = '%s']";
 
   /**
    * Get Item by parent ID and name query.
    */
-  protected static final String              QUERY_GET_ITEM_BY_NAME    = "['"
-                                                                           + ID
-                                                                           + "' != '"
-                                                                           + ITEM_DELETED_ID
-                                                                           + "'] intersection ['"
-                                                                           + PID
-                                                                           + "' = '%s'] intersection ['"
-                                                                           + NAME + "' = '%s']";
+  protected static final String              QUERY_GET_ITEM_BY_NAME       = "['"
+                                                                              + PID
+                                                                              + "' = '%s'] intersection ['"
+                                                                              + NAME
+                                                                              + "' = '%s'] intersection ['"
+                                                                              + ID + "' != '"
+                                                                              + ITEM_DELETED_ID
+                                                                              + "']";
+
+  /**
+   * Get Item by parent ID and name or by ID query (used for ADD validation).
+   */
+  protected static final String              QUERY_GET_ITEM_BY_NAME_OR_ID = "['"
+                                                                              + PID
+                                                                              + "' = '%s'] intersection ['"
+                                                                              + NAME
+                                                                              + "' = '%s'] intersection ['"
+                                                                              + ID + "' != '"
+                                                                              + ITEM_DELETED_ID
+                                                                              + "'] union ['" + ID
+                                                                              + "' = '%s']";
 
   /**
    * Get Node child Nodes by parent ID query.
    */
-  protected static final String              QUERY_GET_CHILDNODES      = "['"
-                                                                           + ID
-                                                                           + "' != '"
-                                                                           + ITEM_DELETED_ID
-                                                                           + "'] intersection ['"
-                                                                           + PID
-                                                                           + "' = '%s'] intersection ['"
-                                                                           + ICLASS + "' = '"
-                                                                           + NODE_ICLASS + "']";
+  protected static final String              QUERY_GET_CHILDNODES         = "['"
+                                                                              + PID
+                                                                              + "' = '%s'] intersection ['"
+                                                                              + ICLASS
+                                                                              + "' = '"
+                                                                              + NODE_ICLASS
+                                                                              + "'] intersection ['"
+                                                                              + ID + "' != '"
+                                                                              + ITEM_DELETED_ID
+                                                                              + "']";
 
   /**
    * Get Node Properties by parent ID query.
    */
-  protected static final String              QUERY_GET_CHILDPROPERTIES = "['"
-                                                                           + ID
-                                                                           + "' != '"
-                                                                           + ITEM_DELETED_ID
-                                                                           + "'] intersection ['"
-                                                                           + PID
-                                                                           + "' = '%s'] intersection ['"
-                                                                           + ICLASS + "' = '"
-                                                                           + PROPERTY_ICLASS + "']";
+  protected static final String              QUERY_GET_CHILDPROPERTIES    = "['"
+                                                                              + PID
+                                                                              + "' = '%s'] intersection ['"
+                                                                              + ICLASS
+                                                                              + "' = '"
+                                                                              + PROPERTY_ICLASS
+                                                                              + "'] intersection ['"
+                                                                              + ID + "' != '"
+                                                                              + ITEM_DELETED_ID
+                                                                              + "']";
 
   /**
    * Get REFERENCE Properties by Node ID query.
    */
-  protected static final String              QUERY_GET_REFERENCES      = "['" + ID + "' != '"
-                                                                           + ITEM_DELETED_ID
-                                                                           + "'] intersection ['"
-                                                                           + ICLASS + "' = '"
-                                                                           + PROPERTY_ICLASS
-                                                                           + "'] intersection ['"
-                                                                           // + PTYPE + "' = '"
-                                                                           // + PROPERTY_ICLASS
-                                                                           // +
-                                                                           // "']  intersection ['"
-                                                                           + DATA + "' = '%s']";
+  protected static final String              QUERY_GET_REFERENCES         = "['"
+                                                                              + REFERENCE
+                                                                              + "' = '%s'] intersection ['"
+                                                                              + ID + "' != '"
+                                                                              + ITEM_DELETED_ID
+                                                                              + "']";
 
   /**
    * SimpleDB service.
@@ -589,8 +599,16 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         // "first_name", second_value" }.
         // However, it cannot have two attribute instances where both the Attribute.X.Name and
         // Attribute.X.Value are the same.
+
+        // Values
         for (String value : values)
           list.add(new ReplaceableAttribute(DATA, value, false));
+
+        // if special kind of Property - Reference, optimize SDB storage for search
+        // 'Reference' attribute will be used for getReferencesData()
+        if (property.getType() == PropertyType.REFERENCE)
+          for (ValueData value : property.getValues())
+            list.add(new ReplaceableAttribute(REFERENCE, new String(value.getAsByteArray()), false));
 
         try {
           return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
@@ -761,6 +779,12 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         // Attribute.X.Value are the same.
         for (String value : values)
           list.add(new ReplaceableAttribute(DATA, value, true));
+
+        // if special kind of Property - Reference, optimize SDB storage for search
+        // 'Reference' attribute uses for getReferencesData()
+        if (property.getType() == PropertyType.REFERENCE)
+          for (ValueData value : property.getValues())
+            list.add(new ReplaceableAttribute(REFERENCE, new String(value.getAsByteArray()), true));
 
         try {
           return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
@@ -1375,6 +1399,43 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   }
 
   /**
+   * Query item(s) attributes by parent ID and name or by ID (QueryWithAttributes).
+   * 
+   * @param service
+   *          SimpleDB service
+   * @param domainName
+   *          targeted domain name
+   * @param parentId
+   *          JCR Item parent Id
+   * @param name
+   *          JCR Item name
+   * @param itemId
+   *          JCR Item id
+   * @param attributes
+   *          SimpleDB item attributes for responce. If <code>null</code> all attributes will be
+   *          returned
+   * @return QueryWithAttributesResponse
+   * @throws AmazonSimpleDBException
+   *           in case of SDB error
+   */
+  protected QueryWithAttributesResponse queryItemAttrByNameOrID(final AmazonSimpleDB service,
+                                                                final String domainName,
+                                                                final String parentId,
+                                                                final String name,
+                                                                final String itemId,
+                                                                final String... attributes) throws AmazonSimpleDBException {
+
+    String query = String.format(QUERY_GET_ITEM_BY_NAME_OR_ID, parentId, name, itemId);
+    QueryWithAttributesRequest request = new QueryWithAttributesRequest().withDomainName(domainName)
+                                                                         .withQueryExpression(query);
+
+    if (attributes != null)
+      request.withAttributeName(attributes);
+
+    return service.queryWithAttributes(request);
+  }
+
+  /**
    * Query Node child Nodes by ID (QueryWithAttributes).
    * 
    * @param service
@@ -1839,27 +1900,28 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     final String itemClass = data.isNode() ? "Node" : "Property";
     try {
       // 1. check if Item doesn't exist (by ID)
-      QueryWithAttributesResponse resp = queryItemAttrByID(sdbService,
-                                                           domainName,
-                                                           data.getIdentifier(),
-                                                           ID);
-      if (resp.isSetQueryWithAttributesResult()) {
-        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
-        // SDB items
-        List<Item> items = res.getItem();
-        if (items.size() > 0) {
-          // item already exists, get Node to throw an error
-          // TODO much escriptive exception (location(name), is it Node or Property)
-          throw new ItemExistsException("(add) " + itemClass + " already exists. ID: "
-              + data.getIdentifier() + ". " + itemClass + " " + data.getQPath().getAsString());
-        }
-      }
+//      QueryWithAttributesResponse resp = queryItemAttrByID(sdbService,
+//                                                           domainName,
+//                                                           data.getIdentifier(),
+//                                                           ID);
+//      if (resp.isSetQueryWithAttributesResult()) {
+//        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+//        // SDB items
+//        List<Item> items = res.getItem();
+//        if (items.size() > 0) {
+//          // item already exists, get Node to throw an error
+//          // TODO much escriptive exception (location(name), is it Node or Property)
+//          throw new ItemExistsException("(add) " + itemClass + " already exists. ID: "
+//              + data.getIdentifier() + ". " + itemClass + " " + data.getQPath().getAsString());
+//        }
+//      }
 
-      // 2. [16.10.09] check if Item doesn't exist (by PID and Name) 
-      resp = queryItemAttrByName(sdbService,
+      // 2. [16.10.09] check if Item doesn't exist (by PID and Name or ID)
+      QueryWithAttributesResponse resp = queryItemAttrByNameOrID(sdbService,
                                  domainName,
                                  data.getParentIdentifier(),
-                                 data.getQPath().getEntries()[data.getQPath().getEntries().length - 1].getAsString(),
+                                 data.getQPath().getEntries()[data.getQPath().getEntries().length - 1].getAsString(true),
+                                 data.getIdentifier(),
                                  ID);
       if (resp.isSetQueryWithAttributesResult()) {
         QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
@@ -1868,8 +1930,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         if (items.size() > 0) {
           // item already exists, get Node to throw an error
           // TODO much escriptive exception (location(name), is it Node or Property)
-          throw new ItemExistsException("(add) " + itemClass + " already exists. Path: "
-              + data.getQPath().getAsString() + ". " + itemClass + " ID " + data.getIdentifier());
+          throw new ItemExistsException("(add) " + itemClass + " already exists. New item "
+              + data.getQPath().getAsString() + " " + data.getIdentifier());
         }
       }
 
@@ -1971,7 +2033,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             // }
             if (v >= data.getPersistedVersion()) {
               // TODO are we need the check here?
-              LOG.warn(">>>>> InvalidItemState. " + itemClass + " " + data.getQPath().getAsString());
+              //LOG.warn(">>>>> InvalidItemState. " + itemClass + " " + data.getQPath().getAsString());
               throw new JCRInvalidItemStateException("(" + modification + ") Invalid Item state. "
                                                          + itemClass + " "
                                                          + data.getQPath().getAsString() + " "

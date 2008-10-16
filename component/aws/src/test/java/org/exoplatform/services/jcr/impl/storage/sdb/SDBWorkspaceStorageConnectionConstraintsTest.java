@@ -48,133 +48,133 @@ import com.amazonaws.sdb.model.GetAttributesResult;
  */
 public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTestBase {
 
-//  /**
-//   * Test if save of Item will fails on Workspace containing a newer version of the Item.
-//   * 
-//   * @throws Exception
-//   *           - SDB error
-//   */
-//  public void testInvalidItemState() throws Exception {
-//
-//    sdbConn.add(jcrRoot);
-//    sdbConn.add(testRoot);
-//    sdbConn.commit();
-//
-//    NodeData updated2 = new TransientNodeData(testRoot.getQPath(),
-//                                              testRoot.getIdentifier(),
-//                                              2,
-//                                              Constants.NT_FILE,
-//                                              new InternalQName[] { Constants.MIX_VERSIONABLE },
-//                                              1,
-//                                              testRoot.getParentIdentifier(),
-//                                              testRoot.getACL());
-//
-//    NodeData updated3 = new TransientNodeData(testRoot.getQPath(),
-//                                              testRoot.getIdentifier(),
-//                                              3,
-//                                              Constants.NT_UNSTRUCTURED,
-//                                              new InternalQName[] {},
-//                                              1,
-//                                              testRoot.getParentIdentifier(),
-//                                              testRoot.getACL());
-//    sdbConn.update(updated3);
-//    sdbConn.commit();
-//
-//    // run for fail
-//    try {
-//      sdbConn.update(updated2);
-//      sdbConn.commit();
-//      fail("InvalidItemStateException should be thrown");
-//    } catch (InvalidItemStateException e) {
-//      // ok
-//    }
-//
-//    // check
-//    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, updated3.getIdentifier());
-//
-//    if (resp.isSetGetAttributesResult()) {
-//      GetAttributesResult res = resp.getGetAttributesResult();
-//      String id = null;
-//      String idata = null;
-//      for (Attribute attr : res.getAttribute()) {
-//        if (attr.getName().equals(SDBConstants.ID))
-//          id = attr.getValue();
-//        else if (attr.getName().equals(SDBConstants.IDATA))
-//          idata = attr.getValue();
-//      }
-//
-//      assertEquals("Id doesn't match", updated3.getIdentifier(), id);
-//      assertTrue("Persistent version should be 3", idata.startsWith("3"
-//          + SDBConstants.IDATA_DELIMITER));
-//
-//      assertTrue("Not a nt:file", idata.indexOf(Constants.NT_FILE.getAsString()) == -1);
-//      assertTrue("Not a mix:versionable",
-//                 idata.indexOf(Constants.MIX_VERSIONABLE.getAsString()) == -1);
-//
-//      assertTrue("This is a nt:unstructured node",
-//                 idata.indexOf(Constants.NT_UNSTRUCTURED.getAsString()) > -1);
-//    } else
-//      fail("Not a result");
-//  }
-//
-//  /**
-//   * Test if add node will fails on save without parent in Repository.
-//   * 
-//   * @throws Exception
-//   *           - error
-//   */
-//  public void testParentNotFound() throws Exception {
-//
-//    try {
-//      sdbConn.add(testRoot);
-//      sdbConn.commit();
-//    } catch (InvalidItemStateException e) {
-//      if (e.getMessage().indexOf("parent not found") < 0) {
-//        LOG.error("add Node error", e);
-//        fail(e.getMessage());
-//      }
-//    }
-//
-//    // check
-//    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
-//
-//    if (resp.isSetGetAttributesResult()) {
-//      GetAttributesResult res = resp.getGetAttributesResult();
-//      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
-//    } else
-//      fail("Not a result");
-//  }
-//
-//  /**
-//   * Test if nonexisted Item delete will fails on save.
-//   * 
-//   * @throws Exception
-//   *           - if error
-//   */
-//  public void testItemNotFoundOnDelete() throws Exception {
-//
-//    // prepare
-//    sdbConn.add(jcrRoot);
-//    sdbConn.commit();
-//
-//    try {
-//      sdbConn.delete(testRoot);
-//      sdbConn.commit();
-//      fail("InvalidItemStateException should be thrown");
-//    } catch (InvalidItemStateException e) {
-//      // ok
-//    }
-//
-//    // check
-//    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
-//
-//    if (resp.isSetGetAttributesResult()) {
-//      GetAttributesResult res = resp.getGetAttributesResult();
-//      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
-//    } else
-//      fail("Not a result");
-//  }
-//
+   /**
+   * Test if save of Item will fails on Workspace containing a newer version of the Item.
+   * 
+   * @throws Exception
+   *           - SDB error
+   */
+  public void testInvalidItemState() throws Exception {
+
+    sdbConn.add(jcrRoot);
+    sdbConn.add(testRoot);
+    sdbConn.commit();
+
+    NodeData updated2 = new TransientNodeData(testRoot.getQPath(),
+                                              testRoot.getIdentifier(),
+                                              2,
+                                              Constants.NT_FILE,
+                                              new InternalQName[] { Constants.MIX_VERSIONABLE },
+                                              1,
+                                              testRoot.getParentIdentifier(),
+                                              testRoot.getACL());
+
+    NodeData updated3 = new TransientNodeData(testRoot.getQPath(),
+                                              testRoot.getIdentifier(),
+                                              3,
+                                              Constants.NT_UNSTRUCTURED,
+                                              new InternalQName[] {},
+                                              1,
+                                              testRoot.getParentIdentifier(),
+                                              testRoot.getACL());
+    sdbConn.update(updated3);
+    sdbConn.commit();
+
+    // run for fail
+    try {
+      sdbConn.update(updated2);
+      sdbConn.commit();
+      fail("InvalidItemStateException should be thrown");
+    } catch (InvalidItemStateException e) {
+      // ok
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, updated3.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      String idata = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.IDATA))
+          idata = attr.getValue();
+      }
+
+      assertEquals("Id doesn't match", updated3.getIdentifier(), id);
+      assertTrue("Persistent version should be 3", idata.startsWith("3"
+          + SDBConstants.IDATA_DELIMITER));
+
+      assertTrue("Not a nt:file", idata.indexOf(Constants.NT_FILE.getAsString()) == -1);
+      assertTrue("Not a mix:versionable",
+                 idata.indexOf(Constants.MIX_VERSIONABLE.getAsString()) == -1);
+
+      assertTrue("This is a nt:unstructured node",
+                 idata.indexOf(Constants.NT_UNSTRUCTURED.getAsString()) > -1);
+    } else
+      fail("Not a result");
+  }
+
+  /**
+   * Test if add node will fails on save without parent in Repository.
+   * 
+   * @throws Exception
+   *           - error
+   */
+  public void testParentNotFound() throws Exception {
+
+    try {
+      sdbConn.add(testRoot);
+      sdbConn.commit();
+    } catch (InvalidItemStateException e) {
+      if (e.getMessage().indexOf("parent not found") < 0) {
+        LOG.error("add Node error", e);
+        fail(e.getMessage());
+      }
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
+    } else
+      fail("Not a result");
+  }
+
+  /**
+   * Test if nonexisted Item delete will fails on save.
+   * 
+   * @throws Exception
+   *           - if error
+   */
+  public void testItemNotFoundOnDelete() throws Exception {
+
+    // prepare
+    sdbConn.add(jcrRoot);
+    sdbConn.commit();
+
+    try {
+      sdbConn.delete(testRoot);
+      sdbConn.commit();
+      fail("InvalidItemStateException should be thrown");
+    } catch (InvalidItemStateException e) {
+      // ok
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
+    } else
+      fail("Not a result");
+  }
+  
   /**
    * Test if nonexisted Item delete will fails on save.
    * 
@@ -209,8 +209,8 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
   }
 
   /**
-   * Test if add of Item already stored in Repository will fails.
-   * Check by ID and by parent ID and Name.
+   * Test if add of Item already stored in Repository will fails. Check by ID and by parent ID and
+   * Name.
    * 
    * @throws Exception
    *           - if error
@@ -222,7 +222,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
     sdbConn.add(testRoot); // parent
     sdbConn.add(testProperty); // property
     sdbConn.commit();
-    
+
     // Thread.sleep(5000);
 
     // should fail
@@ -230,7 +230,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
     try {
       // try property with same name but diff Id
       TransientPropertyData newp = new TransientPropertyData(testProperty.getQPath(),
-                                                             newpId = SIDGenerator.generate(), // new ID !!!
+                                                             newpId = SIDGenerator.generate(), // new ID!!!
                                                              1,
                                                              PropertyType.DATE,
                                                              testProperty.getParentIdentifier(),
@@ -238,14 +238,14 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
       List<ValueData> values = new ArrayList<ValueData>(1);
       values.add(new TransientValueData(Calendar.getInstance()));
       newp.setValues(values);
-      
+
       sdbConn.add(newp);
       sdbConn.commit();
       fail("ItemExistsException should be thrown");
     } catch (ItemExistsException e) {
       // ok
     }
-    
+
     // check
     GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, newpId);
 
@@ -256,10 +256,9 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
       fail("Not a result");
 
     try {
-      // try property with same Id but diff Name 
+      // try property with same Id but diff Name
       TransientPropertyData newp = new TransientPropertyData(testMultivaluedProperty.getQPath(),
-                                                             testProperty.getIdentifier(), // ID of
-                                                                                           // testProperty
+                                                             testProperty.getIdentifier(), // ID of testProperty
                                                              1,
                                                              PropertyType.DATE,
                                                              testProperty.getParentIdentifier(),
@@ -267,7 +266,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
       List<ValueData> values = new ArrayList<ValueData>(1);
       values.add(new TransientValueData(Calendar.getInstance()));
       newp.setValues(values);
-      
+
       sdbConn.add(newp);
       sdbConn.commit();
       fail("ItemExistsException should be thrown");
@@ -280,7 +279,21 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
 
     if (resp.isSetGetAttributesResult()) {
       GetAttributesResult res = resp.getGetAttributesResult();
-      assertTrue("Property should not be saved", res.getAttribute().size() <= 0);
+      String name = null;
+      String idata = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.NAME))
+          name = attr.getValue();
+        if (attr.getName().equals(SDBConstants.IDATA))
+          idata = attr.getValue();
+      }
+
+      assertEquals("Property should has new name",
+                   testProperty.getQPath().getEntries()[testProperty.getQPath().getEntries().length - 1].getAsString(true),
+                   name);
+
+      assertEquals("Property type should be DATE", "1" + SDBConstants.IDATA_DELIMITER
+          + String.valueOf(PropertyType.STRING) + SDBConstants.IDATA_DELIMITER + "false", idata);
     } else
       fail("Not a result");
   }
