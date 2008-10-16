@@ -321,11 +321,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     checkIfOpened();
     try {
       if (renameNode(data) <= 0)
-        throw new JCRInvalidItemStateException("(rename) Node "
+        throw new JCRInvalidItemStateException("(rename) Node not found "
                                                    + data.getQPath().getAsString()
                                                    + " "
                                                    + data.getIdentifier()
-                                                   + " is not renamed. Probably was deleted by another session ",
+                                                   + ". Probably was deleted by another session ",
                                                data.getIdentifier(),
                                                ItemState.RENAMED);
     } catch (IOException e) {
@@ -353,11 +353,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
-        throw new JCRInvalidItemStateException("(delete) Node "
+        throw new JCRInvalidItemStateException("(delete) Node not found "
                                                    + data.getQPath().getAsString()
                                                    + " "
                                                    + data.getIdentifier()
-                                                   + " not found. Probably was deleted by another session ",
+                                                   + ". Probably was deleted by another session ",
                                                data.getIdentifier(),
                                                ItemState.DELETED);
 
@@ -393,11 +393,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
       // delete item
       int nc = deleteItemByIdentifier(cid);
       if (nc <= 0)
-        throw new JCRInvalidItemStateException("(delete) Property "
+        throw new JCRInvalidItemStateException("(delete) Property not found "
                                                    + data.getQPath().getAsString()
                                                    + " "
                                                    + data.getIdentifier()
-                                                   + " not found. Probably was deleted by another session ",
+                                                   + ". Probably was deleted by another session ",
                                                data.getIdentifier(),
                                                ItemState.DELETED);
 
@@ -435,11 +435,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
                                  data.getQPath().getIndex(),
                                  data.getOrderNumber(),
                                  cid) <= 0)
-        throw new JCRInvalidItemStateException("(update) Node "
+        throw new JCRInvalidItemStateException("(update) Node not found "
                                                    + data.getQPath().getAsString()
                                                    + " "
                                                    + data.getIdentifier()
-                                                   + " is not updated. Probably was deleted by another session ",
+                                                   + ". Probably was deleted by another session ",
                                                data.getIdentifier(),
                                                ItemState.UPDATED);
 
@@ -468,11 +468,11 @@ abstract public class JDBCStorageConnection extends DBConstants implements
 
       // update type
       if (updatePropertyByIdentifier(data.getPersistedVersion(), data.getType(), cid) <= 0)
-        throw new JCRInvalidItemStateException("(update) Property "
+        throw new JCRInvalidItemStateException("(update) Property not found "
                                                    + data.getQPath().getAsString()
                                                    + " "
                                                    + data.getIdentifier()
-                                                   + " is not updated. Probably was deleted by another session ",
+                                                   + ". Probably was deleted by another session ",
                                                data.getIdentifier(),
                                                ItemState.UPDATED);
 
