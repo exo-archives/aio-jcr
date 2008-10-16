@@ -80,7 +80,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       String parentId = (parent == null) ? null : parent.getId();
       Group group = new GroupImpl(child.getGroupName(), parentId, gNode.getUUID());
       group.setDescription(child.getDescription());
-      group.setLabel(child.getLabel());
+      group.setLabel(child.getLabel() != null ? child.getLabel() : child.getGroupName());
 
       writeObjectToNode(group, gNode);
       session.save();
@@ -184,13 +184,16 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     try {
       List<Group> types = new ArrayList<Group>();
-      String parentGroup = (parent == null)
-          ? null
-          : ((Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + "/"
-              + parent.getGroupName())).getUUID();
+
+      String path = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS;
+      if (parent != null && !session.itemExists(path + "/" + parent.getGroupName())) {
+        return types;
+      }
+
+      String parentGroup = (parent == null) ? null : ((Node) session.getItem(path + "/"
+          + parent.getGroupName())).getUUID();
       String whereStatement = (parentGroup == null) ? "" : " where exo:parentGroup='" + parentGroup
           + "'";
-
       String statement = "select * from exo:group" + whereStatement;
       Query query = service.getStorageSession()
                            .getWorkspace()
@@ -251,16 +254,16 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + "/"
           + group.getGroupName());
 
-      // check child node
+      // remove child groups
       String statement = "select * from exo:group where exo:parentGroup='" + gNode.getUUID() + "'";
       Query query = service.getStorageSession()
                            .getWorkspace()
                            .getQueryManager()
                            .createQuery(statement, Query.SQL);
       QueryResult res = query.execute();
-      if (res.getNodes().hasNext()) {
-        throw new OrganizationServiceException("Can not remove group '" + group.getGroupName()
-            + "'. The group has a child group.");
+      for (NodeIterator gNodes = res.getNodes(); gNodes.hasNext();) {
+        Group g = readObjectFromNode(gNodes.nextNode());
+        removeGroup(g, true);
       }
 
       // remove membership
@@ -273,10 +276,12 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
-        mNode.remove();
+        service.getMembershipHandler().removeMembership(mNode.getUUID(), broadcast);
       }
 
       // remove group
+      gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + "/"
+          + group.getGroupName());
       Group g = readObjectFromNode(gNode);
       gNode.remove();
 
@@ -309,12 +314,12 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      GroupImpl gImpl = (GroupImpl) group;
-      if (gImpl.getUUId() == null) {
-        throw new OrganizationServiceException("Can not find group for save changes because UUId is null.");
-      }
+      GroupImpl groupImpl = (GroupImpl) group;
+      String groupUUID = (groupImpl.getUUId() != null)
+          ? groupImpl.getUUId()
+          : ((GroupImpl) findGroupById(group.getId())).getUUId();
+      Node gNode = session.getNodeByUUID(groupUUID);
 
-      Node gNode = session.getNodeByUUID(gImpl.getUUId());
       String srcPath = gNode.getPath();
       int pos = srcPath.lastIndexOf('/');
       String prevName = srcPath.substring(pos + 1);

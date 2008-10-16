@@ -121,13 +121,13 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
 
     g3 = gHandler.findGroupById("/group1/group3");
 
+    gHandler.removeGroup(g1, true);
+
     try {
-      gHandler.removeGroup(g1, true);
-      fail("Can not remove group with child groups");
+      g3 = gHandler.findGroupById("/group1");
+      assertTrue("Group '/group1' is removed but still present", g3 == null);
     } catch (Exception e) {
     }
-
-    gHandler.removeGroup(g3, true);
 
     try {
       g3 = gHandler.findGroupById("/group1/group3");

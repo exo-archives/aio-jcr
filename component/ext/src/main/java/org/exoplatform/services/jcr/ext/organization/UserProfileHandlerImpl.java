@@ -85,15 +85,20 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   public UserProfile findUserProfileByName(String userName) throws Exception {
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
+      String uPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+          + userName;
+      if (!session.itemExists(uPath)) {
+        return null;
+      }
 
-      Node profileNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE);
-      Node attrNode = profileNode.getNode(EXO_ATTRIBUTES);
+      Node uNode = (Node) session.getItem(uPath);
+      Node attrNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE).getNode(EXO_ATTRIBUTES);
 
       UserProfile userProfile = new UserProfileImpl(userName);
       for (PropertyIterator props = attrNode.getProperties(); props.hasNext();) {
         Property prop = props.nextProperty();
+
+        // ignore system properties
         if (!(prop.getName()).startsWith("jcr:")) {
           userProfile.setAttribute(prop.getName(), prop.getString());
         }

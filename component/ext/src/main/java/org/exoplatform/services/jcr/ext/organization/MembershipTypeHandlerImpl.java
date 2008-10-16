@@ -22,7 +22,10 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
 
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
@@ -93,6 +96,8 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
           + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
       return readObjectFromNode(mtNode);
 
+    } catch (PathNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type '" + name + "'", e);
     } finally {
@@ -132,6 +137,21 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
+
+      // remove membership
+      String mStatement = "select * from exo:userMembership where exo:membershipType='"
+          + mtNode.getUUID() + "'";
+      Query mQuery = service.getStorageSession()
+                            .getWorkspace()
+                            .getQueryManager()
+                            .createQuery(mStatement, Query.SQL);
+      QueryResult mRes = mQuery.execute();
+      for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
+        Node mNode = mNodes.nextNode();
+        service.getMembershipHandler().removeMembership(mNode.getUUID(), broadcast);
+      }
+
+      // remove membership type
       MembershipType mt = readObjectFromNode(mtNode);
       mtNode.remove();
       session.save();
@@ -152,11 +172,11 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     Session session = service.getStorageSession();
     try {
       MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
-      if (mtImpl.getUUId() == null) {
-        throw new OrganizationServiceException("Can not find membership type for save changes because UUId is null.");
-      }
+      String mtUUID = mtImpl.getUUId() != null
+          ? mtImpl.getUUId()
+          : ((MembershipTypeImpl) findMembershipType(mt.getName())).getUUId();
+      Node mNode = session.getNodeByUUID(mtUUID);
 
-      Node mNode = session.getNodeByUUID(mtImpl.getUUId());
       String srcPath = mNode.getPath();
       int pos = srcPath.lastIndexOf('/');
       String prevName = srcPath.substring(pos + 1);

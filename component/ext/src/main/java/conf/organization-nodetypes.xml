@@ -100,7 +100,7 @@
         <valueConstraints/>
       </propertyDefinition>
       <propertyDefinition name="exo:createdDate" requiredType="Date"
-        autoCreated="true" mandatory="true" onParentVersion="COPY"
+        autoCreated="false" mandatory="true" onParentVersion="COPY"
         protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>

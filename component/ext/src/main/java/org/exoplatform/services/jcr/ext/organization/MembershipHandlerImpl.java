@@ -197,9 +197,14 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     try {
       List<Membership> types = new ArrayList<Membership>();
 
-      Node mmNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/"
-          + UserHandlerImpl.EXO_MEMBERSHIP);
+      String userPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+          + userName;
+
+      if (!session.itemExists(userPath)) {
+        return types;
+      }
+
+      Node mmNode = (Node) session.getItem(userPath + "/" + UserHandlerImpl.EXO_MEMBERSHIP);
 
       String uui = mmNode.getUUID();
 

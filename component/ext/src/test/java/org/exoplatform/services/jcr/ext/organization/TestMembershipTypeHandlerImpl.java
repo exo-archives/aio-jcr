@@ -70,14 +70,9 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
 
   public void testRemoveMembershipType() throws Exception {
     createRecords("type4", "desc4");
-
     mtHandler.removeMembershipType("type4", true);
-
-    try {
-      mtHandler.findMembershipType("type4");
-      fail("Membership type 'type5' is present, but must be removed");
-    } catch (Exception e) {
-    }
+    assertTrue("Membership type 'type4' is present but must be removed",
+               mtHandler.findMembershipType("type4") == null);
 
   }
 
@@ -96,11 +91,8 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
         + "'", mt.getDescription().equals("desc3"));
 
     // check that previous membership type is absent
-    try {
-      mtHandler.findMembershipType("type2");
-      fail("Membership type 'type3' is present, but must be removed");
-    } catch (Exception e) {
-    }
+    assertTrue("Membership type 'type2' is present but must be renamed",
+               mtHandler.findMembershipType("type2") == null);
 
     // change description only and save
     mt.setDescription("desc2");

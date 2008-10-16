@@ -102,6 +102,13 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     try {
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
       Node uNode = storageNode.addNode(user.getUserName());
+
+      // set default value for createdDate
+      if (user.getCreatedDate() == null) {
+        Calendar calendar = Calendar.getInstance();
+        user.setCreatedDate(calendar.getTime());
+      }
+
       writeObjectToNode(user, uNode);
       session.save();
 
@@ -275,12 +282,11 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
           + userName);
       User user = findUserByName(userName);
+
       uNode.remove();
       session.save();
       return user;
 
-    } catch (PathNotFoundException e) {
-      throw new OrganizationServiceException("Can not find user '" + userName + "' for remove");
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove user '" + userName + "'", e);
     } finally {
@@ -305,12 +311,12 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      UserImpl uImpl = (UserImpl) user;
-      if (uImpl.getUUId() == null) {
-        throw new OrganizationServiceException("Can not find user for save changes because UUId is null.");
-      }
+      UserImpl userImpl = (UserImpl) user;
+      String userUUID = userImpl.getUUId() != null
+          ? userImpl.getUUId()
+          : ((UserImpl) findUserByName(user.getUserName())).getUUId();
+      Node uNode = session.getNodeByUUID(userUUID);
 
-      Node uNode = session.getNodeByUUID(uImpl.getUUId());
       String srcPath = uNode.getPath();
       int pos = srcPath.lastIndexOf('/');
       String prevName = srcPath.substring(pos + 1);
@@ -367,16 +373,24 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    */
   private void writeObjectToNode(User user, Node node) throws Exception {
     try {
-      Calendar calendar = Calendar.getInstance();
+      Calendar calendar = null;
       node.setProperty(EXO_EMAIL, user.getEmail());
       node.setProperty(EXO_FIRST_NAME, user.getFirstName());
       node.setProperty(EXO_LAST_NAME, user.getLastName());
       node.setProperty(EXO_PASSWORD, user.getPassword());
 
-      calendar.setTime(user.getLastLoginTime());
-      node.setProperty(EXO_LAST_LOGIN_TIME, calendar);
+      if (user.getLastLoginTime() == null) {
+        node.setProperty(EXO_LAST_LOGIN_TIME, calendar);
+      } else {
+        calendar = Calendar.getInstance();
+        calendar.setTime(user.getLastLoginTime());
+        node.setProperty(EXO_LAST_LOGIN_TIME, calendar);
+      }
+
+      calendar = Calendar.getInstance();
       calendar.setTime(user.getCreatedDate());
       node.setProperty(EXO_CREATED_DATE, calendar);
+
       /*
             try {
               node.getNode(EXO_PROFILE);
@@ -391,6 +405,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
               pNode.addNode(UserProfileHandlerImpl.EXO_ATTRIBUTES);
             }
       */
+
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write user properties", e);
     }
