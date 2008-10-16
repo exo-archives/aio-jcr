@@ -1829,12 +1829,16 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    *           - if Item already exists
    * @throws SDBRepositoryException
    *           - if other storage error occurs
+   * @throws JCRInvalidItemStateException
+   *           - if parent not found
    */
-  protected void validateItemAdd(ItemData data) throws ItemExistsException, SDBRepositoryException {
+  protected void validateItemAdd(ItemData data) throws ItemExistsException,
+                                               SDBRepositoryException,
+                                               JCRInvalidItemStateException {
 
     final String itemClass = data.isNode() ? "Node" : "Property";
     try {
-      // 1. check if Item doesn't exist
+      // 1. check if Item doesn't exist (by ID)
       QueryWithAttributesResponse resp = queryItemAttrByID(sdbService,
                                                            domainName,
                                                            data.getIdentifier(),
@@ -1851,7 +1855,25 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         }
       }
 
-      // 2. check if Parent exists (except of root)
+      // 2. [16.10.09] check if Item doesn't exist (by PID and Name) 
+      resp = queryItemAttrByName(sdbService,
+                                 domainName,
+                                 data.getParentIdentifier(),
+                                 data.getQPath().getEntries()[data.getQPath().getEntries().length - 1].getAsString(),
+                                 ID);
+      if (resp.isSetQueryWithAttributesResult()) {
+        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
+        // SDB items
+        List<Item> items = res.getItem();
+        if (items.size() > 0) {
+          // item already exists, get Node to throw an error
+          // TODO much escriptive exception (location(name), is it Node or Property)
+          throw new ItemExistsException("(add) " + itemClass + " already exists. Path: "
+              + data.getQPath().getAsString() + ". " + itemClass + " ID " + data.getIdentifier());
+        }
+      }
+
+      // 3. check if Parent exists (except of root)
       if (!Constants.ROOT_PARENT_UUID.equals(data.getParentIdentifier())) {
         // check in current transaction changes
         if (!addedNodes.contains(data.getParentIdentifier())) {
@@ -1871,9 +1893,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                   + data.getQPath().getAsString() + " Item parent.");
             } else if (items.size() <= 0) {
               // Parent not found
-              throw new SDBRepositoryException("(add) " + itemClass + " "
-                  + data.getQPath().getAsString() + " parent not found. Parent ID: "
-                  + data.getParentIdentifier());
+              throw new JCRInvalidItemStateException("(add) " + itemClass + " "
+                  + data.getQPath().getAsString() + " parent not found "
+                  + data.getParentIdentifier() + ".", data.getParentIdentifier(), ItemState.ADDED);
             } // else - Parent exists
           }
         }
@@ -1921,15 +1943,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         List<Item> items = res.getItem();
         if (items.size() <= 0) {
           // item doesn't exist - error
-          throw new JCRInvalidItemStateException("("
-                                                     + modification
-                                                     + ") "
-                                                     + itemClass
-                                                     + " "
-                                                     + data.getQPath().getAsString()
-                                                     + " "
+          throw new JCRInvalidItemStateException("(" + modification + ") " + itemClass
+                                                     + " not found "
+                                                     + data.getQPath().getAsString() + " "
                                                      + data.getIdentifier()
-                                                     + " not found. Probably was deleted by another session ",
+                                                     + ". Probably was deleted by another session ",
                                                  data.getIdentifier(),
                                                  modification == ITEM_DELETE
                                                      ? ItemState.DELETED
@@ -1954,9 +1972,17 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             if (v >= data.getPersistedVersion()) {
               // TODO are we need the check here?
               LOG.warn(">>>>> InvalidItemState. " + itemClass + " " + data.getQPath().getAsString());
-              throw new InvalidItemStateException("(" + modification + ") Invalid Item state. " + itemClass + " "
-                                               + data.getQPath().getAsString() + " " + data.getIdentifier() + " persistent version is " + v
-                                               + " but modification " + data.getPersistedVersion() + ".");
+              throw new JCRInvalidItemStateException("(" + modification + ") Invalid Item state. "
+                                                         + itemClass + " "
+                                                         + data.getQPath().getAsString() + " "
+                                                         + data.getIdentifier()
+                                                         + " persistent version is " + v
+                                                         + " but modification "
+                                                         + data.getPersistedVersion() + ".",
+                                                     data.getIdentifier(),
+                                                     modification == ITEM_DELETE
+                                                         ? ItemState.DELETED
+                                                         : ItemState.UPDATED);
             }
           } catch (IndexOutOfBoundsException e) {
             throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
@@ -2054,7 +2080,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           throw new SDBRepositoryException("(item) FATAL Id '" + ancestorId
               + "' match multiple items in storage");
         } else
-          throw new InvalidItemStateException("(item) Parent not found, Id " + ancestorId);
+          throw new JCRInvalidItemStateException("(item) Parent not found, Id " + ancestorId,
+                                                 ancestorId);
       }
     } while (!ancestorId.equals(Constants.ROOT_PARENT_UUID));
 

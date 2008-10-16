@@ -132,37 +132,6 @@ public class SDBWorkspaceStorageConnectionReadTest extends SDBWorkspaceTestBase 
   }
 
   /**
-   * Test if add node will fails on save without parent in Repository.
-   * 
-   * @throws AmazonSimpleDBException
-   *           - SDB error
-   */
-  public void testFailNoParent() throws AmazonSimpleDBException {
-
-    try {
-      sdbConn.add(testRoot);
-      sdbConn.commit();
-    } catch (ItemExistsException e) {
-      LOG.error("add Node error", e);
-      fail(e.getMessage());
-    } catch (RepositoryException e) {
-      if (e.getMessage().indexOf("parent not found") < 0) {
-        LOG.error("add Node error", e);
-        fail(e.getMessage());
-      }
-    }
-
-    // check
-    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
-
-    if (resp.isSetGetAttributesResult()) {
-      GetAttributesResult res = resp.getGetAttributesResult();
-      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
-    } else
-      fail("Not a result");
-  }
-
-  /**
    * Test if Node storage metadata (persisted version, order number, nodetypes) stored well.
    * 
    * @throws AmazonSimpleDBException
