@@ -68,7 +68,7 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
   /**
    * Storage cleaner timeout 30min.
    */
-  protected static final int                 CLEANER_TIMEOUT           = 1 * 60 * 1000; 
+  protected static final int                 CLEANER_TIMEOUT           = 20 * 60 * 1000; 
 
   /**
    * Container logger.
@@ -172,7 +172,7 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
                                                                            valueStorageProvider);
     this.storageVersion = conn.initStorage(containerName, CURRENT_STORAGE_VERSION);
     
-    this.storageCleaner = new StorageCleaner(conn, CLEANER_TIMEOUT);
+    this.storageCleaner = new StorageCleaner(containerName, conn, CLEANER_TIMEOUT);
     this.storageCleaner.start();
 
     LOG.info(getInfo());

@@ -19,11 +19,19 @@
  */
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
+import java.util.Random;
+
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
+ * <br/> It's a temporary solution... IMO. it will be better to delete after each commit in
+ * independent thread. Comming soon...
+ * 
+ * <br/> The cleaner will runs with random (around container constant) time to prevent prbs in
+ * cluster environment.
  * 
  * <br/>Date: 15.10.2008
  * 
@@ -35,8 +43,8 @@ public class StorageCleaner extends Thread {
   /**
    * Container logger.
    */
-  protected static final Log                 LOG                     = ExoLogger.getLogger("jcr.StorageCleaner");
-  
+  protected static final Log                  LOG = ExoLogger.getLogger("jcr.StorageCleaner");
+
   /**
    * Active status.
    */
@@ -57,13 +65,17 @@ public class StorageCleaner extends Thread {
    * 
    * @param sdbConn
    *          SDB Connection
+   * @param containerName
+   *          container name
    * @param timeout
    *          timeout to wait
    */
-  StorageCleaner(SDBWorkspaceStorageConnection sdbConn, int timeout) {
+  StorageCleaner(String containerName, SDBWorkspaceStorageConnection sdbConn, int timeout) {
     setDaemon(true);
+    setName("JCRSimpleDBStorageCleaner-" + containerName);
 
     this.sdbConn = sdbConn;
+
     this.timeout = timeout;
   }
 
@@ -74,15 +86,18 @@ public class StorageCleaner extends Thread {
   public void run() {
     while (run) {
       try {
+        // make the cleaner period a bit randomized
+        Random rnd = new Random();
+        int rndPart = rnd.nextInt(timeout);
+        Thread.sleep(timeout + rndPart); // one or two or... smth between
+      } catch (Throwable e) {
+        LOG.error("Storage cleaner wait is interrupted " + e, e);
+      }
+      
+      try {
         sdbConn.runCleanup();
       } catch (Throwable e) {
         LOG.error("Storage cleaner error " + e + ". Continue execution.", e);
-      }
-
-      try {
-        Thread.sleep(timeout);
-      } catch (Throwable e) {
-        LOG.error("Storage cleaner wait is interrupted " + e, e);
       }
     }
   }

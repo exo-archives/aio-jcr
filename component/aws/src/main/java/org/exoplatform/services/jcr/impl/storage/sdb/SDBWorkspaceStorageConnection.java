@@ -1944,38 +1944,44 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           // TODO don't use parseNodeIData() if we need only version
           Item sdbItem = items.get(0);
           String idv = getAttribute(sdbItem.getAttribute(), IDATA);
-          if (idv != null) {
-            try {
-              int v;
-              if (data.isNode()) {
-                v = parseNodeIData(idv, null).getVersion();
-              } else {
-                v = parsePropertyIData(idv).getVersion();
-              }
-              if (v >= data.getPersistedVersion()) {
-                // TODO are we need the check here?
-                LOG.warn(">>>>> InvalidItemState. " + itemClass + " "
-                    + data.getQPath().getAsString());
-              }
-            } catch (SDBValueNumberFormatException e) {
-              throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
-                  + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
-                  + " attribute error. " + e, e);
-            } catch (IllegalNameException e) {
-              throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
-                  + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
-                  + " attribute error. " + e, e);
-            } catch (IllegalACLException e) {
-              throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
-                  + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
-                  + " attribute error. " + e, e);
+          try {
+            int v = Integer.valueOf(idv.substring(0, idv.indexOf(IDATA_DELIMITER)));
+            // if (data.isNode()) {
+            // v = parseNodeIData(idv, null).getVersion();
+            // } else {
+            // v = parsePropertyIData(idv).getVersion();
+            // }
+            if (v >= data.getPersistedVersion()) {
+              // TODO are we need the check here?
+              LOG.warn(">>>>> InvalidItemState. " + itemClass + " " + data.getQPath().getAsString());
+              throw new InvalidItemStateException("(" + modification + ") Invalid Item state. " + itemClass + " "
+                                               + data.getQPath().getAsString() + " " + data.getIdentifier() + " persistent version is " + v
+                                               + " but modification " + data.getPersistedVersion() + ".");
             }
-          } else {
-            // error state
+          } catch (IndexOutOfBoundsException e) {
             throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
-                + data.getQPath().getAsString() + " " + data.getIdentifier() + " hasn't " + IDATA
-                + " attribute.");
+                + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+                + " attribute value '" + idv + "' is wrong. " + e, e);
           }
+          // } catch (SDBValueNumberFormatException e) {
+          // throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+          // + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+          // + " attribute error. " + e, e);
+          // } catch (IllegalNameException e) {
+          // throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+          // + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+          // + " attribute error. " + e, e);
+          // } catch (IllegalACLException e) {
+          // throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+          // + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+          // + " attribute error. " + e, e);
+          // }
+          // } else {
+          // // error state
+          // throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+          // + data.getQPath().getAsString() + " " + data.getIdentifier() + " hasn't " + IDATA
+          // + " attribute.");
+          // }
         }
       }
 

@@ -121,7 +121,9 @@
           </testFailureIgnore>
           <forkMode>${exo.test.forkMode}</forkMode>
           <includes>
-            <include>**/SDBWorkspaceStorageConnectionTest.java</include>
+            <include>**/SDBWorkspaceStorageConnectionTest__.java</include>
+			<include>**/SDBWorkspaceDataContainerTest__.java</include>
+			<include>**/SDBWorkspaceStorageConnectionConstraintsTest.java</include>
           </includes>
         </configuration>
       </plugin>

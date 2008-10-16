@@ -1,0 +1,142 @@
+/*
+ * Copyright (C) 2003-2007 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.impl.storage.sdb;
+
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.ItemExistsException;
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+
+import com.amazonaws.sdb.AmazonSimpleDBException;
+import com.amazonaws.sdb.model.Attribute;
+import com.amazonaws.sdb.model.GetAttributesResponse;
+import com.amazonaws.sdb.model.GetAttributesResult;
+
+/**
+ * Created by The eXo Platform SAS.
+ * 
+ * <br/>Date: 13.10.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: SDBWorkspaceStorageConnectionConstraintsTest.java 21434 2008-10-15 21:57:24Z
+ *          pnedonosko $
+ */
+public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTestBase {
+
+  /**
+   * Test if save of eldest item will fails if the Workspace contains the Item newer version.
+   * 
+   * @throws Exception
+   *           - SDB error
+   */
+  public void testInvalidItemState() throws Exception {
+
+    sdbConn.add(jcrRoot);
+    sdbConn.add(testRoot);
+    sdbConn.commit();
+
+    NodeData updated2 = new TransientNodeData(testRoot.getQPath(),
+                                              testRoot.getIdentifier(),
+                                              2,
+                                              Constants.NT_FILE,
+                                              new InternalQName[] { Constants.MIX_VERSIONABLE },
+                                              1,
+                                              testRoot.getParentIdentifier(),
+                                              testRoot.getACL());
+
+    NodeData updated3 = new TransientNodeData(testRoot.getQPath(),
+                                              testRoot.getIdentifier(),
+                                              3,
+                                              Constants.NT_UNSTRUCTURED,
+                                              new InternalQName[] {},
+                                              1,
+                                              testRoot.getParentIdentifier(),
+                                              testRoot.getACL());
+    sdbConn.update(updated3);
+    sdbConn.commit();
+
+    // run for fail
+    try {
+      sdbConn.update(updated2);
+      sdbConn.commit();
+      fail("InvalidItemStateException should be thrown");
+    } catch (InvalidItemStateException e) {
+      // ok
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, updated3.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      String id = null;
+      String idata = null;
+      for (Attribute attr : res.getAttribute()) {
+        if (attr.getName().equals(SDBConstants.ID))
+          id = attr.getValue();
+        else if (attr.getName().equals(SDBConstants.IDATA))
+          idata = attr.getValue();
+      }
+
+      assertEquals("Id doesn't match", updated3.getIdentifier(), id);
+      assertTrue("Persistent version should be 3", idata.startsWith("3"
+          + SDBConstants.IDATA_DELIMITER));
+      
+      assertTrue("Not a nt:file", idata.indexOf(Constants.NT_FILE.getAsString()) == -1);
+      assertTrue("Not a mix:versionable", idata.indexOf(Constants.MIX_VERSIONABLE.getAsString()) == -1);
+      
+      assertTrue("This is a nt:unstructured node", idata.indexOf(Constants.NT_UNSTRUCTURED.getAsString()) > -1);
+    } else
+      fail("Not a result");
+  }
+  
+  /**
+   * Test if add node will fails on save without parent in Repository.
+   * 
+   * @throws AmazonSimpleDBException
+   *           - SDB error
+   */
+  public void testParentNotFound() throws AmazonSimpleDBException {
+
+    try {
+      sdbConn.add(testRoot);
+      sdbConn.commit();
+    } catch (ItemExistsException e) {
+      LOG.error("add Node error", e);
+      fail(e.getMessage());
+    } catch (RepositoryException e) {
+      if (e.getMessage().indexOf("parent not found") < 0) {
+        LOG.error("add Node error", e);
+        fail(e.getMessage());
+      }
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
+    } else
+      fail("Not a result");
+  }
+
+}
