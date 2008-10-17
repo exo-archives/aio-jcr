@@ -12,8 +12,8 @@
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
-			  <property name="aws-access-key" value=""/>
-			  <property name="aws-secret-key" value=""/>
+			  <property name="aws-access-key" value="z"/>
+			  <property name="aws-secret-access-key" value="z"/>
 			  <property name="domain-name" value="exo-aws-test-ws"/>
             </properties>
             <!-- value-storages>
@@ -37,10 +37,8 @@
           </initializer>
           <cache enabled="true">
             <properties>
-              <property name="max-size" value="2k"/>
-              <property name="live-time" value="20m"/>
-              <property name="statistic-period" value="30"/>
-              <property name="statistic-log" value="true"/>
+              <property name="max-size" value="10k"/>
+              <property name="live-time" value="30m"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -69,8 +67,8 @@
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws1"/>
-			  <property name="aws-access-key" value=""/>
-			  <property name="aws-secret-key" value=""/>
+			  <property name="aws-access-key" value="z"/>
+			  <property name="aws-secret-access-key" value="z"/>
 			  <property name="domain-name" value="exo-aws-test-ws1"/>
             </properties>
             <!-- value-storages>
@@ -94,10 +92,8 @@
           </initializer>
           <cache enabled="true">
             <properties>
-              <property name="max-size" value="2k"/>
-              <property name="live-time" value="20m"/>
-              <property name="statistic-period" value="30"/>
-              <property name="statistic-log" value="true"/>
+              <property name="max-size" value="10k"/>
+              <property name="live-time" value="30m"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -126,8 +122,8 @@
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>
-			  <property name="aws-access-key" value=""/>
-			  <property name="aws-secret-key" value=""/>
+			  <property name="aws-access-key" value="z"/>
+			  <property name="aws-secret-access-key" value="z"/>
 			  <property name="domain-name" value="exo-aws-test-ws2"/>
             </properties>
             <!-- value-storages>
@@ -151,10 +147,8 @@
           </initializer>
           <cache enabled="true">
             <properties>
-              <property name="max-size" value="2k"/>
-              <property name="live-time" value="20m"/>
-              <property name="statistic-period" value="30"/>
-              <property name="statistic-log" value="true"/>
+              <property name="max-size" value="10k"/>
+              <property name="live-time" value="30m"/>
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
