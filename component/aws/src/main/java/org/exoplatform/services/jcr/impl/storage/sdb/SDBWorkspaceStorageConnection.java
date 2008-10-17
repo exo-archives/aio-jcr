@@ -490,20 +490,23 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      */
     @Override
     Object execute() throws RepositoryException {
+      
+      if (LOG.isDebugEnabled())
+        LOG.debug("(add) Node " + node.getQPath().getAsString() + " " + node.getIdentifier());
+      
       // validate
       validateItemAdd(node);
 
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
 
       list.add(new ReplaceableAttribute(ID, node.getIdentifier(), false));
-      list.add(new ReplaceableAttribute(PID, node.getParentIdentifier(), false));
+      list.add(new ReplaceableAttribute(PID, node.getParentIdentifier() == null
+          ? Constants.ROOT_PARENT_UUID
+          : node.getParentIdentifier(), false));
       list.add(new ReplaceableAttribute(NAME,
                                         node.getQPath().getEntries()[node.getQPath().getEntries().length - 1].getAsString(true),
                                         false));
       list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, false));
-      // list.add(new ReplaceableAttribute(VERSION, String.valueOf(node.getPersistedVersion()),
-      // false));
-      // list.add(new ReplaceableAttribute(ORDERNUM, String.valueOf(node.getOrderNumber()), false));
       list.add(new ReplaceableAttribute(IDATA, formatIData(node), false));
 
       try {
@@ -569,6 +572,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     @Override
     Object execute() throws RepositoryException {
 
+      if (LOG.isDebugEnabled())
+        LOG.debug("(add) Property " + property.getQPath().getAsString() + " " + property.getIdentifier());
+      
       // validate
       validateItemAdd(property);
 
@@ -659,21 +665,18 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     @Override
     Object execute() throws RepositoryException {
 
+      if (LOG.isDebugEnabled())
+        LOG.debug("(update) Node " + node.getQPath().getAsString() + " " + node.getIdentifier());
+
       // validate
       validateItemChange(node, ITEM_UPDATE);
 
       final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
 
-      // list.add(new ReplaceableAttribute(ID, node.getIdentifier(), true));
       list.add(new ReplaceableAttribute(PID, node.getParentIdentifier(), true));
       list.add(new ReplaceableAttribute(NAME,
                                         node.getQPath().getEntries()[node.getQPath().getEntries().length - 1].getAsString(true),
                                         true));
-      // list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, true));
-
-      // list.add(new ReplaceableAttribute(VERSION, String.valueOf(node.getPersistedVersion()),
-      // true));
-      // list.add(new ReplaceableAttribute(ORDERNUM, String.valueOf(node.getOrderNumber()), true));
       list.add(new ReplaceableAttribute(IDATA, formatIData(node), true));
 
       try {
@@ -736,6 +739,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     @Override
     Object execute() throws RepositoryException {
 
+      if (LOG.isDebugEnabled())
+        LOG.debug("(update) Property " + property.getQPath().getAsString() + " " + property.getIdentifier());
+
       // validate
       validateItemChange(property, ITEM_UPDATE);
 
@@ -746,29 +752,14 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
         final List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
 
-        // list.add(new ReplaceableAttribute(ID, property.getIdentifier(), true));
         list.add(new ReplaceableAttribute(PID, property.getParentIdentifier(), true));
         list.add(new ReplaceableAttribute(NAME,
                                           property.getQPath().getEntries()[property.getQPath()
                                                                                    .getEntries().length - 1].getAsString(true),
                                           true));
-        // list.add(new ReplaceableAttribute(ICLASS, NODE_ICLASS, true));
-
-        // list.add(new ReplaceableAttribute(VERSION,
-        // String.valueOf(property.getPersistedVersion()),
-        // true));
-        // list.add(new ReplaceableAttribute(PTYPE, String.valueOf(property.getType()), true));
-        // list.add(new ReplaceableAttribute(MULTIVALUED, String.valueOf(property.isMultiValued()),
-        // true));
         list.add(new ReplaceableAttribute(IDATA, formatIData(property), true));
 
-        // add Values to SimpleDB
-        // TODO think about this too
-        // Attributes are uniquely identified in an item by their name/value combination.
-        // For example, a single item can have the attributes { "first_name", "first_value" } and {
-        // "first_name", second_value" }.
-        // However, it cannot have two attribute instances where both the Attribute.X.Name and
-        // Attribute.X.Value are the same.
+        // Values
         for (String value : values)
           list.add(new ReplaceableAttribute(DATA, value, true));
 
@@ -840,6 +831,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     @Override
     Object execute() throws RepositoryException {
 
+      if (LOG.isDebugEnabled())
+        LOG.debug("(delete) Node " + node.getQPath().getAsString() + " " + node.getIdentifier());
+        
       // validate
       validateItemChange(node, ITEM_DELETE);
 
@@ -909,6 +903,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      */
     @Override
     Object execute() throws RepositoryException {
+
+      if (LOG.isDebugEnabled())
+        LOG.debug("(delete) Property " + property.getQPath().getAsString() + " " + property.getIdentifier());
 
       // validate
       validateItemChange(property, ITEM_DELETE);
@@ -1191,15 +1188,15 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
     String nextToken = null;
     do {
-      ListDomainsResult result = getDomains(sdbService, nextToken, 20);      
+      ListDomainsResult result = getDomains(sdbService, nextToken, 20);
       if (result != null) {
         List<String> domainNamesList = result.getDomainName();
         names.addAll(domainNamesList);
-  
+
         nextToken = result.getNextToken();
       }
     } while (nextToken != null);
-    
+
     return names;
   }
 
@@ -1933,7 +1930,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       }
 
       // 3. check if Parent exists (except of root)
-      if (!Constants.ROOT_PARENT_UUID.equals(data.getParentIdentifier())) {
+      if (data.getParentIdentifier() != null) {
         // check in current transaction changes
         if (!addedNodes.contains(data.getParentIdentifier())) {
           // check in SDB storage
@@ -2262,7 +2259,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                            VALUEPREFIX_MULTIVALUED_LENGTH).toCharArray())
             if (ch != '0' || on.length() > 0)
               on.append(ch);
-          orderNum = Integer.parseInt(on.toString());
+          orderNum = Integer.parseInt(on.toString()); // TODO java.lang.NumberFormatException: For input string: ""
         } else {
           value = vals[i].substring(VALUEPREFIX_SINGLEVALUED_LENGTH);
           orderNum = 0;

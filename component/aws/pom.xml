@@ -32,6 +32,14 @@
       <version>2007-11-07</version>
       <scope>compile</scope>
     </dependency>
+
+    <!-- slf4j-log4j12 for TCK -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   
   <build>
@@ -64,12 +72,19 @@
           <include>**/*.xml</include>
         </includes>
       </testResource>
+	  <testResource>
+        <directory>src/TCK/java</directory>
+        <includes>
+          <include>**/org/apache/jackrabbit/test/api/nodetype/spec/*.txt</include>
+        </includes>
+      </testResource>
     </testResources>
+	
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <executions>
+		<executions>
           <execution>
             <phase>compile</phase>
             <goals>
@@ -85,21 +100,175 @@
           </archive>
         </configuration>
       </plugin>
+	  
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
+        <!-- configuration>
           <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
           <forkMode>${exo.test.forkMode}</forkMode>
           <includes>
-            <include>**/SDBWorkspace*Test.java</include>
+            <include>**/SDBWorkspace*Test__.java</include>
             
             <include>**/SDBWorkspaceStorageConnectionWriteTest__.java</include>
 			
-            <include>**/SDBWorkspaceStorageConnectionReadTest__.java</include>
+            <include>**/SDBWorkspaceStorageConnectionReadTest.java</include>
           </includes>
+        </configuration -->
+		
+		<configuration>
+          <skip>true</skip>
         </configuration>
+        <executions>
+          <execution>
+            <id>execution1 - exo tests</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.test.skip}</skip>
+              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+              <forkMode>${exo.test.forkMode}</forkMode>
+              <argLine>-Xmx512M</argLine>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>${jcr.test.configuration.file}</value>
+                </property>
+                <property>
+                  <name>emma.coverage.out.file</name>
+                  <value>target/emma/coverage.ec</value>
+                </property>
+              </systemProperties>
+              <includes>
+                <include>**/SDBWorkspace*Test__.java</include>
+            
+	            <include>**/SDBWorkspaceStorageConnectionWriteTest__.java</include>
+	            <include>**/SDBWorkspaceStorageConnectionReadTest.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/apache/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>execution2 - pause 10 sec</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <includes>
+                <include>**/util/Sleeping10Seconds.java</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>execution3 - TCK init section</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
+              <forkMode>${exo.test.forkMode}</forkMode>
+              <argLine>-Xmx512M</argLine>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>${jcr.test.configuration.file}</value>
+                </property>
+              </systemProperties>
+              <includes>
+                <include>org/exoplatform/services/jcr/integration/PrepareTestRepository.java</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>execution4 - pause 10 sec</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <includes>
+                <include>**/util/Sleeping10Seconds.java</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>execution5 - integration tests (TCK)</id>
+            <phase>test</phase>
+            <goals>
+              <goal>test</goal>
+            </goals>
+            <configuration>
+              <skip>${exo.tck.skip}</skip>
+              <!-- classesDirectory>${exo.test.classesdirectory}</classesDirectory -->
+              <forkMode>${exo.test.forkMode}</forkMode>
+              <argLine>-Xmx512M</argLine>
+              <systemProperties>
+                <property>
+                  <name>jcr.test.configuration.file</name>
+                  <value>${jcr.test.configuration.file}</value>
+                </property>
+                <property>
+                  <name>emma.coverage.out.file</name>
+                  <value>target/emma/coverage.ec</value>
+                </property>
+                <property>
+                  <name>known.issues</name>
+                  <value>
+                    org.apache.jackrabbit.test.api.nodetype.PropertyDefTest#testIsRequiredType
+                    org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionImportXml
+                    org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceImportXml
+                    org.apache.jackrabbit.test.api.DocumentViewImportTest#testWorkspaceGetImportContentHandler
+                    org.apache.jackrabbit.test.api.DocumentViewImportTest#testSessionGetImportContentHandler
+                    org.apache.jackrabbit.test.api.SetPropertyConstraintViolationExceptionTest#testBooleanProperty
+                    org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testMultipleBooleanProperty
+                    org.apache.jackrabbit.test.api.SetValueConstraintViolationExceptionTest#testBooleanProperty
+                    org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreName
+                    org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder
+                    org.apache.jackrabbit.test.api.version.RestoreTest#testRestoreOrder2
+                  </value>
+                </property>
+              </systemProperties>
+              <includes>
+                <include>**/api/*Test.java</include>
+                <include>**/api/observation/*Test.java</include>
+                <include>**/api/lock/*Test.java</include>
+                <include>**/api/nodetype/*Test.java</include>
+                <include>**/api/query/*Test.java</include>
+                <include>**/api/version/*Test.java</include>
+              </includes>
+              <excludes>
+                <exclude>**/api/TestAll.java</exclude>
+                <exclude>**/api/**/Abstract*.java</exclude>
+                <exclude>**/api/**/FrozenNodeTest.java</exclude>
+                <exclude>**/exoplatform/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <property>
+          <name>default</name>
+        </property>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
+      </properties>
+    </profile>
+  </profiles>
 </project>

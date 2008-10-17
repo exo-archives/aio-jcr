@@ -27,7 +27,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: JCRAPITest.java 12419 2008-03-26 16:47:49Z pnedonosko $
+ * @version $Id$
  */
 public class JCRAPITest extends TestSuite {
   /**

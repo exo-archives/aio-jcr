@@ -43,9 +43,13 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
  */
 public class PrepareTestRepository extends AbstractJCRTest {
 
-  /** The encoding for the test resource */
+  /** The encoding for the test resource. */
   private static final String ENCODING = "UTF-8";
 
+  /**
+   * LockFilter.
+   *
+   */
   class LockFilter implements FileFilter {
     public boolean accept(File pathname) {
       return pathname.getName().endsWith(".lck");

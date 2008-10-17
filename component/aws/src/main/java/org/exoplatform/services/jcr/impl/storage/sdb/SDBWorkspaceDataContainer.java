@@ -204,7 +204,7 @@ public class SDBWorkspaceDataContainer extends WorkspaceDataContainerBase {
    */
   public String getInfo() {
     String str = "SimpleDB based JCR Workspace Data container \n" + "container name: "
-        + containerName + " \n" + "domain name: " + domainName + "\n" + "\n" + "storage version: "
+        + containerName + " \n" + "domain name: " + domainName + "\n" + "storage version: "
         + storageVersion + "\n" + "value storage provider: " + valueStorageProvider + "\n"
         + "max buffer size (bytes): " + maxBufferSize;
     return str;
