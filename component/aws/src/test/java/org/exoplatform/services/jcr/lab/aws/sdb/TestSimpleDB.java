@@ -183,7 +183,7 @@ public class TestSimpleDB extends TestCase {
     return service.getAttributes(request);
   }
 
-  // tests
+
 
   public void testListDomains() {
     /* Listing the domains belonging to our AWS account */
@@ -337,13 +337,11 @@ public class TestSimpleDB extends TestCase {
   public void testCreateReplaceableItem() {
     List<ReplaceableAttribute> list = new ArrayList<ReplaceableAttribute>();
     // list.add(new ReplaceableAttribute( attributeName, value, replacePreviousValue?));
-    list.add(new ReplaceableAttribute("organization", "eXo", true));
-    list.add(new ReplaceableAttribute("address", "45, 33 Університетська", true));
+    list.add(new ReplaceableAttribute("organization", "eXo Platform", true));
+    list.add(new ReplaceableAttribute("address", "45, 33 Univ str", true));
     
-    System.out.println(ISO9075.encode("aaa Університетська"));
-    
-    list.add(new ReplaceableAttribute("state", "Черкаси", true));
-    list.add(new ReplaceableAttribute("country", "Україна", true));
+    list.add(new ReplaceableAttribute("state", "Ukraine", true));
+    list.add(new ReplaceableAttribute("country", "Ukraine", true));
 
     try {
       createItem(sdbService, EXO_DOMAIN, "company1", list);
