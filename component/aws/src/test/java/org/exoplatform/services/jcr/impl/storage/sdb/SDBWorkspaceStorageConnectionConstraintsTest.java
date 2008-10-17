@@ -48,7 +48,35 @@ import com.amazonaws.sdb.model.GetAttributesResult;
  */
 public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTestBase {
 
-   /**
+  /**
+   * Test if add node will fails on save without parent in Repository.
+   * 
+   * @throws Exception
+   *           - error
+   */
+  public void testParentNotFound() throws Exception {
+
+    try {
+      sdbConn.add(testRoot);
+      sdbConn.commit();
+    } catch (InvalidItemStateException e) {
+      if (e.getMessage().indexOf("parent not found") < 0) {
+        LOG.error("add Node error", e);
+        fail(e.getMessage());
+      }
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
+    } else
+      fail("Not a result");
+  }
+
+  /**
    * Test if save of Item will fails on Workspace containing a newer version of the Item.
    * 
    * @throws Exception
@@ -67,7 +95,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
                                               new InternalQName[] { Constants.MIX_VERSIONABLE },
                                               1,
                                               testRoot.getParentIdentifier(),
-                                              testRoot.getACL());
+                                              null);
 
     NodeData updated3 = new TransientNodeData(testRoot.getQPath(),
                                               testRoot.getIdentifier(),
@@ -76,10 +104,12 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
                                               new InternalQName[] {},
                                               1,
                                               testRoot.getParentIdentifier(),
-                                              testRoot.getACL());
+                                              null);
     sdbConn.update(updated3);
     sdbConn.commit();
 
+    Thread.sleep(2000);
+    
     // run for fail
     try {
       sdbConn.update(updated2);
@@ -118,34 +148,6 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
   }
 
   /**
-   * Test if add node will fails on save without parent in Repository.
-   * 
-   * @throws Exception
-   *           - error
-   */
-  public void testParentNotFound() throws Exception {
-
-    try {
-      sdbConn.add(testRoot);
-      sdbConn.commit();
-    } catch (InvalidItemStateException e) {
-      if (e.getMessage().indexOf("parent not found") < 0) {
-        LOG.error("add Node error", e);
-        fail(e.getMessage());
-      }
-    }
-
-    // check
-    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testRoot.getIdentifier());
-
-    if (resp.isSetGetAttributesResult()) {
-      GetAttributesResult res = resp.getGetAttributesResult();
-      assertTrue("Node should not be saved", res.getAttribute().size() <= 0);
-    } else
-      fail("Not a result");
-  }
-
-  /**
    * Test if nonexisted Item delete will fails on save.
    * 
    * @throws Exception
@@ -174,7 +176,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
     } else
       fail("Not a result");
   }
-  
+
   /**
    * Test if nonexisted Item delete will fails on save.
    * 
@@ -230,7 +232,7 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
     try {
       // try property with same name but diff Id
       TransientPropertyData newp = new TransientPropertyData(testProperty.getQPath(),
-                                                             newpId = SIDGenerator.generate(), // new ID!!!
+                                                             newpId = SIDGenerator.generate(), // new ID !
                                                              1,
                                                              PropertyType.DATE,
                                                              testProperty.getParentIdentifier(),
@@ -258,7 +260,8 @@ public class SDBWorkspaceStorageConnectionConstraintsTest extends SDBWorkspaceTe
     try {
       // try property with same Id but diff Name
       TransientPropertyData newp = new TransientPropertyData(testMultivaluedProperty.getQPath(),
-                                                             testProperty.getIdentifier(), // ID of testProperty
+                                                             testProperty.getIdentifier(), // ID of
+                                                                                           // testProperty
                                                              1,
                                                              PropertyType.DATE,
                                                              testProperty.getParentIdentifier(),

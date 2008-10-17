@@ -88,7 +88,7 @@ public class SDBWorkspaceDataContainerTest extends SDBWorkspaceTestBase {
 
     sdbConn.add(testProperty);
 
-    final int nodesCount = 200;
+    final int nodesCount = 10;
     final String[] ids = new String[nodesCount];
     for (int i = 0; i < nodesCount; i++) {
       sdbConn.add(new TransientNodeData(QPath.makeChildPath(jcrRoot.getQPath(),

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.jcr.InvalidItemStateException;
 import javax.jcr.ItemExistsException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -491,7 +492,7 @@ public class SDBWorkspaceStorageConnectionWriteTest extends SDBWorkspaceTestBase
                                           Constants.MIX_VERSIONABLE },
                                       2,
                                       testRoot.getParentIdentifier(),
-                                      testRoot.getACL());
+                                      null);
 
       sdbConn.update(updated);
       sdbConn.commit();
@@ -560,7 +561,7 @@ public class SDBWorkspaceStorageConnectionWriteTest extends SDBWorkspaceTestBase
 
   /**
    * Test update Property (orderNum and mixin changes). Test if Property storage metadata (persisted
-   * version, order number, nodetypes, ACL) updated well.
+   * version, order number, type) updated well.
    * 
    * @throws Exception
    *           - error
@@ -874,7 +875,7 @@ public class SDBWorkspaceStorageConnectionWriteTest extends SDBWorkspaceTestBase
                                                       new InternalQName[] { Constants.MIX_REFERENCEABLE },
                                                       2,
                                                       testRoot.getParentIdentifier(),
-                                                      testRoot.getACL());
+                                                      null);
     try {
       sdbConn.delete(deleted);
       sdbConn.commit();
@@ -963,4 +964,48 @@ public class SDBWorkspaceStorageConnectionWriteTest extends SDBWorkspaceTestBase
     } else
       fail("Not initialized");
   }
+
+  /**
+   * Test if rollback works well.
+   * 
+   * @throws Exception
+   *           error
+   */
+  public void testRollback() throws Exception {
+
+    // prepare
+    sdbConn.add(jcrRoot); // root
+    sdbConn.commit();
+
+    // test - add without parent
+    try {
+      sdbConn.add(testNode); // Node with parent jcrRoot
+      sdbConn.add(testNodeProperty); // Property with parent testNode
+
+      sdbConn.add(testProperty); // Property without parent (testRoot), should cause an error
+
+      sdbConn.commit();
+    } catch (InvalidItemStateException e) {
+      // ok, rollback all changes in last commit
+      sdbConn.rollback();
+    }
+
+    // check
+    GetAttributesResponse resp = readItem(sdbClient, SDB_DOMAIN_NAME, testNode.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Node should not exists", res.getAttribute().size() <= 0);
+    } else
+      fail("Not initialized");
+
+    resp = readItem(sdbClient, SDB_DOMAIN_NAME, testProperty.getIdentifier());
+
+    if (resp.isSetGetAttributesResult()) {
+      GetAttributesResult res = resp.getGetAttributesResult();
+      assertTrue("Property should not exists", res.getAttribute().size() <= 0);
+    } else
+      fail("Not initialized");
+  }
+
 }

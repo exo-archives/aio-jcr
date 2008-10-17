@@ -55,6 +55,9 @@ import com.amazonaws.sdb.AmazonSimpleDBException;
 import com.amazonaws.sdb.model.DeleteDomainRequest;
 import com.amazonaws.sdb.model.GetAttributesRequest;
 import com.amazonaws.sdb.model.GetAttributesResponse;
+import com.amazonaws.sdb.model.ListDomainsRequest;
+import com.amazonaws.sdb.model.ListDomainsResponse;
+import com.amazonaws.sdb.model.ListDomainsResult;
 
 /**
  * Created by The eXo Platform SAS.
@@ -105,6 +108,16 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
    * jcrRoot.
    */
   protected NodeData                      jcrRoot;
+  
+  /**
+   * testNode.
+   */
+  protected NodeData                      testNode;
+  
+  /**
+   * testNodeProperty.
+   */
+  protected PropertyData                  testNodeProperty;
 
   /**
    * testRoot.
@@ -200,6 +213,24 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
       config.setSignatureVersion("0");
 
       sdbClient = new AmazonSimpleDBClient(myAccessKey, mySecretKey, config);
+      
+      // check if test donain exists
+      String nextToken = null;
+      do {
+        ListDomainsResponse resp = sdbClient.listDomains(new ListDomainsRequest(20, nextToken));
+        if (resp.isSetListDomainsResult()) {
+          ListDomainsResult res = resp.getListDomainsResult();
+          List<String> domainNamesList = res.getDomainName();
+          if (domainNamesList.contains(SDB_DOMAIN_NAME)) {
+            // delete domain
+            sdbClient.deleteDomain(new DeleteDomainRequest(SDB_DOMAIN_NAME));
+            Thread.sleep(SDBWorkspaceStorageConnection.SDB_OPERATION_TIMEOUT);
+            break;
+          }
+    
+          nextToken = res.getNextToken();
+        }
+      } while (nextToken != null);
     } catch (Throwable e) {
       LOG.error("setup error", e);
       fail(e.getMessage());
@@ -224,9 +255,6 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
     }
 
     // test items
-
-    AccessControlList acl;
-
     jcrRoot = new TransientNodeData(QPath.parse("[]:1"),
                                     Constants.ROOT_UUID,
                                     1,
@@ -234,8 +262,30 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
                                     new InternalQName[] {},
                                     1,
                                     Constants.ROOT_PARENT_UUID,
-                                    acl = new AccessControlList());
+                                    new AccessControlList());
 
+    testNode = new TransientNodeData(QPath.makeChildPath(jcrRoot.getQPath(),
+                                                         QPathEntry.parse("[]sdbTestNode:1")),
+                                     SIDGenerator.generate(),
+                                     1,
+                                     Constants.NT_FOLDER,
+                                     new InternalQName[] {},
+                                     1,
+                                     jcrRoot.getIdentifier(),
+                                     null);
+    
+    TransientPropertyData testNodeProperty = new TransientPropertyData(QPath.makeChildPath(testNode.getQPath(),
+                                                                                       QPathEntry.parse("[]sdbTestNode#Property:1")),
+                                                                   SIDGenerator.generate(),
+                                                                   1,
+                                                                   PropertyType.STRING,
+                                                                   testNode.getIdentifier(),
+                                                                   false);
+    List<ValueData> values = new ArrayList<ValueData>(1);
+    values.add(new TransientValueData("This is a text property of testNode."));
+    testNodeProperty.setValues(values);
+    this.testNodeProperty = testNodeProperty;
+    
     testRoot = new TransientNodeData(QPath.makeChildPath(jcrRoot.getQPath(),
                                                          QPathEntry.parse("[]sdbTestRoot:1")),
                                      SIDGenerator.generate(),
@@ -244,7 +294,7 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
                                      new InternalQName[] { Constants.MIX_REFERENCEABLE },
                                      1,
                                      jcrRoot.getIdentifier(),
-                                     acl);
+                                     null);
 
     TransientPropertyData testProperty = new TransientPropertyData(QPath.makeChildPath(testRoot.getQPath(),
                                                                                        QPathEntry.parse("[]sdbTestProperty:1")),
@@ -253,7 +303,7 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
                                                                    PropertyType.STRING,
                                                                    testRoot.getIdentifier(),
                                                                    false);
-    List<ValueData> values = new ArrayList<ValueData>(1);
+    values = new ArrayList<ValueData>(1);
     values.add(new TransientValueData("This is a text property. Have a nice day, SDB."));
     testProperty.setValues(values);
     this.testProperty = testProperty;
@@ -296,11 +346,7 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
   @Override
   protected void tearDown() throws Exception {
     try {
-      DeleteDomainRequest request = new DeleteDomainRequest(SDB_DOMAIN_NAME);
-      // DeleteAttributesRequest request = new
-      // DeleteAttributesRequest().withDomainName(SDB_DOMAIN_NAME
-      // ).withItemName(jcrRoot.getIdentifier());
-      sdbClient.deleteDomain(request);
+      sdbClient.deleteDomain(new DeleteDomainRequest(SDB_DOMAIN_NAME));
 
       // wait for SDB
       Thread.sleep(SDBWorkspaceStorageConnection.SDB_OPERATION_TIMEOUT);
