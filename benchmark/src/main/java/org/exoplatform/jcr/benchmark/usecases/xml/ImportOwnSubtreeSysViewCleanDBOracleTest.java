@@ -30,6 +30,7 @@ import javax.jcr.ImportUUIDBehavior;
 import javax.jcr.Node;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -101,6 +102,9 @@ public class ImportOwnSubtreeSysViewCleanDBOracleTest extends JCRTestBase {
   private synchronized void cleanDB(JCRTestContext context) {
     try {
       if (!dataBaseDropped) {
+        log.info("sleep 10 sec");
+        Thread.sleep(10000);
+        log.info("sleep 10 sec done");
         Connection dbConnection;
         JDBCStorageConnection storageConnection;
         JDBCWorkspaceDataContainer workspaceDataContainer = (JDBCWorkspaceDataContainer) ((SessionImpl) context.getSession()).getContainer()
