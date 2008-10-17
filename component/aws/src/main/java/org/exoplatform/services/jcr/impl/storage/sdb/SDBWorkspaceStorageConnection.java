@@ -1141,6 +1141,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * 
    */
   void runCleanup() {
+    
     final List<String> names = new ArrayList<String>();
 
     try {
@@ -1163,6 +1164,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           }
         }
       } while (nextToken != null);
+      
+      if (LOG.isDebugEnabled())
+        LOG.debug("(cleanup) " + names.size() + " items to delete");
+      
     } catch (AmazonSimpleDBException e) {
       LOG.error("(cleaner) Error of deleted Items request " + e, e);
     }
@@ -2259,7 +2264,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                            VALUEPREFIX_MULTIVALUED_LENGTH).toCharArray())
             if (ch != '0' || on.length() > 0)
               on.append(ch);
-          orderNum = Integer.parseInt(on.toString()); // TODO java.lang.NumberFormatException: For input string: ""
+          orderNum = on.length() <= 0 ? 0 : Integer.parseInt(on.toString());
         } else {
           value = vals[i].substring(VALUEPREFIX_SINGLEVALUED_LENGTH);
           orderNum = 0;
