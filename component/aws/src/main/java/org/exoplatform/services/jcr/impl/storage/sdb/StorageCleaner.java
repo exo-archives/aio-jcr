@@ -72,7 +72,7 @@ public class StorageCleaner extends Thread {
    */
   StorageCleaner(String containerName, SDBWorkspaceStorageConnection sdbConn, int timeout) {
     setDaemon(true);
-    setName("JCRSimpleDBStorageCleaner-" + containerName);
+    setName("JCRSimpleDBStorageCleaner_" + containerName);
 
     this.sdbConn = sdbConn;
 

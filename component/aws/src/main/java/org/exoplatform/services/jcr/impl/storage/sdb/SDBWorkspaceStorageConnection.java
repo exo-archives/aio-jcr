@@ -2023,32 +2023,34 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           throw new SDBRepositoryException("(" + modification
               + ") FATAL Storage contains more of one Item with ID: " + data.getIdentifier() + ". "
               + itemClass + " " + data.getQPath().getAsString());
-        } else {
-          // check if persisted version is ok
-          Item sdbItem = items.get(0);
-          String idv = getAttribute(sdbItem.getAttribute(), IDATA);
-          try {
-            int v = Integer.valueOf(idv.substring(0, idv.indexOf(IDATA_DELIMITER)));
-            if (v >= data.getPersistedVersion()) {
-              // TODO are we need the check here?
-              throw new JCRInvalidItemStateException("(" + modification + ") Invalid Item state. "
-                                                         + itemClass + " "
-                                                         + data.getQPath().getAsString() + " "
-                                                         + data.getIdentifier()
-                                                         + " persistent version is " + v
-                                                         + " but modification "
-                                                         + data.getPersistedVersion() + ".",
-                                                     data.getIdentifier(),
-                                                     modification == ITEM_DELETE
-                                                         ? ItemState.DELETED
-                                                         : ItemState.UPDATED);
-            }
-          } catch (IndexOutOfBoundsException e) {
-            throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
-                + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
-                + " attribute value '" + idv + "' is wrong. " + e, e);
-          }
         }
+        // TODO don't check, just believe in contract
+//        else {
+//          // check if persisted version is ok
+//          Item sdbItem = items.get(0);
+//          String idv = getAttribute(sdbItem.getAttribute(), IDATA);
+//          try {
+//            int v = Integer.valueOf(idv.substring(0, idv.indexOf(IDATA_DELIMITER)));
+//            if (v >= data.getPersistedVersion()) {
+//              // TODO are we need the check here?
+//              throw new JCRInvalidItemStateException("(" + modification + ") Invalid Item state. "
+//                                                         + itemClass + " "
+//                                                         + data.getQPath().getAsString() + " "
+//                                                         + data.getIdentifier()
+//                                                         + " persistent version is " + v
+//                                                         + " but modification "
+//                                                         + data.getPersistedVersion() + ".",
+//                                                     data.getIdentifier(),
+//                                                     modification == ITEM_DELETE
+//                                                         ? ItemState.DELETED
+//                                                         : ItemState.UPDATED);
+//            }
+//          } catch (IndexOutOfBoundsException e) {
+//            throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+//                + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+//                + " attribute value '" + idv + "' is wrong. " + e, e);
+//          }
+//        }
       }
 
       // TODO VERY IMPORTANT! (don't check, we just believe the contract is done) if delete
@@ -2305,7 +2307,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         Collections.sort(values, new ValueDataComparator());
 
       property.setValues(values);
-    }
+    } else 
+      property.setValues(new ArrayList<ValueData>(0)); // empty list
 
     return property;
   }
