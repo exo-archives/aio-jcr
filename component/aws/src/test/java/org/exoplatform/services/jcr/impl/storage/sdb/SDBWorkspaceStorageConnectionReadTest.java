@@ -17,13 +17,13 @@
 package org.exoplatform.services.jcr.impl.storage.sdb;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -238,4 +238,76 @@ public class SDBWorkspaceStorageConnectionReadTest extends SDBWorkspaceTestBase 
     }
   }
 
+  /**
+   * Test get references.
+   * 
+   * @throws Exception
+   *           test error
+   */
+  public void testGetReferences() throws Exception {
+
+    // prepare
+    sdbConn.add(jcrRoot);
+    sdbConn.add(testRoot);
+    sdbConn.add(testNode);
+
+    final NodeData refNode = new TransientNodeData(QPath.makeChildPath(testRoot.getQPath(),
+                                                          QPathEntry.parse("[]refNode:1")),
+                                      SIDGenerator.generate(),
+                                      1,
+                                      Constants.NT_RESOURCE,
+                                      new InternalQName[] { Constants.MIX_REFERENCEABLE },
+                                      1,
+                                      testRoot.getIdentifier(),
+                                      null);
+    sdbConn.add(refNode);
+    
+    final int propsCount = 5;
+    final PropertyData[] props = new PropertyData[propsCount];
+    for (int i = 0; i < propsCount; i++) {
+      TransientPropertyData refProp = new TransientPropertyData(QPath.makeChildPath(testNode.getQPath(),
+                                                                                  QPathEntry.parse("[]ref-property"
+                                                                                      + i + ":1")),
+                                                              SIDGenerator.generate(),
+                                                              1,
+                                                              PropertyType.REFERENCE,
+                                                              testNode.getIdentifier(),
+                                                              false);
+
+      List<ValueData> values = new ArrayList<ValueData>(1);
+      values.add(new TransientValueData(new Identifier(refNode.getIdentifier())));
+      refProp.setValues(values);
+
+      props[i] = refProp;
+
+      sdbConn.add(refProp);
+    }
+
+    sdbConn.commit();
+
+    try {
+      List<PropertyData> refProps = sdbConn.getReferencesData(refNode.getIdentifier());
+
+      assertEquals("Properties count is wrong ", props.length, refProps.size());
+
+      for (int i = 0; i < props.length; i++) {
+        PropertyData orig = props[i];
+        PropertyData stored = refProps.get(i);
+
+        assertEquals("Property id should be same", orig.getIdentifier(), stored.getIdentifier());
+        assertEquals("Property path should be same", orig.getQPath(), stored.getQPath());
+        assertEquals("Property type should be same", orig.getType(), stored.getType());
+        assertEquals("Property value should be same",
+                     new String(orig.getValues().get(0).getAsByteArray()),
+                     new String(stored.getValues().get(0).getAsByteArray()));
+        assertEquals("Property should point to ref Node",
+                     refNode.getIdentifier(),
+                     new String(stored.getValues().get(0).getAsByteArray()));
+      }
+    } catch (RepositoryException e) {
+      LOG.error("get References error", e);
+      fail(e.getMessage());
+    }
+  }
+  
 }

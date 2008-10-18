@@ -97,7 +97,7 @@ public class ExoRepositoryStub extends RepositoryStub {
 
         RepositoryService repositoryService = (RepositoryService) servicesManager.getComponentInstanceOfType(RepositoryService.class);
 
-        repository = repositoryService.getRepository("db1tck");
+        repository = repositoryService.getRepository("db1");
         /*
          * try { repository.getNamespaceRegistry().getURI("test"); } catch (NamespaceException e) {
          * repository.getNamespaceRegistry().registerNamespace("test",

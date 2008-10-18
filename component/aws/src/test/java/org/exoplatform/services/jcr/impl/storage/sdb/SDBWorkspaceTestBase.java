@@ -67,17 +67,17 @@ import com.amazonaws.sdb.model.ListDomainsResult;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-abstract public class SDBWorkspaceTestBase extends TestCase {
+abstract class SDBWorkspaceTestBase extends TestCase {
 
   /**
    * Test logger.
    */
-  protected static final Log            LOG                      = ExoLogger.getLogger("jcr.JCRAWSTest");
+  protected static final Log              LOG                      = ExoLogger.getLogger("jcr.JCRAWSTest");
 
   /**
    * Default workspace container name.
    */
-  protected static final String           WORKSPACE_CONTAINER_NAME = "ws-aws-test";
+  protected static final String           WORKSPACE_CONTAINER_NAME = "ws-test";
 
   /**
    * Max buff size.
@@ -87,7 +87,8 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
   /**
    * SDB domain name.
    */
-  protected static final String           SDB_DOMAIN_NAME          = "exo-aws-test-ws";
+  protected static final String           SDB_DOMAIN_NAME          = WORKSPACE_CONTAINER_NAME
+                                                                       + "-domain";
 
   /**
    * JCR SDB storage version.
@@ -108,12 +109,12 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
    * jcrRoot.
    */
   protected NodeData                      jcrRoot;
-  
+
   /**
    * testNode.
    */
   protected NodeData                      testNode;
-  
+
   /**
    * testNodeProperty.
    */
@@ -213,7 +214,7 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
       config.setSignatureVersion("0");
 
       sdbClient = new AmazonSimpleDBClient(myAccessKey, mySecretKey, config);
-      
+
       // check if test donain exists
       String nextToken = null;
       do {
@@ -227,7 +228,7 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
             Thread.sleep(SDBWorkspaceStorageConnection.SDB_OPERATION_TIMEOUT);
             break;
           }
-    
+
           nextToken = res.getNextToken();
         }
       } while (nextToken != null);
@@ -261,7 +262,7 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
                                     Constants.NT_UNSTRUCTURED,
                                     new InternalQName[] {},
                                     1,
-                                    Constants.ROOT_PARENT_UUID,
+                                    null,
                                     new AccessControlList());
 
     testNode = new TransientNodeData(QPath.makeChildPath(jcrRoot.getQPath(),
@@ -273,19 +274,19 @@ abstract public class SDBWorkspaceTestBase extends TestCase {
                                      1,
                                      jcrRoot.getIdentifier(),
                                      null);
-    
+
     TransientPropertyData testNodeProperty = new TransientPropertyData(QPath.makeChildPath(testNode.getQPath(),
-                                                                                       QPathEntry.parse("[]sdbTestNode#Property:1")),
-                                                                   SIDGenerator.generate(),
-                                                                   1,
-                                                                   PropertyType.STRING,
-                                                                   testNode.getIdentifier(),
-                                                                   false);
+                                                                                           QPathEntry.parse("[]sdbTestNode#Property:1")),
+                                                                       SIDGenerator.generate(),
+                                                                       1,
+                                                                       PropertyType.STRING,
+                                                                       testNode.getIdentifier(),
+                                                                       false);
     List<ValueData> values = new ArrayList<ValueData>(1);
     values.add(new TransientValueData("This is a text property of testNode."));
     testNodeProperty.setValues(values);
     this.testNodeProperty = testNodeProperty;
-    
+
     testRoot = new TransientNodeData(QPath.makeChildPath(jcrRoot.getQPath(),
                                                          QPathEntry.parse("[]sdbTestRoot:1")),
                                      SIDGenerator.generate(),
