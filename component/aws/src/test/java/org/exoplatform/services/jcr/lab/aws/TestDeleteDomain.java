@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.lab.aws.sdb;
+package org.exoplatform.services.jcr.lab.aws;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,24 +40,24 @@ import com.amazonaws.sdb.model.ListDomainsResult;
 
 /**
  * TestDeleteDomain - utility for SDB domains cleanup (for TESTs & DEBUG).
- *
+ * 
  */
 public class TestDeleteDomain extends TestCase {
 
   /**
    * accessKey.
    */
-  private String accessKey;
-  
+  private String           accessKey;
+
   /**
    * secretKey.
    */
-  private String secretKey;
-  
+  private String           secretKey;
+
   /**
    * sdbService.
    */
-  protected AmazonSimpleDB   sdbService;
+  protected AmazonSimpleDB sdbService;
 
   /**
    * {@inheritDoc}
@@ -81,7 +82,7 @@ public class TestDeleteDomain extends TestCase {
         fail("Secret key required.");
       else
         secretKey = mySecretKey;
-      
+
       try {
         sdbService = new AmazonSimpleDBClient(myAccessKey, mySecretKey, config);
       } catch (Throwable e) {
@@ -165,32 +166,48 @@ public class TestDeleteDomain extends TestCase {
     return service.getAttributes(request);
   }
 
-  ///////////////////////// TEST
-  
+  // /////////////////////// TEST
+
   /**
    * testDeleteDomain.
-   *
-   * @throws Exception error
+   * 
+   * @throws Exception
+   *           error
    */
   public void testDeleteDomain() throws Exception {
-    
-    sdbService.deleteDomain(new DeleteDomainRequest("exo-aws-test-ws"));
-    
-    sdbService.deleteDomain(new DeleteDomainRequest("jcr-test-ws"));
-    sdbService.deleteDomain(new DeleteDomainRequest("jcr-test-ws1"));
-    sdbService.deleteDomain(new DeleteDomainRequest("jcr-test-ws2"));
-    
+
+    // sdbService.deleteDomain(new DeleteDomainRequest("jcr-test-ws"));
+    // sdbService.deleteDomain(new DeleteDomainRequest("jcr-test-ws1"));
+    // sdbService.deleteDomain(new DeleteDomainRequest("jcr-test-ws2"));
+
   }
-  
+
   /**
    * testDeleteBuckets.
-   *
-   * @throws Exception error
+   * 
+   * @throws Exception
+   *           error
    */
   public void testDeleteBuckets() throws Exception {
-    
-    S3ValueIOUtil.deleteBucket("jcr-test", accessKey, secretKey);
-    
+
+//    try {
+//      // delete all objects
+//      String[] list = S3ValueIOUtil.getBucketList("jcr-test", accessKey, secretKey, "");
+//      for (String sl : list) {
+//        if (S3ValueIOUtil.deleteValue("jcr-test", accessKey, secretKey, sl)) {
+//          System.out.println("WARN cannot delete value " + sl);
+//        }
+//      }
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//
+//    try {
+//      // delete bucket
+//      S3ValueIOUtil.deleteBucket("jcr-test", accessKey, secretKey);
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
   }
-  
+
 }

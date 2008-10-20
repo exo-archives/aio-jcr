@@ -143,7 +143,7 @@ public class S3ValueIOUtil {
     if (LOG.isDebugEnabled())
       LOG.debug("Create bucket on S3: STATUS = " + responseCode);
   }
-  
+
   public static void deleteBucket(String bucket, String awsAccessKey, String awsSecretAccessKey) throws IOException {
 
     AWSAuthConnection conn = new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
@@ -205,13 +205,16 @@ public class S3ValueIOUtil {
       LOG.info("Get list of bucket from S3: STATUS = " + responseCode);
 
     List<ListEntry> entries = resp.entries;
-    String[] keys = new String[entries.size()];
-    int i = 0;
-    for (ListEntry l : entries) {
-      keys[i] = l.key;
-      i++;
-    }
-    return keys;
+    if (entries != null) {
+      String[] keys = new String[entries.size()];
+      int i = 0;
+      for (ListEntry l : entries) {
+        keys[i] = l.key;
+        i++;
+      }
+      return keys;
+    } else
+      return new String[0];
   }
 
 }
