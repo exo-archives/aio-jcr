@@ -254,14 +254,6 @@
       
     </dependency>
     
-    <!-- S3Plugin dependency -->
-    <dependency>
-      <groupId>amazon</groupId>
-      <artifactId>s3</artifactId>
-      <version>0.1</version>
-      <scope>compile</scope>
-    </dependency>
-    
     <dependency>
       <groupId>org.apache.jackrabbit</groupId>
       <artifactId>jackrabbit-jcr-tests</artifactId>
@@ -488,8 +480,8 @@
                 <include>**/**/TestJDBCValueContentAddressStorageImpl__.java</include>
                 <include>**/**/TestCASableSimpleFileIOChannel__.java</include>
                 <include>**/**/TestCASableTreeFileIOChannel__.java</include>
-                
-                <include>**/**/TestSameNameSiblings__.java</include>
+                				
+				<include>**/**/TestInvalidItemState__.java</include>
               </includes>
             </configuration>
           </execution>
