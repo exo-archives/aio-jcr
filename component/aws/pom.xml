@@ -35,7 +35,7 @@
 	
     <!-- S3Plugin dependency -->
     <dependency>
-      <groupId>amazon</groupId>
+      <groupId>com.amazon</groupId>
       <artifactId>s3</artifactId>
       <version>0.1</version>
       <scope>compile</scope>
