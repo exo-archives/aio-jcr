@@ -32,7 +32,15 @@
       <version>2007-11-07</version>
       <scope>compile</scope>
     </dependency>
-
+	
+    <!-- S3Plugin dependency -->
+    <dependency>
+      <groupId>amazon</groupId>
+      <artifactId>s3</artifactId>
+      <version>0.1</version>
+      <scope>compile</scope>
+    </dependency>
+    
     <!-- slf4j-log4j12 for TCK -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -72,19 +80,19 @@
           <include>**/*.xml</include>
         </includes>
       </testResource>
-	  <testResource>
+      <testResource>
         <directory>src/TCK/java</directory>
         <includes>
           <include>**/org/apache/jackrabbit/test/api/nodetype/spec/*.txt</include>
         </includes>
       </testResource>
     </testResources>
-	
+    
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-		<executions>
+        <executions>
           <execution>
             <phase>compile</phase>
             <goals>
@@ -100,23 +108,11 @@
           </archive>
         </configuration>
       </plugin>
-	  
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <!-- configuration>
-          <testFailureIgnore>${exo.test.failure.ignore}</testFailureIgnore>
-          <forkMode>${exo.test.forkMode}</forkMode>
-          <includes>
-            <include>**/SDBWorkspace*Test__.java</include>
-            
-            <include>**/SDBWorkspaceStorageConnectionWriteTest__.java</include>
-			
-            <include>**/SDBWorkspaceStorageConnectionReadTest.java</include>
-          </includes>
-        </configuration -->
-		
-		<configuration>
+        <configuration>
           <skip>true</skip>
         </configuration>
         <executions>
@@ -143,11 +139,11 @@
               </systemProperties>
               <includes>
                 <include>**/SDBWorkspace*Test__.java</include>
-            
-	            <include>**/SDBWorkspaceStorageConnectionWriteTest__.java</include>
-	            <include>**/SDBWorkspaceStorageConnectionReadTest__.java</include>
-				
-				<include>**/TestDeleteDomain.java</include>
+                
+                <include>**/SDBWorkspaceStorageConnectionWriteTest__.java</include>
+                <include>**/SDBWorkspaceStorageConnectionReadTest.java</include>
+                
+                <include>**/TestDeleteDomain__.java</include>
               </includes>
               <excludes>
                 <exclude>**/apache/**</exclude>
