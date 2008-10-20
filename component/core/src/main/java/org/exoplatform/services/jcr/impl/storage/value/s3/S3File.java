@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.impl.storage.value.s3;
 import java.io.File;
 import java.io.IOException;
 
-import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
 
 /**
  * An abstract representation of file on Amazon S3

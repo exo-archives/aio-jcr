@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>

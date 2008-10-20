@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
 import org.exoplatform.services.jcr.storage.WorkspaceStorageConnection;
 import org.exoplatform.services.jcr.storage.value.ValueStoragePlugin;
 import org.exoplatform.services.log.ExoLogger;

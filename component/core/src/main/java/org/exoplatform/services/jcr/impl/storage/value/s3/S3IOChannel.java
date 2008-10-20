@@ -23,7 +23,6 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
-import org.exoplatform.services.jcr.impl.util.io.S3ValueIOUtil;
 import org.exoplatform.services.jcr.storage.value.ValueIOChannel;
 import org.exoplatform.services.log.ExoLogger;
 

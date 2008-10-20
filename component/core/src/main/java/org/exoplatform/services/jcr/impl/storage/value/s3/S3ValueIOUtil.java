@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.impl.util.io;
+package org.exoplatform.services.jcr.impl.storage.value.s3;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -33,6 +33,8 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.ByteArrayPersistedValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CleanableFileStreamValueData;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.exoplatform.services.jcr.impl.util.io.SwapFile;
 import org.exoplatform.services.log.ExoLogger;
 
 import com.amazon.s3.AWSAuthConnection;
