@@ -32,7 +32,7 @@
       <version>2007-11-07</version>
       <scope>compile</scope>
     </dependency>
-	
+    
     <!-- S3Plugin dependency -->
     <dependency>
       <groupId>com.amazon</groupId>
@@ -141,11 +141,11 @@
                 <include>**/SDBWorkspace*Test__.java</include>
                 
                 <include>**/SDBWorkspaceStorageConnectionWriteTest__.java</include>
-                <include>**/SDBWorkspaceStorageConnectionReadTest__.java</include>
                 
-				<include>**/TestBinaryValueS3.java</include>
-				
-                <include>**/TestDeleteDomain__.java</include>
+                <include>**/SDBWorkspaceStorageConnectionReadTest_.java</include>
+                <include>**/TestBinaryValueS3_.java</include>
+                
+                <include>**/TestDeleteDomain.java</include>
               </includes>
               <excludes>
                 <exclude>**/apache/**</exclude>
