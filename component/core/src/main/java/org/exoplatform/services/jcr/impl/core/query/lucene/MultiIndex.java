@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -39,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -199,16 +199,12 @@ public class MultiIndex {
   /**
    * Creates a new MultiIndex.
    * 
-   * @param indexDir
-   *          the base file system
-   * @param handler
-   *          the search handler
-   * @param excludedIDs
-   *          Set&lt;NodeId> that contains uuids that should not be indexed nor further traversed.
-   * @param mapping
-   *          the namespace mapping to use
-   * @throws IOException
-   *           if an error occurs
+   * @param indexDir the base file system
+   * @param handler the search handler
+   * @param excludedIDs Set&lt;NodeId> that contains uuids that should not be indexed nor further
+   *          traversed.
+   * @param mapping the namespace mapping to use
+   * @throws IOException if an error occurs
    */
   MultiIndex(File indexDir, SearchIndex handler, NamespaceMappings mapping) throws IOException {
 
@@ -324,8 +320,7 @@ public class MultiIndex {
    * Returns the number of documents in this index.
    * 
    * @return the number of documents in this index.
-   * @throws IOException
-   *           if an error occurs while reading from the index.
+   * @throws IOException if an error occurs while reading from the index.
    */
   int numDocs() throws IOException {
     if (indexNames.size() == 0) {
@@ -352,14 +347,10 @@ public class MultiIndex {
    * Creates an initial index by traversing the node hierarchy starting at the node with
    * <code>rootId</code>.
    * 
-   * @param stateMgr
-   *          the item state manager.
-   * @param rootId
-   *          the id of the node from where to start.
-   * @throws IOException
-   *           if an error occurs while indexing the workspace.
-   * @throws IllegalStateException
-   *           if this index is not empty.
+   * @param stateMgr the item state manager.
+   * @param rootId the id of the node from where to start.
+   * @throws IOException if an error occurs while indexing the workspace.
+   * @throws IllegalStateException if this index is not empty.
    */
   void createInitialIndex(ItemDataConsumer stateMgr, String rootId) throws IOException {
     // only do an initial index if there are no indexes at all
@@ -388,10 +379,8 @@ public class MultiIndex {
   /**
    * Atomically updates the index by removing some documents and adding others.
    * 
-   * @param remove
-   *          Iterator of <code>UUID</code>s that identify documents to remove
-   * @param add
-   *          Iterator of <code>Document</code>s to add. Calls to <code>next()</code> on this
+   * @param remove Iterator of <code>UUID</code>s that identify documents to remove
+   * @param add Iterator of <code>Document</code>s to add. Calls to <code>next()</code> on this
    *          iterator may return <code>null</code>, to indicate that a node could not be indexed
    *          successfully.
    */
@@ -436,10 +425,8 @@ public class MultiIndex {
   /**
    * Adds a document to the index.
    * 
-   * @param doc
-   *          the document to add.
-   * @throws IOException
-   *           if an error occurs while adding the document to the index.
+   * @param doc the document to add.
+   * @throws IOException if an error occurs while adding the document to the index.
    */
   void addDocument(Document doc) throws IOException {
     List<Document> add = Arrays.asList(new Document[] { doc });
@@ -449,10 +436,8 @@ public class MultiIndex {
   /**
    * Deletes the first document that matches the <code>uuid</code>.
    * 
-   * @param uuid
-   *          document that match this <code>uuid</code> will be deleted.
-   * @throws IOException
-   *           if an error occurs while deleting the document.
+   * @param uuid document that match this <code>uuid</code> will be deleted.
+   * @throws IOException if an error occurs while deleting the document.
    */
   void removeDocument(String uuid) throws IOException {
     List<String> remove = Arrays.asList(new String[] { uuid });
@@ -462,11 +447,9 @@ public class MultiIndex {
   /**
    * Deletes all documents that match the <code>uuid</code>.
    * 
-   * @param uuid
-   *          documents that match this <code>uuid</code> will be deleted.
+   * @param uuid documents that match this <code>uuid</code> will be deleted.
    * @return the number of deleted documents.
-   * @throws IOException
-   *           if an error occurs while deleting documents.
+   * @throws IOException if an error occurs while deleting documents.
    */
   synchronized int removeAllDocuments(String uuid) throws IOException {
     synchronized (updateMonitor) {
@@ -512,13 +495,10 @@ public class MultiIndex {
    * returned by this method is not necessarily the same as the number of index names passed. An
    * index might have been deleted and is not reachable anymore.
    * 
-   * @param indexNames
-   *          the names of the indexes for which to obtain readers.
-   * @param listener
-   *          the listener to notify when documents are deleted.
+   * @param indexNames the names of the indexes for which to obtain readers.
+   * @param listener the listener to notify when documents are deleted.
    * @return the <code>IndexReaders</code>.
-   * @throws IOException
-   *           if an error occurs acquiring the index readers.
+   * @throws IOException if an error occurs acquiring the index readers.
    */
   synchronized IndexReader[] getIndexReaders(String[] indexNames, IndexListener listener) throws IOException {
     Set<String> names = new HashSet<String>(Arrays.asList(indexNames));
@@ -553,12 +533,10 @@ public class MultiIndex {
    * Creates a new Persistent index. The new index is not registered with this
    * <code>MultiIndex</code>.
    * 
-   * @param indexName
-   *          the name of the index to open, or <code>null</code> if an index with a new name should
-   *          be created.
+   * @param indexName the name of the index to open, or <code>null</code> if an index with a new
+   *          name should be created.
    * @return a new <code>PersistentIndex</code>.
-   * @throws IOException
-   *           if a new index cannot be created.
+   * @throws IOException if a new index cannot be created.
    */
   synchronized PersistentIndex getOrCreateIndex(String indexName) throws IOException {
     // check existing
@@ -598,8 +576,7 @@ public class MultiIndex {
    * method even returns <code>true</code> if an index segments has not yet been loaded /
    * initialized but exists on disk.
    * 
-   * @param indexName
-   *          the name of the index segment.
+   * @param indexName the name of the index segment.
    * @return <code>true</code> if it exists; otherwise <code>false</code>.
    */
   synchronized boolean hasIndex(String indexName) {
@@ -619,14 +596,11 @@ public class MultiIndex {
    * that must be deleted in <code>index</code> can be identified with <code>Term</code>s in
    * <code>deleted</code>.
    * 
-   * @param obsoleteIndexes
-   *          the names of the indexes to replace.
-   * @param index
-   *          the new index that is the result of a merge of the indexes to replace.
-   * @param deleted
-   *          <code>Term</code>s that identify documents that must be deleted in <code>index</code>.
-   * @throws IOException
-   *           if an exception occurs while replacing the indexes.
+   * @param obsoleteIndexes the names of the indexes to replace.
+   * @param index the new index that is the result of a merge of the indexes to replace.
+   * @param deleted <code>Term</code>s that identify documents that must be deleted in
+   *          <code>index</code>.
+   * @throws IOException if an exception occurs while replacing the indexes.
    */
   void replaceIndexes(String[] obsoleteIndexes, PersistentIndex index, Collection<Term> deleted) throws IOException {
 
@@ -689,8 +663,7 @@ public class MultiIndex {
    * <code>MultiIndex</code>.
    * 
    * @return an <code>IndexReader</code>.
-   * @throws IOException
-   *           if an error occurs constructing the <code>IndexReader</code>.
+   * @throws IOException if an error occurs constructing the <code>IndexReader</code>.
    */
   public CachingMultiIndexReader getIndexReader() throws IOException {
     synchronized (updateMonitor) {
@@ -798,11 +771,9 @@ public class MultiIndex {
   /**
    * Returns a lucene Document for the <code>node</code>.
    * 
-   * @param node
-   *          the node to index.
+   * @param node the node to index.
    * @return the index document.
-   * @throws RepositoryException
-   *           if an error occurs while reading from the workspace.
+   * @throws RepositoryException if an error occurs while reading from the workspace.
    */
   Document createDocument(NodeData node) throws RepositoryException {
     return handler.createDocument(node, nsMappings, version);
@@ -811,12 +782,10 @@ public class MultiIndex {
   /**
    * Returns a lucene Document for the Node with <code>id</code>.
    * 
-   * @param id
-   *          the id of the node to index.
+   * @param id the id of the node to index.
    * @return the index document.
-   * @throws RepositoryException
-   *           if an error occurs while reading from the workspace or if there is no node with
-   *           <code>id</code>.
+   * @throws RepositoryException if an error occurs while reading from the workspace or if there is
+   *           no node with <code>id</code>.
    */
   Document createDocument(String id) throws RepositoryException {
     ItemData data = handler.getContext().getItemStateManager().getItemData(id);
@@ -842,8 +811,7 @@ public class MultiIndex {
    * deleted right away, but postponed to the transaction commit. <p/> This method does not close
    * the index, but rather expects that the index has already been closed.
    * 
-   * @param index
-   *          the index to delete.
+   * @param index the index to delete.
    */
   synchronized void deleteIndex(PersistentIndex index) {
     // remove it from the lists if index is registered
@@ -861,8 +829,7 @@ public class MultiIndex {
   /**
    * Flushes this <code>MultiIndex</code>. Persists all pending changes and resets the redo log.
    * 
-   * @throws IOException
-   *           if the flush fails.
+   * @throws IOException if the flush fails.
    */
   void flush() throws IOException {
     synchronized (this) {
@@ -927,12 +894,10 @@ public class MultiIndex {
   /**
    * Executes action <code>a</code> and appends the action to the redo log if successful.
    * 
-   * @param a
-   *          the <code>Action</code> to execute.
+   * @param a the <code>Action</code> to execute.
    * @return the executed action.
-   * @throws IOException
-   *           if an error occurs while executing the action or appending the action to the redo
-   *           log.
+   * @throws IOException if an error occurs while executing the action or appending the action to
+   *           the redo log.
    */
   private Action executeAndLog(Action a) throws IOException {
     a.execute(this);
@@ -955,8 +920,7 @@ public class MultiIndex {
    * 
    * @return <code>true</code> if the volatile index has been committed, <code>false</code>
    *         otherwise.
-   * @throws IOException
-   *           if an error occurs while committing the volatile index.
+   * @throws IOException if an error occurs while committing the volatile index.
    */
   private boolean checkVolatileCommit() throws IOException {
     if (volatileIndex.getNumDocuments() >= handler.getQueryHandlerConfig().getMinMergeDocs()) {
@@ -971,8 +935,7 @@ public class MultiIndex {
    * of indexes but not written to disk. When this method returns a new volatile index has been
    * created.
    * 
-   * @throws IOException
-   *           if an error occurs while writing the volatile index to disk.
+   * @throws IOException if an error occurs while writing the volatile index to disk.
    */
   private void commitVolatileIndex() throws IOException {
 
@@ -995,23 +958,18 @@ public class MultiIndex {
       resetVolatileIndex();
 
       time = System.currentTimeMillis() - time;
-      log.debug("Committed in-memory index in " + time + "ms.");
+      log.info("Committed in-memory index in " + time + "ms.");
     }
   }
 
   /**
    * Recursively creates an index starting with the NodeState <code>node</code>.
    * 
-   * @param node
-   *          the current NodeState.
-   * @param stateMgr
-   *          the shared item state manager.
-   * @throws IOException
-   *           if an error occurs while writing to the index.
-   * @throws ItemStateException
-   *           if an node state cannot be found.
-   * @throws RepositoryException
-   *           if any other error occurs
+   * @param node the current NodeState.
+   * @param stateMgr the shared item state manager.
+   * @throws IOException if an error occurs while writing to the index.
+   * @throws ItemStateException if an node state cannot be found.
+   * @throws RepositoryException if any other error occurs
    */
   private void createIndex(NodeData node, ItemDataConsumer stateMgr) throws IOException,
                                                                     RepositoryException {
@@ -1055,8 +1013,7 @@ public class MultiIndex {
   /**
    * Deletes the index <code>directory</code>.
    * 
-   * @param directory
-   *          the index directory to delete.
+   * @param directory the index directory to delete.
    * @return <code>true</code> if the delete was successful, <code>false</code> otherwise.
    */
   private boolean deleteIndex(File directory) {
@@ -1079,8 +1036,7 @@ public class MultiIndex {
    * Returns an new index folder which is empty.
    * 
    * @return the new index folder.
-   * @throws IOException
-   *           if the folder cannot be created.
+   * @throws IOException if the folder cannot be created.
    */
   private File newIndexFolder() throws IOException {
     // create new index folder. make sure it does not exist
@@ -1275,10 +1231,8 @@ public class MultiIndex {
     /**
      * Creates a new <code>Action</code>.
      * 
-     * @param transactionId
-     *          the id of the transaction that executed this action.
-     * @param type
-     *          the action type.
+     * @param transactionId the id of the transaction that executed this action.
+     * @param type the action type.
      */
     Action(long transactionId, int type) {
       this.transactionId = transactionId;
@@ -1306,10 +1260,9 @@ public class MultiIndex {
     /**
      * Executes this action on the <code>index</code>.
      * 
-     * @param index
-     *          the index where to execute the action.
-     * @throws IOException
-     *           if the action fails due to some I/O error in the index or some other error.
+     * @param index the index where to execute the action.
+     * @throws IOException if the action fails due to some I/O error in the index or some other
+     *           error.
      */
     public abstract void execute(MultiIndex index) throws IOException;
 
@@ -1317,10 +1270,8 @@ public class MultiIndex {
      * Executes the inverse operation of this action. That is, does an undo of this action. This
      * default implementation does nothing, but returns silently.
      * 
-     * @param index
-     *          the index where to undo the action.
-     * @throws IOException
-     *           if the action cannot be undone.
+     * @param index the index where to undo the action.
+     * @throws IOException if the action cannot be undone.
      */
     public void undo(MultiIndex index) throws IOException {
     }
@@ -1336,11 +1287,9 @@ public class MultiIndex {
     /**
      * Parses an line in the redo log and created an {@link Action}.
      * 
-     * @param line
-     *          the line from the redo log.
+     * @param line the line from the redo log.
      * @return an <code>Action</code>.
-     * @throws IllegalArgumentException
-     *           if the line is malformed.
+     * @throws IllegalArgumentException if the line is malformed.
      */
     static Action fromString(String line) throws IllegalArgumentException {
       int endTransIdx = line.indexOf(' ');
@@ -1400,11 +1349,9 @@ public class MultiIndex {
     /**
      * Creates a new AddIndex action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param indexName
-     *          the name of the index to add, or <code>null</code> if an index with a new name
-     *          should be created.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param indexName the name of the index to add, or <code>null</code> if an index with a new
+     *          name should be created.
      */
     AddIndex(long transactionId, String indexName) {
       super(transactionId, Action.TYPE_ADD_INDEX);
@@ -1414,13 +1361,10 @@ public class MultiIndex {
     /**
      * Creates a new AddIndex action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          the name of the index to add.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments the name of the index to add.
      * @return the AddIndex action.
-     * @throws IllegalArgumentException
-     *           if the arguments are malformed.
+     * @throws IllegalArgumentException if the arguments are malformed.
      */
     static AddIndex fromString(long transactionId, String arguments) {
       return new AddIndex(transactionId, arguments);
@@ -1479,10 +1423,8 @@ public class MultiIndex {
     /**
      * Creates a new AddNode action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param uuid
-     *          the uuid of the node to add.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param uuid the uuid of the node to add.
      */
     AddNode(long transactionId, String uuid) {
       super(transactionId, Action.TYPE_ADD_NODE);
@@ -1492,10 +1434,8 @@ public class MultiIndex {
     /**
      * Creates a new AddNode action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param doc
-     *          the document to add.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param doc the document to add.
      */
     AddNode(long transactionId, Document doc) {
       this(transactionId, doc.get(FieldNames.UUID));
@@ -1505,13 +1445,10 @@ public class MultiIndex {
     /**
      * Creates a new AddNode action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          the arguments to this action. The uuid of the node to add
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments the arguments to this action. The uuid of the node to add
      * @return the AddNode action.
-     * @throws IllegalArgumentException
-     *           if the arguments are malformed. Not a UUID.
+     * @throws IllegalArgumentException if the arguments are malformed. Not a UUID.
      */
     static AddNode fromString(long transactionId, String arguments) throws IllegalArgumentException {
       // simple length check
@@ -1562,8 +1499,7 @@ public class MultiIndex {
     /**
      * Creates a new Commit action.
      * 
-     * @param transactionId
-     *          the id of the transaction that is committed.
+     * @param transactionId the id of the transaction that is committed.
      */
     Commit(long transactionId) {
       super(transactionId, Action.TYPE_COMMIT);
@@ -1572,10 +1508,8 @@ public class MultiIndex {
     /**
      * Creates a new Commit action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          ignored by this method.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments ignored by this method.
      * @return the Commit action.
      */
     static Commit fromString(long transactionId, String arguments) {
@@ -1612,11 +1546,9 @@ public class MultiIndex {
     /**
      * Creates a new CreateIndex action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param indexName
-     *          the name of the index to add, or <code>null</code> if an index with a new name
-     *          should be created.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param indexName the name of the index to add, or <code>null</code> if an index with a new
+     *          name should be created.
      */
     CreateIndex(long transactionId, String indexName) {
       super(transactionId, Action.TYPE_CREATE_INDEX);
@@ -1626,13 +1558,10 @@ public class MultiIndex {
     /**
      * Creates a new CreateIndex action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          the name of the index to create.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments the name of the index to create.
      * @return the AddIndex action.
-     * @throws IllegalArgumentException
-     *           if the arguments are malformed.
+     * @throws IllegalArgumentException if the arguments are malformed.
      */
     static CreateIndex fromString(long transactionId, String arguments) {
       // when created from String, this action is executed as redo action
@@ -1697,10 +1626,8 @@ public class MultiIndex {
     /**
      * Creates a new DeleteIndex action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param indexName
-     *          the name of the index to delete.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param indexName the name of the index to delete.
      */
     DeleteIndex(long transactionId, String indexName) {
       super(transactionId, Action.TYPE_DELETE_INDEX);
@@ -1710,13 +1637,10 @@ public class MultiIndex {
     /**
      * Creates a new DeleteIndex action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          the name of the index to delete.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments the name of the index to delete.
      * @return the DeleteIndex action.
-     * @throws IllegalArgumentException
-     *           if the arguments are malformed.
+     * @throws IllegalArgumentException if the arguments are malformed.
      */
     static DeleteIndex fromString(long transactionId, String arguments) {
       return new DeleteIndex(transactionId, arguments);
@@ -1773,10 +1697,8 @@ public class MultiIndex {
     /**
      * Creates a new DeleteNode action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param uuid
-     *          the uuid of the node to delete.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param uuid the uuid of the node to delete.
      */
     DeleteNode(long transactionId, String uuid) {
       super(transactionId, Action.TYPE_DELETE_NODE);
@@ -1786,13 +1708,10 @@ public class MultiIndex {
     /**
      * Creates a new DeleteNode action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          the uuid of the node to delete.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments the uuid of the node to delete.
      * @return the DeleteNode action.
-     * @throws IllegalArgumentException
-     *           if the arguments are malformed. Not a UUID.
+     * @throws IllegalArgumentException if the arguments are malformed. Not a UUID.
      */
     static DeleteNode fromString(long transactionId, String arguments) {
       // simple length check
@@ -1855,8 +1774,7 @@ public class MultiIndex {
     /**
      * Creates a new Start transaction action.
      * 
-     * @param transactionId
-     *          the id of the transaction that started.
+     * @param transactionId the id of the transaction that started.
      */
     Start(long transactionId) {
       super(transactionId, Action.TYPE_START);
@@ -1865,10 +1783,8 @@ public class MultiIndex {
     /**
      * Creates a new Start action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          ignored by this method.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments ignored by this method.
      * @return the Start action.
      */
     static Start fromString(long transactionId, String arguments) {
@@ -1905,8 +1821,7 @@ public class MultiIndex {
     /**
      * Creates a new VolatileCommit action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
+     * @param transactionId the id of the transaction that executes this action.
      */
     VolatileCommit(long transactionId, String targetIndex) {
       super(transactionId, Action.TYPE_VOLATILE_COMMIT);
@@ -1916,10 +1831,8 @@ public class MultiIndex {
     /**
      * Creates a new VolatileCommit action.
      * 
-     * @param transactionId
-     *          the id of the transaction that executes this action.
-     * @param arguments
-     *          ignored by this implementation.
+     * @param transactionId the id of the transaction that executes this action.
+     * @param arguments ignored by this implementation.
      * @return the VolatileCommit action.
      */
     static VolatileCommit fromString(long transactionId, String arguments) {

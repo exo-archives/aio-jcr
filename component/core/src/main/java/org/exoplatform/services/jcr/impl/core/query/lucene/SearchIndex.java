@@ -45,6 +45,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -144,19 +145,19 @@ public class SearchIndex implements QueryHandler {
    */
   private ErrorLog                             errorLog;
 
-  public SearchIndex(QueryHandlerEntry queryHandlerConfig) {
+  private final ConfigurationManager           cfm;
+
+  public SearchIndex(QueryHandlerEntry queryHandlerConfig, ConfigurationManager cfm) {
     this.queryHandlerConfig = queryHandlerConfig;
+    this.cfm = cfm;
   }
 
   /**
    * Adds the <code>node</code> to the search index.
    * 
-   * @param node
-   *          the node to add.
-   * @throws RepositoryException
-   *           if an error occurs while indexing the node.
-   * @throws IOException
-   *           if an error occurs while adding the node to the index.
+   * @param node the node to add.
+   * @throws RepositoryException if an error occurs while indexing the node.
+   * @throws IOException if an error occurs while adding the node to the index.
    */
   public void addNode(NodeData node) throws RepositoryException, IOException {
     throw new UnsupportedOperationException("addNode");
@@ -165,11 +166,9 @@ public class SearchIndex implements QueryHandler {
   /**
    * Creates an excerpt provider for the given <code>query</code>.
    * 
-   * @param query
-   *          the query.
+   * @param query the query.
    * @return an excerpt provider for the given <code>query</code>.
-   * @throws IOException
-   *           if the provider cannot be created.
+   * @throws IOException if the provider cannot be created.
    */
   public ExcerptProvider createExcerptProvider(Query query) throws IOException {
     ExcerptProvider ep = queryHandlerConfig.createExcerptProvider(query);
@@ -184,16 +183,11 @@ public class SearchIndex implements QueryHandler {
    * from among those returned by QueryManager.getSupportedQueryLanguages(); if it is not then an
    * <code>InvalidQueryException</code> is thrown.
    * 
-   * @param session
-   *          the session of the current user creating the query object.
-   * @param itemMgr
-   *          the item manager of the current user.
-   * @param statement
-   *          the query statement.
-   * @param language
-   *          the syntax of the query statement.
-   * @throws InvalidQueryException
-   *           if statement is invalid or language is unsupported.
+   * @param session the session of the current user creating the query object.
+   * @param itemMgr the item manager of the current user.
+   * @param statement the query statement.
+   * @param language the syntax of the query statement.
+   * @throws InvalidQueryException if statement is invalid or language is unsupported.
    * @return A <code>Query</code> object.
    */
   public ExecutableQuery createExecutableQuery(SessionImpl session,
@@ -228,10 +222,8 @@ public class SearchIndex implements QueryHandler {
   /**
    * Removes the node with <code>uuid</code> from the search index.
    * 
-   * @param id
-   *          the id of the node to remove from the index.
-   * @throws IOException
-   *           if an error occurs while removing the node from the index.
+   * @param id the id of the node to remove from the index.
+   * @throws IOException if an error occurs while removing the node from the index.
    */
   public void deleteNode(String id) throws IOException {
     throw new UnsupportedOperationException("deleteNode");
@@ -240,18 +232,13 @@ public class SearchIndex implements QueryHandler {
   /**
    * Executes the query on the search index.
    * 
-   * @param queryImpl
-   *          the query impl.
-   * @param query
-   *          the lucene query.
-   * @param orderProps
-   *          name of the properties for sort order.
-   * @param orderSpecs
-   *          the order specs for the sort order properties. <code>true</code> indicates ascending
-   *          order, <code>false</code> indicates descending.
+   * @param queryImpl the query impl.
+   * @param query the lucene query.
+   * @param orderProps name of the properties for sort order.
+   * @param orderSpecs the order specs for the sort order properties. <code>true</code> indicates
+   *          ascending order, <code>false</code> indicates descending.
    * @return the lucene Hits object.
-   * @throws IOException
-   *           if an error occurs while searching the index.
+   * @throws IOException if an error occurs while searching the index.
    */
   public QueryHits executeQuery(AbstractQueryImpl queryImpl,
                                 Query query,
@@ -315,8 +302,7 @@ public class SearchIndex implements QueryHandler {
    * closing the index reader when he is finished using it.
    * 
    * @return an index reader for this search index.
-   * @throws IOException
-   *           the index reader cannot be obtained.
+   * @throws IOException the index reader cannot be obtained.
    */
   public IndexReader getIndexReader() throws IOException {
     return getIndexReader(true);
@@ -328,13 +314,11 @@ public class SearchIndex implements QueryHandler {
    * Returns an index reader for this search index. The caller of this method is responsible for
    * closing the index reader when he is finished using it.
    * 
-   * @param includeSystemIndex
-   *          if <code>true</code> the index reader will cover the complete workspace. If
-   *          <code>false</code> the returned index reader will not contains any nodes under
-   *          /jcr:system.
+   * @param includeSystemIndex if <code>true</code> the index reader will cover the complete
+   *          workspace. If <code>false</code> the returned index reader will not contains any nodes
+   *          under /jcr:system.
    * @return an index reader for this search index.
-   * @throws IOException
-   *           the index reader cannot be obtained.
+   * @throws IOException the index reader cannot be obtained.
    */
   public IndexReader getIndexReader(boolean includeSystemIndex) throws IOException {
     QueryHandler parentHandler = getContext().getParentHandler();
@@ -397,8 +381,7 @@ public class SearchIndex implements QueryHandler {
    * Initializes this query handler by setting all properties in this class with appropriate
    * parameter values.
    * 
-   * @param context
-   *          the context for this query handler.
+   * @param context the context for this query handler.
    */
   public final void setContext(QueryHandlerContext queryHandlerContext) throws IOException {
     this.context = queryHandlerContext;
@@ -409,8 +392,7 @@ public class SearchIndex implements QueryHandler {
    * is set in the configuration. If this condition is not met, a <code>IOException</code> is
    * thrown.
    * 
-   * @throws IOException
-   *           if an error occurs while initializing this handler.
+   * @throws IOException if an error occurs while initializing this handler.
    */
   public void init() {
     try {
@@ -426,7 +408,7 @@ public class SearchIndex implements QueryHandler {
       }
 
       extractor = context.getExtractor();
-      synProvider = queryHandlerConfig.createSynonymProvider();
+      synProvider = queryHandlerConfig.createSynonymProvider(cfm);
       // File indexDirFile = context.getFileSystem();
 
       if (context.getParentHandler() instanceof SearchIndex) {
@@ -448,7 +430,7 @@ public class SearchIndex implements QueryHandler {
       }
       npResolver = new LocationFactory(nsMappings);
 
-      indexingConfig = queryHandlerConfig.createIndexingConfiguration(nsMappings, context);
+      indexingConfig = queryHandlerConfig.createIndexingConfiguration(nsMappings, context, cfm);
 
       queryHandlerConfig.getAnalyzer().setIndexingConfig(indexingConfig);
 
@@ -576,15 +558,11 @@ public class SearchIndex implements QueryHandler {
    * {@link MultiIndex#update(java.util.Iterator, java.util.Iterator)} and transforms the two
    * iterators to the required types.
    * 
-   * @param remove
-   *          uuids of nodes to remove.
-   * @param add
-   *          NodeStates to add. Calls to <code>next()</code> on this iterator may return
+   * @param remove uuids of nodes to remove.
+   * @param add NodeStates to add. Calls to <code>next()</code> on this iterator may return
    *          <code>null</code>, to indicate that a node could not be indexed successfully.
-   * @throws RepositoryException
-   *           if an error occurs while indexing a node.
-   * @throws IOException
-   *           if an error occurs while updating the index.
+   * @throws RepositoryException if an error occurs while indexing a node.
+   * @throws IOException if an error occurs while updating the index.
    */
   public void updateNodes(final Iterator<String> remove, final Iterator<NodeData> add) throws RepositoryException,
                                                                                       IOException {
@@ -654,15 +632,12 @@ public class SearchIndex implements QueryHandler {
    * Creates a lucene <code>Document</code> for a node state using the namespace mappings
    * <code>nsMappings</code>.
    * 
-   * @param node
-   *          the node state to index.
-   * @param nsMappings
-   *          the namespace mappings of the search index.
-   * @param indexFormatVersion
-   *          the index format version that should be used to index the passed node state.
+   * @param node the node state to index.
+   * @param nsMappings the namespace mappings of the search index.
+   * @param indexFormatVersion the index format version that should be used to index the passed node
+   *          state.
    * @return a lucene <code>Document</code> that contains all properties of <code>node</code>.
-   * @throws RepositoryException
-   *           if an error occurs while indexing the <code>node</code>.
+   * @throws RepositoryException if an error occurs while indexing the <code>node</code>.
    */
   protected Document createDocument(NodeData node,
                                     NamespaceMappings nsMappings,
@@ -684,10 +659,8 @@ public class SearchIndex implements QueryHandler {
   /**
    * Creates the SortFields for the order properties.
    * 
-   * @param orderProps
-   *          the order properties.
-   * @param orderSpecs
-   *          the order specs for the properties.
+   * @param orderProps the order properties.
+   * @param orderSpecs the order specs for the properties.
    * @return an array of sort fields
    */
   protected SortField[] createSortFields(InternalQName[] orderProps, boolean[] orderSpecs) {
@@ -733,10 +706,8 @@ public class SearchIndex implements QueryHandler {
   /**
    * Merges the fulltext indexed fields of the aggregated node states into <code>doc</code>.
    * 
-   * @param state
-   *          the node state on which <code>doc</code> was created.
-   * @param doc
-   *          the lucene document with index fields from <code>state</code>.
+   * @param state the node state on which <code>doc</code> was created.
+   * @param doc the lucene document with index fields from <code>state</code>.
    */
   protected void mergeAggregatedNodeIndexes(NodeData state, Document doc) {
     if (indexingConfig != null) {
@@ -781,10 +752,8 @@ public class SearchIndex implements QueryHandler {
    * Retrieves the root of the indexing aggregate for <code>state</code> and puts it into
    * <code>map</code>.
    * 
-   * @param state
-   *          the node state for which we want to retrieve the aggregate root.
-   * @param map
-   *          aggregate roots are collected in this map. Key=NodeId, value=NodeState.
+   * @param state the node state for which we want to retrieve the aggregate root.
+   * @param map aggregate roots are collected in this map. Key=NodeId, value=NodeState.
    */
   protected void retrieveAggregateRoot(NodeData state, Map<String, NodeData> map) {
     if (indexingConfig != null) {
@@ -810,10 +779,8 @@ public class SearchIndex implements QueryHandler {
    * Retrieves the root of the indexing aggregate for <code>removedNodeIds</code> and puts it into
    * <code>map</code>.
    * 
-   * @param removedNodeIds
-   *          the ids of removed nodes.
-   * @param map
-   *          aggregate roots are collected in this map. Key=NodeId, value=NodeState.
+   * @param removedNodeIds the ids of removed nodes.
+   * @param map aggregate roots are collected in this map. Key=NodeId, value=NodeState.
    */
   protected void retrieveAggregateRoot(Set<String> removedNodeIds, Map<String, NodeData> map) {
     if (indexingConfig != null) {
@@ -864,8 +831,7 @@ public class SearchIndex implements QueryHandler {
   /**
    * Checks if this <code>SearchIndex</code> is open, otherwise throws an <code>IOException</code>.
    * 
-   * @throws IOException
-   *           if this <code>SearchIndex</code> had been closed.
+   * @throws IOException if this <code>SearchIndex</code> had been closed.
    */
   private void checkOpen() throws IOException {
     if (closed) {
@@ -974,8 +940,7 @@ public class SearchIndex implements QueryHandler {
      * Returns the reader index for document <code>n</code>. Implementation copied from lucene
      * MultiReader class.
      * 
-     * @param n
-     *          document number.
+     * @param n document number.
      * @return the reader index.
      */
     private int readerIndex(int n) {
@@ -1007,10 +972,8 @@ public class SearchIndex implements QueryHandler {
   /**
    * Log unindexed changes into error.log
    * 
-   * @param removed
-   *          set of removed node uuids
-   * @param added
-   *          map of added node states and uuids
+   * @param removed set of removed node uuids
+   * @param added map of added node states and uuids
    * @throws IOException
    */
   public void logErrorChanges(Set<String> removed, Set<String> added) throws IOException {

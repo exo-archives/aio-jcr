@@ -23,6 +23,7 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -56,9 +57,10 @@ public class SystemSearchManager extends SearchManager {
                              NamespaceRegistryImpl nsReg,
                              NodeTypeManagerImpl ntReg,
                              WorkspacePersistentDataManager itemMgr,
-                             DocumentReaderService service) throws RepositoryException,
+                             DocumentReaderService service,
+                             ConfigurationManager cfm) throws RepositoryException,
       RepositoryConfigurationException {
-    super(config, nsReg, ntReg, itemMgr, null, service);
+    super(config, nsReg, ntReg, itemMgr, null, service, cfm);
   }
 
   @Override

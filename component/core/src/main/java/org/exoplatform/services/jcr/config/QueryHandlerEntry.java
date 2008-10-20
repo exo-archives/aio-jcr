@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 import org.apache.commons.logging.Log;
 import org.apache.lucene.search.Query;
 
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.query.ErrorLog;
@@ -231,11 +232,9 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Creates an excerpt provider for the given <code>query</code>.
    * 
-   * @param query
-   *          the query.
+   * @param query the query.
    * @return an excerpt provider for the given <code>query</code>.
-   * @throws IOException
-   *           if the provider cannot be created.
+   * @throws IOException if the provider cannot be created.
    */
   public ExcerptProvider createExcerptProvider(Query query) throws IOException {
     ExcerptProvider ep;
@@ -254,14 +253,14 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
-   * @param namespaceMappings
-   *          The namespace mappings
+   * @param namespaceMappings The namespace mappings
    * @return the fulltext indexing configuration or <code>null</code> if there is no configuration.
    */
   public IndexingConfiguration createIndexingConfiguration(NamespaceMappings namespaceMappings,
-                                                           QueryHandlerContext context) throws IOException,
-                                                                                       RepositoryConfigurationException {
-    Element docElement = getIndexingConfigurationDOM();
+                                                           QueryHandlerContext context,
+                                                           ConfigurationManager cfm) throws IOException,
+                                                                                    RepositoryConfigurationException {
+    Element docElement = getIndexingConfigurationDOM(cfm);
     if (docElement == null) {
       return null;
     }
@@ -312,10 +311,11 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   }
 
   /**
+   * @param cfm
    * @return the configured synonym provider or <code>null</code> if none is configured or an error
    *         occurs.
    */
-  public SynonymProvider createSynonymProvider() {
+  public SynonymProvider createSynonymProvider(ConfigurationManager cfm) {
     SynonymProvider sp = null;
     if (getSynonymProviderClass() != null) {
       try {
@@ -323,7 +323,8 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
                                                    true,
                                                    this.getClass().getClassLoader());
         sp = (SynonymProvider) synonymProviderClass.newInstance();
-        sp.initialize(createSynonymProviderConfigResource());
+
+        sp.initialize(createSynonymProviderConfigResource(cfm));
       } catch (Exception e) {
         log.warn("Exception initializing synonym provider: " + getSynonymProviderClass(), e);
         sp = null;
@@ -560,11 +561,13 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
   /**
    * Creates a file system resource to the synonym provider configuration.
    * 
+   * @param cfm
    * @return a file system resource or <code>null</code> if no path was configured.
+   * @throws Exception
    */
-  protected InputStream createSynonymProviderConfigResource() {
+  protected InputStream createSynonymProviderConfigResource(ConfigurationManager cfm) throws Exception {
     if (getSynonymProviderConfigPath() != null) {
-      return this.getClass().getResourceAsStream(getSynonymProviderConfigPath());
+      return cfm.getInputStream(getSynonymProviderConfigPath());
     }
     return null;
   }
@@ -577,13 +580,18 @@ public class QueryHandlerEntry extends MappedParametrizedObjectEntry {
    * @throws IOException
    * @throws RepositoryConfigurationException
    */
-  protected Element getIndexingConfigurationDOM() throws IOException,
-                                                 RepositoryConfigurationException {
+  protected Element getIndexingConfigurationDOM(ConfigurationManager cfm) throws IOException,
+                                                                         RepositoryConfigurationException {
     String indexingConfigPath = getIndexingConfigurationPath();
     Element indexingConfiguration = null;
     if (indexingConfigPath != null) {
 
-      InputStream is = this.getClass().getResourceAsStream(indexingConfigPath);
+      InputStream is;
+      try {
+        is = cfm.getInputStream(indexingConfigPath);
+      } catch (Exception e1) {
+        throw new IOException(e1.getLocalizedMessage());
+      }
 
       if (is == null)
         throw new IOException("Resource does not exist: " + indexingConfigPath);
