@@ -143,6 +143,18 @@ public class S3ValueIOUtil {
     if (LOG.isDebugEnabled())
       LOG.debug("Create bucket on S3: STATUS = " + responseCode);
   }
+  
+  public static void deleteBucket(String bucket, String awsAccessKey, String awsSecretAccessKey) throws IOException {
+
+    AWSAuthConnection conn = new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
+    Response resp = conn.deleteBucket(bucket, null);
+    int responseCode = resp.connection.getResponseCode();
+    if (responseCode != HttpURLConnection.HTTP_OK) {
+      throw new IOException("Can't delete BUCKET on S3 storage. HTTP status " + responseCode);
+    }
+    if (LOG.isDebugEnabled())
+      LOG.debug("Create bucket on S3: STATUS = " + responseCode);
+  }
 
   public static void writeValue(String bucket,
                                 String awsAccessKey,

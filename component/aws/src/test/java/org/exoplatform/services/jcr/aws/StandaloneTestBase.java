@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2003-2008 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
 package org.exoplatform.services.jcr.aws;
 
 import java.io.File;
@@ -32,7 +48,10 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class StandaloneTestBase extends TestCase {
 
-  protected static Log          log = ExoLogger.getLogger("jcr.JCRAWSTest");
+  /**
+   * Logger.
+   */
+  protected static final Log    LOG = ExoLogger.getLogger("jcr.JCRAWSTest");
 
   protected SessionImpl         session;
 
@@ -50,6 +69,10 @@ public abstract class StandaloneTestBase extends TestCase {
 
   protected StandaloneContainer container;
 
+  /**
+   * CompareStreamException.
+   * 
+   */
   protected class CompareStreamException extends Exception {
 
     CompareStreamException(String message) {
@@ -61,6 +84,9 @@ public abstract class StandaloneTestBase extends TestCase {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void setUp() throws Exception {
     String containerConf = getClass().getResource("/conf/standalone/test-configuration.xml")
                                      .toString();
@@ -87,9 +113,12 @@ public abstract class StandaloneTestBase extends TestCase {
     valueFactory = session.getValueFactory();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected void tearDown() throws Exception {
 
-    log.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
+    LOG.info("tearDown() BEGIN " + getClass().getName() + "." + getName());
     if (session != null) {
       try {
         session.refresh(false);
@@ -108,7 +137,7 @@ public abstract class StandaloneTestBase extends TestCase {
         }
       } catch (Exception e) {
         e.printStackTrace();
-        log.error("===== Exception in tearDown() " + e.toString());
+        LOG.error("===== Exception in tearDown() " + e.toString());
       } finally {
         session.logout();
       }
@@ -182,11 +211,17 @@ public abstract class StandaloneTestBase extends TestCase {
    * them will be read.
    * 
    * @param etalon
+   *          etalon stream
    * @param data
+   *          data stream
    * @param etalonPos
+   *          etalon position
    * @param length
+   *          length to check
    * @param dataPos
+   *          data position
    * @throws IOException
+   *           error
    */
   protected void compareStream(InputStream etalon,
                                InputStream data,
@@ -281,7 +316,7 @@ public abstract class StandaloneTestBase extends TestCase {
     }
     tempOut.close();
     testFile.deleteOnExit(); // delete on test exit
-    log.info("Temp file created: " + testFile.getAbsolutePath() + " size: " + testFile.length());
+    LOG.info("Temp file created: " + testFile.getAbsolutePath() + " size: " + testFile.length());
     return testFile;
   }
 
@@ -326,4 +361,3 @@ public abstract class StandaloneTestBase extends TestCase {
   }
 
 }
-

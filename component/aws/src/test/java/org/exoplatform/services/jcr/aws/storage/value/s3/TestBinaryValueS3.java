@@ -104,7 +104,7 @@ public class TestBinaryValueS3 extends StandaloneTestBase {
 
     session.save();
     long endTime = System.currentTimeMillis();
-    log.info("+++++>>> - S3PluginTest: (FILE: " + fileName + "). Upload time : "
+    LOG.info("+++++>>> - S3PluginTest: (FILE: " + fileName + "). Upload time : "
         + ((endTime - startTime) / 1000) + "s");
     j++;
   }
@@ -124,7 +124,7 @@ public class TestBinaryValueS3 extends StandaloneTestBase {
     while ((rd = in.read(buff)) != -1)
       out.write(buff, 0, rd);
     long endTime = System.currentTimeMillis();
-    log.info("+++++>>> + S3PluginTest: (FILE: " + fileName + ").Download time :"
+    LOG.info("+++++>>> + S3PluginTest: (FILE: " + fileName + ").Download time :"
         + ((endTime - startTime) / 1000) + "s");
   }
 

@@ -141,8 +141,10 @@
                 <include>**/SDBWorkspace*Test__.java</include>
                 
                 <include>**/SDBWorkspaceStorageConnectionWriteTest__.java</include>
-                <include>**/SDBWorkspaceStorageConnectionReadTest.java</include>
+                <include>**/SDBWorkspaceStorageConnectionReadTest__.java</include>
                 
+				<include>**/TestBinaryValueS3.java</include>
+				
                 <include>**/TestDeleteDomain__.java</include>
               </includes>
               <excludes>
