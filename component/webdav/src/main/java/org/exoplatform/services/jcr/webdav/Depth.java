@@ -26,14 +26,32 @@ package org.exoplatform.services.jcr.webdav;
 
 public class Depth {
 
-  private final String INFINITY_NAME  = "Infinity";
+  /**
+   * String constant for depth "infinity" value.
+   */
+  private static final String INFINITY_NAME = "Infinity";
 
-  private final int    INFINITY_VALUE = -1;
+  /**
+   * Integer constant for depth "infinity" value.
+   */
+  private static final int INFINITY_VALUE = -1;
 
-  private int          intValue;
+  /**
+   * Integer depth-value property.
+   */
+  private int intValue;
 
-  private String       stringValue;
+  /**
+   * String depth-value property.
+   */
+  private String stringValue;
 
+  /**
+   * Creates a Depth object from the String.
+   * 
+   * @param strValue depth string value
+   * @throws PreconditionException when some problems occurs.
+   */
   public Depth(String strValue) throws PreconditionException {
     if (strValue == null || strValue.equalsIgnoreCase(INFINITY_NAME)) {
       this.intValue = INFINITY_VALUE;
@@ -53,14 +71,20 @@ public class Depth {
     }
   }
 
-  // public Depth(int intValue) throws PreconditionException {
-  // //Depth("" + intValue);
-  // }
-
+  /**
+   * Returns depth integer value.
+   * 
+   * @return depth int value
+   */
   public int getIntValue() {
     return intValue;
   }
 
+  /**
+   * Returns depth String value.
+   * 
+   * @return depth String value
+   */
   public String getStringValue() {
     return stringValue;
   }

@@ -20,53 +20,143 @@ package org.exoplatform.services.jcr.webdav;
 import org.exoplatform.common.http.HTTPMethods;
 
 /**
- * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SARL Author : <a
+ * href="mailto:gavrik-vetal@gmail.com">Vitaly Guly</a>.
  * 
  * @version $Id: $
  */
 
 public interface WebDavMethods extends HTTPMethods {
 
-  public static final String PROPFIND       = "PROPFIND";
+  /**
+   * WebDav "PROPFIND" method. See <a
+   * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
+   * Authoring</a> section 8.1 for more information.
+   */
+  String PROPFIND = "PROPFIND";
 
-  public static final String REPORT         = "REPORT";
+  /**
+   * WebDav "REPORT" method.
+   */
+  String REPORT = "REPORT";
 
-  public static final String COPY           = "COPY";
+  /**
+   * WebDav "COPY" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.8 for more
+   * information.
+   */
+  String COPY = "COPY";
 
-  public static final String OPTIONS        = "OPTIONS";
+  /**
+   * HTTP/1.1 "OPTIONS" method. See <a ftp://ftp.isi.edu/in-notes/rfc2616.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 9.2 for more
+   * information.
+   */
+  String OPTIONS = "OPTIONS";
 
-  public static final String MKCOL          = "MKCOL";
+  /**
+   * WebDav "MKCOL" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.3 for more
+   * information.
+   */
+  String MKCOL = "MKCOL";
 
-  public static final String DELETE         = "DELETE";
+  /**
+   * WebDav "DELETE" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.6 for more
+   * information.
+   */
+  String DELETE = "DELETE";
 
-  public static final String HEAD           = "HEAD";
+  /**
+   * WebDav "HEAD" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.4 for more
+   * information.
+   */
+  String HEAD = "HEAD";
 
-  public static final String MOVE           = "MOVE";
+  /**
+   * WebDav "MOVE" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.9 for more
+   * information.
+   */
+  String MOVE = "MOVE";
 
-  public static final String PUT            = "PUT";
+  /**
+   * WebDav "PUT" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.7 for more
+   * information.
+   */
+  String PUT = "PUT";
 
-  public static final String GET            = "GET";
+  /**
+   * WebDav "GET" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.4 for more
+   * information.
+   */
+  String GET = "GET";
 
-  public static final String LOCK           = "LOCK";
+  /**
+   * WebDav "LOCK" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.10 for more
+   * information.
+   */
+  String LOCK = "LOCK";
 
-  public static final String UNLOCK         = "UNLOCK";
+  /**
+   * WebDav "UNLOCK" method. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 8.11 for more
+   * information.
+   */
+  String UNLOCK = "UNLOCK";
 
-  public static final String PROPPATCH      = "PROPPATCH";
+  /**
+   * WebDav "PROPPATCH" method. See <a
+   * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
+   * Authoring</a> section 8.2 for more information.
+   */
+  String PROPPATCH = "PROPPATCH";
 
-  public static final String POST           = "POST";
+  /**
+   * HTTP/1.1 "POST" method. See <a ftp://ftp.isi.edu/in-notes/rfc2616.txt'>
+   * HTTP Headers for Distributed Authoring</a> section 9.5 for more
+   * information.
+   */
+  String POST = "POST";
 
-  public static final String ORDERPATCH     = "ORDERPATCH";
+  /**
+   * WebDav "ORDERPATCH" method.
+   */
+  String ORDERPATCH = "ORDERPATCH";
 
-  public static final String VERSIONCONTROL = "VERSION-CONTROL";
+  /**
+   * WebDav "VERSION-CONTROL" method.
+   */
+  String VERSIONCONTROL = "VERSION-CONTROL";
 
-  public static final String CHECKIN        = "CHECKIN";
+  /**
+   * WebDav "CHECKIN" method.
+   */
+  String CHECKIN = "CHECKIN";
 
-  public static final String CHECKOUT       = "CHECKOUT";
+  /**
+   * WebDav "CHECKOUT" method.
+   */
+  String CHECKOUT = "CHECKOUT";
 
-  public static final String UNCHECKOUT     = "UNCHECKOUT";
+  /**
+   * WebDav "UNCHECKOUT" method.
+   */
+  String UNCHECKOUT = "UNCHECKOUT";
 
-  public static final String RESTORE        = "RESTORE";
+  /**
+   * WebDav "RESTORE" method.
+   */
+  String RESTORE = "RESTORE";
 
-  public static final String SEARCH         = "SEARCH";
+  /**
+   * WebDav "SEARCH" method.
+   */
+  String SEARCH = "SEARCH";
 
 }

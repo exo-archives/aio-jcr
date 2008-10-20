@@ -26,18 +26,37 @@ package org.exoplatform.services.jcr.webdav;
 
 public class PreconditionException extends Exception {
 
+  /**
+   * Default public constructor.
+   */
   public PreconditionException() {
     super();
   }
 
+  /**
+   * Public constructor with specified message and Throwable.
+   * 
+   * @param message exception message
+   * @param t Throwable
+   */
   public PreconditionException(String message, Throwable t) {
     super(message, t);
   }
 
+  /**
+   * Public constructor with specified message.
+   * 
+   * @param message exception message
+   */
   public PreconditionException(String message) {
     super(message);
   }
 
+  /**
+   * Public constructor with specified Throwable.
+   * 
+   * @param t Throwable
+   */
   public PreconditionException(Throwable t) {
     super(t);
   }

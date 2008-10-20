@@ -23,24 +23,50 @@ package org.exoplatform.services.jcr.webdav;
  */
 public class Range {
 
-  private long start_;
+  /**
+   * Range start value.
+   */
+  private long start;
 
-  private long end_;
+  /**
+   * Range end value.
+   */
+  private long end;
 
+  /**
+   * Start range getter property.
+   * 
+   * @return Range start value
+   */
   public long getStart() {
-    return start_;
+    return start;
   }
 
+  /**
+   * Start range setter property.
+   * 
+   * @param start Range start value
+   */
   public void setStart(long start) {
-    start_ = start;
+    this.start = start;
   }
 
+  /**
+   * End Range getter property.
+   * 
+   * @return Range end value
+   */
   public long getEnd() {
-    return end_;
+    return end;
   }
 
+  /**
+   * End Range setter property.
+   * 
+   * @param end Range end value
+   */
   public void setEnd(long end) {
-    end_ = end;
+    this.end = end;
   }
 
 }

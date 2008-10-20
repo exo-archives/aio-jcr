@@ -18,8 +18,6 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +27,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.client.HTTPResponse;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.xml.InitParams;
@@ -88,31 +85,56 @@ import org.exoplatform.services.rest.transformer.SerializableTransformer;
 @URITemplate("/jcr/")
 public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
-  public static final String                      INIT_PARAM_DEF_FOLDER_NODE_TYPE = "def-folder-node-type";
+  /**
+   * Default folder initialization node type.
+   */
+  public static final String INIT_PARAM_DEF_FOLDER_NODE_TYPE = "def-folder-node-type";
 
-  public static final String                      INIT_PARAM_DEF_FILE_NODE_TYPE   = "def-file-node-type";
+  /**
+   * Default file initialization node type.
+   */
+  public static final String INIT_PARAM_DEF_FILE_NODE_TYPE = "def-file-node-type";
 
-  public static final String                      INIT_PARAM_DEF_FILE_MIME_TYPE   = "def-file-mimetype";
+  /**
+   * Default file initialization mime type.
+   */
+  public static final String INIT_PARAM_DEF_FILE_MIME_TYPE = "def-file-mimetype";
 
-  public static final String                      INIT_PARAM_UPDATE_POLICY        = "update-policy";
+  /**
+   * Initialization initialization "update-policy"-parameter value.
+   */
+  public static final String INIT_PARAM_UPDATE_POLICY = "update-policy";
 
-  private static Log                              log                             = ExoLogger.getLogger("jcr.WebDavServiceImpl");
+  /**
+   * Logger.
+   */
+  private static Log log = ExoLogger.getLogger("jcr.WebDavServiceImpl");
 
   private final ThreadLocalSessionProviderService sessionProviderService;
 
-  private final RepositoryService                 repositoryService;
+  private final RepositoryService repositoryService;
 
-  private final ResourceBinder                    resourceBinder;
+  private final ResourceBinder resourceBinder;
 
-  private final NullResourceLocksHolder           nullResourceLocks;
+  private final NullResourceLocksHolder nullResourceLocks;
 
-  private String                                  defaultFolderNodeType           = "nt:folder";
+  /**
+   * Default folder node type.
+   */
+  private String defaultFolderNodeType = "nt:folder";
 
-  private String                                  defaultFileNodeType             = "nt:file";
+  /**
+   * Default file node type.
+   */
+  private String defaultFileNodeType = "nt:file";
 
-  private String                                  defaultFileMimeType             = "application/octet-stream";
+  /**
+   * Default file mime type.
+   */
+  private String defaultFileMimeType = "application/octet-stream";
 
-  private String                                  updatePolicyType                = "create-version";
+  
+  private String updatePolicyType = "create-version";
 
   public WebDavServiceImpl(InitParams params,
                            RepositoryService repositoryService,
@@ -726,7 +748,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         mimeType = mimeTypeResolver.getMimeType(TextUtil.nameOnly(repoPath));
       }
 
-      // ArrayList<String> mixinTypes = NodeTypeUtil.getMixinTypes(mixinTypesHeader);
+      // ArrayList<String> mixinTypes =
+      // NodeTypeUtil.getMixinTypes(mixinTypesHeader);
       return new PutCommand(nullResourceLocks).put(session,
                                                    path(repoPath),
                                                    inputStream,
