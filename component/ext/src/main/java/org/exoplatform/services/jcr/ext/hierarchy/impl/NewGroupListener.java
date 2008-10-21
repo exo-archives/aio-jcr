@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 
 import org.exoplatform.container.xml.InitParams;
@@ -48,7 +47,7 @@ public class NewGroupListener extends GroupEventListener {
 
   private String              groupsPath_;
 
-  final static String         NT_UNSTRUCTURED = "nt:unstructured".intern();
+  final static private String NT_UNSTRUCTURED = "nt:unstructured".intern();
 
   final static private String GROUPS_PATH     = "groupsPath";
 
@@ -95,10 +94,8 @@ public class NewGroupListener extends GroupEventListener {
     ManageableRepository manageableRepository = jcrService_.getRepository(repoName);
     String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
     Session session = manageableRepository.getSystemSession(systemWorkspace);
-    Node groupsHome = (Node) session.getItem(groupsPath_);
     Node groupNode = (Node) session.getItem(groupsPath_ + groupId);
     groupNode.remove();
-    // groupsHome.save() ;
     session.save();
     session.logout();
   }
@@ -109,12 +106,7 @@ public class NewGroupListener extends GroupEventListener {
     String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
     Session session = manageableRepository.getSystemSession(systemWorkspace);
     Node groupsHome = (Node) session.getItem(groupsPath_);
-    Node groupNode = null;
-    try {
-      groupNode = (Node) session.getItem(groupsPath_ + groupId);
-    } catch (PathNotFoundException e) {
-      groupNode = groupsHome.addNode(groupId.substring(1, groupId.length()));
-    }
+    Node groupNode = groupsHome.addNode(groupId.substring(1, groupId.length()));
     List jcrPaths = config_.getJcrPaths();
     for (JcrPath jcrPath : (List<JcrPath>) jcrPaths) {
       createNode(groupNode,
@@ -123,35 +115,27 @@ public class NewGroupListener extends GroupEventListener {
                  jcrPath.getMixinTypes(),
                  getPermissions(jcrPath.getPermissions(), groupId));
     }
-    // groupsHome.save();
     session.save();
     session.logout();
   }
 
   @SuppressWarnings("unchecked")
-  private void createNode(Node rootNode,
+  private void createNode(Node groupNode,
                           String path,
                           String nodeType,
                           List<String> mixinTypes,
                           Map permissions) throws Exception {
-    Node node = rootNode;
-    for (String token : path.split("/")) {
-      try {
-        node = node.getNode(token);
-      } catch (PathNotFoundException e) {
-        if (nodeType == null || nodeType.length() == 0)
-          nodeType = NT_UNSTRUCTURED;
-        node = node.addNode(token, nodeType);
-        if (node.canAddMixin("exo:privilegeable"))
-          node.addMixin("exo:privilegeable");
-        if (permissions != null && !permissions.isEmpty())
-          ((ExtendedNode) node).setPermissions(permissions);
-        if (mixinTypes.size() > 0) {
-          for (String mixin : mixinTypes) {
-            if (node.canAddMixin(mixin))
-              node.addMixin(mixin);
-          }
-        }
+    if (nodeType == null || nodeType.length() == 0)
+      nodeType = NT_UNSTRUCTURED;
+    groupNode = groupNode.addNode(path, nodeType);
+    if (groupNode.canAddMixin("exo:privilegeable"))
+      groupNode.addMixin("exo:privilegeable");
+    if (permissions != null && !permissions.isEmpty())
+      ((ExtendedNode) groupNode).setPermissions(permissions);
+    if (mixinTypes.size() > 0) {
+      for (String mixin : mixinTypes) {
+        if (groupNode.canAddMixin(mixin))
+          groupNode.addMixin(mixin);
       }
     }
   }

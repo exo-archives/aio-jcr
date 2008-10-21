@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.access.PermissionType;
@@ -34,8 +32,6 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.hierarchy.NodeHierarchyCreator;
 import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.JcrPath;
 import org.exoplatform.services.jcr.ext.hierarchy.impl.HierarchyConfig.Permission;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.LogService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 
@@ -45,13 +41,9 @@ import org.exoplatform.services.organization.UserEventListener;
  */
 public class NewUserListener extends UserEventListener {
 
-  private static Log           log             = ExoLogger.getLogger("jcr.NewUserListener");
-
   private HierarchyConfig      config_;
 
   private RepositoryService    jcrService_;
-
-  private Log                  log_;
 
   private NodeHierarchyCreator nodeHierarchyCreatorService_;
 
@@ -59,15 +51,13 @@ public class NewUserListener extends UserEventListener {
 
   final static private String  USERS_PATH      = "usersPath";
 
-  final static String          NT_UNSTRUCTURED = "nt:unstructured".intern();
+  final static private String  NT_UNSTRUCTURED = "nt:unstructured".intern();
 
   public NewUserListener(RepositoryService jcrService,
                          NodeHierarchyCreator nodeHierarchyCreatorService,
-                         LogService logService,
                          InitParams params) throws Exception {
     jcrService_ = jcrService;
     nodeHierarchyCreatorService_ = nodeHierarchyCreatorService;
-    log_ = logService.getLog(getClass().getName());
     config_ = (HierarchyConfig) params.getObjectParamValues(HierarchyConfig.class).get(0);
     nodeHierarchyCreatorService_.addPlugin(new AddPathPlugin(params));
     userPath_ = nodeHierarchyCreatorService.getJcrPath(USERS_PATH);
@@ -89,12 +79,7 @@ public class NewUserListener extends UserEventListener {
     String systemWorkspace = manageableRepository.getConfiguration().getDefaultWorkspaceName();
     Session session = manageableRepository.getSystemSession(systemWorkspace);
     Node usersHome = (Node) session.getItem(userPath_);
-    Node userNode = null;
-    try {
-      userNode = (Node) session.getItem(userPath_ + "/" + userName);
-    } catch (PathNotFoundException e) {
-      userNode = usersHome.addNode(userName);
-    }
+    Node userNode = usersHome.addNode(userName);
     List<JcrPath> jcrPaths = config_.getJcrPaths();
 
     for (JcrPath jcrPath : jcrPaths) {
@@ -104,7 +89,6 @@ public class NewUserListener extends UserEventListener {
                  jcrPath.getMixinTypes(),
                  getPermissions(jcrPath.getPermissions(), userName));
     }
-    // usersHome.save();
     session.save();
     session.logout();
   }
@@ -120,7 +104,6 @@ public class NewUserListener extends UserEventListener {
                                                             .getDefaultWorkspaceName());
         Node usersHome = (Node) session.getItem(nodeHierarchyCreatorService_.getJcrPath(USERS_PATH));
         usersHome.getNode(user.getUserName()).remove();
-        // usersHome.save();
         session.save();
         session.logout();
       } catch (Exception e) {
@@ -130,29 +113,22 @@ public class NewUserListener extends UserEventListener {
   }
 
   @SuppressWarnings("unchecked")
-  private void createNode(Node rootNode,
+  private void createNode(Node userNode,
                           String path,
                           String nodeType,
                           List<String> mixinTypes,
                           Map permissions) throws Exception {
-    Node node = rootNode;
-    for (String token : path.split("/")) {
-      try {
-        node = node.getNode(token);
-      } catch (PathNotFoundException e) {
-        if (nodeType == null || nodeType.length() == 0)
-          nodeType = NT_UNSTRUCTURED;
-        node = node.addNode(token, nodeType);
-        if (node.canAddMixin("exo:privilegeable"))
-          node.addMixin("exo:privilegeable");
-        if (permissions != null && !permissions.isEmpty())
-          ((ExtendedNode) node).setPermissions(permissions);
-        if (mixinTypes.size() > 0) {
-          for (String mixin : mixinTypes) {
-            if (node.canAddMixin(mixin))
-              node.addMixin(mixin);
-          }
-        }
+    if (nodeType == null || nodeType.length() == 0)
+      nodeType = NT_UNSTRUCTURED;
+    userNode = userNode.addNode(path, nodeType);
+    if (userNode.canAddMixin("exo:privilegeable"))
+      userNode.addMixin("exo:privilegeable");
+    if (permissions != null && !permissions.isEmpty())
+      ((ExtendedNode) userNode).setPermissions(permissions);
+    if (mixinTypes.size() > 0) {
+      for (String mixin : mixinTypes) {
+        if (userNode.canAddMixin(mixin))
+          userNode.addMixin(mixin);
       }
     }
   }
