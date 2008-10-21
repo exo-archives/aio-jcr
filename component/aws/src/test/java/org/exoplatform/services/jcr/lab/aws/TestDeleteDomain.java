@@ -177,7 +177,7 @@ public class TestDeleteDomain extends TestCase {
   public void testDeleteDomain() throws Exception {
 
     sdbService.deleteDomain(new DeleteDomainRequest("ecm-test-system"));
-    sdbService.deleteDomain(new DeleteDomainRequest("ecm-test-collboration"));
+    sdbService.deleteDomain(new DeleteDomainRequest("ecm-test-collaboration"));
     sdbService.deleteDomain(new DeleteDomainRequest("ecm-test-backup"));
   }
 
@@ -189,11 +189,12 @@ public class TestDeleteDomain extends TestCase {
    */
   public void testDeleteBuckets() throws Exception {
 
+    final String bucketName = "ecm-test";
     try {
       // delete all objects
-      String[] list = S3ValueIOUtil.getBucketList("jcr-test", accessKey, secretKey, "");
+      String[] list = S3ValueIOUtil.getBucketList(bucketName, accessKey, secretKey, "");
       for (String sl : list) {
-        if (S3ValueIOUtil.deleteValue("jcr-test", accessKey, secretKey, sl)) {
+        if (S3ValueIOUtil.deleteValue(bucketName, accessKey, secretKey, sl)) {
           System.out.println("delete S3 value: " + sl);
         } else
           System.out.println("WARN cannot delete value " + sl);
@@ -204,8 +205,8 @@ public class TestDeleteDomain extends TestCase {
 
     try {
       // delete bucket
-      S3ValueIOUtil.deleteBucket("jcr-test", accessKey, secretKey);
-      System.out.println("delete S3 bucket: jcr-test");
+      S3ValueIOUtil.deleteBucket(bucketName, accessKey, secretKey);
+      System.out.println("delete S3 bucket: " + bucketName);
     } catch (IOException e) {
       e.printStackTrace();
     }
