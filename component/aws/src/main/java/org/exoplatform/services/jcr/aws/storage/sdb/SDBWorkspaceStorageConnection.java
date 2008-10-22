@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.aws.storage.sdb;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -101,6 +102,11 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * SimpleDB Operation timeout (5sec).
    */
   protected static final int                 SDB_OPERATION_TIMEOUT        = 5000;
+
+  /**
+   * SimpleDB non-result operations count for retry(3 times).
+   */
+  protected static final int                 SDB_OPERATION_COUNT          = 3;
 
   /**
    * Item Delete operation constant. Should be INTERNED.
@@ -1088,7 +1094,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           try {
             Thread.sleep(SDB_OPERATION_TIMEOUT);
           } catch (InterruptedException e) {
-            LOG.debug("Init storage sleep error " + e, e);
+            LOG.error("Init storage sleep error " + e, e);
           }
           domains = getDomainsList();
           iter--;
@@ -1379,7 +1385,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     if (attributes != null)
       request.withAttributeName(attributes);
 
-    return service.queryWithAttributes(request);
+    return invokeQuery(service, request);
   }
 
   /**
@@ -1413,7 +1419,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     if (attributes != null)
       request.withAttributeName(attributes);
 
-    return service.queryWithAttributes(request);
+    return invokeQuery(service, request);
   }
 
   /**
@@ -1450,7 +1456,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     if (attributes != null)
       request.withAttributeName(attributes);
 
-    return service.queryWithAttributes(request);
+    return invokeQuery(service, request);
   }
 
   /**
@@ -1478,7 +1484,36 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                          .withQueryExpression(query)
                                                                          .withAttributeName(attributes);
 
-    return service.queryWithAttributes(request);
+    return invokeQuery(service, request);
+  }
+
+  private QueryWithAttributesResponse invokeQuery(final AmazonSimpleDB service,
+                                                  final QueryWithAttributesRequest request) throws AmazonSimpleDBException {
+    int cycle = 0;
+    AmazonSimpleDBException ce = null;
+    retry: do {
+      try {
+        return service.queryWithAttributes(request); // TODO use class invoker with overriden method for diff opers
+      } catch (AmazonSimpleDBException e) {
+        ce = e;
+        Throwable c = e.getCause(); 
+        while (c != null) {
+          if (c instanceof SocketTimeoutException) {
+            cycle++;
+            try {
+              Thread.sleep(SDB_OPERATION_TIMEOUT);
+            } catch (InterruptedException e1) {
+              LOG.error("Connection thread interrupted " + e1, e1);
+            }
+            continue retry;
+          } else
+            c = c.getCause();
+        }
+        break;
+      }
+    } while (cycle < SDB_OPERATION_COUNT);
+    
+    throw new AmazonSimpleDBException(ce);
   }
 
   /**
@@ -1506,7 +1541,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                          .withQueryExpression(query)
                                                                          .withAttributeName(attributes);
 
-    return service.queryWithAttributes(request);
+    return invokeQuery(service, request);
   }
 
   /**
@@ -1537,7 +1572,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                          .withQueryExpression(query)
                                                                          .withAttributeName(attributes);
 
-    return service.queryWithAttributes(request);
+    return invokeQuery(service, request);
   }
 
   /**
@@ -2467,7 +2502,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         Collections.sort(childItems, new NodeDataComparator());
 
       // TODO list can be empty if it's asked immediate after add
-      return childItems; 
+      return childItems;
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(child nodes) Parent " + parent.getQPath().getAsString() + " "
           + parent.getIdentifier() + ". Read request fails " + e, e);
@@ -2490,31 +2525,45 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                    IllegalStateException {
     try {
       // TODO nextToken for large list
-
-      QueryWithAttributesResponse resp = queryChildPropertiesAttr(sdbService,
-                                                                  domainName,
-                                                                  parent.getIdentifier(),
-                                                                  ID,
-                                                                  PID,
-                                                                  NAME,
-                                                                  ICLASS,
-                                                                  IDATA,
-                                                                  DATA);
-
       List<PropertyData> childItems = new ArrayList<PropertyData>();
 
-      if (resp.isSetQueryWithAttributesResult()) {
-        for (Item item : resp.getQueryWithAttributesResult().getItem())
-          childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), true));
-      }
+      int cycle = 0;
+      do {
+        QueryWithAttributesResponse resp = queryChildPropertiesAttr(sdbService,
+                                                                    domainName,
+                                                                    parent.getIdentifier(),
+                                                                    ID,
+                                                                    PID,
+                                                                    NAME,
+                                                                    ICLASS,
+                                                                    IDATA,
+                                                                    DATA);
 
-      // TODO list can be empty if it's asked immediate after add, if EMPTY run query again, then exception
-      if (childItems.size() == 0) {
-        new Exception().printStackTrace();
+        if (resp.isSetQueryWithAttributesResult()) {
+          for (Item item : resp.getQueryWithAttributesResult().getItem())
+            childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), true));
+        }
+
+        // TODO list can be empty if it's asked immediate after add, if EMPTY run query again, then
+        // exception
+        if (childItems.size() == 0) {
+          LOG.warn("(child properties) Parent " + parent.getQPath().getAsString() + " "
+              + parent.getIdentifier() + " returns EMPTY list. Retry...");
+          cycle++;
+          try {
+            Thread.sleep(SDB_OPERATION_TIMEOUT);
+          } catch (InterruptedException e) {
+            LOG.error("Connection thread interrupted " + e, e);
+            break;
+          }
+        } else
+          break;
+      } while (cycle < SDB_OPERATION_COUNT);
+
+      if (cycle >= SDB_OPERATION_COUNT)
         LOG.warn("(child properties) Parent " + parent.getQPath().getAsString() + " "
             + parent.getIdentifier() + " returns EMPTY list.");
-      }
-      
+
       return childItems;
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(child properties) Parent " + parent.getQPath().getAsString()
@@ -2537,30 +2586,44 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                     IllegalStateException {
     try {
       // TODO nextToken for large list
-
-      QueryWithAttributesResponse resp = queryChildPropertiesAttr(sdbService,
-                                                                  domainName,
-                                                                  parent.getIdentifier(),
-                                                                  ID,
-                                                                  PID,
-                                                                  NAME,
-                                                                  ICLASS,
-                                                                  IDATA);
-
       List<PropertyData> childItems = new ArrayList<PropertyData>();
 
-      if (resp.isSetQueryWithAttributesResult()) {
-        for (Item item : resp.getQueryWithAttributesResult().getItem())
-          childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), false));
-      }
+      int cycle = 0;
+      do {
+        QueryWithAttributesResponse resp = queryChildPropertiesAttr(sdbService,
+                                                                    domainName,
+                                                                    parent.getIdentifier(),
+                                                                    ID,
+                                                                    PID,
+                                                                    NAME,
+                                                                    ICLASS,
+                                                                    IDATA);
 
-      // TODO list can be empty if it's asked immediate after add, if EMPTY run query again, then exception
-      if (childItems.size() == 0) {
-        new Exception().printStackTrace();
+        if (resp.isSetQueryWithAttributesResult()) {
+          for (Item item : resp.getQueryWithAttributesResult().getItem())
+            childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), false));
+        }
+
+        // TODO list can be empty if it's asked immediate after add, if EMPTY run query again, then
+        // exception
+        if (childItems.size() == 0) {
+          LOG.warn("(list child properties) Parent " + parent.getQPath().getAsString() + " "
+              + parent.getIdentifier() + " returns EMPTY list. Retry...");
+          cycle++;
+          try {
+            Thread.sleep(SDB_OPERATION_TIMEOUT);
+          } catch (InterruptedException e) {
+            LOG.error("Connection thread interrupted " + e, e);
+            break;
+          }
+        } else
+          break;
+      } while (cycle < SDB_OPERATION_COUNT);
+
+      if (cycle >= SDB_OPERATION_COUNT)
         LOG.warn("(list child properties) Parent " + parent.getQPath().getAsString() + " "
             + parent.getIdentifier() + " returns EMPTY list.");
-      }
-      
+
       return childItems;
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(list child properties) Parent "
