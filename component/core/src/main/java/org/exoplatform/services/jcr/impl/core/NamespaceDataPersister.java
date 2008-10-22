@@ -161,9 +161,15 @@ public class NamespaceDataPersister {
     saveChanges();
   }
 
-  // /** @deprecated */
-  public void addNamespace(String prefix, String uri) throws RepositoryException,
-                                                     InvalidItemStateException {
+  
+  /**
+   * Add new namespace.
+   *
+   * @param prefix NS prefix
+   * @param uri NS URI
+   * @throws RepositoryException Repository error
+   */
+  public void addNamespace(String prefix, String uri) throws RepositoryException {
 
     if (!isInialized()) {
       log.warn("Namespace storage (/jcr:system/exo:namespaces node) is not initialized");
