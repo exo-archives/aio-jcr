@@ -16,6 +16,11 @@
  */
 package org.exoplatform.services.jcr.api.version;
 
+import java.io.ByteArrayInputStream;
+import java.util.Calendar;
+import java.util.Random;
+
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
@@ -79,6 +84,44 @@ public class TestVersionable extends BaseVersionTest {
       e.printStackTrace();
       fail("removeMixin(\"mix:versionable\") impossible due to error " + e.getMessage());
     }
+  }
+
+  public void testRemoveVersionableFile() throws Exception {
+    int versionsCount = 5;
+    Node testFolder = root.addNode("testVFolader", "nt:folder");
+    testFolder.addMixin("mix:versionable");
+    Random r = new Random();
+    byte[] content = new byte[1024 * 1024];
+    r.nextBytes(content);
+
+    Node localSmallFile = testFolder.addNode("smallFile", "nt:file");
+    Node contentNode = localSmallFile.addNode("jcr:content", "nt:resource");
+    contentNode.setProperty("jcr:data", new ByteArrayInputStream(content));
+    contentNode.setProperty("jcr:mimeType", "application/octet-stream");
+    contentNode.setProperty("jcr:lastModified", Calendar.getInstance());
+    contentNode.addMixin("mix:versionable");
+    session.save();
+    String vsUuid = contentNode.getProperty("jcr:versionHistory").getString();
+    Node vsNode = session.getNodeByUUID(vsUuid);
+    // System.out.println(vsNode.getNodes().getSize());
+    for (int i = 0; i < versionsCount; i++) {
+      contentNode.checkin();
+      contentNode.checkout();
+      r.nextBytes(content);
+      contentNode.setProperty("jcr:data", new ByteArrayInputStream(content));
+
+      session.save();
+      // /System.out.println(vsNode.getNodes().getSize());
+
+    }
+    testFolder.remove();
+    session.save();
+    try {
+      session.getNodeByUUID(vsUuid);
+    } catch (ItemNotFoundException e) {
+      // ok
+    }
+
   }
 
   /**
