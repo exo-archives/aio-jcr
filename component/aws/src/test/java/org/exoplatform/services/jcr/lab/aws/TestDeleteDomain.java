@@ -45,6 +45,11 @@ import com.amazonaws.sdb.model.ListDomainsResult;
 public class TestDeleteDomain extends TestCase {
 
   /**
+   * EXO_PREFIX.
+   */
+  private static final String EXO_PREFIX = "ecm-test";
+  
+  /**
    * accessKey.
    */
   private String           accessKey;
@@ -176,9 +181,9 @@ public class TestDeleteDomain extends TestCase {
    */
   public void testDeleteDomain() throws Exception {
 
-    sdbService.deleteDomain(new DeleteDomainRequest("ecm-test-system"));
-    sdbService.deleteDomain(new DeleteDomainRequest("ecm-test-collaboration"));
-    sdbService.deleteDomain(new DeleteDomainRequest("ecm-test-backup"));
+    sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-system"));
+    sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-collaboration"));
+    sdbService.deleteDomain(new DeleteDomainRequest(EXO_PREFIX + "-backup"));
   }
 
   /**
@@ -189,12 +194,11 @@ public class TestDeleteDomain extends TestCase {
    */
   public void testDeleteBuckets() throws Exception {
 
-    final String bucketName = "ecm-test";
     try {
       // delete all objects
-      String[] list = S3ValueIOUtil.getBucketList(bucketName, accessKey, secretKey, "");
+      String[] list = S3ValueIOUtil.getBucketList(EXO_PREFIX, accessKey, secretKey, "");
       for (String sl : list) {
-        if (S3ValueIOUtil.deleteValue(bucketName, accessKey, secretKey, sl)) {
+        if (S3ValueIOUtil.deleteValue(EXO_PREFIX, accessKey, secretKey, sl)) {
           System.out.println("delete S3 value: " + sl);
         } else
           System.out.println("WARN cannot delete value " + sl);
@@ -205,8 +209,8 @@ public class TestDeleteDomain extends TestCase {
 
     try {
       // delete bucket
-      S3ValueIOUtil.deleteBucket(bucketName, accessKey, secretKey);
-      System.out.println("delete S3 bucket: " + bucketName);
+      S3ValueIOUtil.deleteBucket(EXO_PREFIX, accessKey, secretKey);
+      System.out.println("delete S3 bucket: " + EXO_PREFIX);
     } catch (IOException e) {
       e.printStackTrace();
     }

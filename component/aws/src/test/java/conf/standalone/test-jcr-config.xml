@@ -8,27 +8,28 @@
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator</authentication-policy>
       <workspaces>
         <workspace name="ws">
-          <container class="org.exoplatform.services.jcr.impl.storage.sdb.SDBWorkspaceDataContainer">
+          <container class="org.exoplatform.services.jcr.aws.storage.sdb.SDBWorkspaceDataContainer">
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws"/>
-			  <property name="aws-access-key" value="z"/>
-			  <property name="aws-secret-access-key" value="z"/>
-			  <property name="domain-name" value="exo-aws-test-ws"/>
+              <property name="aws-access-key" value="z"/>
+              <property name="aws-secret-access-key" value="z"/>
+              <property name="domain-name" value="jcr-test-ws"/>
             </properties>
-            <!-- value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
+            <value-storages>
+              <value-storage id="ws" class="org.exoplatform.services.jcr.aws.storage.value.s3.SimpleS3ValueStorage">
                 <properties>
-                  <property name="bucket" value="jcr"/>
-                  <property name="aws-access-key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
-                  <property name="aws-secret-access-key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
+                  <property name="bucket" value="jcr-test"/>
+                  <property name="aws-access-key" value="z"/>
+                  <property name="aws-secret-access-key" value="z"/>
                   <property name="s3-swap-directory" value="target/temp/s3swap/ws"/>
                 </properties>
                 <filters>
-                  <filter property-type="Binary"/>
+                  <filter property-type="Binary" min-value-size="850"/>
+                  <filter property-type="String" min-value-size="1020"/>
                 </filters>
               </value-storage>
-            </value-storages -->
+            </value-storages>
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
@@ -63,27 +64,14 @@
         </workspace>
         
         <workspace name="ws1">
-          <container class="org.exoplatform.services.jcr.impl.storage.sdb.SDBWorkspaceDataContainer">
+          <container class="org.exoplatform.services.jcr.aws.storage.sdb.SDBWorkspaceDataContainer">
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws1"/>
-			  <property name="aws-access-key" value="z"/>
-			  <property name="aws-secret-access-key" value="z"/>
-			  <property name="domain-name" value="exo-aws-test-ws1"/>
+              <property name="aws-access-key" value="z"/>
+              <property name="aws-secret-access-key" value="z"/>
+              <property name="domain-name" value="jcr-test-ws1"/>
             </properties>
-            <!-- value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
-                <properties>
-                  <property name="bucket" value="jcr"/>
-                  <property name="aws-access-key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
-                  <property name="aws-secret-access-key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
-                  <property name="s3-swap-directory" value="target/temp/s3swap/ws1"/>
-                </properties>
-                <filters>
-                  <filter property-type="Binary"/>
-                </filters>
-              </value-storage>
-            </value-storages -->
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
@@ -118,27 +106,14 @@
         </workspace>
         
         <workspace name="ws2">
-          <container class="org.exoplatform.services.jcr.impl.storage.sdb.SDBWorkspaceDataContainer">
+          <container class="org.exoplatform.services.jcr.aws.storage.sdb.SDBWorkspaceDataContainer">
             <properties>
               <property name="max-buffer-size" value="200k"/>
               <property name="swap-directory" value="target/temp/swap/ws2"/>
-			  <property name="aws-access-key" value="z"/>
-			  <property name="aws-secret-access-key" value="z"/>
-			  <property name="domain-name" value="exo-aws-test-ws2"/>
+              <property name="aws-access-key" value="z"/>
+              <property name="aws-secret-access-key" value="z"/>
+              <property name="domain-name" value="jcr-test-ws2"/>
             </properties>
-            <!-- value-storages>
-              <value-storage class="org.exoplatform.services.jcr.impl.storage.value.s3.SimpleS3ValueStorage">
-                <properties>
-                  <property name="bucket" value="jcr"/>
-                  <property name="aws-access-key" value="INSERT YOUR AWS ACCESS KEY ID HERE"/>
-                  <property name="aws-secret-access-key" value="INSERT YOUR AWS SECRET ACCESS KEY HERE"/>
-                  <property name="s3-swap-directory" value="target/temp/s3swap/ws2"/>
-                </properties>
-                <filters>
-                  <filter property-type="Binary"/>
-                </filters>
-              </value-storage>
-            </value-storages -->
           </container>
           <initializer class="org.exoplatform.services.jcr.impl.core.ScratchWorkspaceInitializer">
             <properties>
