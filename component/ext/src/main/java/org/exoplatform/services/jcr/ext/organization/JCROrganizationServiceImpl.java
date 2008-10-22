@@ -129,18 +129,9 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   }
 
   /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void stop() {
-    // do nothing
-    super.stop();
-  }
-
-  /**
    * Return org-sergvice actual storage path.
    * 
-   * @return
+   * @return String with path
    */
   String getStoragePath() {
     return storagePath;
