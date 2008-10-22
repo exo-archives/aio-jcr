@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.Random;
 
 import javax.jcr.Node;
@@ -17,6 +16,7 @@ import javax.jcr.Workspace;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
@@ -24,7 +24,6 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.ComponentAdapter;
 
 /**
  * Created by The eXo Platform SAS .
@@ -77,7 +76,7 @@ public abstract class BaseStandaloneTest extends TestCase {
     if (System.getProperty("java.security.auth.login.config") == null)
       System.setProperty("java.security.auth.login.config", loginConf);
 
-    credentials = new CredentialsImpl("exo", "exo".toCharArray());
+    credentials = new CredentialsImpl("root", "exo".toCharArray());
 
     repositoryService = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
     // container.start();
@@ -101,7 +100,8 @@ public abstract class BaseStandaloneTest extends TestCase {
           for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
             Node node = children.nextNode();
             if (!node.getPath().startsWith("/jcr:system")
-                && !node.getPath().startsWith("/exo:audit")) {
+                && !node.getPath().startsWith("/exo:audit")
+                && !node.getPath().startsWith("/exo:organization")) {
               // log.info("DELETing ------------- "+node.getPath());
               node.remove();
             }

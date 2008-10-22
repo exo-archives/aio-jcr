@@ -20,7 +20,6 @@ import java.util.Calendar;
 
 import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
-import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
@@ -45,59 +44,49 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
   public void setUp() throws Exception {
     super.setUp();
 
-    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-    organizationService = new JCROrganizationServiceImpl(service, "ws", "/exo:organization");
-    organizationService.start();
+    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
 
     uHandler = new UserHandlerImpl(organizationService);
 
     calendar = Calendar.getInstance();
     calendar.set(2008, 1, 1);
-
-    // create users
-    createRecords("user");
   }
 
   public void testAuthenticate() throws Exception {
-    assertTrue("Can not authenticate 'user' with password 'pwd'", uHandler.authenticate("user",
-                                                                                        "pwd"));
-    assertFalse("'user' with password 'pwd_' was authenticated", uHandler.authenticate("user",
-                                                                                       "pwd_"));
-    assertFalse("'user_' with password 'pwd' was authenticated", uHandler.authenticate("user_",
-                                                                                       "pwd"));
+    assertTrue("Can not authenticate 'demo' with password 'exo'", uHandler.authenticate("demo",
+                                                                                        "exo"));
+    assertFalse("'demo' with password 'exo_' was authenticated", uHandler.authenticate("demo",
+                                                                                       "exo_"));
   }
 
   public void testFindUserByName() throws Exception {
-    User u = uHandler.findUserByName("user");
-    assertTrue("User 'user' it not found", u != null);
-    assertTrue("User created date is not equal " + calendar.getTime() + " but equal "
-        + u.getCreatedDate(), u.getCreatedDate() != calendar.getTime());
-    assertTrue("User email is not equal 'email' but equal '" + u.getEmail() + "'",
-               u.getEmail().equals("email"));
-    assertTrue("User first name is not equal 'first' but equal '" + u.getFirstName() + "'",
-               u.getFirstName().equals("first"));
-    assertTrue("User last login time is not equal " + calendar.getTime() + " but equal "
-        + u.getLastLoginTime(), u.getLastLoginTime() != calendar.getTime());
-    assertTrue("User last name is not equal 'last' but equal '" + u.getLastName() + "'",
-               u.getLastName().equals("last"));
-    assertTrue("User password is not equal 'pwd' but equal '" + u.getPassword() + "'",
-               u.getPassword().equals("pwd"));
-    assertTrue("User name is not equal 'user' but equal '" + u.getUserName() + "'",
-               u.getUserName().equals("user"));
+    User u = uHandler.findUserByName("demo");
+    assertTrue("User 'demo' it not found", u != null);
+    assertTrue("User email is not equal 'demo@localhost' but equal '" + u.getEmail() + "'",
+               u.getEmail().equals("demo@localhost"));
+    assertTrue("User first name is not equal 'Demo' but equal '" + u.getFirstName() + "'",
+               u.getFirstName().equals("Demo"));
+    assertTrue("User last name is not equal 'exo' but equal '" + u.getLastName() + "'",
+               u.getLastName().equals("exo"));
+    assertTrue("User password is not equal 'exo' but equal '" + u.getPassword() + "'",
+               u.getPassword().equals("exo"));
+    assertTrue("User name is not equal 'demo' but equal '" + u.getUserName() + "'",
+               u.getUserName().equals("demo"));
   }
 
   public void testFindUsers() throws Exception {
+    createUser("user");
     org.exoplatform.services.organization.Query query = new org.exoplatform.services.organization.Query();
 
-    query.setEmail("email");
+    query.setEmail("email@test");
     ObjectPageList pList = (ObjectPageList) uHandler.findUsers(query);
-    assertTrue("Found " + pList.getAll().size() + " users with email equal 'email'",
+    assertTrue("Found " + pList.getAll().size() + " users with email equal 'email@test'",
                pList.getAll().size() == 1);
     query.setEmail(null);
 
-    query.setUserName("user");
+    query.setUserName("*user*");
     pList = (ObjectPageList) uHandler.findUsers(query);
-    assertTrue("Found " + pList.getAll().size() + " users with name equal 'user'",
+    assertTrue("Found " + pList.getAll().size() + " users with name equal '*user*'",
                pList.getAll().size() == 1);
     query.setUserName(null);
 
@@ -112,6 +101,7 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
 
     Calendar calc = (Calendar) calendar.clone();
     calc.set(2007, 1, 1);
+    query.setUserName("user");
     query.setFromLoginDate(calc.getTime());
     pList = (ObjectPageList) uHandler.findUsers(query);
     assertTrue("Found " + pList.getAll().size() + " users with fromLoginDate equal "
@@ -123,49 +113,47 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
     assertTrue("Found " + pList.getAll().size() + " users with fromLoginDate equal "
         + calc.getTime(), pList.getAll().size() == 0);
     query.setFromLoginDate(null);
+    query.setUserName(null);
+
+    uHandler.removeUser("user", true);
   }
 
   public void testGetUserPageList() throws Exception {
     PageList pList = (ObjectPageList) uHandler.getUserPageList(10);
-    assertTrue("Found " + pList.getAll().size() + " users but present only one", pList.getAll()
-                                                                                      .size() == 1);
+    assertTrue("Found " + pList.getAll().size() + " users but present only 5", pList.getAll()
+                                                                                    .size() == 5);
   }
 
   public void testRemoveUser() throws Exception {
-    createRecords("user3");
-    try {
-      uHandler.removeUser("user3", true);
-    } catch (Exception e) {
-      fail("Can not remove user 'user3'");
-    }
-
-    User u = uHandler.findUserByName("user3");
-    assertTrue("User 'user3' still present but was removed", u == null);
+    createUser("user1");
+    uHandler.removeUser("user1", true);
+    User u = uHandler.findUserByName("user1");
+    assertTrue("User 'user' still present but was removed", u == null);
   }
 
   public void testSaveUser() throws Exception {
-    createRecords("user3");
+    createUser("user2");
 
     // change name
-    User u = uHandler.findUserByName("user3");
-    u.setUserName("user4");
+    User u = uHandler.findUserByName("user2");
+    u.setUserName("user_");
     uHandler.saveUser(u, true);
-    u = uHandler.findUserByName("user4");
-    assertFalse("Can not find user 'user4'", u == null);
+    u = uHandler.findUserByName("user_");
+    assertFalse("Can not find user 'user_'", u == null);
 
     // change email
     u.setEmail("email_");
     uHandler.saveUser(u, true);
-    u = uHandler.findUserByName("user4");
+    u = uHandler.findUserByName("user_");
     assertTrue("User email is not equal 'email_' but equal '" + u.getEmail() + "'",
                u.getEmail().equals("email_"));
 
-    uHandler.removeUser("user4", true);
+    uHandler.removeUser("user_", true);
   }
 
-  private void createRecords(String userName) throws Exception {
+  private void createUser(String userName) throws Exception {
     User u = uHandler.createUserInstance();
-    u.setEmail("email");
+    u.setEmail("email@test");
     u.setFirstName("first");
     u.setLastLoginTime(calendar.getTime());
     u.setCreatedDate(calendar.getTime());

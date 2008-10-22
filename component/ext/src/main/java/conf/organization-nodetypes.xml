@@ -139,11 +139,6 @@
         protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
-	  <propertyDefinition name="exo:parentGroup" requiredType="Reference"
-        autoCreated="false" mandatory="false" onParentVersion="COPY"
-        protected="false" multiple="false">
-        <valueConstraints/>
-      </propertyDefinition>
       <propertyDefinition name="exo:label" requiredType="String"
         autoCreated="false" mandatory="true" onParentVersion="COPY"
         protected="false" multiple="false">
@@ -156,6 +151,21 @@
       </propertyDefinition>
     </propertyDefinitions>
   </nodeType>
+  
+  <nodeType name="exo:hierarchyGroup" isMixin="false" hasOrderableChildNodes="false">
+    <supertypes>
+      <supertype>exo:group</supertype>
+    </supertypes>
+    <childNodeDefinitions>
+      <childNodeDefinition name="*" autoCreated="false" mandatory="false" onParentVersion="COPY"
+        protected="false" sameNameSiblings="false">
+        <requiredPrimaryTypes>
+          <requiredPrimaryType>exo:group</requiredPrimaryType>
+        </requiredPrimaryTypes>
+      </childNodeDefinition>
+    </childNodeDefinitions>    
+  </nodeType>
+  
   
   <nodeType name="exo:organizationUsers" isMixin="false"
     hasOrderableChildNodes="true" primaryItemName="">
@@ -179,7 +189,7 @@
       <supertype>nt:base</supertype>
     </supertypes>
     <childNodeDefinitions>
-      <childNodeDefinition name="*" defaultPrimaryType="exo:group"
+      <childNodeDefinition name="*" defaultPrimaryType="exo:hierarchyGroup"
         autoCreated="false" mandatory="false" onParentVersion="COPY"
         protected="false" sameNameSiblings="false">
         <requiredPrimaryTypes>

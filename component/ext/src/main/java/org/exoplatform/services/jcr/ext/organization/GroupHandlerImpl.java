@@ -45,8 +45,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
   public static final String                 EXO_LABEL          = "exo:label";
 
-  public static final String                 EXO_PARENT_GROUP   = "exo:parentGroup";
-
   public static final String                 STORAGE_EXO_GROUPS = "exo:groups";
 
   protected final List<GroupEventListener>   listeners          = new ArrayList<GroupEventListener>();
@@ -70,23 +68,32 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public void addChild(Group parent, Group child, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
 
     try {
-      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS);
-      Node gNode = storageNode.addNode(child.getGroupName());
+      String parentId = (parent == null) ? "" : parent.getId();
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + parentId);
+      Node gNode = storageNode.addNode(child.getGroupName(), "exo:hierarchyGroup");
 
-      String parentId = (parent == null) ? null : parent.getId();
       Group group = new GroupImpl(child.getGroupName(), parentId, gNode.getUUID());
       group.setDescription(child.getDescription());
       group.setLabel(child.getLabel() != null ? child.getLabel() : child.getGroupName());
 
+      if (broadcast) {
+        preSave(child, true);
+      }
+
       writeObjectToNode(group, gNode);
       session.save();
 
+      if (broadcast) {
+        postSave(child, true);
+      }
+
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not add child group '" + child.getId() + "'", e);
+      throw new OrganizationServiceException("Can not add child group with groupId '"
+          + child.getId() + "'", e);
     } finally {
       session.logout();
     }
@@ -120,15 +127,14 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     Session session = service.getStorageSession();
 
     try {
-      String groupName = groupId.substring(groupId.lastIndexOf('/') + 1);
-      Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + "/"
-          + groupName);
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + groupId);
       return readObjectFromNode(gNode);
 
     } catch (PathNotFoundException e) {
       return null;
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find group '" + groupId + "'", e);
+      throw new OrganizationServiceException("Can not find group by groupId '" + groupId + "'", e);
     } finally {
       session.logout();
     }
@@ -185,24 +191,17 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     try {
       List<Group> types = new ArrayList<Group>();
 
-      String path = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS;
-      if (parent != null && !session.itemExists(path + "/" + parent.getGroupName())) {
+      String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS;
+      if (parent != null && !session.itemExists(gPath + parent.getId())) {
         return types;
       }
 
-      String parentGroup = (parent == null) ? null : ((Node) session.getItem(path + "/"
-          + parent.getGroupName())).getUUID();
-      String whereStatement = (parentGroup == null) ? "" : " where exo:parentGroup='" + parentGroup
-          + "'";
-      String statement = "select * from exo:group" + whereStatement;
-      Query query = service.getStorageSession()
-                           .getWorkspace()
-                           .getQueryManager()
-                           .createQuery(statement, Query.SQL);
-      QueryResult gRes = query.execute();
-      for (NodeIterator gNodes = gRes.getNodes(); gNodes.hasNext();) {
+      String parentId = parent == null ? "" : parent.getId();
+      Node parentGroup = (Node) session.getItem(gPath + parentId);
+      for (NodeIterator gNodes = parentGroup.getNodes(); gNodes.hasNext();) {
         Node gNode = gNodes.nextNode();
-        types.add(readObjectFromNode(gNode));
+        Group g = readObjectFromNode(gNode);
+        types.add(g);
       }
       return types;
 
@@ -229,11 +228,15 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     try {
       List<Group> types = new ArrayList<Group>();
 
-      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS);
-      for (NodeIterator gNodes = storageNode.getNodes(); gNodes.hasNext();) {
+      String statement = "select * from exo:group";
+      Query query = service.getStorageSession()
+                           .getWorkspace()
+                           .getQueryManager()
+                           .createQuery(statement, Query.SQL);
+      QueryResult gRes = query.execute();
+      for (NodeIterator gNodes = gRes.getNodes(); gNodes.hasNext();) {
         Node gNode = gNodes.nextNode();
-        Group group = readObjectFromNode(gNode);
-        types.add(group);
+        types.add(readObjectFromNode(gNode));
       }
       return types;
 
@@ -248,22 +251,15 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public Group removeGroup(Group group, boolean broadcast) throws Exception {
-    // TODO broadcast
+    // TODO implement transaction
     Session session = service.getStorageSession();
     try {
-      Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + "/"
-          + group.getGroupName());
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + group.getId());
 
       // remove child groups
-      String statement = "select * from exo:group where exo:parentGroup='" + gNode.getUUID() + "'";
-      Query query = service.getStorageSession()
-                           .getWorkspace()
-                           .getQueryManager()
-                           .createQuery(statement, Query.SQL);
-      QueryResult res = query.execute();
-      for (NodeIterator gNodes = res.getNodes(); gNodes.hasNext();) {
-        Group g = readObjectFromNode(gNodes.nextNode());
-        removeGroup(g, true);
+      for (NodeIterator gNodes = gNode.getNodes(); gNodes.hasNext();) {
+        removeGroup(readObjectFromNode(gNodes.nextNode()), true);
       }
 
       // remove membership
@@ -280,17 +276,24 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       }
 
       // remove group
-      gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + "/"
-          + group.getGroupName());
       Group g = readObjectFromNode(gNode);
-      gNode.remove();
 
+      if (broadcast) {
+        preDelete(group);
+      }
+
+      gNode.remove();
       session.save();
+
+      if (broadcast) {
+        postDelete(group);
+      }
+
       return g;
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not remove group '" + group.getGroupName() + "'",
-                                             e);
+      throw new OrganizationServiceException("Can not remove group with groupId '" + group.getId()
+          + "'", e);
     } finally {
       session.logout();
     }
@@ -311,30 +314,24 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public void saveGroup(Group group, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
-      GroupImpl groupImpl = (GroupImpl) group;
-      String groupUUID = (groupImpl.getUUId() != null)
-          ? groupImpl.getUUId()
-          : ((GroupImpl) findGroupById(group.getId())).getUUId();
-      Node gNode = session.getNodeByUUID(groupUUID);
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + group.getId());
 
-      String srcPath = gNode.getPath();
-      int pos = srcPath.lastIndexOf('/');
-      String prevName = srcPath.substring(pos + 1);
-      String destPath = srcPath.substring(0, pos) + "/" + group.getGroupName();
-
-      if (!prevName.equals(group.getGroupName())) {
-        session.move(srcPath, destPath);
+      if (broadcast) {
+        preSave(group, false);
       }
 
-      Node ngNode = (Node) session.getItem(destPath);
-      writeObjectToNode(group, ngNode);
+      writeObjectToNode(group, gNode);
       session.save();
 
+      if (broadcast) {
+        postSave(group, false);
+      }
+
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save group '" + group.getGroupName() + "'", e);
+      throw new OrganizationServiceException("Can not save group '" + group.getId() + "'", e);
     } finally {
       session.logout();
     }
@@ -375,16 +372,67 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    */
   private void writeObjectToNode(Group group, Node node) throws Exception {
     try {
-      String parentGroup = (group.getParentId() == null ? null : node.getParent()
-                                                                     .getNode(group.getParentId()
-                                                                                   .substring(1))
-                                                                     .getUUID());
       node.setProperty(EXO_LABEL, group.getLabel());
       node.setProperty(EXO_DESCRIPTION, group.getDescription());
       node.setProperty(EXO_GROUP_ID, group.getId());
-      node.setProperty(EXO_PARENT_GROUP, parentGroup);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write node properties", e);
     }
+  }
+
+  /**
+   * PreSave event.
+   * 
+   * @param group
+   *          The group to save
+   * @param isNew
+   *          Is it new group or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preSave(Group group, boolean isNew) throws Exception {
+    for (GroupEventListener listener : listeners)
+      listener.preSave(group, isNew);
+  }
+
+  /**
+   * PostSave event.
+   * 
+   * @param group
+   *          The group to save
+   * @param isNew
+   *          Is it new group or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postSave(Group group, boolean isNew) throws Exception {
+    for (GroupEventListener listener : listeners)
+      listener.postSave(group, isNew);
+  }
+
+  /**
+   * PreDelete event.
+   * 
+   * @param group
+   *          The group to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preDelete(Group group) throws Exception {
+    for (GroupEventListener listener : listeners)
+      listener.preDelete(group);
+  }
+
+  /**
+   * PostDelete event.
+   * 
+   * @param group
+   *          The group to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postDelete(Group group) throws Exception {
+    for (GroupEventListener listener : listeners)
+      listener.postDelete(group);
   }
 }

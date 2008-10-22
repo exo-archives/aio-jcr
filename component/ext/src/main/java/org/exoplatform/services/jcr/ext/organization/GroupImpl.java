@@ -76,7 +76,7 @@ public class GroupImpl implements Group {
   GroupImpl(String name, String parentId, String UUId) {
     this.groupName = name;
     this.UUId = UUId;
-    this.parentId = (parentId == null || parentId.length() == 0 ? null : parentId);
+    this.parentId = (parentId == null || parentId.equals("") ? null : parentId);
     this.groupId = (this.parentId == null ? "" : this.parentId) + "/" + this.groupName;
   }
 
@@ -132,10 +132,7 @@ public class GroupImpl implements Group {
   }
 
   /**
-   * Set the new name of the group.
-   * 
-   * @param name
-   *          The name of the group.
+   * {@inheritDoc}
    */
   public void setGroupName(String name) {
     groupName = name;

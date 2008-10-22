@@ -167,10 +167,10 @@
 					</testFailureIgnore>
 					<forkMode>${exo.test.forkMode}</forkMode>
 					<includes>
+  						<include>**/audit/*Test.java</include>
 						<include>**/actions/*Test.java</include>
 						<include>**/metadata/*Test.java</include>
 						<include>**/owner/*Test.java</include>
-						<include>**/audit/*Test.java</include>
 						<include>**/registry/*Test.java</include>
 						<include>**/app/*Test.java</include>
 						<include>**/resource/*Test.java</include>

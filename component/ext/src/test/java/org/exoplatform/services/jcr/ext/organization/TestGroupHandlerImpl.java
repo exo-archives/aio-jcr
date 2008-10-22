@@ -18,15 +18,12 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.Collection;
 
-import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 
 /**
  * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 10 Жов 2008
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: TestOrganizationService.java 111 2008-11-11 11:11:11Z $
@@ -42,141 +39,91 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
    */
   public void setUp() throws Exception {
     super.setUp();
-
-    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-    organizationService = new JCROrganizationServiceImpl(service, "ws", "/exo:organization");
-    organizationService.start();
-
+    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
     gHandler = new GroupHandlerImpl(organizationService);
-
-    // Create groups
-    Group g1 = gHandler.createGroupInstance();
-    g1.setGroupName("group1");
-    g1.setLabel("label1");
-    g1.setDescription("desc1");
-    gHandler.createGroup(g1, true);
-
-    g1 = gHandler.findGroupById("/group1");
-    Group g2 = gHandler.createGroupInstance();
-    g2.setGroupName("group2");
-    g2.setLabel("label2");
-    g2.setDescription("desc2");
-    gHandler.addChild(g1, g2, true);
-  }
-
-  public void testAddChild() throws Exception {
-    Group g2 = gHandler.findGroupById("/group1/group2");
-    assertTrue("Group '/group1/group2' is not found", g2 != null);
-    assertTrue("Group description is not equal 'desc2' but equal '" + g2.getDescription() + "'",
-               g2.getDescription().equals("desc2"));
-    assertTrue("Group name is not equal 'group2' but equal '" + g2.getGroupName() + "'",
-               g2.getGroupName().equals("group2"));
-    assertTrue("Group groupId is not equal '/group1/group2' but equal '" + g2.getId() + "'",
-               g2.getId().equals("/group1/group2"));
-    assertTrue("Group label is not equal 'label2' but equal '" + g2.getLabel() + "'",
-               g2.getLabel().equals("label2"));
-    assertTrue("Group parentId is not equal '/group1' but equal '" + g2.getParentId() + "'",
-               g2.getParentId().equals("/group1"));
   }
 
   public void testFindGroupById() throws Exception {
-    Group g1 = gHandler.findGroupById("/group1");
-    assertTrue("Group 'group1' is not found", g1 != null);
-    assertTrue("Group description is not equal 'desc1' but equal '" + g1.getDescription() + "'",
-               g1.getDescription().equals("desc1"));
-    assertTrue("Group name is not equal 'group1' but equal '" + g1.getGroupName() + "'",
-               g1.getGroupName().equals("group1"));
-    assertTrue("Group groupId is not equal '/group1' but equal '" + g1.getId() + "'",
-               g1.getId().equals("/group1"));
-    assertTrue("Group label is not equal 'label1' but equal '" + g1.getLabel() + "'",
-               g1.getLabel().equals("label1"));
-    assertTrue("Group parentId is not equal 'null' but equal '" + g1.getParentId() + "'",
-               g1.getParentId() == null);
+    Group g = gHandler.findGroupById("/platform/administrators");
+    assertTrue("GroupId '/platform/administrators' is not found", g != null);
+    assertTrue("Group description is not equal 'the /platform/administrators group' but equal '"
+        + g.getDescription() + "'", g.getDescription().equals("the /platform/administrators group"));
+    assertTrue("Group name is not equal 'administrators' but equal '" + g.getGroupName() + "'",
+               g.getGroupName().equals("administrators"));
+    assertTrue("Group groupId is not equal '/platform/administrators' but equal '" + g.getId()
+        + "'", g.getId().equals("/platform/administrators"));
+    assertTrue("Group label is not equal 'Administrators' but equal '" + g.getLabel() + "'",
+               g.getLabel().equals("Administrators"));
+    assertTrue("Group parentId is not equal '/platform' but equal '" + g.getParentId() + "'",
+               g.getParentId().equals("/platform"));
   }
 
   public void testFindGroups() throws Exception {
-    Group g1 = gHandler.findGroupById("/group1");
-
     Collection list = gHandler.findGroups(null);
+    assertTrue("Found " + list.size() + " groups but 4 is present", list.size() == 4);
+
+    list = gHandler.findGroups(gHandler.findGroupById("/organization/operations"));
     assertTrue("Found " + list.size() + " groups but 2 is present", list.size() == 2);
 
-    list = gHandler.findGroups(g1);
-    assertTrue("Found " + list.size() + " groups but 1 is present", list.size() == 1);
+    list = gHandler.findGroups(gHandler.findGroupById("/organization/management/executive-board"));
+    assertTrue("Found " + list.size() + " groups but 0 is present", list.size() == 0);
   }
 
   public void testGetAllGroups() throws Exception {
     Collection list = gHandler.getAllGroups();
-    assertTrue("Found " + list.size() + " groups but 2 is present", list.size() == 2);
+    assertTrue("Found " + list.size() + " groups but 16 is present", list.size() == 16);
 
   }
 
   public void testRemoveGroup() throws Exception {
-    Group g1 = gHandler.findGroupById("/group1");
+    createGroup("/organization/management/executive-board", "group1", "label", "desc");
+    createGroup("/organization/management/executive-board/group1", "group2", "label", "desc");
 
-    Group g3 = gHandler.createGroupInstance();
-    g3.setGroupName("group3");
-    g3.setLabel("label3");
-    g3.setDescription("desc3");
-    gHandler.addChild(g1, g3, true);
-
-    g3 = gHandler.findGroupById("/group1/group3");
-
-    gHandler.removeGroup(g1, true);
+    Group g = gHandler.findGroupById("/organization/management/executive-board/group1");
+    gHandler.removeGroup(g, true);
 
     try {
-      g3 = gHandler.findGroupById("/group1");
-      assertTrue("Group '/group1' is removed but still present", g3 == null);
+      g = gHandler.findGroupById("/organization/management/executive-board/group1");
+      assertTrue("Group '/organization/management/executive-board/group1' is removed but still present",
+                 g == null);
     } catch (Exception e) {
     }
 
     try {
-      g3 = gHandler.findGroupById("/group1/group3");
-      assertTrue("Group '/group1/group3' is removed but still present", g3 == null);
+      g = gHandler.findGroupById("/organization/management/executive-board/group1/group2");
+      assertTrue("Group '/organization/management/executive-board/group1/group2' is removed but still present",
+                 g == null);
     } catch (Exception e) {
     }
   }
 
   public void testSaveGroup() throws Exception {
-    Group g1 = gHandler.findGroupById("/group1");
+    createGroup("/organization/management/executive-board", "group1", "label", "desc");
 
-    Group g3 = gHandler.createGroupInstance();
-    g3.setGroupName("group3");
-    g3.setLabel("label3");
-    g3.setDescription("desc3");
-    gHandler.addChild(g1, g3, true);
+    Group g = gHandler.findGroupById("/organization/management/executive-board/group1");
 
-    g3 = gHandler.findGroupById("/group1/group3");
-
-    // change name and save
-    g3.setGroupName("group4");
-    gHandler.saveGroup(g3, true);
+    // change description and save
+    g.setDescription("newDesc");
+    gHandler.saveGroup(g, true);
 
     // check
-    Group g4 = gHandler.findGroupById("/group1/group4");
-    assertTrue("Group '/group3/group4' is not found", g4 != null);
-    assertTrue("Group description is not equal 'desc3' but equal '" + g4.getDescription() + "'",
-               g4.getDescription().equals("desc3"));
-    assertTrue("Group name is not equal 'group4' but equal '" + g4.getGroupName() + "'",
-               g4.getGroupName().equals("group4"));
-    assertTrue("Group groupId is not equal '/group1/group4' but equal '" + g4.getId() + "'",
-               g4.getId().equals("/group1/group4"));
-    assertTrue("Group label is not equal 'label3' but equal '" + g4.getLabel() + "'",
-               g4.getLabel().equals("label3"));
-    assertTrue("Group parentId is not equal '/group1' but equal '" + g4.getParentId() + "'",
-               g4.getParentId().equals("/group1"));
-
-    // save description only and save
-    g4.setDescription("desc4");
-    gHandler.saveGroup(g4, true);
-
-    // check
-    g4 = gHandler.findGroupById("/group1/group4");
-    assertTrue("Group description is not equal 'desc4' but equal '" + g4.getDescription() + "'",
-               g4.getDescription().equals("desc4"));
+    g = gHandler.findGroupById("/organization/management/executive-board/group1");
+    assertTrue("Group description is not equal 'newDesc' but equal '" + g.getDescription() + "'",
+               g.getDescription().equals("newDesc"));
 
     // remove group
-    gHandler.removeGroup(g4, true);
+    gHandler.removeGroup(g, true);
 
+  }
+
+  private void createGroup(String parentId, String name, String label, String desc) throws Exception {
+    Group pg = gHandler.findGroupById(parentId);
+
+    Group g = gHandler.createGroupInstance();
+    g.setGroupName(name);
+    g.setLabel(label);
+    g.setDescription(desc);
+    gHandler.addChild(pg, g, true);
   }
 
   /**

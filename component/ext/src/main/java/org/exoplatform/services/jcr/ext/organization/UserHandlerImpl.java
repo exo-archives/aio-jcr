@@ -90,14 +90,18 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    */
   public boolean authenticate(String username, String password) throws Exception {
     User user = findUserByName(username);
-    return (user != null ? user.getPassword().equals(password) : false);
+    boolean authenticated = (user != null ? user.getPassword().equals(password) : false);
+    if (authenticated) {
+      user.setLastLoginTime(Calendar.getInstance().getTime());
+      saveUser(user, false);
+    }
+    return authenticated;
   }
 
   /**
    * {@inheritDoc}
    */
   public void createUser(User user, boolean broadcast) throws Exception {
-    // TODO Implement broadcast
     Session session = service.getStorageSession();
     try {
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
@@ -109,8 +113,16 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
         user.setCreatedDate(calendar.getTime());
       }
 
+      if (broadcast) {
+        preSave(user, true);
+      }
+
       writeObjectToNode(user, uNode);
       session.save();
+
+      if (broadcast) {
+        postSave(user, true);
+      }
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not create user '" + user.getUserName() + "'", e);
@@ -157,26 +169,23 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    */
   public PageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
     String where = "";
-    if (query.getUserName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ")
-          + ("jcr:name LIKE '" + query.getUserName() + "'"));
-    }
+    where = "jcr:path LIKE '" + "%" + "'";
     if (query.getEmail() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ")
-          + ("exo:email LIKE '" + query.getEmail() + "'"));
+      where = where + (where.length() == 0 ? "" : " AND ")
+          + ("exo:email LIKE '" + replaceAsterix(query.getEmail()) + "'");
     }
     if (query.getFirstName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ")
-          + ("exo:firstName LIKE '" + query.getFirstName() + "'"));
+      where = where + (where.length() == 0 ? "" : " AND ")
+          + ("exo:firstName LIKE '" + replaceAsterix(query.getFirstName()) + "'");
     }
     if (query.getLastName() != null) {
-      where.concat((where.length() == 0 ? "" : " AND ")
-          + ("exo:lastName LIKE '" + query.getLastName() + "'"));
+      where = where + (where.length() == 0 ? "" : " AND ")
+          + ("exo:lastName LIKE '" + replaceAsterix(query.getLastName()) + "'");
     }
 
     List<User> types = new ArrayList<User>();
 
-    String statement = "select * from exo:user " + (where.length() == 0 ? "" : " where " + where);
+    String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
     Query uQuery = service.getStorageSession()
                           .getWorkspace()
                           .getQueryManager()
@@ -184,13 +193,18 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     QueryResult uRes = uQuery.execute();
     for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
       Node uNode = uNodes.nextNode();
-      User user = findUserByName(uNode.getName());
-      if ((user != null)
-          && (query.getFromLoginDate() == null || query.getFromLoginDate().getTime() <= user.getLastLoginTime()
-                                                                                            .getTime())
-          && (query.getToLoginDate() == null || query.getToLoginDate().getTime() >= user.getLastLoginTime()
-                                                                                        .getTime())) {
-        types.add(user);
+      String userName = uNode.getName();
+      if (query.getUserName() == null || userName.indexOf(removeAsterix(query.getUserName())) != -1) {
+        User user = findUserByName(uNode.getName());
+        if ((user != null)
+            && (query.getFromLoginDate() == null || (user.getLastLoginTime() != null && query.getFromLoginDate()
+                                                                                             .getTime() <= user.getLastLoginTime()
+                                                                                                               .getTime()))
+            && (query.getToLoginDate() == null || (user.getLastLoginTime() != null && query.getToLoginDate()
+                                                                                           .getTime() >= user.getLastLoginTime()
+                                                                                                             .getTime()))) {
+          types.add(user);
+        }
       }
     }
     return new ObjectPageList(types, 10);
@@ -200,14 +214,13 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList findUsersByGroup(String groupId) throws Exception {
-    String groupName = groupId.substring(groupId.lastIndexOf('/') + 1);
     Session session = service.getStorageSession();
     try {
       List<User> users = new ArrayList<User>();
 
       // get UUId of the group
       Node gNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + GroupHandlerImpl.STORAGE_EXO_GROUPS + "/" + groupName);
+          + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId);
 
       // find group
       String statement = "select * from exo:group where jcr:uuid='" + gNode.getUUID() + "'";
@@ -276,15 +289,23 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public User removeUser(String userName, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
           + userName);
       User user = findUserByName(userName);
 
+      if (broadcast) {
+        preDelete(user);
+      }
+
       uNode.remove();
       session.save();
+
+      if (broadcast) {
+        postDelete(user);
+      }
+
       return user;
 
     } catch (Exception e) {
@@ -308,7 +329,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public void saveUser(User user, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       UserImpl userImpl = (UserImpl) user;
@@ -327,8 +347,17 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       }
 
       Node nmtNode = (Node) session.getItem(destPath);
+
+      if (broadcast) {
+        preSave(user, false);
+      }
+
       writeObjectToNode(user, nmtNode);
       session.save();
+
+      if (broadcast) {
+        postSave(user, false);
+      }
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save user '" + user.getUserName() + "'", e);
@@ -391,23 +420,98 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       calendar.setTime(user.getCreatedDate());
       node.setProperty(EXO_CREATED_DATE, calendar);
 
-      /*
-            try {
-              node.getNode(EXO_PROFILE);
-            } catch (PathNotFoundException e) {
-              node.addNode(EXO_PROFILE);
-            }
-
-            Node pNode = node.getNode(EXO_PROFILE);
-            try {
-              pNode.getNode(UserProfileHandlerImpl.EXO_ATTRIBUTES);
-            } catch (PathNotFoundException e) {
-              pNode.addNode(UserProfileHandlerImpl.EXO_ATTRIBUTES);
-            }
-      */
-
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write user properties", e);
     }
+  }
+
+  /**
+   * PreSave Event.
+   * 
+   * @param user
+   *          The user to save
+   * @param isNew
+   *          It is new user or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preSave(User user, boolean isNew) throws Exception {
+    for (UserEventListener listener : listeners)
+      listener.preSave(user, isNew);
+  }
+
+  /**
+   * PostSave Event.
+   * 
+   * @param user
+   *          The user to save
+   * @param isNew
+   *          It is new user or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postSave(User user, boolean isNew) throws Exception {
+    for (UserEventListener listener : listeners)
+      listener.postSave(user, isNew);
+  }
+
+  /**
+   * PreDelete Event.
+   * 
+   * @param user
+   *          The user to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preDelete(User user) throws Exception {
+    for (UserEventListener listener : listeners)
+      listener.preDelete(user);
+  }
+
+  /**
+   * PostDelete Event.
+   * 
+   * @param user
+   *          The user to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postDelete(User user) throws Exception {
+    for (UserEventListener listener : listeners)
+      listener.postDelete(user);
+  }
+
+  /**
+   * ReplaceAsterix replace char '*' to '%' from start and end if string starts and ends with '*'.
+   * 
+   * @param str
+   *          String to replace char
+   * @return String with replaced chars or the same string
+   */
+  private String replaceAsterix(String str) {
+    if (str.startsWith("*")) {
+      str = "%" + str.substring(1);
+    }
+    if (str.endsWith("*")) {
+      str = str.substring(0, str.length() - 1) + "%";
+    }
+    return str;
+  }
+
+  /**
+   * RemoveAsterix remove char '*' from start and end if string starts and ends with '*'.
+   * 
+   * @param str
+   *          String to remove char
+   * @return String with removed chars or the same string
+   */
+  private String removeAsterix(String str) {
+    if (str.startsWith("*")) {
+      str = str.substring(1);
+    }
+    if (str.endsWith("*")) {
+      str = str.substring(0, str.length() - 1);
+    }
+    return str;
   }
 }

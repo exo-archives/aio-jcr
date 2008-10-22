@@ -99,7 +99,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
         Property prop = props.nextProperty();
 
         // ignore system properties
-        if (!(prop.getName()).startsWith("jcr:")) {
+        if (!(prop.getName()).startsWith("jcr:") && !(prop.getName()).startsWith("exo:")) {
           userProfile.setAttribute(prop.getName(), prop.getString());
         }
       }
@@ -145,7 +145,6 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
-    // TODO Implement broadcast
     Session session = service.getStorageSession();
     try {
       UserProfile userProfile = findUserProfileByName(userName);
@@ -182,7 +181,6 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"

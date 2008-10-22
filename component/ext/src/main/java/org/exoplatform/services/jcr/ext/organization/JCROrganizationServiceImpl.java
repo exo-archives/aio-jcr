@@ -28,6 +28,7 @@ import org.picocontainer.Startable;
 
 import org.exoplatform.container.configuration.ConfigurationException;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.organization.BaseOrganizationService;
@@ -56,26 +57,12 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
 
   protected String               storageWorkspace;
 
-  public JCROrganizationServiceImpl(RepositoryService repositoryService,
-                                    String workspace,
-                                    String path) throws ConfigurationException {
-    // TODO Searching Repository Content should be enabled
-    if (path != null) {
-      if (path.equals("/")) {
-        throw new ConfigurationException(STORAGE_PATH + " can not be a root node");
-      }
-      this.storagePath = path;
-    } else {
-      this.storagePath = STORAGE_PATH_DEFAULT;
-    }
-    this.storageWorkspace = workspace;
-    this.repositoryService = repositoryService;
-  }
-
   public JCROrganizationServiceImpl(RepositoryService repositoryService, InitParams params) throws ConfigurationException {
     // TODO Searching Repository Content should be enabled
     String workspace = params.getValueParam(STORAGE_WORKSPACE).getValue();
-    String path = params.getValueParam(STORAGE_PATH).getValue();
+
+    ValueParam paramStoragePath = params.getValueParam(STORAGE_PATH);
+    String path = paramStoragePath != null ? paramStoragePath.getValue() : null;
 
     if (path != null) {
       if (path.equals("/")) {
@@ -86,8 +73,16 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
     } else {
       this.storagePath = STORAGE_PATH_DEFAULT;
     }
+
     this.storageWorkspace = workspace;
     this.repositoryService = repositoryService;
+
+    // create DAO object
+    userDAO_ = new UserHandlerImpl(this);
+    userProfileDAO_ = new UserProfileHandlerImpl(this);
+    groupDAO_ = new GroupHandlerImpl(this);
+    membershipDAO_ = new MembershipHandlerImpl(this);
+    membershipTypeDAO_ = new MembershipTypeHandlerImpl(this);
   }
 
   /**
@@ -95,8 +90,6 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
    */
   @Override
   public void start() {
-    super.start();
-
     try {
       repository = repositoryService.getDefaultRepository();
     } catch (Exception e) {
@@ -108,9 +101,8 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
     }
 
     // create /exo:organization
-    Session session;
     try {
-      session = getStorageSession();
+      Session session = getStorageSession();
       try {
         session.getItem(this.storagePath);
         // if found do nothing, the storage was initialized before.
@@ -132,12 +124,8 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
       throw new RuntimeException("Can not configure storage", e);
     }
 
-    // create DAO object
-    userDAO_ = new UserHandlerImpl(this);
-    userProfileDAO_ = new UserProfileHandlerImpl(this);
-    groupDAO_ = new GroupHandlerImpl(this);
-    membershipDAO_ = new MembershipHandlerImpl(this);
-    membershipTypeDAO_ = new MembershipTypeHandlerImpl(this);
+    super.start();
+
   }
 
   /**

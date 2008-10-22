@@ -28,14 +28,11 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
 import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
 
 /**
  * Created by The eXo Platform SAS.
@@ -81,14 +78,10 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   public void createMembership(Membership m, boolean broadcast) throws Exception {
     try {
-      GroupHandler gHandler = new GroupHandlerImpl(service);
-      Group g = gHandler.findGroupById(m.getGroupId());
-
-      MembershipTypeHandler mtHandler = new MembershipTypeHandlerImpl(service);
-      MembershipType mt = mtHandler.findMembershipType(m.getMembershipType());
-
-      UserHandler uHandler = new UserHandlerImpl(service);
-      User u = uHandler.findUserByName(m.getUserName());
+      Group g = service.getGroupHandler().findGroupById(m.getGroupId());
+      MembershipType mt = service.getMembershipTypeHandler()
+                                 .findMembershipType(m.getMembershipType());
+      User u = service.getUserHandler().findUserByName(m.getUserName());
 
       linkMembership(u, g, mt, broadcast);
 
@@ -128,9 +121,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     try {
       Membership membership = null;
 
-      String groupName = groupId.substring(groupId.lastIndexOf('/') + 1);
-      String groupUUId = getGroupReferenceByName(groupName);
-      String membershipTypeUUId = getMembershipTypeReferenceByName(type);
+      String groupUUId = getGroupUUID(groupId);
+      String membershipTypeUUId = getMembershipTypeUUID(type);
 
       String mStatement = "select * from exo:userMembership where exo:group='" + groupUUId
           + "' and exo:membershipType='" + membershipTypeUUId + "'";
@@ -154,7 +146,9 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       return membership;
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership type", e);
+      return null;
+      // throw new OrganizationServiceException("Can not find membership type for user '" + userName
+      // + "' groupId '" + groupId + "' type '" + type + "'", e);
     } finally {
       session.logout();
     }
@@ -168,9 +162,9 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     try {
       List<Membership> types = new ArrayList<Membership>();
-      String groupUUId = getGroupReferenceByName(group.getGroupName());
+      String groupUUID = getGroupUUID(group.getId());
 
-      String statement = "select * from exo:userMembership where exo:group='" + groupUUId + "'";
+      String statement = "select * from exo:userMembership where exo:group='" + groupUUID + "'";
       Query mQuery = service.getStorageSession()
                             .getWorkspace()
                             .getQueryManager()
@@ -240,8 +234,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception {
     Session session = service.getStorageSession();
     try {
-      String groupName = groupId.substring(groupId.lastIndexOf('/') + 1);
-      String groupUUId = getGroupReferenceByName(groupName);
+      String groupUUId = getGroupUUID(groupId);
 
       List<Membership> types = new ArrayList<Membership>();
 
@@ -276,7 +269,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception {
-    // TODO Implement broadcast
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
@@ -287,8 +279,17 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
                                                  group.getId(),
                                                  m.getName());
       Node mNode = uNode.addNode(UserHandlerImpl.EXO_MEMBERSHIP);
+
+      if (broadcast) {
+        preSave(membership, true);
+      }
+
       writeObjectToNode(membership, mNode);
       session.save();
+
+      if (broadcast) {
+        postSave(membership, true);
+      }
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not link membership for user '"
@@ -303,13 +304,22 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Membership removeMembership(String id, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       Node mNode = session.getNodeByUUID(id);
       Membership membership = readObjectFromNode(mNode);
+
+      if (broadcast) {
+        preDelete(membership);
+      }
+
       mNode.remove();
       session.save();
+
+      if (broadcast) {
+        postDelete(membership);
+      }
+
       return membership;
 
     } catch (Exception e) {
@@ -323,7 +333,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Collection removeMembershipByUser(String userName, boolean broadcast) throws Exception {
-    // TODO broadcast
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
@@ -334,10 +343,22 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
       for (NodeIterator mNodes = uNode.getNodes(UserHandlerImpl.EXO_MEMBERSHIP); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
+        Membership membership = readObjectFromNode(mNode);
+
+        if (broadcast) {
+          preDelete(membership);
+        }
+
         mNode.remove();
       }
 
       session.save();
+      for (int i = 0; i < types.size(); i++) {
+        if (broadcast) {
+          postDelete(types.get(i));
+        }
+      }
+
       return types;
 
     } catch (PathNotFoundException e) {
@@ -362,7 +383,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
   }
 
   /**
-   * Get membership type UUID from the name.
+   * Get membership type UUID by the name.
    * 
    * @param type
    *          The membership type
@@ -370,103 +391,63 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getMembershipTypeReferenceByName(String type) throws Exception {
-    try {
-      String Statement = "select * from exo:membershipType where jcr:path like '%/" + type + "'";
-      Query query = service.getStorageSession()
-                           .getWorkspace()
-                           .getQueryManager()
-                           .createQuery(Statement, Query.SQL);
-      QueryResult res = query.execute();
-      if (!res.getNodes().hasNext()) {
-        throw new OrganizationServiceException("Can not find membership type '" + type + "'");
-      }
-      return res.getNodes().nextNode().getUUID();
-
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership type '" + type + "'", e);
-    }
+  private String getMembershipTypeUUID(String type) throws Exception {
+    return ((MembershipTypeImpl) service.getMembershipTypeHandler().findMembershipType(type)).getUUId();
   }
 
   /**
    * Get group UUID from the name of the group.
    * 
-   * @param groupName
+   * @param groupId
    *          The name of the group
    * @return The group UUId in the storage
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getGroupReferenceByName(String groupName) throws Exception {
-    try {
-      String Statement = "select * from exo:group where jcr:path like '%/" + groupName + "'";
-      Query query = service.getStorageSession()
-                           .getWorkspace()
-                           .getQueryManager()
-                           .createQuery(Statement, Query.SQL);
-      QueryResult res = query.execute();
-      if (!res.getNodes().hasNext()) {
-        throw new OrganizationServiceException("Can not find group '" + groupName + "'");
-      }
-      return res.getNodes().nextNode().getUUID();
-
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find group '" + groupName + "'", e);
-    }
+  private String getGroupUUID(String groupId) throws Exception {
+    return ((GroupImpl) service.getGroupHandler().findGroupById(groupId)).getUUId();
   }
 
   /**
-   * Get membership type name from the UUId.
+   * Get membership type name from the UUID.
    * 
-   * @param UUId
-   *          The UUId of the group in the storage
+   * @param UUID
+   *          The UUID of the group in the storage
    * @return The membership type name
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getMembershipTypeNameByReference(String UUId) throws Exception {
+  private String getMembershipType(String UUID) throws Exception {
+    Session session = service.getStorageSession();
     try {
-      String Statement = "select * from exo:membershipType where jcr:uuid='" + UUId + "'";
-      Query query = service.getStorageSession()
-                           .getWorkspace()
-                           .getQueryManager()
-                           .createQuery(Statement, Query.SQL);
-      QueryResult res = query.execute();
-      if (!res.getNodes().hasNext()) {
-        throw new OrganizationServiceException("Can not find membership type by uuid " + UUId);
-      }
-      return res.getNodes().nextNode().getName();
+      return session.getNodeByUUID(UUID).getName();
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership type by uuid " + UUId, e);
+      throw new OrganizationServiceException("Can not find membership type by uuid " + UUID, e);
+    } finally {
+      session.logout();
     }
   }
 
   /**
-   * Get group id from the UUId.
+   * Get groupId from the UUId.
    * 
-   * @param UUId
-   *          The UUId of the group in the storage
-   * @return The group id of the group
+   * @param UUID
+   *          The UUID of the group in the storage
+   * @return The groupId of the group
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getGroupIdByReference(String UUId) throws Exception {
+  private String getGroupId(String UUID) throws Exception {
+    Session session = service.getStorageSession();
     try {
-      String Statement = "select * from exo:group where jcr:uuid='" + UUId + "'";
-      Query query = service.getStorageSession()
-                           .getWorkspace()
-                           .getQueryManager()
-                           .createQuery(Statement, Query.SQL);
-      QueryResult res = query.execute();
-      if (!res.getNodes().hasNext()) {
-        throw new OrganizationServiceException("Can not find group by uuid " + UUId);
-      }
-      Node gNode = res.getNodes().nextNode();
+      Node gNode = session.getNodeByUUID(UUID);
       return readStringProperty(gNode, GroupHandlerImpl.EXO_GROUP_ID);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find group by uuid " + UUId, e);
+      throw new OrganizationServiceException("Can not find group by uuid " + UUID, e);
+    } finally {
+      session.logout();
     }
   }
 
@@ -481,11 +462,11 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private Membership readObjectFromNode(Node node) throws Exception {
     try {
-      String groupUUId = readStringProperty(node, EXO_GROUP);
-      String membershipTypeUUId = readStringProperty(node, EXO_MEMBERSHIP_TYPE);
+      String groupUUID = readStringProperty(node, EXO_GROUP);
+      String membershipTypeUUID = readStringProperty(node, EXO_MEMBERSHIP_TYPE);
 
-      String groupId = getGroupIdByReference(groupUUId);
-      String membershipType = getMembershipTypeNameByReference(membershipTypeUUId);
+      String groupId = getGroupId(groupUUID);
+      String membershipType = getMembershipType(membershipTypeUUID);
       String userName = node.getParent().getName();
 
       return new MembershipImpl(node.getUUID(), userName, groupId, membershipType);
@@ -506,15 +487,78 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private void writeObjectToNode(Membership m, Node node) throws Exception {
     try {
-      String groupName = m.getGroupId().substring(m.getGroupId().lastIndexOf('/') + 1);
-      String groupUUId = getGroupReferenceByName(groupName);
-      String membershipTypeUUId = getMembershipTypeReferenceByName(m.getMembershipType());
+      String groupUUId = getGroupUUID(m.getGroupId());
+      String membershipTypeUUId = getMembershipTypeUUID(m.getMembershipType());
 
       node.setProperty(EXO_GROUP, groupUUId);
       node.setProperty(EXO_MEMBERSHIP_TYPE, membershipTypeUUId);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not write membership properties", e);
+    }
+  }
+
+  /**
+   * PreSave event.
+   * 
+   * @param membership
+   *          The membership to save
+   * @param isNew
+   *          Is it new membership or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preSave(Membership membership, boolean isNew) throws Exception {
+    for (int i = 0; i < listeners.size(); i++) {
+      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      listener.preSave(membership, isNew);
+    }
+  }
+
+  /**
+   * PostSave event.
+   * 
+   * @param membership
+   *          The membership to save
+   * @param isNew
+   *          Is it new membership or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postSave(Membership membership, boolean isNew) throws Exception {
+    for (int i = 0; i < listeners.size(); i++) {
+      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      listener.postSave(membership, isNew);
+    }
+  }
+
+  /**
+   * PreDelete event.
+   * 
+   * @param membership
+   *          The membership to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preDelete(Membership membership) throws Exception {
+    for (int i = 0; i < listeners.size(); i++) {
+      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      listener.preDelete(membership);
+    }
+  }
+
+  /**
+   * PostDelete event.
+   * 
+   * @param membership
+   *          The membership to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postDelete(Membership membership) throws Exception {
+    for (int i = 0; i < listeners.size(); i++) {
+      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      listener.postDelete(membership);
     }
   }
 }

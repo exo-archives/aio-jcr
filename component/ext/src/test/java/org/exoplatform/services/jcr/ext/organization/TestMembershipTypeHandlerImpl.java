@@ -21,7 +21,6 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.Collection;
 
-import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
@@ -43,69 +42,62 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
    */
   public void setUp() throws Exception {
     super.setUp();
-
-    RepositoryService service = (RepositoryService) container.getComponentInstanceOfType(RepositoryService.class);
-    organizationService = new JCROrganizationServiceImpl(service, "ws", "/exo:organization");
-    organizationService.start();
-
+    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
     mtHandler = new MembershipTypeHandlerImpl(organizationService);
-
-    // Create membership types
-    createRecords("type1", "desc1");
-    createRecords("type2", "desc2");
   }
 
   public void testFindMembershipType() throws Exception {
-    MembershipType mt = mtHandler.findMembershipType("type1");
-    assertTrue("Membership type name not equal 'type1' but equal '" + mt.getName() + "'",
-               mt.getName().equals("type1"));
-    assertTrue("Membership type description not equal 'desc1' but equal '" + mt.getDescription()
-        + "'", mt.getDescription().equals("desc1"));
+    MembershipType mt = mtHandler.findMembershipType("manager");
+    assertTrue("Membership type name not equal 'manager' but equal '" + mt.getName() + "'",
+               mt.getName().equals("manager"));
+    assertTrue("Membership type description not equal 'manager membership type' but equal '"
+        + mt.getDescription() + "'", mt.getDescription().equals("manager membership type"));
   }
 
   public void testFindMembershipTypes() throws Exception {
     Collection mts = mtHandler.findMembershipTypes();
-    assertTrue("Membership type count must be equal 2 but equal " + mts.size(), mts.size() == 2);
+    assertTrue("Membership type count must be equal 4 but equal " + mts.size(), mts.size() == 4);
   }
 
   public void testRemoveMembershipType() throws Exception {
-    createRecords("type4", "desc4");
-    mtHandler.removeMembershipType("type4", true);
-    assertTrue("Membership type 'type4' is present but must be removed",
-               mtHandler.findMembershipType("type4") == null);
+    createMembershipType("type", "desc");
+    mtHandler.removeMembershipType("type", true);
+    assertTrue("Membership type 'type' is present but must be removed",
+               mtHandler.findMembershipType("type") == null);
 
   }
 
   public void testSaveMembershipType() throws Exception {
-    MembershipType mt = mtHandler.findMembershipType("type2");
+    createMembershipType("type", "desc");
+    MembershipType mt = mtHandler.findMembershipType("type");
 
     // change name, description and save
-    mt.setName("type3");
-    mt.setDescription("desc3");
+    mt.setName("newType");
+    mt.setDescription("desc");
     mtHandler.saveMembershipType(mt, true);
 
-    mt = mtHandler.findMembershipType("type3");
-    assertTrue("Membership type name not equal 'type3' but equal '" + mt.getName() + "'",
-               mt.getName().equals("type3"));
-    assertTrue("Membership type description not equal 'desc3' but equal '" + mt.getDescription()
-        + "'", mt.getDescription().equals("desc3"));
+    mt = mtHandler.findMembershipType("newType");
+    assertTrue("Membership type name not equal 'newType' but equal '" + mt.getName() + "'",
+               mt.getName().equals("newType"));
+    assertTrue("Membership type description not equal 'desc' but equal '" + mt.getDescription()
+        + "'", mt.getDescription().equals("desc"));
 
     // check that previous membership type is absent
-    assertTrue("Membership type 'type2' is present but must be renamed",
-               mtHandler.findMembershipType("type2") == null);
+    assertTrue("Membership type 'type' is present but must be renamed",
+               mtHandler.findMembershipType("type") == null);
 
     // change description only and save
-    mt.setDescription("desc2");
+    mt.setDescription("newDesc");
     mtHandler.saveMembershipType(mt, true);
 
-    mt = mtHandler.findMembershipType("type3");
-    assertTrue("Membership type name not equal 'type3' but equal '" + mt.getName() + "'",
-               mt.getName().equals("type3"));
-    assertTrue("Membership type description not equal 'desc2' but equal '" + mt.getDescription()
-        + "'", mt.getDescription().equals("desc2"));
+    mt = mtHandler.findMembershipType("newType");
+    assertTrue("Membership type description not equal 'newDesc' but equal '" + mt.getDescription()
+        + "'", mt.getDescription().equals("newDesc"));
+
+    mtHandler.removeMembershipType(mt.getName(), true);
   }
 
-  private void createRecords(String type, String desc) throws Exception {
+  private void createMembershipType(String type, String desc) throws Exception {
     MembershipType mt = mtHandler.createMembershipTypeInstance();
     mt.setName(type);
     mt.setDescription(desc);

@@ -317,7 +317,7 @@
     <init-params>
       <value-param>
         <name>adminIdentity</name>
-        <value>*:/admin;exo2</value>
+        <value>root;john</value>
       </value-param>
     </init-params>
   </component>
@@ -365,16 +365,16 @@
     </init-params>
   </component>
   
-  <component>
+  <!--component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
-  </component>
+  </component-->
   
   <component>
     <key>org.exoplatform.services.security.Authenticator</key>
     <type>org.exoplatform.services.organization.auth.OrganizationAuthenticatorImpl</type>
   </component>
   
-  <!-- component>
+  <component>
     <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationService</type>
     <component-plugins>
       <component-plugin>
@@ -393,7 +393,7 @@
   
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.jcr.Handler</type>
-  </component -->
+  </component>
   
   <component>
     <type>org.exoplatform.services.jcr.ext.script.groovy.GroovyScript2RestLoader</type>
@@ -416,7 +416,7 @@
     </init-params>
   </component>
   
-  <!--component>
+  <component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.jcr.ext.organization.JCROrganizationServiceImpl</type>
     <init-params>
@@ -425,16 +425,11 @@
         <description>Workspace in default repository where organization storage will be created</description>
         <value>ws</value>
       </value-param>
-      <value-param>
-        <name>storage-path</name>
-        <description>Path where organization storage will be created</description>
-        <value>/exo:organization</value>
-      </value-param>
     </init-params>
-  </component-->
+  </component>
   
   <!-- org service initializer, copied from ECM portal.war -->
-  <!--external-component-plugins>
+  <external-component-plugins>
     <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
     <component-plugin>
       <name>init.service.listener</name>
@@ -877,7 +872,7 @@
         </object-param>
       </init-params>
     </component-plugin>
-  </external-component-plugins-->
+  </external-component-plugins>
   
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>

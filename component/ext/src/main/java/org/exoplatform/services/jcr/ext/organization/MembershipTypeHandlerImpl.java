@@ -61,7 +61,6 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
@@ -92,6 +91,17 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   public MembershipType findMembershipType(String name) throws Exception {
     Session session = service.getStorageSession();
     try {
+      // test
+      if (name.equals("*")
+          && !session.itemExists(service.getStoragePath() + "/" + STORAGE_EXO_MEMBERSHIP_TYPES
+              + "/" + name)) {
+
+        MembershipType mt = service.getMembershipTypeHandler().createMembershipTypeInstance();
+        mt.setName(name);
+        mt.setDescription("Any membership");
+        service.getMembershipTypeHandler().createMembershipType(mt, true);
+      }
+
       Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
       return readObjectFromNode(mtNode);
@@ -132,7 +142,6 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
@@ -168,7 +177,6 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
-    // TODO implement broadcast
     Session session = service.getStorageSession();
     try {
       MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;

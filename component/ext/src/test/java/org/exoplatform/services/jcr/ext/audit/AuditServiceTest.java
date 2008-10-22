@@ -70,11 +70,15 @@ public class AuditServiceTest extends BaseStandaloneTest {
     service = (AuditService) container.getComponentInstanceOfType(AuditService.class);
     catalog = (SessionActionCatalog) session.getContainer()
                                             .getComponentInstanceOfType(SessionActionCatalog.class);
-    exo1Session = repository.login(new SimpleCredentials("exo1", "exo1".toCharArray()));
-    exo2AdminSession = repository.login(new SimpleCredentials("exo2", "exo2".toCharArray()));
-    adminSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+    // exo1Session = repository.login(new SimpleCredentials("exo1", "exo1".toCharArray()));
+    // exo2AdminSession = repository.login(new SimpleCredentials("exo2", "exo2".toCharArray()));
+    // adminSession = repository.login(new SimpleCredentials("admin", "admin".toCharArray()));
+    exo1Session = repository.login(new SimpleCredentials("marry", "exo".toCharArray()));
+    exo2AdminSession = repository.login(new SimpleCredentials("john", "exo".toCharArray()));
+    adminSession = repository.login(new SimpleCredentials("root", "exo".toCharArray()));
+
     NodeImpl rootAdmin = (NodeImpl) adminSession.getRootNode();
-    rootAdmin.setPermission("admin", PermissionType.ALL); // exo
+    rootAdmin.setPermission("root", PermissionType.ALL); // exo
     rootAdmin.removePermission(SystemIdentity.ANY);
     rootAdmin.setPermission(SystemIdentity.ANY, new String[] { PermissionType.READ }); // exo
     rootAdmin.save();
@@ -510,12 +514,12 @@ public class AuditServiceTest extends BaseStandaloneTest {
     exo1Session = null;
 
     ((NodeImpl) adminSession.getRootNode()).setPermission(SystemIdentity.ANY, PermissionType.ALL); // exo
-    try {
-      Node auditStorage = adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
-      adminSession.save();
-      auditStorage.remove();
-    } catch (ItemNotFoundException e) {
-    }
+    // try {
+    // Node auditStorage = adminSession.getNodeByUUID(AuditService.AUDIT_STORAGE_ID);
+    // adminSession.save();
+    // auditStorage.remove();
+    // } catch (ItemNotFoundException e) {
+    // }
     adminSession.save();
     adminSession.getRootNode().getNode(ROOT_PATH).remove();
     adminSession.save();

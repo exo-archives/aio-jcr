@@ -230,7 +230,7 @@ public class UserImpl implements User {
    * 
    * @return UUId of the user in the storage
    */
-  String getUUId() {
+  public String getUUId() {
     return UUId;
   }
 
