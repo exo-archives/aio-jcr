@@ -17,6 +17,7 @@
     <module>component/core</module>
     <module>component/ext</module>
 
+    <module>component/aws</module>
     <module>component/rmi</module>
     <module>component/ftp</module>
     <module>component/cifs</module>
@@ -246,7 +247,7 @@
          </plugin>
      </plugins>
   </reporting>
-  <!-- repositories>
+  <repositories>
     <repository>
       <id>maven.org</id>
       <url>http://repo1.maven.org/maven2</url>
@@ -272,7 +273,7 @@
       <url>https://maven-repository.dev.java.net/nonav/repository</url>
       <layout>legacy</layout>
     </repository>
-  </repositories -->
+  </repositories>
 
   <profiles>
     <profile>
