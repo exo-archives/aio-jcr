@@ -47,8 +47,14 @@ public class SystemSearchManager extends SearchManager {
    */
   private final Log                 log              = ExoLogger.getLogger("jcr.SystemSearchManager");
 
+  /**
+   * Is started flag.
+   */
   private boolean                   isStarted        = false;
 
+  /**
+   * ChangesLog Buffer (used for saves before start).
+   */
   private List<ItemStateChangesLog> changesLogBuffer = new ArrayList<ItemStateChangesLog>();
 
   public static final String        INDEX_DIR_SUFFIX = "system";
@@ -74,6 +80,7 @@ public class SystemSearchManager extends SearchManager {
 
   @Override
   public void start() {
+    
     // SystemSearchManager.start can be called twice
     // 1. From system WorkspaceContainer
     // 2. From RepositoryContainer

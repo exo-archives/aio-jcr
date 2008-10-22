@@ -70,17 +70,40 @@ import org.exoplatform.services.log.ExoLogger;
  * @author Gennady Azarenkov
  * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko $
  */
-
 public class RepositoryContainer extends ExoContainer {
 
+  /**
+   * Repository config.
+   */
   private final RepositoryEntry         config;
 
+  /**
+   * MBean server for the container.
+   */
   private final MBeanServer             mbeanServer;
 
+  /**
+   * System workspace DataManager.
+   */
   private LocalWorkspaceDataManagerStub systemDataManager = null;
 
+  /**
+   * Logger.
+   */
   private final Log                     log               = ExoLogger.getLogger("jcr.RepositoryContainer");
 
+  /**
+   * RepositoryContainer constructor.
+   * 
+   * @param parent
+   *          container
+   * @param config
+   *          Repository configuration
+   * @throws RepositoryException
+   *           container initialization error
+   * @throws RepositoryConfigurationException
+   *           configuration error
+   */
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
       RepositoryConfigurationException {
 
@@ -100,6 +123,9 @@ public class RepositoryContainer extends ExoContainer {
     return (LocationFactory) getComponentInstanceOfType(LocationFactory.class);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public MBeanServer getMBeanServer() {
     return this.mbeanServer;
@@ -120,10 +146,24 @@ public class RepositoryContainer extends ExoContainer {
     return (ExtendedNodeTypeManager) getComponentInstanceOfType(NodeTypeManager.class);
   }
 
+  /**
+   * Get workspace Container by name.
+   * 
+   * @param workspaceName
+   *          name
+   * @return WorkspaceContainer
+   */
   public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
     return (WorkspaceContainer) getComponentInstance(workspaceName);
   }
 
+  /**
+   * Get workspace configuration entry by name.
+   * 
+   * @param wsName
+   *          workspace name
+   * @return WorkspaceEntry
+   */
   public WorkspaceEntry getWorkspaceEntry(String wsName) {
     for (WorkspaceEntry entry : config.getWorkspaceEntries()) {
       if (entry.getName().equals(wsName))
@@ -132,6 +172,16 @@ public class RepositoryContainer extends ExoContainer {
     return null;
   }
 
+  /**
+   * Register workspace from configuration.
+   * 
+   * @param wsConfig
+   *          configuration
+   * @throws RepositoryException
+   *           initialization error
+   * @throws RepositoryConfigurationException
+   *           configuration error
+   */
   public void registerWorkspace(final WorkspaceEntry wsConfig) throws RepositoryException,
                                                               RepositoryConfigurationException {
 
@@ -268,9 +318,8 @@ public class RepositoryContainer extends ExoContainer {
 
   // Components access methods -------
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.defaults.DefaultPicoContainer#start()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void start() {
@@ -282,7 +331,8 @@ public class RepositoryContainer extends ExoContainer {
 
       load();
 
-      doStart();
+      // TODO 
+      // doStart();
 
     } catch (RepositoryException e) {
       e.printStackTrace();
@@ -295,9 +345,8 @@ public class RepositoryContainer extends ExoContainer {
     super.start();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.defaults.DefaultPicoContainer#stop()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void stop() {
@@ -318,6 +367,7 @@ public class RepositoryContainer extends ExoContainer {
    * @throws RepositoryException
    * @throws RepositoryConfigurationException
    */
+  @Deprecated
   private void doStart() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
     for (WorkspaceEntry ws : wsEntries) {
@@ -392,9 +442,6 @@ public class RepositoryContainer extends ExoContainer {
     WorkspaceEntry systemWsEntry = getWorkspaceEntry(systemWsname);
 
     if (systemWsEntry != null && systemWsEntry.getQueryHandler() != null) {
-      // registerComponentInstance(systemWsEntry.getQueryHandlerEntry());
-      // registerComponentInstance(systemWsEntry.getQueryHandlerEntry());
-      // registerComponentImplementation(SystemSearchManager.class);
       SystemSearchManager systemSearchManager = (SystemSearchManager) getWorkspaceContainer(systemWsname).getComponentInstanceOfType(SystemSearchManager.class);
       registerComponentInstance(new SystemSearchManagerHolder(systemSearchManager));
     }
@@ -427,7 +474,10 @@ public class RepositoryContainer extends ExoContainer {
    * @param wsConfig
    * @throws RepositoryException
    */
+  @Deprecated
   private void startWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
+
+    // TODO 21.10.08 do we need it here
 
     WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
 
@@ -454,7 +504,10 @@ public class RepositoryContainer extends ExoContainer {
     ntManager.loadFromStorage();
   }
 
-  // --------------------------------
+  /**
+   * Workspaces order comparator.
+   * 
+   */
   private static class WorkspaceOrderComparator implements Comparator<WorkspaceEntry> {
     private final String sysWs;
 

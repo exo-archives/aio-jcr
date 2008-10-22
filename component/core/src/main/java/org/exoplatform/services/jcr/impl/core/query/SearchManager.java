@@ -134,10 +134,12 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     this.nsReg = nsReg;
     this.itemMgr = itemMgr;
     this.cfm = cfm;
-    log.info(config.getIndexDir() + "  !" + config);
+    
     this.parentSearchManager = parentSearchManager != null ? parentSearchManager.get() : null;
     itemMgr.addItemPersistenceListener(this);
     initializeQueryHandler();
+    
+    log.info(config.getIndexDir() + "  !" + config);
   }
 
   /**
@@ -192,7 +194,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   public void onSaveItems(ItemStateChangesLog changesLog) {
     if (handler == null)
       return;
-    log.debug("onEvent: indexing started");
+
     long time = System.currentTimeMillis();
 
     // nodes that need to be removed from the index.
@@ -326,8 +328,10 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   }
 
   public void start() {
+    
     if (log.isDebugEnabled())
       log.debug("start");
+    
     // Calculating excluded node identifiers
     excludedPaths.add(Constants.JCR_SYSTEM_PATH);
 

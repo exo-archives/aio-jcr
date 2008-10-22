@@ -176,8 +176,9 @@ public class NodeTypeDataPersister {
       }
 
       ntRoot = jcrNodetypes;
-      log.info("/jcr:system/jcr:nodetypes is created, creation time: "
-          + (System.currentTimeMillis() - start) + " ms");
+      if (log.isDebugEnabled())
+        log.debug("/jcr:system/jcr:nodetypes is created, creation time: "
+            + (System.currentTimeMillis() - start) + " ms");
     } else {
       log.warn("/jcr:system/jcr:nodetypes already exists");
     }

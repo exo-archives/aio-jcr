@@ -664,7 +664,7 @@
 									<type>jar</type>
 								</artifactItem>
 								<artifactItem>
-									<groupId>amazon</groupId>
+									<groupId>com.amazon</groupId>
 									<artifactId>s3</artifactId>
 									<version>0.1</version>
 									<type>jar</type>

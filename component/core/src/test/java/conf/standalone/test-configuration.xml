@@ -15,67 +15,67 @@
       <properties-param>
         <name>properties</name>
         <description>Log4J properties</description>
-        <property name="log4j.rootLogger" value="INFO, stdout, file" />
-
-        <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender" />
-        <property name="log4j.appender.stdout.threshold" value="DEBUG" />
-
-        <property name="log4j.appender.stdout.layout" value="org.apache.log4j.PatternLayout" />
+        <property name="log4j.rootLogger" value="INFO, stdout, file"/>
+        
+        <property name="log4j.appender.stdout" value="org.apache.log4j.ConsoleAppender"/>
+        <property name="log4j.appender.stdout.threshold" value="DEBUG"/>
+        
+        <property name="log4j.appender.stdout.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.stdout.layout.ConversionPattern"
-          value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n" />
-
-        <property name="log4j.appender.file" value="org.apache.log4j.FileAppender" />
-        <property name="log4j.appender.file.File" value="target/jcr.log" />
-
-        <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout" />
+          value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+        
+        <property name="log4j.appender.file" value="org.apache.log4j.FileAppender"/>
+        <property name="log4j.appender.file.File" value="target/jcr.log"/>
+        
+        <property name="log4j.appender.file.layout" value="org.apache.log4j.PatternLayout"/>
         <property name="log4j.appender.file.layout.ConversionPattern"
-          value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n" />
-
-        <property name="log4j.category.jcr.FileCleaner" value="DEBUG" />
-
+          value="%d{dd.MM.yyyy HH:mm:ss} *%-5p* [%t] %c{1}: %m (%F, line %L) %n"/>
+        
+        <property name="log4j.category.jcr.FileCleaner" value="DEBUG"/>
+        
         <!-- property name="log4j.category.jcr.JDBCStorageConnection" value="DEBUG"/>
-          <property name="log4j.category.jcr.NodeImpl" value="DEBUG"/ -->
-
+        <property name="log4j.category.jcr.NodeImpl" value="DEBUG"/ -->
+        
         <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/ -->
         <!-- property name="log4j.category.database.DBSchemaCreator" value="DEBUG"/ -->
         <!-- property name="log4j.category.jcr.WorkspaceDataReplicator" value="DEBUG"/ -->
-
+        
         <!-- property name="log4j.category.jcr.WorkspaceStorageCacheImpl" value="DEBUG"/ -->
         <!-- property name="log4j.category.jcr.WorkspacePersistentDataManager" value="DEBUG"/ -->
         <!-- property name="log4j.category.jcr.SessionDataManager" value="DEBUG"/ -->
       </properties-param>
-
+      
       <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
-        </value-param>
-        <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
-        </value-param>
-        <properties-param>
-        <name>properties</name>
-        <description>SimpleLog properties</description>
-        <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
-        <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
-        </properties-param -->
-
+      <name>logger</name>
+      <value>org.exoplatform.services.log.impl.BufferedSimpleLog</value>
+      </value-param>
+      <value-param>
+      <name>configurator</name>
+      <value>org.exoplatform.services.log.impl.SimpleLogConfigurator</value>
+      </value-param>
+      <properties-param>
+      <name>properties</name>
+      <description>SimpleLog properties</description>
+      <property name="org.apache.commons.logging.simplelog.defaultlog" value="debug"/>
+      <property name="org.apache.commons.logging.simplelog.showdatetime" value="true"/>
+      </properties-param -->
+      
       <!-- value-param>
-        <name>logger</name>
-        <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
-        </value-param>
-        <value-param>
-        <name>configurator</name>
-        <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
-        </value-param>
-        <properties-param>
-        <name>properties</name>
-        <description>jdk1.4 Logger properties</description>
-        <property name="handlers" value="java.util.logging.ConsoleHandler"/>
-        <property name=".level" value="FINE"/>
-        <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
-        </properties-param -->
-
+      <name>logger</name>
+      <value>org.exoplatform.services.log.impl.BufferedJdk14Logger</value>
+      </value-param>
+      <value-param>
+      <name>configurator</name>
+      <value>org.exoplatform.services.log.impl.Jdk14Configurator</value>
+      </value-param>
+      <properties-param>
+      <name>properties</name>
+      <description>jdk1.4 Logger properties</description>
+      <property name="handlers" value="java.util.logging.ConsoleHandler"/>
+      <property name=".level" value="FINE"/>
+      <property name="java.util.logging.ConsoleHandler.level" value="FINE"/>
+      </properties-param -->
+      
     </init-params>
   </component>
   <component>
@@ -89,10 +89,11 @@
         <init-params>
           <properties-param>
             <name>namespaces</name>
-            <property name="test" value="http://www.apache.org/jackrabbit/test" />
-            <property name="exojcrtest" value="http://www.exoplatform.org/jcr/test/1.0" />
-            <property name="rma" value="http://www.rma.com/jcr/" />
-            <property name="metadata" value="http://www.exoplatform.com/jcr/metadata/1.1/" />
+            <property name="test" value="http://www.apache.org/jackrabbit/test"/>
+            <property name="exojcrtest" value="http://www.exoplatform.org/jcr/test/1.0"/>
+            <property name="rma" value="http://www.rma.com/jcr/"/>
+            <property name="metadata" value="http://www.exoplatform.com/jcr/metadata/1.1/"/>
+            <property name="dc" value="http://purl.org/dc/elements/1.1/"/>
           </properties-param>
         </init-params>
       </component-plugin>
@@ -108,7 +109,7 @@
             <value>jar:/conf/test/nodetypes-impl.xml</value>
             <value>jar:/conf/test/nodetypes-usecase.xml</value>
           </values-param>
-
+          
           <values-param>
             <name>testInitNodeTypesRepository</name>
             <description>
@@ -116,7 +117,7 @@
             </description>
             <value>jar:/conf/test/nodetypes-test.xml</value>
           </values-param>
-
+          
           <values-param>
             <name>testInitNodeTypesRepositoryTest2</name>
             <description>
@@ -124,18 +125,18 @@
             </description>
             <value>jar:/conf/test/nodetypes-test2.xml</value>
           </values-param>
-
+          
           <!--values-param>
-            <name>testInitNodeTypesRepositoryTest3</name>
-            <description>Node types from ext. Needed bacause core starup earlie than ext</description>
-            <value>jar:/conf/test/nodetypes-test3_ext.xml</value>
-            </values-param-->
-
+          <name>testInitNodeTypesRepositoryTest3</name>
+          <description>Node types from ext. Needed bacause core starup earlie than ext</description>
+          <value>jar:/conf/test/nodetypes-test3_ext.xml</value>
+          </values-param-->
+          
         </init-params>
       </component-plugin>
     </component-plugins>
   </component>
-
+  
   <component>
     <key>org.exoplatform.services.jcr.config.RepositoryServiceConfiguration</key>
     <type>org.exoplatform.services.jcr.impl.config.RepositoryServiceConfigurationImpl</type>
@@ -148,26 +149,26 @@
       <properties-param>
         <name>working-conf</name>
         <description>working-conf</description>
-        <property name="source-name" value="jdbcjcr" />
-        <property name="dialect" value="hsqldb" />
-        <property name="persister-class-name" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister" />
+        <property name="source-name" value="jdbcjcr"/>
+        <property name="dialect" value="hsqldb"/>
+        <property name="persister-class-name" value="org.exoplatform.services.jcr.impl.config.JDBCConfigurationPersister"/>
       </properties-param>
     </init-params>
   </component>
-
+  
   <component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
-
+  
   <component>
-    <key>org.exoplatform.services.security.Authenticator</key> 
+    <key>org.exoplatform.services.security.Authenticator</key>
     <type>org.exoplatform.services.organization.auth.OrganizationAuthenticatorImpl</type>
   </component>
-
+  
   <component>
     <type>org.exoplatform.services.jcr.impl.ext.action.SessionActionCatalog</type>
   </component>
-
+  
   <component>
     <key>org.exoplatform.services.transaction.TransactionService</key>
     <type>org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl</type>
@@ -178,7 +179,7 @@
       </value-param>
     </init-params>
   </component>
-
+  
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
     <component-plugin>
@@ -201,10 +202,10 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
+          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+          <property name="url" value="jdbc:hsqldb:file:target/temp/data/portal"/>
+          <property name="username" value="sa"/>
+          <property name="password" value=""/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -228,10 +229,10 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
+          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr"/>
+          <property name="username" value="sa"/>
+          <property name="password" value=""/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -255,10 +256,10 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
+          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2"/>
+          <property name="username" value="sa"/>
+          <property name="password" value=""/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -282,10 +283,10 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/portaltck" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
+          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+          <property name="url" value="jdbc:hsqldb:file:target/temp/data/portaltck"/>
+          <property name="username" value="sa"/>
+          <property name="password" value=""/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -309,10 +310,10 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcrtck" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
+          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcrtck"/>
+          <property name="username" value="sa"/>
+          <property name="password" value=""/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -336,15 +337,15 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2tck" />
-          <property name="username" value="sa" />
-          <property name="password" value="" />
+          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
+          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2tck"/>
+          <property name="username" value="sa"/>
+          <property name="password" value=""/>
         </properties-param>
       </init-params>
     </component-plugin>
     <!-- Resource configuration for UserTransaction
-      use JOTM
+    use JOTM
     -->
     <component-plugin>
       <name>jotm.tx</name>
@@ -366,7 +367,7 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="jotm.timeout" value="60" />
+          <property name="jotm.timeout" value="60"/>
         </properties-param>
       </init-params>
     </component-plugin>
@@ -390,7 +391,7 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="repositoryName" value="db1" />
+          <property name="repositoryName" value="db1"/>
           <!-- property name="containerConfig" value="exo-configuration.xml"/ -->
         </properties-param>
       </init-params>
@@ -415,12 +416,12 @@
         <properties-param>
           <name>ref-addresses</name>
           <description>ref-addresses</description>
-          <property name="url" value="//localhost:9999/repository" />
+          <property name="url" value="//localhost:9999/repository"/>
         </properties-param>
       </init-params>
     </component-plugin>
   </external-component-plugins>
-    
+  
   <remove-configuration>org.exoplatform.services.scheduler.JobSchedulerService</remove-configuration>
   <!--<import>jar:/conf/database-configuration.hsql.xml</import> -->
 </configuration>

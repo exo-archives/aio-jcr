@@ -69,12 +69,21 @@ import org.exoplatform.services.security.ConversationState;
  */
 public class RepositoryImpl implements ManageableRepository {
 
+  /**
+   * Repository descriptors.
+   */
   private static HashMap<String, String> descriptors        = new HashMap<String, String>();
 
+  /**
+   * SYSTEM credentials.
+   */
   private static final CredentialsImpl   SYSTEM_CREDENTIALS = new CredentialsImpl(SystemIdentity.SYSTEM,
                                                                                   "".toCharArray());
 
-  protected static Log                   log                = ExoLogger.getLogger("jcr:RepositoryImpl");
+  /**
+   * Logger.
+   */
+  protected static final Log             LOG                = ExoLogger.getLogger("jcr:RepositoryImpl");
 
   static {
     descriptors.put(SPEC_VERSION_DESC, "1.0");
@@ -94,18 +103,46 @@ public class RepositoryImpl implements ManageableRepository {
     descriptors.put(QUERY_XPATH_DOC_ORDER, "true");
   }
 
+  /**
+   * Repository Container.
+   */
   private final RepositoryContainer      repositoryContainer;
 
+  /**
+   * Ssystem Workspace Name.
+   */
   private final String                   systemWorkspaceName;
 
+  /**
+   * Repository name.
+   */
   private final String                   name;
 
+  /**
+   * Repository configuration.
+   */
   private final RepositoryEntry          config;
 
+  /**
+   * Repository authentication policy.
+   */
   private final AuthenticationPolicy     authenticationPolicy;
-  
-  private int state = OFFLINE;
 
+  /**
+   * Repository state. OFFLINE by default.
+   */
+  private int                            state              = OFFLINE;
+
+  /**
+   * RepositoryImpl constructor.
+   * 
+   * @param container
+   *          Repository container
+   * @throws RepositoryException
+   *           error of initialization
+   * @throws RepositoryConfigurationException
+   *           error of configuration
+   */
   public RepositoryImpl(RepositoryContainer container) throws RepositoryException,
       RepositoryConfigurationException {
 
@@ -116,28 +153,21 @@ public class RepositoryImpl implements ManageableRepository {
     this.name = config.getName();
     this.systemWorkspaceName = config.getSystemWorkspaceName();
     this.repositoryContainer = container;
-
-    setState(ONLINE);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ManageableRepository#addItemPersistenceListener(java.lang
-   * .String, org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener)
+  /**
+   * {@inheritDoc}
    */
   public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
     WorkspacePersistentDataManager pmanager = (WorkspacePersistentDataManager) repositoryContainer.getWorkspaceContainer(workspaceName)
                                                                                                   .getComponentInstanceOfType(WorkspacePersistentDataManager.class);
 
     pmanager.addItemPersistenceListener(listener);
-
-    // get via managers chain, the method should be extended in stub-proxy
-    // managers
-    // getSystemSession(workspaceName).getTransientNodesManager().getTransactManager().
-    // getStorageDataManager().!!!.addItemPersistenceListener(listener);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean canRemoveWorkspace(String workspaceName) throws NoSuchWorkspaceException {
     if (repositoryContainer.getWorkspaceEntry(workspaceName) == null)
       throw new NoSuchWorkspaceException("No such workspace " + workspaceName);
@@ -151,6 +181,9 @@ public class RepositoryImpl implements ManageableRepository {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void configWorkspace(WorkspaceEntry wsConfig) throws RepositoryConfigurationException,
                                                       RepositoryException {
     if (isWorkspaceInitialized(wsConfig.getName())) {
@@ -162,7 +195,7 @@ public class RepositoryImpl implements ManageableRepository {
   }
 
   /**
-   * Creation contains three steps: First <code>configWorkspace(WorkspaceEntry wsConfig)</code> -
+   * Creation contains three steps. First <code>configWorkspace(WorkspaceEntry wsConfig)</code> -
    * registration a new configuration in RepositoryContainer and create WorkspaceContainer. Second,
    * the main step, is <code>initWorkspace(String workspaceName, String rootNodeType)</code> -
    * initializing workspace by name and root nodetype. Third, final step, starting all components of
@@ -178,7 +211,7 @@ public class RepositoryImpl implements ManageableRepository {
   public void createWorkspace(String workspaceName) throws RepositoryException {
 
     if (isWorkspaceInitialized(workspaceName)) {
-      log.warn("Workspace '" + workspaceName + "' is presumably initialized. config canceled");
+      LOG.warn("Workspace '" + workspaceName + "' is presumably initialized. config canceled");
       return;
     }
 
@@ -194,20 +227,18 @@ public class RepositoryImpl implements ManageableRepository {
 
     wsContainer.start();
 
-    log.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
+    LOG.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getConfiguration()
+  /**
+   * {@inheritDoc}
    */
   public RepositoryEntry getConfiguration() {
     return config;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Repository#getDescriptor(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getDescriptor(String key) {
     return descriptors.get(key);
@@ -215,9 +246,8 @@ public class RepositoryImpl implements ManageableRepository {
 
   // / -------- ManageableRepository impl -----------------------------
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Repository#getDescriptorKeys()
+  /**
+   * {@inheritDoc}
    */
   public String[] getDescriptorKeys() {
     String[] keys = new String[descriptors.size()];
@@ -242,17 +272,15 @@ public class RepositoryImpl implements ManageableRepository {
     return name;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getNamespaceRegistry()
+  /**
+   * {@inheritDoc}
    */
   public NamespaceRegistry getNamespaceRegistry() {
     return repositoryContainer.getNamespaceRegistry();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getNodeTypeManager()
+  /**
+   * {@inheritDoc}
    */
   public ExtendedNodeTypeManager getNodeTypeManager() {
     return repositoryContainer.getNodeTypeManager();
@@ -266,20 +294,21 @@ public class RepositoryImpl implements ManageableRepository {
     return getSystemSession(systemWorkspaceName);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getSystemSession(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public SessionImpl getSystemSession(String workspaceName) throws RepositoryException {
+    if (getState() == OFFLINE)
+      LOG.warn("Repository " + getName() + " is OFFLINE.");
+    
     WorkspaceContainer workspaceContainer = repositoryContainer.getWorkspaceContainer(workspaceName);
     if (workspaceContainer == null
         || !workspaceContainer.getWorkspaceInitializer().isWorkspaceInitialized()) {
       throw new RepositoryException("Workspace " + workspaceName
           + " not found or workspace is not initialized");
     }
+    
     SessionFactory sessionFactory = workspaceContainer.getSessionFactory();
-
-    // return sessionFactory.createSession(SYSTEM_CREDENTIALS);
 
     return sessionFactory.createSession(authenticationPolicy.authenticate(SYSTEM_CREDENTIALS));
   }
@@ -291,9 +320,8 @@ public class RepositoryImpl implements ManageableRepository {
     return systemWorkspaceName;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceNames()
+  /**
+   * {@inheritDoc}
    */
   public String[] getWorkspaceNames() {
 
@@ -309,17 +337,15 @@ public class RepositoryImpl implements ManageableRepository {
                                .isWorkspaceInitialized())
           workspaceNames.add(workspaceName);
       } catch (RuntimeException e) {
-        log.warn(e.getLocalizedMessage());
+        LOG.warn(e.getLocalizedMessage());
       }
 
     }
     return workspaceNames.toArray(new String[workspaceNames.size()]);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#importWorkspace(java.lang.String,
-   * java.io.InputStream)
+  /**
+   * {@inheritDoc}
    */
   public void importWorkspace(String wsName, InputStream xmlStream) throws RepositoryException,
                                                                    IOException {
@@ -359,7 +385,7 @@ public class RepositoryImpl implements ManageableRepository {
   private void initWorkspace(String workspaceName, String rootNodeType) throws RepositoryException {
 
     if (isWorkspaceInitialized(workspaceName)) {
-      log.warn("Workspace '" + workspaceName
+      LOG.warn("Workspace '" + workspaceName
           + "' is presumably initialized. Initialization canceled");
       return;
     }
@@ -371,9 +397,17 @@ public class RepositoryImpl implements ManageableRepository {
                        .getWorkspaceInitializer()
                        .initWorkspace(rootNodeTypeName);
 
-    log.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
+    LOG.info("Workspace " + workspaceName + "@" + this.name + " is initialized");
   }
 
+  /**
+   * Internal Remove Workspace.
+   * 
+   * @param workspaceName
+   *          workspace name
+   * @throws RepositoryException
+   *           error of remove
+   */
   public void internalRemoveWorkspace(String workspaceName) throws RepositoryException {
     WorkspaceContainer workspaceContainer = null;
     if (isWorkspaceInitialized(workspaceName)) {
@@ -389,10 +423,8 @@ public class RepositoryImpl implements ManageableRepository {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ManageableRepository#isWorkspaceInitialized(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public boolean isWorkspaceInitialized(String workspaceName) {
     try {
@@ -406,17 +438,15 @@ public class RepositoryImpl implements ManageableRepository {
 
   // //////////////////////////////////////////////////////
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Repository#login()
+  /**
+   * {@inheritDoc}
    */
   public Session login() throws LoginException, NoSuchWorkspaceException, RepositoryException {
     return login(null, null);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Repository#login(javax.jcr.Credentials)
+  /**
+   * {@inheritDoc}
    */
   public Session login(Credentials credentials) throws LoginException,
                                                NoSuchWorkspaceException,
@@ -424,9 +454,8 @@ public class RepositoryImpl implements ManageableRepository {
     return login(credentials, null);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Repository#login(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Session login(String workspaceName) throws LoginException,
                                             NoSuchWorkspaceException,
@@ -434,14 +463,16 @@ public class RepositoryImpl implements ManageableRepository {
     return login(null, workspaceName);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Repository#login(javax.jcr.Credentials, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Session login(Credentials credentials, String workspaceName) throws LoginException,
                                                                      NoSuchWorkspaceException,
                                                                      RepositoryException {
 
+    if (getState() == OFFLINE)
+      LOG.warn("Repository " + getName() + " is OFFLINE.");
+    
     ConversationState state;
 
     if (credentials != null)
@@ -453,6 +484,21 @@ public class RepositoryImpl implements ManageableRepository {
 
   }
 
+  /**
+   * Internal login.
+   * 
+   * @param state
+   *          ConversationState
+   * @param workspaceName
+   *          workspace name
+   * @return SessionImpl
+   * @throws LoginException
+   *           error of logic
+   * @throws NoSuchWorkspaceException
+   *           if no workspace found with name
+   * @throws RepositoryException
+   *           Repository error
+   */
   SessionImpl internalLogin(ConversationState state, String workspaceName) throws LoginException,
                                                                           NoSuchWorkspaceException,
                                                                           RepositoryException {
@@ -474,9 +520,8 @@ public class RepositoryImpl implements ManageableRepository {
     return sessionFactory.createSession(state);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ManageableRepository#removeWorkspace(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void removeWorkspace(String workspaceName) throws RepositoryException {
     if (!canRemoveWorkspace(workspaceName))
@@ -488,48 +533,53 @@ public class RepositoryImpl implements ManageableRepository {
     config.getWorkspaceEntries().remove(repositoryContainer.getWorkspaceEntry(workspaceName));
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.ManageableRepository#getWorkspaceContainer(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public WorkspaceContainerFacade getWorkspaceContainer(String workspaceName) {
     return new WorkspaceContainerFacade(workspaceName,
                                         repositoryContainer.getWorkspaceContainer(workspaceName));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public int getState() {
     return state;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void setState(int state) {
-    switch(state){
+    switch (state) {
     case ONLINE:
       // set ONLINE all workspaces
       setAllWorkspacesReadOnly(false);
       break;
     case OFFLINE:
-      // do nothing
+      // TODO do nothing
       break;
     case READONLY:
       // set READONLY all workspaces
       setAllWorkspacesReadOnly(true);
       break;
     }
-    
-    this.state=state;
+
+    this.state = state;
   }
 
   /**
    * Set all repository workspaces ReadOnly status.
    * 
-   * @param wsStatus ReadOnly workspace status
+   * @param wsStatus
+   *          ReadOnly workspace status
    */
-  private void setAllWorkspacesReadOnly(boolean wsStatus){
+  private void setAllWorkspacesReadOnly(boolean wsStatus) {
     WorkspaceContainerFacade wsFacade;
-    for(String workspaceName : getWorkspaceNames()){
+    for (String workspaceName : getWorkspaceNames()) {
       wsFacade = getWorkspaceContainer(workspaceName);
-      WorkspaceDataContainer dataContainer = (WorkspaceDataContainer)wsFacade.getComponent(WorkspaceDataContainer.class);
+      WorkspaceDataContainer dataContainer = (WorkspaceDataContainer) wsFacade.getComponent(WorkspaceDataContainer.class);
       dataContainer.setReadOnly(wsStatus);
     }
   }

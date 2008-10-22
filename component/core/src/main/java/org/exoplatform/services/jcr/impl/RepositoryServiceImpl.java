@@ -140,6 +140,10 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     }
     addNamespaces(rEntry.getName());
     registerNodeTypes(rEntry.getName());
+    
+    // turn on Repository ONLINE
+    ManageableRepository mr = (ManageableRepository) repositoryContainer.getComponentInstanceOfType(ManageableRepository.class);
+    mr.setState(ManageableRepository.ONLINE);
   }
 
   public RepositoryServiceConfiguration getConfig() {
@@ -172,7 +176,7 @@ public class RepositoryServiceImpl implements RepositoryService, Startable {
     if (repositoryContainer == null)
       throw new RepositoryException("Repository '" + name + "' not found.");
 
-    return (ManageableRepository) repositoryContainer.getComponentInstanceOfType(Repository.class);
+    return (ManageableRepository) repositoryContainer.getComponentInstanceOfType(ManageableRepository.class);
   }
 
   public void removeRepository(String name) throws RepositoryException {
