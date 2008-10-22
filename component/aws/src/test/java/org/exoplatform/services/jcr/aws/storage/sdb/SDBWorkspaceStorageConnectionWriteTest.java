@@ -97,7 +97,7 @@ public class SDBWorkspaceStorageConnectionWriteTest extends SDBWorkspaceTestBase
       }
 
       assertEquals("Id doesn't match", jcrRoot.getIdentifier(), id);
-      assertEquals("Parent id doesn't match", jcrRoot.getParentIdentifier(), pid);
+      assertEquals("Parent id doesn't match", Constants.ROOT_PARENT_UUID, pid);
       assertEquals("Item class should be Node ", "1", iclass);
       assertEquals("Name doesn't match",
                    jcrRoot.getQPath().getEntries()[jcrRoot.getQPath().getEntries().length - 1].getAsString(true),

@@ -150,7 +150,9 @@ public class S3ValueIOUtil {
     Response resp = conn.deleteBucket(bucket, null);
     int responseCode = resp.connection.getResponseCode();
     if (responseCode != HttpURLConnection.HTTP_OK) {
-      throw new IOException("Can't delete BUCKET on S3 storage. HTTP status " + responseCode);
+      //String cont = resp.connection.getContent().toString();
+      throw new IOException("Can't delete BUCKET on S3 storage. HTTP status " + responseCode + " "
+          + resp.connection.getResponseMessage());
     }
     if (LOG.isDebugEnabled())
       LOG.debug("Create bucket on S3: STATUS = " + responseCode);

@@ -196,9 +196,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   protected final List<WriteOperation>       changes;
 
   /**
-   * Changed nodes Identifiers. Uses for 'parent not found' validation.
+   * Changed Items Identifiers. Uses for 'parent not found' validation.
    */
-  protected final Set<String>                addedNodes;
+  protected final Set<String>                changedItems;
 
   /**
    * Maximim buffer size (see configuration).
@@ -490,10 +490,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
      */
     @Override
     Object execute() throws RepositoryException {
-      
+
       if (LOG.isDebugEnabled())
         LOG.debug("(add) Node " + node.getQPath().getAsString() + " " + node.getIdentifier());
-      
+
       // validate
       validateItemAdd(node);
 
@@ -514,7 +514,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                        domainName,
                                                        node.getIdentifier(),
                                                        list);
-        addedNodes.add(node.getIdentifier());
+        changedItems.add(node.getIdentifier());
         return resp;
       } catch (AmazonSimpleDBException e) {
         throw new SDBStorageException("(add) Node " + node.getQPath().getAsString() + " "
@@ -573,8 +573,9 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     Object execute() throws RepositoryException {
 
       if (LOG.isDebugEnabled())
-        LOG.debug("(add) Property " + property.getQPath().getAsString() + " " + property.getIdentifier());
-      
+        LOG.debug("(add) Property " + property.getQPath().getAsString() + " "
+            + property.getIdentifier());
+
       // validate
       validateItemAdd(property);
 
@@ -605,7 +606,12 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             list.add(new ReplaceableAttribute(REFERENCE, new String(value.getAsByteArray()), false));
 
         try {
-          return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+          PutAttributesResponse res = createReplaceItem(sdbService,
+                                                        domainName,
+                                                        property.getIdentifier(),
+                                                        list);
+          changedItems.add(property.getIdentifier());
+          return res;
         } catch (AmazonSimpleDBException e) {
           throw new SDBStorageException("(add) Property " + property.getQPath().getAsString() + " "
               + property.getIdentifier() + " add fails " + e, e);
@@ -680,7 +686,12 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       list.add(new ReplaceableAttribute(IDATA, formatIData(node), true));
 
       try {
-        return createReplaceItem(sdbService, domainName, node.getIdentifier(), list);
+        PutAttributesResponse res = createReplaceItem(sdbService,
+                                                      domainName,
+                                                      node.getIdentifier(),
+                                                      list);
+        changedItems.add(node.getIdentifier());
+        return res;
       } catch (AmazonSimpleDBException e) {
         throw new SDBStorageException("(update) Node " + node.getQPath().getAsString() + " "
             + node.getIdentifier() + " update fails " + e, e);
@@ -740,7 +751,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     Object execute() throws RepositoryException {
 
       if (LOG.isDebugEnabled())
-        LOG.debug("(update) Property " + property.getQPath().getAsString() + " " + property.getIdentifier());
+        LOG.debug("(update) Property " + property.getQPath().getAsString() + " "
+            + property.getIdentifier());
 
       // validate
       validateItemChange(property, ITEM_UPDATE);
@@ -770,7 +782,14 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
             list.add(new ReplaceableAttribute(REFERENCE, new String(value.getAsByteArray()), true));
 
         try {
-          return createReplaceItem(sdbService, domainName, property.getIdentifier(), list);
+          PutAttributesResponse res = createReplaceItem(sdbService,
+                                                        domainName,
+                                                        property.getIdentifier(),
+                                                        list);
+          changedItems.add(property.getIdentifier()); // TODO 22.10.08, Caused by ECM and
+          // NodeHierarchyCreatorImpl
+          // .processAddPathPlugin
+          return res;
         } catch (AmazonSimpleDBException e) {
           throw new SDBStorageException("(update) Property " + property.getQPath().getAsString()
               + " " + property.getIdentifier() + " update fails " + e, e);
@@ -833,7 +852,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
 
       if (LOG.isDebugEnabled())
         LOG.debug("(delete) Node " + node.getQPath().getAsString() + " " + node.getIdentifier());
-        
+
       // validate
       validateItemChange(node, ITEM_DELETE);
 
@@ -905,7 +924,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     Object execute() throws RepositoryException {
 
       if (LOG.isDebugEnabled())
-        LOG.debug("(delete) Property " + property.getQPath().getAsString() + " " + property.getIdentifier());
+        LOG.debug("(delete) Property " + property.getQPath().getAsString() + " "
+            + property.getIdentifier());
 
       // validate
       validateItemChange(property, ITEM_DELETE);
@@ -1034,7 +1054,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     this.valueStorageProvider = valueStorageProvider;
 
     this.changes = new ArrayList<WriteOperation>();
-    this.addedNodes = new HashSet<String>();
+    this.changedItems = new HashSet<String>();
   }
 
   /**
@@ -1141,7 +1161,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    * 
    */
   void runCleanup() {
-    
+
     final List<String> names = new ArrayList<String>();
 
     try {
@@ -1164,10 +1184,10 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           }
         }
       } while (nextToken != null);
-      
+
       if (LOG.isDebugEnabled())
         LOG.debug("(cleanup) " + names.size() + " items to delete");
-      
+
     } catch (AmazonSimpleDBException e) {
       LOG.error("(cleaner) Error of deleted Items request " + e, e);
     }
@@ -1937,7 +1957,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       // 3. check if Parent exists (except of root)
       if (data.getParentIdentifier() != null) {
         // check in current transaction changes
-        if (!addedNodes.contains(data.getParentIdentifier())) {
+        if (!changedItems.contains(data.getParentIdentifier())) {
           // check in SDB storage
           resp = queryItemAttrByID(sdbService, domainName, data.getParentIdentifier(), ID);
           if (resp.isSetQueryWithAttributesResult()) {
@@ -1992,8 +2012,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
   protected void validateItemChange(ItemData data, String modification) throws SDBRepositoryException,
                                                                        InvalidItemStateException {
 
-    if (addedNodes.contains(data.getIdentifier()))
-      // if Item was added in this transaction, it's already valid here
+    if (changedItems.contains(data.getIdentifier()))
+      // if Item was changed in this transaction, it's already valid here
       return;
 
     final String itemClass = data.isNode() ? "Node" : "Property";
@@ -2025,32 +2045,32 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
               + itemClass + " " + data.getQPath().getAsString());
         }
         // TODO don't check, just believe in contract
-//        else {
-//          // check if persisted version is ok
-//          Item sdbItem = items.get(0);
-//          String idv = getAttribute(sdbItem.getAttribute(), IDATA);
-//          try {
-//            int v = Integer.valueOf(idv.substring(0, idv.indexOf(IDATA_DELIMITER)));
-//            if (v >= data.getPersistedVersion()) {
-//              // TODO are we need the check here?
-//              throw new JCRInvalidItemStateException("(" + modification + ") Invalid Item state. "
-//                                                         + itemClass + " "
-//                                                         + data.getQPath().getAsString() + " "
-//                                                         + data.getIdentifier()
-//                                                         + " persistent version is " + v
-//                                                         + " but modification "
-//                                                         + data.getPersistedVersion() + ".",
-//                                                     data.getIdentifier(),
-//                                                     modification == ITEM_DELETE
-//                                                         ? ItemState.DELETED
-//                                                         : ItemState.UPDATED);
-//            }
-//          } catch (IndexOutOfBoundsException e) {
-//            throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
-//                + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
-//                + " attribute value '" + idv + "' is wrong. " + e, e);
-//          }
-//        }
+        // else {
+        // // check if persisted version is ok
+        // Item sdbItem = items.get(0);
+        // String idv = getAttribute(sdbItem.getAttribute(), IDATA);
+        // try {
+        // int v = Integer.valueOf(idv.substring(0, idv.indexOf(IDATA_DELIMITER)));
+        // if (v >= data.getPersistedVersion()) {
+        // // TODO are we need the check here?
+        // throw new JCRInvalidItemStateException("(" + modification + ") Invalid Item state. "
+        // + itemClass + " "
+        // + data.getQPath().getAsString() + " "
+        // + data.getIdentifier()
+        // + " persistent version is " + v
+        // + " but modification "
+        // + data.getPersistedVersion() + ".",
+        // data.getIdentifier(),
+        // modification == ITEM_DELETE
+        // ? ItemState.DELETED
+        // : ItemState.UPDATED);
+        // }
+        // } catch (IndexOutOfBoundsException e) {
+        // throw new SDBRepositoryException("(" + modification + ") FATAL " + itemClass + " "
+        // + data.getQPath().getAsString() + " " + data.getIdentifier() + " " + IDATA
+        // + " attribute value '" + idv + "' is wrong. " + e, e);
+        // }
+        // }
       }
 
       // TODO VERY IMPORTANT! (don't check, we just believe the contract is done) if delete
@@ -2307,7 +2327,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
         Collections.sort(values, new ValueDataComparator());
 
       property.setValues(values);
-    } else 
+    } else
       property.setValues(new ArrayList<ValueData>(0)); // empty list
 
     return property;
@@ -2342,7 +2362,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       iter.next().execute();
 
     changes.clear();
-    addedNodes.clear();
+    changedItems.clear();
   }
 
   /**
@@ -2359,7 +2379,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
     } finally {
       // clear all on rollback anyway
       changes.clear();
-      addedNodes.clear();
+      changedItems.clear();
     }
   }
 
@@ -2438,9 +2458,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       List<NodeData> childItems = new ArrayList<NodeData>();
 
       if (resp.isSetQueryWithAttributesResult()) {
-        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
-        List<Item> items = res.getItem();
-        for (Item item : items)
+        for (Item item : resp.getQueryWithAttributesResult().getItem())
           childItems.add(loadNodeData(parent.getQPath(), parent.getACL(), item.getAttribute()));
       }
 
@@ -2448,7 +2466,8 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       if (childItems.size() > 1)
         Collections.sort(childItems, new NodeDataComparator());
 
-      return childItems;
+      // TODO list can be empty if it's asked immediate after add
+      return childItems; 
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(child nodes) Parent " + parent.getQPath().getAsString() + " "
           + parent.getIdentifier() + ". Read request fails " + e, e);
@@ -2485,12 +2504,17 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
       List<PropertyData> childItems = new ArrayList<PropertyData>();
 
       if (resp.isSetQueryWithAttributesResult()) {
-        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
-        List<Item> items = res.getItem();
-        for (Item item : items)
+        for (Item item : resp.getQueryWithAttributesResult().getItem())
           childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), true));
       }
 
+      // TODO list can be empty if it's asked immediate after add, if EMPTY run query again, then exception
+      if (childItems.size() == 0) {
+        new Exception().printStackTrace();
+        LOG.warn("(child properties) Parent " + parent.getQPath().getAsString() + " "
+            + parent.getIdentifier() + " returns EMPTY list.");
+      }
+      
       return childItems;
     } catch (AmazonSimpleDBException e) {
       throw new SDBStorageException("(child properties) Parent " + parent.getQPath().getAsString()
@@ -2501,6 +2525,53 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
           + ". Read request fails " + e, e);
     } catch (IllegalNameException e) {
       throw new SDBRepositoryException("(child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException,
+                                                                    IllegalStateException {
+    try {
+      // TODO nextToken for large list
+
+      QueryWithAttributesResponse resp = queryChildPropertiesAttr(sdbService,
+                                                                  domainName,
+                                                                  parent.getIdentifier(),
+                                                                  ID,
+                                                                  PID,
+                                                                  NAME,
+                                                                  ICLASS,
+                                                                  IDATA);
+
+      List<PropertyData> childItems = new ArrayList<PropertyData>();
+
+      if (resp.isSetQueryWithAttributesResult()) {
+        for (Item item : resp.getQueryWithAttributesResult().getItem())
+          childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), false));
+      }
+
+      // TODO list can be empty if it's asked immediate after add, if EMPTY run query again, then exception
+      if (childItems.size() == 0) {
+        new Exception().printStackTrace();
+        LOG.warn("(list child properties) Parent " + parent.getQPath().getAsString() + " "
+            + parent.getIdentifier() + " returns EMPTY list.");
+      }
+      
+      return childItems;
+    } catch (AmazonSimpleDBException e) {
+      throw new SDBStorageException("(list child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
+    } catch (NumberFormatException e) {
+      throw new SDBRepositoryException("(list child properties) Parent "
+          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
+          + ". Read request fails " + e, e);
+    } catch (IllegalNameException e) {
+      throw new SDBRepositoryException("(list child properties) Parent "
           + parent.getQPath().getAsString() + " " + parent.getIdentifier()
           + ". Read request fails " + e, e);
     }
@@ -2659,48 +2730,6 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
    */
   public boolean isOpened() {
     return true;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<PropertyData> listChildPropertiesData(NodeData parent) throws RepositoryException,
-                                                                    IllegalStateException {
-    try {
-      // TODO nextToken for large list
-
-      QueryWithAttributesResponse resp = queryChildPropertiesAttr(sdbService,
-                                                                  domainName,
-                                                                  parent.getIdentifier(),
-                                                                  ID,
-                                                                  PID,
-                                                                  NAME,
-                                                                  ICLASS,
-                                                                  IDATA);
-
-      List<PropertyData> childItems = new ArrayList<PropertyData>();
-
-      if (resp.isSetQueryWithAttributesResult()) {
-        QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
-        List<Item> items = res.getItem();
-        for (Item item : items)
-          childItems.add(loadPropertyData(parent.getQPath(), item.getAttribute(), false));
-      }
-
-      return childItems;
-    } catch (AmazonSimpleDBException e) {
-      throw new SDBStorageException("(list child properties) Parent "
-          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
-          + ". Read request fails " + e, e);
-    } catch (NumberFormatException e) {
-      throw new SDBRepositoryException("(list child properties) Parent "
-          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
-          + ". Read request fails " + e, e);
-    } catch (IllegalNameException e) {
-      throw new SDBRepositoryException("(list child properties) Parent "
-          + parent.getQPath().getAsString() + " " + parent.getIdentifier()
-          + ". Read request fails " + e, e);
-    }
   }
 
 }

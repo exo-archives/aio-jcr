@@ -47,7 +47,7 @@ public class TestDeleteDomain extends TestCase {
   /**
    * EXO_PREFIX.
    */
-  private static final String EXO_PREFIX = "ecm-test";
+  private static final String EXO_PREFIX = "ecm-demo";
   
   /**
    * accessKey.
