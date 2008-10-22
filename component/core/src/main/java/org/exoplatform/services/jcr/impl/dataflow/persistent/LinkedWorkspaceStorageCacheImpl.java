@@ -949,7 +949,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildProperties(final NodeData parentData, final List<PropertyData> childItems) {
-    if (enabled && parentData != null && childItems != null) {
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -999,7 +999,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
-    if (enabled && parentData != null && childItems != null) {
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1039,7 +1039,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
-    if (enabled && parentData != null && childItems != null) {
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {

@@ -522,9 +522,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       ResultSet node = findChildNodesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<NodeData> childrens = new ArrayList<NodeData>();
-      while (node.next()) {
+      while (node.next())
         childrens.add((NodeData) itemData(parent.getQPath(), node, I_CLASS_NODE, parent.getACL()));
-      }
+      
       return childrens;
     } catch (SQLException e) {
       throw new RepositoryException(e);
@@ -562,9 +562,9 @@ abstract public class JDBCStorageConnection extends DBConstants implements
     try {
       ResultSet prop = findChildPropertiesByParentIdentifier(getInternalId(parent.getIdentifier()));
       List<PropertyData> children = new ArrayList<PropertyData>();
-      while (prop.next()) {
+      while (prop.next())
         children.add(propertyData(parent.getQPath(), prop));
-      }
+
       return children;
     } catch (SQLException e) {
       throw new RepositoryException(e);

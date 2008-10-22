@@ -52,14 +52,34 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class WorkspacePersistentDataManager implements DataManager {
 
-  protected Log                            log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
+  /**
+   * Logger.
+   */
+  protected final Log                            log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
 
+  /**
+   * Workspace data container (persistent storage).
+   */
   protected WorkspaceDataContainer         dataContainer;
 
+  /**
+   * System workspace data container (persistent storage).
+   */
   protected WorkspaceDataContainer         systemDataContainer;
 
+  /**
+   * Persistent level listeners.
+   */
   protected List<ItemsPersistenceListener> listeners;
 
+  /**
+   * WorkspacePersistentDataManager constructor.
+   * 
+   * @param dataContainer
+   *          workspace data container
+   * @param systemDataContainerHolder
+   *          holder of system workspace data container
+   */
   public WorkspacePersistentDataManager(WorkspaceDataContainer dataContainer,
                                         SystemDataContainerHolder systemDataContainerHolder) {
     this.dataContainer = dataContainer;
@@ -67,6 +87,9 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     this.systemDataContainer = systemDataContainerHolder.getContainer();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void save(final ItemStateChangesLog changesLog) throws RepositoryException {
 
     // check if this workspace container is not read-only
@@ -164,9 +187,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     notifySaveItems(changesLog);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(String)
+  /**
+   * {@inheritDoc}
    */
   public ItemData getItemData(final String identifier) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
@@ -177,9 +199,8 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(String)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getReferencesData(final String identifier, boolean skipVersionStorage) throws RepositoryException {
 
@@ -201,40 +222,38 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData(NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<NodeData> getChildNodesData(final NodeData nodeData) throws RepositoryException {
 
     final WorkspaceStorageConnection con = dataContainer.openConnection();
     try {
-      final List<NodeData> childNodes = con.getChildNodesData(nodeData);
-      return childNodes != null ? childNodes : new ArrayList<NodeData>();
+      return con.getChildNodesData(nodeData);
     } finally {
       con.rollback();
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData(NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getChildPropertiesData(final NodeData nodeData) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
     try {
-      final List<PropertyData> childProperties = con.getChildPropertiesData(nodeData);
-      return childProperties != null ? childProperties : new ArrayList<PropertyData>();
+      return con.getChildPropertiesData(nodeData);
     } finally {
       con.rollback();
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public List<PropertyData> listChildPropertiesData(final NodeData nodeData) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
     try {
-      final List<PropertyData> childProperties = con.listChildPropertiesData(nodeData);
-      return childProperties != null ? childProperties : new ArrayList<PropertyData>();
+      return con.listChildPropertiesData(nodeData);
     } finally {
       con.rollback();
     }
@@ -261,15 +280,9 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
 
       if (addedNodes.contains(new QPath(siblingPath))) {
         // current changes log has the older same-name sibling
-
-        // log.info("==== SNS in changes " + node.getQPath().getAsString());
-
         return;
       } else {
         // check in persistence
-
-        // log.info("==== SNS in persistence " + node.getQPath().getAsString());
-
         final WorkspaceStorageConnection acon = dataContainer.openConnection();
         try {
           NodeData parent = (NodeData) acon.getItemData(node.getParentIdentifier());
@@ -314,6 +327,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * @param item
    *          to update
    * @param con
+   *          connection
    * @throws RepositoryException
    * @throws InvalidItemStateException
    *           if the item not found TODO compare persistedVersion number
@@ -334,6 +348,7 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
    * @param item
    *          to add
    * @param con
+   *          connection
    * @throws RepositoryException
    * @throws InvalidItemStateException
    *           if the item is already added
@@ -410,10 +425,19 @@ public abstract class WorkspacePersistentDataManager implements DataManager {
     }
   }
 
+  /**
+   * Tell if the path is jcr:system descendant.
+   *
+   * @param path path to check
+   * @return boolean result, true if yes - it's jcr:system tree path
+   */
   private boolean isSystemDescendant(QPath path) {
     return path.isDescendantOf(Constants.JCR_SYSTEM_PATH) || path.equals(Constants.JCR_SYSTEM_PATH);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public ItemData getItemData(final NodeData parentData, final QPathEntry name) throws RepositoryException {
     final WorkspaceStorageConnection con = dataContainer.openConnection();
     try {
