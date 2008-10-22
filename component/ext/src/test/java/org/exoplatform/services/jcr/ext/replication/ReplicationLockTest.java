@@ -21,10 +21,10 @@ import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.com.ua
- * 02.03.2007 17:38:10
+ * Created by The eXo Platform SAS.
  * 
- * @version $Id: TestReplicationLock.java 02.03.2007 17:38:10 rainfox
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id$
  */
 
 public class ReplicationLockTest extends BaseReplicationTest {
@@ -79,4 +79,48 @@ public class ReplicationLockTest extends BaseReplicationTest {
     //
     // assertEquals(false, nodeLocked.isLocked());
   }
+
+  public void test10Lock() throws Exception {
+    for (int i = 0; i < 10; i++) {
+      log.info("Lock node #" + i + " ...");
+      String lockName = "Node Locked";
+      
+      Node nodeLocked = root.addNode(lockName + i);
+      nodeLocked.setProperty("jcr:data", "node data");
+      nodeLocked.addMixin("mix:lockable");
+      session.save();
+
+      Thread.sleep(2 * 1000);
+
+      Node destNodeLocked = root2.getNode(lockName + i);
+      assertEquals("node data", destNodeLocked.getProperty("jcr:data").getString());
+      assertEquals("mix:lockable", destNodeLocked.getMixinNodeTypes()[0].getName());
+      assertEquals(false, destNodeLocked.isLocked());
+
+      log.info("Set lock");
+      Lock lock = nodeLocked.lock(false, false);
+      session.save();
+
+      Thread.sleep(2 * 1000);
+
+      assertEquals(true, destNodeLocked.isLocked());
+
+      try {
+        destNodeLocked.setProperty("jcr:data", "dd");
+        session2.save();
+        fail("Errore: Node is not locked");
+      } catch (LockException e) {
+        // ok
+      }
+
+      log.info("Set unlock");
+      // unlock source node
+      nodeLocked.unlock();
+
+      Thread.sleep(2 * 1000);
+
+      assertEquals(false, destNodeLocked.isLocked());
+    }
+  }
+
 }
