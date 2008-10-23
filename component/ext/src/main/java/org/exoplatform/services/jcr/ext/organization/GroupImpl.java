@@ -146,4 +146,12 @@ public class GroupImpl implements Group {
     label = name;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    return "[groupId=" + getId() + "][groupName=" + getGroupName() + "][parentId=" + getParentId()
+        + "]";
+  }
+
 }

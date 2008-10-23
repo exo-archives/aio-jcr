@@ -162,4 +162,10 @@ public class MembershipTypeImpl implements MembershipType {
   public void setOwner(String s) {
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    return "[type=" + getName() + "]";
+  }
 }

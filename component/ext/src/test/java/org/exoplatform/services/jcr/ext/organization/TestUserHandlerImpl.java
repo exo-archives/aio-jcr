@@ -52,116 +52,186 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
     calendar.set(2008, 1, 1);
   }
 
-  public void testAuthenticate() throws Exception {
-    assertTrue("Can not authenticate 'demo' with password 'exo'", uHandler.authenticate("demo",
-                                                                                        "exo"));
-    assertFalse("'demo' with password 'exo_' was authenticated", uHandler.authenticate("demo",
-                                                                                       "exo_"));
+  /**
+   * Authenticate users.
+   */
+  public void testAuthenticate() {
+    try {
+      assertTrue("Can not authenticate 'demo' with password 'exo'", uHandler.authenticate("demo",
+                                                                                          "exo"));
+      assertFalse("'demo' with password 'exo_' was authenticated", uHandler.authenticate("demo",
+                                                                                         "exo_"));
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
   }
 
-  public void testFindUserByName() throws Exception {
-    User u = uHandler.findUserByName("demo");
-    assertTrue("User 'demo' it not found", u != null);
-    assertTrue("User email is not equal 'demo@localhost' but equal '" + u.getEmail() + "'",
-               u.getEmail().equals("demo@localhost"));
-    assertTrue("User first name is not equal 'Demo' but equal '" + u.getFirstName() + "'",
-               u.getFirstName().equals("Demo"));
-    assertTrue("User last name is not equal 'exo' but equal '" + u.getLastName() + "'",
-               u.getLastName().equals("exo"));
-    assertTrue("User password is not equal 'exo' but equal '" + u.getPassword() + "'",
-               u.getPassword().equals("exo"));
-    assertTrue("User name is not equal 'demo' but equal '" + u.getUserName() + "'",
-               u.getUserName().equals("demo"));
+  /**
+   * Find user with specific name and check it properties.
+   */
+  public void testFindUserByName() {
+    try {
+      User u = uHandler.findUserByName("demo");
+      assertTrue("User 'demo' it not found", u != null);
+      assertTrue("User email is not equal 'demo@localhost' but equal '" + u.getEmail() + "'",
+                 u.getEmail().equals("demo@localhost"));
+      assertTrue("User first name is not equal 'Demo' but equal '" + u.getFirstName() + "'",
+                 u.getFirstName().equals("Demo"));
+      assertTrue("User last name is not equal 'exo' but equal '" + u.getLastName() + "'",
+                 u.getLastName().equals("exo"));
+      assertTrue("User password is not equal 'exo' but equal '" + u.getPassword() + "'",
+                 u.getPassword().equals("exo"));
+      assertTrue("User name is not equal 'demo' but equal '" + u.getUserName() + "'",
+                 u.getUserName().equals("demo"));
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
   }
 
-  public void testFindUsers() throws Exception {
-    createUser("user");
-    org.exoplatform.services.organization.Query query = new org.exoplatform.services.organization.Query();
+  /**
+   * Find users using query and check it count.
+   */
+  public void testFindUsers() {
+    try {
+      createUser("tolik");
+      org.exoplatform.services.organization.Query query = new org.exoplatform.services.organization.Query();
 
-    query.setEmail("email@test");
-    ObjectPageList pList = (ObjectPageList) uHandler.findUsers(query);
-    assertTrue("Found " + pList.getAll().size() + " users with email equal 'email@test'",
-               pList.getAll().size() == 1);
-    query.setEmail(null);
+      query.setEmail("email@test");
+      ObjectPageList pList = (ObjectPageList) uHandler.findUsers(query);
+      assertTrue("Found " + pList.getAll().size() + " users with email equal 'email@test'",
+                 pList.getAll().size() == 1);
+      query.setEmail(null);
 
-    query.setUserName("*user*");
-    pList = (ObjectPageList) uHandler.findUsers(query);
-    assertTrue("Found " + pList.getAll().size() + " users with name equal '*user*'",
-               pList.getAll().size() == 1);
-    query.setUserName(null);
+      query.setUserName("*tolik*");
+      pList = (ObjectPageList) uHandler.findUsers(query);
+      assertTrue("Found " + pList.getAll().size() + " users with name equal '*tolik*'",
+                 pList.getAll().size() == 1);
+      query.setUserName(null);
 
-    query.setFirstName("first");
-    query.setLastName("last");
-    pList = (ObjectPageList) uHandler.findUsers(query);
-    assertTrue("Found " + pList.getAll().size()
-        + " users with name frist name equal 'first' and last name equal 'last'", pList.getAll()
-                                                                                       .size() == 1);
-    query.setFirstName(null);
-    query.setLastName(null);
+      query.setFirstName("first");
+      query.setLastName("last");
+      pList = (ObjectPageList) uHandler.findUsers(query);
+      assertTrue("Found " + pList.getAll().size()
+                     + " users with name frist name equal 'first' and last name equal 'last'",
+                 pList.getAll().size() == 1);
+      query.setFirstName(null);
+      query.setLastName(null);
 
-    Calendar calc = (Calendar) calendar.clone();
-    calc.set(2007, 1, 1);
-    query.setUserName("user");
-    query.setFromLoginDate(calc.getTime());
-    pList = (ObjectPageList) uHandler.findUsers(query);
-    assertTrue("Found " + pList.getAll().size() + " users with fromLoginDate equal "
-        + calc.getTime(), pList.getAll().size() == 1);
+      Calendar calc = (Calendar) calendar.clone();
+      calc.set(2007, 1, 1);
+      query.setUserName("tol");
+      query.setFromLoginDate(calc.getTime());
+      pList = (ObjectPageList) uHandler.findUsers(query);
+      assertTrue("Found " + pList.getAll().size() + " users with fromLoginDate equal "
+          + calc.getTime(), pList.getAll().size() == 1);
 
-    calc.set(2009, 1, 1);
-    query.setFromLoginDate(calc.getTime());
-    pList = (ObjectPageList) uHandler.findUsers(query);
-    assertTrue("Found " + pList.getAll().size() + " users with fromLoginDate equal "
-        + calc.getTime(), pList.getAll().size() == 0);
-    query.setFromLoginDate(null);
-    query.setUserName(null);
+      calc.set(2009, 1, 1);
+      query.setFromLoginDate(calc.getTime());
+      pList = (ObjectPageList) uHandler.findUsers(query);
+      assertTrue("Found " + pList.getAll().size() + " users with fromLoginDate equal "
+          + calc.getTime(), pList.getAll().size() == 0);
+      query.setFromLoginDate(null);
+      query.setUserName(null);
 
-    uHandler.removeUser("user", true);
+      uHandler.removeUser("tolik", true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
   }
 
-  public void testGetUserPageList() throws Exception {
-    PageList pList = (ObjectPageList) uHandler.getUserPageList(10);
-    assertTrue("Found " + pList.getAll().size() + " users but present only 5", pList.getAll()
-                                                                                    .size() == 5);
+  /**
+   * Get users page list.
+   */
+  public void testGetUserPageList() {
+    try {
+      PageList pList = (ObjectPageList) uHandler.getUserPageList(10);
+      assertTrue("Found " + pList.getAll().size() + " users but present only 5", pList.getAll()
+                                                                                      .size() == 5);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
   }
 
-  public void testRemoveUser() throws Exception {
-    createUser("user1");
-    uHandler.removeUser("user1", true);
-    User u = uHandler.findUserByName("user1");
-    assertTrue("User 'user' still present but was removed", u == null);
+  /**
+   * Create user and than try to remove it.
+   */
+  public void testRemoveUser() {
+    User u;
+    try {
+      createUser("userU1");
+      u = uHandler.removeUser("userU1", true);
+      assertTrue("User 'userU1' is absent", u != null);
+
+      u = uHandler.findUserByName("userU1");
+      assertTrue("User 'userU1' still present but was removed", u == null);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
+
+    try {
+      u = uHandler.removeUser("userU2", true);
+      assertTrue("User 'userU2' is present but must be absent", u == null);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
+
   }
 
-  public void testSaveUser() throws Exception {
-    createUser("user2");
+  /**
+   * Create user, change it properties and than try to save it.
+   */
+  public void testSaveUser() {
+    try {
+      createUser("userU3");
 
-    // change name
-    User u = uHandler.findUserByName("user2");
-    u.setUserName("user_");
-    uHandler.saveUser(u, true);
-    u = uHandler.findUserByName("user_");
-    assertFalse("Can not find user 'user_'", u == null);
+      // change name
+      User u = uHandler.findUserByName("userU3");
+      u.setUserName("userU4");
+      uHandler.saveUser(u, true);
+      u = uHandler.findUserByName("userU4");
+      assertTrue("Can not find user 'userU4'", u != null);
 
-    // change email
-    u.setEmail("email_");
-    uHandler.saveUser(u, true);
-    u = uHandler.findUserByName("user_");
-    assertTrue("User email is not equal 'email_' but equal '" + u.getEmail() + "'",
-               u.getEmail().equals("email_"));
+      // change email
+      u.setEmail("email_");
+      uHandler.saveUser(u, true);
+      u = uHandler.findUserByName("userU4");
+      assertTrue("User email is not equal 'email_' but equal '" + u.getEmail() + "'",
+                 u.getEmail().equals("email_"));
 
-    uHandler.removeUser("user_", true);
+      uHandler.removeUser("userU4", true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
   }
 
-  private void createUser(String userName) throws Exception {
-    User u = uHandler.createUserInstance();
-    u.setEmail("email@test");
-    u.setFirstName("first");
-    u.setLastLoginTime(calendar.getTime());
-    u.setCreatedDate(calendar.getTime());
-    u.setLastName("last");
-    u.setPassword("pwd");
-    u.setUserName(userName);
-    uHandler.createUser(u, true);
-
+  /**
+   * Create new user.
+   */
+  private void createUser(String userName) {
+    try {
+      User u = uHandler.createUserInstance();
+      u.setEmail("email@test");
+      u.setFirstName("first");
+      u.setLastLoginTime(calendar.getTime());
+      u.setCreatedDate(calendar.getTime());
+      u.setLastName("last");
+      u.setPassword("pwd");
+      u.setUserName(userName);
+      uHandler.createUser(u, true);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
   }
 
   /**

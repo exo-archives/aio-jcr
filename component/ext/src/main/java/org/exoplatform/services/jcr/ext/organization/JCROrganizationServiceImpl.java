@@ -43,20 +43,51 @@ import org.exoplatform.services.organization.BaseOrganizationService;
  */
 public class JCROrganizationServiceImpl extends BaseOrganizationService implements Startable {
 
+  /**
+   * The name of parameter that contain storage path.
+   */
   public static final String     STORAGE_PATH         = "storage-path";
 
-  public static final String     STORAGE_PATH_DEFAULT = "/exo:organization";
-
+  /**
+   * The name of parameter that contain workspace name.
+   */
   public static final String     STORAGE_WORKSPACE    = "storage-workspace";
 
+  /**
+   * Default storage path.
+   */
+  public static final String     STORAGE_PATH_DEFAULT = "/exo:organization";
+
+  /**
+   * Manageable repository.
+   */
   protected ManageableRepository repository;
 
+  /**
+   * Repository service.
+   */
   protected RepositoryService    repositoryService;
 
+  /**
+   * Contain passed value of storage path in parameters.
+   */
   protected String               storagePath;
 
+  /**
+   * Contain passed value of workspace name in parameters.
+   */
   protected String               storageWorkspace;
 
+  /**
+   * JCROrganizationServiceImpl constructor.
+   * 
+   * @param repositoryService
+   *          The repository service
+   * @param params
+   *          The initialization parameters
+   * @throws ConfigurationException
+   *           The exception is thrown if can not initialize service
+   */
   public JCROrganizationServiceImpl(RepositoryService repositoryService, InitParams params) throws ConfigurationException {
     // TODO Searching Repository Content should be enabled
     String workspace = params.getValueParam(STORAGE_WORKSPACE).getValue();
@@ -129,9 +160,17 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   }
 
   /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void stop() {
+    super.stop();
+  }
+
+  /**
    * Return org-sergvice actual storage path.
    * 
-   * @return String with path
+   * @return
    */
   String getStoragePath() {
     return storagePath;
@@ -144,7 +183,12 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
    * @throws RepositoryException
    */
   Session getStorageSession() throws RepositoryException {
-    return repository.getSystemSession(storageWorkspace);
+    try {
+      return repository.getSystemSession(storageWorkspace);
+    } catch (NullPointerException e) {
+      throw new RepositoryException("Can not get system session because repository is not initialized",
+                                    e);
+    }
   }
 
 }

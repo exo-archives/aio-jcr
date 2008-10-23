@@ -63,102 +63,168 @@ public class TestMembershipImpl extends BaseStandaloneTest {
     mtHandler = new MembershipTypeHandlerImpl(organizationService);
   }
 
-  public void testFindMembershipsByGroup() throws Exception {
-    Group g = gHandler.findGroupById("/platform/users");
-    Collection list = mHandler.findMembershipsByGroup(g);
-    assertTrue("Found " + list.size() + " memberships but 5 is present", list.size() == 5);
+  /**
+   * Find membership by specific group and check it count.
+   */
+  public void testFindMembershipsByGroup() {
+    try {
+      Group g = gHandler.findGroupById("/platform/users");
+      Collection list = mHandler.findMembershipsByGroup(g);
+      assertTrue("Found " + list.size() + " memberships but 5 is present", list.size() == 5);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testFindMembershipByUserGroupAndType() throws Exception {
-    Membership m = mHandler.findMembershipByUserGroupAndType("marry", "/platform/users", "member");
-    assertTrue("Can not find membership", m != null);
-    assertTrue("Group id is not equal '/platform/users' but equal '" + m.getGroupId() + "'",
-               m.getGroupId().equals("/platform/users"));
-    assertTrue("Membership type is not equal 'member' but equal '" + m.getMembershipType() + "'",
-               m.getMembershipType().equals("member"));
-    assertTrue("User name is not equal 'marry' but equal '" + m.getUserName() + "'",
-               m.getUserName().equals("marry"));
+  /**
+   * Find membership and check it properties.
+   */
+  public void testFindMembershipByUserGroupAndType() {
+    try {
+      Membership m = mHandler.findMembershipByUserGroupAndType("marry", "/platform/users", "member");
+      assertTrue("Can not find membership", m != null);
+      assertTrue("Group id is not equal '/platform/users' but equal '" + m.getGroupId() + "'",
+                 m.getGroupId().equals("/platform/users"));
+      assertTrue("Membership type is not equal 'member' but equal '" + m.getMembershipType() + "'",
+                 m.getMembershipType().equals("member"));
+      assertTrue("User name is not equal 'marry' but equal '" + m.getUserName() + "'",
+                 m.getUserName().equals("marry"));
 
-    m = mHandler.findMembershipByUserGroupAndType("marry_", "/platform/users", "member");
-    assertTrue("Membership is found but must be absent", m == null);
+      mHandler.findMembership(m.getId());
+      assertTrue("Can not find membership", m != null);
+
+      m = mHandler.findMembershipByUserGroupAndType("marry_", "/platform/users", "member");
+      assertTrue("Membership is found but must be absent", m == null);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testFindMembershipsByUser() throws Exception {
-    Collection list = mHandler.findMembershipsByUser("john");
-    assertTrue("Found " + list.size() + " memberships but 3 is present", list.size() == 3);
+  /**
+   * Find all membership by specific user and check it count.
+   */
+  public void testFindMembershipsByUser() {
+    try {
+      Collection list = mHandler.findMembershipsByUser("john");
+      assertTrue("Found " + list.size() + " memberships but 3 is present", list.size() == 3);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testFindMembershipsByUserAndGroup() throws Exception {
-    Collection list = mHandler.findMembershipsByUserAndGroup("john", "/platform/users");
-    assertTrue("Found " + list.size() + " memberships but 1 is present", list.size() == 1);
+  /**
+   * Find all membership by specific user and group and check it count.
+   */
+  public void testFindMembershipsByUserAndGroup() {
+    try {
+      Collection list = mHandler.findMembershipsByUserAndGroup("john", "/platform/users");
+      assertTrue("Found " + list.size() + " memberships but 1 is present", list.size() == 1);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testRemoveMembership() throws Exception {
-    createMembership("user", "group", "type");
+  /**
+   * Create new membeship and try to remove it.
+   */
+  public void testRemoveMembership() {
+    try {
+      createMembership("user", "group", "type");
 
-    Membership m = mHandler.findMembershipByUserGroupAndType("user", "/group", "type");
-    assertTrue("Can not find membership", m != null);
+      Membership m = mHandler.findMembershipByUserGroupAndType("user", "/group", "type");
+      assertTrue("Can not find membership", m != null);
 
-    m = mHandler.removeMembership(m.getId(), true);
-    assertTrue("Group id is not equal '/group' but equal '" + m.getGroupId() + "'",
-               m.getGroupId().equals("/group"));
-    assertTrue("Membership type is not equal 'type' but equal '" + m.getMembershipType() + "'",
-               m.getMembershipType().equals("type"));
-    assertTrue("User name is not equal 'user' but equal '" + m.getUserName() + "'",
-               m.getUserName().equals("user"));
+      m = mHandler.removeMembership(m.getId(), true);
+      assertTrue("Group id is not equal '/group' but equal '" + m.getGroupId() + "'",
+                 m.getGroupId().equals("/group"));
+      assertTrue("Membership type is not equal 'type' but equal '" + m.getMembershipType() + "'",
+                 m.getMembershipType().equals("type"));
+      assertTrue("User name is not equal 'user' but equal '" + m.getUserName() + "'",
+                 m.getUserName().equals("user"));
 
-    m = mHandler.findMembershipByUserGroupAndType("user", "/group", "type");
-    assertTrue("Membership is found but must be absent", m == null);
+      m = mHandler.findMembershipByUserGroupAndType("user", "/group", "type");
+      assertTrue("Membership is found but must be absent", m == null);
 
-    gHandler.removeGroup(gHandler.findGroupById("/group"), true);
-    uHandler.removeUser("user", true);
-    mtHandler.removeMembershipType("type", true);
+      gHandler.removeGroup(gHandler.findGroupById("/group"), true);
+      uHandler.removeUser("user", true);
+      mtHandler.removeMembershipType("type", true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
+
   }
 
-  public void testRemoveMembershipByUser() throws Exception {
-    createMembership("user", "group", "type");
+  /**
+   * Create membership and than try to remove it by specific user.
+   */
+  public void testRemoveMembershipByUser() {
+    try {
+      createMembership("user", "group", "type");
 
-    Collection list = mHandler.removeMembershipByUser("user", true);
-    assertTrue("Removed " + list.size() + " memberships but 1 was presented", list.size() == 1);
+      Collection list = mHandler.removeMembershipByUser("user", true);
+      assertTrue("Removed " + list.size() + " memberships but 1 was presented", list.size() == 1);
 
-    Membership m = mHandler.findMembershipByUserGroupAndType("user", "/group", "type");
-    assertTrue("Membership is found but must be absent", m == null);
+      Membership m = mHandler.findMembershipByUserGroupAndType("user", "/group", "type");
+      assertTrue("Membership is found but must be absent", m == null);
 
-    gHandler.removeGroup(gHandler.findGroupById("/group"), true);
-    uHandler.removeUser("user", true);
-    mtHandler.removeMembershipType("type", true);
+      gHandler.removeGroup(gHandler.findGroupById("/group"), true);
+      uHandler.removeUser("user", true);
+      mtHandler.removeMembershipType("type", true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testFindGroupByMembership() throws Exception {
-    Collection list = gHandler.findGroupByMembership("john", "manager");
-    assertTrue("Found " + list.size() + " memberships but 1 is present", list.size() == 1);
-
-    Object[] groups = list.toArray();
-    Group g = (Group) groups[0];
-    assertTrue("Group is not found", g != null);
-    assertTrue("Group description is not equal 'the /platform/users group' but equal '"
-        + g.getDescription() + "'", g.getDescription().equals("the /platform/users group"));
-    assertTrue("Group name is not equal 'users' but equal '" + g.getGroupName() + "'",
-               g.getGroupName().equals("users"));
-    assertTrue("Group groupId is not equal '/platform/users' but equal '" + g.getId() + "'",
-               g.getId().equals("/platform/users"));
-    assertTrue("Group label is not equal 'Users' but equal '" + g.getLabel() + "'",
-               g.getLabel().equals("Users"));
-    assertTrue("Group parentId is not equal '/platform' but equal '" + g.getParentId() + "'",
-               g.getParentId().equals("/platform"));
+  /**
+   * Find groups by membership and check it count.
+   */
+  public void testFindGroupByMembership() {
+    try {
+      Collection list = gHandler.findGroupByMembership("john", "manager");
+      assertTrue("Found " + list.size() + " memberships but 1 is present", list.size() == 1);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
+  /**
+   * Find groups and check it count.
+   */
   public void testFindGroupsOfUser() throws Exception {
-    Collection list = gHandler.findGroupByMembership("james", null);
-    assertTrue("Found " + list.size() + " memberships but 2 is present", list.size() == 2);
+    try {
+      Collection list = gHandler.findGroupByMembership("james", null);
+      assertTrue("Found " + list.size() + " memberships but 2 is present", list.size() == 2);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
+  /**
+   * Find users by group and check it count.
+   */
   public void testFindUsersByGroup() throws Exception {
-    PageList pList = uHandler.findUsersByGroup("/platform/users");
-    Object list[] = pList.getAll().toArray();
+    try {
+      PageList pList = uHandler.findUsersByGroup("/platform/users");
+      Object list[] = pList.getAll().toArray();
 
-    assertTrue("Found " + pList.getAll().size() + " users but 5 is present",
-               pList.getAll().size() == 5);
+      assertTrue("Found " + pList.getAll().size() + " users but 5 is present", pList.getAll()
+                                                                                    .size() == 5);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
+
   }
 
   /**
@@ -168,31 +234,37 @@ public class TestMembershipImpl extends BaseStandaloneTest {
     super.tearDown();
   }
 
-  private void createMembership(String userName, String groupName, String type) throws Exception {
-    // create users
-    User u = uHandler.createUserInstance(userName);
-    u.setEmail("email");
-    u.setFirstName("first");
-    u.setLastName("last");
-    u.setPassword("pwd");
-    uHandler.createUser(u, true);
+  private void createMembership(String userName, String groupName, String type) {
+    try {
+      // create users
+      User u = uHandler.createUserInstance(userName);
+      u.setEmail("email");
+      u.setFirstName("first");
+      u.setLastName("last");
+      u.setPassword("pwd");
+      uHandler.createUser(u, true);
 
-    // create groups
-    Group g = gHandler.createGroupInstance();
-    g.setGroupName(groupName);
-    g.setLabel("label");
-    g.setDescription("desc");
-    gHandler.createGroup(g, true);
+      // create groups
+      Group g = gHandler.createGroupInstance();
+      g.setGroupName(groupName);
+      g.setLabel("label");
+      g.setDescription("desc");
+      gHandler.createGroup(g, true);
 
-    // Create membership types
-    MembershipType mt = mtHandler.createMembershipTypeInstance();
-    mt.setName(type);
-    mt.setDescription("desc");
-    mtHandler.createMembershipType(mt, true);
+      // Create membership types
+      MembershipType mt = mtHandler.createMembershipTypeInstance();
+      mt.setName(type);
+      mt.setDescription("desc");
+      mtHandler.createMembershipType(mt, true);
 
-    // Create membership
-    Membership m = new MembershipImpl(null, userName, "/" + groupName, type);
-    mHandler.createMembership(m, true);
+      // Create membership
+      Membership m = new MembershipImpl(null, userName, "/" + groupName, type);
+      mHandler.createMembership(m, true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
 }

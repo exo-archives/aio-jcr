@@ -234,4 +234,10 @@ public class UserImpl implements User {
     return UUId;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    return "[user=" + getUserName() + "]";
+  }
 }

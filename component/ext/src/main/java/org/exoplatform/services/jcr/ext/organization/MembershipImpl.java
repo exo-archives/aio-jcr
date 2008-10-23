@@ -106,4 +106,12 @@ public class MembershipImpl implements Membership {
     membershipType = type;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public String toString() {
+    return "[groupId=" + getGroupId() + "][type=" + getMembershipType() + "][user=" + getUserName()
+        + "]";
+  }
+
 }

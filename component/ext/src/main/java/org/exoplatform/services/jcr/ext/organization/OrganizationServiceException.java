@@ -26,10 +26,24 @@ package org.exoplatform.services.jcr.ext.organization;
  */
 public class OrganizationServiceException extends Exception {
 
+  /**
+   * OrganizationServiceException constructor.
+   * 
+   * @param message
+   *          The message to display
+   * @param cause
+   *          The cause of exception
+   */
   public OrganizationServiceException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * OrganizationServiceException constructor.
+   * 
+   * @param message
+   *          The message to display
+   */
   public OrganizationServiceException(String message) {
     super(message);
   }

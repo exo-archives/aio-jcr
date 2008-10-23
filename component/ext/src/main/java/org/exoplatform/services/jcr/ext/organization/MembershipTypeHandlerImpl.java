@@ -27,6 +27,9 @@ import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
+import org.apache.commons.logging.Log;
+
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 
@@ -38,8 +41,14 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
  */
 public class MembershipTypeHandlerImpl extends CommonHandler implements MembershipTypeHandler {
 
+  /**
+   * Membership type property that contain description.
+   */
   public static final String                 EXO_DESCRIPTION              = "exo:description";
 
+  /**
+   * The node to storage membership types.
+   */
   public static final String                 STORAGE_EXO_MEMBERSHIP_TYPES = "exo:membershipTypes";
 
   /**
@@ -58,9 +67,18 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   }
 
   /**
+   * Log.
+   */
+  protected static Log log = ExoLogger.getLogger("jcr.MembershipTypeHandler");
+
+  /**
    * {@inheritDoc}
    */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("MembershipType.createMembershipType method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
@@ -82,6 +100,10 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public MembershipType createMembershipTypeInstance() {
+    if (log.isDebugEnabled()) {
+      log.debug("MembershipType.createMembershipTypeInstance method is started");
+    }
+
     return new MembershipTypeImpl();
   }
 
@@ -89,19 +111,12 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public MembershipType findMembershipType(String name) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("MembershipType.findMembershipType method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
-      // test
-      if (name.equals("*")
-          && !session.itemExists(service.getStoragePath() + "/" + STORAGE_EXO_MEMBERSHIP_TYPES
-              + "/" + name)) {
-
-        MembershipType mt = service.getMembershipTypeHandler().createMembershipTypeInstance();
-        mt.setName(name);
-        mt.setDescription("Any membership");
-        service.getMembershipTypeHandler().createMembershipType(mt, true);
-      }
-
       Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
       return readObjectFromNode(mtNode);
@@ -119,6 +134,10 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public Collection findMembershipTypes() throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("MembershipType.findMembershipTypes method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       List<MembershipType> types = new ArrayList<MembershipType>();
@@ -131,6 +150,7 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       }
 
       return types;
+
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership types", e);
     } finally {
@@ -142,6 +162,10 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("MembershipType.removeMembershipType method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
@@ -177,6 +201,10 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
    * {@inheritDoc}
    */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("MembershipType.saveMembershipType method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;

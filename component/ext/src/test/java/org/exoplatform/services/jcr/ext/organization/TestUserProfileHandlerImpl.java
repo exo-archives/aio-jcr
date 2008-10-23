@@ -35,8 +35,6 @@ import org.exoplatform.services.organization.UserProfileHandler;
  * @version $Id: TestUserProfileHandlerImpl.java 111 2008-11-11 11:11:11Z $
  */
 public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
-  private Calendar                   calendar;
-
   private JCROrganizationServiceImpl organizationService;
 
   private UserHandler                uHandler;
@@ -55,81 +53,146 @@ public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
     uHandler = new UserHandlerImpl(organizationService);
   }
 
-  public void testFindUserProfileByName() throws Exception {
-    createUserProfile("user");
+  /**
+   * Find user profile by user name and check attributes.
+   */
+  public void testFindUserProfileByName() {
+    UserProfile up;
+    try {
+      createUserProfile("userP1", true);
+      up = upHandler.findUserProfileByName("userP1");
+      assertTrue("Can not find user profile by name 'userP1'", up != null);
+      assertTrue("User name is not equal 'userP1' but equal '" + up.getUserName() + "'",
+                 up.getUserName().equals("userP1"));
+      assertTrue("Attribute 'key1' is not equal 'value1' but equal '" + up.getAttribute("key1")
+          + "'", up.getAttribute("key1").equals("value1"));
+      assertTrue("Attribute 'key2' is not equal 'value2' but equal '" + up.getAttribute("key2")
+          + "'", up.getAttribute("key2").equals("value2"));
+      uHandler.removeUser("userP1", true);
 
-    UserProfile up = upHandler.findUserProfileByName("user");
-    assertTrue("Can not find user profile by name 'user'", up != null);
-    assertTrue("User name is not equal 'user' but equal '" + up.getUserName() + "'",
-               up.getUserName().equals("user"));
-    assertTrue("Attribute 'key1' is not equal 'value1' but equal '" + up.getAttribute("key1") + "'",
-               up.getAttribute("key1").equals("value1"));
-    assertTrue("Attribute 'key2' is not equal 'value2' but equal '" + up.getAttribute("key2") + "'",
-               up.getAttribute("key2").equals("value2"));
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
 
-    uHandler.removeUser("user", true);
+    try {
+      createUserProfile("userP2", false);
+      up = upHandler.findUserProfileByName("userP2");
+      assertTrue("User profile 'userP2' is found", up == null);
+      uHandler.removeUser("userP2", true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testFindUserProfiles() throws Exception {
-    createUserProfile("user");
+  /**
+   * Find all profiles and check it count.
+   */
+  public void testFindUserProfiles() {
+    try {
+      createUserProfile("userP3", true);
+      createUserProfile("userP4", true);
 
-    Collection list = upHandler.findUserProfiles();
-    assertTrue("Found " + list.size() + " user profiles.", list.size() == 1);
+      Collection list = upHandler.findUserProfiles();
+      assertTrue("Found " + list.size() + " user profiles.", list.size() == 2);
 
-    uHandler.removeUser("user", true);
+      uHandler.removeUser("userP3", true);
+      uHandler.removeUser("userP4", true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testRemoveUserProfile() throws Exception {
-    createUserProfile("user");
+  /**
+   * Create user profile and than try to remove it.
+   */
+  public void testRemoveUserProfile() {
+    UserProfile up;
+    try {
+      createUserProfile("userP5", true);
 
-    UserProfile up = upHandler.removeUserProfile("user", true);
-    assertTrue("Attribute 'key1' is not equal 'value1' but equal '" + up.getAttribute("key1") + "'",
-               up.getAttribute("key1").equals("value1"));
-    assertTrue("Attribute 'key2' is not equal 'value2' but equal '" + up.getAttribute("key2") + "'",
-               up.getAttribute("key2").equals("value2"));
+      up = upHandler.removeUserProfile("userP5", true);
+      assertTrue("Attribute 'key1' is not equal 'value1' but equal '" + up.getAttribute("key1")
+          + "'", up.getAttribute("key1").equals("value1"));
+      assertTrue("Attribute 'key2' is not equal 'value2' but equal '" + up.getAttribute("key2")
+          + "'", up.getAttribute("key2").equals("value2"));
 
-    up = upHandler.findUserProfileByName("user");
-    assertTrue("User profile still present but was removed", up == null);
+      up = upHandler.findUserProfileByName("userP5");
+      uHandler.removeUser("userP5", true);
+      assertTrue("User profile still present but was removed", up == null);
 
-    uHandler.removeUser("user", true);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
+
+    try {
+      up = upHandler.removeUserProfile("userP6", true);
+      assertTrue("User profile 'userP6' is removed", up == null);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  public void testSaveUserProfile() throws Exception {
-    createUserProfile("user");
-    UserProfile up = upHandler.findUserProfileByName("user");
-    up.setAttribute("key1", "value11");
-    up.setAttribute("key2", null);
-    upHandler.saveUserProfile(up, true);
+  /**
+   * Create user profile, make changes, save and than try to check it.
+   */
+  public void testSaveUserProfile() {
+    try {
+      createUserProfile("userP7", true);
 
-    up = upHandler.findUserProfileByName("user");
-    assertTrue("Attribute 'key1' is not equal 'value11' but equal '" + up.getAttribute("key1")
-        + "'", up.getAttribute("key1").equals("value11"));
-    assertTrue("Attribute 'key2' is not equal 'null' but equal '" + up.getAttribute("key2") + "'",
-               up.getAttribute("key2") == null);
+      UserProfile up = upHandler.findUserProfileByName("userP7");
+      up.setAttribute("key1", "value11");
+      up.setAttribute("key2", null);
+      upHandler.saveUserProfile(up, true);
 
-    uHandler.removeUser("user", true);
+      up = upHandler.findUserProfileByName("userP7");
+      assertTrue("Attribute 'key1' is not equal 'value11' but equal '" + up.getAttribute("key1")
+          + "'", up.getAttribute("key1").equals("value11"));
+      assertTrue("Attribute 'key2' is not equal 'null' but equal '" + up.getAttribute("key2") + "'",
+                 up.getAttribute("key2") == null);
+
+      uHandler.removeUser("userP7", true);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
-  private void createUserProfile(String userName) throws Exception {
-    calendar = Calendar.getInstance();
-    calendar.set(2008, 1, 1);
-
+  /**
+   * Create user with profile.
+   */
+  private void createUserProfile(String userName, boolean createProfile) {
     // create users
-    User u = uHandler.createUserInstance();
-    u.setEmail("email");
-    u.setFirstName("first");
-    u.setLastLoginTime(calendar.getTime());
-    u.setCreatedDate(calendar.getTime());
-    u.setLastName("last");
-    u.setPassword("pwd");
-    u.setUserName(userName);
-    uHandler.createUser(u, true);
+    try {
+      User u = uHandler.createUserInstance();
+      u.setEmail("email");
+      u.setFirstName("first");
+      u.setLastLoginTime(Calendar.getInstance().getTime());
+      u.setCreatedDate(Calendar.getInstance().getTime());
+      u.setLastName("last");
+      u.setPassword("pwd");
+      u.setUserName(userName);
+      uHandler.createUser(u, true);
 
-    // create profile
-    UserProfile up = upHandler.createUserProfileInstance(userName);
-    up.setAttribute("key1", "value1");
-    up.setAttribute("key2", "value2");
-    upHandler.saveUserProfile(up, true);
+      // create profile
+      if (createProfile) {
+        UserProfile up = upHandler.createUserProfileInstance(userName);
+        up.setAttribute("key1", "value1");
+        up.setAttribute("key2", "value2");
+        upHandler.saveUserProfile(up, true);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
   }
 
   /**

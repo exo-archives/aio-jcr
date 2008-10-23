@@ -27,6 +27,9 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.Session;
 
+import org.apache.commons.logging.Log;
+
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.UserProfile;
 import org.exoplatform.services.organization.UserProfileEventListener;
 import org.exoplatform.services.organization.UserProfileHandler;
@@ -39,14 +42,25 @@ import org.exoplatform.services.organization.UserProfileHandler;
  */
 public class UserProfileHandlerImpl extends CommonHandler implements UserProfileHandler {
 
+  /**
+   * The child not to storage users profile properties.
+   */
   public static final String                     EXO_ATTRIBUTES = "exo:attributes";
 
+  /**
+   * The list of listeners to broadcast events.
+   */
   protected final List<UserProfileEventListener> listeners      = new ArrayList<UserProfileEventListener>();
 
   /**
    * Organization service implementation covering the handler.
    */
   protected final JCROrganizationServiceImpl     service;
+
+  /**
+   * Log.
+   */
+  protected static Log                           log            = ExoLogger.getLogger("jcr.UserProfileHandlerImpl");
 
   /**
    * UserProfileHandlerImpl constructor.
@@ -69,6 +83,10 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance() {
+    if (log.isDebugEnabled()) {
+      log.debug("UserProfile.createUserProfileInstance() method is started");
+    }
+
     return new UserProfileImpl();
   }
 
@@ -76,6 +94,10 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public UserProfile createUserProfileInstance(String userName) {
+    if (log.isDebugEnabled()) {
+      log.debug("UserProfile.createUserProfileInstance(String) method is started");
+    }
+
     return new UserProfileImpl(userName);
   }
 
@@ -83,16 +105,29 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public UserProfile findUserProfileByName(String userName) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("UserProfile.findUserProfileByName method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       String uPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
           + userName;
+
+      // if user is absent return null
       if (!session.itemExists(uPath)) {
         return null;
       }
 
       Node uNode = (Node) session.getItem(uPath);
-      Node attrNode = uNode.getNode(UserHandlerImpl.EXO_PROFILE).getNode(EXO_ATTRIBUTES);
+
+      // if attributes is absent return null
+      String attrPath = uPath + "/" + UserHandlerImpl.EXO_PROFILE + "/" + EXO_ATTRIBUTES;
+      if (!session.itemExists(attrPath)) {
+        return null;
+      }
+
+      Node attrNode = (Node) session.getItem(attrPath);
 
       UserProfile userProfile = new UserProfileImpl(userName);
       for (PropertyIterator props = attrNode.getProperties(); props.hasNext();) {
@@ -105,8 +140,6 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       }
       return userProfile;
 
-    } catch (PathNotFoundException e) {
-      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find user profile", e);
     } finally {
@@ -118,6 +151,10 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public Collection findUserProfiles() throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("UserProfile.findUserProfiles method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       List<UserProfile> types = new ArrayList<UserProfile>();
@@ -134,7 +171,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       return types;
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find user profile", e);
+      throw new OrganizationServiceException("Can not find user profiles", e);
     } finally {
       session.logout();
     }
@@ -145,23 +182,35 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("UserProfile.removeUserProfile method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       UserProfile userProfile = findUserProfileByName(userName);
-      if (userProfile != null) {
-        Node profileNode = (Node) session.getItem(service.getStoragePath() + "/"
-            + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/"
-            + UserHandlerImpl.EXO_PROFILE);
-        profileNode.remove();
-        session.save();
-        return userProfile;
+      if (userProfile == null) {
+        return null;
       }
-      throw new OrganizationServiceException("Can not find user '" + userName
-          + "' for remove profile.");
+
+      Node profileNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/" + UserHandlerImpl.EXO_PROFILE);
+
+      if (broadcast) {
+        preDelete(userProfile);
+      }
+
+      profileNode.remove();
+      session.save();
+
+      if (broadcast) {
+        postDelete(userProfile);
+      }
+
+      return userProfile;
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not remove user profile for user '" + userName
-          + "'", e);
+      throw new OrganizationServiceException("Can not remove '" + userName + "' profile", e);
     } finally {
       session.logout();
     }
@@ -181,6 +230,10 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("UserProfile.saveUserProfile method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
@@ -200,19 +253,83 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       }
       Node attrNode = profileNode.getNode(EXO_ATTRIBUTES);
 
+      if (broadcast) {
+        preSave(profile, false);
+      }
+
       Object[] keys = profile.getUserInfoMap().keySet().toArray();
       for (int i = 0; i < keys.length; i++) {
         String key = (String) keys[i];
-        attrNode.setProperty((String) keys[i], profile.getAttribute((String) keys[i]));
+        attrNode.setProperty(key, profile.getAttribute(key));
       }
 
       session.save();
 
+      if (broadcast) {
+        postSave(profile, false);
+      }
+
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save user profile for user '"
-          + profile.getUserName() + "'", e);
+      throw new OrganizationServiceException("Can not save '" + profile.getUserName() + "' profile",
+                                             e);
     } finally {
       session.logout();
     }
+  }
+
+  /**
+   * PreSave event.
+   * 
+   * @param group
+   *          The group to save
+   * @param isNew
+   *          Is it new group or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preSave(UserProfile userProfile, boolean isNew) throws Exception {
+    for (UserProfileEventListener listener : listeners)
+      listener.preSave(userProfile, isNew);
+  }
+
+  /**
+   * PostSave event.
+   * 
+   * @param group
+   *          The group to save
+   * @param isNew
+   *          Is it new group or not
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postSave(UserProfile userProfile, boolean isNew) throws Exception {
+    for (UserProfileEventListener listener : listeners)
+      listener.postSave(userProfile, isNew);
+  }
+
+  /**
+   * PreDelete event.
+   * 
+   * @param group
+   *          The group to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void preDelete(UserProfile userProfile) throws Exception {
+    for (UserProfileEventListener listener : listeners)
+      listener.preDelete(userProfile);
+  }
+
+  /**
+   * PostDelete event.
+   * 
+   * @param group
+   *          The group to delete
+   * @throws Exception
+   *           If listeners fail to handle the user event
+   */
+  private void postDelete(UserProfile userProfile) throws Exception {
+    for (UserProfileEventListener listener : listeners)
+      listener.postDelete(userProfile);
   }
 }

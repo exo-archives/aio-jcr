@@ -27,8 +27,11 @@ import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 
+import org.apache.commons.logging.Log;
+
 import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserEventListener;
 import org.exoplatform.services.organization.UserHandler;
@@ -43,30 +46,65 @@ import org.exoplatform.services.organization.UserHandler;
  */
 public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
+  /**
+   * The user property that contain the date of creation.
+   */
   public static final String                 EXO_CREATED_DATE    = "exo:createdDate";
 
+  /**
+   * The user property that contain email.
+   */
   public static final String                 EXO_EMAIL           = "exo:email";
 
+  /**
+   * The user property that contain fist name.
+   */
   public static final String                 EXO_FIRST_NAME      = "exo:firstName";
 
+  /**
+   * The user property that contain last login time.
+   */
   public static final String                 EXO_LAST_LOGIN_TIME = "exo:lastLoginTime";
 
+  /**
+   * The user property that contain last name.
+   */
   public static final String                 EXO_LAST_NAME       = "exo:lastName";
 
+  /**
+   * The child node to storage membership properties.
+   */
   public static final String                 EXO_MEMBERSHIP      = "exo:membership";
 
+  /**
+   * The user property that contain password.
+   */
   public static final String                 EXO_PASSWORD        = "exo:password";
 
+  /**
+   * The child node to storage user addition information.
+   */
   public static final String                 EXO_PROFILE         = "exo:profile";
 
+  /**
+   * The node to storage users.
+   */
   public static final String                 STORAGE_EXO_USERS   = "exo:users";
 
+  /**
+   * The list of listeners to broadcast the events.
+   */
   protected final List<UserEventListener>    listeners           = new ArrayList<UserEventListener>();
 
   /**
    * Organization service implementation covering the handler.
    */
   protected final JCROrganizationServiceImpl service;
+
+  /**
+   * Log.
+   */
+  protected static Log                       log                 = ExoLogger.getLogger("jcr.UserHandlerImpl");
 
   /**
    * UserHandlerImpl constructor.
@@ -89,6 +127,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public boolean authenticate(String username, String password) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.authenticate method is started");
+    }
+
     User user = findUserByName(username);
     boolean authenticated = (user != null ? user.getPassword().equals(password) : false);
     if (authenticated) {
@@ -102,6 +144,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public void createUser(User user, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.createUser method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
@@ -135,6 +181,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public User createUserInstance() {
+    if (log.isDebugEnabled()) {
+      log.debug("User.createUserInstance() method is started");
+    }
+
     return new UserImpl();
   }
 
@@ -142,6 +192,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public User createUserInstance(String username) {
+    if (log.isDebugEnabled()) {
+      log.debug("User.createUserInstance(String) method is started");
+    }
+
     return new UserImpl(username);
   }
 
@@ -149,6 +203,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public User findUserByName(String userName) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.findUserByName method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
@@ -168,19 +226,23 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.findUsers method is started");
+    }
+
     String where = "";
     where = "jcr:path LIKE '" + "%" + "'";
     if (query.getEmail() != null) {
       where = where + (where.length() == 0 ? "" : " AND ")
-          + ("exo:email LIKE '" + replaceAsterix(query.getEmail()) + "'");
+          + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
     }
     if (query.getFirstName() != null) {
       where = where + (where.length() == 0 ? "" : " AND ")
-          + ("exo:firstName LIKE '" + replaceAsterix(query.getFirstName()) + "'");
+          + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
     }
     if (query.getLastName() != null) {
       where = where + (where.length() == 0 ? "" : " AND ")
-          + ("exo:lastName LIKE '" + replaceAsterix(query.getLastName()) + "'");
+          + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
     }
 
     List<User> types = new ArrayList<User>();
@@ -214,27 +276,21 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList findUsersByGroup(String groupId) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.findUsersByGroup method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       List<User> users = new ArrayList<User>();
 
       // get UUId of the group
-      Node gNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId);
-
-      // find group
-      String statement = "select * from exo:group where jcr:uuid='" + gNode.getUUID() + "'";
-      Query gquery = service.getStorageSession()
-                            .getWorkspace()
-                            .getQueryManager()
-                            .createQuery(statement, Query.SQL);
-      QueryResult gres = gquery.execute();
-      if (gres.getNodes().hasNext()) {
-        // has group
-        Node groupNode = gres.getNodes().nextNode();
+      String gPath = service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId;
+      if (session.itemExists(gPath)) {
+        Node gNode = (Node) session.getItem(gPath);
 
         // find memberships
-        statement = "select * from exo:userMembership where exo:group='" + groupNode.getUUID()
+        String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
             + "'";
         Query mquery = service.getStorageSession()
                               .getWorkspace()
@@ -243,6 +299,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
         QueryResult mres = mquery.execute();
         for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
           Node membership = membs.nextNode();
+
+          // get user
           Node userNode = membership.getParent();
           User user = findUserByName(userNode.getName());
           if (user != null) {
@@ -265,6 +323,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList getUserPageList(int pageSize) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.getUserPageList method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       List<User> types = new ArrayList<User>();
@@ -289,10 +351,18 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public User removeUser(String userName, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.removeUser method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
-          + userName);
+      String uPath = service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/" + userName;
+      if (!session.itemExists(uPath)) {
+        return null;
+      }
+
+      Node uNode = (Node) session.getItem(uPath);
       User user = findUserByName(userName);
 
       if (broadcast) {
@@ -329,6 +399,10 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public void saveUser(User user, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.saveUser method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
       UserImpl userImpl = (UserImpl) user;
@@ -482,23 +556,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   }
 
   /**
-   * ReplaceAsterix replace char '*' to '%' from start and end if string starts and ends with '*'.
-   * 
-   * @param str
-   *          String to replace char
-   * @return String with replaced chars or the same string
-   */
-  private String replaceAsterix(String str) {
-    if (str.startsWith("*")) {
-      str = "%" + str.substring(1);
-    }
-    if (str.endsWith("*")) {
-      str = str.substring(0, str.length() - 1) + "%";
-    }
-    return str;
-  }
-
-  /**
    * RemoveAsterix remove char '*' from start and end if string starts and ends with '*'.
    * 
    * @param str
@@ -514,4 +571,5 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     }
     return str;
   }
+
 }
