@@ -1180,7 +1180,7 @@ public class SDBWorkspaceStorageConnection implements WorkspaceStorageConnection
                                                                              .withNextToken(nextToken)
                                                                              .withAttributeName(ICLASS);
 
-        QueryWithAttributesResponse resp = sdbService.queryWithAttributes(request);
+        QueryWithAttributesResponse resp = invokeQuery(sdbService, request);
 
         if (resp.isSetQueryWithAttributesResult()) {
           QueryWithAttributesResult res = resp.getQueryWithAttributesResult();
