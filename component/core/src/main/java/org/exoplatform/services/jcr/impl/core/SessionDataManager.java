@@ -1039,13 +1039,13 @@ public class SessionDataManager implements ItemDataConsumer {
 
     List<ItemState> changes = changesLog.getAllStates();
     for (ItemState itemState : changes) {
-
+      // mixinChanged added because change permission is: internally created and mixinChanged.
       if (itemState.isInternallyCreated() && !itemState.isMixinChanged()) {
         continue;
       }
 
       final boolean isDescendant = itemState.isDescendantOf(path);
-
+      // Check correct size of acl. If no permissions in the list throw exception.
       if (isDescendant && itemState.isMixinChanged()) {
         if (((NodeData) itemState.getData()).getACL().getPermissionsSize() < 1) {
           throw new RepositoryException("Node " + itemState.getData().getQPath().getAsString()
