@@ -858,12 +858,14 @@ public class TestAccess extends BaseStandaloneTest {
 
     try {
       session.checkPermission(testRoot.getPath(), PermissionType.READ);
+      fail();
     } catch (AccessControlException e1) {
       // ok
     }
 
     try {
       session.save();
+      fail();
     } catch (RepositoryException e) {
       // ok
     }
@@ -877,6 +879,7 @@ public class TestAccess extends BaseStandaloneTest {
     testRoot2.setPermission(SystemIdentity.ANY, new String[] {});
     try {
       session.save();
+      fail();
     } catch (RepositoryException e) {
       // ok
     }
