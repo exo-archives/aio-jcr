@@ -34,8 +34,8 @@ public class CmdHelp extends FtpCommandImpl {
   }
 
   public void run(String[] params) throws IOException {
-    for (int i = 0; i < FtpConst.eXoHelpInfo.length; i++) {
-      reply(FtpConst.eXoHelpInfo[i]);
+    for (int i = 0; i < FtpConst.EXO_HELP_INFO.length; i++) {
+      reply(FtpConst.EXO_HELP_INFO[i]);
     }
   }
 

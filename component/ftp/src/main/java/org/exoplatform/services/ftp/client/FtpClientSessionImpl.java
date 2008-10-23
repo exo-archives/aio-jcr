@@ -126,8 +126,8 @@ public class FtpClientSessionImpl implements FtpClientSession {
   }
 
   protected void welcomeClient() throws IOException {
-    for (int i = 0; i < FtpConst.eXoLogo.length; i++) {
-      reply(FtpConst.eXoLogo[i]);
+    for (int i = 0; i < FtpConst.EXO_LOGO.length; i++) {
+      reply(FtpConst.EXO_LOGO[i]);
     }
   }
 

@@ -23,72 +23,160 @@ import org.exoplatform.services.ftp.FtpConst;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
+ * Created by The eXo Platform SAS Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>.
  * 
  * @version $Id: $
  */
-
 public class FtpConfigImpl implements FtpConfig {
 
   private static Log         log                             = ExoLogger.getLogger(FtpConst.FTP_PREFIX
                                                                  + "FtpConfigImpl");
 
+  /**
+   * "command-port".
+   */
   public static final String INIT_PARAM_COMMAND_PORT         = "command-port";
 
+  /**
+   * "data-min-port".
+   */
   public static final String INIT_PARAM_DATA_MIN_PORT        = "data-min-port";
 
+  /**
+   * "data-max-port".
+   */
   public static final String INIT_PARAM_DATA_MAX_PORT        = "data-max-port";
 
+  /**
+   * "system".
+   */
   public static final String INIT_PARAM_SYSTEM               = "system";
 
+  /**
+   * "client-side-encoding".
+   */
   public static final String INIT_PARAM_CLIENT_SIDE_ENCODING = "client-side-encoding";
 
+  /**
+   * "def-folder-node-type".
+   */
   public static final String INIT_PARAM_DEF_FOLDER_NODE_TYPE = "def-folder-node-type";
 
+  /**
+   * "def-file-node-type".
+   */
   public static final String INIT_PARAM_DEF_FILE_NODE_TYPE   = "def-file-node-type";
 
+  /**
+   * "def-file-mime-type".
+   */
   public static final String INIT_PARAM_DEF_FILE_MIME_TYPE   = "def-file-mime-type";
 
+  /**
+   * "cache-folder-name".
+   */
   public static final String INIT_PARAM_CACHE_FOLDER_NAME    = "cache-folder-name";
 
+  /**
+   * "upload-speed-limit".
+   */
   public static final String INIT_PARAM_UPLOAD_SPEED_LIMIT   = "upload-speed-limit";
 
+  /**
+   * "download-speed-limit".
+   */
   public static final String INIT_PARAM_DOWNLOAD_SPEED_LIMIT = "download-speed-limit";
 
+  /**
+   * "timeout".
+   */
   public static final String INIT_PARAM_TIME_OUT             = "timeout";
 
+  /**
+   * Command port.
+   */
   private int                _commandPort                    = 21;
 
+  /**
+   * Data min port.
+   */
   private int                _dataMinPort                    = 7000;
 
+  /**
+   * Data max port.
+   */
   private int                _dataMaxPort                    = 7100;
 
+  /**
+   * System type.
+   */
   private String             _system                         = "Windows_NT";
 
+  /**
+   * Client side encoding.
+   */
   private String             _clientSideEncoding             = "";
 
+  /**
+   * Default folder node type.
+   */
   private String             _defFolderNodeType              = FtpConst.NodeTypes.NT_FOLDER;
 
+  /**
+   * Default file node type.
+   */
   private String             _defFileNodeType                = FtpConst.NodeTypes.NT_FILE;
 
+  /**
+   * Default file mimetype.
+   */
   private String             _defFileMimeType                = "application/zip";
 
+  /**
+   * Cache folder name.
+   */
   private String             _cacheFolderName                = "";
 
+  /**
+   * Is need slow upload.
+   */
   private boolean            _needSlowUpLoad                 = false;
 
+  /**
+   * Upload speed.
+   */
   private int                _upLoadSpeed                    = 0;
 
+  /**
+   * Is need slow download.
+   */
   private boolean            _needSlowDownLoad               = false;
 
+  /**
+   * Download speed.
+   */
   private int                _downLoadSpeed                  = 0;
 
+  /**
+   * Is need timeout.
+   */
   private boolean            _needTimeOut                    = false;
 
+  /**
+   * Timeout value.
+   */
   private int                _timeOutValue                   = 0;
 
+  /**
+   * Is enable trace.
+   */
   protected boolean          ENABLE_TRACE                    = true;
 
+  /**
+   * Constructor.
+   * 
+   * @param InitParams
+   */
   public FtpConfigImpl(InitParams params) {
 
     ValueParam pCommandPort = params.getValueParam(INIT_PARAM_COMMAND_PORT);
