@@ -27,6 +27,16 @@ import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
  */
 public class SimpleS3IOChannel extends S3IOChannel {
 
+  /**
+   * SimpleS3IOChannel  constructor.
+   *
+   * @param bucket S3 bucket name
+   * @param awsAccessKey AccessKey 
+   * @param awsSecretAccessKey SecretAccessKey
+   * @param s3SwapDirectory SwapDirectory
+   * @param cleaner FileCleaner
+   * @param storageId JCR storage ID.
+   */
   public SimpleS3IOChannel(String bucket,
                            String awsAccessKey,
                            String awsSecretAccessKey,
@@ -36,18 +46,15 @@ public class SimpleS3IOChannel extends S3IOChannel {
     super(bucket, awsAccessKey, awsSecretAccessKey, s3SwapDirectory, cleaner, storageId);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.storage.value.s3.S3IOChannel#getFile(java.lang.String,
-   * int)
+  /**
+   * {@inheritDoc}
    */
   protected String getFile(String propertyId, int orderNumber) {
     return propertyId + orderNumber;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.storage.value.s3.S3IOChannel#getFiles(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   protected String[] getFiles(String propertyId) {
     try {

@@ -78,7 +78,7 @@ public class S3ValueIOUtil {
     InputStream in = resp.connection.getInputStream();
 
     if (size > maxBufferSize) {
-      SwapFile swapFile = SwapFile.get(swapDir, s3fielName + orderNum);
+      SwapFile swapFile = SwapFile.get(swapDir, s3fielName); // + orderNumber removed
       if (!swapFile.isSpooled()) {
         FileOutputStream fout = new FileOutputStream(swapFile);
         try {
