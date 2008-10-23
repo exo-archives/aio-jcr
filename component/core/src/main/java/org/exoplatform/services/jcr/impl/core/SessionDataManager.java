@@ -1039,8 +1039,10 @@ public class SessionDataManager implements ItemDataConsumer {
 
     List<ItemState> changes = changesLog.getAllStates();
     for (ItemState itemState : changes) {
-      if (itemState.isInternallyCreated())
+
+      if (itemState.isInternallyCreated() && !itemState.isMixinChanged()) {
         continue;
+      }
 
       final boolean isDescendant = itemState.isDescendantOf(path);
 
