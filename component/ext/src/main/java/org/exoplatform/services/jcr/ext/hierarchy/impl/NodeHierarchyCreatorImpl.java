@@ -199,9 +199,14 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
 
   public Node getUserApplicationNode(SessionProvider sessionProvider, String userName) throws Exception {
     Node userNode = getUserNode(sessionProvider, userName);
-    if (userNode.hasNode(getJcrPath(USER_APPLICATION)))
-      return userNode.getNode(getJcrPath(USER_APPLICATION));
-    return userNode.addNode(getJcrPath(USER_APPLICATION));
+    Node userAppNode = null;
+    try {
+      userAppNode = userNode.getNode(getJcrPath(USER_APPLICATION));
+    } catch(PathNotFoundException e) {
+      userAppNode = userNode.addNode(getJcrPath(USER_APPLICATION));
+      userNode.save();
+    }
+    return userAppNode;
   }
 
   public Node getPublicApplicationNode(SessionProvider sessionProvider) throws Exception {
@@ -221,9 +226,14 @@ public class NodeHierarchyCreatorImpl implements NodeHierarchyCreator, Startable
                                  currentRepo,
                                  currentRepo.getConfiguration().getDefaultWorkspaceName());
     Node usersNode = (Node) session.getItem(userPath);
-    if (usersNode.hasNode(userName))
-      return usersNode.getNode(userName);
-    return usersNode.addNode(userName);
+    Node userNode = null;
+    try {
+      userNode = usersNode.getNode(userName);
+    } catch(PathNotFoundException e) {
+      userNode = usersNode.addNode(userName);
+      usersNode.save();
+    }
+    return userNode;
   }
 
   private Session getSession(SessionProvider sessionProvider,

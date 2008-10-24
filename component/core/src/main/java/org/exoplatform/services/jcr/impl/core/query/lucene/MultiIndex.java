@@ -958,7 +958,8 @@ public class MultiIndex {
       resetVolatileIndex();
 
       time = System.currentTimeMillis() - time;
-      log.info("Committed in-memory index in " + time + "ms.");
+      if (log.isDebugEnabled())
+        log.debug("Committed in-memory index in " + time + "ms.");
     }
   }
 
