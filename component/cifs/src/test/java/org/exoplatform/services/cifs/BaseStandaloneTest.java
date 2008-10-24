@@ -29,7 +29,7 @@ public abstract class BaseStandaloneTest extends TestCase {
   protected static Log            logger            = ExoLogger.getLogger("jcr.JCRTest");
 
   // jcr repository configuration file for cifs server test purposes!
-  public static String            confURL           = "conf/standalone/cifs-configuration.xml";
+  public static String            confURL           = "conf/cifs-configuration.xml";
 
   // JAAS auth file
   public static String            confAuth          = "login.conf";

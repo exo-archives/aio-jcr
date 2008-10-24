@@ -43,7 +43,7 @@
 			<!--Host name-->
 			<value-param>
 				<name>host_name</name>
-				<value>SmbUniqSrv</value>
+				<value>SmbUniqSs</value>
 			</value-param>
 
 			<!--Worgroup - if not determined used local domain name-->
