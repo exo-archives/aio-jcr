@@ -163,7 +163,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
-              <skip>${exo.tck.skip}</skip>
+              <skip>${jcr.tck.skip}</skip>
               <includes>
                 <include>**/util/Sleeping10Seconds.java</include>
               </includes>
@@ -176,7 +176,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
-              <skip>${exo.tck.skip}</skip>
+              <skip>${jcr.tck.skip}</skip>
               <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
               <forkMode>${exo.test.forkMode}</forkMode>
               <argLine>-Xmx512M</argLine>
@@ -198,7 +198,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
-              <skip>${exo.tck.skip}</skip>
+              <skip>${jcr.tck.skip}</skip>
               <includes>
                 <include>**/util/Sleeping10Seconds.java</include>
               </includes>
@@ -211,7 +211,7 @@
               <goal>test</goal>
             </goals>
             <configuration>
-              <skip>${exo.tck.skip}</skip>
+              <skip>${jcr.tck.skip}</skip>
               <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
               <forkMode>${exo.test.forkMode}</forkMode>
               <argLine>-Xmx512M</argLine>
@@ -273,7 +273,7 @@
       <properties>
         <jcr.test.configuration.file>/conf/standalone/test-configuration.xml</jcr.test.configuration.file>
 		<exo.test.skip>true</exo.test.skip>
-		<exo.tck.skip>true</exo.tck.skip>
+		<jcr.tck.skip>true</jcr.tck.skip>
       </properties>
     </profile>
   </profiles>
