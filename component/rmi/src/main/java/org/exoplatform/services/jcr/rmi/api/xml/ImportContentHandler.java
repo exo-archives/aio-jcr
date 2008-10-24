@@ -31,7 +31,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ErrorHandler;
@@ -39,14 +38,13 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-
+import org.exoplatform.services.jcr.rmi.api.client.ClientNode;
 
 /**
- * Base class for a SAX content handler for importing XML data. This class
- * provides a general mechanism for converting a SAX event stream to raw XML
- * data and feeding the received byte array into an import method. Subclasses
- * can provide different import mechanisms simply by implementing the abstract
- * {@link #importXML(byte[]) importXML(byte[])} method.
+ * Base class for a SAX content handler for importing XML data. This class provides a general
+ * mechanism for converting a SAX event stream to raw XML data and feeding the received byte array
+ * into an import method. Subclasses can provide different import mechanisms simply by implementing
+ * the abstract {@link #importXML(byte[]) importXML(byte[])} method.
  */
 public abstract class ImportContentHandler implements ContentHandler, ErrorHandler {
 
@@ -55,7 +53,9 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   /** The internal XML serializer. */
   private Session               session;
-  private TransformerHandler handler;
+
+  private TransformerHandler    handler;
+
   /**
    * Creates a SAX content handler for importing XML data.
    * 
@@ -66,35 +66,34 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
    */
 
   public ImportContentHandler(Session session, String absPath) throws VersionException,
-      ConstraintViolationException, LockException, RepositoryException {
+      ConstraintViolationException,
+      LockException,
+      RepositoryException {
     this.session = session;
 
     checkNodeImport(absPath);
     this.buffer = new ByteArrayOutputStream();
 
-      SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-      try {
-        handler = tf.newTransformerHandler();
-      } catch (TransformerConfigurationException e) {
-        throw new RepositoryException(e);
-      }
-      Transformer serializer = handler.getTransformer();
-      serializer.setOutputProperty(OutputKeys.INDENT, "no");
-      serializer.setOutputProperty(OutputKeys.METHOD, "xml");
-      
-      
-      StreamResult streamResult = new StreamResult(buffer);
-      
-      handler.setResult(streamResult);
-  }     
-  
+    SAXTransformerFactory tf = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    try {
+      handler = tf.newTransformerHandler();
+    } catch (TransformerConfigurationException e) {
+      throw new RepositoryException(e);
+    }
+    Transformer serializer = handler.getTransformer();
+    serializer.setOutputProperty(OutputKeys.INDENT, "no");
+    serializer.setOutputProperty(OutputKeys.METHOD, "xml");
+
+    StreamResult streamResult = new StreamResult(buffer);
+
+    handler.setResult(streamResult);
+  }
+
   /**
-   * Imports the given XML data. This method is called by the
-   * {@link #endDocument() endDocument()} method after the received XML stream
-   * has been serialized.
+   * Imports the given XML data. This method is called by the {@link #endDocument() endDocument()}
+   * method after the received XML stream has been serialized.
    * <p>
-   * Subclasses must implement this method to provide the actual import
-   * mechanism.
+   * Subclasses must implement this method to provide the actual import mechanism.
    * 
    * @param xml the XML data to import
    * @throws Exception on import errors
@@ -132,8 +131,7 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
   }
 
   /** {@inheritDoc} */
-  public void startElement(String uri, String localName, String qName, Attributes atts)
-      throws SAXException {
+  public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
     handler.startElement(uri, localName, qName, atts);
   }
 
@@ -166,7 +164,6 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ErrorHandler#error(org.xml.sax.SAXParseException)
    */
   public void error(SAXParseException err) throws SAXException {
@@ -176,7 +173,6 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ErrorHandler#fatalError(org.xml.sax.SAXParseException)
    */
   public void fatalError(SAXParseException err) throws SAXException {
@@ -186,7 +182,6 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   /*
    * (non-Javadoc)
-   * 
    * @see org.xml.sax.ErrorHandler#warning(org.xml.sax.SAXParseException)
    */
   public void warning(SAXParseException err) throws SAXException {
@@ -196,17 +191,17 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
 
   private void warnErrorLog(String message, Throwable exception) {
     toErrorLog("[WARN] " + (message != null && message.length() > 0 ? message + "; " : ""),
-        exception);
+               exception);
   }
 
   private void errorErrorLog(String message, Throwable exception) {
     toErrorLog("[ERROR] " + (message != null && message.length() > 0 ? message + "; " : ""),
-        exception);
+               exception);
   }
 
   private void fatalErrorLog(String message, Throwable exception) {
     toErrorLog("[FATAL] " + (message != null && message.length() > 0 ? message + "; " : ""),
-        exception);
+               exception);
   }
 
   private void toErrorLog(String message, Throwable exception) {
@@ -222,14 +217,18 @@ public abstract class ImportContentHandler implements ContentHandler, ErrorHandl
   }
 
   private void checkNodeImport(String absNodePath) throws VersionException,
-      ConstraintViolationException, LockException, RepositoryException {
-    checkNodeImport((NodeImpl) session.getItem(absNodePath));
+                                                  ConstraintViolationException,
+                                                  LockException,
+                                                  RepositoryException {
+    checkNodeImport((ClientNode) session.getItem(absNodePath));
   }
 
-  private void checkNodeImport(NodeImpl node) throws VersionException, ConstraintViolationException,
-      LockException, RepositoryException {
+  private void checkNodeImport(ClientNode node) throws VersionException,
+                                               ConstraintViolationException,
+                                               LockException,
+                                               RepositoryException {
     // checked-in check
-    if (!node.checkedOut()) {
+    if (!node.isCheckedOut()) {
       throw new VersionException("Node " + node.getPath()
           + " or its nearest ancestor is checked-in");
     }
