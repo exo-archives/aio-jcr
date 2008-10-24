@@ -44,17 +44,46 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class RecoveryReader extends AbstractFSAccess {
+  /**
+   * The apache logger.
+   */
   private static Log  log = ExoLogger.getLogger("ext.RecoveryReader");
 
+  /**
+   * The FileCleaner will delete the temporary files.
+   */
   private FileCleaner fileCleaner;
 
+  /**
+   * Definition the folder to ChangesLog.
+   */
   private File        recoveryDir;
 
+  /**
+   * RecoveryReader  constructor.
+   *
+   * @param fileCleaner
+   *          the FileCleaner
+   * @param recoveryDir
+   *          the recoveryDir
+   */
   public RecoveryReader(FileCleaner fileCleaner, File recoveryDir) {
     this.fileCleaner = fileCleaner;
     this.recoveryDir = recoveryDir;
   }
 
+  /**
+   * getChangesLog.
+   *
+   * @param filePath
+   *          full path to binary ChangesLog
+   * @return TransactionChangesLog
+   *           return the TransactionChangesLog 
+   * @throws IOException
+   *           will be generated the IOException
+   * @throws ClassNotFoundException
+   *           will be generated the ClassNotFoundException
+   */
   public TransactionChangesLog getChangesLog(String filePath) throws IOException,
                                                              ClassNotFoundException {
     ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
@@ -64,6 +93,18 @@ public class RecoveryReader extends AbstractFSAccess {
     return tcl;
   }
 
+  /**
+   * readExternal.
+   *
+   * @param in
+   *          the ObjctInputStream
+   * @return  TransactionChangesLog
+   *           return the TransactionChangesLog
+   * @throws IOException
+   *           will be generated the IOException
+   * @throws ClassNotFoundException
+   *           will be generated the ClassNotFoundException          
+   */
   private TransactionChangesLog readExternal(ObjectInputStream in) throws IOException,
                                                                   ClassNotFoundException {
     int changesLogType = in.readInt();

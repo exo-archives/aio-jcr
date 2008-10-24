@@ -42,42 +42,118 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class RecoveryManager {
 
+  /**
+   * The apache logger. 
+   */
   private static Log                                              log = ExoLogger.getLogger("ext.RecoveryManager");
 
+  /**
+   * The FileNameFactory will be created file names.
+   */
   private FileNameFactory                                         fileNameFactory;
 
+  /**
+   * The RecoveryWriter will be wrote the ChangesLog to file system.
+   */
   private RecoveryWriter                                          recoveryWriter;
 
+  /**
+   * The RecoveryReader will be read the ChangesLog on file system.
+   */
   private RecoveryReader                                          recoveryReader;
 
+  /**
+   * Definition the folder to ChangesLog.
+   */
   private File                                                    recoveryDir;
 
+  /**
+   * The FileCleaner will delete the temporary files.
+   */
   private FileCleaner                                             fileCleaner;
 
+  /**
+   * The date to ChangesLog.
+   */
   private Calendar                                                timeStamp;
 
+  /**
+   * The name of cluster node.
+   */
   private String                                                  ownName;
 
+  /**
+   * The repository name.
+   */
   private String                                                  repoName;
 
+  /**
+   * The workspace name.
+   */
   private String                                                  wsName;
 
-  private long                                                    waitConformationTimeout;
+  /**
+   * The timeout to wait confirmation.
+   */
+  private long                                                    waitConfirmationTimeout;
 
+  /**
+   * The HashMap with PendingConfirmationChengesLog.
+   */
   private volatile HashMap<String, PendingConfirmationChengesLog> mapPendingConfirmation;
 
+  /**
+   * The RecoverySynchronizer will be  initialized the recovery.
+   */
   private RecoverySynchronizer                                    recoverySynchronizer;
 
+  /**
+   * The ItemDataKeeper will be saved the ChangesLog to JCR.
+   */
   private ItemDataKeeper                                          dataKeeper;
 
+  /**
+   * The ChannalManager will be transmitted or receive the Packets.
+   */
   private ChannelManager                                          channelManager;
 
+  /**
+   * The list of names other participants.
+   */
   private List<String>                                            participantsClusterList;
 
+  /**
+   * The list of names other participants who was initialized.
+   */
   private List<String>                                            initedParticipantsClusterList;
 
+  /**
+   * The boolean flag to all members was initialized.
+   */
   private boolean                                                 isAllInited;
 
+  /**
+   * RecoveryManager  constructor.
+   *
+   * @param recoveryDir
+   *          the recovery dir
+   * @param ownName
+   *          the own name
+   * @param systemId
+   *          the system identification string
+   * @param participantsClusterList
+   *          the other participants
+   * @param waitConformation
+   *          the timeout to confirmation  
+   * @param repoName
+   *          the repository name
+   * @param wsName
+   *          the workspace name
+   * @param channelManager
+   *          the ChannelManager
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public RecoveryManager(File recoveryDir,
                          String ownName,
                          String systemId,
@@ -102,7 +178,7 @@ public class RecoveryManager {
     recoveryReader = new RecoveryReader(fileCleaner, recoveryDir);
     recoveryWriter = new RecoveryWriter(recoveryDir, fileNameFactory, fileCleaner, ownName);
     mapPendingConfirmation = new HashMap<String, PendingConfirmationChengesLog>();
-    this.waitConformationTimeout = waitConformation;
+    this.waitConfirmationTimeout = waitConformation;
     recoverySynchronizer = new RecoverySynchronizer(recoveryDir,
                                                     fileNameFactory,
                                                     fileCleaner,
@@ -117,6 +193,16 @@ public class RecoveryManager {
     isAllInited = false;
   }
 
+  /**
+   * save.
+   *
+   * @param cangesLog
+   *          the ChangesLog with data
+   * @param identifier
+   *          the identifier to ChangesLog
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public void save(ItemStateChangesLog cangesLog, String identifier) throws IOException {
     timeStamp = Calendar.getInstance();
 
@@ -126,12 +212,18 @@ public class RecoveryManager {
 
     mapPendingConfirmation.put(identifier, confirmationChengesLog);
 
-    WaitConfirmation waitConfirmationThread = new WaitConfirmation(waitConformationTimeout,
+    WaitConfirmation waitConfirmationThread = new WaitConfirmation(waitConfirmationTimeout,
                                                                    this,
                                                                    identifier);
     waitConfirmationThread.start();
   }
 
+  /**
+   * confirmationChengesLogSave.
+   *
+   * @param packet
+   *          the Packet with confirmation
+   */
   public void confirmationChengesLogSave(Packet packet) {
     PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(packet.getIdentifier());
 
@@ -159,10 +251,30 @@ public class RecoveryManager {
     }
   }
 
+  /**
+   * removeChangesLog.
+   *
+   * @param identifier
+   *          the identifier to ChangesLog
+   * @param ownerName
+   *          the member name
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public void removeChangesLog(String identifier, String ownerName) throws IOException {
     recoveryWriter.removeChangesLog(identifier, ownerName);
   }
 
+  /**
+   * save.
+   *
+   * @param identifier
+   *          the identifier of ChangesLog
+   * @return String
+   *           return the name of file
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public String save(String identifier) throws IOException {
     PendingConfirmationChengesLog confirmationChengesLog = mapPendingConfirmation.get(identifier);
 
@@ -171,14 +283,38 @@ public class RecoveryManager {
     return fileName;
   }
 
+  /**
+   * saveRemovableChangesLog.
+   *
+   * @param fileName
+   *          the name of file
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public void saveRemovableChangesLog(String fileName) throws IOException {
     recoveryWriter.saveRemoveChangesLog(fileName);
   }
 
+  /**
+   * remove.
+   *
+   * @param identifier
+   *          the identifier to ChangesLog
+   */
   public void remove(String identifier) {
     mapPendingConfirmation.remove(identifier);
   }
 
+  /**
+   * getPendingConfirmationChengesLogById.
+   *
+   * @param identifier
+   *          the identifier to ChangesLog
+   * @return PendingConfirmationChengesLog
+   *           return the PendingConfirmationChengesLog
+   * @throws Exception
+   *           will be generated the Exception
+   */
   public PendingConfirmationChengesLog getPendingConfirmationChengesLogById(String identifier) throws Exception {
     if (mapPendingConfirmation.containsKey(identifier) == true)
       return mapPendingConfirmation.get(identifier);
@@ -187,6 +323,18 @@ public class RecoveryManager {
         + identifier);
   }
 
+  /**
+   * processing.
+   *
+   * @param packet
+   *          the Packet with data
+   * @param stat
+   *         before state
+   * @return int
+   *           after state
+   * @throws Exception
+   *           will be generated the Exception
+   */
   public int processing(Packet packet, int stat) throws Exception {
     int state = stat;
 
@@ -297,23 +445,51 @@ public class RecoveryManager {
     return state;
   }
 
+  /**
+   * setDataKeeper.
+   *
+   * @param dataKeeper
+   *         the ItemDataKeeper
+   */
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
     this.dataKeeper = dataKeeper;
     recoverySynchronizer.setDataKeeper(dataKeeper);
   }
 
+  /**
+   * getParticipantsClusterList.
+   *
+   * @return List
+   *           return the other participants 
+   */
   public List<String> getParticipantsClusterList() {
     return participantsClusterList;
   }
 
+  /**
+   * Will be initialized the recovery.
+   *
+   */
   public void startRecovery() {
     recoverySynchronizer.synchronizRepository();
   }
 
+  /**
+   * getRecoveryWriter.
+   *
+   * @return RecoveryWriter
+   *           return the RecoveryWriter           
+   */
   public RecoveryWriter getRecoveryWriter() {
     return recoveryWriter;
   }
 
+  /**
+   * getRecoveryReader.
+   *
+   * @return RecoveryReader
+   *           return the RecoveryReader
+   */
   public RecoveryReader getRecoveryReader() {
     return recoveryReader;
   }

@@ -42,38 +42,104 @@ import org.jgroups.View;
  */
 
 public class ConnectionFailDetector implements ChannelListener, MembershipListener, MemberListener {
+  /**
+   * The apache logger.
+   */
   private static Log                    log          = ExoLogger.getLogger("ext.ConnectionFailDetector");
 
+  /**
+   * Definition the BEFORE_CHECK timeout.
+   */
   private static final int              BEFORE_CHECK = 10000;
 
+  /**
+   * Definition the BEFORE_INIT timeout.
+   */
   private static final int              BEFORE_INIT  = 60000;
 
+  /**
+   * Definition the AFTER_INIT timeout.
+   */
   private static final int              AFTER_INIT   = 60000;
 
+  /**
+   * The ChannalManager will be transmitted or receive the Packets.
+   */
   private final ChannelManager          channelManager;
 
+  /**
+   * The channel name.
+   */
   private String                        channelName;
 
+  /**
+   * The ReconectTtread will be initialized reconnect to cluster.
+   */
   private ReconectTtread                reconectTtread;
 
+  /**
+   * Start value for lastViewSize.
+   */
   private int                           lastViewSize = 2;
 
+  /**
+   * Start value for allInited.
+   */
   private boolean                       allInited    = false;
 
+  /**
+   * The WorkspaceDataContainer will be used to workspace for set state 'read-only'.
+   */
   private final WorkspaceDataContainer  dataContainer;
 
+  /**
+   * The RecoveryManager will be initialized cluster node synchronization. 
+   */
   private final RecoveryManager         recoveryManager;
 
+  /**
+   * The list of address for suspect members.
+   */
   private List<Address>                 suspectMembers;
 
+  /**
+   * The own priority value.
+   */
   private final int                     ownPriority;
 
+  /**
+   * The own name in cluster. 
+   */
   private final String                  ownName;
 
+  /**
+   * The list of names to other participants in cluster.
+   */
   private final List<String>            otherPartisipants;
 
+  /**
+   * The priority checker (static or dynamic).
+   */
   private final AbstractPriorityChecker priorityChecker;
 
+  /**
+   * ConnectionFailDetector  constructor.
+   *
+   * @param channelManager
+   *          the ChannelManager
+   * @param dataContainer
+   *          the WorkspaceData
+   * @param recoveryManager
+   *          the RecoveryManager
+   * @param ownPriority
+   *          the own priority
+   * @param otherParticipants
+   *          the list of names to other participants in cluster
+   * @param ownName
+   *          the own name in cluster
+   * @param priprityType
+   *          the priority type (dynamic or static)s
+   */
   public ConnectionFailDetector(ChannelManager channelManager,
                                 WorkspaceDataContainer dataContainer,
                                 RecoveryManager recoveryManager,
@@ -106,11 +172,17 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     priorityChecker.setMemberListener(this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void channelClosed(Channel channel) {
     if (log.isDebugEnabled())
       log.debug("Channel closed : " + channel.getClusterName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void channelConnected(Channel channel) {
     if (log.isDebugEnabled())
       log.debug("Channel connected : " + channel.getClusterName());
@@ -118,20 +190,35 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     channelName = channel.getClusterName();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void channelDisconnected(Channel channel) {
     if (log.isDebugEnabled())
       log.debug("Channel disconnected : " + channel.getClusterName());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void channelReconnected(Address address) {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void channelShunned() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void block() {
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void suspect(Address adrress) {
     if (log.isDebugEnabled())
       log.debug(" ------->>> MembershipListener.suspect : " + adrress.toString());
@@ -143,6 +230,9 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       suspectMembers.add(adrress);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void viewAccepted(View view) {
     log.info(" Memebers view :" + view.printDetails());
 
@@ -194,14 +284,28 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     }
   }
 
+  /**
+   * The ReconectTtread will be initialized reconnect to cluster.
+   */
   private class ReconectTtread extends Thread {
+    /**
+     * The 'isStop' is a flag to run() stop. 
+     */
     private boolean isStop;
 
+    /**
+     * ReconectTtread  constructor.
+     *
+     * @param isStop
+     *          the 'isStop' value
+     */
     public ReconectTtread(boolean isStop) {
       this.isStop = isStop;
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void run() {
       while (isStop) {
         try {
@@ -230,15 +334,30 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       }
     }
 
+    /**
+     * setStop.
+     *
+     * @param isStop
+     *          the 'isStop' value
+     */
     public void setStop(boolean isStop) {
       this.isStop = isStop;
     }
 
+    /**
+     * isStoped.
+     *
+     * @return boolean
+     *           return the 'isStop' value
+     */
     public boolean isStoped() {
       return !isStop;
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void memberRejoin() {
 
     dataContainer.setReadOnly(false);
@@ -247,6 +366,10 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
     recoveryManager.startRecovery();
   }
 
+  /**
+   * Call this method if maxPriority member was suspected.
+   * 
+   */
   public void memberSuspect() {
     log.info(dataContainer.getName() + " set read-only");
     dataContainer.setReadOnly(true);

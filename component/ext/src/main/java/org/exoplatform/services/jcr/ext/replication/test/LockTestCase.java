@@ -32,6 +32,20 @@ import org.exoplatform.services.jcr.RepositoryService;
 
 public class LockTestCase extends BaseReplicationTestCase {
 
+  /**
+   * LockTestCase  constructor.
+   *
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param reposytoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   */
   public LockTestCase(RepositoryService repositoryService,
                       String reposytoryName,
                       String workspaceName,
@@ -41,6 +55,14 @@ public class LockTestCase extends BaseReplicationTestCase {
     log.info("LockTestCase inited");
   }
 
+  /**
+   * lock.
+   *
+   * @param repoPath
+   *          repository path
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer lock(String repoPath) {
     StringBuffer sb = new StringBuffer();
 
@@ -62,6 +84,14 @@ public class LockTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * isLocked.
+   *
+   * @param repoPath
+   *          repository path
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer isLocked(String repoPath) {
     StringBuffer sb = new StringBuffer();
 

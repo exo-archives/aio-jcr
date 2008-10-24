@@ -32,14 +32,36 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class WaitConfirmation extends Thread {
+  /**
+   * The apache logger.
+   */
   private static Log      log = ExoLogger.getLogger("ext.WaitConfirmation");
 
+  /**
+   * The wait timeout.
+   */
   private long            timeOut;
 
+  /**
+   * The RecoveryManager will be saved the ChangesLog. 
+   */
   private RecoveryManager recoveryManager;
 
+  /**
+   * The identifier string to ChangesLog.
+   */
   private String          identifier;
 
+  /**
+   * WaitConfirmation  constructor.
+   *
+   * @param timeOut
+   *          the wait timeout
+   * @param recoveryManager
+   *          the RecoveryManager
+   * @param identifier
+   *          the identifier to ChangesLog
+   */
   WaitConfirmation(long timeOut, RecoveryManager recoveryManager, String identifier) {
     super();
     this.timeOut = timeOut;
@@ -50,6 +72,9 @@ public class WaitConfirmation extends Thread {
       log.debug("init : " + identifier);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void run() {
     try {
       if (log.isDebugEnabled())

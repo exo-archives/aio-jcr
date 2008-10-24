@@ -51,32 +51,92 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class RecoverySynchronizer {
+  /**
+   * The apache logger.
+   */
   private static Log                         log = ExoLogger.getLogger("ext.RecoverySynchronizer");
 
+  /**
+   * Definition the folder to ChangesLog.
+   */
   private File                               recoveryDir;
 
+  /**
+   * The FileNameFactory will be generated name of file to binary ChangesLog.
+   */
   private FileNameFactory                    fileNameFactory;
 
+  /**
+   * The FileCleaner will delete the temporary files.
+   */
   private FileCleaner                        fileCleaner;
 
+  /**
+   * The ChannalManager will be transmitted or receive the Packets.
+   */
   private ChannelManager                     channelManager;
 
+  /**
+   * The own name in cluster.
+   */
   private String                             ownName;
 
+  /**
+   * The system identification string.
+   */
   private String                             systemId;
 
+  /**
+   * The RecoveryReader will be read the binary ChangesLog on file system.
+   */
   private RecoveryReader                     recoveryReader;
 
+  /**
+   * The RecoveryReader will be wrote the ChangesLog to file system.
+   */
   private RecoveryWriter                     recoveryWriter;
 
+  /**
+   * The HashMap with PendingBinaryFile.
+   */
   private HashMap<String, PendingBinaryFile> mapPendingBinaryFile;
 
+  /**
+   * The ChangesLogs will be saved on ItemDataKeeper.
+   */
   private ItemDataKeeper                     dataKeeper;
 
+  /**
+   * The list of names other participants who was initialized.
+   */
   private List<String>                       initedParticipantsClusterList;
 
+  /**
+   * The list of names other participants who was Synchronized successful.
+   */
   private List<String>                       successfulSynchronizedList;
 
+  /**
+   * RecoverySynchronizer  constructor.
+   *
+   *
+   * @param recoveryDir
+   *          the recovery dir
+   * @param fileNameFactory
+   *          the FileNameFactory
+   * @param fileCleaner
+   *          the FileCleaner
+   * @param channelManager
+   *          the ChannelManager
+   * @param ownName
+   *          the own name
+   * @param recoveryWriter
+   *          the RecoveryWriter
+   * @param recoveryReader
+   *          the RecoveryReader
+   * @param systemId
+   *          the system identification string
+   */
   public RecoverySynchronizer(File recoveryDir,
                               FileNameFactory fileNameFactory,
                               FileCleaner fileCleaner,
@@ -101,6 +161,10 @@ public class RecoverySynchronizer {
     initedParticipantsClusterList = new ArrayList<String>();
   }
 
+  /**
+   * Will be initialized the synchronization. 
+   *
+   */
   public void synchronizRepository() {
     try {
       Packet packet = new Packet(Packet.PacketType.GET_CHANGESLOG_UP_TO_DATE,
@@ -113,6 +177,14 @@ public class RecoverySynchronizer {
     }
   }
 
+  /**
+   * send.
+   *
+   * @param packet
+   *          the Packet
+   * @throws Exception
+   *           will be generated the Exception
+   */
   private void send(Packet packet) throws Exception {
     byte[] buffer = Packet.getAsByteArray(packet);
 
@@ -122,6 +194,18 @@ public class RecoverySynchronizer {
       channelManager.sendBigPacket(buffer, packet);
   }
 
+  /**
+   * processingPacket.
+   *
+   * @param packet
+   *          the Packet
+   * @param status
+   *          before status
+   * @return int
+   *           after status
+   * @throws Exception
+   *           will be generated the Exception
+   */
   public int processingPacket(Packet packet, int status) throws Exception {
     PendingBinaryFile container;
     int stat = status;
@@ -325,6 +409,16 @@ public class RecoverySynchronizer {
     return stat;
   }
 
+  /**
+   * sendChangesLogUpDate.
+   *
+   * @param timeStamp
+   *          the update to this date
+   * @param ownerName
+   *          the member name who initialize synchronization  
+   * @param identifier
+   *          the operation identifier
+   */
   private void sendChangesLogUpDate(Calendar timeStamp, String ownerName, String identifier) {
     try {
       if (log.isDebugEnabled())
@@ -367,14 +461,38 @@ public class RecoverySynchronizer {
     }
   }
 
+  /**
+   * setDataKeeper.
+   *
+   * @param dataKeeper
+   *          the ItemDataKeeper
+   */
   public void setDataKeeper(ItemDataKeeper dataKeeper) {
     this.dataKeeper = dataKeeper;
   }
 
+  /**
+   * updateInitedParticipantsClusterList.
+   *
+   * @param list 
+   *          the list of initialized members
+   */
   public void updateInitedParticipantsClusterList(Collection<? extends String> list) {
     initedParticipantsClusterList = new ArrayList<String>(list);
   }
 
+  /**
+   * saveChangesLog.
+   *
+   * @param dataManager
+   *          the ItemDataKeeper 
+   * @param changesLog
+   *          the ChangesLog with data
+   * @param cLogTime
+   *          the  date of ChangesLog
+   * @throws ReplicationException
+   *           will be generated the ReplicationException
+   */
   private void saveChangesLog(ItemDataKeeper dataManager,
                               TransactionChangesLog changesLog,
                               Calendar cLogTime) throws ReplicationException {

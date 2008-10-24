@@ -52,7 +52,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   private static Log                 log           = ExoLogger.getLogger("ext.AbstractPriorityChecker");
 
   /**
-   * The ChannalManager will be transmitted the Packets .
+   * The ChannalManager will be transmitted the Packets.
    */
   protected final ChannelManager     channelManager;
 
@@ -67,7 +67,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   protected final String             ownName;
 
   /**
-   * The list of names to other participants.
+   * The list of names to other participants cluster.
    */
   protected final List<String>       otherParticipants;
 

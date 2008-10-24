@@ -49,20 +49,55 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class RecoveryWriter extends AbstractFSAccess {
 
+  /**
+   * The apache logger.
+   */
   private static Log        log             = ExoLogger.getLogger("ext.RecoveryWriter");
 
-  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;                       // 2 hours
+  /**
+   * Definition the timeout to FileRemover.
+   */
+  private static final long REMOVER_TIMEOUT = 2 * 60 * 60 * 1000;    // 2 hours
 
+  /**
+   * The FileCleaner will delete the temporary files.
+   */
   private final FileCleaner fileCleaner;
 
+  /**
+   * The FileNameFactory will be created file names.
+   */
   private FileNameFactory   fileNameFactory;
 
+  /**
+   * Definition the folder to ChangesLog.
+   */
   private File              recoveryDir;
 
+  /**
+   * Definition the folder to data.
+   */
   private File              recoveryDirDate;
 
+  /**
+   * The FileRemover will deleted the already delivered ChangesLogs.
+   */
   private FileRemover       fileRemover;
 
+  /**
+   * RecoveryWriter  constructor.
+   *
+   * @param recoveryDir
+   *          the recovery directory
+   * @param fileNameFactory
+   *          the FileNameFactory
+   * @param fileCleaner
+   *          the File Cleaner
+   * @param ownName
+   *          the own name
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public RecoveryWriter(File recoveryDir,
                         FileNameFactory fileNameFactory,
                         FileCleaner fileCleaner,
@@ -79,6 +114,16 @@ public class RecoveryWriter extends AbstractFSAccess {
     fileRemover.start();
   }
 
+  /**
+   * save.
+   *
+   * @param confirmationChengesLog
+   *          the PendingConfirmationChengesLog
+   * @return String
+   *           return the name of file
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public String save(PendingConfirmationChengesLog confirmationChengesLog) throws IOException {
 
     if (confirmationChengesLog.getNotConfirmationList().size() > 0) {
@@ -112,6 +157,18 @@ public class RecoveryWriter extends AbstractFSAccess {
     return null;
   }
   
+  /**
+   * save.
+   *
+   * @param f
+   *         the file to binary data 
+   * @param changesLog
+   *          the ChangesLog
+   * @return String
+   *           return the name of file
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public String save(File f, TransactionChangesLog changesLog) throws IOException {
       // save data
       ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(f));
@@ -123,6 +180,16 @@ public class RecoveryWriter extends AbstractFSAccess {
       return f.getName();
   }
 
+  /**
+   * writeNotConfirmationInfo.
+   *
+   * @param dataFile
+   *          the file to binary ChangesLog
+   * @param participantsClusterList
+   *          the list of cluster participants who was not saved the ChangesLog
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private synchronized void writeNotConfirmationInfo(File dataFile,
                                                      List<String> participantsClusterList) throws IOException {
     for (String name : participantsClusterList) {
@@ -139,6 +206,16 @@ public class RecoveryWriter extends AbstractFSAccess {
     }
   }
 
+  /**
+   * writeExternal.
+   *
+   * @param out
+   *          the ObjectOutputStream to ChangesLog
+   * @param changesLog
+   *          the ChangesLog
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private void writeExternal(ObjectOutputStream out, TransactionChangesLog changesLog) throws IOException {
 
     PendingChangesLog pendingChangesLog = new PendingChangesLog(changesLog, fileCleaner);
@@ -185,6 +262,17 @@ public class RecoveryWriter extends AbstractFSAccess {
     out.flush();
   }
 
+  /**
+   * writeContent.
+   *   Will be wrote the InputStream to ObjectOutputStream.
+   *
+   * @param is
+   *          the InputStream
+   * @param oos
+   *          the ObjectOutputStream
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private void writeContent(InputStream is, ObjectOutputStream oos) throws IOException {
     byte[] buf = new byte[BUFFER_1KB * BUFFER_8X];
     int len;
@@ -199,6 +287,16 @@ public class RecoveryWriter extends AbstractFSAccess {
     oos.flush();
   }
 
+  /**
+   * removeChangesLog.
+   *
+   * @param identifier
+   *          the identification string to ChangesLog
+   * @param ownerName
+   *          the owner name 
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public synchronized void removeChangesLog(String identifier, String ownerName) throws IOException {
     File metaDataFile = new File(recoveryDir.getAbsolutePath() + File.separator + ownerName);
 
@@ -227,6 +325,18 @@ public class RecoveryWriter extends AbstractFSAccess {
     raf.close();
   }
 
+  /**
+   * removeChangesLog.
+   *
+   * @param fileNameList
+   *          the list of file name
+   * @param ownerName
+   *          the owner name
+   * @return long
+   *           return the how many files was deleted
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public long removeChangesLog(List<String> fileNameList, String ownerName) throws IOException {
     long removeCounter = 0;
 
@@ -267,6 +377,14 @@ public class RecoveryWriter extends AbstractFSAccess {
     return removeCounter;
   }
 
+  /**
+   * saveRemoveChangesLog.
+   *   Save the file name for deleting.
+   * @param fileName
+   *          the file name
+   * @throws IOException
+   *           will be generated the IOException
+   */
   public void saveRemoveChangesLog(String fileName) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Seve removable changeslogs form fs : " + fileName);
@@ -286,6 +404,16 @@ public class RecoveryWriter extends AbstractFSAccess {
     bw.close();
   }
 
+  /**
+   * saveRemoveChangesLog.
+   *   Save the file name to deleting for a specific members.
+   * @param fileNameList
+   *          the lost of file names
+   * @param ownerName
+   *          the owner name
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private void saveRemoveChangesLog(List<String> fileNameList, String ownerName) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Seve removable changeslogs form fs : " + fileNameList.size());
@@ -315,22 +443,56 @@ public class RecoveryWriter extends AbstractFSAccess {
  *   The thread will be remove ChangesLog, saved as binary file.
  */
 class FileRemover extends Thread {
+  /**
+   * The apache logger.
+   */
   private static Log          log        = ExoLogger.getLogger("ext.FileRemover");
 
+  /**
+   * Definition the constants to one second. 
+   */
   private static final double ONE_SECOND = 1000.0;
 
+  /**
+   * Sleep period.
+   */
   private long                period;
 
+  /**
+   * Definition the folder to ChangesLog.
+   */
   private File                recoveryDir;
 
+  /**
+   * The FileCleaner will delete the temporary files.
+   */
   private FileCleaner         fileCleaner;
 
+  /**
+   * The FilesFilter to removable files.
+   *
+   */
   class RemoveFilesFilter implements FileFilter {
+    /**
+     * {@inheritDoc}
+     */
     public boolean accept(File pathname) {
       return pathname.getName().endsWith(AbstractFSAccess.REMOVED_SUFFIX);
     }
   }
 
+  /**
+   * FileRemover  constructor.
+   *
+   * @param period
+   *          the sleep period
+   * @param recoveryDir
+   *          the recovery directory
+   * @param fileCleaner
+   *          the FileCleaner
+   * @param ownName
+   *          the own name
+   */
   public FileRemover(long period, File recoveryDir, FileCleaner fileCleaner, String ownName) {
     super("FileRemover@" + ownName);
     this.period = period;
@@ -387,6 +549,16 @@ class FileRemover extends Thread {
     }
   }
 
+  /**
+   * getAllRemoveFileName.
+   *
+   * @param array
+   *          the array of file names to deleting
+   * @return  ArrayList
+   *            the list of deleting files
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private ArrayList<String> getAllRemoveFileName(File[] array) throws IOException {
     ArrayList<String> fileNameList = new ArrayList<String>();
 
@@ -406,6 +578,14 @@ class FileRemover extends Thread {
     return fileNameList;
   }
 
+  /**
+   * getAllPendingBinaryFilePath.
+   *
+   * @return HashMap
+   *           return HashMap of file names per owner.
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private HashMap<String, String> getAllPendingBinaryFilePath() throws IOException {
     HashMap<String, String> map = new HashMap<String, String>();
 
@@ -416,6 +596,16 @@ class FileRemover extends Thread {
     return map;
   }
 
+  /**
+   * getFilePathList.
+   *
+   * @param f
+   *         the File with removable files
+   * @return List
+   *           return the list of file path  
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private List<String> getFilePathList(File f) throws IOException {
     List<String> list = new ArrayList<String>();
 
@@ -430,6 +620,16 @@ class FileRemover extends Thread {
     return list;
   }
 
+  /**
+   * getAllSavedBinaryFile.
+   *
+   * @param recoveryDataDir
+   *          The recovery data directory
+   * @return List
+   *           return the list of File 
+   * @throws IOException
+   *           will be generated the IOException
+   */
   private List<File> getAllSavedBinaryFile(File recoveryDataDir) throws IOException {
     ArrayList<File> list = new ArrayList<File>();
 
@@ -443,6 +643,15 @@ class FileRemover extends Thread {
     return list;
   }
 
+  /**
+   * getFiles.
+   *   The recurcive parcing the directory.
+   *   Will be added to list all files from tree. 
+   * @param f
+   *          the directory
+   * @param list
+   *          the list of Files.
+   */
   private void getFiles(File f, List<File> list) {
     if (f.isDirectory())
       for (File subFile : f.listFiles())

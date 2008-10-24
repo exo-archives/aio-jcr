@@ -31,18 +31,44 @@ import java.util.Date;
  */
 
 public class FileNameFactory {
+  /**
+   * The date format to name of file. 
+   */
   private DateFormat       datefName        = new SimpleDateFormat("yyyyMMdd_HHmmss_SSS");
 
+  /**
+   * Definition the max sub folders. 
+   */
   private static final int SUB_PATH_LENGTH  = 7;
 
+  /**
+   * Definition the constant for 10.  
+   */
   private static final int PATTERN_10       = 10;
 
+  /**
+   * Definition the constant for 100.
+   */
   private static final int PATTERN_100      = 100;
 
+  /**
+   * Definition the constant for 1000.
+   */
   private static final int PATTERN_1000     = 1000;
 
+  /**
+   * Definition the chars of path. 
+   */
   private final String     pathCharSequence = "0123456789abcdef";
 
+  /**
+   * getStrDate.
+   *
+   * @param c
+   *         the date
+   * @return String
+   *           the string of date
+   */
   public String getStrDate(Calendar c) {
     // Returns as a String (YYYYMMDD) a Calendar date
     int m = c.get(Calendar.MONTH) + 1;
@@ -51,6 +77,14 @@ public class FileNameFactory {
         + (d < PATTERN_10 ? "0" + d : d);
   }
 
+  /**
+   * getStrTime.
+   *
+   * @param c
+   *         the date
+   * @return String
+   *           the string of time
+   */
   public String getStrTime(Calendar c) {
     // Returns as a String (YYYYMMDD_MS) a Calendar date
     int h = c.get(Calendar.HOUR_OF_DAY);
@@ -63,10 +97,24 @@ public class FileNameFactory {
         + (ms < PATTERN_100 ? (ms < PATTERN_10 ? "00" + ms : "0" + ms) : ms);
   }
 
+  /**
+   * getTimeStampName.
+   *
+   * @param c
+   *         the date
+   * @return String
+   *           return the date and time as string 
+   */
   public String getTimeStampName(Calendar c) {
     return (getStrDate(c) + "_" + getStrTime(c));
   }
 
+  /**
+   * getRandomSubPath.
+   *
+   * @return String
+   *           return the sub path as string
+   */
   public String getRandomSubPath() {
     String subPath = new String();
 
@@ -82,6 +130,16 @@ public class FileNameFactory {
     return subPath;
   }
 
+  /**
+   * getDateFromFileName.
+   *
+   * @param fName
+   *          the name of file 
+   * @return Calendar
+   *           return the date from name of file
+   * @throws ParseException
+   *           will be generated the ParseException 
+   */
   public Calendar getDateFromFileName(String fName) throws ParseException {
     Calendar c = Calendar.getInstance();
 

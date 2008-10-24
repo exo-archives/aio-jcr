@@ -37,7 +37,21 @@ import org.exoplatform.services.jcr.RepositoryService;
  */
 
 public class CopyMoveTestCase extends BaseReplicationTestCase {
-
+    
+  /**
+   * CopyMoveTestCase  constructor.
+   *
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param reposytoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   */
   public CopyMoveTestCase(RepositoryService repositoryService,
                           String reposytoryName,
                           String workspaceName,
@@ -47,6 +61,20 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
     log.info("CopyMoveTestCase inited");
   }
 
+  /**
+   * workspaceCopy.
+   *
+   * @param srcRepoPath
+   *          source repository path
+   * @param nodeName
+   *          source node name
+   * @param destNodeName
+   *          destination node name
+   * @param contentSize
+   *          content size
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'} 
+   */
   public StringBuffer workspaceCopy(String srcRepoPath,
                                     String nodeName,
                                     String destNodeName,
@@ -97,6 +125,20 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * workspaceMove.
+   *
+   * @param srcRepoPath
+   *          source repository path
+   * @param nodeName
+   *          source node name
+   * @param destNodeName
+   *          destination node name
+   * @param contentSize
+   *          content size
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer workspaceMove(String srcRepoPath,
                                     String nodeName,
                                     String destNodeName,
@@ -147,6 +189,20 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * sessionMove.
+   *
+   * @param srcRepoPath
+   *          source repository path
+   * @param nodeName
+   *          source node name
+   * @param destNodeName
+   *          destination node name
+   * @param contentSize
+   *          content size
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer sessionMove(String srcRepoPath,
                                   String nodeName,
                                   String destNodeName,
@@ -197,6 +253,20 @@ public class CopyMoveTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * checkCopyMoveNode.
+   *
+   * @param srcRepoPath
+   *          source repository path
+   * @param nodeName
+   *          source node name
+   * @param destNodeName
+   *          destination node name
+   * @param contentSize
+   *          content size
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer checkCopyMoveNode(String srcRepoPath,
                                         String nodeName,
                                         String destNodeName,

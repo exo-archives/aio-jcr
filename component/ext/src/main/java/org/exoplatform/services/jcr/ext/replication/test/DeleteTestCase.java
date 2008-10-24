@@ -31,6 +31,20 @@ import org.exoplatform.services.jcr.RepositoryService;
 
 public class DeleteTestCase extends BaseReplicationTestCase {
 
+  /**
+   * DeleteTestCase  constructor.
+   *
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param reposytoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   */
   public DeleteTestCase(RepositoryService repositoryService,
                         String reposytoryName,
                         String workspaceName,
@@ -40,6 +54,16 @@ public class DeleteTestCase extends BaseReplicationTestCase {
     log.info("DeleteTestCase inited");
   }
 
+  /**
+   * delete.
+   *
+   * @param repoPath
+   *          repository path
+   * @param nodeName
+   *          node name
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'} 
+   */
   public StringBuffer delete(String repoPath, String nodeName) {
     StringBuffer sb = new StringBuffer();
 
@@ -61,6 +85,16 @@ public class DeleteTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * checkDelete.
+   *
+   * @param repoPath
+   *          repository path
+   * @param nodeName
+   *          node name
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer checkDelete(String repoPath, String nodeName) {
     StringBuffer sb = new StringBuffer();
 

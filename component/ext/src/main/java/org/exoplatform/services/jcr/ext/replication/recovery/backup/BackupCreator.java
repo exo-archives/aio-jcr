@@ -37,20 +37,53 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class BackupCreator implements Runnable {
+  /**
+   * The apache logger.
+   */
   private static Log           log = ExoLogger.getLogger("ext.BackupCreator");
 
+  /**
+   * The thread to BackupCreator.
+   */
   private Thread               backupCreatorThread;
 
+  /**
+   * The delay timeout.
+   */
   private long                 delayTime;
 
+  /**
+   * The workspace name.
+   */
   private String               workspaceName;
 
+  /**
+   * The backup directory.
+   */
   private File                 backupDir;
 
+  /**
+   * The ManageableRepository will be needed to thread naming.
+   */
   private ManageableRepository manageableRepository;
 
+  /**
+   * The FileNameFactory will be created file names.
+   */
   private FileNameFactory      fileNameFactory;
 
+  /**
+   * BackupCreator  constructor.
+   *
+   * @param delayTime
+   *          the delay timeout
+   * @param workspaceName
+   *          the workspace name
+   * @param backupDir
+   *          the backup directory
+   * @param manageableRepository
+   *          the ManageableReposirory
+   */
   public BackupCreator(long delayTime,
                        String workspaceName,
                        File backupDir,
@@ -67,6 +100,9 @@ public class BackupCreator implements Runnable {
     backupCreatorThread.start();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void run() {
     try {
       Thread.yield();

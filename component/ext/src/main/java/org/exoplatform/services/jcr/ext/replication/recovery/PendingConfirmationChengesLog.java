@@ -30,16 +30,41 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
  */
 
 public class PendingConfirmationChengesLog {
+  /**
+   * The list of members who has been saved successfully.
+   */
   private List<String>        confirmationList;
 
+  /**
+   * The list of members who has not been saved successfully.
+   */
   private List<String>        notConfirmationList;
 
+  /**
+   * Pending the ChangesLog.
+   */
   private ItemStateChangesLog changesLog;
 
+  /**
+   * The date of save the ChchgesLog.
+   */
   private Calendar            timeStamp;
 
+  /**
+   * The identification string to PendingConfirmationChengesLog.
+   */
   private String              identifier;
 
+  /**
+   * PendingConfirmationChengesLog  constructor.
+   *
+   * @param changesLog
+   *          the ChangesLog with data
+   * @param timeStamp
+   *          the save date
+   * @param identifier
+   *          the identifier string
+   */
   public PendingConfirmationChengesLog(ItemStateChangesLog changesLog,
                                        Calendar timeStamp,
                                        String identifier) {
@@ -49,44 +74,103 @@ public class PendingConfirmationChengesLog {
     this.identifier = identifier;
   }
 
+  /**
+   * getConfirmationList.
+   *
+   * @return List
+   *           return the list of members who has not been saved successfully
+   */
   public List<String> getConfirmationList() {
     return confirmationList;
   }
 
+  /**
+   * setConfirmationList.
+   *
+   * @param confirmationList
+   *          the list of members who has been saved successfully
+   */
   public void setConfirmationList(List<String> confirmationList) {
     this.confirmationList = confirmationList;
   }
 
+  /**
+   * getChangesLog.
+   *
+   * @return ItemStateChangesLog 
+   *           return the ChangesLog
+   */
   public ItemStateChangesLog getChangesLog() {
     return changesLog;
   }
 
+  /**
+   * setChangesLog.
+   *
+   * @param changesLog
+   *          the ChangesLog
+   */
   public void setChangesLog(ItemStateChangesLog changesLog) {
     this.changesLog = changesLog;
   }
 
+  /**
+   * getTimeStamp.
+   *
+   * @return Calendar
+   *           return the date of ChangesLog
+   */
   public Calendar getTimeStamp() {
     return timeStamp;
   }
 
+  /**
+   * setTimeStamp.
+   *
+   * @param timeStamp
+   *          the Calendar
+   */
   public void setTimeStamp(Calendar timeStamp) {
     this.timeStamp = timeStamp;
   }
 
+  /**
+   * getIdentifier.
+   *
+   * @return String
+   *           return the identification string
+   */
   public String getIdentifier() {
     return identifier;
   }
 
+  /**
+   * setIdentifier.
+   *
+   * @param identifier
+   *          the identification string
+   */
   public void setIdentifier(String identifier) {
     this.identifier = identifier;
   }
 
+  /**
+   * getNotConfirmationList.
+   *
+   * @return List
+   *           return the list of members who has not been saved successfully
+   */
   public List<String> getNotConfirmationList() {
     return notConfirmationList;
   }
 
+  /**
+   * setNotConfirmationList.
+   *
+   * @param notConfirmationList
+   *          the list of members who has not been saved successfully
+   */
   public void setNotConfirmationList(List<String> notConfirmationList) {
     this.notConfirmationList = notConfirmationList;
   }
-
 }

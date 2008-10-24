@@ -37,6 +37,20 @@ import org.exoplatform.services.jcr.ext.replication.test.BaseReplicationTestCase
 
 public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
 
+  /**
+   * ConcurrentModificationTestCase  constructor.
+   *
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param reposytoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   */
   public ConcurrentModificationTestCase(RepositoryService repositoryService,
                                         String reposytoryName,
                                         String workspaceName,
@@ -45,6 +59,20 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
     super(repositoryService, reposytoryName, workspaceName, userName, password);
   }
 
+  /**
+   * createContent.
+   *
+   * @param repoPath
+   *          the repository path
+   * @param fileName
+   *          the file name
+   * @param iterations
+   *          how many iterations for simple content
+   * @param simpleContent
+   *          the simple content
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer createContent(String repoPath,
                                     String fileName,
                                     Long iterations,
@@ -89,6 +117,20 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * compareData.
+   *
+   * @param srcRepoPath
+   *          the source repository path
+   * @param srcFileName
+   *          the source file name
+   * @param destRepoPath
+   *          the destination repository path
+   * @param destFileName
+   *          the destination file name
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer compareData(String srcRepoPath,
                                   String srcFileName,
                                   String destRepoPath,
@@ -114,6 +156,22 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * startThreadUpdater.
+   *
+   * * @param srcRepoPath
+   *          the source repository path
+   * @param srcFileName
+   *          the source file name
+   * @param destRepoPath
+   *          the destination repository path
+   * @param destFileName
+   *          the destination file name
+   * @param iterations
+   *          how many iterations the thread
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer startThreadUpdater(String srcRepoPath,
                                          String srcFileName,
                                          String destRepoPath,
@@ -138,20 +196,45 @@ public class ConcurrentModificationTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * The DataUpdaterThread will be update the specific property.
+   *
+   */
   class DataUpdaterThread extends Thread {
+    /**
+     * The source node.
+     */
     private final Node srcNode;
 
+    /**
+     * The destination node.
+     */
     private final Node destNode;
 
+    /**
+     * How many iterations the update property.
+     */
     private final Long iterations;
 
+    /**
+     * DataUpdaterThread  constructor.
+     *
+     * @param srcNode
+     *          the source node
+     * @param destNode
+     *          the destination node
+     * @param iterations
+     *          the iteration value
+     */
     public DataUpdaterThread(Node srcNode, Node destNode, Long iterations) {
       this.srcNode = srcNode;
       this.destNode = destNode;
       this.iterations = iterations;
     }
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void run() {
       String destPath = null;
       try {

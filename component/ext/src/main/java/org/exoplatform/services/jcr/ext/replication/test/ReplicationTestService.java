@@ -45,79 +45,211 @@ import org.exoplatform.services.rest.transformer.StringOutputTransformer;
 @URITemplate("/replication-test/")
 @OutputTransformer(StringOutputTransformer.class)
 public class ReplicationTestService implements ResourceContainer {
-  public class Constants {
+  
+  /**
+   * Definition the constants to ReplicationTestService.
+   *
+   */
+  public final class Constants {
+    /**
+     * The base path to this service.  
+     */
     public static final String BASE_URL         = "/rest/replication-test";
 
+    /**
+     * The operation prefix.
+     */
     public static final String OPERATION_PREFIX = "?operation=";
 
-    public class OperationType {
+    /**
+     * Definition the operation types.
+     *
+     */
+    public final class OperationType {
+      /**
+       * Add nt:file operation. 
+       */
       public static final String ADD_NT_FILE                   = "addNTFile";
 
+      /**
+       * Check nt:file operation.
+       */
       public static final String CHECK_NT_FILE                 = "checkNTFile";
 
+      /**
+       * Start backup.
+       */
       public static final String START_BACKUP                  = "startBackup";
 
+      /**
+       * Set the lock to node.
+       */
       public static final String SET_LOCK                      = "lock";
 
+      /**
+       * Check the lock on node.
+       */
       public static final String CECK_LOCK                     = "checkLock";
 
+      /**
+       * Add the versionable node.  
+       */
       public static final String ADD_VERSIONODE                = "addVersionNode";
 
+      /**
+       * Check the versionable node.
+       */
       public static final String CHECK_VERSION_NODE            = "checkVersionNode";
 
+      /**
+       * Add new version to versionable node.
+       */
       public static final String ADD_NEW_VERSION               = "addNewVersion";
 
+      /**
+       * Restore the previous version.
+       */
       public static final String RESTORE_RPEVIOUS_VERSION      = "restorePreviousVersion";
 
+      /**
+       * Restore the base version.
+       */
       public static final String RESTORE_BASE_VERSION          = "restoreBaseVersion";
 
+      /**
+       * Delete the node.
+       */
       public static final String DELETE                        = "delete";
 
+      /**
+       * Check the deleted node.
+       */
       public static final String CHECK_DELETE                  = "checkDelete";
 
+      /**
+       * The copy node by workspace.
+       */
       public static final String WORKSPACE_COPY                = "workspaceCopy";
 
+      /**
+       * The move node by workspace. 
+       */
       public static final String WORKSPASE_MOVE                = "workspaceMove";
 
+      /**
+       * The move node by session.
+       */
       public static final String SESSION_MOVE                  = "sessionMove";
 
+      /**
+       * Check the copy or move node.
+       */
       public static final String CHECK_COPY_MOVE_NODE          = "checkCopyMoveNode";
 
+      /**
+       * Disconnect the cluster node.
+       */
       public static final String DISCONNECT_CLUSTER_NODE       = "disconnectClusterNode";
 
+      /**
+       * Disconnect by ID the cluster node.
+       */
       public static final String DISCONNECT_CLUSTER_NODE_BY_ID = "disconnectClusterNodeById";
 
+      /**
+       * Allow the connect the cluster node.
+       */
       public static final String ALLOW_CONNECT                 = "allowConnect";
 
+      /**
+       * The forced allow the connect the cluster node.
+       */
       public static final String ALLOW_CONNECT_FORCED          = "allowConnectForced";
 
+      /**
+       * Check 'read-only' the workspace.
+       */
       public static final String WORKSPACE_IS_READ_ONLY        = "workspaceIsReadOnly";
 
+      /**
+       * Create content in workspace.
+       */
       public static final String CREATE_CONTENT                = "createContent";
 
+      /**
+       * Compare data in workspace.
+       */
       public static final String COMPARE_DATA                  = "compareData";
 
+      /**
+       * Start the thread updater.
+       */
       public static final String START_THREAD_UPDATER          = "startThreadUpdater";
 
+      /**
+       * Create the base node.
+       */
       public static final String CREATE_BASE_NODE              = "createBaseNode";
 
+      /**
+       * Add empty node.
+       */
       public static final String ADD_EMPTY_NODE                = "addEmptyNode";
 
+      /**
+       * Add only string property to existing node.
+       */
       public static final String ADD_STRING_PROPETY_ONLY       = "addStringPropertyOnly";
 
+      /**
+       * Add only binary property to existing node.
+       */
       public static final String ADD_BINARY_PROPERTY_ONLY      = "addBinaryPropertyOnly";
+      
+      /**
+       * OperationType  constructor.
+       *
+       */
+      private OperationType() {
+        
+      }
     }
     
+    /**
+     * Constants  constructor.
+     *
+     */
     private Constants() {
     }
   }
 
+  /**
+   * The apache logger.
+   */
   private static Log        log = ExoLogger.getLogger("ext.ReplicationTestService");
 
+  /**
+   * The repository service.
+   */
   private RepositoryService repositoryService;
 
+  /**
+   * The backup manager.
+   */
   private BackupManager     backupManager;
 
+  /**
+   * ReplicationTestService  constructor.
+   *
+   * @param repoService
+   *          the RepositoryService
+   * @param replicationService
+   *          the ReplicationService
+   * @param backupManager
+   *          the BackupManager
+   * @param params
+   *          the configuration parameters
+   */
   public ReplicationTestService(RepositoryService repoService,
                                 ReplicationService replicationService,
                                 BackupManager backupManager,
@@ -128,12 +260,42 @@ public class ReplicationTestService implements ResourceContainer {
     log.info("ReplicationTestService inited");
   }
 
+  /**
+   * ReplicationTestService  constructor.
+   *
+   * @param repoService
+   *          the RepositoryService
+   * @param backupManager
+   *          the BackupManager
+   * @param params
+   *          the configuration parameters
+   */
   public ReplicationTestService(RepositoryService repoService,
                                 BackupManager backupManager,
                                 InitParams params) {
     this(repoService, null, backupManager, params);
   }
 
+  /**
+   * addNTFile.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param fileName
+   *          the file name
+   * @param fileSize
+   *          the file size
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=addNTFile")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{fileSize}/")
@@ -154,6 +316,26 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * checkNTFile.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param fileName
+   *          the file name
+   * @param fileSize
+   *          the file size
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=checkNTFile")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{fileSize}/")
@@ -174,6 +356,22 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * startBackup.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param incementalPeriod
+   *          the period for incremental backup (seconds)
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=startBackup")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{incementalPeriod}/")
@@ -201,6 +399,22 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(result, "text/plain").build();
   }
 
+  /**
+   * lock.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=lock")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
@@ -219,6 +433,22 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * checkLock.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=checkLock")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
@@ -237,6 +467,24 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * addVersionNode.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param value
+   *          value to versionable node
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=addVersionNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{value}/")
@@ -256,6 +504,24 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * checkVersionNode.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param checkedValue
+   *          checking value to versionable node
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=checkVersionNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{checkedValue}/")
@@ -275,6 +541,24 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * addNewVersion.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param newValue
+   *          new value to versionable node
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=addNewVersion")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{newValue}/")
@@ -294,6 +578,22 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * restorePreviousVersion.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=restorePreviousVersion")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
@@ -312,6 +612,22 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * restoreBaseVersion.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=restoreBaseVersion")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/")
@@ -330,6 +646,24 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * delete.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the name of deleting node 
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=delete")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/")
@@ -349,6 +683,24 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * checkDelete.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the name of deleted node 
+   * @return Response
+   *            return the response
+   */
   @QueryTemplate("operation=checkDelete")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/")
@@ -368,6 +720,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * workspaceCopy.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name 
+   * @param destNodeName
+   *          the destination node name 
+   * @param contentSize
+   *          the content size
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=workspaceCopy")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
@@ -392,6 +766,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * workspaceMove.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name 
+   * @param destNodeName
+   *          the destination node name 
+   * @param contentSize
+   *          the content size
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=workspaceMove")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
@@ -416,6 +812,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * sessionMove.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name 
+   * @param destNodeName
+   *          the destination node name 
+   * @param contentSize
+   *          the content size
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=sessionMove")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
@@ -437,6 +855,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * checkCopyMoveNode.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param nodeName
+   *          the source node name 
+   * @param destNodeName
+   *          the destination node name 
+   * @param contentSize
+   *          the content size
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=checkCopyMoveNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{nodeName}/{destNodeName}/{contentSize}/")
@@ -461,6 +901,20 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * disconnectClusterNode.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=disconnectClusterNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
@@ -478,6 +932,22 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * disconnectClusterNodeById.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param id
+   *         the id
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=disconnectClusterNodeById")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{id}/")
@@ -496,6 +966,20 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * allowConnect.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=allowConnect")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
@@ -513,6 +997,20 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * allowConnectForced.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=allowConnectForced")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
@@ -530,6 +1028,20 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * workspaceIsReadOnly.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=workspaceIsReadOnly")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/")
@@ -547,6 +1059,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * createContent.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param fileName
+   *          the file name
+   * @param iterations
+   *          how many iterations for simple content
+   * @param simpleContent
+   *          the simple content
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=createContent")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{fileName}/{iterations}/{simpleContent}/")
@@ -571,6 +1105,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * compareData.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param srcFileName
+   *          the source file name
+   * @param destRepoPath
+   *          the destination repository path
+   * @param destFileName
+   *          the destination file name
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=compareData")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{srcFileName}/{destRepoPath}/{destFileName}/")
@@ -595,6 +1151,30 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * startThreadUpdater.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param srcRepoPath
+   *          the source repository path
+   * @param srcFileName
+   *          the source file name
+   * @param destRepoPath
+   *          the destination repository path
+   * @param destFileName
+   *          the destination file name
+   * @param iterations
+   *          how many iterations the thread
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=startThreadUpdater")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{srcRepoPath}/{srcFileName}/{destRepoPath}/{destFileName}/{iterations}/")
@@ -621,6 +1201,24 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * createBaseNode.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=createBaseNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/")
@@ -640,6 +1238,26 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * addEmptyNode.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
+   * @param iterations
+   *          how many adding the empty node
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=addEmptyNode")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/{iterations}/")
@@ -660,6 +1278,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * addStringPropertyOnly.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
+   * @param size
+   *          the size of string property
+   * @param iterations
+   *          how many adding the string property
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=addStringPropertyOnly")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/{size}/{iterations}/")
@@ -684,6 +1324,28 @@ public class ReplicationTestService implements ResourceContainer {
     return Response.Builder.ok(sb.toString(), "text/plain").build();
   }
 
+  /**
+   * addBinaryPropertyOnly.
+   *
+   * @param repositoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   * @param repoPath
+   *          the repository path
+   * @param nodeName
+   *          the node name
+   * @param size
+   *          the size of binary property
+   * @param iterations
+   *          how many adding the binary property
+   * @return Response
+   *           return the response
+   */
   @QueryTemplate("operation=addBinaryPropertyOnly")
   @HTTPMethod("GET")
   @URITemplate("/{repositoryName}/{workspaceName}/{userName}/{password}/{repoPath}/{nodeName}/{size}/{iterations}/")

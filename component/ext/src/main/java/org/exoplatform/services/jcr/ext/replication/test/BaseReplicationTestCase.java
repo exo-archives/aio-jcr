@@ -39,22 +39,60 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public abstract class BaseReplicationTestCase {
+  /**
+   * The apache logger.
+   */
   protected static Log       log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
 
+  /**
+   * Definition the size of buffer.
+   */
   protected static final int BUFFER_SIZE = 1024;
 
+  /**
+   * Definition the divider.
+   */
   public static final int    DIVIDER     = 255;
 
+  /**
+   * Definition the constants to on seconds.
+   */
   public static final double ONE_SECONDS = 1000;
 
+  /**
+   * The JCR session.
+   */
   protected Session          session;
 
+  /**
+   * The root node in workspace.
+   */
   protected Node             rootNode;
 
+  /**
+   * The Credentials to workspace. 
+   */
   private Credentials        credentials;
 
+  /**
+   * The JCR repository.
+   */
   protected Repository       repository;
 
+  /**
+   * BaseReplicationTestCase  constructor.
+   *
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param reposytoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   */
   public BaseReplicationTestCase(RepositoryService repositoryService,
                                  String reposytoryName,
                                  String workspaceName,
@@ -76,6 +114,16 @@ public abstract class BaseReplicationTestCase {
     }
   }
 
+  /**
+   * addNodePath.
+   *
+   * @param repoPath
+   *          the repository path
+   * @return Node
+   *           the Node
+   * @throws RepositoryException 
+   *           will be generated the RepositoryException.
+   */
   protected Node addNodePath(String repoPath) throws RepositoryException {
     Node resultNode = rootNode;
     String[] sArray = repoPath.split("[::]");
@@ -89,10 +137,28 @@ public abstract class BaseReplicationTestCase {
     return resultNode;
   }
 
+  /**
+   * getNormalizePath.
+   *
+   * @param repoPath
+   *         the repository path split '::' 
+   * @return String
+   *          return the repository path split '/' 
+   */
   protected String getNormalizePath(String repoPath) {
     return repoPath.replaceAll("[:][:]", "/");
   }
 
+  /**
+   * compareStream.
+   *
+   * @param etalon
+   *          the eatalon stream
+   * @param data
+   *          the testing stream
+   * @throws Exception
+   *           will be generated the Exception.
+   */
   protected void compareStream(InputStream etalon, InputStream data) throws Exception {
     compareStream(etalon, data, 0, 0, -1);
   }
@@ -103,11 +169,17 @@ public abstract class BaseReplicationTestCase {
    * them will be read.
    * 
    * @param etalon
+   *          the etalon stream
    * @param data
-   * @param etalonPos
+   *          testing stream
+   * @param etalonPos 
+   *          etalon position
    * @param dataPos
+   *          testing position
    * @param length
+   *          the length
    * @throws Exception
+   *           will be generated the Exception
    */
   protected void compareStream(InputStream etalon,
                                InputStream data,

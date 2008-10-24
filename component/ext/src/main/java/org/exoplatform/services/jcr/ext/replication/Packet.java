@@ -53,26 +53,73 @@ public class Packet implements Externalizable {
      */
     public static final int CHANGESLOG                           = 1;
     
+    /**
+     * FIRST_CHANGESLOG_WITH_STREAM.
+     *   the pocket type for first packet of ChangesLog with stream
+     */
     public static final int FIRST_CHANGESLOG_WITH_STREAM         = 2;
 
+    /**
+     * FIRST_PACKET_OF_STREAM.
+     *   the pocket type for first packet of stream
+     */
     public static final int FIRST_PACKET_OF_STREAM               = 3;
 
+    /**
+     * PACKET_OF_STREAM.
+     *   the pocket type for middle packet of stream
+     */
     public static final int PACKET_OF_STREAM                     = 4;
 
+    /**
+     * LAST_PACKET_OF_STREAM.
+     *   the pocket type for last packet of stream
+     */
     public static final int LAST_PACKET_OF_STREAM                = 5;
 
+    /**
+     * LAST_CHANGESLOG_WITH_STREAM.
+     *   the pocket type for last packet of ChangesLog with stream
+     */
     public static final int LAST_CHANGESLOG_WITH_STREAM          = 6;
 
+    /**
+     * CHANGESLOG_FIRST_PACKET.
+     *   the pocket type for first packet of ChangesLog without stream
+     */
     public static final int CHANGESLOG_FIRST_PACKET              = 7;
 
+    /**
+     * CHANGESLOG_MIDDLE_PACKET.
+     *   the pocket type for middle packet of ChangesLog without stream
+     */
     public static final int CHANGESLOG_MIDDLE_PACKET             = 8;
 
+    /**
+     * CHANGESLOG_LAST_PACKET.
+     *   the pocket type for last packet of ChangesLog without stream
+     */
     public static final int CHANGESLOG_LAST_PACKET               = 9;
 
+    /**
+     * CHANGESLOG_WITH_STREAM_FIRST_PACKET.
+     *   the pocket type for first packet of ChangesLog with stream 
+     *   (MAX_PACKET_SIZE < ChangesLog only)
+     */
     public static final int CHANGESLOG_WITH_STREAM_FIRST_PACKET  = 10;
 
+    /**
+     * CHANGESLOG_WITH_STREAM_MIDDLE_PACKET.
+     *   the pocket type for middle packet of ChangesLog with stream 
+     *   (MAX_PACKET_SIZE < ChangesLog only)
+     */
     public static final int CHANGESLOG_WITH_STREAM_MIDDLE_PACKET = 11;
 
+    /**
+     * CHANGESLOG_WITH_STREAM_LAST_PACKET.
+     *   the pocket type for last packet of ChangesLog with stream 
+     *   (MAX_PACKET_SIZE < ChangesLog only)
+     */
     public static final int CHANGESLOG_WITH_STREAM_LAST_PACKET   = 12;
 
     /**
@@ -147,24 +194,67 @@ public class Packet implements Externalizable {
      */  
     public static final int NEED_TRANSFER_COUNTER                = 24;
 
+    /**
+     * REMOVED_OLD_CHANGESLOG_COUNTER.
+     *   the pocket type for information of how much ChangesLogs will be removed
+     */
     public static final int REMOVED_OLD_CHANGESLOG_COUNTER       = 25;
 
+    /**
+     * MEMBER_STARTED.
+     *   the pocket type for information other of member started
+     */
     public static final int MEMBER_STARTED                       = 26;
 
+    /**
+     * BIG_PACKET_FIRST.
+     *   the pocket type for first packet to binary Changeslog
+     *   (using for recovery)
+     */
     public static final int BIG_PACKET_FIRST                     = 27;
 
+    /**
+     * BIG_PACKET_MIDDLE.
+     *   the pocket type for middle packet to binary Changeslog
+     *   (using for recovery)
+     */
     public static final int BIG_PACKET_MIDDLE                    = 28;
 
+    /**
+     * BIG_PACKET_LAST.
+     *   the pocket type for last packet to binary Changeslog
+     *   (using for recovery)
+     */
     public static final int BIG_PACKET_LAST                      = 29;
 
+    /**
+     * GET_ALL_PRIORITY.
+     *   the pocket type for request to other their priorities  
+     */
     public static final int GET_ALL_PRIORITY                     = 30;
 
+    /**
+     * OWN_PRIORITY.
+     *   the pocket type for information other of own priority 
+     */
     public static final int OWN_PRIORITY                         = 31;
 
+    /**
+     * BINARY_CHANGESLOG_FIRST_PACKET.
+     *   the pocket type for first packet to binary Changeslog
+     */
     public static final int BINARY_CHANGESLOG_FIRST_PACKET       = 32;
 
+    /**
+     * BINARY_CHANGESLOG_MIDDLE_PACKET.
+     *   the pocket type for middle packet to binary Changeslog
+     */
     public static final int BINARY_CHANGESLOG_MIDDLE_PACKET      = 33;
 
+    /**
+     * BINARY_CHANGESLOG_LAST_PACKET.
+     *   the pocket type for last packet to binary Changeslog
+     */
     public static final int BINARY_CHANGESLOG_LAST_PACKET        = 34;
 
     /**

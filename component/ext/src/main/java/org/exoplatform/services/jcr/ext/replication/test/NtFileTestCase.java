@@ -37,6 +37,20 @@ import org.exoplatform.services.jcr.RepositoryService;
 
 public class NtFileTestCase extends BaseReplicationTestCase {
 
+  /**
+   * NtFileTestCase  constructor.
+   *
+   * @param repositoryService
+   *          the RepositoryService.
+   * @param reposytoryName
+   *          the repository name
+   * @param workspaceName
+   *          the workspace name
+   * @param userName
+   *          the user name
+   * @param password
+   *          the password
+   */
   public NtFileTestCase(RepositoryService repositoryService,
                         String reposytoryName,
                         String workspaceName,
@@ -46,6 +60,18 @@ public class NtFileTestCase extends BaseReplicationTestCase {
     log.info("NtFileTestCase inited");
   }
 
+  /**
+   * addNtFile.
+   *
+   * @param repoPath
+   *          repository path
+   * @param fileName
+   *          the name of nt:file node
+   * @param fileSize
+   *          the file size
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer addNtFile(String repoPath, String fileName, Long fileSize) {
     StringBuffer sb = new StringBuffer();
 
@@ -92,6 +118,18 @@ public class NtFileTestCase extends BaseReplicationTestCase {
     return sb;
   }
 
+  /**
+   * checkNtFile.
+   *
+   * @param repoPath
+   *          repository path
+   * @param fileName
+   *          the name of nt:file node
+   * @param fileSize
+   *          the file size
+   * @return StringBuffer
+   *           return the responds {'ok', 'fail'}
+   */
   public StringBuffer checkNtFile(String repoPath, String fileName, Long fileSize) {
     StringBuffer sb = new StringBuffer();
 
