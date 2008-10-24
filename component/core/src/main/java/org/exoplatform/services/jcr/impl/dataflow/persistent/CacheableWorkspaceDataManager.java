@@ -32,39 +32,90 @@ import org.exoplatform.services.jcr.impl.storage.SystemDataContainerHolder;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
- * Created by The eXo Platform SAS Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
+ * Created by The eXo Platform SAS. 
+ * 
+ * <br/>
+ * Author : Peter Nedonosko peter.nedonosko@exoplatform.com.ua
  * 13.04.2006
  * 
- * @version $Id: CacheableWorkspaceDataManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id$
  */
 public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManager {
 
+  /**
+   * Items cache.
+   */
   protected final WorkspaceStorageCache     cache;
 
+  /**
+   * Requests cache.
+   */
   protected final Map<Integer, DataRequest> requestCache;
 
+  /**
+   * ItemData request, used on get operations.
+   * 
+   */
   protected class DataRequest {
 
+    /**
+     * GET_NODES type.
+     */
     static public final int    GET_NODES      = 1;
 
+    /**
+     * GET_PROPERTIES type.
+     */
     static public final int    GET_PROPERTIES = 2;
 
+    /**
+     * GET_ITEM_ID type.
+     */
     static private final int   GET_ITEM_ID    = 3;
 
+    /**
+     * GET_ITEM_NAME type.
+     */
     static private final int   GET_ITEM_NAME  = 4;
 
+    /**
+     * Request type.
+     */
     protected final int        type;
 
+    /**
+     * Item parentId.
+     */
     protected final String     parentId;
 
+    /**
+     * Item id.
+     */
     protected final String     id;
 
+    /**
+     * Item name.
+     */
     protected final QPathEntry name;
 
+    /**
+     * Hash code.
+     */
     protected final int        hcode;
 
+    /**
+     * Readiness latch.
+     */
     protected CountDownLatch   ready          = new CountDownLatch(1);
 
+    /**
+     * DataRequest constructor.
+     * 
+     * @param parentId
+     *          parent id
+     * @param type
+     *          request type
+     */
     DataRequest(String parentId, int type) {
       this.parentId = parentId;
       this.name = null;
@@ -75,6 +126,14 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       this.hcode = 31 * (31 + this.type) + this.parentId.hashCode();
     }
 
+    /**
+     * DataRequest constructor.
+     * 
+     * @param parentId
+     *          parent id
+     * @param name
+     *          Item name
+     */
     DataRequest(String parentId, QPathEntry name) {
       this.parentId = parentId;
       this.name = name;
@@ -86,6 +145,12 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       this.hcode = 31 * hc + this.name.hashCode();
     }
 
+    /**
+     * DataRequest constructor.
+     * 
+     * @param id
+     *          Item id
+     */
     DataRequest(String id) {
       this.parentId = null;
       this.name = null;
@@ -134,6 +199,10 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       }
     }
 
+    /**
+     * Await this thread for another one running same request.
+     * 
+     */
     void await() {
       try {
         this.ready.await();
@@ -142,11 +211,17 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
       return this.hcode == obj.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
       return hcode;
@@ -154,8 +229,14 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   }
 
   /**
+   * CacheableWorkspaceDataManager constructor.
+   * 
    * @param dataContainer
+   *          Workspace data container (persistent level)
    * @param cache
+   *          Items cache
+   * @param systemDataContainerHolder
+   *          System Workspace data container (persistent level)
    */
   public CacheableWorkspaceDataManager(WorkspaceDataContainer dataContainer,
                                        WorkspaceStorageCache cache,
@@ -166,11 +247,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     addItemPersistenceListener(cache);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getItemData(java
-   * .lang.String)
+  /**
+   * {@inheritDoc}
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
     // 2. Try from cache
@@ -183,6 +261,9 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return data;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
 
     // 1. Try from cache
@@ -196,37 +277,37 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return data;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildNodes(org.exoplatform.services
-   * .jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<NodeData> getChildNodesData(NodeData nodeData) throws RepositoryException {
     return getChildNodesData(nodeData, false);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.core.WorkspaceDataManager#getChildProperties(org.exoplatform
-   * .services.jcr.datamodel.NodeData)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getChildPropertiesData(NodeData nodeData) throws RepositoryException {
     return getChildPropertiesData(nodeData, false);
   }
 
-  // same as getChildPropertiesData
+  /**
+   * {@inheritDoc}
+   */
   public List<PropertyData> listChildPropertiesData(NodeData nodeData) throws RepositoryException {
     return listChildPropertiesData(nodeData, false);
   }
 
   /**
+   * Get child NodesData.
    * 
    * @param nodeData
+   *          parent
    * @param forcePersistentRead
-   * @return
+   *          true if persistent read is required (without cache)
+   * @return List<NodeData>
    * @throws RepositoryException
+   *           Repository error
    */
   protected List<NodeData> getChildNodesData(NodeData nodeData, boolean forcePersistentRead) throws RepositoryException {
 
@@ -256,10 +337,15 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
   }
 
   /**
+   * Get child PropertyData.
+   * 
    * @param nodeData
+   *          parent
    * @param forcePersistentRead
-   * @return
+   *          true if persistent read is required (without cache)
+   * @return List<PropertyData>
    * @throws RepositoryException
+   *           Repository error
    */
   protected List<PropertyData> getChildPropertiesData(NodeData nodeData, boolean forcePersistentRead) throws RepositoryException {
 
@@ -278,7 +364,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       request.start();
 
       childProperties = super.getChildPropertiesData(nodeData);
-      if (childProperties.size() > 0 && cache.isEnabled()) { // TODO childProperties.size() > 0 for SDB
+      // TODO childProperties.size() > 0 for SDB
+      if (childProperties.size() > 0 && cache.isEnabled()) {
         NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
         if (parentData == null)
           parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
@@ -290,6 +377,17 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     }
   }
 
+  /**
+   * Get child PropertyData list (without ValueData).
+   * 
+   * @param nodeData
+   *          parent
+   * @param forcePersistentRead
+   *          true if persistent read is required (without cache)
+   * @return List<PropertyData>
+   * @throws RepositoryException
+   *           Repository error
+   */
   protected List<PropertyData> listChildPropertiesData(NodeData nodeData,
                                                        boolean forcePersistentRead) throws RepositoryException {
 
@@ -305,7 +403,8 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     }
 
     propertiesList = super.listChildPropertiesData(nodeData);
-    if (propertiesList.size() > 0 && cache.isEnabled()) { // TODO propertiesList.size() > 0 for SDB
+    // TODO propertiesList.size() > 0 for SDB
+    if (propertiesList.size() > 0 && cache.isEnabled()) {
       NodeData parentData = (NodeData) cache.get(nodeData.getIdentifier());
       if (parentData == null)
         parentData = (NodeData) super.getItemData(nodeData.getIdentifier());
@@ -314,24 +413,48 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
     return propertiesList;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspaceDataManager#getReferencesData
-   * (java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
     return super.getReferencesData(identifier, skipVersionStorage);
   }
 
+  /**
+   * Get Items Cache.
+   * 
+   * @return WorkspaceStorageCache
+   */
   public WorkspaceStorageCache getCache() {
     return cache;
   }
 
+  /**
+   * Get cached ItemData.
+   * 
+   * @param parentData
+   *          parent
+   * @param name
+   *          Item name
+   * @return ItemData
+   * @throws RepositoryException
+   *           error
+   */
   protected ItemData getCachedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     return cache.get(parentData.getIdentifier(), name);
   }
 
+  /**
+   * Get persisted ItemData.
+   * 
+   * @param parentData
+   *          parent
+   * @param name
+   *          Item name
+   * @return ItemData
+   * @throws RepositoryException
+   *           error
+   */
   protected ItemData getPersistedItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
 
     ItemData data = null;
@@ -344,6 +467,12 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
 
   /**
    * Returns an item from cache by Identifier or null if the item don't cached.
+   * 
+   * @param identifier
+   *          Item id
+   * @return ItemData
+   * @throws RepositoryException
+   *           error
    */
   protected ItemData getCachedItemData(String identifier) throws RepositoryException {
     return cache.get(identifier);
