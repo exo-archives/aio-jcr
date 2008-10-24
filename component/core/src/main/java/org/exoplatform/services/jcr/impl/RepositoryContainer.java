@@ -331,9 +331,6 @@ public class RepositoryContainer extends ExoContainer {
 
       load();
 
-      // TODO 
-      // doStart();
-
     } catch (RepositoryException e) {
       e.printStackTrace();
       throw new RuntimeException(e);
@@ -356,23 +353,6 @@ public class RepositoryContainer extends ExoContainer {
       log.error(e.getLocalizedMessage(), e);
     }
     super.stop();
-  }
-
-  /**
-   * Start workspaces. Start internal processes like search index etc.
-   * 
-   * <p>
-   * Runs on container start.
-   * 
-   * @throws RepositoryException
-   * @throws RepositoryConfigurationException
-   */
-  @Deprecated
-  private void doStart() throws RepositoryException, RepositoryConfigurationException {
-    List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
-    for (WorkspaceEntry ws : wsEntries) {
-      startWorkspace(ws);
-    }
   }
 
   /**
@@ -466,25 +446,6 @@ public class RepositoryContainer extends ExoContainer {
     for (int i = 0; i < wsEntries.size(); i++) {
       registerWorkspace(wsEntries.get(i));
     }
-  }
-
-  /**
-   * Do actual start of the workspace.
-   * 
-   * @param wsConfig
-   * @throws RepositoryException
-   */
-  @Deprecated
-  private void startWorkspace(WorkspaceEntry wsConfig) throws RepositoryException {
-
-    // TODO 21.10.08 do we need it here
-
-    WorkspaceContainer workspaceContainer = getWorkspaceContainer(wsConfig.getName());
-
-    WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
-
-    // start workspace
-    // wsInitializer.start();
   }
 
   /**
