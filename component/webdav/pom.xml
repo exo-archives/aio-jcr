@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
 		<artifactId>config</artifactId>
-		<version>trunk</version>
+		<version>1.10</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>exo.jcr.component.webdav
@@ -449,14 +449,14 @@
 									<groupId>org.exoplatform.core</groupId>
 									<artifactId>exo.core.component.organization.api
 									</artifactId>
-									<version>trunk</version>
+									<version>2.1.2</version>
 									<type>jar</type>
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.exoplatform.core</groupId>
 									<artifactId>exo.core.component.security.core
 									</artifactId>
-									<version>trunk</version>
+									<version>2.1.2</version>
 									<type>jar</type>
 								</artifactItem>
 								<artifactItem>

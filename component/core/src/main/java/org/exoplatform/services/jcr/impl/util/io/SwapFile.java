@@ -41,10 +41,24 @@ import java.util.concurrent.CountDownLatch;
  */
 public class SwapFile extends SpoolFile {
 
+  /**
+   * In-share files database.
+   */
   protected static Map<String, SwapFile> inShare    = new HashMap<String, SwapFile>();
 
+  /**
+   * Spool latch.
+   */
   protected CountDownLatch               spoolLatch = null;
 
+  /**
+   * SwapFile constructor.
+   * 
+   * @param parent
+   *          Parent File
+   * @param child
+   *          File name
+   */
   private SwapFile(File parent, String child) {
     super(parent, child);
   }
@@ -55,15 +69,16 @@ public class SwapFile extends SpoolFile {
    * If the file was swapped before and still in use it will be returned, i.e. same object of
    * java.io.File will be returned.
    * 
-   * if the file swapping (writing) now at this time the caller thread will wait till the swap
+   * If the file swapping (writing) now at this time the caller thread will wait till the swap
    * process will be finished.
    * 
    * @param parent
-   *          - File
+   *          - parent File
    * @param child
-   *          - String
-   * @return SwapFile
+   *          - String with file name
+   * @return SwapFile swap file
    * @throws IOException
+   *           I/O error
    */
   public static SwapFile get(final File parent, final String child) throws IOException {
     synchronized (inShare) {
@@ -136,9 +151,10 @@ public class SwapFile extends SpoolFile {
   }
 
   /**
-   * Not applicable. Call get(File, String) method instead
+   * Not applicable. Call get(File, String) method instead.
    * 
    * @throws IOException
+   *           I/O error
    */
   public static SwapFile createTempFile(String prefix, String suffix, File directory) throws IOException {
     throw new IOException("Not applicable. Call get(File, String) method instead");

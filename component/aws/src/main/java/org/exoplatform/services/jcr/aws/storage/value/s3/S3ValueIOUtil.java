@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -45,6 +45,9 @@ import com.amazon.s3.Response;
 import com.amazon.s3.S3Object;
 
 /**
+ * 
+ * S3 Value I/O Util.
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id$
  */
@@ -55,6 +58,30 @@ public class S3ValueIOUtil {
    */
   private static final Log LOG = ExoLogger.getLogger("jcr.S3ValueIOUtil");
 
+  /**
+   * Read S3 Value into ValueData. Spool data large of max-buffer-size (maxBufferSize) into
+   * SwapFile.
+   * 
+   * @param bucket
+   *          S3 bucket name
+   * @param awsAccessKey
+   *          AWS access key
+   * @param awsSecretAccessKey
+   *          AWS secret key
+   * @param s3fielName
+   *          S3 object name
+   * @param orderNum
+   *          JCR Value order number
+   * @param maxBufferSize
+   *          max-buffer-size, see configuration
+   * @param swapDir
+   *          swap directory, see configuration
+   * @param cleaner
+   *          Files cleaner
+   * @return ValueData
+   * @throws IOException
+   *           read error
+   */
   public static ValueData readValue(String bucket,
                                     String awsAccessKey,
                                     String awsSecretAccessKey,
@@ -80,25 +107,32 @@ public class S3ValueIOUtil {
     if (size > maxBufferSize) {
       SwapFile swapFile = SwapFile.get(swapDir, s3fielName); // + orderNumber removed
       if (!swapFile.isSpooled()) {
-        FileOutputStream fout = new FileOutputStream(swapFile);
+        // spool S3 Value content into swap file
         try {
-          // NIO work...
-          FileChannel fch = fout.getChannel();
-          ReadableByteChannel inch = Channels.newChannel(in);
+          FileOutputStream fout = new FileOutputStream(swapFile);
+          try {
+            // NIO work...
+            FileChannel fch = fout.getChannel();
+            ReadableByteChannel inch = Channels.newChannel(in);
 
-          long actualSize = fch.transferFrom(inch, 0, size);
+            long actualSize = fch.transferFrom(inch, 0, size);
 
-          // int rd = -1;
-          // byte[] buff = new byte[4096];
-          // while ((rd = in.read(buff)) != -1) {
-          // fout.write(buff, 0, rd);
-          // }
-          // fout.flush();
+            if (size != actualSize)
+              // TODO an exception will be better here
+              LOG.warn("Actual S3 Value size (" + actualSize + ") and content-length (" + size
+                  + ") differs. S3 key " + s3fielName);
+          } finally {
+            fout.close();
+          }
         } finally {
-          fout.close();
+          swapFile.spoolDone();
         }
-      } else
-        return new CleanableFileStreamValueData(swapFile, orderNum, cleaner);
+      }
+
+      if (LOG.isDebugEnabled())
+        LOG.debug("Value created as CleanableFileStreamValueData");
+
+      return new CleanableFileStreamValueData(swapFile, orderNum, cleaner);
     }
 
     int rd = -1;
@@ -113,6 +147,21 @@ public class S3ValueIOUtil {
     return new ByteArrayPersistedValueData(out.toByteArray(), orderNum);
   }
 
+  /**
+   * Check if S3 Value exists.
+   * 
+   * @param bucket
+   *          S3 bucket name
+   * @param awsAccessKey
+   *          AWS access key
+   * @param awsSecretAccessKey
+   *          AWS secret key
+   * @param s3fielName
+   *          S3 object name (JCR Value id + order number)
+   * @throws IOException
+   *           operation error
+   * @return boolean flag, true if exist
+   */
   public static boolean isValueExists(String bucket,
                                       String awsAccessKey,
                                       String awsSecretAccessKey,
@@ -132,6 +181,18 @@ public class S3ValueIOUtil {
     return true;
   }
 
+  /**
+   * Create S3 bucket.
+   * 
+   * @param bucket
+   *          S3 bucket name
+   * @param awsAccessKey
+   *          AWS access key
+   * @param awsSecretAccessKey
+   *          AWS secret key
+   * @throws IOException
+   *           operation error
+   */
   public static void createBucket(String bucket, String awsAccessKey, String awsSecretAccessKey) throws IOException {
 
     AWSAuthConnection conn = new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
@@ -144,13 +205,24 @@ public class S3ValueIOUtil {
       LOG.debug("Create bucket on S3: STATUS = " + responseCode);
   }
 
+  /**
+   * Delete S3 bucket.
+   * 
+   * @param bucket
+   *          S3 bucket name
+   * @param awsAccessKey
+   *          AWS access key
+   * @param awsSecretAccessKey
+   *          AWS secret key
+   * @throws IOException
+   *           operation error
+   */
   public static void deleteBucket(String bucket, String awsAccessKey, String awsSecretAccessKey) throws IOException {
 
     AWSAuthConnection conn = new AWSAuthConnection(awsAccessKey, awsSecretAccessKey);
     Response resp = conn.deleteBucket(bucket, null);
     int responseCode = resp.connection.getResponseCode();
     if (responseCode != HttpURLConnection.HTTP_OK) {
-      //String cont = resp.connection.getContent().toString();
       throw new IOException("Can't delete BUCKET on S3 storage. HTTP status " + responseCode + " "
           + resp.connection.getResponseMessage());
     }
