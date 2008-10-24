@@ -142,11 +142,14 @@
               </systemProperties>
               <includes>
                 <include>**/SDBWorkspace*Test_.java</include>
+				
                 <include>**/SDBWorkspaceStorageConnectionWriteTest_.java</include>
-				<include>**/TestDeleteDomain_.java</include>
-                
                 <include>**/SDBWorkspaceStorageConnectionReadTest_.java</include>
                 <include>**/TestBinaryValueS3_.java</include>
+				
+				<include>**/TestDeleteDomain_.java</include>
+				
+				<include>**/TestChildProperties_.java</include>
               </includes>
               <excludes>
                 <exclude>**/apache/**</exclude>
@@ -209,7 +212,7 @@
             </goals>
             <configuration>
               <skip>${exo.tck.skip}</skip>
-              <!-- classesDirectory>${exo.test.classesdirectory}</classesDirectory -->
+              <classesDirectory>${exo.test.classesdirectory}</classesDirectory>
               <forkMode>${exo.test.forkMode}</forkMode>
               <argLine>-Xmx512M</argLine>
               <systemProperties>
