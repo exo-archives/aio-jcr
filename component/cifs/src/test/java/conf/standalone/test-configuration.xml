@@ -105,8 +105,9 @@
           <values-param>
             <name>autoCreatedInNewRepository</name>
             <description>Node types configuration file</description>
-            <value>jar:/conf/test/nodetypes-tck.xml</value>
-            <value>jar:/conf/test/nodetypes-impl.xml</value>
+            <!--value>jar:/conf/test/nodetypes-impl.xml</value-->
+            <value>jar:/conf/test/nodetypes-test.xml</value>
+            <value>jar:/conf/test/nodetypes-test2.xml</value>
             <value>jar:/conf/test/nodetypes-usecase.xml</value>
           </values-param>
           
@@ -364,89 +365,7 @@
         </properties-param>
       </init-params>
     </component-plugin>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>jdbcjcrtck</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/portaltck"/>
-          <property name="username" value="sa"/>
-          <property name="password" value=""/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>jdbcjcr1tck</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcrtck"/>
-          <property name="username" value="sa"/>
-          <property name="password" value=""/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
-      <name>bind.datasource</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.services.naming.BindReferencePlugin</type>
-      <init-params>
-        <value-param>
-          <name>bind-name</name>
-          <value>jdbcjcr2tck</value>
-        </value-param>
-        <value-param>
-          <name>class-name</name>
-          <value>javax.sql.DataSource</value>
-        </value-param>
-        <value-param>
-          <name>factory</name>
-          <value>org.apache.commons.dbcp.BasicDataSourceFactory</value>
-        </value-param>
-        <properties-param>
-          <name>ref-addresses</name>
-          <description>ref-addresses</description>
-          <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
-          <property name="url" value="jdbc:hsqldb:file:target/temp/data/jcr2tck"/>
-          <property name="username" value="sa"/>
-          <property name="password" value=""/>
-        </properties-param>
-      </init-params>
-    </component-plugin>
-    <!-- Resource configuration for UserTransaction
-    use JOTM
+    <!-- Resource configuration for UserTransaction    use JOTM
     -->
     <component-plugin>
       <name>jotm.tx</name>
