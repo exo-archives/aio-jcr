@@ -27,6 +27,7 @@ import javax.jcr.Session;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
@@ -39,8 +40,6 @@ import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.resource.GenericResource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-
-import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * Created by The eXo Platform SAS .<br/>
@@ -104,7 +103,7 @@ public class LockCommand {
 
   }
 
-  private final SerializableEntity body(WebDavNamespaceContext nsContext,
+  private final StreamingOutput body(WebDavNamespaceContext nsContext,
                                         LockRequestEntity input,
                                         Depth depth,
                                         String lockToken,
@@ -113,7 +112,7 @@ public class LockCommand {
     return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
   }
 
-  public class LockResultResponseEntity implements SerializableEntity {
+  public class LockResultResponseEntity implements StreamingOutput {
 
     protected WebDavNamespaceContext nsContext;
 
@@ -133,7 +132,7 @@ public class LockCommand {
       this.timeOut = timeOut;
     }
 
-    public void writeObject(OutputStream stream) throws IOException {
+    public void write(OutputStream stream) throws IOException {
       try {
         XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
                                                           .createXMLStreamWriter(stream,
