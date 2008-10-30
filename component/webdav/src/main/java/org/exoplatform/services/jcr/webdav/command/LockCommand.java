@@ -26,19 +26,20 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.Response;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.Depth;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.lock.LockRequestEntity;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.resource.GenericResource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.Response;
+
 import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
@@ -83,7 +84,7 @@ public class LockCommand {
 
       LockRequestEntity requestEntity = new LockRequestEntity(body);
 
-      return Response.Builder.ok(body(nsContext,
+      return Response.ok(body(nsContext,
                                       requestEntity,
                                       depth,
                                       lockToken,
@@ -93,12 +94,12 @@ public class LockCommand {
 
       // TODO 412 Precondition Failed ?
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
     } catch (AccessDeniedException e) {
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.status(HTTPStatus.FORBIDDEN).build();
     } catch (Exception exc) {
       exc.printStackTrace();
-      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
+      return Response.serverError().build();
     }
 
   }

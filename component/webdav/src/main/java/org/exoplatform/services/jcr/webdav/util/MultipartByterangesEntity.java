@@ -22,19 +22,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.ws.rs.core.StreamingOutput;
+
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
-import org.exoplatform.services.rest.transformer.SerializableEntity;
+
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class MultipartByterangesEntity implements SerializableEntity {
+public class MultipartByterangesEntity implements StreamingOutput {
 
   private final Resource    resource_;
 
@@ -59,7 +61,7 @@ public class MultipartByterangesEntity implements SerializableEntity {
    * @see
    * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
    */
-  public void writeObject(OutputStream ostream) throws IOException {
+  public void write(OutputStream ostream) throws IOException {
     try {
       for (Range range : ranges_) {
         InputStream istream = null;

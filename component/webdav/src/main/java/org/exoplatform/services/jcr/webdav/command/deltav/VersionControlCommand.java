@@ -21,9 +21,9 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.Response;
 
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.rest.Response;
+import org.exoplatform.common.http.HTTPStatus;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -41,16 +41,17 @@ public class VersionControlCommand {
         node.addMixin("mix:versionable");
         session.save();
       }
-      return Response.Builder.ok().build();
+      return Response.ok().build();
 
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 

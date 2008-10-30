@@ -28,15 +28,15 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.order.OrderMember;
 import org.exoplatform.services.jcr.webdav.command.order.OrderPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -59,20 +59,21 @@ public class OrderPatchCommand {
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
 
       if (doOrder(node, members)) {
-        return Response.Builder.ok().build();
+        return Response.ok().build();
       }
 
       OrderPatchResponseEntity orderPatchEntity = new OrderPatchResponseEntity(nsContext,
                                                                                uri,
                                                                                node,
                                                                                members);
-      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(orderPatchEntity).build();
+      return Response.status(HTTPStatus.MULTISTATUS).entity(orderPatchEntity).build();
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
 
   }
@@ -92,7 +93,7 @@ public class OrderPatchCommand {
     for (int i = 0; i < members.size(); i++) {
       OrderMember member = members.get(i);
 
-      int status = WebDavStatus.OK;
+      int status = HTTPStatus.OK;
 
       try {
         parentNode.getSession().refresh(false);
@@ -142,21 +143,21 @@ public class OrderPatchCommand {
         parentNode.getSession().save();
 
       } catch (LockException exc) {
-        status = WebDavStatus.LOCKED;
+        status = HTTPStatus.LOCKED;
 
       } catch (PathNotFoundException exc) {
-        status = WebDavStatus.FORBIDDEN;
+        status = HTTPStatus.FORBIDDEN;
 
       } catch (AccessDeniedException exc) {
-        status = WebDavStatus.FORBIDDEN;
+        status = HTTPStatus.FORBIDDEN;
 
       } catch (RepositoryException exc) {
-        status = WebDavStatus.INTERNAL_SERVER_ERROR;
+        status = HTTPStatus.INTERNAL_ERROR;
 
       }
 
       member.setStatus(status);
-      if (status != WebDavStatus.OK) {
+      if (status != HTTPStatus.OK) {
         success = false;
       }
     }

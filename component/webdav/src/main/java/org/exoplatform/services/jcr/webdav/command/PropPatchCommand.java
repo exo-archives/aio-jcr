@@ -25,16 +25,15 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
-import org.exoplatform.common.http.client.HTTPConnection;
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -79,14 +78,15 @@ public class PropPatchCommand {
                                                                    uri,
                                                                    setList,
                                                                    removeList);
-      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(entity).build();
+      return Response.status(HTTPStatus.MULTISTATUS).entity(entity).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
 
   }

@@ -27,10 +27,11 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.propfind.PropFindRequestEntity;
 import org.exoplatform.services.jcr.webdav.command.propfind.PropFindResponseEntity;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
@@ -41,7 +42,6 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedCollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.VersionedFileResource;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS <br/>
@@ -70,10 +70,10 @@ public class PropFindCommand {
     try {
       node = (Node) session.getItem(path);
     } catch (PathNotFoundException e) {
-      return Response.Builder.withStatus(WebDavStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (RepositoryException e) {
       e.printStackTrace();
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      return Response.serverError().build();
     }
 
     WebDavNamespaceContext nsContext;
@@ -105,7 +105,7 @@ public class PropFindCommand {
 
     } catch (Exception e1) {
       e1.printStackTrace();
-      return Response.Builder.serverError().errorMessage(e1.getMessage()).build();
+      return Response.serverError().build();
     }
 
     PropFindRequestEntity request = new PropFindRequestEntity(body);
@@ -118,12 +118,11 @@ public class PropFindCommand {
     } else if (request.getType().equalsIgnoreCase("prop")) {
       response = new PropFindResponseEntity(depth, resource, propertyNames(body), false);
     } else {
-      return Response.Builder.badRequest().errorMessage("Unexpected property name "
-          + request.getType()).build();
+      return Response.status(HTTPStatus.BAD_REQUEST).build();
     }
 
-    return Response.Builder.withStatus(WebDavStatus.MULTISTATUS)
-                           .entity(response, "text/xml")
+    return Response.status(HTTPStatus.MULTISTATUS)
+                           .entity(response)
                            .build();
   }
 

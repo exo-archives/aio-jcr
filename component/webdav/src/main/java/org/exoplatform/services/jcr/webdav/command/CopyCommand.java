@@ -23,9 +23,9 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.Response;
 
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.rest.Response;
+import org.exoplatform.common.http.HTTPStatus;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -38,22 +38,22 @@ public class CopyCommand {
   public Response copy(Session destSession, String sourcePath, String destPath) {
     try {
       destSession.getWorkspace().copy(sourcePath, destPath);
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      return Response.status(HTTPStatus.CREATED).build();
     } catch (ItemExistsException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
+      return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
     } catch (PathNotFoundException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.status(HTTPStatus.CONFLICT).build();
     } catch (AccessDeniedException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.status(HTTPStatus.FORBIDDEN).build();
     } catch (LockException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
     } catch (RepositoryException e) {
       e.printStackTrace();
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      return Response.serverError().build();
     }
   }
 
@@ -63,22 +63,22 @@ public class CopyCommand {
                        String destPath) {
     try {
       destSession.getWorkspace().copy(sourceWorkspace, sourcePath, destPath);
-      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+      return Response.status(HTTPStatus.CREATED).build();
     } catch (ItemExistsException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
+      return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
     } catch (PathNotFoundException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.status(HTTPStatus.CONFLICT).build();
     } catch (AccessDeniedException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.status(HTTPStatus.FORBIDDEN).build();
     } catch (LockException e) {
       e.printStackTrace();
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
     } catch (RepositoryException e) {
       e.printStackTrace();
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      return Response.serverError().build();
     }
   }
 }

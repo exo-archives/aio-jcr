@@ -25,8 +25,22 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.commons.utils.MimeTypeResolver;
 import org.exoplatform.container.xml.InitParams;
@@ -56,24 +70,30 @@ import org.exoplatform.services.jcr.webdav.command.deltav.VersionControlCommand;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.NodeTypeUtil;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
-import org.exoplatform.services.jcr.webdav.xml.XMLInputTransformer;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.ContextParam;
-import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.HeaderParam;
-import org.exoplatform.services.rest.InputTransformer;
-import org.exoplatform.services.rest.OutputTransformer;
-import org.exoplatform.services.rest.QueryParam;
-import org.exoplatform.services.rest.ResourceBinder;
-import org.exoplatform.services.rest.ResourceDispatcher;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.URIParam;
-import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.container.ResourceDescriptor;
-import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
-import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
-import org.exoplatform.services.rest.transformer.SerializableTransformer;
+import org.exoplatform.services.rest.CHECKIN;
+import org.exoplatform.services.rest.CHECKOUT;
+import org.exoplatform.services.rest.COPY;
+import org.exoplatform.services.rest.LOCK;
+import org.exoplatform.services.rest.MKCOL;
+import org.exoplatform.services.rest.MOVE;
+import org.exoplatform.services.rest.OPTIONS;
+import org.exoplatform.services.rest.ORDERPATCH;
+import org.exoplatform.services.rest.PROPFIND;
+import org.exoplatform.services.rest.PROPPATCH;
+import org.exoplatform.services.rest.REPORT;
+import org.exoplatform.services.rest.SEARCH;
+import org.exoplatform.services.rest.UNCHECKOUT;
+import org.exoplatform.services.rest.UNLOCK;
+import org.exoplatform.services.rest.VERSIONCONTROL;
+import org.exoplatform.services.rest.impl.ResourceBinder;
+import org.exoplatform.services.rest.resource.ResourceContainer;
+
+//import org.exoplatform.services.rest.container.ResourceContainer;
+//import org.exoplatform.services.rest.container.ResourceDescriptor;
+//import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
+//import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
+//import org.exoplatform.services.rest.transformer.SerializableTransformer;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -82,59 +102,58 @@ import org.exoplatform.services.rest.transformer.SerializableTransformer;
  * @version $Id: $
  */
 
-@URITemplate("/jcr/")
+@Path("/jcr/")
 public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   /**
    * Default folder initialization node type.
    */
-  public static final String INIT_PARAM_DEF_FOLDER_NODE_TYPE = "def-folder-node-type";
+  public static final String                      INIT_PARAM_DEF_FOLDER_NODE_TYPE = "def-folder-node-type";
 
   /**
    * Default file initialization node type.
    */
-  public static final String INIT_PARAM_DEF_FILE_NODE_TYPE = "def-file-node-type";
+  public static final String                      INIT_PARAM_DEF_FILE_NODE_TYPE   = "def-file-node-type";
 
   /**
    * Default file initialization mime type.
    */
-  public static final String INIT_PARAM_DEF_FILE_MIME_TYPE = "def-file-mimetype";
+  public static final String                      INIT_PARAM_DEF_FILE_MIME_TYPE   = "def-file-mimetype";
 
   /**
    * Initialization initialization "update-policy"-parameter value.
    */
-  public static final String INIT_PARAM_UPDATE_POLICY = "update-policy";
+  public static final String                      INIT_PARAM_UPDATE_POLICY        = "update-policy";
 
   /**
    * Logger.
    */
-  private static Log log = ExoLogger.getLogger("jcr.WebDavServiceImpl");
+  private static Log                              log                             = ExoLogger.getLogger("jcr.WebDavServiceImpl");
 
   private final ThreadLocalSessionProviderService sessionProviderService;
 
-  private final RepositoryService repositoryService;
+  private final RepositoryService                 repositoryService;
 
-  private final ResourceBinder resourceBinder;
+  private final ResourceBinder                    resourceBinder;
 
-  private final NullResourceLocksHolder nullResourceLocks;
+  private final NullResourceLocksHolder           nullResourceLocks;
 
   /**
    * Default folder node type.
    */
-  private String defaultFolderNodeType = "nt:folder";
+  private String                                  defaultFolderNodeType           = "nt:folder";
 
   /**
    * Default file node type.
    */
-  private String defaultFileNodeType = "nt:file";
+  private String                                  defaultFileNodeType             = "nt:file";
 
   /**
    * Default file mime type.
    */
-  private String defaultFileMimeType = "application/octet-stream";
+  private String                                  defaultFileMimeType             = "application/octet-stream";
 
-  
-  private String updatePolicyType = "create-version";
+  private String                                  updatePolicyType                = "create-version";
 
   public WebDavServiceImpl(InitParams params,
                            RepositoryService repositoryService,
@@ -171,12 +190,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
-  @HTTPMethod(WebDavMethods.CHECKIN)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response checkin(@URIParam("repoName") String repoName,
-                          @URIParam("repoPath") String repoPath,
+  @CHECKIN
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response checkin(@PathParam("repoName") String repoName,
+                          @PathParam("repoPath") String repoPath,
                           @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                           @HeaderParam(WebDavHeaders.IF) String ifHeader,
                           HierarchicalProperty body) {
@@ -187,17 +206,18 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
     return new CheckInCommand().checkIn(session, path(repoPath));
   }
 
-  @HTTPMethod(WebDavMethods.CHECKOUT)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response checkout(@URIParam("repoName") String repoName,
-                           @URIParam("repoPath") String repoPath,
+  @CHECKOUT
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response checkout(@PathParam("repoName") String repoName,
+                           @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                            @HeaderParam(WebDavHeaders.IF) String ifHeader,
                            HierarchicalProperty body) {
@@ -208,24 +228,25 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
 
     return new CheckOutCommand().checkout(session, path(repoPath));
   }
 
-  @HTTPMethod(WebDavMethods.COPY)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response copy(@URIParam("repoName") String repoName,
-                       @URIParam("repoPath") String repoPath,
+  @COPY
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response copy(@PathParam("repoName") String repoName,
+                       @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                        @HeaderParam(WebDavHeaders.IF) String ifHeader,
                        @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
                        @HeaderParam(WebDavHeaders.OVERWRITE) String overwriteHeader,
-                       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                       @Context UriInfo baseURI,
                        HierarchicalProperty body) {
 
     log.debug("COPY " + repoName + "/" + repoPath);
@@ -236,7 +257,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
 
       if (!destinationHeader.startsWith(serverURI)) {
-        return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
+        return Response.status(HTTPStatus.BAD_GATEWAY).build();
       }
 
       String destPath = destinationHeader.substring(serverURI.length() + 1);
@@ -261,8 +282,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                           body,
                                                           depth.getIntValue(),
                                                           uri);
-        if (prpfind.getStatus() != WebDavStatus.NOT_FOUND) {
-          return Response.Builder.withStatus(WebDavStatus.PRECONDITION_FAILED).build();
+        if (prpfind.getStatus() != HTTPStatus.NOT_FOUND) {
+          return Response.status(HTTPStatus.PRECON_FAILED).build();
         }
       }
 
@@ -291,21 +312,21 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                          lockTokens);
 
       } else {
-        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).build();
+        return Response.status(HTTPStatus.BAD_REQUEST).build();
       }
 
     } catch (Exception e) {
       e.printStackTrace();
-      return Response.Builder.serverError().build();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.DELETE)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response delete(@URIParam("repoName") String repoName,
-                         @URIParam("repoPath") String repoPath,
+  @DELETE
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(PassthroughInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response delete(@PathParam("repoName") String repoName,
+                         @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                          @HeaderParam(WebDavHeaders.IF) String ifHeader) {
 
@@ -316,21 +337,22 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                                               ifHeader));
       return new DeleteCommand().delete(session, path(repoPath));
     } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.GET)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response get(@URIParam("repoName") String repoName,
-                      @URIParam("repoPath") String repoPath,
+  @GET
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(PassthroughInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response get(@PathParam("repoName") String repoName,
+                      @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
                       @QueryParam("version") String version,
-                      @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
+                      @Context UriInfo baseURI) {
 
     log.debug("GET " + repoName + "/" + repoPath);
 
@@ -352,8 +374,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
             token = token.trim();
             int dash = token.indexOf("-");
             if (dash == -1) {
-              return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-                                     .build();
+              return Response.status(HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE).build();
             } else if (dash == 0) {
               range.setStart(Long.parseLong(token));
               range.setEnd(-1L);
@@ -372,22 +393,22 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new GetCommand().get(session, path(repoPath), version, uri, ranges);
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception exc) {
       exc.printStackTrace();
-      return Response.Builder.serverError().build();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.HEAD)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response head(@URIParam("repoName") String repoName,
-                       @URIParam("repoPath") String repoPath,
+  @HEAD
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(PassthroughInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response head(@PathParam("repoName") String repoName,
+                       @PathParam("repoPath") String repoPath,
                        @QueryParam("version") String version,
-                       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI) {
+                       @Context UriInfo baseURI) {
 
     log.debug("HEAD " + repoName + "/" + repoPath);
 
@@ -396,18 +417,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new HeadCommand().head(session, path(repoPath), uri);
     } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
+      Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.LOCK)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(SerializableTransformer.class)
-  public Response lock(@URIParam("repoName") String repoName,
-                       @URIParam("repoPath") String repoPath,
+  @LOCK
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(SerializableTransformer.class)
+  public Response lock(@PathParam("repoName") String repoName,
+                       @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                        @HeaderParam(WebDavHeaders.IF) String ifHeader,
                        @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
@@ -426,38 +448,32 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                      "86400");
 
     } catch (PreconditionException e) {
-
       log.error("PreconditionException " + e.getMessage());
       e.printStackTrace();
-
-      return Response.Builder.withStatus(WebDavStatus.PRECONDITION_FAILED)
-                             .errorMessage(e.getMessage())
-                             .build();
+      return Response.status(HTTPStatus.PRECON_FAILED).build();
 
     } catch (NoSuchWorkspaceException e) {
 
       log.error("NoSuchWorkspaceException " + e.getMessage());
       e.printStackTrace();
 
-      return Response.Builder.notFound()
-                             .errorMessage("Workspace not found for " + repoPath)
-                             .build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception e) {
 
       log.error("Unhandled Exception " + e.getMessage());
       e.printStackTrace();
 
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.UNLOCK)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(SerializableTransformer.class)
-  public Response unlock(@URIParam("repoName") String repoName,
-                         @URIParam("repoPath") String repoPath,
+  @UNLOCK
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(SerializableTransformer.class)
+  public Response unlock(@PathParam("repoName") String repoName,
+                         @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                          @HeaderParam(WebDavHeaders.IF) String ifHeader,
                          HierarchicalProperty body) {
@@ -471,20 +487,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new UnLockCommand(nullResourceLocks).unLock(session, path(repoPath), tokens);
 
     } catch (NoSuchWorkspaceException e) {
-      return Response.Builder.notFound()
-                             .errorMessage("Workspace not found for " + repoPath)
-                             .build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception e) {
-      return Response.Builder.serverError().build();
+      e.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.MKCOL)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response mkcol(@URIParam("repoName") String repoName,
-                        @URIParam("repoPath") String repoPath,
+  @MKCOL
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(PassthroughInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response mkcol(@PathParam("repoName") String repoName,
+                        @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                         @HeaderParam(WebDavHeaders.IF) String ifHeader,
                         @HeaderParam(WebDavHeaders.NODETYPE) String nodeTypeHeader,
@@ -506,25 +521,25 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                        NodeTypeUtil.getMixinTypes(mixinTypesHeader),
                                                        tokens);
     } catch (NoSuchWorkspaceException wexc) {
-      return Response.Builder.notFound().build();
+      Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
       exc.printStackTrace();
-      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.MOVE)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response move(@URIParam("repoName") String repoName,
-                       @URIParam("repoPath") String repoPath,
+  @MOVE
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response move(@PathParam("repoName") String repoName,
+                       @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                        @HeaderParam(WebDavHeaders.IF) String ifHeader,
                        @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
                        @HeaderParam(WebDavHeaders.OVERWRITE) String overwriteHeader,
-                       @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                       @Context UriInfo baseURI,
                        HierarchicalProperty body) {
 
     log.debug("MOVE " + repoName + "/" + repoPath);
@@ -535,7 +550,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       destinationHeader = TextUtil.unescape(destinationHeader, '%');
 
       if (!destinationHeader.startsWith(serverURI)) {
-        return Response.Builder.withStatus(WebDavStatus.BAD_GATEWAY).build();
+        return Response.status(HTTPStatus.BAD_GATEWAY).build();
       }
 
       String destPath = destinationHeader.substring(serverURI.length() + 1);
@@ -562,8 +577,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                           body,
                                                           depth.getIntValue(),
                                                           uri);
-        if (prpfind.getStatus() != WebDavStatus.NOT_FOUND) {
-          return Response.Builder.withStatus(WebDavStatus.PRECONDITION_FAILED).build();
+        if (prpfind.getStatus() != HTTPStatus.NOT_FOUND) {
+          return Response.status(HTTPStatus.PRECON_FAILED).build();
         }
       }
 
@@ -577,20 +592,21 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         Session destSession = session(repoName, destWorkspace, lockTokens);
         return new MoveCommand().move(srcSession, destSession, path(repoPath), path(destPath));
       } else {
-        return Response.Builder.withStatus(WebDavStatus.BAD_REQUEST).build();
+        return Response.status(HTTPStatus.BAD_REQUEST).build();
       }
 
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
 
   }
 
-  @HTTPMethod(WebDavMethods.OPTIONS)
-  @URITemplate("/{repoName}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response options(@URIParam("repoName") String repoName, HierarchicalProperty body) {
+  @OPTIONS
+  @Path("/{repoName}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response options(@PathParam("repoName") String repoName, HierarchicalProperty body) {
 
     log.debug("OPTIONS " + repoName);
 
@@ -621,23 +637,23 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     String DASL_VALUE = "<DAV:basicsearch>" + "<exo:sql xmlns:exo=\"http://exoplatform.com/jcr\"/>"
         + "<exo:xpath xmlns:exo=\"http://exoplatform.com/jcr\"/>";
 
-    return Response.Builder.ok()
-                           .header(WebDavHeaders.ALLOW, allowCommands)
-                           .header(WebDavHeaders.DAV, "1, 2, ordered-collections")
-                           .header(WebDavHeaders.DASL, DASL_VALUE)
-                           .header(WebDavHeaders.MSAUTHORVIA, "DAV")
-                           .build();
+    return Response.ok()
+                   .header(WebDavHeaders.ALLOW, allowCommands)
+                   .header(WebDavHeaders.DAV, "1, 2, ordered-collections")
+                   .header(WebDavHeaders.DASL, DASL_VALUE)
+                   .header(WebDavHeaders.MSAUTHORVIA, "DAV")
+                   .build();
   }
 
-  @HTTPMethod(WebDavMethods.ORDERPATCH)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(SerializableTransformer.class)
-  public Response order(@URIParam("repoName") String repoName,
-                        @URIParam("repoPath") String repoPath,
+  @ORDERPATCH
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(SerializableTransformer.class)
+  public Response order(@PathParam("repoName") String repoName,
+                        @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                         @HeaderParam(WebDavHeaders.IF) String ifHeader,
-                        @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                        @Context UriInfo baseURI,
                         HierarchicalProperty body) {
 
     log.debug("ORDERPATCH " + repoName + "/" + repoPath);
@@ -648,18 +664,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new OrderPatchCommand().orderPatch(session, path(repoPath), body, uri);
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.PROPFIND)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(SerializableTransformer.class)
-  public Response propfind(@URIParam("repoName") String repoName,
-                           @URIParam("repoPath") String repoPath,
+  @PROPFIND
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(SerializableTransformer.class)
+  public Response propfind(@PathParam("repoName") String repoName,
+                           @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
-                           @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                           @Context UriInfo baseURI,
                            HierarchicalProperty body) {
 
     log.debug("PROPFIND " + repoName + "/" + repoPath);
@@ -671,25 +688,25 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new PropFindCommand().propfind(session, path(repoPath), body, depth.getIntValue(), uri);
     } catch (NoSuchWorkspaceException e) {
       e.printStackTrace();
-      return Response.Builder.notFound().build();
+      Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (PreconditionException e) {
       e.printStackTrace();
-      return Response.Builder.badRequest().errorMessage(e.getMessage()).build();
+      return Response.status(HTTPStatus.BAD_REQUEST).build();
     } catch (Exception e) {
       e.printStackTrace();
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.PROPPATCH)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(SerializableTransformer.class)
-  public Response proppatch(@URIParam("repoName") String repoName,
-                            @URIParam("repoPath") String repoPath,
+  @PROPPATCH
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(SerializableTransformer.class)
+  public Response proppatch(@PathParam("repoName") String repoName,
+                            @PathParam("repoPath") String repoPath,
                             @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                             @HeaderParam(WebDavHeaders.IF) String ifHeader,
-                            @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                            @Context UriInfo baseURI,
                             HierarchicalProperty body) {
 
     log.debug("PROPPATCH " + repoName + "/" + repoPath);
@@ -705,19 +722,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                                uri);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspace. " + exc.getMessage());
-      return Response.Builder.notFound().build();
+      Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
-      log.error("Unhandled exception. " + exc.getMessage());
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.PUT)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response put(@URIParam("repoName") String repoName,
-                      @URIParam("repoPath") String repoPath,
+  @PUT
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(PassthroughInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response put(@PathParam("repoName") String repoName,
+                      @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                       @HeaderParam(WebDavHeaders.IF) String ifHeader,
                       @HeaderParam(WebDavHeaders.NODETYPE) String nodeTypeHeader,
@@ -759,21 +776,22 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                    tokens);
 
     } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().errorMessage(exc.getMessage()).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception e) {
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      e.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.REPORT)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(SerializableTransformer.class)
-  public Response report(@URIParam("repoName") String repoName,
-                         @URIParam("repoPath") String repoPath,
+  @REPORT
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(SerializableTransformer.class)
+  public Response report(@PathParam("repoName") String repoName,
+                         @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
-                         @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+                         @Context UriInfo baseURI,
                          HierarchicalProperty body) {
 
     log.debug("REPORT " + repoName + "/" + repoPath);
@@ -784,19 +802,20 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new ReportCommand().report(session, path(repoPath), body, depth, uri);
     } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
+      Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.SEARCH)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(SerializableTransformer.class)
-  public Response search(@URIParam("repoName") String repoName,
-                         @URIParam("repoPath") String repoPath,
-                         @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
+  @SEARCH
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(SerializableTransformer.class)
+  public Response search(@PathParam("repoName") String repoName,
+                         @PathParam("repoPath") String repoPath,
+                         @Context UriInfo baseURI,
                          HierarchicalProperty body) {
 
     log.debug("SEARCH " + repoName + "/" + repoPath);
@@ -807,18 +826,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new SearchCommand().search(session, body, uri);
 
     } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().errorMessage(exc.getMessage()).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.UNCHECKOUT)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(XMLInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response uncheckout(@URIParam("repoName") String repoName,
-                             @URIParam("repoPath") String repoPath,
+  @UNCHECKOUT
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(XMLInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response uncheckout(@PathParam("repoName") String repoName,
+                             @PathParam("repoPath") String repoPath,
                              @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                              @HeaderParam(WebDavHeaders.IF) String ifHeader,
                              HierarchicalProperty body) {
@@ -831,19 +851,20 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new UnCheckOutCommand().uncheckout(session, path(repoPath));
 
     } catch (NoSuchWorkspaceException exc) {
-      return Response.Builder.notFound().build();
+      Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 
-  @HTTPMethod(WebDavMethods.VERSIONCONTROL)
-  @URITemplate("/{repoName}/{repoPath}/")
-  @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response versionControl(@URIParam("repoName") String repoName,
-                                 @URIParam("repoPath") String repoPath,
+  @VERSIONCONTROL
+  @Path("/{repoName}/{repoPath}/")
+  @Consumes(PassthroughInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response versionControl(@PathParam("repoName") String repoName,
+                                 @PathParam("repoPath") String repoPath,
                                  @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                                  @HeaderParam(WebDavHeaders.IF) String ifHeader) {
 
@@ -853,7 +874,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
     return new VersionControlCommand().versionControl(session, path(repoPath));
   }

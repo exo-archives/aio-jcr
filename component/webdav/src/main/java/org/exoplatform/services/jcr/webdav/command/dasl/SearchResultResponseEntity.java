@@ -26,6 +26,7 @@ import java.util.Set;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.query.QueryResult;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -42,7 +43,6 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.PropstatGroupedRepresentation;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -50,7 +50,7 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  * @version $Id: $
  */
 
-public class SearchResultResponseEntity implements SerializableEntity {
+public class SearchResultResponseEntity implements StreamingOutput {
 
   private final WebDavNamespaceContext nsContext;
 
@@ -76,7 +76,7 @@ public class SearchResultResponseEntity implements SerializableEntity {
     this.baseURI = baseURI;
   }
 
-  public void writeObject(OutputStream outStream) throws IOException {
+  public void write(OutputStream outStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
                                                         .createXMLStreamWriter(outStream,

@@ -19,8 +19,9 @@ package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
 
+import javax.ws.rs.core.Response;
+
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SARL .<br/> JCR WebDAV entry point. Defines WebDav protocol methods:

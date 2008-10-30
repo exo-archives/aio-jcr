@@ -23,10 +23,10 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.Response;
 
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -52,21 +52,22 @@ public class UnLockCommand {
           session.save();
         }
 
-        return Response.Builder.noContent().build();
+        return Response.status(HTTPStatus.NO_CONTENT).build();
       } catch (PathNotFoundException exc) {
         if (nullResourceLocks.isLocked(session, path)) {
           nullResourceLocks.checkLock(session, path, tokens);
           nullResourceLocks.removeLock(session, path);
-          return Response.Builder.noContent().build();
+          return Response.status(HTTPStatus.NO_CONTENT).build();
         }
 
-        return Response.Builder.notFound().build();
+        return Response.status(HTTPStatus.NOT_FOUND).build();
       }
 
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
 
   }

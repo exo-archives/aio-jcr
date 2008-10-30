@@ -29,8 +29,9 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 
 /**
@@ -70,7 +71,7 @@ public class PropstatGroupedRepresentation {
   }
 
   public final Map<String, Set<HierarchicalProperty>> getPropStats() throws RepositoryException {
-    String statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+    String statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
     if (propNames == null) {
       propStats.put(statname, resource.getProperties(namesOnly));
     } else {
@@ -79,20 +80,20 @@ public class PropstatGroupedRepresentation {
         HierarchicalProperty prop = new HierarchicalProperty(propName);
         try {
           prop = resource.getProperty(propName);
-          statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
+          statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
 
         } catch (AccessDeniedException e) {
-          statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
+          statname = WebDavConst.getStatusDescription(HTTPStatus.FORBIDDEN);
           e.printStackTrace();
         } catch (ItemNotFoundException e) {
-          statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
+          statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
           e.printStackTrace();
 
         } catch (PathNotFoundException e) {
-          statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
+          statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
 
         } catch (RepositoryException e) {
-          statname = WebDavStatus.getStatusDescription(WebDavStatus.INTERNAL_SERVER_ERROR);
+          statname = WebDavConst.getStatusDescription(HTTPStatus.INTERNAL_ERROR);
         }
 
         if (!propStats.containsKey(statname)) {

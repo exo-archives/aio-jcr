@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
@@ -34,7 +35,6 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedResource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.PropstatGroupedRepresentation;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -42,7 +42,7 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  * @version $Id: $
  */
 
-public class VersionTreeResponseEntity implements SerializableEntity {
+public class VersionTreeResponseEntity implements StreamingOutput {
 
   protected XMLStreamWriter              xmlStreamWriter;
 
@@ -61,7 +61,7 @@ public class VersionTreeResponseEntity implements SerializableEntity {
     versions = versionedResource.getVersionHistory().getVersions();
   }
 
-  public void writeObject(OutputStream outputStream) throws IOException {
+  public void write(OutputStream outputStream) throws IOException {
     try {
       this.xmlStreamWriter = XMLOutputFactory.newInstance()
                                              .createXMLStreamWriter(outputStream,

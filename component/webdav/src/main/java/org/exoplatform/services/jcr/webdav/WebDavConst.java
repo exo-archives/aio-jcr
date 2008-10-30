@@ -17,6 +17,10 @@
 
 package org.exoplatform.services.jcr.webdav;
 
+import java.util.Hashtable;
+
+import org.exoplatform.common.http.HTTPStatus;
+
 /**
  * Constants used for webdav service implemetation.
  * 
@@ -90,218 +94,6 @@ public class WebDavConst {
    * WebDav default mime-type.
    */
   public static final String DAV_DEFAULT_MIME_TYPE = "text/plain";
-
-  /**
-   * Http headers used for webdav service implemetation.
-   * 
-   * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
-   */
-  public class Headers {
-
-    /**
-     * HTTP 1.1 "Allow" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String ALLOW = "Allow";
-
-    /**
-     * HTTP 1.1 "Allow" header. See <a
-     * href='http://msdn.microsoft.com/en-us/library/ms965954.aspx'> WebDAV/DASL
-     * Request and Response Syntax</a> for more information.
-     */
-    public static final String DASL = "DASL";
-
-    /**
-     * WebDav "DAV" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-     * HTTP Headers for Distributed Authoring</a> section 9 for more
-     * information.
-     */
-    public static final String DAV = "DAV";
-
-    /**
-     * HTTP 1.1 "Accept-Encoding" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String ACCEPTENCODING = "Accept-Encoding";
-
-    /**
-     * HTTP 1.1 "Connection" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String CONNECTION = "Connection";
-
-    /**
-     * HTTP 1.1 "Content-Length" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String CONTENTLENGTH = "Content-Length";
-
-    /**
-     * HTTP 1.1 "Content-Range" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String CONTENTRANGE = "Content-Range";
-
-    /**
-     * HTTP 1.1 "Content-type" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String CONTENTTYPE = "Content-type";
-
-    /**
-     * HTTP 1.1 "Host" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String HOST = "Host";
-
-    /**
-     * HTTP 1.1 "User-Agent" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String USERAGENT = "User-Agent";
-
-    /**
-     * HTTP 1.1 "WWW-Authenticate" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String WWWAUTHENTICATE = "WWW-Authenticate";
-
-    /**
-     * HTTP 1.1 "Accept-Ranges" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String ACCEPT_RANGES = "Accept-Ranges";
-
-    /**
-     * HTTP 1.1 "Authorization" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String AUTHORIZATION = "Authorization";
-
-    /**
-     * HTTP 1.1 "Cache-Control" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String CACHECONTROL = "Cache-Control";
-
-    /**
-     * HTTP 1.1 "Server" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String SERVER = "Server";
-
-    /**
-     * WebDav "Depth" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-     * HTTP Headers for Distributed Authoring</a> section 9 for more
-     * information.
-     */
-    public static final String DEPTH = "Depth";
-
-    /**
-     * WebDav "Destination" header. See <a
-     * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
-     * Authoring</a> section 9 for more information.
-     */
-    public static final String DESTINATION = "Destination";
-
-    /**
-     * WebDav "DAV" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-     * HTTP Headers for Distributed Authoring</a> section 9 for more
-     * information.
-     */
-    public static final String LOCKTOKEN = "Lock-Token";
-
-    /**
-     * HTTP 1.1 "Last-Modified" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String LASTMODIFIED = "Last-Modified";
-
-    /**
-     * MS-Author-Via Response Header. See <a
-     * href='http://msdn.microsoft.com/en-us/library/cc250217.aspx'>
-     * MS-Author-Via Response Header</a> for more information.
-     */
-    public static final String MSAUTHORVIA = "MS-Author-Via";
-
-    /**
-     * WebDav "Overwrite" header. See <a
-     * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
-     * Authoring</a> section 9 for more information.
-     */
-    public static final String OVERWRITE = "Overwrite";
-
-    /**
-     * HTTP 1.1 "TE" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String TE = "TE";
-
-    /**
-     * WebDav "Timeout" header. See <a
-     * href='http://www.ietf.org/rfc/rfc2518.txt'> HTTP Headers for Distributed
-     * Authoring</a> section 9 for more information.
-     */
-    public static final String TIMEOUT = "Timeout";
-
-    /**
-     * HTTP 1.1 "Translate" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String TRANSLATE = "Translate";
-
-    /**
-     * Some HTTP header.
-     */
-    public static final String XFEATURES = "X-Features";
-
-    /**
-     * HTTP 1.1 "Date" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String DATE = "Date";
-
-    /**
-     * WebDav "If" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
-     * HTTP Headers for Distributed Authoring</a> section 9 for more
-     * information.
-     */
-    public static final String IF = "If";
-
-    /**
-     * HTTP 1.1 "Range" header. See <a
-     * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-     * section 14 "Header Field Definitions"</a> for more information.
-     */
-    public static final String RANGE = "Range";
-
-    /**
-     * JCR "Nodetype" header.
-     */
-    public static final String NODETYPE = "NodeType";
-
-    /**
-     * JCR "MixType" header.
-     */
-    public static final String MIXTYPE = "MixType";
-  }
 
   /**
    * Webdav document properties.
@@ -421,7 +213,7 @@ public class WebDavConst {
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
   public class ResourceType {
-    
+
     /**
      * Webdav "collection" resource type.
      */
@@ -440,7 +232,7 @@ public class WebDavConst {
    * @author <a href="mailto:dkatayev@gmail.com">Dmytro Katayev</a>
    */
   public class Lock {
-    
+
     /**
      * Webdav "shared" lock type.
      */
@@ -578,6 +370,81 @@ public class WebDavConst {
      * Last modification date psttern.
      */
     public static final String MODIFICATION = "EEE, dd MMM yyyy HH:mm:ss z";
+  }
+
+  
+  /**
+   * Contains HTTP/1.1 status description.
+   */
+  private static Hashtable<Integer, String> statusDescriptions = new Hashtable<Integer, String>();
+  
+  /**
+   * Registers Status code and it's description.
+   * @param status Status code
+   * @param descr Description
+   */
+  private static void registerDescr(int status, String descr) {
+    statusDescriptions.put(new Integer(status), descr);
+  }
+
+  static {
+    registerDescr(HTTPStatus.CONTINUE, "Continue");
+    registerDescr(HTTPStatus.SWITCHING_PROTOCOLS, "Switching Protocols");
+    registerDescr(HTTPStatus.OK, "OK");
+    registerDescr(HTTPStatus.CREATED, "Created");
+    registerDescr(HTTPStatus.ACCEPTED, "Accepted");
+    registerDescr(HTTPStatus.NOT_AUTHORITATIVE, "Non-Authoritative Information");
+    registerDescr(HTTPStatus.NO_CONTENT, "No Content");
+    registerDescr(HTTPStatus.RESET, "Reset Content");
+    registerDescr(HTTPStatus.PARTIAL, "Partial Content");
+    registerDescr(HTTPStatus.MULTISTATUS, "Multi Status");
+    registerDescr(HTTPStatus.MULT_CHOICE, "Multiple Choices");
+    registerDescr(HTTPStatus.MOVED_PERM, "Moved Permanently");
+    registerDescr(HTTPStatus.FOUND, "Found");
+    registerDescr(HTTPStatus.SEE_OTHER, "See Other");
+    registerDescr(HTTPStatus.NOT_MODIFIED, "Not Modified");
+    registerDescr(HTTPStatus.USE_PROXY, "Use Proxy");
+    registerDescr(HTTPStatus.TEMP_REDIRECT, "Temporary Redirect");
+    registerDescr(HTTPStatus.BAD_REQUEST, "Bad Request");
+    registerDescr(HTTPStatus.UNAUTHORIZED, "Unauthorized");
+    registerDescr(HTTPStatus.PAYMENT_REQUIRED, "Payment Required");
+    registerDescr(HTTPStatus.FORBIDDEN, "Forbidden");
+    registerDescr(HTTPStatus.NOT_FOUND, "Not Found");
+    registerDescr(HTTPStatus.METHOD_NOT_ALLOWED, "Method Not Allowed");
+    registerDescr(HTTPStatus.NOT_ACCEPTABLE, "Not Acceptable");
+    registerDescr(HTTPStatus.PROXY_AUTH, "Proxy Authentication Required");
+    registerDescr(HTTPStatus.REQUEST_TIMEOUT, "Request Timeout");
+    registerDescr(HTTPStatus.CONFLICT, "Conflict");
+    registerDescr(HTTPStatus.GONE, "Gone");
+    registerDescr(HTTPStatus.LENGTH_REQUIRED, "Length Required");
+    registerDescr(HTTPStatus.PRECON_FAILED, "Precondition Failed");
+    registerDescr(HTTPStatus.REQ_TOO_LONG, "Request Entity Too Large");
+    registerDescr(HTTPStatus.REQUEST_URI_TOO_LONG, "Request-URI Too Long");
+    registerDescr(HTTPStatus.UNSUPPORTED_TYPE, "Unsupported Media Type");
+    registerDescr(HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE, "Requested Range Not Satisfiable");
+    registerDescr(HTTPStatus.EXPECTATION_FAILED, "Expectation Failed");
+    registerDescr(HTTPStatus.INTERNAL_ERROR, "Internal Server Error");
+    registerDescr(HTTPStatus.NOT_IMPLEMENTED, "Not Implemented");
+    registerDescr(HTTPStatus.BAD_GATEWAY, "Bad Gateway");
+    registerDescr(HTTPStatus.UNAVAILABLE, "Service Unavailable");
+    registerDescr(HTTPStatus.GATEWAY_TIMEOUT, "Gateway Timeout");
+    registerDescr(HTTPStatus.HTTP_VERSION_NOT_SUPPORTED, "HTTP Version Not Supported");
+  }
+  
+  /**
+   * Returns status description by it's code.
+   * @param status Status code
+   * @return Status Description
+   */
+  public static final String getStatusDescription(int status) {
+    String description = "";
+
+    Integer statusKey = new Integer(status);
+    if (statusDescriptions.containsKey(statusKey)) {
+      description = statusDescriptions.get(statusKey);
+    }
+
+    return String.format("%s %d %s", WebDavConst.HTTPVER, status, description);
   }
 
 }

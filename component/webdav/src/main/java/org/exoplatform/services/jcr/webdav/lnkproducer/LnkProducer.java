@@ -20,18 +20,27 @@ package org.exoplatform.services.jcr.webdav.lnkproducer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import org.exoplatform.services.rest.ContextParam;
-import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.InputTransformer;
-import org.exoplatform.services.rest.OutputTransformer;
-import org.exoplatform.services.rest.QueryParam;
-import org.exoplatform.services.rest.ResourceDispatcher;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.URIParam;
-import org.exoplatform.services.rest.URITemplate; //import org.exoplatform.services.rest.ResourceDispatcher.Context;
-import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
-import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Response;
+
+import org.exoplatform.services.rest.resource.ResourceContainer;
+
+//import org.exoplatform.services.rest.ContextParam;
+//import org.exoplatform.services.rest.HTTPMethod;
+//import org.exoplatform.services.rest.InputTransformer;
+//import org.exoplatform.services.rest.OutputTransformer;
+//import org.exoplatform.services.rest.QueryParam;
+//import org.exoplatform.services.rest.ResourceDispatcher;
+//import org.exoplatform.services.rest.Response;
+
+
+//
+//import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
+//import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -39,17 +48,17 @@ import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
  * @version $Id: $
  */
 
-@URITemplate("/lnkproducer/")
+@Path("/lnkproducer/")
 public class LnkProducer implements ResourceContainer {
 
   public LnkProducer() {
   }
 
-  @HTTPMethod("GET")
-  @URITemplate("/{linkFilePath}/")
-  @InputTransformer(PassthroughInputTransformer.class)
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response produceLink(@URIParam("linkFilePath") String linkFilePath,
+  @GET
+  @Path("/{linkFilePath}/")
+  @Consumes(PassthroughInputTransformer.class)
+  @Produces(PassthroughOutputTransformer.class)
+  public Response produceLink(@PathParam("linkFilePath") String linkFilePath,
                               @QueryParam("path") String path,
                               @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
                               @ContextParam(ResourceDispatcher.CONTEXT_PARAM_HOST) String host) {
@@ -62,13 +71,15 @@ public class LnkProducer implements ResourceContainer {
 
       ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
 
-      return Response.Builder.ok()
+      return Response.ok()
                              .header("Content-Length", "" + content.length)
-                             .entity(byteArrayInputStream, "application/octet-stream")
+                             .entity(byteArrayInputStream 
+                                     /**, "application/octet-stream"**/)
                              .build();
 
     } catch (IOException ioexc) {
-      return Response.Builder.serverError().build();
+      ioexc.printStackTrace();
+      return Response.serverError().build();
     }
 
   }

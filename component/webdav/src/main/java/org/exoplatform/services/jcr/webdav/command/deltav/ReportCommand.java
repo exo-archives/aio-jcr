@@ -25,11 +25,12 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.Depth;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.deltav.report.VersionTreeResponseEntity;
 import org.exoplatform.services.jcr.webdav.resource.ResourceUtil;
 import org.exoplatform.services.jcr.webdav.resource.VersionedCollectionResource;
@@ -37,7 +38,6 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedFileResource;
 import org.exoplatform.services.jcr.webdav.resource.VersionedResource;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -59,7 +59,7 @@ public class ReportCommand {
       URI uri = new URI(TextUtil.escape(strUri, '%', true));
 
       if (!ResourceUtil.isVersioned(node)) {
-        return Response.Builder.serverError().build();
+        return Response.serverError().build();
       }
 
       VersionedResource resource;
@@ -75,16 +75,16 @@ public class ReportCommand {
                                                                          resource,
                                                                          properties);
 
-      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS)
-                             .entity(response, "text/xml")
-                             .build();
+      return Response.status(HTTPStatus.MULTISTATUS).entity(response).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (RepositoryException exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     } catch (Exception exc) {
-      return Response.Builder.serverError().build();
+      exc.printStackTrace();
+      return Response.serverError().build();
     }
   }
 

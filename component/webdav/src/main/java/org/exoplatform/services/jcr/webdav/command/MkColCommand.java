@@ -26,13 +26,13 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -66,22 +66,23 @@ public class MkColCommand {
       session.save();
 
     } catch (ItemExistsException e) {
-      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
+      return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
 
     } catch (PathNotFoundException e) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.status(HTTPStatus.CONFLICT).build();
 
     } catch (AccessDeniedException e) {
-      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
+      return Response.status(HTTPStatus.FORBIDDEN).build();
 
     } catch (LockException e) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
 
     } catch (RepositoryException e) {
-      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
+      e.printStackTrace();
+      return Response.serverError().build();
     }
 
-    return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+    return Response.status(HTTPStatus.CREATED).build();
   }
 
   private void addMixins(Node node, List<String> mixinTypes) {

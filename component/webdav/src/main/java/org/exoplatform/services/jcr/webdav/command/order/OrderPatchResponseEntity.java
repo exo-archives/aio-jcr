@@ -23,14 +23,14 @@ import java.net.URI;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -38,7 +38,7 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  * @version $Id: $
  */
 
-public class OrderPatchResponseEntity implements SerializableEntity {
+public class OrderPatchResponseEntity implements StreamingOutput {
 
   protected final WebDavNamespaceContext nsContext;
 
@@ -58,7 +58,7 @@ public class OrderPatchResponseEntity implements SerializableEntity {
     this.members = members;
   }
 
-  public void writeObject(OutputStream outputStream) throws IOException {
+  public void write(OutputStream outputStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
                                                         .createXMLStreamWriter(outputStream,
@@ -83,7 +83,7 @@ public class OrderPatchResponseEntity implements SerializableEntity {
         xmlStreamWriter.writeEndElement();
 
         xmlStreamWriter.writeStartElement("DAV:", "status");
-        xmlStreamWriter.writeCharacters(WebDavStatus.getStatusDescription(member.getStatus()));
+        xmlStreamWriter.writeCharacters(WebDavConst.getStatusDescription(member.getStatus()));
         xmlStreamWriter.writeEndElement();
 
         xmlStreamWriter.writeEndElement();
