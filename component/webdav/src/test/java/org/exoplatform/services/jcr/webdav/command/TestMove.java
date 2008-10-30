@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-import org.codehaus.cargo.container.InstalledLocalContainer;
+//import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
@@ -41,7 +41,7 @@ public class TestMove extends TestCase {
 
   private final String    fileContent  = "TEST FILE CONTENT...";
 
-  InstalledLocalContainer container;
+//  InstalledLocalContainer container;
 
   private HTTPConnection  connection;
 

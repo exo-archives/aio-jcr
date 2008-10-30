@@ -26,9 +26,9 @@ public class TestUtils {
 
   public static final String HOST              = "localhost";
 
-  public static final String SERVLET_PATH      = "/rest/jcr/repository";
+  public static final String SERVLET_PATH      = "/rest/private/jcr/repository";
 
-  public static final String WORKSPACE         = "/production";
+  public static final String WORKSPACE         = "/collaboration";
 
   public static final String INAVLID_WORKSPACE = "/invalid";
 

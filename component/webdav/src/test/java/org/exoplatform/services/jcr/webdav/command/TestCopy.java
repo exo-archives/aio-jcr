@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-import org.codehaus.cargo.container.InstalledLocalContainer;
+//import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
@@ -45,7 +45,7 @@ public class TestCopy extends TestCase {
 
   private HTTPConnection          connection;
 
-  private InstalledLocalContainer container;
+//  private InstalledLocalContainer container;
 
   @Override
   protected void setUp() throws Exception {
@@ -83,7 +83,7 @@ public class TestCopy extends TestCase {
     super.tearDown();
   }
 
-  public void testeCopyForNonCollection() throws Exception {
+  public void testCopyForNonCollection() throws Exception {
 
     HTTPResponse response = connection.Copy(srcFileName, destFileName);
     assertEquals(HTTPStatus.CREATED, response.getStatusCode());
