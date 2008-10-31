@@ -192,7 +192,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @CHECKIN
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(PassthroughOutputTransformer.class)
   public Response checkin(@PathParam("repoName") String repoName,
                           @PathParam("repoPath") String repoPath,
@@ -214,7 +214,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @CHECKOUT
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(PassthroughOutputTransformer.class)
   public Response checkout(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
@@ -237,7 +237,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @COPY
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(PassthroughOutputTransformer.class)
   public Response copy(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
@@ -426,7 +426,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @LOCK
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(SerializableTransformer.class)
   public Response lock(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
@@ -470,7 +470,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @UNLOCK
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(SerializableTransformer.class)
   public Response unlock(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
@@ -530,7 +530,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @MOVE
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(PassthroughOutputTransformer.class)
   public Response move(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
@@ -604,7 +604,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @OPTIONS
   @Path("/{repoName}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(PassthroughOutputTransformer.class)
   public Response options(@PathParam("repoName") String repoName, HierarchicalProperty body) {
 
@@ -647,7 +647,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @ORDERPATCH
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(SerializableTransformer.class)
   public Response order(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
@@ -671,7 +671,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @PROPFIND
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(SerializableTransformer.class)
   public Response propfind(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
@@ -700,7 +700,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @PROPPATCH
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(SerializableTransformer.class)
   public Response proppatch(@PathParam("repoName") String repoName,
                             @PathParam("repoPath") String repoPath,
@@ -786,7 +786,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @REPORT
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(SerializableTransformer.class)
   public Response report(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
@@ -811,7 +811,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @SEARCH
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(SerializableTransformer.class)
   public Response search(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
@@ -835,7 +835,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @UNCHECKOUT
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(XMLInputTransformer.class)
+  @Consumes("text/xml") // (XMLInputTransformer.class)
   @Produces(PassthroughOutputTransformer.class)
   public Response uncheckout(@PathParam("repoName") String repoName,
                              @PathParam("repoPath") String repoPath,
