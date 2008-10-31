@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.webdav;
 
-import org.codehaus.cargo.container.InstalledLocalContainer;
+//import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDav;
@@ -32,15 +32,15 @@ public class BaseWebDavTest extends TestCase {
 
   protected static Log              log = ExoLogger.getLogger("jcr.WebDavTest");
 
-  protected InstalledLocalContainer container;
+//  protected InstalledLocalContainer container;
 
   protected HTTPConnection          connection;
 
   @Override
   protected void setUp() throws Exception {
 
-    container = ContainerStarter.cargoContainerStart(WebDav.PORT_STRING, null);
-    assertTrue(container.getState().isStarted());
+//    container = ContainerStarter.cargoContainerStart(WebDav.PORT_STRING, null);
+//    assertTrue(container.getState().isStarted());
 
     CookieModule.setCookiePolicyHandler(null);
     connection = TestUtils.GetAuthConnection();
@@ -53,8 +53,8 @@ public class BaseWebDavTest extends TestCase {
 
     // TODO Auto-generated method stub
 
-    ContainerStarter.cargoContainerStop(container);
-    assertTrue(container.getState().isStopped());
+//    ContainerStarter.cargoContainerStop(container);
+//    assertTrue(container.getState().isStopped());
 
     super.tearDown();
   }
