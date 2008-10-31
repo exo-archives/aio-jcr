@@ -34,9 +34,14 @@ import javax.jcr.Session;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
+import org.picocontainer.Startable;
+import org.xml.sax.SAXException;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
@@ -44,8 +49,6 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
-import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS . <br/> Centralized collector for JCR based entities (services,
@@ -362,6 +365,18 @@ public class RegistryService extends Registry implements Startable {
    */
   public RepositoryService getRepositoryService() {
     return repositoryService;
+  }
+
+  /**
+   * Get value of force-xml-configuration param.
+   * 
+   * @param initParams
+   *          The InitParams
+   * @return force-xml-configuration value if present and false in other case
+   */
+  public boolean getForceXMLConfigurationValue(InitParams initParams) {
+    ValueParam valueParam = initParams.getValueParam("force-xml-configuration");
+    return (valueParam != null ? Boolean.valueOf(valueParam.getValue()) : false);
   }
 
   /**
