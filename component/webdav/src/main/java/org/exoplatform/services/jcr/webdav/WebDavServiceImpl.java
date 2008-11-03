@@ -134,7 +134,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   private final RepositoryService                 repositoryService;
 
-  private final ResourceBinder                    resourceBinder;
+//  private final ResourceBinder                    resourceBinder;
 
   private final NullResourceLocksHolder           nullResourceLocks;
 
@@ -161,7 +161,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                            ResourceBinder resourceBinder) throws Exception {
     this.sessionProviderService = sessionProviderService;
     this.repositoryService = repositoryService;
-    this.resourceBinder = resourceBinder;
+//    this.resourceBinder = resourceBinder;
     this.nullResourceLocks = new NullResourceLocksHolder();
 
     ValueParam pDefFolderNodeType = params.getValueParam(INIT_PARAM_DEF_FOLDER_NODE_TYPE);
@@ -194,7 +194,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response checkin(@PathParam("repoName") String repoName,
                           @PathParam("repoPath") String repoPath,
                           @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -219,7 +219,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response checkout(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -245,7 +245,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response copy(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -333,8 +333,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @DELETE
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(PassthroughInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Consumes("*/*") // PassthroughInputTransformer.class
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response delete(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -358,8 +358,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @GET
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(PassthroughInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Consumes("*/*") // PassthroughInputTransformer.class
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response get(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
@@ -408,7 +408,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new GetCommand().get(session, path(repoPath), version, uri, ranges);
 
     } catch (PathNotFoundException exc) {
-      Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception exc) {
       exc.printStackTrace();
@@ -418,8 +418,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @HEAD
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(PassthroughInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Consumes("*/*") // PassthroughInputTransformer.class
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response head(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @QueryParam("version") String version,
@@ -433,7 +433,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new HeadCommand().head(session, path(repoPath), uri);
     } catch (NoSuchWorkspaceException exc) {
-      Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
       exc.printStackTrace();
       return Response.serverError().build();
@@ -444,7 +444,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(SerializableTransformer.class)
+  @Produces("*/*") // SerializableTransformer.class
   public Response lock(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -491,7 +491,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(SerializableTransformer.class)
+  @Produces("*/*") // SerializableTransformer.class
   public Response unlock(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -517,8 +517,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @MKCOL
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(PassthroughInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Consumes("*/*") // PassthroughInputTransformer.class
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response mkcol(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -542,7 +542,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                        NodeTypeUtil.getMixinTypes(mixinTypesHeader),
                                                        tokens);
     } catch (NoSuchWorkspaceException wexc) {
-      Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
       exc.printStackTrace();
       return Response.serverError().build();
@@ -553,7 +553,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response move(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -630,7 +630,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response options(@PathParam("repoName") String repoName, HierarchicalProperty body) {
 
     if(log.isDebugEnabled()){
@@ -638,17 +638,17 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
     ArrayList<String> commands = new ArrayList<String>();
 
-    List<ResourceDescriptor> descriptors = resourceBinder.getAllDescriptors();
-    for (int i = 0; i < descriptors.size(); i++) {
-      ResourceDescriptor descriptor = descriptors.get(i);
-
-      String acceptableMethod = descriptor.getAcceptableMethod();
-      String uriPattern = descriptor.getURIPattern().getString();
-
-      if (uriPattern.startsWith("/jcr/")) {
-        commands.add(acceptableMethod);
-      }
-    }
+//    List<ResourceDescriptor> descriptors = resourceBinder.getAllDescriptors();
+//    for (int i = 0; i < descriptors.size(); i++) {
+//      ResourceDescriptor descriptor = descriptors.get(i);
+//
+//      String acceptableMethod = descriptor.getAcceptableMethod();
+//      String uriPattern = descriptor.getURIPattern().getString();
+//
+//      if (uriPattern.startsWith("/jcr/")) {
+//        commands.add(acceptableMethod);
+//      }
+//    }
 
     String allowCommands = "";
 
@@ -675,7 +675,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(SerializableTransformer.class)
+  @Produces("*/*") // SerializableTransformer.class
   public Response order(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -702,7 +702,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(SerializableTransformer.class)
+  @Produces("*/*") // SerializableTransformer.class
   public Response propfind(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
@@ -719,7 +719,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new PropFindCommand().propfind(session, path(repoPath), body, depth.getIntValue(), uri);
     } catch (NoSuchWorkspaceException e) {
       e.printStackTrace();
-      Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (PreconditionException e) {
       e.printStackTrace();
       return Response.status(HTTPStatus.BAD_REQUEST).build();
@@ -733,7 +733,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces(SerializableTransformer.class)
+  @Produces("*/*") // SerializableTransformer.class
   public Response proppatch(@PathParam("repoName") String repoName,
                             @PathParam("repoPath") String repoPath,
                             @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -755,7 +755,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                                                                uri);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspace. " + exc.getMessage());
-      Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
       exc.printStackTrace();
       return Response.serverError().build();
@@ -764,8 +764,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @PUT
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(PassthroughInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Consumes("*/*") // PassthroughInputTransformer.class
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response put(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -814,7 +814,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @REPORT
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces(SerializableTransformer.class)
+  @Produces("*/*") // SerializableTransformer.class
   public Response report(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
@@ -831,7 +831,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
       return new ReportCommand().report(session, path(repoPath), body, depth, uri);
     } catch (NoSuchWorkspaceException exc) {
-      Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
       exc.printStackTrace();
       return Response.serverError().build();
@@ -841,7 +841,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @SEARCH
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces(SerializableTransformer.class)
+  @Produces("*/*") // SerializableTransformer.class
   public Response search(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @Context UriInfo baseURI,
@@ -867,7 +867,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @UNCHECKOUT
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response uncheckout(@PathParam("repoName") String repoName,
                              @PathParam("repoPath") String repoPath,
                              @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -884,7 +884,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       return new UnCheckOutCommand().uncheckout(session, path(repoPath));
 
     } catch (NoSuchWorkspaceException exc) {
-      Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception exc) {
       exc.printStackTrace();
@@ -894,8 +894,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @VERSIONCONTROL
   @Path("/{repoName}/{repoPath}/")
-  @Consumes(PassthroughInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Consumes("*/*") // PassthroughInputTransformer.class
+  @Produces("*/*") // PassthroughOutputTransformer.class
   public Response versionControl(@PathParam("repoName") String repoName,
                                  @PathParam("repoPath") String repoPath,
                                  @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,

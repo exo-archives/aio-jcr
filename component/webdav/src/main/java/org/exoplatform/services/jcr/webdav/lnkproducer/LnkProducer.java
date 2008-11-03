@@ -25,7 +25,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
@@ -56,17 +58,18 @@ public class LnkProducer implements ResourceContainer {
 
   @GET
   @Path("/{linkFilePath}/")
-  @Consumes(PassthroughInputTransformer.class)
-  @Produces(PassthroughOutputTransformer.class)
+  @Consumes("*/*") //(PassthroughInputTransformer.class)
+  @Produces("*/*") //(PassthroughOutputTransformer.class)
   public Response produceLink(@PathParam("linkFilePath") String linkFilePath,
-                              @QueryParam("path") String path,
-                              @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String baseURI,
-                              @ContextParam(ResourceDispatcher.CONTEXT_PARAM_HOST) String host) {
+                              @PathParam("path") String path,
+                              @Context UriInfo baseURI,
+                              String host) {
 
-    baseURI += "/jcr";
+    //baseURI += "/jcr";
+    String strUri = baseURI.getBaseUri().toString();
 
     try {
-      LinkGenerator linkGenerator = new LinkGenerator(host, baseURI, path);
+      LinkGenerator linkGenerator = new LinkGenerator(host, strUri, path);
       byte[] content = linkGenerator.generateLinkContent();
 
       ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);

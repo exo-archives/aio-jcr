@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.webdav;
 import java.io.InputStream;
 
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.exoplatform.common.util.HierarchicalProperty;
 
@@ -45,7 +46,7 @@ public interface WebDavService {
    * @param version
    * @return HTTP response
    */
-  Response get(String repoName, String repoPath, String range, String version, String baseURI);
+  Response get(String repoName, String repoPath, String range, String version, UriInfo baseURI);
 
   /**
    * the HEAD method
@@ -55,7 +56,7 @@ public interface WebDavService {
    * @param auth
    * @return HTTP response
    */
-  Response head(String repoName, String repoPath, String baseURI, String version);
+  Response head(String repoName, String repoPath, String version, UriInfo baseURI);
 
   /**
    * @param repoName
@@ -105,7 +106,7 @@ public interface WebDavService {
                 String ifHeader,
                 String depthHeader,
                 String overwriteHeader,
-                String baseURI,
+                UriInfo baseURI,
                 HierarchicalProperty body);
 
   /**
@@ -142,7 +143,7 @@ public interface WebDavService {
                 String ifHeader,
                 String depthHeader,
                 String overwriteHeader,
-                String baseURI,
+                UriInfo baseURI,
                 HierarchicalProperty body);
 
   /**
@@ -161,7 +162,7 @@ public interface WebDavService {
   Response propfind(String repoName,
                     String repoPath,
                     String depthHeader,
-                    String baseURI,
+                    UriInfo baseURI,
                     HierarchicalProperty body);
 
   /**
@@ -177,7 +178,7 @@ public interface WebDavService {
                      String repoPath,
                      String lockTokenHeader,
                      String ifHeader,
-                     String baseURI,
+                     UriInfo baseURI,
                      HierarchicalProperty body);
 
   /**
@@ -253,7 +254,7 @@ public interface WebDavService {
   Response report(String repoName,
                   String repoPath,
                   String depth,
-                  String baseURI,
+                  UriInfo baseURI,
                   HierarchicalProperty body);
 
   /**
@@ -297,7 +298,7 @@ public interface WebDavService {
                  String repoPath,
                  String lockTokenHeader,
                  String ifHeader,
-                 String baseURI,
+                 UriInfo baseURI,
                  HierarchicalProperty body);
 
   // Search
@@ -310,5 +311,5 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response search(String repoName, String repoPath, String baseURI, HierarchicalProperty body);
+  Response search(String repoName, String repoPath, UriInfo baseURI, HierarchicalProperty body);
 }
