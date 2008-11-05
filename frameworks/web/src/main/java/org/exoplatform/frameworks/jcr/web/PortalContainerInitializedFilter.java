@@ -78,19 +78,11 @@ public class PortalContainerInitializedFilter implements Filter {
           + "Current ExoContainer is: " + ExoContainerContext.getCurrentContainer());
     }
     try {
-      ExoContainerContext.setCurrentContainer(pcontainer);
-      if (log.isDebugEnabled())
-        log.debug("Curent Container: " + ExoContainerContext.getCurrentContainer());
       PortalContainer.setInstance(pcontainer);
       chain.doFilter(request, response);
     } finally {
       try {
         PortalContainer.setInstance(null);
-      } catch (Exception e) {
-        log.warn("An error occured while cleaning the ThreadLocal", e);
-      }
-      try {
-        ExoContainerContext.setCurrentContainer(null);
       } catch (Exception e) {
         log.warn("An error occured while cleaning the ThreadLocal", e);
       }
