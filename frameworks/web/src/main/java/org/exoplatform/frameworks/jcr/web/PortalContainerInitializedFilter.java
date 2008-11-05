@@ -21,7 +21,6 @@ import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -63,33 +62,44 @@ public class PortalContainerInitializedFilter implements Filter {
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
                                                                                            ServletException {
     PortalContainer pcontainer = (PortalContainer) ExoContainerContext.getContainerByName(contextName);
-    log.debug("get-by-name");
+    if (log.isDebugEnabled()) 
+      log.debug("get-by-name");
     if (pcontainer == null) {
       log.info("get-from-root");
       ExoContainer container = ExoContainerContext.getTopContainer();
       if (container instanceof RootContainer) {
         pcontainer = ((RootContainer) container).getPortalContainer(contextName);
-        log.debug("PortalContainer is created after RootContainer");
+        if (log.isDebugEnabled()) 
+          log.debug("PortalContainer is created after RootContainer");
       }
     }
     if (pcontainer == null) {
       throw new ServletException("Could not initialize PortalContainer."
           + "Current ExoContainer is: " + ExoContainerContext.getCurrentContainer());
     }
-    ExoContainerContext.setCurrentContainer(pcontainer);
-    log.debug("Curent Container: " + ExoContainerContext.getCurrentContainer());
-    PortalContainer.setInstance(pcontainer);
-
-    chain.doFilter(request, response);
+    try {
+      ExoContainerContext.setCurrentContainer(pcontainer);
+      if (log.isDebugEnabled())
+        log.debug("Curent Container: " + ExoContainerContext.getCurrentContainer());
+      PortalContainer.setInstance(pcontainer);
+      chain.doFilter(request, response);
+    } finally {
+      try {
+        PortalContainer.setInstance(null);
+      } catch (Exception e) {
+        log.warn("An error occured while cleaning the ThreadLocal", e);
+      }
+      try {
+        ExoContainerContext.setCurrentContainer(null);
+      } catch (Exception e) {
+        log.warn("An error occured while cleaning the ThreadLocal", e);
+      }
+    }
   }
 
   /**
-   * destroys portal container instance.
-   * 
    * @see javax.servlet.Filter#destroy()
    */
   public void destroy() {
-    PortalContainer.setInstance(null);
   }
-
 }
