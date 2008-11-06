@@ -3,7 +3,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.8.3</version>
+  <version>1.8.3.1</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -273,7 +273,7 @@
         <org.exoplatform.tool.version>trunk</org.exoplatform.tool.version>
         <org.exoplatform.kernel.version>2.0</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>2.0.2</org.exoplatform.core.version>
-        <org.exoplatform.jcr.version>1.8.3</org.exoplatform.jcr.version>
+        <org.exoplatform.jcr.version>1.8.3.1</org.exoplatform.jcr.version>
         <org.exoplatform.ws.version>1.1</org.exoplatform.ws.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
