@@ -23,6 +23,10 @@ import javax.jcr.NamespaceException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.AttributesImpl;
+
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -30,11 +34,9 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.ISO9075;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -46,14 +48,14 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
   protected String       encoding;           ;
 
   public DocumentViewContentExporter(ContentHandler handler,
-      SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException {
-    super(handler, session, dataManager, skipBinary, noRecurse);
+                                     SessionImpl session,
+                                     ItemDataConsumer dataManager,
+                                     ValueFactoryImpl systemValueFactory,
+                                     boolean skipBinary,
+                                     boolean noRecurse) throws NamespaceException,
+      RepositoryException {
+    super(handler, session, dataManager, systemValueFactory, skipBinary, noRecurse);
   }
-
-
 
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -62,23 +64,22 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
       if (node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
         // jcr:xmlcharacters
         List<PropertyData> nodeData = session.getTransientNodesManager()
-            .getChildPropertiesData(node);
+                                             .getChildPropertiesData(node);
         String strValue = "";
         for (PropertyData propertyData : nodeData) {
           if (propertyData.getQPath().getName().equals(Constants.JCR_XMLCHARACTERS)) {
             strValue = new String(propertyData.getValues().get(0).getAsByteArray(),
-                Constants.DEFAULT_ENCODING);
+                                  Constants.DEFAULT_ENCODING);
           }
         }
         contentHandler.characters(strValue.toCharArray(), 0, strValue.length());
       } else {
         List<PropertyData> nodeData = session.getTransientNodesManager()
-            .getChildPropertiesData(node);
+                                             .getChildPropertiesData(node);
         currentAttr = new AttributesImpl();
         for (PropertyData property : nodeData) {
 
-
-          //JCRName name2 = session.getLocationFactory().createJCRName(internalPropName);
+          // JCRName name2 = session.getLocationFactory().createJCRName(internalPropName);
           String strValue = "";
 
           for (ValueData valueData : property.getValues()) {
@@ -88,30 +89,33 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
             }
 
             strValue += MULTI_VALUE_DELIMITER
-                + (property.getType() == PropertyType.BINARY ? strVal : StringConverter
-                    .normalizeString(strVal, true));
-            
+                + (property.getType() == PropertyType.BINARY ? strVal
+                                                            : StringConverter.normalizeString(strVal,
+                                                                                              true));
+
           }
           // encode node name
           InternalQName internalPropName = ISO9075.encode(property.getQPath().getName());
-         
+
           currentAttr.addAttribute(internalPropName.getNamespace(),
-              internalPropName.getName(),
-              getExportName(property,true),
-              "CDATA",
-              strValue != "" ? strValue.substring(1) : strValue);
+                                   internalPropName.getName(),
+                                   getExportName(property, true),
+                                   "CDATA",
+                                   strValue != "" ? strValue.substring(1) : strValue);
         }
-        
+
         if (Constants.ROOT_PATH.equals(node.getQPath()))
           contentHandler.startElement(Constants.NS_JCR_URI,
-              Constants.NS_JCR_PREFIX,
-              JCR_ROOT,
-              currentAttr);
+                                      Constants.NS_JCR_PREFIX,
+                                      JCR_ROOT,
+                                      currentAttr);
 
         else
-          contentHandler.startElement(node.getQPath().getName().getNamespace(), node.getQPath()
-              .getName().getName(), getExportName(node, true), currentAttr);
-        
+          contentHandler.startElement(node.getQPath().getName().getNamespace(),
+                                      node.getQPath().getName().getName(),
+                                      getExportName(node, true),
+                                      currentAttr);
+
       }
     } catch (SAXException e) {
       throw new RepositoryException(e);
@@ -132,14 +136,14 @@ public class DocumentViewContentExporter extends HandlingContentExporter {
 
     try {
       if (!node.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
-       
+
         if (Constants.ROOT_PATH.equals(node.getQPath()))
-          contentHandler.endElement(Constants.NS_JCR_URI,
-              Constants.NS_JCR_PREFIX,
-              JCR_ROOT);
+          contentHandler.endElement(Constants.NS_JCR_URI, Constants.NS_JCR_PREFIX, JCR_ROOT);
 
         else
-        contentHandler.endElement(node.getQPath().getName().getNamespace(), node.getQPath().getName().getName(), getExportName(node,true));
+          contentHandler.endElement(node.getQPath().getName().getNamespace(),
+                                    node.getQPath().getName().getName(),
+                                    getExportName(node, true));
       }
     } catch (SAXException e) {
       throw new RepositoryException(e);

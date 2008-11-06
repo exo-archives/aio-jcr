@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -32,6 +33,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -49,17 +51,18 @@ public class WorkspaceSystemViewStreamExporter extends SystemViewStreamExporter 
   public WorkspaceSystemViewStreamExporter(XMLStreamWriter writer,
                                            SessionImpl session,
                                            ItemDataConsumer dataManager,
+                                           ValueFactoryImpl systemValueFactory,
                                            boolean skipBinary,
                                            boolean noRecurse) throws NamespaceException,
       RepositoryException {
-    super(writer, session, dataManager, skipBinary, noRecurse);
+    super(writer, session, dataManager, systemValueFactory, skipBinary, noRecurse);
   }
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform
+   * .services.jcr.datamodel.NodeData, int)
    */
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -77,9 +80,9 @@ public class WorkspaceSystemViewStreamExporter extends SystemViewStreamExporter 
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter#entering(org.exoplatform
+   * .services.jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {

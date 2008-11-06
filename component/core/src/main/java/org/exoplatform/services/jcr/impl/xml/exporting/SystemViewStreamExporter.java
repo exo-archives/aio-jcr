@@ -27,6 +27,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.ws.commons.util.Base64;
+
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -34,6 +35,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -54,16 +56,17 @@ public class SystemViewStreamExporter extends StreamExporter {
   public SystemViewStreamExporter(XMLStreamWriter writer,
                                   SessionImpl session,
                                   ItemDataConsumer dataManager,
+                                  ValueFactoryImpl systemValueFactory,
                                   boolean skipBinary,
                                   boolean noRecurse) throws NamespaceException, RepositoryException {
-    super(writer, session, dataManager, skipBinary, noRecurse);
+    super(writer, session, dataManager, systemValueFactory, skipBinary, noRecurse);
   }
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -85,9 +88,9 @@ public class SystemViewStreamExporter extends StreamExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
@@ -125,9 +128,9 @@ public class SystemViewStreamExporter extends StreamExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.NodeData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.NodeData, int)
    */
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
@@ -141,9 +144,9 @@ public class SystemViewStreamExporter extends StreamExporter {
 
   /*
    * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services.jcr.datamodel.PropertyData,
-   *      int)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
+   * .jcr.datamodel.PropertyData, int)
    */
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {

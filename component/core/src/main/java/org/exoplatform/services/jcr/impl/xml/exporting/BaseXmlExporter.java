@@ -32,6 +32,7 @@ import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.ValueFormatException;
 
 import org.apache.ws.commons.util.Base64;
+
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -42,6 +43,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.NodeDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.PropertyDataOrderComparator;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -70,14 +72,16 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
 
   protected final NamespaceRegistry namespaceRegistry;
 
-  
+  private final ValueFactoryImpl    systemValueFactory;
 
   public BaseXmlExporter(SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      int maxLevel) throws NamespaceException, RepositoryException {
+                         ItemDataConsumer dataManager,
+                         ValueFactoryImpl systemValueFactory,
+                         boolean skipBinary,
+                         int maxLevel) throws NamespaceException, RepositoryException {
     super(dataManager, maxLevel);
     this.session = session;
+    this.systemValueFactory = systemValueFactory;
     this.skipBinary = skipBinary;
     this.namespaceRegistry = session.getWorkspace().getNamespaceRegistry();
     this.SV_NAMESPACE_URI = session.getNamespaceURI("sv");
@@ -133,9 +137,8 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
   }
 
   /**
-   * Return string representation of values prepared for export. Be attentive
-   * method encode binary values in memory. It is possible OutOfMemoryError on
-   * large Values.
+   * Return string representation of values prepared for export. Be attentive method encode binary
+   * values in memory. It is possible OutOfMemoryError on large Values.
    * 
    * @param data
    * @param type
@@ -145,8 +148,8 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
    * @throws RepositoryException
    */
   protected String getValueAsStringForExport(ValueData data, int type) throws IllegalStateException,
-      IOException,
-      RepositoryException {
+                                                                      IOException,
+                                                                      RepositoryException {
     String charValue = null;
 
     switch (type) {
@@ -162,8 +165,7 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
     case PropertyType.PATH:
       // TODO namespace mapping for values
       try {
-        charValue = session.getRepository().getSystemSession().getValueFactory()
-            .loadValue((TransientValueData) data, type).getString();
+        charValue = systemValueFactory.loadValue((TransientValueData) data, type).getString();
       } catch (ValueFormatException e) {
         throw new RepositoryException(e);
       } catch (UnsupportedRepositoryOperationException e) {

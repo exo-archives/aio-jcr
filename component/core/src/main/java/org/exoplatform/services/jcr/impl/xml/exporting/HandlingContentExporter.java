@@ -19,12 +19,14 @@ package org.exoplatform.services.jcr.impl.xml.exporting;
 import javax.jcr.NamespaceException;
 import javax.jcr.RepositoryException;
 
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -35,12 +37,13 @@ public abstract class HandlingContentExporter extends BaseXmlExporter {
   protected final ContentHandler contentHandler;
 
   public HandlingContentExporter(ContentHandler handler,
-      SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException {
+                                 SessionImpl session,
+                                 ItemDataConsumer dataManager,
+                                 ValueFactoryImpl systemValueFactory,
+                                 boolean skipBinary,
+                                 boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(session, dataManager, skipBinary, noRecurse ? 1 : -1);
+    super(session, dataManager, systemValueFactory, skipBinary, noRecurse ? 1 : -1);
     this.contentHandler = handler;
     setNoRecurse(noRecurse);
   }

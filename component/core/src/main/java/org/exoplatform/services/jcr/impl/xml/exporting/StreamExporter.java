@@ -25,6 +25,7 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -35,12 +36,13 @@ public abstract class StreamExporter extends BaseXmlExporter {
   protected final XMLStreamWriter writer;
 
   public StreamExporter(XMLStreamWriter writer,
-      SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException {
+                        SessionImpl session,
+                        ItemDataConsumer dataManager,
+                        ValueFactoryImpl systemValueFactory,
+                        boolean skipBinary,
+                        boolean noRecurse) throws NamespaceException, RepositoryException {
 
-    super(session, dataManager, skipBinary, noRecurse ? 1 : -1);
+    super(session, dataManager, systemValueFactory, skipBinary, noRecurse ? 1 : -1);
     this.writer = writer;
     setNoRecurse(noRecurse);
 
@@ -55,7 +57,7 @@ public abstract class StreamExporter extends BaseXmlExporter {
       writer.close();
     }
   }
-  
+
   protected void startPrefixMapping() throws RepositoryException, XMLStreamException {
     String[] prefixes = namespaceRegistry.getPrefixes();
     for (String prefix : prefixes) {

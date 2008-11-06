@@ -25,20 +25,22 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.xml.sax.ContentHandler;
+
 import org.exoplatform.services.ext.action.InvocationContext;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewContentExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewStreamExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewContentExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.SystemViewStreamExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.WorkspaceSystemViewStreamExporter;
-import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceDataImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
-import org.xml.sax.ContentHandler;
+import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceDataImporter;
 
 /**
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
@@ -56,8 +58,8 @@ public class ExportImportFactory {
    * 
    * @param type - 6.4 XML Mappings
    * @param contentHandler - for which will be generate SAX events
-   * @param skipBinary - If skipBinary is true then any properties of
-   *          PropertyType.BINARY will be serialized as if they are empty.
+   * @param skipBinary - If skipBinary is true then any properties of PropertyType.BINARY will be
+   *          serialized as if they are empty.
    * @param noRecurse - if noRecurse is false, the whole subtree are serialized
    * @return ItemDataTraversingVisitor
    * @throws NamespaceException
@@ -66,19 +68,22 @@ public class ExportImportFactory {
   public BaseXmlExporter getExportVisitor(XmlMapping type,
                                           ContentHandler contentHandler,
                                           boolean skipBinary,
-                                          boolean noRecurse) throws NamespaceException,
-                                                            RepositoryException {
+                                          boolean noRecurse,
+                                          ValueFactoryImpl systemValueFactory) throws NamespaceException,
+                                                                              RepositoryException {
 
     if (type == XmlMapping.SYSVIEW) {
       return new SystemViewContentExporter(contentHandler,
                                            sessionImpl,
                                            sessionImpl.getTransientNodesManager(),
+                                           systemValueFactory,
                                            skipBinary,
                                            noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
       return new DocumentViewContentExporter(contentHandler,
                                              sessionImpl,
                                              sessionImpl.getTransientNodesManager(),
+                                             systemValueFactory,
                                              skipBinary,
                                              noRecurse);
     }
@@ -90,8 +95,8 @@ public class ExportImportFactory {
    * 
    * @param type - 6.4 XML Mappings
    * @param stream - output result stream
-   * @param skipBinary - If skipBinary is true then any properties of
-   *          PropertyType.BINARY will be serialized as if they are empty.
+   * @param skipBinary - If skipBinary is true then any properties of PropertyType.BINARY will be
+   *          serialized as if they are empty.
    * @param noRecurse - if noRecurse is false, the whole subtree are serialized
    * @return
    * @throws NamespaceException
@@ -101,9 +106,10 @@ public class ExportImportFactory {
   public BaseXmlExporter getExportVisitor(XmlMapping type,
                                           OutputStream stream,
                                           boolean skipBinary,
-                                          boolean noRecurse) throws NamespaceException,
-                                                            RepositoryException,
-                                                            IOException {
+                                          boolean noRecurse,
+                                          ValueFactoryImpl systemValueFactory) throws NamespaceException,
+                                                                              RepositoryException,
+                                                                              IOException {
 
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
     XMLStreamWriter streamWriter;
@@ -117,12 +123,14 @@ public class ExportImportFactory {
       return new SystemViewStreamExporter(streamWriter,
                                           sessionImpl,
                                           sessionImpl.getTransientNodesManager(),
+                                          systemValueFactory,
                                           skipBinary,
                                           noRecurse);
     } else if (type == XmlMapping.DOCVIEW) {
       return new DocumentViewStreamExporter(streamWriter,
                                             sessionImpl,
                                             sessionImpl.getTransientNodesManager(),
+                                            systemValueFactory,
                                             skipBinary,
                                             noRecurse);
 
@@ -130,6 +138,7 @@ public class ExportImportFactory {
       return new WorkspaceSystemViewStreamExporter(streamWriter,
                                                    sessionImpl,
                                                    sessionImpl.getTransientNodesManager(),
+                                                   systemValueFactory,
                                                    skipBinary,
                                                    noRecurse);
     }

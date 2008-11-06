@@ -33,6 +33,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.StringConverter;
 
 /**
@@ -42,11 +43,13 @@ import org.exoplatform.services.jcr.impl.util.StringConverter;
 public class DocumentViewStreamExporter extends StreamExporter {
 
   public DocumentViewStreamExporter(XMLStreamWriter writer,
-      SessionImpl session,
-      ItemDataConsumer dataManager,
-      boolean skipBinary,
-      boolean noRecurse) throws NamespaceException, RepositoryException {
-    super(writer, session, dataManager, skipBinary, noRecurse);
+                                    SessionImpl session,
+                                    ItemDataConsumer dataManager,
+                                    ValueFactoryImpl systemValueFactory,
+                                    boolean skipBinary,
+                                    boolean noRecurse) throws NamespaceException,
+      RepositoryException {
+    super(writer, session, dataManager, systemValueFactory, skipBinary, noRecurse);
   }
 
   @Override
@@ -76,12 +79,12 @@ public class DocumentViewStreamExporter extends StreamExporter {
     try {
       if (propName.equals(Constants.JCR_XMLCHARACTERS)) {
         writer.writeCharacters(new String(property.getValues().get(0).getAsByteArray(),
-            Constants.DEFAULT_ENCODING));
+                                          Constants.DEFAULT_ENCODING));
       } else {
 
         //
-        ItemData parentNodeData = session.getTransientNodesManager().getItemData(property
-            .getParentIdentifier());
+        ItemData parentNodeData = session.getTransientNodesManager()
+                                         .getItemData(property.getParentIdentifier());
         if (parentNodeData.getQPath().getName().equals(Constants.JCR_XMLTEXT)) {
           return;
         }
@@ -93,12 +96,13 @@ public class DocumentViewStreamExporter extends StreamExporter {
             continue;
           }
           strValue += MULTI_VALUE_DELIMITER
-              + (property.getType() == PropertyType.BINARY ? strVal : StringConverter
-                  .normalizeString(strVal, true));
+              + (property.getType() == PropertyType.BINARY ? strVal
+                                                          : StringConverter.normalizeString(strVal,
+                                                                                            true));
         }
 
-        writer.writeAttribute(getExportName(property, true), strValue.length() > 0 ? strValue
-            .substring(1) : strValue);
+        writer.writeAttribute(getExportName(property, true),
+                              strValue.length() > 0 ? strValue.substring(1) : strValue);
 
       }
     } catch (IllegalStateException e) {
@@ -119,9 +123,7 @@ public class DocumentViewStreamExporter extends StreamExporter {
         List<NodeData> nodes = dataManager.getChildNodesData(node);
         if (nodes.size() > 0) {
           writer.writeEndElement();
-        } 
-
-        
+        }
 
       }
     } catch (XMLStreamException e) {
