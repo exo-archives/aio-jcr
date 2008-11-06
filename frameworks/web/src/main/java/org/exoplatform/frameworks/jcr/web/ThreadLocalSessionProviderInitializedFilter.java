@@ -37,7 +37,7 @@ import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
 
 /**
- * Created by The eXo Platform SAS . <br/> Checks out if there are SessionProvider istance in
+ * Created by The eXo Platform SAS . <br/> Checks out if there are SessionProvider instance in
  * current thread using ThreadLocalSessionProviderService, if no, initializes it getting current
  * credentials from AuthenticationService and initializing ThreadLocalSessionProviderService with
  * newly created SessionProvider
@@ -104,17 +104,26 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
         log.debug("Create SessionProvider for anonymous.");
       provider = SessionProvider.createAnonimProvider();
     }
-    if (ConversationState.getCurrent() != null)
-      ConversationState.getCurrent().setAttribute(SessionProvider.SESSION_PROVIDER, provider);
-    providerService.setSessionProvider(null, provider);
-
-    chain.doFilter(request, response);
-
-    // remove SessionProvider
-    if (ConversationState.getCurrent() != null)
-      ConversationState.getCurrent().removeAttribute(SessionProvider.SESSION_PROVIDER);
-
-    providerService.removeSessionProvider(null);
+    try {
+      if (ConversationState.getCurrent() != null)
+        ConversationState.getCurrent().setAttribute(SessionProvider.SESSION_PROVIDER, provider);
+      providerService.setSessionProvider(null, provider);
+      chain.doFilter(request, response);
+    } finally {
+      if (ConversationState.getCurrent() != null) {
+        try {
+          ConversationState.getCurrent().removeAttribute(SessionProvider.SESSION_PROVIDER);
+        } catch (Exception e) {
+          log.warn("An error occured while removing the session provider from the conversation state", e);
+        }
+      }
+      try {
+        // remove SessionProvider
+        providerService.removeSessionProvider(null);
+      } catch (Exception e) {
+        log.warn("An error occured while cleaning the ThreadLocal", e);
+      }        
+    }
   }
 
   /*
