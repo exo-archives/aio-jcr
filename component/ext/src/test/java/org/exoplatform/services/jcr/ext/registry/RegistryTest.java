@@ -208,4 +208,18 @@ public class RegistryTest extends BaseStandaloneTest {
     // Note : the value with "_x"
     assertEquals("the_xvalue", entry.getDocument().getDocumentElement().getAttribute("name2"));
   }
+  
+  public void testCreateEntry() throws Exception {
+    RegistryService regService = (RegistryService) container.getComponentInstanceOfType(RegistryService.class);
+    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                +"<CategoryData xmlns:exo=\"http://www.exoplatform.com/jcr/exo/1.0\" " 
+                +"xmlns:jcr=\"http://www.jcp.org/jcr/1.0\"/>";
+    String [] groups = new String [] {"aaa", "bbb", "aAaA", "bBbB", "AAA", "BBB", "aaaa"};
+    for(String g : groups) {
+      String path = RegistryService.EXO_APPLICATIONS + "/ApplicationRegistry" + "/" + g;
+      regService.createEntry(sessionProviderService.getSessionProvider(null),
+                             path,
+                             RegistryEntry.parse(xml.getBytes()));
+    }
+  }
 }
