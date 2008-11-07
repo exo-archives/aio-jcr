@@ -169,12 +169,12 @@ public class ReplicationService implements Startable {
   /**
    * The definition timeout, how many time will be waited for successful save the Changeslog.
    */
-  private long                waitConformation;
+  private long                waitConfirmation;
 
   /**
    * The definition timeout, how many time will be waited for successful save the Changeslog.
    */
-  private String              sWaitConformation;
+  private String              sWaitConfirmation;
 
   /**
    * Will be started full backup if 'backupEnabled' is 'true'.
@@ -335,7 +335,7 @@ public class ReplicationService implements Startable {
                                                                     ownName,
                                                                     systemId,
                                                                     participantsClusterList,
-                                                                    waitConformation,
+                                                                    waitConfirmation,
                                                                     jcrRepository.getName(),
                                                                     workspaces[wIndex],
                                                                     channelManager);
@@ -463,7 +463,7 @@ public class ReplicationService implements Startable {
     setAttributeSmart(element, "recovery-dir", recDir);
     setAttributeSmart(element, "node-name", ownName);
     setAttributeSmart(element, "other-participants", participantsCluster);
-    setAttributeSmart(element, "wait-confirmation", sWaitConformation);
+    setAttributeSmart(element, "wait-confirmation", sWaitConfirmation);
     root.appendChild(element);
 
     element = doc.createElement("replication-snapshot-properties");
@@ -518,7 +518,7 @@ public class ReplicationService implements Startable {
     recDir = getAttributeSmart(element, "recovery-dir");
     ownName = getAttributeSmart(element, "node-name");
     participantsCluster = getAttributeSmart(element, "other-participants");
-    sWaitConformation = getAttributeSmart(element, "wait-confirmation");
+    sWaitConfirmation = getAttributeSmart(element, "wait-confirmation");
 
     // initialize snapshot params;
     entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/"
@@ -594,7 +594,7 @@ public class ReplicationService implements Startable {
     recDir = pps.getProperty("recovery-dir");
     ownName = pps.getProperty("node-name");
     participantsCluster = pps.getProperty("other-participants");
-    sWaitConformation = pps.getProperty("wait-confirmation");
+    sWaitConfirmation = pps.getProperty("wait-confirmation");
 
     // initialize repositories
     ValuesParam vp = initParams.getValuesParam("repositories");
@@ -667,10 +667,10 @@ public class ReplicationService implements Startable {
       if (!pc[i].equals(""))
         participantsClusterList.add(pc[i]);
 
-    if (sWaitConformation == null)
+    if (sWaitConfirmation == null)
       throw new RuntimeException("Wait conformation not specified");
 
-    waitConformation = Long.valueOf(sWaitConformation);
+    waitConfirmation = Long.valueOf(sWaitConfirmation);
 
     // snapshot params;
     backupEnabled = (sBackupEnabled == null ? false : Boolean.valueOf(sBackupEnabled));
