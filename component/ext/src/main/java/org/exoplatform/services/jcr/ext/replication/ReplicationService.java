@@ -668,7 +668,7 @@ public class ReplicationService implements Startable {
         participantsClusterList.add(pc[i]);
 
     if (sWaitConfirmation == null)
-      throw new RuntimeException("Wait conformation not specified");
+      throw new RuntimeException("Wait confirmation not specified");
 
     waitConfirmation = Long.valueOf(sWaitConfirmation);
 
