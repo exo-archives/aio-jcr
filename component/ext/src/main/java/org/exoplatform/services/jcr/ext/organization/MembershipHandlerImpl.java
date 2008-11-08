@@ -94,11 +94,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public void createMembership(Membership m, boolean broadcast) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("createMembership");
-    }
-
-    Session session = service.getStorageSession();
     try {
       Group g = service.getGroupHandler().findGroupById(m.getGroupId());
       User u = service.getUserHandler().findUserByName(m.getUserName());
@@ -110,8 +105,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not create membership", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -130,15 +123,9 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Membership findMembership(String id) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("findMembership");
-    }
-
     Session session = service.getStorageSession();
     try {
-      Node mNode = session.getNodeByUUID(id);
-      return readObjectFromNode(mNode);
-
+      return findMembership(session, id);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by UUId", e);
     } finally {
@@ -146,47 +133,21 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
   }
 
+  private Membership findMembership(Session session, String id) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("findMembership");
+    }
+    Node mNode = session.getNodeByUUID(id);
+    return readObjectFromNode(mNode);
+  }
+
   /**
    * {@inheritDoc}
    */
   public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("findMembershipByUserGroupAndType");
-    }
-
     Session session = service.getStorageSession();
     try {
-      Membership membership = null;
-
-      String groupUUId = getGroupUUID(groupId);
-      if (groupUUId != null) {
-
-        String membershipTypeUUId = getMembershipTypeUUID(type);
-        if (membershipTypeUUId != null) {
-
-          String mStatement = "select * from exo:userMembership where exo:group='" + groupUUId
-              + "' and exo:membershipType='" + membershipTypeUUId + "'";
-          Query mQuery = service.getStorageSession()
-                                .getWorkspace()
-                                .getQueryManager()
-                                .createQuery(mStatement, Query.SQL);
-          QueryResult mRes = mQuery.execute();
-          for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
-            Node mNode = mNodes.nextNode();
-            Node uNode = mNode.getParent();
-
-            if (uNode.getName().equals(userName)) {
-              if (membership != null) {
-                throw new OrganizationServiceException("More than one membership is found");
-              }
-              membership = new MembershipImpl(mNode.getUUID(), userName, groupId, type);
-            }
-          }
-        }
-      }
-
-      return membership;
-
+      return findMembershipByUserGroupAndType(session, userName, groupId, type);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type for user '" + userName
           + "' groupId '" + groupId + "' type '" + type + "'", e);
@@ -195,35 +156,50 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
   }
 
+  private Membership findMembershipByUserGroupAndType(Session session, String userName, String groupId, String type) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("findMembershipByUserGroupAndType");
+    }
+
+    Membership membership = null;
+
+    String groupUUId = getGroupUUID(session, groupId);
+    if (groupUUId != null) {
+
+      String membershipTypeUUId = getMembershipTypeUUID(session, type);
+      if (membershipTypeUUId != null) {
+
+        String mStatement = "select * from exo:userMembership where exo:group='" + groupUUId
+            + "' and exo:membershipType='" + membershipTypeUUId + "'";
+        Query mQuery = session
+                              .getWorkspace()
+                              .getQueryManager()
+                              .createQuery(mStatement, Query.SQL);
+        QueryResult mRes = mQuery.execute();
+        for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
+          Node mNode = mNodes.nextNode();
+          Node uNode = mNode.getParent();
+
+          if (uNode.getName().equals(userName)) {
+            if (membership != null) {
+              throw new OrganizationServiceException("More than one membership is found");
+            }
+            membership = new MembershipImpl(mNode.getUUID(), userName, groupId, type);
+          }
+        }
+      }
+    }
+
+    return membership;
+  }
+
   /**
    * {@inheritDoc}
    */
   public Collection findMembershipsByGroup(Group group) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("findMembershipByGroup");
-    }
-
     Session session = service.getStorageSession();
-
     try {
-      List<Membership> types = new ArrayList<Membership>();
-
-      String groupUUID = getGroupUUID(group.getId());
-      if (groupUUID != null) {
-
-        String statement = "select * from exo:userMembership where exo:group='" + groupUUID + "'";
-        Query mQuery = service.getStorageSession()
-                              .getWorkspace()
-                              .getQueryManager()
-                              .createQuery(statement, Query.SQL);
-        QueryResult mRes = mQuery.execute();
-        for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
-          Node mNode = mNodes.nextNode();
-          types.add(readObjectFromNode(mNode));
-        }
-      }
-      return types;
-
+      return findMembershipsByGroup(session, group);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by group", e);
     } finally {
@@ -231,32 +207,107 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
   }
 
+  private Collection findMembershipsByGroup(Session session, Group group) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("findMembershipByGroup");
+    }
+    List<Membership> types = new ArrayList<Membership>();
+
+    String groupUUID = getGroupUUID(session, group.getId());
+    if (groupUUID != null) {
+
+      String statement = "select * from exo:userMembership where exo:group='" + groupUUID + "'";
+      Query mQuery = service.getStorageSession()
+                            .getWorkspace()
+                            .getQueryManager()
+                            .createQuery(statement, Query.SQL);
+      QueryResult mRes = mQuery.execute();
+      for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
+        Node mNode = mNodes.nextNode();
+        types.add(readObjectFromNode(mNode));
+      }
+    }
+    return types;
+  }
+
   /**
    * {@inheritDoc}
    */
   public Collection findMembershipsByUser(String userName) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipsByUser(session, userName);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find membership by user '" + userName + "'",
+                                             e);
+    } finally {
+      session.logout();
+    }
+  }
+
+  private Collection findMembershipsByUser(Session session, String userName) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findMembeshipByUser");
     }
+    List<Membership> types = new ArrayList<Membership>();
 
+    String userPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+        + userName;
+
+    if (!session.itemExists(userPath)) {
+      return types;
+    }
+
+    // find membership
+    String mStatement = "select * from exo:userMembership";
+    Query mQuery = session
+                          .getWorkspace()
+                          .getQueryManager()
+                          .createQuery(mStatement, Query.SQL);
+    QueryResult mRes = mQuery.execute();
+    for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
+      Node mNode = mNodes.nextNode();
+      Node uNode = mNode.getParent();
+
+      // check username
+      if (uNode.getName().equals(userName)) {
+        types.add(readObjectFromNode(mNode));
+      }
+    }
+    return types;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception {
     Session session = service.getStorageSession();
     try {
-      List<Membership> types = new ArrayList<Membership>();
+      return findMembershipsByUserAndGroup(session, userName, groupId);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find membership by user '" + userName
+          + "' and group '" + groupId + "'", e);
+    } finally {
+      session.logout();
+    }
+  }
 
-      String userPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
-          + userName;
+  private Collection findMembershipsByUserAndGroup(Session session, String userName, String groupId) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("findMembershipByUserAndGroup");
+    }
+    List<Membership> types = new ArrayList<Membership>();
 
-      if (!session.itemExists(userPath)) {
-        return types;
-      }
-
+    String groupUUId = getGroupUUID(session, groupId);
+    if (groupUUId != null) {
       // find membership
-      String mStatement = "select * from exo:userMembership";
-      Query mQuery = service.getStorageSession()
+      String mStatement = "select * from exo:userMembership where exo:group='" + groupUUId + "'";
+      Query mQuery = session
                             .getWorkspace()
                             .getQueryManager()
                             .createQuery(mStatement, Query.SQL);
       QueryResult mRes = mQuery.execute();
+
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
         Node uNode = mNode.getParent();
@@ -266,99 +317,17 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
           types.add(readObjectFromNode(mNode));
         }
       }
-      return types;
-
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership by user '" + userName + "'",
-                                             e);
-    } finally {
-      session.logout();
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("findMembershipByUserAndGroup");
-    }
-
-    Session session = service.getStorageSession();
-    try {
-      List<Membership> types = new ArrayList<Membership>();
-
-      String groupUUId = getGroupUUID(groupId);
-      if (groupUUId != null) {
-        // find membership
-        String mStatement = "select * from exo:userMembership where exo:group='" + groupUUId + "'";
-        Query mQuery = service.getStorageSession()
-                              .getWorkspace()
-                              .getQueryManager()
-                              .createQuery(mStatement, Query.SQL);
-        QueryResult mRes = mQuery.execute();
-
-        for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
-          Node mNode = mNodes.nextNode();
-          Node uNode = mNode.getParent();
-
-          // check username
-          if (uNode.getName().equals(userName)) {
-            types.add(readObjectFromNode(mNode));
-          }
-        }
-      }
-      return types;
-
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership by user '" + userName
-          + "' and group '" + groupId + "'", e);
-    } finally {
-      session.logout();
-    }
+    return types;
   }
 
   /**
    * {@inheritDoc}
    */
   public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("linkMembership");
-    }
-
     Session session = service.getStorageSession();
     try {
-      // create membership type '*'
-      if (m.getName().equals("*")
-          && !session.itemExists(service.getStoragePath() + "/"
-              + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + m.getName())) {
-
-        MembershipType mt = service.getMembershipTypeHandler().createMembershipTypeInstance();
-        mt.setName("*");
-        mt.setDescription("any membership type");
-        service.getMembershipTypeHandler().createMembershipType(mt, broadcast);
-      }
-
-      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName());
-
-      Membership membership = new MembershipImpl(null,
-                                                 user.getUserName(),
-                                                 group.getId(),
-                                                 m.getName());
-      Node mNode = uNode.addNode(UserHandlerImpl.EXO_MEMBERSHIP);
-
-      if (broadcast) {
-        preSave(membership, true);
-      }
-
-      writeObjectToNode(membership, mNode);
-      session.save();
-
-      if (broadcast) {
-        postSave(membership, true);
-      }
-
+      linkMembership(session, user, group, m, broadcast);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not link membership for user '"
           + user.getUserName() + "' group '" + group.getGroupName() + "' and membership type '"
@@ -368,32 +337,70 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
   }
 
+  private void linkMembership(Session session, User user, Group group, MembershipType m, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("linkMembership");
+    }
+    // create membership type '*'
+    if (m.getName().equals("*")
+        && !session.itemExists(service.getStoragePath() + "/"
+            + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + m.getName())) {
+
+      MembershipType mt = service.getMembershipTypeHandler().createMembershipTypeInstance();
+      mt.setName("*");
+      mt.setDescription("any membership type");
+      service.getMembershipTypeHandler().createMembershipType(mt, broadcast);
+    }
+
+    Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
+        + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName());
+
+    Membership membership = new MembershipImpl(null,
+                                               user.getUserName(),
+                                               group.getId(),
+                                               m.getName());
+    Node mNode = uNode.addNode(UserHandlerImpl.EXO_MEMBERSHIP);
+
+    if (broadcast) {
+      preSave(membership, true);
+    }
+
+    writeObjectToNode(membership, mNode);
+    session.save();
+
+    if (broadcast) {
+      postSave(membership, true);
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
-  public Membership removeMembership(String id, boolean broadcast) throws Exception {
+  private Membership removeMembership(Session session, String id, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("removeMembership");
     }
+    Node mNode = session.getNodeByUUID(id);
+     Membership membership = readObjectFromNode(mNode);
 
+     if (broadcast) {
+       preDelete(membership);
+     }
+
+     mNode.remove();
+     session.save();
+
+     if (broadcast) {
+       postDelete(membership);
+     }
+
+     return membership;
+  }
+
+  public Membership removeMembership(String id, boolean broadcast) throws Exception {
     Session session = service.getStorageSession();
     try {
-      Node mNode = session.getNodeByUUID(id);
-      Membership membership = readObjectFromNode(mNode);
-
-      if (broadcast) {
-        preDelete(membership);
-      }
-
-      mNode.remove();
-      session.save();
-
-      if (broadcast) {
-        postDelete(membership);
-      }
-
-      return membership;
-
+      return removeMembership(session, id, broadcast);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by UUId", e);
     } finally {
@@ -405,38 +412,9 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Collection removeMembershipByUser(String userName, boolean broadcast) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("removeMembershipByUser");
-    }
-
     Session session = service.getStorageSession();
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
-
-      List<Membership> types = new ArrayList<Membership>();
-      types = (List) findMembershipsByUser(userName);
-
-      for (NodeIterator mNodes = uNode.getNodes(UserHandlerImpl.EXO_MEMBERSHIP); mNodes.hasNext();) {
-        Node mNode = mNodes.nextNode();
-        Membership membership = readObjectFromNode(mNode);
-
-        if (broadcast) {
-          preDelete(membership);
-        }
-
-        mNode.remove();
-      }
-
-      session.save();
-      for (int i = 0; i < types.size(); i++) {
-        if (broadcast) {
-          postDelete(types.get(i));
-        }
-      }
-
-      return types;
-
+      return removeMembershipByUser(session, userName, broadcast);
     } catch (PathNotFoundException e) {
       throw new OrganizationServiceException("Can not find user '" + userName
           + "' for remove membership.");
@@ -446,6 +424,38 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     } finally {
       session.logout();
     }
+  }
+
+  private Collection removeMembershipByUser(Session session, String userName, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("removeMembershipByUser");
+    }
+    
+    Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
+        + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
+
+    List<Membership> types = new ArrayList<Membership>();
+    types = (List) findMembershipsByUser(userName);
+
+    for (NodeIterator mNodes = uNode.getNodes(UserHandlerImpl.EXO_MEMBERSHIP); mNodes.hasNext();) {
+      Node mNode = mNodes.nextNode();
+      Membership membership = readObjectFromNode(mNode);
+
+      if (broadcast) {
+        preDelete(membership);
+      }
+
+      mNode.remove();
+    }
+
+    session.save();
+    for (int i = 0; i < types.size(); i++) {
+      if (broadcast) {
+        postDelete(types.get(i));
+      }
+    }
+
+    return types;
   }
 
   /**
@@ -467,8 +477,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getMembershipTypeUUID(String type) throws Exception {
-    Session session = service.getStorageSession();
+  private String getMembershipTypeUUID(Session session, String type) throws Exception {
     try {
       String mtPath = service.getStoragePath() + "/"
           + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES;
@@ -478,8 +487,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type '" + type + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -492,8 +499,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getGroupUUID(String groupId) throws Exception {
-    Session session = service.getStorageSession();
+  private String getGroupUUID(Session session, String groupId) throws Exception {
     try {
       String gPath = service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS;
       return (groupId != null && groupId.length() != 0 && session.itemExists(gPath + groupId)
@@ -502,8 +508,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group '" + groupId + "'", e);
-    } finally {
-      session.logout();
     }
 
   }
@@ -538,16 +542,13 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getGroupId(String UUID) throws Exception {
-    Session session = service.getStorageSession();
+  private String getGroupId(Session session, String UUID) throws Exception {
     try {
       Node gNode = session.getNodeByUUID(UUID);
       return readStringProperty(gNode, GroupHandlerImpl.EXO_GROUP_ID);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group by uuid " + UUID, e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -565,7 +566,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       String groupUUID = readStringProperty(node, EXO_GROUP);
       String membershipTypeUUID = readStringProperty(node, EXO_MEMBERSHIP_TYPE);
 
-      String groupId = getGroupId(groupUUID);
+      String groupId = getGroupId(node.getSession(), groupUUID);
       String membershipType = getMembershipType(membershipTypeUUID);
       String userName = node.getParent().getName();
 
@@ -587,8 +588,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private void writeObjectToNode(Membership m, Node node) throws Exception {
     try {
-      String groupUUId = getGroupUUID(m.getGroupId());
-      String membershipTypeUUId = getMembershipTypeUUID(m.getMembershipType());
+      String groupUUId = getGroupUUID(node.getSession(), m.getGroupId());
+      String membershipTypeUUId = getMembershipTypeUUID(node.getSession(), m.getMembershipType());
 
       node.setProperty(EXO_GROUP, groupUUId);
       node.setProperty(EXO_MEMBERSHIP_TYPE, membershipTypeUUId);
