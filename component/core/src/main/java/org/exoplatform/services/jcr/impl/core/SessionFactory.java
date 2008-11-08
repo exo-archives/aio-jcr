@@ -51,6 +51,7 @@ public class SessionFactory {
 
   private TransactionableResourceManager txResourceManager = null;
 
+
   /**
    * @param orgService
    * @param tService
@@ -65,6 +66,33 @@ public class SessionFactory {
     this.workspaceName = config.getName();
     this.tService = tService;
     this.txResourceManager = new TransactionableResourceManager();
+
+    //
+    boolean tracking = "true".equalsIgnoreCase(System.getProperty("exo.jcr.session.tracking.active", "false"));
+    if (tracking) {
+      long maxAgeMillis = 0;
+
+      String maxagevalue = System.getProperty("exo.jcr.jcr.session.tracking.maxage");
+      if (maxagevalue != null) {
+        try {
+          maxAgeMillis = Long.parseLong(maxagevalue);
+        }
+        catch (NumberFormatException e) {
+          //
+        }
+      }
+      if (maxAgeMillis <= 0) {
+        maxAgeMillis = 1000 * 60 * 2; // 2 mns
+      }
+
+      //
+      try {
+        SessionReference.start(maxAgeMillis);
+      }
+      catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   /**
@@ -88,14 +116,28 @@ public class SessionFactory {
     // Check privilegies to access workspace first?
     // ....
 
-    if (tService == null)
-      return new SessionImpl(workspaceName, user, container);
+    if (tService == null) {
+      if (SessionReference.isStarted()) {
+        return new TrackedSession(workspaceName, user, container);
+      } else {
+        return new SessionImpl(workspaceName, user, container);
+      }
+    }
 
-    XASessionImpl xaSession = new XASessionImpl(workspaceName,
-                                                user,
-                                                container,
-                                                tService,
-                                                txResourceManager);
+    XASessionImpl xaSession;
+    if (SessionReference.isStarted()) {
+      xaSession = new TrackedXASession(workspaceName,
+        user,
+        container,
+        tService,
+        txResourceManager);
+    } else {
+      xaSession = new XASessionImpl(workspaceName,
+        user,
+        container,
+        tService,
+        txResourceManager);
+    }
 
     try {
       xaSession.enlistResource();
