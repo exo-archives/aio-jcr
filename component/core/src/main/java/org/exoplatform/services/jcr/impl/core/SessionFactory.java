@@ -75,7 +75,7 @@ public class SessionFactory {
       String maxagevalue = System.getProperty("exo.jcr.jcr.session.tracking.maxage");
       if (maxagevalue != null) {
         try {
-          maxAgeMillis = Long.parseLong(maxagevalue);
+          maxAgeMillis = Long.parseLong(maxagevalue) * 1000;
         }
         catch (NumberFormatException e) {
           //
