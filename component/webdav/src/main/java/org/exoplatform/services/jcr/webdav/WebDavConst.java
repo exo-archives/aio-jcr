@@ -29,7 +29,7 @@ import org.exoplatform.common.http.HTTPStatus;
 public class WebDavConst {
 
   /**
-   * 
+   *
    */
   public static final String WDBDAV_COMMAND_CATALOG = "WEBDAV";
 

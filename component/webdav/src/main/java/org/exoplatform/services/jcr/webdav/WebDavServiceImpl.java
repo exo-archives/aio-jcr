@@ -89,12 +89,6 @@ import org.exoplatform.services.rest.VERSIONCONTROL;
 import org.exoplatform.services.rest.impl.ResourceBinder;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
-//import org.exoplatform.services.rest.container.ResourceContainer;
-//import org.exoplatform.services.rest.container.ResourceDescriptor;
-//import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
-//import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
-//import org.exoplatform.services.rest.transformer.SerializableTransformer;
-
 /**
  * Created by The eXo Platform SARL .<br/>
  * 
@@ -194,7 +188,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response checkin(@PathParam("repoName") String repoName,
                           @PathParam("repoPath") String repoPath,
                           @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -219,7 +213,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response checkout(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -245,7 +239,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response copy(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -333,8 +327,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @DELETE
   @Path("/{repoName}/{repoPath}/")
-  @Consumes("*/*") // PassthroughInputTransformer.class
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Consumes("text/xml") // PassthroughInputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response delete(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -358,8 +352,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @GET
   @Path("/{repoName}/{repoPath}/")
-  @Consumes("*/*") // PassthroughInputTransformer.class
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Consumes("text/xml") // PassthroughInputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response get(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
@@ -418,8 +412,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @HEAD
   @Path("/{repoName}/{repoPath}/")
-  @Consumes("*/*") // PassthroughInputTransformer.class
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Consumes("text/xml") // PassthroughInputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response head(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @QueryParam("version") String version,
@@ -444,7 +438,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // SerializableTransformer.class
+  @Produces("text/xml") // SerializableTransformer.class
   public Response lock(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -491,7 +485,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // SerializableTransformer.class
+  @Produces("text/xml") // SerializableTransformer.class
   public Response unlock(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -517,8 +511,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @MKCOL
   @Path("/{repoName}/{repoPath}/")
-  @Consumes("*/*") // PassthroughInputTransformer.class
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Consumes("text/xml") // PassthroughInputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response mkcol(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -553,7 +547,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response move(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -630,7 +624,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response options(@PathParam("repoName") String repoName, HierarchicalProperty body) {
 
     if(log.isDebugEnabled()){
@@ -675,7 +669,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // SerializableTransformer.class
+  @Produces("text/xml") // SerializableTransformer.class
   public Response order(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -702,7 +696,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // SerializableTransformer.class
+  @Produces("text/xml") // SerializableTransformer.class
   public Response propfind(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
@@ -733,7 +727,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml")
   // (XMLInputTransformer.class)
-  @Produces("*/*") // SerializableTransformer.class
+  @Produces("text/xml") // SerializableTransformer.class
   public Response proppatch(@PathParam("repoName") String repoName,
                             @PathParam("repoPath") String repoPath,
                             @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -764,8 +758,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @PUT
   @Path("/{repoName}/{repoPath}/")
-  @Consumes("*/*") // PassthroughInputTransformer.class
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Consumes("text/xml") // PassthroughInputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response put(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -814,7 +808,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @REPORT
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces("*/*") // SerializableTransformer.class
+  @Produces("text/xml") // SerializableTransformer.class
   public Response report(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
@@ -841,7 +835,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @SEARCH
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces("*/*") // SerializableTransformer.class
+  @Produces("text/xml") // SerializableTransformer.class
   public Response search(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @Context UriInfo baseURI,
@@ -867,7 +861,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @UNCHECKOUT
   @Path("/{repoName}/{repoPath}/")
   @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response uncheckout(@PathParam("repoName") String repoName,
                              @PathParam("repoPath") String repoPath,
                              @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -894,8 +888,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @VERSIONCONTROL
   @Path("/{repoName}/{repoPath}/")
-  @Consumes("*/*") // PassthroughInputTransformer.class
-  @Produces("*/*") // PassthroughOutputTransformer.class
+  @Consumes("text/xml") // PassthroughInputTransformer.class
+  @Produces("text/xml") // PassthroughOutputTransformer.class
   public Response versionControl(@PathParam("repoName") String repoName,
                                  @PathParam("repoPath") String repoPath,
                                  @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
