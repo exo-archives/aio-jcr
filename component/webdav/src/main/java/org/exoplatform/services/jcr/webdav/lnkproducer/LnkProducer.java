@@ -58,8 +58,8 @@ public class LnkProducer implements ResourceContainer {
 
   @GET
   @Path("/{linkFilePath}/")
-  @Consumes("*/*") //(PassthroughInputTransformer.class)
-  @Produces("*/*") //(PassthroughOutputTransformer.class)
+  @Consumes("text/xml") //(PassthroughInputTransformer.class)
+  @Produces("text/xml") //(PassthroughOutputTransformer.class)
   public Response produceLink(@PathParam("linkFilePath") String linkFilePath,
                               @PathParam("path") String path,
                               @Context UriInfo baseURI,
