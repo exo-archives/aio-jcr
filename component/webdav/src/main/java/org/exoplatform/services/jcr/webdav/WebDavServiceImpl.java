@@ -197,7 +197,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     if (log.isDebugEnabled()) {
       log.debug("CHECKIN " + repoName + "/" + repoPath);
     }
-
+    
+    repoPath = getRepoPath(repoPath);
+    
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
@@ -222,6 +224,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("CHECKOUT " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
@@ -251,6 +255,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("COPY " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       String serverURI = baseURI + "/jcr/" + repoName;
 
@@ -335,6 +341,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("DELETE " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -360,6 +368,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     if (log.isDebugEnabled()) {
       log.debug("GET " + repoName + "/" + repoPath);
     }
+    
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
 
@@ -419,6 +430,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     if (log.isDebugEnabled()) {
       log.debug("HEAD " + repoName + "/" + repoPath);
     }
+    
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
@@ -447,6 +461,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("LOCK " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -490,6 +506,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     if (log.isDebugEnabled()) {
       log.debug("UNLOCK " + repoName + "/" + repoPath);
     }
+    
+    repoPath = getRepoPath(repoPath);
+    
     Session session;
     List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
     try {
@@ -517,6 +536,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     if (log.isDebugEnabled()) {
       log.debug("MKCOL " + repoName + "/" + repoPath);
     }
+    
+    repoPath = getRepoPath(repoPath);
+    
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), tokens);
@@ -556,6 +578,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("MOVE " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       String serverURI = baseURI + "/jcr/" + repoName;
 
@@ -623,6 +647,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     if (log.isDebugEnabled()) {
       log.debug("OPTIONS " + repoName);
     }
+    
     ArrayList<String> commands = new ArrayList<String>();
 
     // List<ResourceDescriptor> descriptors = resourceBinder.getAllDescriptors();
@@ -673,6 +698,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("ORDERPATCH " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
@@ -697,6 +724,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("PROPFIND " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
@@ -728,6 +757,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("PROPPATCH " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
@@ -763,6 +794,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("PUT " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), tokens);
@@ -809,6 +842,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("REPORT " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Depth depth = new Depth(depthHeader);
       Session session = session(repoName, workspaceName(repoPath), null);
@@ -835,6 +870,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("SEARCH " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
@@ -862,6 +899,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("UNCHECKOUT " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -889,6 +928,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("VERSION-CONTROL " + repoName + "/" + repoPath);
     }
 
+    repoPath = getRepoPath(repoPath);
+    
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
@@ -928,6 +969,14 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   protected String workspaceName(String repoPath) {
     return repoPath.split("/")[0];
   }
+  
+  protected String getRepoPath(String repoPath){
+    if(repoPath.endsWith("/")){      
+      return repoPath.substring(0, repoPath.lastIndexOf("/"));
+    }
+    return repoPath;
+  }
+  
 
   protected String path(String repoPath) {
     String path = repoPath.substring(workspaceName(repoPath).length(), repoPath.length());
