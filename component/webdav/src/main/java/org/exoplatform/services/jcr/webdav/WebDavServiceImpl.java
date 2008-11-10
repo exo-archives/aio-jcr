@@ -128,7 +128,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   private final RepositoryService                 repositoryService;
 
-//  private final ResourceBinder                    resourceBinder;
+  // private final ResourceBinder resourceBinder;
 
   private final NullResourceLocksHolder           nullResourceLocks;
 
@@ -155,7 +155,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                            ResourceBinder resourceBinder) throws Exception {
     this.sessionProviderService = sessionProviderService;
     this.repositoryService = repositoryService;
-//    this.resourceBinder = resourceBinder;
+    // this.resourceBinder = resourceBinder;
     this.nullResourceLocks = new NullResourceLocksHolder();
 
     ValueParam pDefFolderNodeType = params.getValueParam(INIT_PARAM_DEF_FOLDER_NODE_TYPE);
@@ -185,17 +185,16 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @CHECKIN
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Produces("text/xml")
   public Response checkin(@PathParam("repoName") String repoName,
                           @PathParam("repoPath") String repoPath,
                           @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                           @HeaderParam(WebDavHeaders.IF) String ifHeader,
                           HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("CHECKIN " + repoName + "/" + repoPath);
     }
 
@@ -210,20 +209,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @CHECKOUT
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Produces("text/xml")
   public Response checkout(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                            @HeaderParam(WebDavHeaders.IF) String ifHeader,
                            HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("CHECKOUT " + repoName + "/" + repoPath);
     }
-    
+
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
@@ -236,10 +234,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @COPY
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Produces("text/xml")
   public Response copy(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -250,7 +247,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                        @Context UriInfo baseURI,
                        HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("COPY " + repoName + "/" + repoPath);
     }
 
@@ -326,15 +323,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @DELETE
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") // PassthroughInputTransformer.class
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response delete(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                          @HeaderParam(WebDavHeaders.IF) String ifHeader) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("DELETE " + repoName + "/" + repoPath);
     }
 
@@ -351,16 +348,16 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @GET
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") // PassthroughInputTransformer.class
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response get(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
                       @QueryParam("version") String version,
                       @Context UriInfo baseURI) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("GET " + repoName + "/" + repoPath);
     }
     try {
@@ -370,7 +367,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
       if (rangeHeader != null) {
 
-        if(log.isDebugEnabled()){
+        if (log.isDebugEnabled()) {
           log.debug(rangeHeader);
         }
 
@@ -411,15 +408,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @HEAD
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") // PassthroughInputTransformer.class
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response head(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @QueryParam("version") String version,
                        @Context UriInfo baseURI) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("HEAD " + repoName + "/" + repoPath);
     }
     try {
@@ -435,10 +432,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @LOCK
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // SerializableTransformer.class
+  @Produces("text/xml")
   public Response lock(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -447,10 +443,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                        @HeaderParam(WebDavHeaders.TIMEOUT) String timeout,
                        HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("LOCK " + repoName + "/" + repoPath);
     }
-    
+
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -482,17 +478,16 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @UNLOCK
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // SerializableTransformer.class
+  @Produces("text/xml")
   public Response unlock(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                          @HeaderParam(WebDavHeaders.IF) String ifHeader,
                          HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("UNLOCK " + repoName + "/" + repoPath);
     }
     Session session;
@@ -510,16 +505,16 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @MKCOL
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") // PassthroughInputTransformer.class
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response mkcol(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                         @HeaderParam(WebDavHeaders.IF) String ifHeader,
                         @HeaderParam(WebDavHeaders.NODETYPE) String nodeTypeHeader,
                         @HeaderParam(WebDavHeaders.MIXTYPE) String mixinTypesHeader) {
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("MKCOL " + repoName + "/" + repoPath);
     }
     try {
@@ -544,10 +539,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @MOVE
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Produces("text/xml")
   public Response move(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -558,10 +552,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                        @Context UriInfo baseURI,
                        HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("MOVE " + repoName + "/" + repoPath);
     }
-    
+
     try {
       String serverURI = baseURI + "/jcr/" + repoName;
 
@@ -623,26 +617,25 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @OPTIONS
   @Path("/{repoName}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Produces("text/xml")
   public Response options(@PathParam("repoName") String repoName, HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("OPTIONS " + repoName);
     }
     ArrayList<String> commands = new ArrayList<String>();
 
-//    List<ResourceDescriptor> descriptors = resourceBinder.getAllDescriptors();
-//    for (int i = 0; i < descriptors.size(); i++) {
-//      ResourceDescriptor descriptor = descriptors.get(i);
-//
-//      String acceptableMethod = descriptor.getAcceptableMethod();
-//      String uriPattern = descriptor.getURIPattern().getString();
-//
-//      if (uriPattern.startsWith("/jcr/")) {
-//        commands.add(acceptableMethod);
-//      }
-//    }
+    // List<ResourceDescriptor> descriptors = resourceBinder.getAllDescriptors();
+    // for (int i = 0; i < descriptors.size(); i++) {
+    // ResourceDescriptor descriptor = descriptors.get(i);
+    //
+    // String acceptableMethod = descriptor.getAcceptableMethod();
+    // String uriPattern = descriptor.getURIPattern().getString();
+    //
+    // if (uriPattern.startsWith("/jcr/")) {
+    // commands.add(acceptableMethod);
+    // }
+    // }
 
     String allowCommands = "";
 
@@ -666,21 +659,20 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @ORDERPATCH
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // SerializableTransformer.class
+  @Produces("text/xml")
   public Response order(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                         @HeaderParam(WebDavHeaders.IF) String ifHeader,
                         @Context UriInfo baseURI,
                         HierarchicalProperty body) {
-    
-    if(log.isDebugEnabled()){
+
+    if (log.isDebugEnabled()) {
       log.debug("ORDERPATCH " + repoName + "/" + repoPath);
     }
-    
+
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
@@ -693,19 +685,18 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @PROPFIND
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // SerializableTransformer.class
+  @Produces("text/xml")
   public Response propfind(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
                            @Context UriInfo baseURI,
                            HierarchicalProperty body) {
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("PROPFIND " + repoName + "/" + repoPath);
     }
-    
+
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
@@ -724,20 +715,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @PROPPATCH
-  @Path("/{repoName}/{repoPath}/")
+  @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
-  // (XMLInputTransformer.class)
-  @Produces("text/xml") // SerializableTransformer.class
+  @Produces("text/xml")
   public Response proppatch(@PathParam("repoName") String repoName,
                             @PathParam("repoPath") String repoPath,
                             @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                             @HeaderParam(WebDavHeaders.IF) String ifHeader,
                             @Context UriInfo baseURI,
                             HierarchicalProperty body) {
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("PROPPATCH " + repoName + "/" + repoPath);
     }
-    
+
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
@@ -757,9 +747,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @PUT
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") // PassthroughInputTransformer.class
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response put(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -769,7 +759,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                       @HeaderParam(WebDavHeaders.CONTENTTYPE) String mimeType,
                       InputStream inputStream) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("PUT " + repoName + "/" + repoPath);
     }
 
@@ -806,19 +796,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @REPORT
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces("text/xml") // SerializableTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response report(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
                          @Context UriInfo baseURI,
                          HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("REPORT " + repoName + "/" + repoPath);
     }
-    
+
     try {
       Depth depth = new Depth(depthHeader);
       Session session = session(repoName, workspaceName(repoPath), null);
@@ -833,18 +823,18 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @SEARCH
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces("text/xml") // SerializableTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response search(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @Context UriInfo baseURI,
                          HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("SEARCH " + repoName + "/" + repoPath);
     }
-    
+
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
       String uri = baseURI + "/jcr/" + repoName + "/" + workspaceName(repoPath);
@@ -859,19 +849,19 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @UNCHECKOUT
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") //(XMLInputTransformer.class)
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response uncheckout(@PathParam("repoName") String repoName,
                              @PathParam("repoPath") String repoPath,
                              @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                              @HeaderParam(WebDavHeaders.IF) String ifHeader,
                              HierarchicalProperty body) {
 
-    if(log.isDebugEnabled()){
-      log.debug("UNCHECKOUT " + repoName + "/" + repoPath); 
+    if (log.isDebugEnabled()) {
+      log.debug("UNCHECKOUT " + repoName + "/" + repoPath);
     }
-    
+
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
                                                                               ifHeader));
@@ -887,18 +877,18 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @VERSIONCONTROL
-  @Path("/{repoName}/{repoPath}/")
-  @Consumes("text/xml") // PassthroughInputTransformer.class
-  @Produces("text/xml") // PassthroughOutputTransformer.class
+  @Path("/{repoName}/{repoPath:.*}/")
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response versionControl(@PathParam("repoName") String repoName,
                                  @PathParam("repoPath") String repoPath,
                                  @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
                                  @HeaderParam(WebDavHeaders.IF) String ifHeader) {
 
-    if(log.isDebugEnabled()){
+    if (log.isDebugEnabled()) {
       log.debug("VERSION-CONTROL " + repoName + "/" + repoPath);
     }
-    
+
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
