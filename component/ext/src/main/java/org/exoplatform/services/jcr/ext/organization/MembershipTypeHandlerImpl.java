@@ -78,21 +78,28 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.createMembershipType method is started");
     }
-    Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
-        + STORAGE_EXO_MEMBERSHIP_TYPES);
-    Node mtNode = storagePath.addNode(mt.getName());
-    writeObjectToNode(mt, mtNode);
-    session.save();
-    return readObjectFromNode(mtNode);
+
+    try {
+      Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
+          + STORAGE_EXO_MEMBERSHIP_TYPES);
+      Node mtNode = storagePath.addNode(mt.getName());
+      writeObjectToNode(mt, mtNode);
+      session.save();
+      return readObjectFromNode(mtNode);
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not create membership type '" + mt.getName()
+          + "'", e);
+    }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     Session session = service.getStorageSession();
     try {
       return createMembershipType(session, mt, broadcast);
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not create membership type '" + mt.getName()
-          + "'", e);
     } finally {
       session.logout();
     }
@@ -116,19 +123,26 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.findMembershipType method is started");
     }
-    Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
-        + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
-    return readObjectFromNode(mtNode);
-  }
 
-  public MembershipType findMembershipType(String name) throws Exception {
-    Session session = service.getStorageSession();
     try {
-      return findMembershipType(session, name);
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
+      return readObjectFromNode(mtNode);
+
     } catch (PathNotFoundException e) {
       return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type '" + name + "'", e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public MembershipType findMembershipType(String name) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipType(session, name);
     } finally {
       session.logout();
     }
@@ -142,24 +156,30 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       log.debug("MembershipType.findMembershipTypes method is started");
     }
 
-    List<MembershipType> types = new ArrayList<MembershipType>();
+    try {
+      List<MembershipType> types = new ArrayList<MembershipType>();
 
-    Node storageNode = (Node) session.getItem(service.getStoragePath() + "/"
-        + STORAGE_EXO_MEMBERSHIP_TYPES);
-    for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
-      Node mtNode = nodes.nextNode();
-      types.add(readObjectFromNode(mtNode));
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + STORAGE_EXO_MEMBERSHIP_TYPES);
+      for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
+        Node mtNode = nodes.nextNode();
+        types.add(readObjectFromNode(mtNode));
+      }
+
+      return types;
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find membership types", e);
     }
-
-    return types;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Collection findMembershipTypes() throws Exception {
     Session session = service.getStorageSession();
     try {
       return findMembershipTypes(session);
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership types", e);
     } finally {
       session.logout();
     }
@@ -168,40 +188,43 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   /**
    * {@inheritDoc}
    */
-  private MembershipType removeMembershipType(Session session, String name, boolean broadcast) throws Exception {
+  public MembershipType removeMembershipType(Session session, String name, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.removeMembershipType method is started");
     }
 
-    Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
-        + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
+    try {
+      Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
 
-    // remove membership
-    String mStatement = "select * from exo:userMembership where exo:membershipType='"
-        + mtNode.getUUID() + "'";
-    Query mQuery = session
-                          .getWorkspace()
-                          .getQueryManager()
-                          .createQuery(mStatement, Query.SQL);
-    QueryResult mRes = mQuery.execute();
-    for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
-      Node mNode = mNodes.nextNode();
-      service.getMembershipHandler().removeMembership(mNode.getUUID(), broadcast);
+      // remove membership
+      String mStatement = "select * from exo:userMembership where exo:membershipType='"
+          + mtNode.getUUID() + "'";
+      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
+      QueryResult mRes = mQuery.execute();
+      for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
+        Node mNode = mNodes.nextNode();
+        service.getMembershipHandler().removeMembership(mNode.getUUID(), broadcast);
+      }
+
+      // remove membership type
+      MembershipType mt = readObjectFromNode(mtNode);
+      mtNode.remove();
+      session.save();
+      return mt;
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not remove membership type '" + name + "'", e);
     }
-
-    // remove membership type
-    MembershipType mt = readObjectFromNode(mtNode);
-    mtNode.remove();
-    session.save();
-    return mt;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
     Session session = service.getStorageSession();
     try {
       return removeMembershipType(session, name, broadcast);
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not remove membership type '" + name + "'", e);
     } finally {
       session.logout();
     }
@@ -210,39 +233,45 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   /**
    * {@inheritDoc}
    */
-  private MembershipType saveMembershipType(Session session, MembershipType mt, boolean broadcast) throws Exception {
+  public MembershipType saveMembershipType(Session session, MembershipType mt, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.saveMembershipType method is started");
     }
 
-    MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
-    String mtUUID = mtImpl.getUUId() != null
-        ? mtImpl.getUUId()
-        : ((MembershipTypeImpl) findMembershipType(mt.getName())).getUUId();
-    Node mNode = session.getNodeByUUID(mtUUID);
+    try {
+      MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
+      String mtUUID = mtImpl.getUUId() != null
+          ? mtImpl.getUUId()
+          : ((MembershipTypeImpl) findMembershipType(session, mt.getName())).getUUId();
+      Node mNode = session.getNodeByUUID(mtUUID);
 
-    String srcPath = mNode.getPath();
-    int pos = srcPath.lastIndexOf('/');
-    String prevName = srcPath.substring(pos + 1);
-    String destPath = srcPath.substring(0, pos) + "/" + mt.getName();
+      String srcPath = mNode.getPath();
+      int pos = srcPath.lastIndexOf('/');
+      String prevName = srcPath.substring(pos + 1);
+      String destPath = srcPath.substring(0, pos) + "/" + mt.getName();
 
-    if (!prevName.equals(mt.getName())) {
-      session.move(srcPath, destPath);
+      if (!prevName.equals(mt.getName())) {
+        session.move(srcPath, destPath);
+      }
+
+      Node nmtNode = (Node) session.getItem(destPath);
+      writeObjectToNode(mt, nmtNode);
+      session.save();
+      return readObjectFromNode(nmtNode);
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not save membership type '" + mt.getName() + "'",
+                                             e);
     }
-
-    Node nmtNode = (Node) session.getItem(destPath);
-    writeObjectToNode(mt, nmtNode);
-    session.save();
-    return readObjectFromNode(nmtNode);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
     Session session = service.getStorageSession();
     try {
       return saveMembershipType(session, mt, broadcast);
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not save membership type '" + mt.getName() + "'",
-                                             e);
     } finally {
       session.logout();
     }

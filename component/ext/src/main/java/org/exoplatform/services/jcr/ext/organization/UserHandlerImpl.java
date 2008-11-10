@@ -140,43 +140,40 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     return authenticated;
   }
 
-  public void createUser(User user, boolean broadcast) throws Exception {
-    Session session = service.getStorageSession();
-    try {
-      createUser(session, user, broadcast);
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not create user '" + user.getUserName() + "'", e);
-    } finally {
-      session.logout();
-    }
-  }
-
   /**
    * {@inheritDoc}
    */
-  private void createUser(Session session, User user, boolean broadcast) throws Exception {
+  public void createUser(User user, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.createUser method is started");
     }
 
-    Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
-    Node uNode = storageNode.addNode(user.getUserName());
+    Session session = service.getStorageSession();
+    try {
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
+      Node uNode = storageNode.addNode(user.getUserName());
 
-    // set default value for createdDate
-    if (user.getCreatedDate() == null) {
-      Calendar calendar = Calendar.getInstance();
-      user.setCreatedDate(calendar.getTime());
-    }
+      // set default value for createdDate
+      if (user.getCreatedDate() == null) {
+        Calendar calendar = Calendar.getInstance();
+        user.setCreatedDate(calendar.getTime());
+      }
 
-    if (broadcast) {
-      preSave(user, true);
-    }
+      if (broadcast) {
+        preSave(user, true);
+      }
 
-    writeObjectToNode(user, uNode);
-    session.save();
+      writeObjectToNode(user, uNode);
+      session.save();
 
-    if (broadcast) {
-      postSave(user, true);
+      if (broadcast) {
+        postSave(user, true);
+      }
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not create user '" + user.getUserName() + "'", e);
+    } finally {
+      session.logout();
     }
   }
 
@@ -202,22 +199,20 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     return new UserImpl(username);
   }
 
-  private User findUserByName(Session session, String userName) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.findUserByName method is started");
-    }
-    Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
-      + userName);
-    return readObjectFromNode(uNode);
-  }
-
   /**
    * {@inheritDoc}
    */
   public User findUserByName(String userName) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.findUserByName method is started");
+    }
+
     Session session = service.getStorageSession();
     try {
-      return findUserByName(session, userName);
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
+          + userName);
+      return readObjectFromNode(uNode);
+
     } catch (PathNotFoundException e) {
       return null;
     } catch (Exception e) {
@@ -234,22 +229,13 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     if (log.isDebugEnabled()) {
       log.debug("User.findUsers method is started");
     }
-    Session session = service.getStorageSession();
-    try {
-      return findUsers(session, query);
-    }
-    finally {
-      session.logout();
-    }
-  }
 
-  private PageList findUsers(Session session, org.exoplatform.services.organization.Query query) throws Exception {
     String where = "";
     where = "jcr:path LIKE '" + "%" + "'";
     if (query.getEmail() != null) {
-        where = where + (where.length() == 0 ? "" : " AND ")
-            + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
-      }
+      where = where + (where.length() == 0 ? "" : " AND ")
+          + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
+    }
     if (query.getFirstName() != null) {
       where = where + (where.length() == 0 ? "" : " AND ")
           + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
@@ -262,27 +248,27 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     List<User> types = new ArrayList<User>();
 
     String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
-    Query uQuery = session
+    Query uQuery = service.getStorageSession()
                           .getWorkspace()
                           .getQueryManager()
                           .createQuery(statement, Query.SQL);
     QueryResult uRes = uQuery.execute();
     for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
-        Node uNode = uNodes.nextNode();
-        String userName = uNode.getName();
-        if (query.getUserName() == null || userName.indexOf(removeAsterix(query.getUserName())) != -1) {
-          User user = findUserByName(uNode.getName());
-          if ((user != null)
-              && (query.getFromLoginDate() == null || (user.getLastLoginTime() != null && query.getFromLoginDate()
-                                                                                               .getTime() <= user.getLastLoginTime()
-                                                                                                                 .getTime()))
-              && (query.getToLoginDate() == null || (user.getLastLoginTime() != null && query.getToLoginDate()
-                                                                                             .getTime() >= user.getLastLoginTime()
-                                                                                                               .getTime()))) {
-            types.add(user);
-          }
+      Node uNode = uNodes.nextNode();
+      String userName = uNode.getName();
+      if (query.getUserName() == null || userName.indexOf(removeAsterix(query.getUserName())) != -1) {
+        User user = findUserByName(uNode.getName());
+        if ((user != null)
+            && (query.getFromLoginDate() == null || (user.getLastLoginTime() != null && query.getFromLoginDate()
+                                                                                             .getTime() <= user.getLastLoginTime()
+                                                                                                               .getTime()))
+            && (query.getToLoginDate() == null || (user.getLastLoginTime() != null && query.getToLoginDate()
+                                                                                           .getTime() >= user.getLastLoginTime()
+                                                                                                             .getTime()))) {
+          types.add(user);
         }
       }
+    }
     return new ObjectPageList(types, 10);
   }
 
@@ -290,10 +276,40 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList findUsersByGroup(String groupId) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.findUsersByGroup method is started");
+    }
 
     Session session = service.getStorageSession();
     try {
-      return findUsersByGroup(session, groupId);
+      List<User> users = new ArrayList<User>();
+
+      // get UUId of the group
+      String gPath = service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId;
+      if (session.itemExists(gPath)) {
+        Node gNode = (Node) session.getItem(gPath);
+
+        // find memberships
+        String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
+            + "'";
+        Query mquery = service.getStorageSession()
+                              .getWorkspace()
+                              .getQueryManager()
+                              .createQuery(statement, Query.SQL);
+        QueryResult mres = mquery.execute();
+        for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
+          Node membership = membs.nextNode();
+
+          // get user
+          Node userNode = membership.getParent();
+          User user = findUserByName(userNode.getName());
+          if (user != null) {
+            users.add(user);
+          }
+        }
+      }
+
+      return new ObjectPageList(users, 10);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not users by group '" + groupId + "'", e);
@@ -303,48 +319,26 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
   }
 
-  private PageList findUsersByGroup(Session session, String groupId) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.findUsersByGroup method is started");
-    }
-    List<User> users = new ArrayList<User>();
-
-    // get UUId of the group
-    String gPath = service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId;
-    if (session.itemExists(gPath)) {
-      Node gNode = (Node) session.getItem(gPath);
-
-      // find memberships
-      String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
-          + "'";
-      Query mquery = session
-                            .getWorkspace()
-                            .getQueryManager()
-                            .createQuery(statement, Query.SQL);
-      QueryResult mres = mquery.execute();
-      for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
-        Node membership = membs.nextNode();
-
-        // get user
-        Node userNode = membership.getParent();
-        User user = findUserByName(userNode.getName());
-        if (user != null) {
-          users.add(user);
-        }
-      }
-    }
-
-    return new ObjectPageList(users, 10);
-  }
-
   /**
    * {@inheritDoc}
    */
   public PageList getUserPageList(int pageSize) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.getUserPageList method is started");
+    }
 
     Session session = service.getStorageSession();
     try {
-      return getUserPageList(session);
+      List<User> types = new ArrayList<User>();
+      Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
+      for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
+        Node uNode = uNodes.nextNode();
+        User user = findUserByName(uNode.getName());
+        if (user != null) {
+          types.add(user);
+        }
+      }
+      return new ObjectPageList(types, 10);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find users", e);
@@ -353,62 +347,42 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     }
   }
 
-  private PageList getUserPageList(Session session) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.getUserPageList method is started");
-    }
-    List<User> types = new ArrayList<User>();
-    Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
-    for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
-      Node uNode = uNodes.nextNode();
-      User user = findUserByName(uNode.getName());
-      if (user != null) {
-        types.add(user);
-      }
-    }
-    return new ObjectPageList(types, 10);
-  }
-
   /**
    * {@inheritDoc}
    */
   public User removeUser(String userName, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.removeUser method is started");
+    }
 
     Session session = service.getStorageSession();
     try {
-      return removeUser(session, userName, broadcast);
+      String uPath = service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/" + userName;
+      if (!session.itemExists(uPath)) {
+        return null;
+      }
+
+      Node uNode = (Node) session.getItem(uPath);
+      User user = findUserByName(userName);
+
+      if (broadcast) {
+        preDelete(user);
+      }
+
+      uNode.remove();
+      session.save();
+
+      if (broadcast) {
+        postDelete(user);
+      }
+
+      return user;
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove user '" + userName + "'", e);
     } finally {
       session.logout();
     }
-  }
-
-  private User removeUser(Session session, String userName, boolean broadcast) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.removeUser method is started");
-    }
-    String uPath = service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/" + userName;
-    if (!session.itemExists(uPath)) {
-      return null;
-    }
-
-    Node uNode = (Node) session.getItem(uPath);
-    User user = findUserByName(userName);
-
-    if (broadcast) {
-      preDelete(user);
-    }
-
-    uNode.remove();
-    session.save();
-
-    if (broadcast) {
-      postDelete(user);
-    }
-
-    return user;
   }
 
   /**
@@ -425,48 +399,44 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public void saveUser(User user, boolean broadcast) throws Exception {
+    if (log.isDebugEnabled()) {
+      log.debug("User.saveUser method is started");
+    }
 
     Session session = service.getStorageSession();
     try {
-      saveUser(session, user, broadcast);
+      UserImpl userImpl = (UserImpl) user;
+      String userUUID = userImpl.getUUId() != null
+          ? userImpl.getUUId()
+          : ((UserImpl) findUserByName(user.getUserName())).getUUId();
+      Node uNode = session.getNodeByUUID(userUUID);
+
+      String srcPath = uNode.getPath();
+      int pos = srcPath.lastIndexOf('/');
+      String prevName = srcPath.substring(pos + 1);
+      String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
+
+      if (!prevName.equals(user.getUserName())) {
+        session.move(srcPath, destPath);
+      }
+
+      Node nmtNode = (Node) session.getItem(destPath);
+
+      if (broadcast) {
+        preSave(user, false);
+      }
+
+      writeObjectToNode(user, nmtNode);
+      session.save();
+
+      if (broadcast) {
+        postSave(user, false);
+      }
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save user '" + user.getUserName() + "'", e);
     } finally {
       session.logout();
-    }
-  }
-
-  private void saveUser(Session session, User user, boolean broadcast) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("User.saveUser method is started");
-    }
-    UserImpl userImpl = (UserImpl) user;
-    String userUUID = userImpl.getUUId() != null
-        ? userImpl.getUUId()
-        : ((UserImpl) findUserByName(user.getUserName())).getUUId();
-    Node uNode = session.getNodeByUUID(userUUID);
-
-    String srcPath = uNode.getPath();
-    int pos = srcPath.lastIndexOf('/');
-    String prevName = srcPath.substring(pos + 1);
-    String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
-
-    if (!prevName.equals(user.getUserName())) {
-      session.move(srcPath, destPath);
-    }
-
-    Node nmtNode = (Node) session.getItem(destPath);
-
-    if (broadcast) {
-      preSave(user, false);
-    }
-
-    writeObjectToNode(user, nmtNode);
-    session.save();
-
-    if (broadcast) {
-      postSave(user, false);
     }
   }
 
@@ -497,7 +467,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   /**
    * Write user properties to the node
    * 
-   * @param user
+   * @param usr
    *          The user
    * @param node
    *          The node in the storage
