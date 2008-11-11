@@ -252,8 +252,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     if (log.isDebugEnabled()) {
       log.debug("COPY " + repoName + "/" + repoPath);
-    }
-
+    }    
+    
     repoPath = getRepoPath(repoPath);
 
     try {

@@ -54,7 +54,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class PropFindCommand {
-  
+
   private static Log log = ExoLogger.getLogger(PropFindCommand.class);
 
   /**
@@ -125,9 +125,7 @@ public class PropFindCommand {
       return Response.status(HTTPStatus.BAD_REQUEST).build();
     }
 
-    return Response.status(HTTPStatus.MULTISTATUS)
-                           .entity(response)
-                           .build();
+    return Response.status(HTTPStatus.MULTISTATUS).entity(response).build();
   }
 
   private Set<QName> propertyNames(HierarchicalProperty body) {
@@ -144,4 +142,5 @@ public class PropFindCommand {
 
     return names;
   }
+
 }
