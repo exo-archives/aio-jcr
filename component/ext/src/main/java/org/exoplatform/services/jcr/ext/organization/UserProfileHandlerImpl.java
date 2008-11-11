@@ -114,9 +114,19 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   }
 
   /**
-   * {@inheritDoc}
+   * This method should search for and return UserProfile record according to the username.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user name
+   * @return return null if no record match the userName. return an UserProfile instance if a record
+   *         match the username.
+   * @throws Exception
+   *           Throw Exception if the method fail to access the database or find more than one
+   *           record that match the username.
    */
-  public UserProfile findUserProfileByName(Session session, String userName) throws Exception {
+  private UserProfile findUserProfileByName(Session session, String userName) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.findUserProfileByName method is started");
     }
@@ -161,9 +171,15 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   }
 
   /**
-   * {@inheritDoc}
+   * Find and return all the UserProfile record in the database.
+   * 
+   * @param session
+   *          The current session
+   * @return The collection of user profiles
+   * @throws Exception
+   *           Throw exception if the method fail to access the database
    */
-  public Collection findUserProfiles(Session session) throws Exception {
+  private Collection findUserProfiles(Session session) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.findUserProfiles method is started");
     }
@@ -200,9 +216,20 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   }
 
   /**
-   * {@inheritDoc}
+   * This method should remove the user profile record in the database.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user profile record with the username should be removed from the database
+   * @param broadcast
+   *          Broadcast the event the listeners if broadcast is true.
+   * @return The UserProfile instance that has been removed.
+   * @throws Exception
+   *           Throw exception if the method fail to remove the record or any listener fail to
+   *           handle the event
    */
-  public UserProfile removeUserProfile(Session session, String userName, boolean broadcast) throws Exception {
+  private UserProfile removeUserProfile(Session session, String userName, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.removeUserProfile method is started");
     }
@@ -235,7 +262,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   }
 
   /**
-   * Remove registered listener
+   * Remove registered listener.
    * 
    * @param listener
    *          The registered listener for removing
@@ -257,9 +284,21 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   }
 
   /**
-   * {@inheritDoc}
+   * This method should persist the profile instance to the database. If the profile is not existed
+   * yet. the method should create a new user profile record. If there is an existed record. The
+   * method should merge the data with the existed record.
+   * 
+   * @param session
+   *          The current session
+   * @param profile
+   *          the profile instance to persist.
+   * @param broadcast
+   *          broadcast the event to the listener if broadcast is true
+   * @throws Exception
+   *           throw exception if the method fail to access the database or any listener fail to
+   *           handle the event.
    */
-  public void saveUserProfile(Session session, UserProfile profile, boolean broadcast) throws Exception {
+  private void saveUserProfile(Session session, UserProfile profile, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.saveUserProfile method is started");
     }
