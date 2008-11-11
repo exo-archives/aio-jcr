@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.core;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.lang.ref.WeakReference;
 
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
@@ -66,6 +67,10 @@ public class TestSessionCleaner extends JcrImplBaseTest {
                                  RepositoryException,
                                  InterruptedException {
     SessionImpl session2 = (SessionImpl) repository.login(credentials, "ws");
+
+    // Create a weak reference to the session
+    WeakReference<SessionImpl> ref = new WeakReference<SessionImpl>(session2);
+
     assertTrue(session2.isLive());
 
     assertNotNull(sessionRegistry);
@@ -73,6 +78,16 @@ public class TestSessionCleaner extends JcrImplBaseTest {
     Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT + 20);
 
     assertFalse(session2.isLive());
+
+    // Dereference the session explicitely
+    session2 = null;
+
+    // Make a GC
+    forceGC();
+
+    // The weak reference must now be null
+    assertNull(ref.get());
+
   }
 
   public void testSessionRemoveMultiThread() throws InterruptedException {
