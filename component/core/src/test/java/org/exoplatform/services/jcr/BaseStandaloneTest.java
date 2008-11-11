@@ -122,6 +122,7 @@ public abstract class BaseStandaloneTest extends TestCase {
         session.logout();
       }
     }
+    super.tearDown();
 
     // log.info("tearDown() END " + getClass().getName() + "." + getName());
   }
