@@ -23,7 +23,9 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -32,6 +34,8 @@ import org.exoplatform.common.http.HTTPStatus;
  */
 
 public class VersionControlCommand {
+  
+  private static Log log = ExoLogger.getLogger(VersionControlCommand.class);
 
   public Response versionControl(Session session, String path) {
     try {
@@ -50,7 +54,7 @@ public class VersionControlCommand {
       return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (Exception exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
   }

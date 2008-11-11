@@ -28,12 +28,14 @@ import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.command.proppatch.PropPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -42,6 +44,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  */
 
 public class PropPatchCommand {
+  
+  private static Log log = ExoLogger.getLogger(PropPatchCommand.class);
 
   protected final NullResourceLocksHolder lockHolder;
 
@@ -85,7 +89,7 @@ public class PropPatchCommand {
     } catch (LockException exc) {
       return Response.status(HTTPStatus.LOCKED).build();
     } catch (Exception exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
 

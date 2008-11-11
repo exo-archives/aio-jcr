@@ -26,8 +26,10 @@ import javax.jcr.lock.LockException;
 import javax.jcr.version.Version;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -36,6 +38,8 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
  */
 
 public class UnCheckOutCommand {
+  
+  private static Log log = ExoLogger.getLogger(UnCheckOutCommand.class);
 
   public Response uncheckout(Session session, String path) {
 
@@ -57,7 +61,7 @@ public class UnCheckOutCommand {
       return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (RepositoryException exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
 

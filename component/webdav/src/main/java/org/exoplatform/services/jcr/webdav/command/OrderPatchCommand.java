@@ -31,12 +31,14 @@ import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.command.order.OrderMember;
 import org.exoplatform.services.jcr.webdav.command.order.OrderPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -46,6 +48,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 public class OrderPatchCommand {
 
+  private static Log log = ExoLogger.getLogger(OrderPatchCommand.class);
+  
   public OrderPatchCommand() {
   }
 
@@ -72,7 +76,7 @@ public class OrderPatchCommand {
     } catch (LockException exc) {
       return Response.status(HTTPStatus.LOCKED).build();
     } catch (Exception exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
 
@@ -152,6 +156,7 @@ public class OrderPatchCommand {
         status = HTTPStatus.FORBIDDEN;
 
       } catch (RepositoryException exc) {
+        log.error(exc.getMessage(), exc);
         status = HTTPStatus.INTERNAL_ERROR;
 
       }

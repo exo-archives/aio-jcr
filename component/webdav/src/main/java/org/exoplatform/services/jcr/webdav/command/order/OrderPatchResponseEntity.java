@@ -27,10 +27,12 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -39,6 +41,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  */
 
 public class OrderPatchResponseEntity implements StreamingOutput {
+  
+  private static Log log = ExoLogger.getLogger(OrderPatchResponseEntity.class);
 
   protected final WebDavNamespaceContext nsContext;
 
@@ -93,6 +97,7 @@ public class OrderPatchResponseEntity implements StreamingOutput {
       xmlStreamWriter.writeEndDocument();
 
     } catch (Exception exc) {
+      log.error(exc.getMessage(), exc);
       throw new IOException();
     }
 

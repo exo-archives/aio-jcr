@@ -25,9 +25,10 @@ import javax.ws.rs.core.UriInfo;
 import org.exoplatform.common.util.HierarchicalProperty;
 
 /**
- * Created by The eXo Platform SARL .<br/> JCR WebDAV entry point. Defines WebDav protocol methods:
- * RFC-2518 HTTP Extensions for Distributed Authoring -- WEBDAV RFC-3253 Versioning Extensions to
- * WebDAV RFC-3648: Web Distributed Authoring and Versioning (WebDAV) Ordered Collections Protocol
+ * Created by The eXo Platform SARL .<br/>
+ * JCR WebDAV entry point. Defines WebDav protocol methods: RFC-2518 HTTP Extensions for Distributed
+ * Authoring -- WEBDAV RFC-3253 Versioning Extensions to WebDAV RFC-3648: Web Distributed Authoring
+ * and Versioning (WebDAV) Ordered Collections Protocol
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
@@ -56,7 +57,7 @@ public interface WebDavService {
    * @param auth
    * @return HTTP response
    */
-  Response head(String repoName, String repoPath, String version, UriInfo baseURI);
+  Response head(String repoName, String repoPath, UriInfo baseURI);
 
   /**
    * @param repoName
@@ -75,7 +76,6 @@ public interface WebDavService {
                String lockTokenHeader,
                String ifHeader,
                String nodeTypeHeader,
-               String mixinTypesHeader,
                String mimeType,
                InputStream inputStream);
 
@@ -149,7 +149,7 @@ public interface WebDavService {
   /**
    * @return HTTP response
    */
-  Response options(String repoName, HierarchicalProperty body);
+  Response options(String repoName);
 
   /**
    * @param repoName
@@ -195,7 +195,6 @@ public interface WebDavService {
                 String lockTokenHeader,
                 String ifHeader,
                 String depth,
-                String timeout,
                 HierarchicalProperty body);
 
   /**
@@ -207,11 +206,7 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response unlock(String repoName,
-                  String repoPath,
-                  String lockTokenHeader,
-                  String ifHeader,
-                  HierarchicalProperty body);
+  Response unlock(String repoName, String repoPath, String lockTokenHeader, String ifHeader);
 
   // DeltaV: RFC-3253 Versioning Extensions to WebDAV
   /**
@@ -223,11 +218,7 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response checkin(String repoName,
-                   String repoPath,
-                   String lockTokenHeader,
-                   String ifHeader,
-                   HierarchicalProperty body);
+  Response checkin(String repoName, String repoPath, String lockTokenHeader, String ifHeader);
 
   /**
    * @param repoName
@@ -238,11 +229,7 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response checkout(String repoName,
-                    String repoPath,
-                    String lockTokenHeader,
-                    String ifHeader,
-                    HierarchicalProperty body);
+  Response checkout(String repoName, String repoPath, String lockTokenHeader, String ifHeader);
 
   /**
    * @param repoName
@@ -266,11 +253,7 @@ public interface WebDavService {
    * @param body
    * @return HTTP response
    */
-  Response uncheckout(String repoName,
-                      String repoPath,
-                      String lockTokenHeader,
-                      String ifHeader,
-                      HierarchicalProperty body);
+  Response uncheckout(String repoName, String repoPath, String lockTokenHeader, String ifHeader);
 
   /**
    * @param repoName

@@ -28,6 +28,7 @@ import javax.jcr.Session;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.Range;
@@ -43,6 +44,7 @@ import org.exoplatform.services.jcr.webdav.util.MultipartByterangesEntity;
 import org.exoplatform.services.jcr.webdav.util.RangedInputStream;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 //TODO [org.exoplatform.services.jcr.webdav.command.GetCommand.java] Code CleanUP 
 
@@ -53,6 +55,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  */
 
 public class GetCommand {
+  
+  private static Log log = ExoLogger.getLogger(GetCommand.class);
 
   /**
    * GET content of the resource. Can be return content of the file. The content returns in the XML
@@ -189,13 +193,11 @@ public class GetCommand {
       }
 
     } catch (PathNotFoundException exc) {
-      exc.printStackTrace();
       return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (RepositoryException exc) {
-      exc.printStackTrace();
       return Response.serverError().build();
     } catch (Exception exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
   }

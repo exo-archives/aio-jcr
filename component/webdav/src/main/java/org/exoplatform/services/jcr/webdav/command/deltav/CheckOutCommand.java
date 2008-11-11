@@ -25,8 +25,10 @@ import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -35,6 +37,8 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
  */
 
 public class CheckOutCommand {
+  
+  private static Log log = ExoLogger.getLogger(CheckOutCommand.class);
 
   public Response checkout(Session session, String path) {
     try {
@@ -56,7 +60,7 @@ public class CheckOutCommand {
       return Response.status(HTTPStatus.LOCKED).build();
 
     } catch (RepositoryException exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
   }

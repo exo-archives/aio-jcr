@@ -25,8 +25,10 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -35,6 +37,8 @@ import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
  */
 
 public class UnLockCommand {
+  
+  private static Log log = ExoLogger.getLogger(UnLockCommand.class);
 
   protected final NullResourceLocksHolder nullResourceLocks;
 
@@ -66,7 +70,7 @@ public class UnLockCommand {
     } catch (LockException exc) {
       return Response.status(HTTPStatus.LOCKED).build();
     } catch (Exception exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
 

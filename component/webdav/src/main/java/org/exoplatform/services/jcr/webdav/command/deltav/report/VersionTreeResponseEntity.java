@@ -28,6 +28,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.resource.IllegalResourceTypeException;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
@@ -35,6 +36,7 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedResource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.PropstatGroupedRepresentation;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -43,6 +45,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  */
 
 public class VersionTreeResponseEntity implements StreamingOutput {
+  
+  private static Log log = ExoLogger.getLogger(VersionTreeResponseEntity.class);
 
   protected XMLStreamWriter              xmlStreamWriter;
 
@@ -94,9 +98,9 @@ public class VersionTreeResponseEntity implements StreamingOutput {
 
       xmlStreamWriter.writeEndElement();
       xmlStreamWriter.writeEndDocument();
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException(e.getMessage());
+    } catch (Exception exc) {
+      log.error(exc.getMessage(), exc);
+      throw new IOException(exc.getMessage());
     }
   }
 

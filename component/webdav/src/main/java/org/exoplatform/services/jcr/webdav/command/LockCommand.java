@@ -31,6 +31,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -40,6 +41,7 @@ import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.resource.GenericResource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS .<br/>
@@ -50,6 +52,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 
 public class LockCommand {
 
+  private static Log log = ExoLogger.getLogger(LockCommand.class);
+  
   private final NullResourceLocksHolder nullResourceLocks;
 
   public LockCommand(final NullResourceLocksHolder nullResourceLocks) {
@@ -94,10 +98,10 @@ public class LockCommand {
       // TODO 412 Precondition Failed ?
     } catch (LockException exc) {
       return Response.status(HTTPStatus.LOCKED).build();
-    } catch (AccessDeniedException e) {
+    } catch (AccessDeniedException exc) {
       return Response.status(HTTPStatus.FORBIDDEN).build();
     } catch (Exception exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
 
@@ -154,7 +158,7 @@ public class LockCommand {
 
         xmlStreamWriter.writeEndDocument();
       } catch (Exception e) {
-        e.printStackTrace();
+        log.error(e.getMessage(), e);
         throw new IOException(e.getMessage());
       }
     }

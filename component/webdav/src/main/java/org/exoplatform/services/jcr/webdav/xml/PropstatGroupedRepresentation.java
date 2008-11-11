@@ -29,10 +29,12 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -42,6 +44,8 @@ import org.exoplatform.services.jcr.webdav.resource.Resource;
  */
 
 public class PropstatGroupedRepresentation {
+  
+  private static Log log = ExoLogger.getLogger(PropstatGroupedRepresentation.class);
 
   protected final Map<String, Set<HierarchicalProperty>> propStats;
 
@@ -82,12 +86,12 @@ public class PropstatGroupedRepresentation {
           prop = resource.getProperty(propName);
           statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
 
-        } catch (AccessDeniedException e) {
+        } catch (AccessDeniedException exc) {
           statname = WebDavConst.getStatusDescription(HTTPStatus.FORBIDDEN);
-          e.printStackTrace();
-        } catch (ItemNotFoundException e) {
+          log.error(exc.getMessage(), exc);
+        } catch (ItemNotFoundException exc) {
           statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
-          e.printStackTrace();
+          log.error(exc.getMessage(), exc);
 
         } catch (PathNotFoundException e) {
           statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);

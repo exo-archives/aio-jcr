@@ -24,12 +24,14 @@ import java.util.List;
 
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
+import org.exoplatform.services.log.ExoLogger;
 
 
 /**
@@ -37,6 +39,8 @@ import org.exoplatform.services.jcr.webdav.resource.VersionResource;
  * @version $Id: $
  */
 public class MultipartByterangesEntity implements StreamingOutput {
+  
+  private static Log log = ExoLogger.getLogger(MultipartByterangesEntity.class);
 
   private final Resource    resource_;
 
@@ -96,9 +100,9 @@ public class MultipartByterangesEntity implements StreamingOutput {
       println(ostream);
       print("--" + WebDavConst.BOUNDARY + "--", ostream);
       println(ostream);
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException("Can't write to stream, caused " + e);
+    } catch (Exception exc) {
+      log.error(exc.getMessage(), exc);
+      throw new IOException("Can't write to stream, caused " + exc);
     }
   }
 

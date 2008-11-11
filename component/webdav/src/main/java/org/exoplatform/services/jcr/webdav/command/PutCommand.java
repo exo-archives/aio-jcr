@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
  */
 
 public class PutCommand {
-
+  
   private final NullResourceLocksHolder nullResourceLocks;
 
   public PutCommand(final NullResourceLocksHolder nullResourceLocks) {
@@ -89,7 +89,7 @@ public class PutCommand {
     } catch (AccessDeniedException e) {
       return Response.status(HTTPStatus.FORBIDDEN).build();
 
-    } catch (RepositoryException exc) {
+    } catch (RepositoryException exc) {      
       return Response.status(HTTPStatus.CONFLICT).build();
     }
 

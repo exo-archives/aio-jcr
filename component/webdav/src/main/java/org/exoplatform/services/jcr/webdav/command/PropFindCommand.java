@@ -30,6 +30,7 @@ import javax.jcr.Session;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.command.propfind.PropFindRequestEntity;
@@ -42,6 +43,7 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedCollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.VersionedFileResource;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS <br/>
@@ -52,6 +54,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  */
 
 public class PropFindCommand {
+  
+  private static Log log = ExoLogger.getLogger(PropFindCommand.class);
 
   /**
    * @param session
@@ -71,8 +75,8 @@ public class PropFindCommand {
       node = (Node) session.getItem(path);
     } catch (PathNotFoundException e) {
       return Response.status(HTTPStatus.NOT_FOUND).build();
-    } catch (RepositoryException e) {
-      e.printStackTrace();
+    } catch (RepositoryException exc) {
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
 
@@ -104,7 +108,7 @@ public class PropFindCommand {
       }
 
     } catch (Exception e1) {
-      e1.printStackTrace();
+      log.error(e1.getMessage(), e1);
       return Response.serverError().build();
     }
 

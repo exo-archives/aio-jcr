@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class MkColCommand {
 
-  private static Log                    log = ExoLogger.getLogger("jcr.MkColCommand");
+  private static Log                    log = ExoLogger.getLogger(MkColCommand.class);
 
   private final NullResourceLocksHolder nullResourceLocks;
 
@@ -65,20 +65,19 @@ public class MkColCommand {
       }
       session.save();
 
-    } catch (ItemExistsException e) {
+    } catch (ItemExistsException exc) {
       return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
 
-    } catch (PathNotFoundException e) {
+    } catch (PathNotFoundException exc) {
       return Response.status(HTTPStatus.CONFLICT).build();
 
-    } catch (AccessDeniedException e) {
+    } catch (AccessDeniedException exc) {
       return Response.status(HTTPStatus.FORBIDDEN).build();
 
-    } catch (LockException e) {
+    } catch (LockException exc) {
       return Response.status(HTTPStatus.LOCKED).build();
 
-    } catch (RepositoryException e) {
-      e.printStackTrace();
+    } catch (RepositoryException exc) {
       return Response.serverError().build();
     }
 
@@ -90,9 +89,8 @@ public class MkColCommand {
       String curMixinType = mixinTypes.get(i);
       try {
         node.addMixin(curMixinType);
-      } catch (Exception e) {
-        e.printStackTrace();
-        log.error("Can't add mixin [" + curMixinType + "]");
+      } catch (Exception exc) {
+        log.error("Can't add mixin [" + curMixinType + "]", exc);
       }
     }
   }

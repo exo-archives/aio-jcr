@@ -28,6 +28,7 @@ import javax.jcr.Session;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.Depth;
@@ -38,6 +39,7 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedFileResource;
 import org.exoplatform.services.jcr.webdav.resource.VersionedResource;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -46,6 +48,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  */
 
 public class ReportCommand {
+  
+  private static Log log = ExoLogger.getLogger(ReportCommand.class);
 
   public Response report(Session session,
                          String path,
@@ -80,10 +84,10 @@ public class ReportCommand {
     } catch (PathNotFoundException exc) {
       return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (RepositoryException exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     } catch (Exception exc) {
-      exc.printStackTrace();
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
   }

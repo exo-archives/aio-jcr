@@ -29,7 +29,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.htmlparser.util.LinkProcessor;
 
 //import org.exoplatform.services.rest.ContextParam;
 //import org.exoplatform.services.rest.HTTPMethod;
@@ -38,7 +41,6 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 //import org.exoplatform.services.rest.QueryParam;
 //import org.exoplatform.services.rest.ResourceDispatcher;
 //import org.exoplatform.services.rest.Response;
-
 
 //
 //import org.exoplatform.services.rest.transformer.PassthroughInputTransformer;
@@ -53,19 +55,21 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 @Path("/lnkproducer/")
 public class LnkProducer implements ResourceContainer {
 
+  private static Log log = ExoLogger.getLogger(LnkProducer.class);
+
   public LnkProducer() {
   }
 
+  // TODO "application/octet-stream"
   @GET
   @Path("/{linkFilePath}/")
-  @Consumes("text/xml") //(PassthroughInputTransformer.class)
-  @Produces("text/xml") //(PassthroughOutputTransformer.class)
+  @Consumes("text/xml")
+  @Produces("text/xml")
   public Response produceLink(@PathParam("linkFilePath") String linkFilePath,
                               @PathParam("path") String path,
                               @Context UriInfo baseURI,
                               String host) {
 
-    //baseURI += "/jcr";
     String strUri = baseURI.getBaseUri().toString();
 
     try {
@@ -75,13 +79,14 @@ public class LnkProducer implements ResourceContainer {
       ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(content);
 
       return Response.ok()
-                             .header("Content-Length", "" + content.length)
-                             .entity(byteArrayInputStream 
-                                     /**, "application/octet-stream"**/)
-                             .build();
+                     .header("Content-Length", "" + content.length)
+                     .entity(byteArrayInputStream
+                     /** , "application/octet-stream" **/
+                     )
+                     .build();
 
-    } catch (IOException ioexc) {
-      ioexc.printStackTrace();
+    } catch (IOException exc) {
+      log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
 

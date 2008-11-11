@@ -25,8 +25,10 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL .<br/> Abstract WebDav Resource implementation It is recommended
@@ -37,6 +39,8 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  */
 
 public abstract class GenericResource implements Resource {
+  
+  private static Log log = ExoLogger.getLogger(GenericResource.class);
 
   protected final URI                    identifier;
 
@@ -89,8 +93,7 @@ public abstract class GenericResource implements Resource {
       try {
         props.add(namesOnly ? new HierarchicalProperty(propertyName) : getProperty(propertyName));
       } catch (Exception exc) {
-        // System.out.println("Unhandled exception. " + exc.getMessage());
-        // exc.printStackTrace();
+        log.error(exc.getMessage(), exc);
       }
 
     }

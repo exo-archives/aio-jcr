@@ -25,7 +25,9 @@ import javax.jcr.Session;
 import javax.jcr.lock.LockException;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -35,24 +37,22 @@ import org.exoplatform.common.http.HTTPStatus;
 
 public class CopyCommand {
 
+  private static Log log = ExoLogger.getLogger(CopyCommand.class);
+
   public Response copy(Session destSession, String sourcePath, String destPath) {
     try {
       destSession.getWorkspace().copy(sourcePath, destPath);
       return Response.status(HTTPStatus.CREATED).build();
-    } catch (ItemExistsException e) {
-      e.printStackTrace();
+    } catch (ItemExistsException e) {     
       return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
     } catch (PathNotFoundException e) {
-      e.printStackTrace();
       return Response.status(HTTPStatus.CONFLICT).build();
     } catch (AccessDeniedException e) {
-      e.printStackTrace();
       return Response.status(HTTPStatus.FORBIDDEN).build();
     } catch (LockException e) {
-      e.printStackTrace();
       return Response.status(HTTPStatus.LOCKED).build();
     } catch (RepositoryException e) {
-      e.printStackTrace();
+      log.error(e.getMessage(), e);
       return Response.serverError().build();
     }
   }
@@ -65,19 +65,14 @@ public class CopyCommand {
       destSession.getWorkspace().copy(sourceWorkspace, sourcePath, destPath);
       return Response.status(HTTPStatus.CREATED).build();
     } catch (ItemExistsException e) {
-      e.printStackTrace();
       return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
     } catch (PathNotFoundException e) {
-      e.printStackTrace();
       return Response.status(HTTPStatus.CONFLICT).build();
     } catch (AccessDeniedException e) {
-      e.printStackTrace();
       return Response.status(HTTPStatus.FORBIDDEN).build();
     } catch (LockException e) {
-      e.printStackTrace();
       return Response.status(HTTPStatus.LOCKED).build();
     } catch (RepositoryException e) {
-      e.printStackTrace();
       return Response.serverError().build();
     }
   }
