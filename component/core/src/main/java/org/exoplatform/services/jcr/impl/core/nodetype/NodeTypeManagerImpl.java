@@ -627,7 +627,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   /**
-   * Remove a <code>NodeTypeRegistryListener</code>
+   * Remove a <code>NodeTypeRegistryListener</code>.
    * 
    * @param listener
    *          an existing listener
@@ -638,6 +638,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   /**
    * Notify the listeners that a node type <code>ntName</code> has been registered.
+   *
+   * @param ntName NT name.
    */
   private void notifyRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -652,6 +654,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   /**
    * Notify the listeners that a node type <code>ntName</code> has been re-registered.
+   * 
+   * @param ntName NT name.
    */
   private void notifyReRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -666,6 +670,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   /**
    * Notify the listeners that a node type <code>ntName</code> has been unregistered.
+   * 
+   * @param ntName NT name.
    */
   private void notifyUnregistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException

@@ -21,8 +21,6 @@ import java.util.List;
 
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.log.LogService;
-import org.exoplatform.services.log.LogUtil;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.Membership;
@@ -70,8 +68,6 @@ public class TestOrganizationService extends BaseStandaloneTest {
       return;
     organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
 
-    LogUtil.setLevel("org.exoplatform.services.organization", LogService.DEBUG, true);
-    LogUtil.setLevel("org.exoplatform.services.database", LogService.DEBUG, true);
     userHandler_ = organizationService.getUserHandler();
     profileHandler_ = organizationService.getUserProfileHandler();
     groupHandler_ = organizationService.getGroupHandler();
