@@ -20,23 +20,36 @@ package org.exoplatform.services.jcr.ext.script.groovy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.picocontainer.Startable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
+import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
 import org.exoplatform.services.jcr.ext.resource.jcr.Handler;
 import org.exoplatform.services.log.ExoLogger;
@@ -44,7 +57,6 @@ import org.exoplatform.services.rest.ResourceBinder;
 import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
-import org.picocontainer.Startable;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -56,6 +68,10 @@ public class GroovyScript2RestLoader implements Startable {
 
   private static final Log                 Log                  = ExoLogger.getLogger("jcr.script.GroovyScript2RestLoader");
 
+  private static final String              SERVICE_NAME         = "GroovyScript2RestLoader";
+
+  private InitParams                       initParams;
+
   private ResourceBinder                   binder;
 
   private GroovyScriptInstantiator         groovyScriptInstantiator;
@@ -65,16 +81,32 @@ public class GroovyScript2RestLoader implements Startable {
 
   private RepositoryService                repositoryService;
 
+  private RegistryService                  registryService;
+
   private ObservationListenerConfiguration observationListenerConfiguration;
 
   private String                           nodeType;
 
   private Map<String, String>              scriptsURL2ClassName = new HashMap<String, String>();
 
+  /**
+   * Logger.
+   */
+  private static Log                       log                  = ExoLogger.getLogger("jcr.GroovyScrip2RestLoader");
+
   public GroovyScript2RestLoader(ResourceBinder binder,
                                  GroovyScriptInstantiator groovyScriptInstantiator,
                                  Handler handler,
                                  RepositoryService repositoryService,
+                                 InitParams params) {
+    this(binder, groovyScriptInstantiator, handler, repositoryService, null, params);
+  }
+
+  public GroovyScript2RestLoader(ResourceBinder binder,
+                                 GroovyScriptInstantiator groovyScriptInstantiator,
+                                 Handler handler,
+                                 RepositoryService repositoryService,
+                                 RegistryService registryService,
                                  InitParams params) {
 
     this.binder = binder;
@@ -82,14 +114,8 @@ public class GroovyScript2RestLoader implements Startable {
     this.repositoryService = repositoryService;
     this.handler = handler;
 
-    if (params != null) {
-      nodeType = params.getValuesParam("nodetype") != null ? params.getValueParam("nodetype")
-                                                                   .getValue() : DEFAULT_NODETYPE;
-
-      ObjectParameter param = params.getObjectParam("observation.config");
-      if (param != null)
-        observationListenerConfiguration = (ObservationListenerConfiguration) param.getObject();
-    }
+    this.registryService = registryService;
+    this.initParams = params;
   }
 
   /**
@@ -171,6 +197,24 @@ public class GroovyScript2RestLoader implements Startable {
    * @see org.picocontainer.Startable#start()
    */
   public void start() {
+    if (registryService != null && !registryService.getForceXMLConfigurationValue(initParams)) {
+      SessionProvider sessionProvider = SessionProvider.createSystemProvider();
+      try {
+        readParamsFromRegistryService(sessionProvider);
+      } catch (Exception e) {
+        readParamsFromFile();
+        try {
+          writeParamsToRegistryService(sessionProvider);
+        } catch (Exception exc) {
+          log.error("Cannot write init configuration to RegistryService.", exc);
+        }
+      } finally {
+        sessionProvider.close();
+      }
+    } else {
+      readParamsFromFile();
+    }
+
     // observation not configured
     if (observationListenerConfiguration == null)
       return;
@@ -235,6 +279,143 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public void stop() {
     // nothing to do!
+  }
+
+  /**
+   * Read parameters from RegistryService.
+   * 
+   * @param sessionProvider
+   *          The SessionProvider
+   * @throws RepositoryException
+   * @throws PathNotFoundException
+   */
+  private void readParamsFromRegistryService(SessionProvider sessionProvider) throws PathNotFoundException,
+                                                                             RepositoryException {
+
+    observationListenerConfiguration = new ObservationListenerConfiguration();
+
+    String entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + "nodeType";
+    RegistryEntry registryEntry = registryService.getEntry(sessionProvider, entryPath);
+    Document doc = registryEntry.getDocument();
+    Element element = doc.getDocumentElement();
+    nodeType = getAttributeSmart(element, "value");
+
+    entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + "repository";
+    registryEntry = registryService.getEntry(sessionProvider, entryPath);
+    doc = registryEntry.getDocument();
+    element = doc.getDocumentElement();
+    observationListenerConfiguration.setRepository(getAttributeSmart(element, "value"));
+
+    entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + "workspaces";
+    registryEntry = registryService.getEntry(sessionProvider, entryPath);
+    doc = registryEntry.getDocument();
+    element = doc.getDocumentElement();
+    String workspaces = getAttributeSmart(element, "value");
+
+    String ws[] = workspaces.split(";");
+    List<String> wsList = new ArrayList<String>();
+    for (int i = 0; i < ws.length; i++) {
+      if (!ws[i].equals("")) {
+        wsList.add(ws[i]);
+      }
+    }
+
+    observationListenerConfiguration.setWorkspaces(wsList);
+
+    log.info("NodeType from RegistryService: " + nodeType);
+    log.info("Repository from RegistryService: " + observationListenerConfiguration.getRepository());
+    log.info("Workspaces node from RegistryService: "
+        + observationListenerConfiguration.getWorkspaces());
+  }
+
+  /**
+   * Write parameters to RegistryService.
+   * 
+   * @param sessionProvider
+   *          The SessionProvider
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   * @throws IOException
+   * @throws RepositoryException
+   */
+  private void writeParamsToRegistryService(SessionProvider sessionProvider) throws IOException,
+                                                                            SAXException,
+                                                                            ParserConfigurationException,
+                                                                            RepositoryException {
+
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    Element root = doc.createElement(SERVICE_NAME);
+    doc.appendChild(root);
+
+    Element element = doc.createElement("nodeType");
+    setAttributeSmart(element, "value", nodeType);
+    root.appendChild(element);
+
+    String workspaces = "";
+    for (String workspace : observationListenerConfiguration.getWorkspaces()) {
+      workspaces += workspace + ";";
+    }
+    element = doc.createElement("workspaces");
+    setAttributeSmart(element, "value", workspaces);
+    root.appendChild(element);
+
+    element = doc.createElement("repository");
+    setAttributeSmart(element, "value", observationListenerConfiguration.getRepository());
+    root.appendChild(element);
+
+    RegistryEntry serviceEntry = new RegistryEntry(doc);
+    registryService.createEntry(sessionProvider, RegistryService.EXO_SERVICES, serviceEntry);
+  }
+
+  /**
+   * Get attribute value.
+   * 
+   * @param element
+   *          The element to get attribute value
+   * @param attr
+   *          The attribute name
+   * @return Value of attribute if present and null in other case
+   */
+  private String getAttributeSmart(Element element, String attr) {
+    return element.hasAttribute(attr) ? element.getAttribute(attr) : null;
+  }
+
+  /**
+   * Set attribute value. If value is null the attribute will be removed.
+   * 
+   * @param element
+   *          The element to set attribute value
+   * @param attr
+   *          The attribute name
+   * @param value
+   *          The value of attribute
+   */
+  private void setAttributeSmart(Element element, String attr, String value) {
+    if (value == null) {
+      element.removeAttribute(attr);
+    } else {
+      element.setAttribute(attr, value);
+    }
+  }
+
+  /**
+   * Read parameters from file.
+   */
+  private void readParamsFromFile() {
+    if (initParams != null) {
+      nodeType = initParams.getValuesParam("nodetype") != null
+          ? initParams.getValueParam("nodetype").getValue()
+          : DEFAULT_NODETYPE;
+
+      ObjectParameter param = initParams.getObjectParam("observation.config");
+      observationListenerConfiguration = (ObservationListenerConfiguration) param.getObject();
+    }
+
+    log.info("NodeType from configuration file: " + nodeType);
+    log.info("Repository from configuration file: "
+        + observationListenerConfiguration.getRepository());
+    log.info("Workspaces node from configuration file: "
+        + observationListenerConfiguration.getWorkspaces());
   }
 
   /*

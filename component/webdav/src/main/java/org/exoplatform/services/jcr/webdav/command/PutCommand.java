@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.webdav.command;
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.jcr.AccessDeniedException;
 import javax.jcr.Node;
@@ -27,11 +28,11 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
-import javax.ws.rs.core.Response;
 
-import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
+import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -40,7 +41,7 @@ import org.exoplatform.services.jcr.webdav.util.TextUtil;
  */
 
 public class PutCommand {
-  
+
   private final NullResourceLocksHolder nullResourceLocks;
 
   public PutCommand(final NullResourceLocksHolder nullResourceLocks) {
@@ -84,16 +85,16 @@ public class PutCommand {
       session.save();
 
     } catch (LockException exc) {
-      return Response.status(HTTPStatus.LOCKED).build();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
 
     } catch (AccessDeniedException e) {
-      return Response.status(HTTPStatus.FORBIDDEN).build();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
 
-    } catch (RepositoryException exc) {      
-      return Response.status(HTTPStatus.CONFLICT).build();
+    } catch (RepositoryException exc) {
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
     }
 
-    return Response.status(HTTPStatus.CREATED).build();
+    return Response.Builder.withStatus(WebDavStatus.CREATED).build();
   }
 
   private final void createVersion(Node fileNode, InputStream inputStream, String mimeType) throws RepositoryException {

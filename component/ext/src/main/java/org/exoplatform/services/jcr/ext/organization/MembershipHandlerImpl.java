@@ -94,24 +94,39 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public void createMembership(Membership m, boolean broadcast) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("createMembership");
-    }
-
     Session session = service.getStorageSession();
     try {
-      Group g = service.getGroupHandler().findGroupById(m.getGroupId());
-      User u = service.getUserHandler().findUserByName(m.getUserName());
+      createMembership(session, m, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Persist new membership.
+   * 
+   * @param session
+   *          The current session
+   * @param m
+   *          The membership
+   * @param broadcast
+   *          Broadcast the event to the registered listeners if the broadcast event is 'true'
+   * @throws Exception
+   *           An exception is thrown if the method is fail to access the database or any listener
+   *           fail to handle the event.
+   */
+  private void createMembership(Session session, Membership m, boolean broadcast) throws Exception {
+    try {
+      Group g = ((GroupHandlerImpl) service.getGroupHandler()).findGroupById(session,
+                                                                             m.getGroupId());
+      User u = ((UserHandlerImpl) service.getUserHandler()).findUserByName(session, m.getUserName());
 
       MembershipType mt = service.getMembershipTypeHandler().createMembershipTypeInstance();
       mt.setName(m.getMembershipType());
 
-      linkMembership(u, g, mt, broadcast);
-
+      linkMembership(session, u, g, mt, broadcast);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not create membership", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -130,19 +145,37 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Membership findMembership(String id) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembership(session, id);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to search for an membership record with the given id.
+   * 
+   * @param session
+   *          The current session
+   * @param id
+   *          The id of the membership
+   * @return Return The membership object that matched the id
+   * @throws Exception
+   *           An exception is thrown if the method fail to access the database or no membership is
+   *           found.
+   */
+  private Membership findMembership(Session session, String id) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findMembership");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node mNode = session.getNodeByUUID(id);
-      return readObjectFromNode(mNode);
+      return readObjectFromNode(session, mNode);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by UUId", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -150,18 +183,44 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Membership findMembershipByUserGroupAndType(String userName, String groupId, String type) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipByUserGroupAndType(session, userName, groupId, type);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to search for a specific membership type of an user in a group.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The username of the user.
+   * @param groupId
+   *          The group identifier
+   * @param type
+   *          The membership type
+   * @return Null if no such membership record or a membership object.
+   * @throws Exception
+   *           Usually an exception is thrown if the method cannot access the database
+   */
+  private Membership findMembershipByUserGroupAndType(Session session,
+                                                      String userName,
+                                                      String groupId,
+                                                      String type) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findMembershipByUserGroupAndType");
     }
 
-    Session session = service.getStorageSession();
     try {
       Membership membership = null;
 
-      String groupUUId = getGroupUUID(groupId);
+      String groupUUId = getGroupUUID(session, groupId);
       if (groupUUId != null) {
 
-        String membershipTypeUUId = getMembershipTypeUUID(type);
+        String membershipTypeUUId = getMembershipTypeUUID(session, type);
         if (membershipTypeUUId != null) {
 
           String mStatement = "select * from exo:userMembership where exo:group='" + groupUUId
@@ -190,8 +249,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type for user '" + userName
           + "' groupId '" + groupId + "' type '" + type + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -199,35 +256,51 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Collection findMembershipsByGroup(Group group) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipsByGroup(session, group);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to find all the membership in a group. Note that an user can have more than one
+   * membership in a group. For example , user admin can have meberhsip 'member' and 'admin' in the
+   * group '/users'.
+   * 
+   * @param session
+   *          The current session
+   * @param group
+   *          The group
+   * @return A collection of the memberships. The collection cannot be none and empty if no
+   *         membership is found.
+   * @throws Exception
+   *           An exception is thrown if the method cannot access the database
+   */
+  private Collection findMembershipsByGroup(Session session, Group group) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findMembershipByGroup");
     }
 
-    Session session = service.getStorageSession();
-
     try {
       List<Membership> types = new ArrayList<Membership>();
 
-      String groupUUID = getGroupUUID(group.getId());
+      String groupUUID = getGroupUUID(session, group.getId());
       if (groupUUID != null) {
 
         String statement = "select * from exo:userMembership where exo:group='" + groupUUID + "'";
-        Query mQuery = service.getStorageSession()
-                              .getWorkspace()
-                              .getQueryManager()
-                              .createQuery(statement, Query.SQL);
+        Query mQuery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
         QueryResult mRes = mQuery.execute();
         for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
           Node mNode = mNodes.nextNode();
-          types.add(readObjectFromNode(mNode));
+          types.add(readObjectFromNode(session, mNode));
         }
       }
       return types;
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by group", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -235,11 +308,31 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Collection findMembershipsByUser(String userName) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipsByUser(session, userName);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to find all the memberships of an user in any group.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user name
+   * @return A collection of the membership. The collection cannot be null and if no membership is
+   *         found , the collection should be empty
+   * @throws Exception
+   *           Usually an exception is thrown if the method cannot access the database.
+   */
+  private Collection findMembershipsByUser(Session session, String userName) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findMembeshipByUser");
     }
 
-    Session session = service.getStorageSession();
     try {
       List<Membership> types = new ArrayList<Membership>();
 
@@ -252,10 +345,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
       // find membership
       String mStatement = "select * from exo:userMembership";
-      Query mQuery = service.getStorageSession()
-                            .getWorkspace()
-                            .getQueryManager()
-                            .createQuery(mStatement, Query.SQL);
+      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
@@ -263,7 +353,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
         // check username
         if (uNode.getName().equals(userName)) {
-          types.add(readObjectFromNode(mNode));
+          types.add(readObjectFromNode(session, mNode));
         }
       }
       return types;
@@ -271,8 +361,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by user '" + userName + "'",
                                              e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -280,22 +368,41 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Collection findMembershipsByUserAndGroup(String userName, String groupId) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipsByUserAndGroup(session, userName, groupId);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to find all the memberships of an user in a group.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user name
+   * @param groupId
+   *          The group id
+   * @return A collection of the membership of an user in a group. The collection cannot be null and
+   *         the collection should be empty is no membership is found
+   * @throws Exception
+   *           Usually an exception is thrown if the method cannot access the database.
+   */
+  private Collection findMembershipsByUserAndGroup(Session session, String userName, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findMembershipByUserAndGroup");
     }
 
-    Session session = service.getStorageSession();
     try {
       List<Membership> types = new ArrayList<Membership>();
 
-      String groupUUId = getGroupUUID(groupId);
+      String groupUUId = getGroupUUID(session, groupId);
       if (groupUUId != null) {
         // find membership
         String mStatement = "select * from exo:userMembership where exo:group='" + groupUUId + "'";
-        Query mQuery = service.getStorageSession()
-                              .getWorkspace()
-                              .getQueryManager()
-                              .createQuery(mStatement, Query.SQL);
+        Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
         QueryResult mRes = mQuery.execute();
 
         for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
@@ -304,7 +411,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
           // check username
           if (uNode.getName().equals(userName)) {
-            types.add(readObjectFromNode(mNode));
+            types.add(readObjectFromNode(session, mNode));
           }
         }
       }
@@ -313,8 +420,6 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by user '" + userName
           + "' and group '" + groupId + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -322,11 +427,42 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public void linkMembership(User user, Group group, MembershipType m, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      linkMembership(session, user, group, m, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to create a membership record, a relation of the user , group and membership
+   * type.
+   * 
+   * @param session
+   *          The current session
+   * @param user
+   *          The user of the membership
+   * @param group
+   *          The group of the membership
+   * @param m
+   *          The MembershipType of the membership
+   * @param broadcast
+   *          Broadcast the event if the value of the broadcast is 'true'
+   * @throws Exception
+   *           An exception is thrown if the method is fail to access the database, a membership
+   *           record with the same user , group and membership type existed or any listener fail to
+   *           handle the event.
+   */
+  private void linkMembership(Session session,
+                              User user,
+                              Group group,
+                              MembershipType m,
+                              boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("linkMembership");
     }
 
-    Session session = service.getStorageSession();
     try {
       // create membership type '*'
       if (m.getName().equals("*")
@@ -336,7 +472,9 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
         MembershipType mt = service.getMembershipTypeHandler().createMembershipTypeInstance();
         mt.setName("*");
         mt.setDescription("any membership type");
-        service.getMembershipTypeHandler().createMembershipType(mt, broadcast);
+        ((MembershipTypeHandlerImpl) service.getMembershipTypeHandler()).createMembershipType(session,
+                                                                                              mt,
+                                                                                              broadcast);
       }
 
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
@@ -352,7 +490,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
         preSave(membership, true);
       }
 
-      writeObjectToNode(membership, mNode);
+      writeObjectToNode(session, membership, mNode);
       session.save();
 
       if (broadcast) {
@@ -363,23 +501,32 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       throw new OrganizationServiceException("Can not link membership for user '"
           + user.getUserName() + "' group '" + group.getGroupName() + "' and membership type '"
           + m.getName() + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
-   * {@inheritDoc}
+   * Use this method to remove a membership. Usually you need to call the method
+   * findMembershipByUserGroupAndType(..) to find the membership and remove.
+   * 
+   * @param session
+   *          The current session
+   * @param id
+   *          The id of the membership
+   * @param broadcast
+   *          Broadcast the event to the registered listeners if the broadcast event is 'true'
+   * @return The membership object which has been removed from the database
+   * @throws Exception
+   *           An exception is throwed if the method cannot access the database or any listener fail
+   *           to handle the event.
    */
-  public Membership removeMembership(String id, boolean broadcast) throws Exception {
+  Membership removeMembership(Session session, String id, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("removeMembership");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node mNode = session.getNodeByUUID(id);
-      Membership membership = readObjectFromNode(mNode);
+      Membership membership = readObjectFromNode(session, mNode);
 
       if (broadcast) {
         preDelete(membership);
@@ -396,6 +543,16 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by UUId", e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Membership removeMembership(String id, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return removeMembership(session, id, broadcast);
     } finally {
       session.logout();
     }
@@ -405,21 +562,43 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * {@inheritDoc}
    */
   public Collection removeMembershipByUser(String userName, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return removeMembershipByUser(session, userName, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to remove all user's membership.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The username which user object need remove memberships
+   * @param broadcast
+   *          Broadcast the event to the registered listeners if the broadcast event is 'true'
+   * @return The membership object which has been removed from the database
+   * @throws Exception
+   *           An exception is thrown if the method cannot access the database or any listener fail
+   *           to handle the event.
+   */
+  private Collection removeMembershipByUser(Session session, String userName, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("removeMembershipByUser");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
       List<Membership> types = new ArrayList<Membership>();
-      types = (List) findMembershipsByUser(userName);
+      types = (List) findMembershipsByUser(session, userName);
 
       for (NodeIterator mNodes = uNode.getNodes(UserHandlerImpl.EXO_MEMBERSHIP); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
-        Membership membership = readObjectFromNode(mNode);
+        Membership membership = readObjectFromNode(session, mNode);
 
         if (broadcast) {
           preDelete(membership);
@@ -443,13 +622,11 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove membership by user '" + userName + "'",
                                              e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
-   * Remove registered listener
+   * Remove registered listener.
    * 
    * @param listener
    *          The registered listener
@@ -461,14 +638,15 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
   /**
    * Get membership type UUID by the name.
    * 
+   * @param session
+   *          The Session
    * @param type
    *          The membership type
    * @return The membership type UUId in the storage
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getMembershipTypeUUID(String type) throws Exception {
-    Session session = service.getStorageSession();
+  private String getMembershipTypeUUID(Session session, String type) throws Exception {
     try {
       String mtPath = service.getStoragePath() + "/"
           + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES;
@@ -478,22 +656,21 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type '" + type + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
    * Get group UUID from the name of the group.
    * 
+   * @param session
+   *          The Session
    * @param groupId
    *          The name of the group
    * @return The group UUId in the storage
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getGroupUUID(String groupId) throws Exception {
-    Session session = service.getStorageSession();
+  private String getGroupUUID(Session session, String groupId) throws Exception {
     try {
       String gPath = service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS;
       return (groupId != null && groupId.length() != 0 && session.itemExists(gPath + groupId)
@@ -502,35 +679,33 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group '" + groupId + "'", e);
-    } finally {
-      session.logout();
     }
-
   }
 
   /**
    * Get membership type name from the UUID.
    * 
+   * @param session
+   *          The Session
    * @param UUID
    *          The UUID of the group in the storage
    * @return The membership type name
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getMembershipType(String UUID) throws Exception {
-    Session session = service.getStorageSession();
+  private String getMembershipType(Session session, String UUID) throws Exception {
     try {
       return session.getNodeByUUID(UUID).getName();
-
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type by uuid " + UUID, e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
    * Get groupId from the UUId.
+   * 
+   * @param session
+   *          The Session
    * 
    * @param UUID
    *          The UUID of the group in the storage
@@ -538,35 +713,33 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * @throws Exception
    *           An exception is thrown if the method cannot access the database
    */
-  private String getGroupId(String UUID) throws Exception {
-    Session session = service.getStorageSession();
+  private String getGroupId(Session session, String UUID) throws Exception {
     try {
       Node gNode = session.getNodeByUUID(UUID);
       return readStringProperty(gNode, GroupHandlerImpl.EXO_GROUP_ID);
-
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group by uuid " + UUID, e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
    * Read membership properties from the node in the storage.
    * 
+   * @param session
+   *          The Session
    * @param node
    *          The node to read from
    * @return The membership
    * @throws Exception
    *           An Exception is thrown if method can not get access to the database
    */
-  private Membership readObjectFromNode(Node node) throws Exception {
+  private Membership readObjectFromNode(Session session, Node node) throws Exception {
     try {
       String groupUUID = readStringProperty(node, EXO_GROUP);
       String membershipTypeUUID = readStringProperty(node, EXO_MEMBERSHIP_TYPE);
 
-      String groupId = getGroupId(groupUUID);
-      String membershipType = getMembershipType(membershipTypeUUID);
+      String groupId = getGroupId(session, groupUUID);
+      String membershipType = getMembershipType(session, membershipTypeUUID);
       String userName = node.getParent().getName();
 
       return new MembershipImpl(node.getUUID(), userName, groupId, membershipType);
@@ -578,6 +751,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
   /**
    * Write membership properties to the node in the storage.
    * 
+   * @param session
+   *          The Session
    * @param m
    *          The membership
    * @param node
@@ -585,10 +760,10 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    * @throws Exception
    *           An Exception is thrown if method can not get access to the database
    */
-  private void writeObjectToNode(Membership m, Node node) throws Exception {
+  private void writeObjectToNode(Session session, Membership m, Node node) throws Exception {
     try {
-      String groupUUId = getGroupUUID(m.getGroupId());
-      String membershipTypeUUId = getMembershipTypeUUID(m.getMembershipType());
+      String groupUUId = getGroupUUID(session, m.getGroupId());
+      String membershipTypeUUId = getMembershipTypeUUID(session, m.getMembershipType());
 
       node.setProperty(EXO_GROUP, groupUUId);
       node.setProperty(EXO_MEMBERSHIP_TYPE, membershipTypeUUId);
@@ -610,7 +785,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private void preSave(Membership membership, boolean isNew) throws Exception {
     for (int i = 0; i < listeners.size(); i++) {
-      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      MembershipEventListener listener = listeners.get(i);
       listener.preSave(membership, isNew);
     }
   }
@@ -627,7 +802,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private void postSave(Membership membership, boolean isNew) throws Exception {
     for (int i = 0; i < listeners.size(); i++) {
-      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      MembershipEventListener listener = listeners.get(i);
       listener.postSave(membership, isNew);
     }
   }
@@ -642,7 +817,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private void preDelete(Membership membership) throws Exception {
     for (int i = 0; i < listeners.size(); i++) {
-      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      MembershipEventListener listener = listeners.get(i);
       listener.preDelete(membership);
     }
   }
@@ -657,7 +832,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
    */
   private void postDelete(Membership membership) throws Exception {
     for (int i = 0; i < listeners.size(); i++) {
-      MembershipEventListener listener = (MembershipEventListener) listeners.get(i);
+      MembershipEventListener listener = listeners.get(i);
       listener.postDelete(membership);
     }
   }

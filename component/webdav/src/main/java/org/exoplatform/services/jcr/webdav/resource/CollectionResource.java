@@ -75,7 +75,7 @@ public class CollectionResource extends GenericResource {
 
   final String                       XLINK_LINK      = "http://www.w3.org/1999/xlink";
 
-  private final static Log           log          = ExoLogger.getLogger(CollectionResource.class);
+  private final static Log           LOGGER          = ExoLogger.getLogger(CollectionResource.class);
 
   protected final static Set<String> COLLECTION_SKIP = new HashSet<String>();
   static {
@@ -306,9 +306,9 @@ public class CollectionResource extends GenericResource {
           writer.writeEndElement();
           writer.writeEndDocument();
         } catch (RepositoryException e) {
-          log.error("Error has occured : ", e);
+          LOGGER.error("Error has occured : ", e);
         } catch (XMLStreamException e) {
-          log.error("Error has occured while xml processing : ", e);
+          LOGGER.error("Error has occured while xml processing : ", e);
         } finally {
           try {
             po.flush();

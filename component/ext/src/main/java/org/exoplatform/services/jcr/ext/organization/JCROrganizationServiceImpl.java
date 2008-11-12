@@ -19,6 +19,8 @@
  */
 package org.exoplatform.services.jcr.ext.organization;
 
+import java.io.IOException;
+
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -29,7 +31,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.picocontainer.Startable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
 
 import org.apache.commons.logging.Log;
 
@@ -41,6 +43,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.jcr.ext.registry.RegistryService;
+import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.organization.BaseOrganizationService;
 
@@ -53,6 +56,11 @@ import org.exoplatform.services.organization.BaseOrganizationService;
  * @version $Id$
  */
 public class JCROrganizationServiceImpl extends BaseOrganizationService implements Startable {
+
+  /**
+   * The name of parameter that contain repository name.
+   */
+  public static final String     REPOSITORY_NAME      = "repository";
 
   /**
    * The name of parameter that contain storage path.
@@ -93,6 +101,11 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
    * Contain passed value of storage path in parameters.
    */
   protected String               storagePath;
+
+  /**
+   * Contain passed value of repository name in parameters.
+   */
+  protected String               repositoryName;
 
   /**
    * Contain passed value of workspace name in parameters.
@@ -164,52 +177,22 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
       log.debug("Starting JCROrganizationService");
     }
 
-    try {
-      repository = repositoryService.getDefaultRepository();
-    } catch (Exception e) {
-      throw new RuntimeException("Can not get default repository", e);
-    }
-
-    if (registryService != null) {
+    if (registryService != null && !registryService.getForceXMLConfigurationValue(initParams)) {
       SessionProvider sessionProvider = SessionProvider.createSystemProvider();
-
       try {
-        // reading parameters from registryService
-        String entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME;
-        RegistryEntry entry = registryService.getEntry(sessionProvider, entryPath);
-
-        Document doc = entry.getDocument();
-
-        storageWorkspace = doc.getElementsByTagName("organization.workspace")
-                              .item(0)
-                              .getTextContent();
-        storagePath = doc.getElementsByTagName("organization.path").item(0).getTextContent();
-
-        log.info("Workspace from RegistryService: " + storageWorkspace);
-        log.info("Root node from RegistryService: " + storagePath);
-
-      } catch (PathNotFoundException e) {
-        // reading parameters from file
-        getParamsFromConfigurationFile();
-
+        readParamsFromRegistryService(sessionProvider);
+      } catch (Exception e) {
+        readParamsFromFile();
         try {
-          // writing to RegistryService
-          Document doc = createInitConf(storageWorkspace, storagePath);
-          RegistryEntry serviceEntry = new RegistryEntry(doc);
-          registryService.createEntry(sessionProvider, RegistryService.EXO_SERVICES, serviceEntry);
-
-        } catch (RepositoryException exc) {
+          writeParamsToRegistryService(sessionProvider);
+        } catch (Exception exc) {
           log.error("Cannot write init configuration to RegistryService.", exc);
-        } catch (ParserConfigurationException exc) {
-          log.error("Cann't create XML document", exc);
         }
-
-      } catch (RepositoryException e) {
       } finally {
         sessionProvider.close();
       }
     } else {
-      getParamsFromConfigurationFile();
+      readParamsFromFile();
     }
 
     // create /exo:organization
@@ -277,45 +260,148 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
   }
 
   /**
-   * Store parameters into RegistryService.
+   * Read parameters from RegistryService.
    * 
-   * @param workspace
-   *          The name of storage workspace
-   * @param path
-   *          The name of storage path
-   * @return
-   * @throws ParserConfigurationException
+   * @param sessionProvider
+   *          The SessionProvider
+   * @throws RepositoryException
+   * @throws PathNotFoundException
    */
-  private Document createInitConf(String workspace, String path) throws ParserConfigurationException {
+  private void readParamsFromRegistryService(SessionProvider sessionProvider) throws PathNotFoundException,
+                                                                             RepositoryException {
+
+    String entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + REPOSITORY_NAME;
+    RegistryEntry registryEntry = registryService.getEntry(sessionProvider, entryPath);
+    Document doc = registryEntry.getDocument();
+    Element element = doc.getDocumentElement();
+    repositoryName = getAttributeSmart(element, "value");
+
+    entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + STORAGE_PATH;
+    registryEntry = registryService.getEntry(sessionProvider, entryPath);
+    doc = registryEntry.getDocument();
+    element = doc.getDocumentElement();
+    storagePath = getAttributeSmart(element, "value");
+
+    entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + STORAGE_WORKSPACE;
+    registryEntry = registryService.getEntry(sessionProvider, entryPath);
+    doc = registryEntry.getDocument();
+    element = doc.getDocumentElement();
+    storageWorkspace = getAttributeSmart(element, "value");
+
+    log.info("Repository from RegistryService: " + repositoryName);
+    log.info("Workspace from RegistryService: " + storageWorkspace);
+    log.info("Root node from RegistryService: " + storagePath);
+
+    checkParams();
+  }
+
+  /**
+   * Write parameters to RegistryService.
+   * 
+   * @param sessionProvider
+   *          The SessionProvider
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   * @throws IOException
+   * @throws RepositoryException
+   */
+  private void writeParamsToRegistryService(SessionProvider sessionProvider) throws IOException,
+                                                                            SAXException,
+                                                                            ParserConfigurationException,
+                                                                            RepositoryException {
+
     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     Element root = doc.createElement(SERVICE_NAME);
     doc.appendChild(root);
 
-    // Name of the workspace
-    Element nameElement = doc.createElement("organization.workspace");
-    nameElement.setAttribute("id", "workspace");
-    Text nameText = doc.createTextNode(workspace);
-    nameElement.appendChild(nameText);
-    root.appendChild(nameElement);
+    Element element = doc.createElement(REPOSITORY_NAME);
+    setAttributeSmart(element, "value", repositoryName);
+    root.appendChild(element);
 
-    // Set path to internal root node
-    Element descriptionElement = doc.createElement("organization.path");
-    descriptionElement.setAttribute("id", "path");
-    Text descriptionText = doc.createTextNode(path);
-    descriptionElement.appendChild(descriptionText);
-    root.appendChild(descriptionElement);
+    element = doc.createElement(STORAGE_PATH);
+    setAttributeSmart(element, "value", storagePath);
+    root.appendChild(element);
 
-    return doc;
+    element = doc.createElement(STORAGE_WORKSPACE);
+    setAttributeSmart(element, "value", storageWorkspace);
+    root.appendChild(element);
+
+    RegistryEntry serviceEntry = new RegistryEntry(doc);
+    registryService.createEntry(sessionProvider, RegistryService.EXO_SERVICES, serviceEntry);
   }
 
   /**
-   * Get parameters which passed from the file.
+   * Read parameters from file.
    */
-  private void getParamsFromConfigurationFile() {
-    storageWorkspace = initParams.getValueParam(STORAGE_WORKSPACE).getValue();
+  private void readParamsFromFile() {
+
+    ValueParam paramRepository = initParams.getValueParam(REPOSITORY_NAME);
+    repositoryName = paramRepository != null ? paramRepository.getValue() : null;
+
     ValueParam paramStoragePath = initParams.getValueParam(STORAGE_PATH);
     storagePath = paramStoragePath != null ? paramStoragePath.getValue() : null;
 
+    storageWorkspace = initParams.getValueParam(STORAGE_WORKSPACE).getValue();
+
+    log.info("Repository from configuration file: " + repositoryName);
+    log.info("Workspace from configuration file: " + storageWorkspace);
+    log.info("Root node from configuration file: " + storagePath);
+
+    checkParams();
+  }
+
+  /**
+   * Get attribute value.
+   * 
+   * @param element
+   *          The element to get attribute value
+   * @param attr
+   *          The attribute name
+   * @return Value of attribute if present and null in other case
+   */
+  private String getAttributeSmart(Element element, String attr) {
+    return element.hasAttribute(attr) ? element.getAttribute(attr) : null;
+  }
+
+  /**
+   * Set attribute value. If value is null the attribute will be removed.
+   * 
+   * @param element
+   *          The element to set attribute value
+   * @param attr
+   *          The attribute name
+   * @param value
+   *          The value of attribute
+   */
+  private void setAttributeSmart(Element element, String attr, String value) {
+    if (value == null) {
+      element.removeAttribute(attr);
+    } else {
+      element.setAttribute(attr, value);
+    }
+  }
+
+  /**
+   * Check read params and initialize.
+   */
+  private void checkParams() {
+    // repository
+    try {
+      repository = repositoryName != null
+          ? repositoryService.getRepository(repositoryName)
+          : repositoryService.getDefaultRepository();
+    } catch (Exception e) {
+      throw new RuntimeException("Can not get repository", e);
+    }
+
+    repositoryName = ((RepositoryImpl) repository).getName();
+
+    // workspace
+    if (storageWorkspace == null) {
+      storageWorkspace = repository.getConfiguration().getDefaultWorkspaceName();
+    }
+
+    // path
     if (storagePath != null) {
       if (storagePath.equals("/")) {
         throw new RuntimeException("Storage path can not be a root node");
@@ -323,13 +409,6 @@ public class JCROrganizationServiceImpl extends BaseOrganizationService implemen
     } else {
       this.storagePath = STORAGE_PATH_DEFAULT;
     }
-
-    if (storageWorkspace == null) {
-      storageWorkspace = repository.getConfiguration().getDefaultWorkspaceName();
-    }
-
-    log.info("Workspace from configuration file: " + storageWorkspace);
-    log.info("Root node from configuration file: " + storagePath);
   }
 
 }

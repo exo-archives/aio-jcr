@@ -224,9 +224,8 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     prefixes.put(newUri, newPrefix);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#unregisterNamespace(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void unregisterNamespace(String prefix) throws NamespaceException, RepositoryException {
 

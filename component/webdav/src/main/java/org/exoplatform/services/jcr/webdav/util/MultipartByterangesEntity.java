@@ -22,25 +22,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import javax.ws.rs.core.StreamingOutput;
-
-import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
-import org.exoplatform.services.log.ExoLogger;
-
+import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
-public class MultipartByterangesEntity implements StreamingOutput {
-  
-  private static Log log = ExoLogger.getLogger(MultipartByterangesEntity.class);
+public class MultipartByterangesEntity implements SerializableEntity {
 
   private final Resource    resource_;
 
@@ -65,7 +59,7 @@ public class MultipartByterangesEntity implements StreamingOutput {
    * @see
    * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
    */
-  public void write(OutputStream ostream) throws IOException {
+  public void writeObject(OutputStream ostream) throws IOException {
     try {
       for (Range range : ranges_) {
         InputStream istream = null;
@@ -100,9 +94,9 @@ public class MultipartByterangesEntity implements StreamingOutput {
       println(ostream);
       print("--" + WebDavConst.BOUNDARY + "--", ostream);
       println(ostream);
-    } catch (Exception exc) {
-      log.error(exc.getMessage(), exc);
-      throw new IOException("Can't write to stream, caused " + exc);
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new IOException("Can't write to stream, caused " + e);
     }
   }
 

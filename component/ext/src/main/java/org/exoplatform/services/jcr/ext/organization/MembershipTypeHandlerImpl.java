@@ -72,14 +72,24 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   protected static Log log = ExoLogger.getLogger("jcr.MembershipTypeHandler");
 
   /**
-   * {@inheritDoc}
+   * Use this method to persist a new membership type.
+   * 
+   * @param session
+   *          The current session
+   * @param mt
+   *          The new membership type that the developer want to persist
+   * @param broadcast
+   *          Broadcast the event if the broadcast value is 'true'
+   * @return Return the MembershiptType object that contains the updated informations.
+   * @throws Exception
+   *           An exception is thrown if the method cannot access the database or a listener fail to
+   *           handle the event
    */
-  public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
+  MembershipType createMembershipType(Session session, MembershipType mt, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.createMembershipType method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES);
@@ -91,6 +101,16 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not create membership type '" + mt.getName()
           + "'", e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public MembershipType createMembershipType(MembershipType mt, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return createMembershipType(session, mt, broadcast);
     } finally {
       session.logout();
     }
@@ -108,14 +128,22 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   }
 
   /**
-   * {@inheritDoc}
+   * Use this method to search for a membership type with the specified name.
+   * 
+   * @param session
+   *          The current Session
+   * @param name
+   *          the name of the membership type.
+   * @return null if no membership type that matched the name or the found membership type.
+   * @throws Exception
+   *           An exception is thrown if the method cannot access the database or more than one
+   *           membership type is found.
    */
-  public MembershipType findMembershipType(String name) throws Exception {
+  private MembershipType findMembershipType(Session session, String name) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.findMembershipType method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
@@ -125,20 +153,36 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership type '" + name + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public Collection findMembershipTypes() throws Exception {
+  public MembershipType findMembershipType(String name) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipType(session, name);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to get all the membership types in the database.
+   * 
+   * @param session
+   *          The current session
+   * @return A collection of the membership type. The collection cannot be null. If there is no
+   *         membership type in the database, the collection should be empty.
+   * @throws Exception
+   *           Usually an exception is thrown when the method cannot access the database.
+   */
+  private Collection findMembershipTypes(Session session) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.findMembershipTypes method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       List<MembershipType> types = new ArrayList<MembershipType>();
 
@@ -148,25 +192,44 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
         Node mtNode = nodes.nextNode();
         types.add(readObjectFromNode(mtNode));
       }
-
       return types;
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership types", e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
+  public Collection findMembershipTypes() throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findMembershipTypes(session);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to remove a membership type.
+   * 
+   * @param session
+   *          The current session
+   * @param name
+   *          the membership type name
+   * @param broadcast
+   *          Broadcast the event to the registered listener if the broadcast value is 'true'
+   * @return The membership type object which has been removed from the database
+   * @throws Exception
+   *           An exception is thrown if the method cannot access the database or the membership
+   *           type is not found in the database or any listener fail to handle the event.
+   */
+  private MembershipType removeMembershipType(Session session, String name, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.removeMembershipType method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node mtNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES + "/" + name);
@@ -174,14 +237,13 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       // remove membership
       String mStatement = "select * from exo:userMembership where exo:membershipType='"
           + mtNode.getUUID() + "'";
-      Query mQuery = service.getStorageSession()
-                            .getWorkspace()
-                            .getQueryManager()
-                            .createQuery(mStatement, Query.SQL);
+      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
-        service.getMembershipHandler().removeMembership(mNode.getUUID(), broadcast);
+        ((MembershipHandlerImpl) service.getMembershipHandler()).removeMembership(session,
+                                                                                  mNode.getUUID(),
+                                                                                  broadcast);
       }
 
       // remove membership type
@@ -192,25 +254,45 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove membership type '" + name + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
+  public MembershipType removeMembershipType(String name, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return removeMembershipType(session, name, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to update an existed MembershipType data.
+   * 
+   * @param session
+   *          The current session
+   * @param mt
+   *          The membership type object to update.
+   * @param broadcast
+   *          Broadcast the event to all the registered listener if the broadcast value is 'true'
+   * @return Return the updated membership type object.
+   * @throws Exception
+   *           An exception is throwed if the method cannot access the database or any listener fail
+   *           to handle the event.
+   */
+  private MembershipType saveMembershipType(Session session, MembershipType mt, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("MembershipType.saveMembershipType method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       MembershipTypeImpl mtImpl = (MembershipTypeImpl) mt;
       String mtUUID = mtImpl.getUUId() != null
           ? mtImpl.getUUId()
-          : ((MembershipTypeImpl) findMembershipType(mt.getName())).getUUId();
+          : ((MembershipTypeImpl) findMembershipType(session, mt.getName())).getUUId();
       Node mNode = session.getNodeByUUID(mtUUID);
 
       String srcPath = mNode.getPath();
@@ -230,6 +312,16 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save membership type '" + mt.getName() + "'",
                                              e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public MembershipType saveMembershipType(MembershipType mt, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return saveMembershipType(session, mt, broadcast);
     } finally {
       session.logout();
     }
@@ -256,7 +348,7 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
   }
 
   /**
-   * Write membership type properties to the node
+   * Write membership type properties to the node.
    * 
    * @param mt
    *          The membership type

@@ -67,6 +67,8 @@ public class SessionProvider implements SessionLifecycleListener {
 
   private String                             currentWorkspace;
 
+  private boolean closed;
+
   /**
    * Creates SessionProvider for certain identity.
    * 
@@ -86,6 +88,7 @@ public class SessionProvider implements SessionLifecycleListener {
   private SessionProvider(boolean isSystem) {
     this.isSystem = isSystem;
     this.cache = new HashMap<String, ExtendedSession>();
+    this.closed = false;
   }
 
   /**
@@ -120,6 +123,11 @@ public class SessionProvider implements SessionLifecycleListener {
   public synchronized Session getSession(String workspaceName, ManageableRepository repository) throws LoginException,
                                                                                                NoSuchWorkspaceException,
                                                                                                RepositoryException {
+
+    if (closed) {
+      throw new IllegalStateException("Session provider already closed");
+    }
+
     if (workspaceName == null) {
       throw new NullPointerException("Workspace Name is null");
     }
@@ -149,6 +157,12 @@ public class SessionProvider implements SessionLifecycleListener {
    * ExtendedSession.logout().
    */
   public synchronized void close() {
+
+    if (closed) {
+      throw new IllegalStateException("Session provider already closed");
+    }
+
+    closed = true;
 
     for (ExtendedSession session : (ExtendedSession[]) cache.values()
                                                             .toArray(new ExtendedSession[cache.values()

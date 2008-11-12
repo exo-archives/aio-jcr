@@ -127,15 +127,38 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public boolean authenticate(String username, String password) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return authenticate(session, username, password);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Check if the username and the password of an user is valid.
+   * 
+   * @param session
+   *          The current session
+   * @param username
+   *          The user name
+   * @param password
+   *          The password
+   * @return return true if the username and the password is match with an user record in the
+   *         database, else return false.
+   * @throws Exception
+   *           throw an exception if cannot access the database
+   */
+  private boolean authenticate(Session session, String username, String password) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.authenticate method is started");
     }
 
-    User user = findUserByName(username);
+    User user = findUserByName(session, username);
     boolean authenticated = (user != null ? user.getPassword().equals(password) : false);
     if (authenticated) {
       user.setLastLoginTime(Calendar.getInstance().getTime());
-      saveUser(user, false);
+      saveUser(session, user, false);
     }
     return authenticated;
   }
@@ -144,11 +167,33 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public void createUser(User user, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      createUser(session, user, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method is used to persist a new user object.
+   * 
+   * @param session
+   *          The current session
+   * @param user
+   *          The user object to save
+   * @param broadcast
+   *          If the broadcast value is true , then the UserHandler should broadcast the event to
+   *          all the listener that register with the organization service.
+   * @throws Exception
+   *           The exception can be thrown if the the UserHandler cannot persist the user object or
+   *           any listeners fail to handle the user event.
+   */
+  private void createUser(Session session, User user, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.createUser method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
       Node uNode = storageNode.addNode(user.getUserName());
@@ -172,8 +217,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not create user '" + user.getUserName() + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -200,14 +243,24 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   }
 
   /**
-   * {@inheritDoc}
+   * Find user by specific name.
+   * 
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          the user that the user handler should search for
+   * @return The method return null if there no user matches the given username. The method return
+   *         an User object if an user that match the username.
+   * @throws Exception
+   *           The exception is thrown if the method fail to access the user database or more than
+   *           one user object with the same username is found
    */
-  public User findUserByName(String userName) throws Exception {
+  User findUserByName(Session session, String userName) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.findUserByName method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
           + userName);
@@ -217,6 +270,16 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find user '" + userName + "'", e);
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public User findUserByName(String userName) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findUserByName(session, userName);
     } finally {
       session.logout();
     }
@@ -226,38 +289,51 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList findUsers(org.exoplatform.services.organization.Query query) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findUsers(session, query);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method search for the users according to a search criteria.
+   * 
+   * @param session
+   *          The current session
+   * @param query
+   *          The query object contains the search criteria.
+   * @return return the found users in a page list according to the query.
+   * @throws Exception
+   *           throw exception if the service cannot access the database
+   */
+  private PageList findUsers(Session session, org.exoplatform.services.organization.Query query) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.findUsers method is started");
     }
 
-    String where = "";
-    where = "jcr:path LIKE '" + "%" + "'";
+    String where = "jcr:path LIKE '" + "%" + "'";
     if (query.getEmail() != null) {
-      where = where + (where.length() == 0 ? "" : " AND ")
-          + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
+      where += " AND " + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
     }
     if (query.getFirstName() != null) {
-      where = where + (where.length() == 0 ? "" : " AND ")
-          + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
+      where += " AND " + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
     }
     if (query.getLastName() != null) {
-      where = where + (where.length() == 0 ? "" : " AND ")
-          + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
+      where += " AND " + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
     }
 
     List<User> types = new ArrayList<User>();
 
     String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
-    Query uQuery = service.getStorageSession()
-                          .getWorkspace()
-                          .getQueryManager()
-                          .createQuery(statement, Query.SQL);
+    Query uQuery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
     QueryResult uRes = uQuery.execute();
     for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
       Node uNode = uNodes.nextNode();
       String userName = uNode.getName();
       if (query.getUserName() == null || userName.indexOf(removeAsterix(query.getUserName())) != -1) {
-        User user = findUserByName(uNode.getName());
+        User user = findUserByName(session, uNode.getName());
         if ((user != null)
             && (query.getFromLoginDate() == null || (user.getLastLoginTime() != null && query.getFromLoginDate()
                                                                                              .getTime() <= user.getLastLoginTime()
@@ -276,11 +352,30 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public PageList findUsersByGroup(String groupId) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findUsersByGroup(session, groupId);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method should search and return the list of the users in a given group.
+   * 
+   * @param session
+   *          The current session
+   * @param groupId
+   *          id of the group. The return users list should be in this group
+   * @return return a page list iterator of a group of the user in the database
+   * @throws Exception
+   *           If method can not get access to the database
+   */
+  private PageList findUsersByGroup(Session session, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.findUsersByGroup method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       List<User> users = new ArrayList<User>();
 
@@ -292,17 +387,14 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
         // find memberships
         String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
             + "'";
-        Query mquery = service.getStorageSession()
-                              .getWorkspace()
-                              .getQueryManager()
-                              .createQuery(statement, Query.SQL);
+        Query mquery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
         QueryResult mres = mquery.execute();
         for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
           Node membership = membs.nextNode();
 
           // get user
           Node userNode = membership.getParent();
-          User user = findUserByName(userNode.getName());
+          User user = findUserByName(session, userNode.getName());
           if (user != null) {
             users.add(user);
           }
@@ -313,37 +405,52 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not users by group '" + groupId + "'", e);
-    } finally {
-      session.logout();
     }
-
   }
 
   /**
    * {@inheritDoc}
    */
   public PageList getUserPageList(int pageSize) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return getUserPageList(session, pageSize);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method is used to get all the users in the database.
+   * 
+   * @param session
+   *          The current session
+   * @param pageSize
+   *          The number of user in each page
+   * @return return a page list iterator. The page list should allow the developer get all the users
+   *         or get a page of users if the return number of users is too large.
+   * @throws Exception
+   *           If method can not get access to the database
+   */
+  private PageList getUserPageList(Session session, int pageSize) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.getUserPageList method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       List<User> types = new ArrayList<User>();
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
       for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
         Node uNode = uNodes.nextNode();
-        User user = findUserByName(uNode.getName());
+        User user = findUserByName(session, uNode.getName());
         if (user != null) {
           types.add(user);
         }
       }
-      return new ObjectPageList(types, 10);
+      return new ObjectPageList(types, pageSize);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find users", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -351,11 +458,35 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public User removeUser(String userName, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return removeUser(session, userName, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Remove an user and broadcast the event to all the registered listener. When the user is removed
+   * , the user profile and all the membership of the user should be removed as well.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user should be removed from the user database
+   * @param broadcast
+   *          If broadcast is true, the the delete user event should be broadcasted to all
+   *          registered listener
+   * @return return the User object after that user has beed removed from database
+   * @throws Exception
+   *           If method can not get access to the database or any listeners fail to handle the user
+   *           event.
+   */
+  private User removeUser(Session session, String userName, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.removeUser method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       String uPath = service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/" + userName;
       if (!session.itemExists(uPath)) {
@@ -363,7 +494,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       }
 
       Node uNode = (Node) session.getItem(uPath);
-      User user = findUserByName(userName);
+      User user = findUserByName(session, userName);
 
       if (broadcast) {
         preDelete(user);
@@ -380,13 +511,11 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove user '" + userName + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
-   * Remove registered listener
+   * Remove registered listener.
    * 
    * @param listener
    *          The registered listener for remove
@@ -399,16 +528,38 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
    * {@inheritDoc}
    */
   public void saveUser(User user, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      saveUser(session, user, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method is used to update an existing User object.
+   * 
+   * @param session
+   *          The current session
+   * @param user
+   *          The user object to update
+   * @param broadcast
+   *          If the broadcast is true , then all the user event listener that register with the
+   *          organization service will be called
+   * @throws Exception
+   *           The exception can be thrown if the the UserHandler cannot save the user object or any
+   *           listeners fail to handle the user event.
+   */
+  private void saveUser(Session session, User user, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("User.saveUser method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       UserImpl userImpl = (UserImpl) user;
       String userUUID = userImpl.getUUId() != null
           ? userImpl.getUUId()
-          : ((UserImpl) findUserByName(user.getUserName())).getUUId();
+          : ((UserImpl) findUserByName(session, user.getUserName())).getUUId();
       Node uNode = session.getNodeByUUID(userUUID);
 
       String srcPath = uNode.getPath();
@@ -435,8 +586,6 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save user '" + user.getUserName() + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -465,9 +614,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
   }
 
   /**
-   * Write user properties to the node
+   * Write user properties to the node.
    * 
-   * @param usr
+   * @param user
    *          The user
    * @param node
    *          The node in the storage

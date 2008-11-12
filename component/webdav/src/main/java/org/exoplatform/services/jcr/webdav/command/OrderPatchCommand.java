@@ -28,17 +28,15 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
-import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.order.OrderMember;
 import org.exoplatform.services.jcr.webdav.command.order.OrderPatchResponseEntity;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -48,8 +46,6 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class OrderPatchCommand {
 
-  private static Log log = ExoLogger.getLogger(OrderPatchCommand.class);
-  
   public OrderPatchCommand() {
   }
 
@@ -63,21 +59,20 @@ public class OrderPatchCommand {
       URI uri = new URI(TextUtil.escape(baseURI + node.getPath(), '%', true));
 
       if (doOrder(node, members)) {
-        return Response.ok().build();
+        return Response.Builder.ok().build();
       }
 
       OrderPatchResponseEntity orderPatchEntity = new OrderPatchResponseEntity(nsContext,
                                                                                uri,
                                                                                node,
                                                                                members);
-      return Response.status(HTTPStatus.MULTISTATUS).entity(orderPatchEntity).build();
+      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(orderPatchEntity).build();
     } catch (PathNotFoundException exc) {
-      return Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.Builder.notFound().build();
     } catch (LockException exc) {
-      return Response.status(HTTPStatus.LOCKED).build();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
     } catch (Exception exc) {
-      log.error(exc.getMessage(), exc);
-      return Response.serverError().build();
+      return Response.Builder.serverError().build();
     }
 
   }
@@ -97,7 +92,7 @@ public class OrderPatchCommand {
     for (int i = 0; i < members.size(); i++) {
       OrderMember member = members.get(i);
 
-      int status = HTTPStatus.OK;
+      int status = WebDavStatus.OK;
 
       try {
         parentNode.getSession().refresh(false);
@@ -147,22 +142,21 @@ public class OrderPatchCommand {
         parentNode.getSession().save();
 
       } catch (LockException exc) {
-        status = HTTPStatus.LOCKED;
+        status = WebDavStatus.LOCKED;
 
       } catch (PathNotFoundException exc) {
-        status = HTTPStatus.FORBIDDEN;
+        status = WebDavStatus.FORBIDDEN;
 
       } catch (AccessDeniedException exc) {
-        status = HTTPStatus.FORBIDDEN;
+        status = WebDavStatus.FORBIDDEN;
 
       } catch (RepositoryException exc) {
-        log.error(exc.getMessage(), exc);
-        status = HTTPStatus.INTERNAL_ERROR;
+        status = WebDavStatus.INTERNAL_SERVER_ERROR;
 
       }
 
       member.setStatus(status);
-      if (status != HTTPStatus.OK) {
+      if (status != WebDavStatus.OK) {
         success = false;
       }
     }

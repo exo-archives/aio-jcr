@@ -24,8 +24,6 @@ package org.exoplatform.services.jcr.webdav.resource;
  * @version $Id: $
  */
 
-
-@SuppressWarnings("serial")
 public class IllegalResourceTypeException extends Exception {
 
   public IllegalResourceTypeException() {

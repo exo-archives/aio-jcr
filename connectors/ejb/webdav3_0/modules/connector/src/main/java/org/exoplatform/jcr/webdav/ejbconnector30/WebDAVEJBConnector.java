@@ -23,6 +23,7 @@ import java.rmi.RemoteException;
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
+//import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
@@ -31,6 +32,7 @@ import javax.ejb.TransactionManagementType;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.common.transport.SerialRequest;
 import org.exoplatform.common.transport.SerialResponse;
 import org.exoplatform.container.ExoContainer;
@@ -38,6 +40,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -53,49 +56,78 @@ import org.exoplatform.ws.rest.ejbconnector30.RestEJBConnectorLocal;
 @TransactionManagement(TransactionManagementType.BEAN)
 public class WebDAVEJBConnector implements WebDAVEJBConnectorRemote, WebDAVEJBConnectorLocal {
 
-  private static final String JNDI_NAME = "org.exoplatform.ws.rest.ejbconnector30.RestEJBConnector" +
-      "_" + RestEJBConnectorLocal.class.getName() + "@Local";
+  /**
+   * Logger.
+   */
+  private static final Log      LOG       = ExoLogger.getLogger(WebDAVEJBConnector.class.getName());
 
+  /**
+   * JNDI name for REST-EJB connector bean.
+   */
+  private static final String   JNDI_NAME = "org.exoplatform.ws.rest.ejbconnector30.RestEJBConnector"
+                                              + "_"
+                                              + RestEJBConnectorLocal.class.getName()
+                                              + "@Local";
+
+  /**
+   * Session context.
+   */
   @Resource
-  private SessionContext context;
+  private SessionContext        context;
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.jcr.webdav.ejbconnector21.WebDAVEJBConnector#service(org
-   * .exoplatform.common.transport.SerialRequest)
+  // Can be used instead lookup bean 'manually'.
+//  @EJB(beanInterface = RestEJBConnectorLocal.class)
+//  private RestEJBConnectorLocal bean; 
+
+  /**
+   * @param request wrapper for REST request that gives possibility transfer
+   *          request via RMI
+   * @return wrapper around REST response that gives possibility transfer
+   *         request via RMI
+   * @throws IOException if any i/o errors occurs
    */
   @RolesAllowed({ "admin", "users" })
-  public final SerialResponse service(final SerialRequest request) throws RemoteException,
-      IOException {
+  public final SerialResponse service(final SerialRequest request) throws RemoteException {
+
+    ExoContainer container = getContainer();
+    
+    IdentityRegistry identityRegistry =
+      (IdentityRegistry) container.getComponentInstanceOfType(IdentityRegistry.class);
+
+    ThreadLocalSessionProviderService sessionProviderService =
+      (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
 
     String userId = context.getCallerPrincipal().getName();
-
-    IdentityRegistry identityRegistry = (IdentityRegistry) getContainer()
-        .getComponentInstanceOfType(IdentityRegistry.class);
-
     Identity identity = identityRegistry.getIdentity(userId);
 
-    ConversationState conversationState = new ConversationState(identity);
-    ConversationState.setCurrent(conversationState);
-
-    ThreadLocalSessionProviderService sessionProviderService = (ThreadLocalSessionProviderService) getContainer()
-        .getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
-
-    sessionProviderService.setSessionProvider(null, new SessionProvider(conversationState));
     try {
+      ConversationState state = new ConversationState(identity);
+      SessionProvider provider = new SessionProvider(state);
+      state.setAttribute(SessionProvider.SESSION_PROVIDER, provider);
+      
+      ConversationState.setCurrent(state);
+      sessionProviderService.setSessionProvider(null, provider);
+
       InitialContext initialContext = new InitialContext();
       RestEJBConnectorLocal bean = (RestEJBConnectorLocal) initialContext.lookup(JNDI_NAME);
       return bean.service(request);
     } catch (NamingException e) {
-      e.printStackTrace();
-      throw new EJBException("RestEJBConnectorLocal not found in jndi!");
+      throw new EJBException("RestEJBConnectorLocal not found in jndi!", e);
     } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException(e.getMessage());
+      throw new EJBException(e);
+    } finally {
+      try {
+        sessionProviderService.removeSessionProvider(null);
+        ConversationState.setCurrent(null);
+      } catch (Exception e) {
+        LOG.warn("Failed reset ThreadLocal variables", e);
+      }
     }
   }
 
+  /**
+   * @return actual exo container
+   */
   protected ExoContainer getContainer() {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
     if (container instanceof RootContainer)

@@ -32,23 +32,18 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/>
- * Resource containing JCR's nt:file/jcr:content underneath. Identified by nt:file's URI
- * jcr:content's jcr:data property contains file's payload
+ * Created by The eXo Platform SARL .<br/> Resource containing JCR's nt:file/jcr:content underneath.
+ * Identified by nt:file's URI jcr:content's jcr:data property contains file's payload
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class FileResource extends GenericResource {
-  
-  private static Log log = ExoLogger.getLogger(FileResource.class);
 
   protected final static Set<String> FILE_SKIP    = new HashSet<String>();
   static {
@@ -247,8 +242,8 @@ public class FileResource extends GenericResource {
   public boolean isTextContent() {
     try {
       return contentNode().getProperty("jcr:data").getType() != PropertyType.BINARY;
-    } catch (RepositoryException exc) {
-      log.error(exc.getMessage(), exc);
+    } catch (RepositoryException e) {
+      e.printStackTrace();
       return false;
     }
   }

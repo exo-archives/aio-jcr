@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
+import java.lang.ref.WeakReference;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -338,4 +339,19 @@ public abstract class BaseStandaloneTest extends TestCase {
         + "min";
   }
 
+  /**
+   * Force a garbage collector.
+   */
+  protected static void forceGC() {
+    WeakReference<Object> dumbReference = new WeakReference<Object>(new Object());
+    // A loop that will wait GC, using the minimal time as possible
+    while (dumbReference.get() != null) {
+      System.gc();
+      try {
+        Thread.sleep(500);
+      }
+      catch (InterruptedException e) {
+      }
+    }
+  }
 }

@@ -5,23 +5,26 @@
       <access-control>optional</access-control>
       <authentication-policy>org.exoplatform.services.jcr.impl.core.access.JAASAuthenticator</authentication-policy>
       <workspaces>
-        <workspace name="system" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove">
-          <!-- for system storage -->
+        <workspace name="system" auto-init-permissions="">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <!--property name="dialect" value="oracle"/-->
-              <property name="dialect" value="generic" />
+              <property name="dialect" value="hsqldb" />
               <property name="source-name" value="jdbcexo" />
               <property name="multi-db" value="false" />
-              <property name="update-storage" value="true" />
-              <property name="max-buffer-size" value="204800" />
-              <property name="swap-directory" value="../temp/swap/ws" />
+              <property name="max-buffer-size" value="200k" />
+              <property name="swap-directory" value="../temp/swap/system" />
             </properties>
           </container>
+          <initializer>
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer> 
           <cache enabled="true">
             <properties>
-              <property name="max-size" value="1000000" />
-              <property name="live-time" value="1800" /><!-- 30 min -->
+              <property name="max-size" value="1m" />
+              <property name="live-time" value="30m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -30,7 +33,7 @@
             </properties>
           </query-handler>
           <lock-manager>
-            <time-out>1800000</time-out><!-- 30min -->
+            <time-out>30m</time-out>
             <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
               <properties>
                 <property name="path" value="../temp/lock" />
@@ -38,33 +41,36 @@
             </persister>
           </lock-manager>
         </workspace>
-        <workspace name="collaboration" auto-init-root-nodetype="nt:unstructured" auto-init-permissions="any read;*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove">
-          <!-- for system storage -->
+        <workspace name="collaboration">
           <container class="org.exoplatform.services.jcr.impl.storage.jdbc.JDBCWorkspaceDataContainer">
             <properties>
-              <!-- property name="dialect" value="oracle"/ -->
-              <property name="dialect" value="generic" />
+              <property name="dialect" value="hsqldb" />
               <property name="source-name" value="jdbcexo" />
               <property name="multi-db" value="false" />
-              <property name="update-storage" value="true" />
-              <property name="max-buffer-size" value="204800" />
-              <property name="swap-directory" value="../temp/swap/ws" />
+              <property name="max-buffer-size" value="200k" />
+              <property name="swap-directory" value="../temp/swap/collaboration" />
             </properties>
-            <!--value-storages>
+            <value-storages>
               <value-storage id="1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
                 <properties>
-                  <property name="path" value="/var/projects/SW/dmimport-binary-15.10.07/db/values/production" />
+                  <property name="path" value="../temp/values/collaboration" />
                 </properties>
                 <filters>
                   <filter property-type="Binary" />
                 </filters>
               </value-storage>
-            </value-storages-->
+            </value-storages>
           </container>
+          <initializer>
+            <properties>
+              <property name="root-nodetype" value="nt:unstructured"/>
+              <property name="root-permissions" value="*:/admin read;*:/admin add_node;*:/admin set_property;*:/admin remove"/>
+            </properties>
+          </initializer> 
           <cache enabled="true">
             <properties>
-              <property name="max-size" value="1000000" />
-              <property name="live-time" value="1800" /><!-- 30 min -->
+              <property name="max-size" value="1m" />
+              <property name="live-time" value="30m" />
             </properties>
           </cache>
           <query-handler class="org.exoplatform.services.jcr.impl.core.query.lucene.SearchIndex">
@@ -73,7 +79,7 @@
             </properties>
           </query-handler>
           <lock-manager>
-            <time-out>1800000</time-out><!-- 30min -->
+            <time-out>30m</time-out>
             <persister class="org.exoplatform.services.jcr.impl.core.lock.FileSystemLockPersister">
               <properties>
                 <property name="path" value="../temp/lock" />

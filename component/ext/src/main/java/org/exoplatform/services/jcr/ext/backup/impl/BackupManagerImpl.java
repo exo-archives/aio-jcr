@@ -32,9 +32,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.picocontainer.Startable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -56,6 +65,9 @@ import org.exoplatform.services.jcr.ext.backup.BackupJobListener;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
 import org.exoplatform.services.jcr.ext.backup.BackupOperationException;
 import org.exoplatform.services.jcr.ext.backup.JobEntryInfo;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
+import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.replication.FixupStream;
 import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
@@ -65,7 +77,6 @@ import org.exoplatform.services.jcr.impl.storage.JCRInvalidItemStateException;
 import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.observation.ExtendedEvent;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS .<br/>
@@ -90,17 +101,27 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
   private static final int           MESSAGES_MAXSIZE               = 5;
 
-  private final long                 defaultIncrementalJobPeriod;
+  private static final String        SERVICE_NAME                   = "BackupManager";
 
-  private final String               fullBackupType;
+  private long                       defaultIncrementalJobPeriod;
 
-  private final String               incrementalBackupType;
+  private String                     defIncrPeriod;
+
+  private String                     backupDir;
+
+  private String                     fullBackupType;
+
+  private String                     incrementalBackupType;
 
   private final HashSet<BackupChain> currentBackups;
 
-  private final File                 logsDirectory;
+  private InitParams                 initParams;
+
+  private File                       logsDirectory;
 
   private final RepositoryService    repoService;
+
+  private final RegistryService      registryService;
 
   private FileCleaner                fileCleaner;
 
@@ -194,42 +215,18 @@ public class BackupManagerImpl implements BackupManager, Startable {
     }
   }
 
-  public BackupManagerImpl(RepositoryService repoService, InitParams params) throws RepositoryConfigurationException {
+  public BackupManagerImpl(InitParams initParams, RepositoryService repoService) {
+    this(initParams, repoService, null);
+  }
+
+  public BackupManagerImpl(InitParams initParams,
+                           RepositoryService repoService,
+                           RegistryService registryService) {
 
     this.messagesListener = new MessagesListener();
-
     this.repoService = repoService;
-
-    PropertiesParam pps = params.getPropertiesParam(BACKUP_PROPERTIES);
-
-    String pathBackupDir = pps.getProperty(BACKUP_DIR);
-
-    if (pathBackupDir == null)
-      throw new RepositoryConfigurationException(BACKUP_DIR + " not specified");
-
-    this.logsDirectory = new File(pathBackupDir);
-    if (!logsDirectory.exists())
-      logsDirectory.mkdirs();
-
-    // set default incrementalJobPeriod
-    String defIncrPeriod = pps.getProperty(DEFAULT_INCREMENTAL_JOB_PERIOD);
-
-    if (defIncrPeriod == null)
-      throw new RepositoryConfigurationException(DEFAULT_INCREMENTAL_JOB_PERIOD + " not specified");
-
-    defaultIncrementalJobPeriod = Integer.valueOf(defIncrPeriod);
-
-    // set fullBackupType
-    fullBackupType = pps.getProperty(FULL_BACKUP_TYPE);
-
-    if (fullBackupType == null)
-      throw new RepositoryConfigurationException(FULL_BACKUP_TYPE + " not specified");
-
-    // set incrementalBackupType
-    incrementalBackupType = pps.getProperty(INCREMENTAL_BACKUP_TYPE);
-
-    if (incrementalBackupType == null)
-      throw new RepositoryConfigurationException(INCREMENTAL_BACKUP_TYPE + " not specified");
+    this.registryService = registryService;
+    this.initParams = initParams;
 
     currentBackups = new HashSet<BackupChain>();
 
@@ -369,6 +366,24 @@ public class BackupManagerImpl implements BackupManager, Startable {
 
   public void start() {
     // start all scheduled before tasks
+
+    if (registryService != null && !registryService.getForceXMLConfigurationValue(initParams)) {
+      SessionProvider sessionProvider = SessionProvider.createSystemProvider();
+      try {
+        readParamsFromRegistryService(sessionProvider);
+      } catch (Exception e) {
+        readParamsFromFile();
+        try {
+          writeParamsToRegistryService(sessionProvider);
+        } catch (Exception exc) {
+          log.error("Cannot write init configuration to RegistryService.", exc);
+        }
+      } finally {
+        sessionProvider.close();
+      }
+    } else {
+      readParamsFromFile();
+    }
 
     // scan for task files
     File[] tasks = this.logsDirectory.listFiles(new TaskFilter());
@@ -588,6 +603,138 @@ public class BackupManagerImpl implements BackupManager, Startable {
     fos.close();
 
     return tempFile;
+  }
+
+  /**
+   * Write parameters to RegistryService.
+   * 
+   * @param sessionProvider
+   *          The SessionProvider
+   * @throws ParserConfigurationException
+   * @throws SAXException
+   * @throws IOException
+   * @throws RepositoryException
+   */
+  private void writeParamsToRegistryService(SessionProvider sessionProvider) throws IOException,
+                                                                            SAXException,
+                                                                            ParserConfigurationException,
+                                                                            RepositoryException {
+    Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+    Element root = doc.createElement(SERVICE_NAME);
+    doc.appendChild(root);
+
+    Element element = doc.createElement(BACKUP_PROPERTIES);
+    setAttributeSmart(element, BACKUP_DIR, backupDir);
+    setAttributeSmart(element, DEFAULT_INCREMENTAL_JOB_PERIOD, defIncrPeriod);
+    setAttributeSmart(element, FULL_BACKUP_TYPE, fullBackupType);
+    setAttributeSmart(element, INCREMENTAL_BACKUP_TYPE, incrementalBackupType);
+    root.appendChild(element);
+
+    RegistryEntry serviceEntry = new RegistryEntry(doc);
+    registryService.createEntry(sessionProvider, RegistryService.EXO_SERVICES, serviceEntry);
+  }
+
+  /**
+   * Read parameters from RegistryService.
+   * 
+   * @param sessionProvider
+   *          The SessionProvider
+   * @throws RepositoryException
+   * @throws PathNotFoundException
+   */
+  private void readParamsFromRegistryService(SessionProvider sessionProvider) throws PathNotFoundException,
+                                                                             RepositoryException {
+    String entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + BACKUP_PROPERTIES;
+    RegistryEntry registryEntry = registryService.getEntry(sessionProvider, entryPath);
+    Document doc = registryEntry.getDocument();
+    Element element = doc.getDocumentElement();
+
+    backupDir = getAttributeSmart(element, BACKUP_DIR);
+    defIncrPeriod = getAttributeSmart(element, DEFAULT_INCREMENTAL_JOB_PERIOD);
+    fullBackupType = getAttributeSmart(element, FULL_BACKUP_TYPE);
+    incrementalBackupType = getAttributeSmart(element, INCREMENTAL_BACKUP_TYPE);
+
+    log.info("Backup dir from RegistryService: " + backupDir);
+    log.info("Default incremental job period from RegistryService: " + defIncrPeriod);
+    log.info("Full backup type from RegistryService: " + fullBackupType);
+    log.info("Incremental backup type from RegistryService: " + incrementalBackupType);
+
+    checkParams();
+  }
+
+  /**
+   * Get attribute value.
+   * 
+   * @param element
+   *          The element to get attribute value
+   * @param attr
+   *          The attribute name
+   * @return Value of attribute if present and null in other case
+   */
+  private String getAttributeSmart(Element element, String attr) {
+    return element.hasAttribute(attr) ? element.getAttribute(attr) : null;
+  }
+
+  /**
+   * Set attribute value. If value is null the attribute will be removed.
+   * 
+   * @param element
+   *          The element to set attribute value
+   * @param attr
+   *          The attribute name
+   * @param value
+   *          The value of attribute
+   */
+  private void setAttributeSmart(Element element, String attr, String value) {
+    if (value == null) {
+      element.removeAttribute(attr);
+    } else {
+      element.setAttribute(attr, value);
+    }
+  }
+
+  /**
+   * Get parameters which passed from the file.
+   * 
+   * @throws RepositoryConfigurationException
+   */
+  private void readParamsFromFile() {
+    PropertiesParam pps = initParams.getPropertiesParam(BACKUP_PROPERTIES);
+
+    backupDir = pps.getProperty(BACKUP_DIR);
+    defIncrPeriod = pps.getProperty(DEFAULT_INCREMENTAL_JOB_PERIOD);
+    fullBackupType = pps.getProperty(FULL_BACKUP_TYPE);
+    incrementalBackupType = pps.getProperty(INCREMENTAL_BACKUP_TYPE);
+
+    log.info("Backup dir from configuration file: " + backupDir);
+    log.info("Default incremental job period from configuration file: " + defIncrPeriod);
+    log.info("Full backup type from configuration file: " + fullBackupType);
+    log.info("Incremental backup type from configuration file: " + incrementalBackupType);
+
+    checkParams();
+  }
+
+  /**
+   * Check read params and initialize.
+   */
+  private void checkParams() {
+    if (backupDir == null)
+      throw new RuntimeException(BACKUP_DIR + " not specified");
+
+    logsDirectory = new File(backupDir);
+    if (!logsDirectory.exists())
+      logsDirectory.mkdirs();
+
+    if (defIncrPeriod == null)
+      throw new RuntimeException(DEFAULT_INCREMENTAL_JOB_PERIOD + " not specified");
+
+    defaultIncrementalJobPeriod = Integer.valueOf(defIncrPeriod);
+
+    if (fullBackupType == null)
+      throw new RuntimeException(FULL_BACKUP_TYPE + " not specified");
+
+    if (incrementalBackupType == null)
+      throw new RuntimeException(INCREMENTAL_BACKUP_TYPE + " not specified");
   }
 
   public BackupChain findBackup(String repository, String workspace) {

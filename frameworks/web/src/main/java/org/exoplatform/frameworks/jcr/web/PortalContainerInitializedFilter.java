@@ -65,7 +65,8 @@ public class PortalContainerInitializedFilter implements Filter {
     if (log.isDebugEnabled()) 
       log.debug("get-by-name");
     if (pcontainer == null) {
-      log.info("get-from-root");
+      if (log.isInfoEnabled()) 
+        log.info("get-from-root");
       ExoContainer container = ExoContainerContext.getTopContainer();
       if (container instanceof RootContainer) {
         pcontainer = ((RootContainer) container).getPortalContainer(contextName);

@@ -95,11 +95,35 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public void addChild(Group parent, Group child, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      addChild(session, parent, child, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to create a new group.
+   * 
+   * @param session
+   *          The current session
+   * @param parent
+   *          The parent group of the new group. use 'null' if you want to create the group at the
+   *          root level.
+   * @param child
+   *          The group that you want to create.
+   * @param broadcast
+   *          Broacast the new group event to all the registered listener if broadcast is true
+   * @throws Exception
+   *           An exception is throwed if the method fail to persist the new group or there is
+   *           already one child group with the same group name in the database or any registered
+   *           listener fail to handle the event.
+   */
+  private void addChild(Session session, Group parent, Group child, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("addChild started");
     }
-
-    Session session = service.getStorageSession();
 
     try {
       String parentId = (parent == null) ? "" : parent.getId();
@@ -129,8 +153,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not add child group with groupId '"
           + child.getId() + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -163,11 +185,30 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public Group findGroupById(String groupId) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findGroupById(session, groupId);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to search for a group.
+   * 
+   * @param session
+   *          The current session
+   * @param groupId
+   *          the id of the group that you want to search for
+   * @return null if no record matched the group id or the found group
+   * @throws Exception
+   *           An exception is throwed if the method cannot access the database or more than one
+   *           group is found.
+   */
+  Group findGroupById(Session session, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findGroupById started");
     }
-
-    Session session = service.getStorageSession();
 
     try {
       String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + groupId;
@@ -181,8 +222,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group by groupId '" + groupId + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -190,11 +229,33 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public Collection findGroupByMembership(String userName, String membershipType) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findGroupByMembership(session, userName, membershipType);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to find all the groups of an user with the specified membership type.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user that the method should search for.
+   * @param membershipType
+   *          The type of the membership. Since an user can have one or more membership in a group,
+   *          this parameter is necessary. If the membershipType is null, it should mean any
+   *          membership type.
+   * @return A collection of the found groups
+   * @throws Exception
+   *           An exception is thrown if the method cannot access the database.
+   */
+  private Collection findGroupByMembership(Session session, String userName, String membershipType) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findGroupByMembership started");
     }
-
-    Session session = service.getStorageSession();
 
     try {
       List<Group> types = new ArrayList<Group>();
@@ -206,10 +267,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
       // find memberships
       String mStatement = "select * from exo:userMembership" + whereStatement;
-      Query mQuery = service.getStorageSession()
-                            .getWorkspace()
-                            .getQueryManager()
-                            .createQuery(mStatement, Query.SQL);
+      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
@@ -228,8 +286,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find groups", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -237,11 +293,32 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public Collection findGroups(Group parent) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findGroups(session, parent, false);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to find all the children group of a group.
+   * 
+   * @param session
+   *          The current session
+   * @param parent
+   *          The group that you want to search. Use null if you want to search from the root.
+   * @param recursive
+   *          Recursive search groups
+   * @param recurent
+   * @return A collection of the children group
+   * @throws Exception
+   *           An exception is throwed is the method cannot access the database
+   */
+  private Collection findGroups(Session session, Group parent, boolean recursive) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findGroups started");
     }
-
-    Session session = service.getStorageSession();
 
     try {
       List<Group> types = new ArrayList<Group>();
@@ -249,26 +326,21 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS;
       if (parent == null || session.itemExists(gPath + parent.getId())) {
         String parentId = parent == null ? "" : parent.getId();
-        String whereStatement = "where exo:parentId "
-            + (parentId.equals("") ? " is null" : " = '" + parentId + "'");
-        String statement = "select * from exo:group " + whereStatement + " order by exo:groupId";
-        Query query = service.getStorageSession()
-                             .getWorkspace()
-                             .getQueryManager()
-                             .createQuery(statement, Query.SQL);
-        QueryResult gRes = query.execute();
-        for (NodeIterator gNodes = gRes.getNodes(); gNodes.hasNext();) {
+        Node parentNode = (Node) session.getItem(gPath + parentId);
+        for (NodeIterator gNodes = parentNode.getNodes(); gNodes.hasNext();) {
           Node gNode = gNodes.nextNode();
           Group g = readObjectFromNode(gNode);
           types.add(g);
+
+          if (recursive) {
+            types.addAll(findGroups(session, g, recursive));
+          }
         }
       }
       return types;
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find groups", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -287,31 +359,32 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public Collection getAllGroups() throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return getAllGroups(session);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to get all the groups.
+   * 
+   * @param session
+   *          The current session
+   * @return The collection of groups
+   * @throws Exception
+   *           An exception is thrown is the method cannot access the database
+   */
+  private Collection getAllGroups(Session session) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("getAllGroups started");
     }
 
-    Session session = service.getStorageSession();
     try {
-      List<Group> types = new ArrayList<Group>();
-
-      String statement = "select * from exo:group order by exo:groupId";
-      Query query = service.getStorageSession()
-                           .getWorkspace()
-                           .getQueryManager()
-                           .createQuery(statement, Query.SQL);
-      QueryResult gRes = query.execute();
-      for (NodeIterator gNodes = gRes.getNodes(); gNodes.hasNext();) {
-        Node gNode = gNodes.nextNode();
-        Group g = readObjectFromNode(gNode);
-        types.add(g);
-      }
-      return types;
-
+      return findGroups(session, null, true);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not get all groups ", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -319,32 +392,54 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public Group removeGroup(Group group, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return removeGroup(session, group, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to remove a group from the group database.
+   * 
+   * @param session
+   *          The current session
+   * @param group
+   *          The group to be removed. The group parameter should be obtained form the
+   *          findGroupId(..) method. When the groupn is removed, the memberships of the group
+   *          should be removed as well.
+   * @param broadcast
+   *          Broadcast the event to the registered listener if the broadcast value is 'true'
+   * @return Return the removed group.
+   * @throws Exception
+   *           An exception is throwed if the method fail to remove the group from the database, the
+   *           group is not existed in the database, or any listener fail to handle the event.
+   */
+  private Group removeGroup(Session session, Group group, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("removeGroup started");
     }
 
-    // TODO implement transaction
-    Session session = service.getStorageSession();
     try {
       Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
           + group.getId());
 
       // remove child groups
       for (NodeIterator gNodes = gNode.getNodes(); gNodes.hasNext();) {
-        removeGroup(readObjectFromNode(gNodes.nextNode()), true);
+        removeGroup(session, readObjectFromNode(gNodes.nextNode()), true);
       }
 
       // remove membership
       String mStatement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
           + "'";
-      Query mQuery = service.getStorageSession()
-                            .getWorkspace()
-                            .getQueryManager()
-                            .createQuery(mStatement, Query.SQL);
+      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
       QueryResult mRes = mQuery.execute();
       for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
-        service.getMembershipHandler().removeMembership(mNode.getUUID(), broadcast);
+        ((MembershipHandlerImpl) service.getMembershipHandler()).removeMembership(session,
+                                                                                  mNode.getUUID(),
+                                                                                  broadcast);
       }
 
       // remove group
@@ -361,14 +456,11 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
         postDelete(group);
       }
 
-      log.debug("saveGroup return=" + group);
       return g;
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove group with groupId '" + group.getId()
           + "'", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -387,11 +479,32 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * {@inheritDoc}
    */
   public void saveGroup(Group group, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      saveGroup(session, group, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Use this method to update the properties of an existed group.
+   * 
+   * @param session
+   *          The current session
+   * @param group
+   *          The group object with the updated information.
+   * @param broadcast
+   *          Broadcast the event to all the registered listener if the broadcast value is true
+   * @throws Exception
+   *           An exception is thorwed if the method cannot access the database or any listener fail
+   *           to handle the event
+   */
+  private void saveGroup(Session session, Group group, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("saveGroup started");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
           + group.getId());
@@ -409,8 +522,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save group '" + group.getId() + "'", e);
-    } finally {
-      session.logout();
     }
   }
 

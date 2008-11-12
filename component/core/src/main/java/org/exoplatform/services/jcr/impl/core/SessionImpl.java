@@ -49,6 +49,10 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.observation.ObservationManager;
 import javax.jcr.version.VersionException;
+import javax.xml.stream.XMLStreamException;
+
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.AccessControlList;
@@ -81,8 +85,6 @@ import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -218,31 +220,26 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     SessionImpl systemSession = repository.getSystemSession();
 
-    BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.DOCVIEW,
-                                                                          contentHandler,
-                                                                          skipBinary,
-                                                                          noRecurse,
-                                                                          getTransientNodesManager(),
-                                                                          repository.getNamespaceRegistry(),
-                                                                          systemSession.getValueFactory());
-
-    JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
-
-    if (srcItemData == null) {
-      throw new PathNotFoundException("No node exists at " + absPath);
-    }
-
     try {
+      BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.DOCVIEW,
+                                                                            contentHandler,
+                                                                            skipBinary,
+                                                                            noRecurse,
+                                                                            getTransientNodesManager(),
+                                                                            repository.getNamespaceRegistry(),
+                                                                            systemSession.getValueFactory());
+
+      JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
+      ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
+
+      if (srcItemData == null) {
+        throw new PathNotFoundException("No node exists at " + absPath);
+      }
+
       exporter.export((NodeData) srcItemData);
-    } catch (Exception e) {
-      e.printStackTrace();
-      if (e instanceof RepositoryException)
-        throw (RepositoryException) e;
-      else if (e instanceof SAXException)
-        throw (SAXException) e;
-      else
-        throw new RepositoryException(e);
+
+    } catch (XMLStreamException e) {
+      throw new SAXException(e);
     } finally {
       systemSession.logout();
     }
@@ -256,34 +253,27 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                    PathNotFoundException,
                                                    RepositoryException {
     SessionImpl systemSession = repository.getSystemSession();
-    BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.DOCVIEW,
-                                                                          out,
-                                                                          skipBinary,
-                                                                          noRecurse,
-                                                                          getTransientNodesManager(),
-                                                                          repository.getNamespaceRegistry(),
-                                                                          systemSession.getValueFactory());
-
-    JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
-
-    if (srcItemData == null) {
-      throw new PathNotFoundException("No node exists at " + absPath);
-    }
-
     try {
-      exporter.export((NodeData) srcItemData);
-    } catch (Exception e) {
-      if (e instanceof RepositoryException) {
-        e.printStackTrace();
-        throw (RepositoryException) e;
-      } else if (e instanceof IOException) {
-        e.printStackTrace();
-        throw (IOException) e;
-      } else {
-        e.printStackTrace();
-        throw new RepositoryException(e);
+      BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.DOCVIEW,
+                                                                            out,
+                                                                            skipBinary,
+                                                                            noRecurse,
+                                                                            getTransientNodesManager(),
+                                                                            repository.getNamespaceRegistry(),
+                                                                            systemSession.getValueFactory());
+
+      JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
+      ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
+
+      if (srcItemData == null) {
+        throw new PathNotFoundException("No node exists at " + absPath);
       }
+
+      exporter.export((NodeData) srcItemData);
+    } catch (XMLStreamException e) {
+      throw new IOException(e.getLocalizedMessage());
+    } catch (SAXException e) {
+      throw new IOException(e.getLocalizedMessage());
     } finally {
       systemSession.logout();
     }
@@ -298,28 +288,26 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                                                 PathNotFoundException,
                                                                                                 RepositoryException {
     SessionImpl systemSession = repository.getSystemSession();
-    BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.BACKUP,
-                                                                          out,
-                                                                          skipBinary,
-                                                                          noRecurse,
-                                                                          getTransientNodesManager(),
-                                                                          repository.getNamespaceRegistry(),
-                                                                          systemSession.getValueFactory());
-
-    ItemData srcItemData = dataManager.getItemData(Constants.ROOT_UUID);
-    if (srcItemData == null) {
-      throw new PathNotFoundException("Root node not found");
-    }
 
     try {
+      BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.BACKUP,
+                                                                            out,
+                                                                            skipBinary,
+                                                                            noRecurse,
+                                                                            getTransientNodesManager(),
+                                                                            repository.getNamespaceRegistry(),
+                                                                            systemSession.getValueFactory());
+
+      ItemData srcItemData = dataManager.getItemData(Constants.ROOT_UUID);
+      if (srcItemData == null) {
+        throw new PathNotFoundException("Root node not found");
+      }
+
       exporter.export((NodeData) srcItemData);
-    } catch (Exception e) {
-      if (e instanceof RepositoryException)
-        throw (RepositoryException) e;
-      else if (e instanceof IOException)
-        throw (IOException) e;
-      else
-        throw new RepositoryException(e);
+    } catch (XMLStreamException e) {
+      throw new IOException(e.getLocalizedMessage());
+    } catch (SAXException e) {
+      throw new IOException(e.getLocalizedMessage());
     } finally {
       systemSession.logout();
     }
@@ -337,29 +325,25 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                  SAXException,
                                                  RepositoryException {
     SessionImpl systemSession = repository.getSystemSession();
-    BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.SYSVIEW,
-                                                                          contentHandler,
-                                                                          skipBinary,
-                                                                          noRecurse,
-                                                                          getTransientNodesManager(),
-                                                                          repository.getNamespaceRegistry(),
-                                                                          systemSession.getValueFactory());
-
-    JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
-    if (srcItemData == null) {
-      throw new PathNotFoundException("No node exists at " + absPath);
-    }
-
     try {
+      BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.SYSVIEW,
+                                                                            contentHandler,
+                                                                            skipBinary,
+                                                                            noRecurse,
+                                                                            getTransientNodesManager(),
+                                                                            repository.getNamespaceRegistry(),
+                                                                            systemSession.getValueFactory());
+
+      JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
+      ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
+      if (srcItemData == null) {
+        throw new PathNotFoundException("No node exists at " + absPath);
+      }
+
       exporter.export((NodeData) srcItemData);
-    } catch (Exception e) {
-      if (e instanceof RepositoryException)
-        throw (RepositoryException) e;
-      else if (e instanceof SAXException)
-        throw (SAXException) e;
-      else
-        throw new RepositoryException(e);
+
+    } catch (XMLStreamException e) {
+      throw new SAXException(e);
     } finally {
       systemSession.logout();
     }
@@ -377,30 +361,27 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                  PathNotFoundException,
                                                  RepositoryException {
     SessionImpl systemSession = repository.getSystemSession();
-    BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.SYSVIEW,
-                                                                          out,
-                                                                          skipBinary,
-                                                                          noRecurse,
-                                                                          getTransientNodesManager(),
-                                                                          repository.getNamespaceRegistry(),
-                                                                          systemSession.getValueFactory());
-
-    JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
-    ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
-
-    if (srcItemData == null) {
-      throw new PathNotFoundException("No node exists at " + absPath);
-    }
-
     try {
+      BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.SYSVIEW,
+                                                                            out,
+                                                                            skipBinary,
+                                                                            noRecurse,
+                                                                            getTransientNodesManager(),
+                                                                            repository.getNamespaceRegistry(),
+                                                                            systemSession.getValueFactory());
+
+      JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
+      ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
+
+      if (srcItemData == null) {
+        throw new PathNotFoundException("No node exists at " + absPath);
+      }
+
       exporter.export((NodeData) srcItemData);
-    } catch (Exception e) {
-      if (e instanceof RepositoryException)
-        throw (RepositoryException) e;
-      else if (e instanceof IOException)
-        throw (IOException) e;
-      else
-        throw new RepositoryException(e);
+    } catch (XMLStreamException e) {
+      throw new IOException(e.getLocalizedMessage());
+    } catch (SAXException e) {
+      throw new IOException(e.getLocalizedMessage());
     } finally {
       systemSession.logout();
     }

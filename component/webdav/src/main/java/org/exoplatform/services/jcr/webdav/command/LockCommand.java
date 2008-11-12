@@ -26,22 +26,20 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.Depth;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.lock.LockRequestEntity;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.resource.GenericResource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * Created by The eXo Platform SAS .<br/>
@@ -52,8 +50,6 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class LockCommand {
 
-  private static Log log = ExoLogger.getLogger(LockCommand.class);
-  
   private final NullResourceLocksHolder nullResourceLocks;
 
   public LockCommand(final NullResourceLocksHolder nullResourceLocks) {
@@ -87,7 +83,7 @@ public class LockCommand {
 
       LockRequestEntity requestEntity = new LockRequestEntity(body);
 
-      return Response.ok(body(nsContext,
+      return Response.Builder.ok(body(nsContext,
                                       requestEntity,
                                       depth,
                                       lockToken,
@@ -97,17 +93,17 @@ public class LockCommand {
 
       // TODO 412 Precondition Failed ?
     } catch (LockException exc) {
-      return Response.status(HTTPStatus.LOCKED).build();
-    } catch (AccessDeniedException exc) {
-      return Response.status(HTTPStatus.FORBIDDEN).build();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+    } catch (AccessDeniedException e) {
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
     } catch (Exception exc) {
-      log.error(exc.getMessage(), exc);
-      return Response.serverError().build();
+      exc.printStackTrace();
+      return Response.Builder.serverError().errorMessage(exc.getMessage()).build();
     }
 
   }
 
-  private final StreamingOutput body(WebDavNamespaceContext nsContext,
+  private final SerializableEntity body(WebDavNamespaceContext nsContext,
                                         LockRequestEntity input,
                                         Depth depth,
                                         String lockToken,
@@ -116,7 +112,7 @@ public class LockCommand {
     return new LockResultResponseEntity(nsContext, lockToken, lockOwner, timeout);
   }
 
-  public class LockResultResponseEntity implements StreamingOutput {
+  public class LockResultResponseEntity implements SerializableEntity {
 
     protected WebDavNamespaceContext nsContext;
 
@@ -136,7 +132,7 @@ public class LockCommand {
       this.timeOut = timeOut;
     }
 
-    public void write(OutputStream stream) throws IOException {
+    public void writeObject(OutputStream stream) throws IOException {
       try {
         XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
                                                           .createXMLStreamWriter(stream,
@@ -158,7 +154,7 @@ public class LockCommand {
 
         xmlStreamWriter.writeEndDocument();
       } catch (Exception e) {
-        log.error(e.getMessage(), e);
+        e.printStackTrace();
         throw new IOException(e.getMessage());
       }
     }

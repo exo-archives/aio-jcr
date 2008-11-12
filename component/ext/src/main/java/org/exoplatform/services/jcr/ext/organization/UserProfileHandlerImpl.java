@@ -105,24 +105,37 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public UserProfile findUserProfileByName(String userName) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findUserProfileByName(session, userName);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method should search for and return UserProfile record according to the username.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user name
+   * @return return null if no record match the userName. return an UserProfile instance if a record
+   *         match the username.
+   * @throws Exception
+   *           Throw Exception if the method fail to access the database or find more than one
+   *           record that match the username.
+   */
+  private UserProfile findUserProfileByName(Session session, String userName) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.findUserProfileByName method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
-      String uPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
-          + userName;
-
-      // if user is absent return null
-      if (!session.itemExists(uPath)) {
-        return null;
-      }
-
-      Node uNode = (Node) session.getItem(uPath);
+      String attrPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
+          + userName + "/" + UserHandlerImpl.EXO_PROFILE + "/" + EXO_ATTRIBUTES;
 
       // if attributes is absent return null
-      String attrPath = uPath + "/" + UserHandlerImpl.EXO_PROFILE + "/" + EXO_ATTRIBUTES;
       if (!session.itemExists(attrPath)) {
         return null;
       }
@@ -142,8 +155,6 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find user profile", e);
-    } finally {
-      session.logout();
     }
   }
 
@@ -151,11 +162,28 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public Collection findUserProfiles() throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return findUserProfiles(session);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * Find and return all the UserProfile record in the database.
+   * 
+   * @param session
+   *          The current session
+   * @return The collection of user profiles
+   * @throws Exception
+   *           Throw exception if the method fail to access the database
+   */
+  private Collection findUserProfiles(Session session) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.findUserProfiles method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       List<UserProfile> types = new ArrayList<UserProfile>();
 
@@ -163,7 +191,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
           + UserHandlerImpl.STORAGE_EXO_USERS);
       for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
         Node uNode = nodes.nextNode();
-        UserProfile userProfile = findUserProfileByName(uNode.getName());
+        UserProfile userProfile = findUserProfileByName(session, uNode.getName());
         if (userProfile != null) {
           types.add(userProfile);
         }
@@ -172,23 +200,42 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find user profiles", e);
-    } finally {
-      session.logout();
     }
-
   }
 
   /**
    * {@inheritDoc}
    */
   public UserProfile removeUserProfile(String userName, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      return removeUserProfile(session, userName, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method should remove the user profile record in the database.
+   * 
+   * @param session
+   *          The current session
+   * @param userName
+   *          The user profile record with the username should be removed from the database
+   * @param broadcast
+   *          Broadcast the event the listeners if broadcast is true.
+   * @return The UserProfile instance that has been removed.
+   * @throws Exception
+   *           Throw exception if the method fail to remove the record or any listener fail to
+   *           handle the event
+   */
+  private UserProfile removeUserProfile(Session session, String userName, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.removeUserProfile method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
-      UserProfile userProfile = findUserProfileByName(userName);
+      UserProfile userProfile = findUserProfileByName(session, userName);
       if (userProfile == null) {
         return null;
       }
@@ -211,13 +258,11 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove '" + userName + "' profile", e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
-   * Remove registered listener
+   * Remove registered listener.
    * 
    * @param listener
    *          The registered listener for removing
@@ -230,11 +275,34 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
    * {@inheritDoc}
    */
   public void saveUserProfile(UserProfile profile, boolean broadcast) throws Exception {
+    Session session = service.getStorageSession();
+    try {
+      saveUserProfile(session, profile, broadcast);
+    } finally {
+      session.logout();
+    }
+  }
+
+  /**
+   * This method should persist the profile instance to the database. If the profile is not existed
+   * yet. the method should create a new user profile record. If there is an existed record. The
+   * method should merge the data with the existed record.
+   * 
+   * @param session
+   *          The current session
+   * @param profile
+   *          the profile instance to persist.
+   * @param broadcast
+   *          broadcast the event to the listener if broadcast is true
+   * @throws Exception
+   *           throw exception if the method fail to access the database or any listener fail to
+   *           handle the event.
+   */
+  private void saveUserProfile(Session session, UserProfile profile, boolean broadcast) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("UserProfile.saveUserProfile method is started");
     }
 
-    Session session = service.getStorageSession();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + profile.getUserName());
@@ -272,18 +340,16 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save '" + profile.getUserName() + "' profile",
                                              e);
-    } finally {
-      session.logout();
     }
   }
 
   /**
    * PreSave event.
    * 
-   * @param group
-   *          The group to save
+   * @param userProfile
+   *          The userProfile to save
    * @param isNew
-   *          Is it new group or not
+   *          Is it new profile or not
    * @throws Exception
    *           If listeners fail to handle the user event
    */
@@ -295,10 +361,10 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * PostSave event.
    * 
-   * @param group
-   *          The group to save
+   * @param userProfile
+   *          The user profile to save
    * @param isNew
-   *          Is it new group or not
+   *          Is it new profile or not
    * @throws Exception
    *           If listeners fail to handle the user event
    */
@@ -310,8 +376,8 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * PreDelete event.
    * 
-   * @param group
-   *          The group to delete
+   * @param userProfile
+   *          The user profile to delete
    * @throws Exception
    *           If listeners fail to handle the user event
    */
@@ -323,8 +389,8 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
   /**
    * PostDelete event.
    * 
-   * @param group
-   *          The group to delete
+   * @param userProfile
+   *          The user profile to delete
    * @throws Exception
    *           If listeners fail to handle the user event
    */

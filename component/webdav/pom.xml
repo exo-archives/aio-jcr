@@ -1,3 +1,4 @@
+
 <project>
 	<parent>
 		<groupId>org.exoplatform.jcr</groupId>
@@ -17,24 +18,17 @@
 		<dependency>
 			<groupId>org.exoplatform.ws</groupId>
 			<artifactId>exo.ws.rest.core</artifactId>
-			<version>2.0
-      </version>
+			<version>${org.exoplatform.ws.version}
+			</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.exoplatform.ws</groupId>
 			<artifactId>exo.ws.commons</artifactId>
-			<version>2.0
-      </version>
+			<version>${org.exoplatform.ws.version}
+			</version>
 			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.exoplatform.ws</groupId>
-			<artifactId>exo.ws.rest.ext</artifactId>
-			<version>2.0
-      </version>
-			<scope>compile</scope>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.ext</artifactId>
@@ -45,7 +39,7 @@
 		<dependency>
 			<groupId>org.exoplatform.jcr</groupId>
 			<artifactId>exo.jcr.component.core
-				</artifactId>
+        </artifactId>
 			<version>${org.exoplatform.jcr.version}
 			</version>
 			<scope>compile</scope>
@@ -107,6 +101,7 @@
 					<useFile>${exo.test.use.file}</useFile>
 					<forkMode>never</forkMode><!--once , pertest-->
 					<includes>
+						<!--
 							<include>**/Test*.java</include>
 							<include>**/TestGet.java</include>
 							<include>**/TestHead.java</include>
@@ -116,6 +111,9 @@
 							<include>**/TestCopy.java</include>
 							<include>**/TestMove.java</include>
 							<include>**/TestPropFind.java</include>
+							<include>**/TestLock.java</include>
+							<include>**/TestUnLock.java</include>
+						-->
 					</includes>
 				</configuration>
 			</plugin>

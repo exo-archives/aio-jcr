@@ -25,6 +25,9 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.ValueFormatException;
+import javax.xml.stream.XMLStreamException;
+
+import org.xml.sax.SAXException;
 
 import org.apache.ws.commons.util.Base64;
 
@@ -94,21 +97,14 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
   private final ValueFactoryImpl  systemValueFactory;
 
   /**
-   * @param dataManager
-   *          - ItemDataConsumer
-   * @param namespaceRegistry
-   *          - NamespaceRegistry
-   * @param systemValueFactory
-   *          - default ValueFactory
-   * @param skipBinary
-   *          - If skipBinary is true then any properties of PropertyType.BINARY will be serialized
-   *          as if they are empty.
-   * @param maxLevel
-   *          - maximum level
-   * @param noRecurse
-   *          - noRecurse value
-   * @exception RepositoryException
-   *              if an repository error occurs.
+   * @param dataManager - ItemDataConsumer
+   * @param namespaceRegistry - NamespaceRegistry
+   * @param systemValueFactory - default ValueFactory
+   * @param skipBinary - If skipBinary is true then any properties of PropertyType.BINARY will be
+   *          serialized as if they are empty.
+   * @param maxLevel - maximum level
+   * @param noRecurse - noRecurse value
+   * @exception RepositoryException if an repository error occurs.
    */
   public BaseXmlExporter(ItemDataConsumer dataManager,
                          NamespaceRegistry namespaceRegistry,
@@ -127,12 +123,12 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
   }
 
   /**
-   * @param node
-   *          - exported node.
-   * @throws Exception
-   *           - exception.
+   * @param node - exported node.
+   * @throws Exception - exception.
    */
-  public abstract void export(NodeData node) throws Exception;
+  public abstract void export(NodeData node) throws RepositoryException,
+                                            SAXException,
+                                            XMLStreamException;
 
   /**
    * @return - uri of the sv namespace.
@@ -197,13 +193,10 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
   }
 
   /**
-   * @param data
-   *          - exported ItemData.
-   * @param encode
-   *          - is ISO9075 encode.
+   * @param data - exported ItemData.
+   * @param encode - is ISO9075 encode.
    * @return - exported item name.
-   * @exception RepositoryException
-   *              if an repository error occurs.
+   * @exception RepositoryException if an repository error occurs.
    */
   protected String getExportName(ItemData data, boolean encode) throws RepositoryException {
     String nodeName;
@@ -230,18 +223,14 @@ public abstract class BaseXmlExporter extends ItemDataTraversingVisitor {
   }
 
   /**
-   * @param data
-   *          - exported value data.
-   * @param type
-   *          - value type
+   * @param data - exported value data.
+   * @param type - value type
    * @return - string representation of values prepared for export. Be attentive method encode
    *         binary values in memory. It is possible OutOfMemoryError on large Values.
    * @throws IllegalStateException
    * @throws IOException
-   * @exception RepositoryException
-   *              if an repository error occurs.
-   * @exception IOException
-   *              if an I/O error occurs.
+   * @exception RepositoryException if an repository error occurs.
+   * @exception IOException if an I/O error occurs.
    */
   protected String getValueAsStringForExport(ValueData data, int type) throws IOException,
                                                                       RepositoryException {

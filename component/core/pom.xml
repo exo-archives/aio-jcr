@@ -660,6 +660,7 @@
       
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.3</version>
         <executions>
           <execution>
             <id>delete-sources</id>
@@ -730,6 +731,10 @@
             <version>3.2</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
