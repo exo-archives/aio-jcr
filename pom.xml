@@ -10,7 +10,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>trunk</version>
+  <version>1.11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -189,8 +189,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -199,15 +199,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/trunk/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.11-SNAPSHOT/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
@@ -287,7 +287,7 @@
         <org.exoplatform.kernel.version>trunk</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
         <org.exoplatform.ws.version>trunk</org.exoplatform.ws.version>
-        <org.exoplatform.jcr.version>trunk</org.exoplatform.jcr.version>
+        <org.exoplatform.jcr.version>1.11-SNAPSHOT</org.exoplatform.jcr.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>
