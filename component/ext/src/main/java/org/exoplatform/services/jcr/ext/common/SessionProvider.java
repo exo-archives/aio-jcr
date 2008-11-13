@@ -16,12 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.common;
 
-import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import javax.jcr.LoginException;
@@ -40,7 +36,17 @@ import org.exoplatform.services.security.MembershipEntry;
 /**
  * Created by The eXo Platform SAS .<br/> Provides JCR Session for client program. Usually it is per
  * client thread object Session creates with Repository.login(..) method and then can be stored in
- * some cache if neccessary.
+ * some cache if neccessary.<p/>
+ * 
+ * SessionProvider guaranties multithreading use of <code>close()</code> and <code>getSession()</code> methods.<br/>
+ * <code>SessionLifecycleListener.onCloseSession()</code> implementation also is synchronized.<p/> 
+ * 
+ * To logout all cached Session use <code>close()</code> method.<p/>
+ * 
+ * SessionProvider instance can handle
+ * <code>getSession(), getCurrentRepository(), setCurrentRepository(), 
+ * getCurrentWorkspace(), setCurrentWorkspace()</code> methods after <code>close()</code> method
+ * call.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id$
@@ -51,28 +57,33 @@ public class SessionProvider implements SessionLifecycleListener {
   /**
    * Constant for handlers.
    */
-  public final static String                 SESSION_PROVIDER = "JCRsessionProvider";
+  public static final String                 SESSION_PROVIDER = "JCRsessionProvider";
 
   /**
    * Sessions cache.
    */
-  private final Map<String, ExtendedSession> cache;
+  private final Map<String, ExtendedSession> cache            = new HashMap<String, ExtendedSession>();
 
   /**
    * System session marker.
    */
-  private boolean                            isSystem;
+  private final boolean                      isSystem;
 
+  /**
+   * Current Repository.
+   */
   private ManageableRepository               currentRepository;
 
+  /**
+   * Ccurrent Workspace.
+   */
   private String                             currentWorkspace;
-
-  private boolean closed;
 
   /**
    * Creates SessionProvider for certain identity.
    * 
    * @param userState
+   *          ConversationState, existing user state
    */
   public SessionProvider(ConversationState userState) {
     this(false);
@@ -81,20 +92,19 @@ public class SessionProvider implements SessionLifecycleListener {
   }
 
   /**
-   * Internal constructor.
+   * SessionProvider constructor.
    * 
    * @param isSystem
+   *          boolean, true if system provider is creating
    */
   private SessionProvider(boolean isSystem) {
     this.isSystem = isSystem;
-    this.cache = new HashMap<String, ExtendedSession>();
-    this.closed = false;
   }
 
   /**
    * Helper for creating System session provider.
    * 
-   * @return System session
+   * @return SessionProvider session provider
    */
   public static SessionProvider createSystemProvider() {
     return new SessionProvider(true);
@@ -103,7 +113,7 @@ public class SessionProvider implements SessionLifecycleListener {
   /**
    * Helper for creating Anonymous session provider.
    * 
-   * @return System session
+   * @return SessionProvider session provider
    */
   public static SessionProvider createAnonimProvider() {
     Identity id = new Identity(SystemIdentity.ANONIM, new HashSet<MembershipEntry>());
@@ -114,27 +124,27 @@ public class SessionProvider implements SessionLifecycleListener {
    * Gets the session from internal cache or creates and caches new one.
    * 
    * @param workspaceName
+   *          workspace name
    * @param repository
-   * @return session
+   *          ManageableRepository, repository instance
+   * @return session Session
    * @throws LoginException
+   *           login error
    * @throws NoSuchWorkspaceException
+   *           if no workspace name is null
    * @throws RepositoryException
+   *           Repository error
    */
   public synchronized Session getSession(String workspaceName, ManageableRepository repository) throws LoginException,
                                                                                                NoSuchWorkspaceException,
                                                                                                RepositoryException {
 
-    if (closed) {
-      throw new IllegalStateException("Session provider already closed");
-    }
-
-    if (workspaceName == null) {
+    if (workspaceName == null)
       throw new NullPointerException("Workspace Name is null");
-    }
 
     ExtendedSession session = cache.get(key(repository, workspaceName));
+    
     // create and cache new session
-
     if (session == null) {
 
       if (!isSystem)
@@ -151,18 +161,12 @@ public class SessionProvider implements SessionLifecycleListener {
   }
 
   /**
-   * Calls logout() method for all cached sessions.
+   * Logout all cached Sessions.
    * 
    * Session will be removed from cache by the listener (this provider) via
    * ExtendedSession.logout().
    */
   public synchronized void close() {
-
-    if (closed) {
-      throw new IllegalStateException("Session provider already closed");
-    }
-
-    closed = true;
 
     for (ExtendedSession session : (ExtendedSession[]) cache.values()
                                                             .toArray(new ExtendedSession[cache.values()
@@ -174,11 +178,8 @@ public class SessionProvider implements SessionLifecycleListener {
     cache.clear();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.SessionLifecycleListener#onCloseSession(org.exoplatform.services
-   * .jcr.core.ExtendedSession)
+  /**
+   * {@inheritDoc}
    */
   public synchronized void onCloseSession(ExtendedSession session) {
     this.cache.remove(key((ManageableRepository) session.getRepository(), session.getWorkspace()
@@ -189,26 +190,50 @@ public class SessionProvider implements SessionLifecycleListener {
    * Key generator for sessions cache.
    * 
    * @param repository
+   *          Repository
    * @param workspaceName
-   * @return
+   *          workspace name
+   * @return String with internal key
    */
   private String key(ManageableRepository repository, String workspaceName) {
     String repositoryName = repository.getConfiguration().getName();
     return repositoryName + workspaceName;
   }
 
+  /**
+   * Return current Repository.
+   * 
+   * @return Repository
+   */
   public ManageableRepository getCurrentRepository() {
     return currentRepository;
   }
 
+  /**
+   * Return current Workspace.
+   * 
+   * @return Workspace
+   */
   public String getCurrentWorkspace() {
     return currentWorkspace;
   }
 
+  /**
+   * Set current Repository.
+   * 
+   * @param currentRepository
+   *          ManageableRepository
+   */
   public void setCurrentRepository(ManageableRepository currentRepository) {
     this.currentRepository = currentRepository;
   }
 
+  /**
+   * Set current Workspace.
+   * 
+   * @param currentWorkspace
+   *          String
+   */
   public void setCurrentWorkspace(String currentWorkspace) {
     this.currentWorkspace = currentWorkspace;
   }
