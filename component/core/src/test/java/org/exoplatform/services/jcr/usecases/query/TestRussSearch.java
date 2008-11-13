@@ -50,6 +50,7 @@ public class TestRussSearch extends BaseUsecasesTest {
     Node n = session.getRootNode().addNode("test_node","nt:file");
     Node content = n.addNode("jcr:content","nt:resource");
     content.setProperty("jcr:data", is);
+    content.setProperty("jcr:encoding", "cp1251");
     content.setProperty("jcr:lastModified", Calendar.getInstance());
     content.setProperty("jcr:mimeType", "text/plain");    
     session.save();
