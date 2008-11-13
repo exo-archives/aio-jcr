@@ -454,4 +454,15 @@ public class TestDocumentViewImport extends AbstractImportTest {
     assertEquals("a", nodeA.getProperty("jcr:xmlcharacters").getString());
     assertEquals("c", nodeC.getProperty("jcr:xmlcharacters").getString());
   }
+
+  public void _testMultiImport_Unused() throws Exception {
+    Node testNode = root.addNode("test");
+    testNode.addNode("node2");
+    session.save();
+
+    for (int i = 0; i < 20000; i++) {
+      serialize(testNode, true, true);
+    }
+    Thread.sleep(15000);
+  }
 }

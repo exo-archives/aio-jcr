@@ -218,7 +218,13 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                    SAXException,
                                                    RepositoryException {
 
-    SessionImpl systemSession = repository.getSystemSession();
+    LocationFactory factory = new LocationFactory(((NamespaceRegistryImpl) repository.getNamespaceRegistry()));
+
+    WorkspaceEntry wsConfig = (WorkspaceEntry) container.getComponentInstanceOfType(WorkspaceEntry.class);
+
+    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
+
+    ValueFactoryImpl valueFactoryImpl = new ValueFactoryImpl(factory, wsConfig, cleanerHolder);
 
     try {
       BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.DOCVIEW,
@@ -227,7 +233,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                             noRecurse,
                                                                             getTransientNodesManager(),
                                                                             repository.getNamespaceRegistry(),
-                                                                            systemSession.getValueFactory());
+                                                                            valueFactoryImpl);
 
       JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
       ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -240,8 +246,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     } catch (XMLStreamException e) {
       throw new SAXException(e);
-    } finally {
-      systemSession.logout();
     }
   }
 
@@ -252,7 +256,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                    IOException,
                                                    PathNotFoundException,
                                                    RepositoryException {
-    SessionImpl systemSession = repository.getSystemSession();
+
+    LocationFactory factory = new LocationFactory(((NamespaceRegistryImpl) repository.getNamespaceRegistry()));
+
+    WorkspaceEntry wsConfig = (WorkspaceEntry) container.getComponentInstanceOfType(WorkspaceEntry.class);
+
+    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
+
+    ValueFactoryImpl valueFactoryImpl = new ValueFactoryImpl(factory, wsConfig, cleanerHolder);
+
     try {
       BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.DOCVIEW,
                                                                             out,
@@ -260,7 +272,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                             noRecurse,
                                                                             getTransientNodesManager(),
                                                                             repository.getNamespaceRegistry(),
-                                                                            systemSession.getValueFactory());
+                                                                            valueFactoryImpl);
 
       JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
       ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -274,8 +286,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       throw new IOException(e.getLocalizedMessage());
     } catch (SAXException e) {
       throw new IOException(e.getLocalizedMessage());
-    } finally {
-      systemSession.logout();
     }
   }
 
@@ -287,7 +297,13 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   public void exportWorkspaceSystemView(OutputStream out, boolean skipBinary, boolean noRecurse) throws IOException,
                                                                                                 PathNotFoundException,
                                                                                                 RepositoryException {
-    SessionImpl systemSession = repository.getSystemSession();
+    LocationFactory factory = new LocationFactory(((NamespaceRegistryImpl) repository.getNamespaceRegistry()));
+
+    WorkspaceEntry wsConfig = (WorkspaceEntry) container.getComponentInstanceOfType(WorkspaceEntry.class);
+
+    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
+
+    ValueFactoryImpl valueFactoryImpl = new ValueFactoryImpl(factory, wsConfig, cleanerHolder);
 
     try {
       BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.BACKUP,
@@ -296,7 +312,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                             noRecurse,
                                                                             getTransientNodesManager(),
                                                                             repository.getNamespaceRegistry(),
-                                                                            systemSession.getValueFactory());
+                                                                            valueFactoryImpl);
 
       ItemData srcItemData = dataManager.getItemData(Constants.ROOT_UUID);
       if (srcItemData == null) {
@@ -308,8 +324,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       throw new IOException(e.getLocalizedMessage());
     } catch (SAXException e) {
       throw new IOException(e.getLocalizedMessage());
-    } finally {
-      systemSession.logout();
     }
   }
 
@@ -324,7 +338,13 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                boolean noRecurse) throws PathNotFoundException,
                                                  SAXException,
                                                  RepositoryException {
-    SessionImpl systemSession = repository.getSystemSession();
+    LocationFactory factory = new LocationFactory(((NamespaceRegistryImpl) repository.getNamespaceRegistry()));
+
+    WorkspaceEntry wsConfig = (WorkspaceEntry) container.getComponentInstanceOfType(WorkspaceEntry.class);
+
+    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
+
+    ValueFactoryImpl valueFactoryImpl = new ValueFactoryImpl(factory, wsConfig, cleanerHolder);
     try {
       BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.SYSVIEW,
                                                                             contentHandler,
@@ -332,7 +352,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                             noRecurse,
                                                                             getTransientNodesManager(),
                                                                             repository.getNamespaceRegistry(),
-                                                                            systemSession.getValueFactory());
+                                                                            valueFactoryImpl);
 
       JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
       ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -344,8 +364,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     } catch (XMLStreamException e) {
       throw new SAXException(e);
-    } finally {
-      systemSession.logout();
     }
   }
 
@@ -360,7 +378,13 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                boolean noRecurse) throws IOException,
                                                  PathNotFoundException,
                                                  RepositoryException {
-    SessionImpl systemSession = repository.getSystemSession();
+    LocationFactory factory = new LocationFactory(((NamespaceRegistryImpl) repository.getNamespaceRegistry()));
+
+    WorkspaceEntry wsConfig = (WorkspaceEntry) container.getComponentInstanceOfType(WorkspaceEntry.class);
+
+    WorkspaceFileCleanerHolder cleanerHolder = (WorkspaceFileCleanerHolder) container.getComponentInstanceOfType(WorkspaceFileCleanerHolder.class);
+
+    ValueFactoryImpl valueFactoryImpl = new ValueFactoryImpl(factory, wsConfig, cleanerHolder);
     try {
       BaseXmlExporter exporter = new ExportImportFactory().getExportVisitor(XmlMapping.SYSVIEW,
                                                                             out,
@@ -368,7 +392,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                             noRecurse,
                                                                             getTransientNodesManager(),
                                                                             repository.getNamespaceRegistry(),
-                                                                            systemSession.getValueFactory());
+                                                                            valueFactoryImpl);
 
       JCRPath srcNodePath = getLocationFactory().parseAbsPath(absPath);
       ItemData srcItemData = dataManager.getItemData(srcNodePath.getInternalPath());
@@ -382,8 +406,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
       throw new IOException(e.getLocalizedMessage());
     } catch (SAXException e) {
       throw new IOException(e.getLocalizedMessage());
-    } finally {
-      systemSession.logout();
     }
   }
 
