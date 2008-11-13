@@ -184,6 +184,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
+  // TODO Check @Consumes @Produces
+  // Check whether "body" is required
   @CHECKIN
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -209,6 +211,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     return new CheckInCommand().checkIn(session, path(repoPath));
   }
 
+  // TODO Check @Consumes @Produces
   @CHECKOUT
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -235,7 +238,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     return new CheckOutCommand().checkout(session, path(repoPath));
   }
 
-  // TODO Replace HierarchicalProperty body
+
   @COPY
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -445,7 +448,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-  // TODO Replace HierarchicalProperty body
+
   @LOCK
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -634,7 +637,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @OPTIONS
   @Path("/{repoName}/")
-  @Consumes("text/xml")
+  @Consumes("*/*")
   @Produces("text/xml")
   public Response options(@PathParam("repoName") String repoName) {
 
@@ -677,7 +680,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
                    .build();
   }
 
-  // TODO Replace HierarchicalProperty body
+
   @ORDERPATCH
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -706,7 +709,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-  // TODO Replace HierarchicalProperty body
+
   @PROPFIND
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -739,7 +742,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-  // TODO Replace HierarchicalProperty body
+
   @PROPPATCH
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -825,7 +828,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-  // TODO Replace HierarchicalProperty body
+
   @REPORT
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
@@ -856,7 +859,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-  // TODO Replace HierarchicalProperty body
+
   @SEARCH
   @Path("/{repoName}/{repoPath:.*}/")
   @Consumes("text/xml")
