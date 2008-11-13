@@ -25,24 +25,49 @@ import java.net.URLConnection;
 import javax.jcr.Node;
 import javax.jcr.Session;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class JcrURLConnection extends URLConnection {
 
+  /**
+   * Logger.
+   */
+  private static final Log          LOG    = ExoLogger.getLogger(JcrURLConnection.class.getName());
+
+  /**
+   * JCR session.
+   */
   private Session                   session;
 
+  /**
+   * See {@link NodeRepresentationService}.
+   */
   private NodeRepresentationService nodeRepresentationService;
 
+  /**
+   * See {@link UnifiedNodeReference}.
+   */
   private UnifiedNodeReference      nodeReference;
 
+  /**
+   * Representation for node.
+   */
   private NodeRepresentation        nodeRepresentation;
 
+  /**
+   * @param nodeReference node reference
+   * @param session jcr session
+   * @param nodeRepresentationService node representation service
+   * @throws MalformedURLException if URL syntax incorrect
+   */
   public JcrURLConnection(UnifiedNodeReference nodeReference,
                           Session session,
                           NodeRepresentationService nodeRepresentationService) throws MalformedURLException {
-
     super(nodeReference.getURL());
     this.session = session;
     this.nodeReference = nodeReference;
@@ -53,10 +78,9 @@ public class JcrURLConnection extends URLConnection {
     useCaches = false;
     ifModifiedSince = 0;
   }
-
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#connect()
+  
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void connect() throws IOException {
@@ -64,6 +88,7 @@ public class JcrURLConnection extends URLConnection {
       return;
 
     try {
+      
       Node node = null;
       if (nodeReference.isPath())
         node = session.getRootNode().getNode(nodeReference.getPath().substring(1));
@@ -76,14 +101,30 @@ public class JcrURLConnection extends URLConnection {
 
       connected = true;
     } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException("Connection refused!");
+      // if can't get node representation then close session no sense to continue 
+      session.logout();
+      LOG.error("connection refused.", e);
+      throw new IOException();
     }
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void finalize() {
+    disconnect();
+  }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#getInputStream()
+  /**
+   * Close JCR session. 
+   */
+  public void disconnect() {
+    session.logout();
+    connected = false;
+  }
+
+  /**
+   * {@inheritDoc}
    */
   @Override
   public InputStream getInputStream() throws IOException {
@@ -93,14 +134,13 @@ public class JcrURLConnection extends URLConnection {
     try {
       return nodeRepresentation.getInputStream();
     } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException("can't get input stream");
+      LOG.error("can't get input stream.", e);
+      throw new IOException();
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#getContent()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public Object getContent() throws IOException {
@@ -110,9 +150,8 @@ public class JcrURLConnection extends URLConnection {
     return nodeRepresentation.getNode();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#getContent(java.lang.Class[])
+  /**
+   * {@inheritDoc}
    */
   @Override
   public Object getContent(Class[] classes) throws IOException {
@@ -120,9 +159,8 @@ public class JcrURLConnection extends URLConnection {
         + "javax.jcr.Node as content, use method getContent() instead this.");
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#getContentType()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public String getContentType() {
@@ -132,14 +170,13 @@ public class JcrURLConnection extends URLConnection {
 
       return nodeRepresentation.getMediaType();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("can't get media type.", e);
     }
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#getContentLength()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public int getContentLength() {
@@ -149,14 +186,13 @@ public class JcrURLConnection extends URLConnection {
 
       return (int) nodeRepresentation.getContentLenght();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("can't get content length.", e);
     }
     return -1;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#setDoOutput(boolean)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void setDoOutput(boolean dooutput) {
@@ -165,9 +201,8 @@ public class JcrURLConnection extends URLConnection {
     super.setDoOutput(dooutput);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#getContentEncoding()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public String getContentEncoding() {
@@ -177,28 +212,26 @@ public class JcrURLConnection extends URLConnection {
 
       return nodeRepresentation.getContentEncoding();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("can't get content encoding.", e);
     }
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#getLastModified()
+  /**
+   * {@inheritDoc}
    */
   @Override
   public long getLastModified() {
     try {
       return nodeRepresentation.getLastModified();
     } catch (Exception e) {
-      e.printStackTrace();
+      LOG.error("can't get content las modified.", e);
     }
     return 0;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#setAllowUserInteraction(boolean)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void setAllowUserInteraction(boolean allowuserinteraction) {
@@ -207,9 +240,8 @@ public class JcrURLConnection extends URLConnection {
     super.setAllowUserInteraction(allowuserinteraction);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#setUseCaches(boolean)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void setUseCaches(boolean usecaches) {
@@ -218,9 +250,8 @@ public class JcrURLConnection extends URLConnection {
     super.setUseCaches(usecaches);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#setIfModifiedSince(long)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void setIfModifiedSince(long ifmodifiedsince) {
@@ -229,18 +260,16 @@ public class JcrURLConnection extends URLConnection {
     super.setIfModifiedSince(ifmodifiedsince);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#setRequestProperty(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void addRequestProperty(String key, String value) {
     throw new UnsupportedOperationException("protocol doesn't support request properties!");
   }
 
-  /*
-   * (non-Javadoc)
-   * @see java.net.URLConnection#setRequestProperty(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   @Override
   public void setRequestProperty(String key, String value) {

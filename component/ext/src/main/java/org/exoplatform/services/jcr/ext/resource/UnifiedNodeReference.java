@@ -32,31 +32,60 @@ import org.exoplatform.services.jcr.datamodel.Identifier;
  * @author Gennady Azarenkov
  * @version $Id: $
  */
-
 public class UnifiedNodeReference {
 
+  /**
+   * Scheme name.
+   */
   public static final String      JCR_SCHEME = "jcr";
 
-  private String                  userInfo;
-
+  /**
+   * Repository name.
+   */
   private String                  repository;
 
+  /**
+   * Workspace name.
+   */
   private String                  workspace;
 
+  /**
+   * Node identifier.
+   */
   private Identifier              id;
 
+  /**
+   * Node path.
+   */
   private String                  path;
 
+  /**
+   * URLStreamHandler for protocol jcr://.
+   */
   private static URLStreamHandler handler;
 
+  /**
+   * @param spec string for parsing as URL
+   * @throws URISyntaxException when string could not be parsed as URI reference
+   * @throws MalformedURLException if malformed URL occurs
+   */
   public UnifiedNodeReference(final String spec) throws URISyntaxException, MalformedURLException {
     this(new URL(null, spec, getURLStreamHandler()));
   }
 
+  /**
+   * @param url URL
+   * @throws URISyntaxException if URL is not formated well to convert to URI
+   */
   public UnifiedNodeReference(final URL url) throws URISyntaxException {
     this(url.toURI());
   }
 
+  /**
+   * @param uri URI
+   * @throws URISyntaxException if URI does not contains required parts, e.g.
+   *           scheme, path, fragment, etc
+   */
   public UnifiedNodeReference(final URI uri) throws URISyntaxException {
 
     String scheme = uri.getScheme();
@@ -64,8 +93,6 @@ public class UnifiedNodeReference {
       scheme = JCR_SCHEME;
     if (!scheme.equals(JCR_SCHEME))
       throw new URISyntaxException(scheme, "Only 'jcr' scheme is acceptable!");
-
-    userInfo = uri.getUserInfo();
 
     repository = uri.getHost();
 
@@ -82,6 +109,13 @@ public class UnifiedNodeReference {
 
   }
 
+  /**
+   * @param uri URI
+   * @param defaultRepository use this repository if it could not be parsed from URI
+   * @param defaultWorkspace use this workspace if it could not be parsed from URI
+   * @throws URISyntaxException if URI does not contains required parts, e.g.
+   *           scheme, path, fragment, etc
+   */
   public UnifiedNodeReference(final URI uri,
                               final String defaultRepository,
                               final String defaultWorkspace) throws URISyntaxException {
@@ -91,8 +125,6 @@ public class UnifiedNodeReference {
       scheme = JCR_SCHEME;
     if (!scheme.equals(JCR_SCHEME))
       throw new URISyntaxException(scheme, "Only 'jcr' scheme is acceptable!");
-
-    userInfo = uri.getUserInfo();
 
     repository = uri.getHost();
     if (repository == null)
@@ -113,22 +145,28 @@ public class UnifiedNodeReference {
 
   }
 
+  /**
+   * @param repository repository name
+   * @param workspace workspace name
+   * @param identifier node identifier
+   */
   public UnifiedNodeReference(final String repository,
                               final String workspace,
                               final Identifier identifier) {
-
     this.repository = repository;
     this.workspace = workspace;
     this.id = identifier;
-
   }
 
+  /**
+   * @param repository repository name
+   * @param workspace workspace name
+   * @param identifier node path
+   */
   public UnifiedNodeReference(final String repository, final String workspace, final String path) {
-
     this.repository = repository;
     this.workspace = workspace;
     this.path = path;
-
   }
 
   /**
@@ -174,21 +212,14 @@ public class UnifiedNodeReference {
   }
 
   /**
-   * @return the user info part of URL, it looks like <code>user:pass</code>.
-   */
-  public String getUserInfo() {
-    return userInfo;
-  }
-
-  /**
    * @return the URI of node.
    * @throws URISyntaxException
    */
   public URI getURI() throws URISyntaxException {
     if (id != null)
-      return new URI(JCR_SCHEME, userInfo, repository, -1, '/' + workspace, null, id.getString());
+      return new URI(JCR_SCHEME, null, repository, -1, '/' + workspace, null, id.getString());
     else if (path != null)
-      return new URI(JCR_SCHEME, userInfo, repository, -1, '/' + workspace, null, path);
+      return new URI(JCR_SCHEME, null, repository, -1, '/' + workspace, null, path);
     throw new URISyntaxException("", "Path or Idenfifier is not defined!");
   }
 
@@ -222,11 +253,12 @@ public class UnifiedNodeReference {
     if (handler != null)
       return handler;
 
-    // use Class#forName(), instead created by 'new' to be sure handler
-    // was started and set required system property.
-    // Usually this job must be done by java.net.URL, but it does
-    // not work in web container. Under tomcat class of handler can't be found in
-    // $CATALINA_HOME/lib/*.jar. Probably the same problem can be under AS.
+    /*
+     * use Class#forName(), instead created by 'new' to be sure handler was
+     * started and set required system property. Usually this job must be done
+     * by java.net.URL, but it does not work in web container. See details in
+     * org.exoplatform.services.jcr.ext.resource.jcr.Handler
+     */
     String packagePrefixList = System.getProperty("java.protocol.handler.pkgs");
 
     if (packagePrefixList == null)
