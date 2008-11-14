@@ -247,7 +247,8 @@
          </plugin>
      </plugins>
   </reporting>
-  <!-- repositories>
+
+  <repositories>
     <repository>
       <id>maven.org</id>
       <url>http://repo1.maven.org/maven2</url>
@@ -255,10 +256,6 @@
     <repository>
       <id>ibiblio.org</id>
       <url>http://www.ibiblio.org/maven2</url>
-    </repository>
-    <repository>
-      <id>exo-vietnam</id>
-      <url>http://vnserver.exoplatform.org/maven2</url>
     </repository>
     <repository>
       <id>objectweb.org</id>
@@ -270,10 +267,10 @@
     </repository>
     <repository>
       <id>java.net</id>
-      <url>https://maven-repository.dev.java.net/nonav/repository</url>
+      <url>https://maven-repository.dev.java.net/nonav/repository/</url>
       <layout>legacy</layout>
     </repository>
-  </repositories -->
+  </repositories>
 
   <profiles>
     <profile>
