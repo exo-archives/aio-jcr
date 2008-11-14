@@ -1648,7 +1648,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
        * (if the movement of A causes it to be re-ordered with respect to its same-name siblings) or
        * be identical (if A does not have same-name siblings or if the movement of A does not change
        * its order relative to its same-name siblings). Additionally, an implementation should
-       * generate appropriate events reflecting the “shifting over” of the node B and any nodes that
+       * generate appropriate events reflecting the shifting over of the node B and any nodes that
        * come after it in the child node ordering. Each such shifted node would also produce a
        * NODE_REMOVED and NODE_ADDED event pair with paths differing at most by a final index.
        */
