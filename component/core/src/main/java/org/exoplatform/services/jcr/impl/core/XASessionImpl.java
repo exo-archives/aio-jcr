@@ -43,24 +43,57 @@ import org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: XASessionImpl.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id$
  */
-
 public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     ResourceManagerEvent {
 
-  private final Log                            log        = ExoLogger.getLogger("jcr.XASessionImpl");
+  /**
+   * Session logger.
+   */
+  private static final Log                     LOG        = ExoLogger.getLogger("jcr.XASessionImpl");
 
+  /**
+   * Transaction service.
+   */
   private final TransactionService             tService;
 
-  private int                                  txTimeout;
-
+  /**
+   * Transaction resources manager.
+   */
   private final TransactionableResourceManager txResourceManager;
 
+  /**
+   * Start flags.
+   */
   private int                                  startFlags = TMNOFLAGS;
 
+  /**
+   * Transaction timeout.
+   */
+  private int                                  txTimeout;
+
+  /**
+   * JOTM Resource list.
+   */
   private List                                 jotmResourceList;
 
+  /**
+   * XASessionImpl constructor.
+   * 
+   * @param workspaceName
+   *          workspace name
+   * @param userState
+   *          user ConversationState
+   * @param container
+   *          ExoContainer
+   * @param tService
+   *          Transaction service
+   * @param txResourceManager
+   *          Transaction resources manager.
+   * @throws RepositoryException
+   *           Repository error
+   */
   XASessionImpl(String workspaceName,
                 ConversationState userState,
                 ExoContainer container,
@@ -70,26 +103,23 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     this.txTimeout = tService.getDefaultTimeout();
     this.tService = tService;
     this.txResourceManager = txResourceManager;
-    this.txResourceManager.join(this);
-
+    this.txResourceManager.add(this);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.XASession#getXAResource()
+  /**
+   * {@inheritDoc}
    */
   public XAResource getXAResource() {
     return this;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.XASession#delistResource()
+  /**
+   * {@inheritDoc}
    */
   public void delistResource() throws XAException {
     try {
-      if (log.isDebugEnabled())
-        log.debug("Delist session: " + getSessionInfo() + ", " + this);
+      if (LOG.isDebugEnabled())
+        LOG.debug("Delist session: " + getSessionInfo() + ", " + this);
       tService.delistResource(this);
       if (jotmResourceList != null)
         jotmResourceList.remove(this);
@@ -100,14 +130,13 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.XASession#reenlistResource()
+  /**
+   * {@inheritDoc}
    */
   public void enlistResource() throws XAException {
     try {
-      if (log.isDebugEnabled())
-        log.debug("Enlist session: " + getSessionInfo() + ", " + this);
+      if (LOG.isDebugEnabled())
+        LOG.debug("Enlist session: " + getSessionInfo() + ", " + this);
       tService.enlistResource(this);
       if (tService instanceof TransactionServiceJotmImpl) {
         jotmResourceList = ((TransactionServiceJotmImpl) tService).popThreadLocalRMEventList();
@@ -120,9 +149,8 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#commit(javax.transaction.xa.Xid, boolean)
+  /**
+   * {@inheritDoc}
    */
   public void commit(Xid xid, boolean onePhase) throws XAException {
     try {
@@ -131,82 +159,74 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
       throw new XAException(XAException.XA_RBOTHER);
     }
 
-    if (log.isDebugEnabled())
-      log.debug("Commit. Xid:" + xid + ", session: " + getSessionInfo() + ", " + this);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Commit. Xid:" + xid + ", session: " + getSessionInfo() + ", " + this);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#end(javax.transaction.xa.Xid, int)
+  /**
+   * {@inheritDoc}
    */
   public void end(Xid xid, int flags) throws XAException {
-    if (log.isDebugEnabled())
-      log.debug("End. Xid:" + xid + ", " + flags + ", session: " + getSessionInfo() + ", " + this);
+    if (LOG.isDebugEnabled())
+      LOG.debug("End. Xid:" + xid + ", " + flags + ", session: " + getSessionInfo() + ", " + this);
     startFlags = flags;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#forget(javax.transaction.xa.Xid)
+  /**
+   * {@inheritDoc}
    */
   public void forget(Xid xid) throws XAException {
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#getTransactionTimeout()
+  /**
+   * {@inheritDoc}
    */
   public int getTransactionTimeout() throws XAException {
     return txTimeout;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#isSameRM(javax.transaction.xa.XAResource)
+  /**
+   * {@inheritDoc}
    */
   public boolean isSameRM(XAResource resource) throws XAException {
     if (resource instanceof XASessionImpl) {
       XASessionImpl session = (XASessionImpl) resource;
       boolean isSame = getUserID().equals(session.getUserID());
-      if (log.isDebugEnabled())
-        log.debug("isSameRM: " + getSessionInfo() + " -- " + session.getSessionInfo() + " : "
+      if (LOG.isDebugEnabled())
+        LOG.debug("isSameRM: " + getSessionInfo() + " -- " + session.getSessionInfo() + " : "
             + isSame + ", " + this + " -- " + session + ", Flags:" + startFlags);
       return isSame;
     }
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#prepare(javax.transaction.xa.Xid)
+  /**
+   * {@inheritDoc}
    */
   public int prepare(Xid xid) throws XAException {
-    if (log.isDebugEnabled())
-      log.debug("Prepare. Xid:" + xid + ", session: " + getSessionInfo() + ", " + this);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Prepare. Xid:" + xid + ", session: " + getSessionInfo() + ", " + this);
     return XA_OK;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#recover(int)
+  /**
+   * {@inheritDoc}
    */
   public Xid[] recover(int xid) throws XAException {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#rollback(javax.transaction.xa.Xid)
+  /**
+   * {@inheritDoc}
    */
   public void rollback(Xid xid) throws XAException {
     txResourceManager.rollback(this);
-    if (log.isDebugEnabled())
-      log.debug("Rollback. Xid:" + xid + ", session: " + getSessionInfo() + ", " + this);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Rollback. Xid:" + xid + ", session: " + getSessionInfo() + ", " + this);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#setTransactionTimeout(int)
+  /**
+   * {@inheritDoc}
    */
   public boolean setTransactionTimeout(int seconds) throws XAException {
     try {
@@ -218,48 +238,60 @@ public class XASessionImpl extends SessionImpl implements XASession, XAResource,
     return true;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.transaction.xa.XAResource#start(javax.transaction.xa.Xid, int)
+  /**
+   * {@inheritDoc}
    */
   public void start(Xid xid, int flags) throws XAException {
     txResourceManager.start(this);
     startFlags = flags;
-    if (log.isDebugEnabled())
-      log.debug("Start. Xid:" + xid + ", " + flags + ", session: " + getSessionInfo() + ", " + this);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Start. Xid:" + xid + ", " + flags + ", session: " + getSessionInfo() + ", " + this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void logout() {
-    if (log.isDebugEnabled())
-      log.debug("Logout. Session: " + getSessionInfo() + ", " + this);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Logout. Session: " + getSessionInfo() + ", " + this);
 
     // Rolling back this session only
     getTransientNodesManager().getTransactManager().rollback();
+    
+    // Remove session from this user sessions list
+    txResourceManager.remove(this);
 
     super.logout();
     try {
       delistResource();
       startFlags = TMNOFLAGS;
     } catch (XAException e) {
-      e.printStackTrace();
+      LOG.error("Logut error " + e, e);
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void enlistConnection(Transaction transaction) throws javax.transaction.SystemException {
     try {
-      if (log.isDebugEnabled())
-        log.debug("Enlist connection. Session: " + getSessionInfo() + ", " + this
+      if (LOG.isDebugEnabled())
+        LOG.debug("Enlist connection. Session: " + getSessionInfo() + ", " + this
             + ", transaction: " + transaction);
       enlistResource();
     } catch (IllegalStateException e) {
       throw new SystemException(e.getMessage());
     } catch (XAException e) {
-      // e.printStackTrace();
       throw new SystemException(e.getMessage());
     }
   }
 
+  /**
+   * Get XASession info string.
+   * 
+   * @return info string
+   */
   private String getSessionInfo() {
     return getUserID() + "@" + workspaceName;
   }
