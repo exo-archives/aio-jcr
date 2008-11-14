@@ -53,7 +53,6 @@ public class LnkProducer implements ResourceContainer {
 
   @GET
   @Path("/{linkFilePath}/")
-  @Consumes("text/plain")
   @Produces("application/octet-stream")
   public Response produceLink(@PathParam("linkFilePath") String linkFilePath,
                               @QueryParam("path") String path,
