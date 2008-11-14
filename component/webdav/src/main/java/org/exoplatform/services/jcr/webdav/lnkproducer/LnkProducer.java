@@ -60,11 +60,10 @@ public class LnkProducer implements ResourceContainer {
   public LnkProducer() {
   }
 
-  // TODO "application/octet-stream"
   @GET
   @Path("/{linkFilePath}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
+  @Consumes("text/plain")
+  @Produces("application/octet-stream")
   public Response produceLink(@PathParam("linkFilePath") String linkFilePath,
                               @PathParam("path") String path,
                               @Context UriInfo baseURI,
@@ -80,9 +79,7 @@ public class LnkProducer implements ResourceContainer {
 
       return Response.ok()
                      .header("Content-Length", "" + content.length)
-                     .entity(byteArrayInputStream
-                     /** , "application/octet-stream" **/
-                     )
+                     .entity(byteArrayInputStream)
                      .build();
 
     } catch (IOException exc) {
