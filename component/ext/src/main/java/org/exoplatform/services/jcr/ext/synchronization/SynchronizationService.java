@@ -18,18 +18,16 @@ package org.exoplatform.services.jcr.ext.synchronization;
 
 import java.io.IOException;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
+
 import org.apache.ws.commons.util.Base64;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.ext.backup.BackupManager;
-import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.OutputTransformer;
-import org.exoplatform.services.rest.QueryParam;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.URIParam;
-import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.transformer.StringOutputTransformer;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 
 /**
  * Created by The eXo Platform SAS.
@@ -40,8 +38,7 @@ import org.exoplatform.services.rest.transformer.StringOutputTransformer;
  * @version $Id: SynchronizationService.java 111 2008-11-11 11:11:11Z peterit $
  */
 
-@URITemplate("/synchronization/")
-@OutputTransformer(StringOutputTransformer.class)
+@Path("/synchronization/")
 public class SynchronizationService implements ResourceContainer {
 
   public static final String        ID_DELIMITER = "$|";
@@ -100,20 +97,20 @@ public class SynchronizationService implements ResourceContainer {
   }
 
   // @QueryTemplate("operation=addNTFile")
-  @HTTPMethod("GET")
-  @URITemplate("/hostfullbackup/{repositoryName}/{workspaceName}/{resourcePath}/")
-  public Response hostFullBackup(@URIParam("repositoryName") String repositoryName,
-                                 @URIParam("workspaceName") String workspaceName,
-                                 @URIParam("resourcePath") String resourcePath,
-                                 @URIParam("fileName") String fileName,
-                                 @QueryParam("id") String identityLine) {
+  @GET
+  @Path("/hostfullbackup/{repositoryName}/{workspaceName}/{resourcePath}/")
+  public Response hostFullBackup(@PathParam("repositoryName") String repositoryName,
+                                 @PathParam("workspaceName") String workspaceName,
+                                 @PathParam("resourcePath") String resourcePath,
+                                 @PathParam("fileName") String fileName,
+                                 @PathParam("id") String identityLine) {
 
     try {
       RequestIdentity identity = parseIdentityLine(identityLine);
 
-      return Response.Builder.ok("TODO".toString(), "text/plain").build();
+      return Response.ok("TODO".toString(), "text/plain").build();
     } catch (IOException e) {
-      return Response.Builder.ok("TODO".toString(), "text/plain").build();
+      return Response.ok("TODO".toString(), "text/plain").build();
     }
   }
 

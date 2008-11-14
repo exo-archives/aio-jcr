@@ -27,6 +27,14 @@ import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -41,15 +49,7 @@ import org.exoplatform.services.jcr.ext.resource.NodeRepresentation;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.ContextParam;
-import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.OutputTransformer;
-import org.exoplatform.services.rest.ResourceDispatcher;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.URIParam;
-import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.container.ResourceContainer;
-import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Credential;
@@ -60,11 +60,10 @@ import org.exoplatform.services.security.UsernameCredential;
  * @author Volodymyr Krasnikov volodymyr.krasnikov@exoplatform.com.ua
  * @version $Id: RESTArtifactLoaderService.java 11:37:47 andrew00x $
  */
-
-@URITemplate("/maven2/")
+@Path("/maven2/")
 public class RESTArtifactLoaderService implements ResourceContainer {
 
-  private static final Log                  LOG      = ExoLogger.getLogger("jcr.ext.RESTArtifactLoaderService");
+  private static final Log                  LOG      = ExoLogger.getLogger(RESTArtifactLoaderService.class.getName());
 
   /**
    * XHTML namespace.
@@ -77,7 +76,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private NodeRepresentationService         nodeRepresentationService;
 
   /**
-   * Prepared JCR session. Can be null if username or password is not presents in configuration.
+   * Prepared JCR session. Can be null if username or password is not presents
+   * in configuration.
    */
   private Session                           session;
 
@@ -107,19 +107,14 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private RepositoryService                 repositoryService;
 
   /**
-   * @param initParams
-   *          the initialized parameters. Set repository name, workspace name, root node for Maven
-   *          repository, username(optional) and password (optional).
-   * @param sessionProviderService
-   *          the ThreadLocalSessionProviderService.
-   * @param repositoryService
-   *          the RepositoryService.
-   * @param nodeRepresentationService
-   *          the NodeRepresentationService.
-   * @param authenticator
-   *          the Authenticator.
-   * @throws Exception
-   *           if any errors occur or not valid configuration.
+   * @param initParams the initialized parameters. Set repository name,
+   *          workspace name, root node for Maven repository, username(optional)
+   *          and password (optional).
+   * @param sessionProviderService the ThreadLocalSessionProviderService.
+   * @param repositoryService the RepositoryService.
+   * @param nodeRepresentationService the NodeRepresentationService.
+   * @param authenticator the Authenticator.
+   * @throws Exception if any errors occur or not valid configuration.
    */
   public RESTArtifactLoaderService(InitParams initParams,
                                    ThreadLocalSessionProviderService sessionProviderService,
@@ -162,56 +157,56 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   }
 
   /**
-   * Return Response with Maven artifact if it is file or HTML page for browsing if requested URL is
-   * folder.
+   * Return Response with Maven artifact if it is file or HTML page for browsing
+   * if requested URL is folder.
    * 
-   * @param mavenPath
-   *          the relative part of requested URL.
-   * @param base
-   *          the base URL.
+   * @param mavenPath the relative part of requested URL.
+   * @param base the base URL.
    * @return @see {@link Response}.
    */
-  @HTTPMethod("GET")
-  @URITemplate("/{path}/")
-  // Will be used for if transformer is not initialized by ResourceContainer.
-  // Response.Builder.errorMessage set StringOutputTransformer.
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response getResource(@URIParam("path") String mavenPath,
-                              final @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String base) {
+  @GET
+  @Path("/{path:.*}/")
+  public Response getResource(@PathParam("path") String path, @Context UriInfo uriInfo) {
 
-    String resourcePath = mavenRoot + mavenPath; // JCR resource
-    mavenPath = base + getClass().getAnnotation(URITemplate.class).value() + mavenPath;
+    Session ses = null;
+    boolean preparedSession = false;
 
     try {
-
-      Session ses = getSession(sessionProviderService.getSessionProvider(null));
-      if (ses == null) {
+      // JCR resource
+      String resourcePath = mavenRoot + path;
+      SessionProvider sp = sessionProviderService.getSessionProvider(null);
+      if (sp != null) {
+        ses = sp.getSession(workspace, repositoryService.getRepository(repository));
+      } else {
+        ses = session;
+        preparedSession = true;
+      }
+      if (ses == null)
         throw new RepositoryException("Access to JCR Repository denied. "
             + "SessionProvider is null and prepared session is null.");
-      }
 
       Node node = ses.getRootNode().getNode(resourcePath);
-
-      if (isFile(node))
+      if (isFile(node)) {
         return downloadArtifact(node);
-      else
+      } else {
+        // Full web path to resource
+        String mavenPath = uriInfo.getBaseUriBuilder()
+                                  .path(getClass())
+                                  .path(path)
+                                  .build()
+                                  .toString();
         return browseRepository(node, mavenPath);
-
+      }
     } catch (PathNotFoundException e) {
-      if (LOG.isDebugEnabled())
-        LOG.debug("File not found " + mavenPath);
-      LOG.info("File not found " + mavenPath);
-
-      return Response.Builder.notFound()
-                             .errorMessage(e.getMessage())
-                             .mediaType("text/plain")
-                             .build();
+      return Response.status(Response.Status.NOT_FOUND).build();
     } catch (Exception e) {
-      e.printStackTrace();
-      return Response.Builder.serverError()
-                             .errorMessage(e.getMessage())
-                             .mediaType("text/plain")
-                             .build();
+      LOG.error("Failed get maven artifact", e);
+      throw new WebApplicationException(e);
+    } finally {
+      // ThreadLocalSessionProvider will be closed in
+      // ThreadLocalSessionProviderInitializedFilter
+      if (ses != null && !preparedSession)
+        ses.logout();
     }
 
   }
@@ -219,44 +214,20 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Browsing of root node of Maven repository.
    * 
-   * @param base
-   *          the base URL.
+   * @param base the base URL.
    * @return @see {@link Response}.
    */
-  @HTTPMethod("GET")
-  // Will be used for if transformer is not initialized by ResourceContainer.
-  // Response.Builder.errorMessage set StringOutputTransformer.
-  @OutputTransformer(PassthroughOutputTransformer.class)
-  public Response getRootNodeList(final @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String base) {
-    return getResource("", base);
-  }
-
-  /**
-   * Create JCR session if SessionProvider is not null, otherwise return default session.
-   * 
-   * @param sessionProvider
-   *          the SessionProvider.
-   * @return JCR session.
-   * @throws Exception
-   *           if any errors occurs.
-   */
-  private Session getSession(SessionProvider sessionProvider) throws Exception {
-    // anonymous, user not authenticated or ThreadLocalSessionProvider was not set
-    if (sessionProvider == null)
-      return this.session;
-
-    // user was authenticate or maybe has anonymous SessionProvider
-    return sessionProvider.getSession(workspace, repositoryService.getRepository(repository));
+  @GET
+  public Response getRootNodeList(final @Context UriInfo uriInfo) {
+    return getResource("", uriInfo);
   }
 
   /**
    * Check is node represents file.
    * 
-   * @param node
-   *          the node.
+   * @param node the node.
    * @return true if node represents file false otherwise.
-   * @throws RepositoryException
-   *           in JCR errors occur.
+   * @throws RepositoryException in JCR errors occur.
    */
   private static boolean isFile(Node node) throws RepositoryException {
     if (!node.isNodeType("nt:file"))
@@ -269,13 +240,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   /**
    * Create response for browsing Maven repository.
    * 
-   * @param node
-   *          the root node for browsing.
-   * @param mavenPath
-   *          the Maven path, used for creating &lt;a&gt; element.
+   * @param node the root node for browsing.
+   * @param mavenPath the Maven path, used for creating &lt;a&gt; element.
    * @return @see {@link Response}.
-   * @throws IOException
-   *           if i/o error occurs.
+   * @throws IOException if i/o error occurs.
    */
   private Response browseRepository(final Node node, final String mavenPath) throws IOException {
 
@@ -358,9 +326,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                                                                                                       null);
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href", mavenPath.endsWith("/")
-                  ? mavenPath + node.getName()
-                  : mavenPath + "/" + node.getName());
+              xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath + node.getName()
+                                                                : mavenPath + "/" + node.getName());
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -379,9 +346,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             } else {
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href", mavenPath.endsWith("/")
-                  ? mavenPath + node.getName()
-                  : mavenPath + "/" + node.getName());
+              xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath + node.getName()
+                                                                : mavenPath + "/" + node.getName());
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -426,18 +392,16 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
     // application/xhtml+xml content type is recommended for XHTML, but IE6
     // does't support this.
-    return Response.Builder.ok().entity(pi, /* "application/xhtml+xml" */"text/html").build();
+    return Response.ok(pi, /* "application/xhtml+xml" */"text/html").build();
 
   }
 
   /**
    * Get content of JCR node.
    * 
-   * @param node
-   *          the node.
+   * @param node the node.
    * @return @see {@link Response}.
-   * @throws Exception
-   *           if any errors occurs.
+   * @throws Exception if any errors occurs.
    */
   private Response downloadArtifact(Node node) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
@@ -446,13 +410,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     String contentType = nodeRepresentation.getMediaType();
     long contentLength = nodeRepresentation.getContentLenght();
     InputStream entity = nodeRepresentation.getInputStream();
-    Response response = Response.Builder.ok()
-                                        .contentLenght(contentLength)
-                                        .lastModified(new Date(lastModified))
-                                        .entity(entity, contentType)
-                                        .transformer(new PassthroughOutputTransformer())
-                                        .build();
-
+    Response response = Response.ok(entity, contentType)
+                                .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
+                                .lastModified(new Date(lastModified))
+                                .build();
     return response;
   }
 

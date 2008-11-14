@@ -53,9 +53,8 @@ import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
 import org.exoplatform.services.jcr.ext.resource.jcr.Handler;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.ResourceBinder;
-import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
-import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.impl.ResourceBinder;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
 
 /**
@@ -142,7 +141,7 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public void unloadScript(String key) {
     if (scriptsURL2ClassName.containsKey(key)) {
-      binder.unbind(scriptsURL2ClassName.get(key));
+//      binder.unbind(scriptsURL2ClassName.get(key));
       scriptsURL2ClassName.remove(key);
     } else {
       throw new IllegalArgumentException("Specified key '" + key
@@ -158,7 +157,7 @@ public class GroovyScript2RestLoader implements Startable {
    * @throws IOException
    *           it script can't be loaded.
    */
-  public void loadScript(URL url) throws InvalidResourceDescriptorException, IOException {
+  public void loadScript(URL url) throws IOException {
 
     ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(url);
     binder.bind(resourceContainer);
@@ -182,7 +181,7 @@ public class GroovyScript2RestLoader implements Startable {
    *           if script can't be loaded or parsed.
    * @see ResourceBinder#bind(ResourceContainer)
    */
-  public void loadScript(String key, InputStream stream) throws InvalidResourceDescriptorException,
+  public void loadScript(String key, InputStream stream) throws 
                                                         IOException {
     ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(stream);
     binder.bind(resourceContainer);

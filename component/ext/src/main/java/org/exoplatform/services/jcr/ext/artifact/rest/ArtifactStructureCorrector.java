@@ -21,12 +21,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.jcr.Credentials;
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -34,6 +30,9 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -45,10 +44,7 @@ import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.HTTPMethod;
-import org.exoplatform.services.rest.Response;
-import org.exoplatform.services.rest.URITemplate;
-import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Credential;
@@ -57,7 +53,7 @@ import org.exoplatform.services.security.UsernameCredential;
 
 /**
  * Created by The eXo Platform SARL Author : Volodymyr Krasnikov
- * volodymyr.krasnikov@exoplatform.com.ua 29 Жов 2007
+ * volodymyr.krasnikov@exoplatform.com.ua 29.10.2007
  */
 public class ArtifactStructureCorrector implements ResourceContainer {
   private static final Log  LOGGER = ExoLogger.getLogger(ArtifactStructureCorrector.class);
@@ -95,12 +91,12 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
   }
 
-  @HTTPMethod("GET")
-  @URITemplate("/corrector/")
+  @GET
+  @Path("/corrector/")
   public Response correctStructure() throws RepositoryException {
     new Thread(new ChecksumGenerator(currentSession(sessionProvider)),
                "Correct jcr struct, Append checksums to artifacts").start();
-    return Response.Builder.ok().build();
+    return Response.ok().build();
   }
 
   private Session currentSession(SessionProvider sp) throws RepositoryException {
@@ -116,7 +112,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
     public void run() {
 
-      LOGGER.info("======> Maven artifact checksums Updater started");
+      LOGGER.info("Maven artifact checksums Updater started");
 
       try {
         Node rootNode = (Node) session.getItem(rootNodePath);
@@ -129,7 +125,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         LOGGER.error("General repository exception", e);
       }
 
-      LOGGER.info("======> Maven artifact checksums Updater finished!");
+      LOGGER.info("Maven artifact checksums Updater finished!");
     }
 
     private void _jcrSpaning(Node current_root) throws RepositoryException {
