@@ -24,6 +24,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -55,13 +56,14 @@ public class LnkProducer implements ResourceContainer {
   @Consumes("text/plain")
   @Produces("application/octet-stream")
   public Response produceLink(@PathParam("linkFilePath") String linkFilePath,
+                              @QueryParam("path") String path,
                               @Context UriInfo uriInfo) {
 
     String host = uriInfo.getRequestUri().getHost();
     String uri = uriInfo.getBaseUri().toString();
 
     try {
-      LinkGenerator linkGenerator = new LinkGenerator(host, uri, linkFilePath);
+      LinkGenerator linkGenerator = new LinkGenerator(host, uri, path);
       byte[] content = linkGenerator.generateLinkContent();
 
       return Response.ok(content, MediaType.APPLICATION_OCTET_STREAM)
@@ -70,7 +72,7 @@ public class LnkProducer implements ResourceContainer {
 
     } catch (IOException exc) {
       log.error(exc.getMessage(), exc);
-      throw new WebApplicationException();
+      throw new WebApplicationException(exc);
     }
 
   }
