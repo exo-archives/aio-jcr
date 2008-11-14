@@ -92,13 +92,11 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners         = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
 
   public NodeTypeManagerImpl(RepositoryEntry config,
-  // DataManager dataManager,
                              LocationFactory locationFactory,
                              ValueFactoryImpl valueFactory,
                              NamespaceRegistry namespaceRegistry,
                              NodeTypeDataPersister persister) throws RepositoryException {
     this(
-    // dataManager,
          locationFactory,
          valueFactory,
          namespaceRegistry,
@@ -523,7 +521,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       for (NodeType nodeType : loadedNt) {
         nodeTypes.put(((ExtendedNodeType) nodeType).getQName(), (ExtendedNodeType) nodeType);
       }
-      // nodeTypes.addAll(loadedNt);
       if (loadedNt.size() > 0)
         log.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
             + (System.currentTimeMillis() - start) + " ms");

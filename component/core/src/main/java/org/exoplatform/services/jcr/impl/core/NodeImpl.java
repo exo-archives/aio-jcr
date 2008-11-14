@@ -173,12 +173,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                              .findNodeDefinition(getInternalName(),
                                                  parent.getPrimaryTypeName(),
                                                  parent.getMixinTypeNames());
-
-    if (definition == null)
-      // [PN] unreachable code, if no definition RepositoryException will be
-      // thrown before
-      throw new ConstraintViolationException("NodeImpl.getDefinition failed. Definition not found for "
-          + getPath());
   }
 
   /**
