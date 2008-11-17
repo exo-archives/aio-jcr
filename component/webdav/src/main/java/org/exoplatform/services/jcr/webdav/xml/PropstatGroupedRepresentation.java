@@ -91,7 +91,6 @@ public class PropstatGroupedRepresentation {
           log.error(exc.getMessage(), exc);
         } catch (ItemNotFoundException exc) {
           statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
-          log.error(exc.getMessage(), exc);
 
         } catch (PathNotFoundException e) {
           statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);

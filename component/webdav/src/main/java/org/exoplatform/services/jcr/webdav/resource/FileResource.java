@@ -38,17 +38,17 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/>
- * Resource containing JCR's nt:file/jcr:content underneath. Identified by nt:file's URI
- * jcr:content's jcr:data property contains file's payload
+ * Created by The eXo Platform SARL .<br/> Resource containing JCR's
+ * nt:file/jcr:content underneath. Identified by nt:file's URI jcr:content's
+ * jcr:data property contains file's payload
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public class FileResource extends GenericResource {
-  
-  private static Log log = ExoLogger.getLogger(FileResource.class);
+
+  private static final Log           LOG          = ExoLogger.getLogger(FileResource.class);
 
   protected final static Set<String> FILE_SKIP    = new HashSet<String>();
   static {
@@ -86,19 +86,18 @@ public class FileResource extends GenericResource {
     this.node = node;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.webdav.resource.GenericResource#getProperties(boolean)
+  /**
+   * {@inheritDoc}
    */
+  @Override
   public Set<HierarchicalProperty> getProperties(boolean namesOnly) throws PathNotFoundException,
                                                                    AccessDeniedException,
                                                                    RepositoryException {
 
     Set<HierarchicalProperty> props = super.getProperties(namesOnly);
     props.add(namesOnly ? new HierarchicalProperty(GETLASTMODIFIED) : getProperty(GETLASTMODIFIED));
-    props.add(namesOnly
-        ? new HierarchicalProperty(GETCONTENTLENGTH)
-        : getProperty(GETCONTENTLENGTH));
+    props.add(namesOnly ? new HierarchicalProperty(GETCONTENTLENGTH)
+                       : getProperty(GETCONTENTLENGTH));
     props.add(namesOnly ? new HierarchicalProperty(GETCONTENTTYPE) : getProperty(GETCONTENTTYPE));
 
     Set<QName> presents = new HashSet<QName>();
@@ -130,6 +129,9 @@ public class FileResource extends GenericResource {
     return props;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public HierarchicalProperty getProperty(QName name) throws PathNotFoundException,
                                                      AccessDeniedException,
                                                      RepositoryException {
@@ -228,9 +230,8 @@ public class FileResource extends GenericResource {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.webdav.resource.Resource#isCollection()
+  /**
+   * {@inheritDoc}
    */
   public boolean isCollection() {
     return false;
@@ -248,7 +249,7 @@ public class FileResource extends GenericResource {
     try {
       return contentNode().getProperty("jcr:data").getType() != PropertyType.BINARY;
     } catch (RepositoryException exc) {
-      log.error(exc.getMessage(), exc);
+      LOG.error(exc.getMessage(), exc);
       return false;
     }
   }

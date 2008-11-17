@@ -171,20 +171,11 @@ public class GetCommand {
                                        /**  ,WebDavHeaders.MULTIPART_BYTERANGES + 
                                         *   WebDavConst.BOUNDARY**/
                                        )
-//                             .transformer(new SerializableTransformer())
                                .build();
       } else {
         // Collection processing;
         resource = new CollectionResource(uri, node, nsContext);
         istream = ((CollectionResource) resource).getContentAsStream(baseURI);
-
-        //ExoContainer container = ExoContainerContext.getCurrentContainer();
-        //TRAXTemplatesService templateService = (TRAXTemplatesService) container.getComponentInstanceOfType(TRAXTemplatesServiceImpl.class);
-
-        //Map<String, String> tp = new HashMap<String, String>();
-        //tp.put(XSLTConstants.XSLT_TEMPLATE, "get.method.template");
-
-        //XSLT4SourceOutputTransformer transformer = new XSLT4SourceOutputTransformer(templateService);
 
         return Response.ok()
                                .entity(new StreamSource(istream))

@@ -18,6 +18,8 @@
 package org.exoplatform.services.jcr.webdav;
 
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +32,14 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.HeaderParam;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -96,7 +100,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
  * @version $Id: $
  */
 
-@Path("/jcr/")
+@Path("/jcr")
 public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   /**
@@ -115,7 +119,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   public static final String                      INIT_PARAM_DEF_FILE_MIME_TYPE   = "def-file-mimetype";
 
   /**
-   * Initialization initialization "update-policy"-parameter value.
+   * Initialization "update-policy"-parameter value.
    */
   public static final String                      INIT_PARAM_UPDATE_POLICY        = "update-policy";
 
@@ -149,13 +153,30 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   private String                                  updatePolicyType                = "create-version";
 
+  private static final String                     ALLOW;
+
+  static {
+    StringBuffer sb = new StringBuffer();
+    for (Method m : WebDavServiceImpl.class.getMethods()) {
+      for (Annotation a : m.getAnnotations()) {
+        javax.ws.rs.HttpMethod ma = null;
+        if ((ma = a.annotationType().getAnnotation(javax.ws.rs.HttpMethod.class)) != null) {
+          if (sb.length() > 0)
+            sb.append(", ");
+          sb.append(ma.value());
+        }
+      }
+    }
+
+    ALLOW = sb.toString();
+
+  }
+
   public WebDavServiceImpl(InitParams params,
                            RepositoryService repositoryService,
-                           ThreadLocalSessionProviderService sessionProviderService,
-                           ResourceBinder resourceBinder) throws Exception {
+                           ThreadLocalSessionProviderService sessionProviderService) throws Exception {
     this.sessionProviderService = sessionProviderService;
     this.repositoryService = repositoryService;
-    // this.resourceBinder = resourceBinder;
     this.nullResourceLocks = new NullResourceLocksHolder();
 
     ValueParam pDefFolderNodeType = params.getValueParam(INIT_PARAM_DEF_FOLDER_NODE_TYPE);
@@ -184,12 +205,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
-  // TODO Check @Consumes @Produces
-  // Check whether "body" is required
   @CHECKIN
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response checkin(@PathParam("repoName") String repoName,
                           @PathParam("repoPath") String repoPath,
                           @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -199,23 +216,20 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("CHECKIN " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
+      return new CheckInCommand().checkIn(session, path(repoPath));
     } catch (Exception exc) {
       log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
-    return new CheckInCommand().checkIn(session, path(repoPath));
   }
 
-  // TODO Check @Consumes @Produces
   @CHECKOUT
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response checkout(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -225,24 +239,20 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("CHECKOUT " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     Session session;
     try {
       session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader, ifHeader));
+      return new CheckOutCommand().checkout(session, path(repoPath));
     } catch (Exception exc) {
       log.error(exc.getMessage(), exc);
       return Response.serverError().build();
     }
-
-    return new CheckOutCommand().checkout(session, path(repoPath));
   }
-
 
   @COPY
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response copy(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -255,9 +265,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
     if (log.isDebugEnabled()) {
       log.debug("COPY " + repoName + "/" + repoPath);
-    }    
-    
-    repoPath = getRepoPath(repoPath);
+    }
+
+    repoPath = normalizePath(repoPath);
 
     try {
       String serverURI = uriInfo.getBaseUri().toString() + "/jcr/" + repoName;
@@ -268,25 +278,28 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         return Response.status(HTTPStatus.BAD_GATEWAY).build();
       }
 
+      String srcWorkspace = workspaceName(repoPath);
+      String srcNodePath = path(repoPath);
+
       String destPath = destinationHeader.substring(serverURI.length() + 1);
       String destWorkspace = workspaceName(destPath);
-      String destinationPath = destinationHeader.substring(serverURI.length() + 1);
+      String destNodePath = path(destPath);
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
-
       Depth depth = new Depth(depthHeader);
 
       if (overwriteHeader == null) {
         overwriteHeader = "F";
       }
+      boolean overwrite = overwriteHeader != null && overwriteHeader.equalsIgnoreCase("T");
 
-      if (overwriteHeader.equalsIgnoreCase("T")) {
-        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
+      if (overwrite) {
+        delete(repoName, destPath, lockTokenHeader, ifHeader);
       } else {
         Session session = session(repoName, workspaceName(repoPath), null);
-        String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+        String uri = serverURI + "/" + srcWorkspace;
         Response prpfind = new PropFindCommand().propfind(session,
-                                                          path(destinationPath),
+                                                          destNodePath,
                                                           body,
                                                           depth.getIntValue(),
                                                           uri);
@@ -297,25 +310,24 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       }
 
       if (depth.getStringValue().equalsIgnoreCase("infinity")) {
-        String srcWorkspace = workspaceName(repoPath);
 
         if (srcWorkspace.equals(destWorkspace)) {
           Session session = session(repoName, destWorkspace, lockTokens);
-          return new CopyCommand().copy(session, path(repoPath), path(destPath));
+          return new CopyCommand().copy(session, srcNodePath, destNodePath);
         }
 
         Session destSession = session(repoName, destWorkspace, lockTokens);
-        return new CopyCommand().copy(destSession, srcWorkspace, path(repoPath), path(destPath));
+        return new CopyCommand().copy(destSession, srcWorkspace, srcNodePath, destNodePath);
 
       } else if (depth.getIntValue() == 0) {
 
-        int nodeNameStart = repoPath.lastIndexOf('/') + 1;
-        String nodeName = repoPath.substring(nodeNameStart);
+        int nodeNameStart = srcNodePath.lastIndexOf('/') + 1;
+        String nodeName = srcNodePath.substring(nodeNameStart);
 
         Session session = session(repoName, destWorkspace, lockTokens);
 
         return new MkColCommand(nullResourceLocks).mkCol(session,
-                                                         path(destPath + "/" + nodeName),
+                                                         destNodePath + "/" + nodeName,
                                                          defaultFolderNodeType,
                                                          null,
                                                          lockTokens);
@@ -332,8 +344,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @DELETE
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response delete(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -343,7 +353,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("DELETE " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
@@ -360,8 +370,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @GET
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response get(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
@@ -372,7 +380,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("GET " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
@@ -409,12 +417,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
           }
         }
       }
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+          + workspaceName(repoPath);
       return new GetCommand().get(session, path(repoPath), version, uri, ranges);
 
     } catch (PathNotFoundException exc) {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
-      return Response.status(HTTPStatus.NOT_FOUND).build();      
+      return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (Exception exc) {
       log.error(exc.getMessage(), exc);
       return Response.serverError().build();
@@ -423,8 +432,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @HEAD
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response head(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @Context UriInfo uriInfo) {
@@ -433,11 +440,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("HEAD " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+          + workspaceName(repoPath);
       return new HeadCommand().head(session, path(repoPath), uri);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
@@ -448,11 +456,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-
   @LOCK
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response lock(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -464,7 +469,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("LOCK " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
@@ -491,8 +496,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @UNLOCK
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response unlock(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -502,7 +505,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("UNLOCK " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     Session session;
     List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
@@ -521,8 +524,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @MKCOL
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response mkcol(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -533,7 +534,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("MKCOL " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
@@ -559,8 +560,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @MOVE
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response move(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
                        @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
@@ -575,7 +574,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("MOVE " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       String serverURI = uriInfo.getBaseUri().toString() + "/jcr/" + repoName;
@@ -588,25 +587,25 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
       String destPath = destinationHeader.substring(serverURI.length() + 1);
       String destWorkspace = workspaceName(destPath);
-      String destinationPath = destinationHeader.substring(serverURI.length() + 1);
+      String destNodePath = path(destPath);
 
       String srcWorkspace = workspaceName(repoPath);
+      String srcNodePath = path(repoPath);
 
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
 
       Depth depth = new Depth(depthHeader);
 
-      if (overwriteHeader == null) {
-        overwriteHeader = "F";
-      }
+      boolean overwrite = overwriteHeader != null && overwriteHeader.equalsIgnoreCase("T");
 
-      if (overwriteHeader.equalsIgnoreCase("T")) {
-        delete(repoName, destinationPath, lockTokenHeader, ifHeader);
+      if (overwrite) {
+        delete(repoName, destPath, lockTokenHeader, ifHeader);
       } else {
         Session session = session(repoName, workspaceName(repoPath), null);
-        String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+        String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+            + workspaceName(repoPath);
         Response prpfind = new PropFindCommand().propfind(session,
-                                                          path(destinationPath),
+                                                          destNodePath,
                                                           body,
                                                           depth.getIntValue(),
                                                           uri);
@@ -618,12 +617,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       if (depth.getStringValue().equalsIgnoreCase("Infinity")) {
         if (srcWorkspace.equals(destWorkspace)) {
           Session session = session(repoName, srcWorkspace, lockTokens);
-          return new MoveCommand().move(session, path(repoPath), path(destPath));
+          return new MoveCommand().move(session, srcNodePath, destNodePath);
         }
 
         Session srcSession = session(repoName, srcWorkspace, lockTokens);
         Session destSession = session(repoName, destWorkspace, lockTokens);
-        return new MoveCommand().move(srcSession, destSession, path(repoPath), path(destPath));
+        return new MoveCommand().move(srcSession, destSession, srcNodePath, destNodePath);
       } else {
         return Response.status(HTTPStatus.BAD_REQUEST).build();
       }
@@ -636,55 +635,26 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   }
 
   @OPTIONS
-  @Path("/{repoName}/")
-  @Consumes("*/*")
-  @Produces("text/xml")
-  public Response options(@PathParam("repoName") String repoName) {
+  @Path("/{repoName}/{path:.*}/")
+  public Response options(@PathParam("path") String path) {
 
     if (log.isDebugEnabled()) {
-      log.debug("OPTIONS " + repoName);
-    }
-
-    ArrayList<String> commands = new ArrayList<String>();
-
-    // List<ResourceDescriptor> descriptors = resourceBinder.getAllDescriptors();
-    // for (int i = 0; i < descriptors.size(); i++) {
-    // ResourceDescriptor descriptor = descriptors.get(i);
-    //
-    // String acceptableMethod = descriptor.getAcceptableMethod();
-    // String uriPattern = descriptor.getURIPattern().getString();
-    //
-    // if (uriPattern.startsWith("/jcr/")) {
-    // commands.add(acceptableMethod);
-    // }
-    // }
-
-    String allowCommands = "";
-
-    for (int i = 0; i < commands.size(); i++) {
-      String curCommand = commands.get(i);
-      allowCommands += curCommand;
-      if (i < (commands.size() - 1)) {
-        allowCommands += ", ";
-      }
+      log.debug("OPTIONS " + path);
     }
 
     String DASL_VALUE = "<DAV:basicsearch>" + "<exo:sql xmlns:exo=\"http://exoplatform.com/jcr\"/>"
         + "<exo:xpath xmlns:exo=\"http://exoplatform.com/jcr\"/>";
 
     return Response.ok()
-                   .header(WebDavHeaders.ALLOW, allowCommands)
+                   .header(WebDavHeaders.ALLOW, ALLOW)
                    .header(WebDavHeaders.DAV, "1, 2, ordered-collections")
                    .header(WebDavHeaders.DASL, DASL_VALUE)
                    .header(WebDavHeaders.MSAUTHORVIA, "DAV")
                    .build();
   }
 
-
   @ORDERPATCH
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response order(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -696,12 +666,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("ORDERPATCH " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+          + workspaceName(repoPath);
       return new OrderPatchCommand().orderPatch(session, path(repoPath), body, uri);
     } catch (Exception exc) {
       log.error(exc.getMessage(), exc);
@@ -709,11 +680,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-
   @PROPFIND
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response propfind(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
                            @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
@@ -723,14 +691,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("PROPFIND " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+          + workspaceName(repoPath);
       Depth depth = new Depth(depthHeader);
       return new PropFindCommand().propfind(session, path(repoPath), body, depth.getIntValue(), uri);
-    } catch (NoSuchWorkspaceException exc) { 
+    } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
       return Response.status(HTTPStatus.NOT_FOUND).build();
     } catch (PreconditionException exc) {
@@ -742,11 +711,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-
   @PROPPATCH
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response proppatch(@PathParam("repoName") String repoName,
                             @PathParam("repoPath") String repoPath,
                             @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -757,12 +723,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("PROPPATCH " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       List<String> lockTokens = lockTokens(lockTokenHeader, ifHeader);
       Session session = session(repoName, workspaceName(repoPath), lockTokens);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+          + workspaceName(repoPath);
       return new PropPatchCommand(nullResourceLocks).propPatch(session,
                                                                path(repoPath),
                                                                body,
@@ -779,8 +746,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @PUT
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response put(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -793,7 +758,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("PUT " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       List<String> tokens = lockTokens(lockTokenHeader, ifHeader);
@@ -828,11 +793,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-
   @REPORT
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response report(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
@@ -843,12 +805,13 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("REPORT " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Depth depth = new Depth(depthHeader);
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+          + workspaceName(repoPath);
       return new ReportCommand().report(session, path(repoPath), body, depth, uri);
     } catch (NoSuchWorkspaceException exc) {
       log.error("NoSuchWorkspaceException " + exc.getMessage(), exc);
@@ -859,11 +822,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     }
   }
 
-
   @SEARCH
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response search(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
                          @Context UriInfo uriInfo,
@@ -873,11 +833,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("SEARCH " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), null);
-      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/" + workspaceName(repoPath);
+      String uri = uriInfo.getBaseUri().toString() + "/jcr/" + repoName + "/"
+          + workspaceName(repoPath);
       return new SearchCommand().search(session, body, uri);
 
     } catch (NoSuchWorkspaceException exc) {
@@ -891,8 +852,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @UNCHECKOUT
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response uncheckout(@PathParam("repoName") String repoName,
                              @PathParam("repoPath") String repoPath,
                              @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -902,7 +861,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("UNCHECKOUT " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     try {
       Session session = session(repoName, workspaceName(repoPath), lockTokens(lockTokenHeader,
@@ -921,8 +880,6 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   @VERSIONCONTROL
   @Path("/{repoName}/{repoPath:.*}/")
-  @Consumes("text/xml")
-  @Produces("text/xml")
   public Response versionControl(@PathParam("repoName") String repoName,
                                  @PathParam("repoPath") String repoPath,
                                  @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
@@ -932,7 +889,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
       log.debug("VERSION-CONTROL " + repoName + "/" + repoPath);
     }
 
-    repoPath = getRepoPath(repoPath);
+    repoPath = normalizePath(repoPath);
 
     Session session;
     try {
@@ -974,15 +931,15 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
     return repoPath.split("/")[0];
   }
 
-  protected String getRepoPath(String repoPath) {
-    if (repoPath.endsWith("/")) {
-      return repoPath.substring(0, repoPath.lastIndexOf("/"));
+  protected String normalizePath(String repoPath) {
+    if (repoPath.length() > 0 && repoPath.endsWith("/")) {
+      return repoPath.substring(0, repoPath.length() - 1);
     }
     return repoPath;
   }
 
   protected String path(String repoPath) {
-    String path = repoPath.substring(workspaceName(repoPath).length(), repoPath.length());
+    String path = repoPath.substring(workspaceName(repoPath).length());
 
     if (!"".equals(path)) {
       return path;

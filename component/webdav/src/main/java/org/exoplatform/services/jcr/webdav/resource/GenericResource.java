@@ -25,22 +25,21 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SARL .<br/> Abstract WebDav Resource implementation It is recommended
- * to extend this class instead of implement Resource itself
+ * Created by The eXo Platform SARL .<br/> Abstract WebDav Resource
+ * implementation It is recommended to extend this class instead of implement
+ * Resource itself
  * 
  * @author Gennady Azarenkov
  * @version $Id: $
  */
 
 public abstract class GenericResource implements Resource {
-  
-  private static Log log = ExoLogger.getLogger(GenericResource.class);
+
+//  private static final Log               log         = ExoLogger.getLogger(GenericResource.class);
 
   protected final URI                    identifier;
 
@@ -49,6 +48,7 @@ public abstract class GenericResource implements Resource {
   protected final WebDavNamespaceContext namespaceContext;
 
   protected static final Set<QName>      PRESET_PROP = new HashSet<QName>();
+  
   static {
     PRESET_PROP.add(DISPLAYNAME);
     PRESET_PROP.add(RESOURCETYPE);
@@ -63,25 +63,22 @@ public abstract class GenericResource implements Resource {
     this.namespaceContext = namespaceContext;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.webdav.resource.Resource#getIdentifier()
+  /**
+   * {@inheritDoc}
    */
   public final URI getIdentifier() {
     return identifier;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.webdav.resource.Resource#getType()
+  /**
+   * {@inheritDoc}
    */
   public final int getType() {
     return type;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.webdav.resource.Resource#getProperties(boolean)
+  /**
+   * {@inheritDoc}
    */
   public Set<HierarchicalProperty> getProperties(boolean namesOnly) throws RepositoryException {
     Set<HierarchicalProperty> props = new HashSet<HierarchicalProperty>();
@@ -93,17 +90,15 @@ public abstract class GenericResource implements Resource {
       try {
         props.add(namesOnly ? new HierarchicalProperty(propertyName) : getProperty(propertyName));
       } catch (Exception exc) {
-        log.error(exc.getMessage(), exc);
+        // log.error(exc.getMessage(), exc);
       }
-
     }
 
     return props;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.webdav.resource.Resource#getNamespaceContext()
+  /**
+   * {@inheritDoc}
    */
   public final WebDavNamespaceContext getNamespaceContext() {
     return namespaceContext;
@@ -136,7 +131,6 @@ public abstract class GenericResource implements Resource {
     HierarchicalProperty timeout = activeLock.addChild(new HierarchicalProperty(new QName("DAV:",
                                                                                           "timeout")));
     timeout.setValue("Second-" + timeOut);
-    // timeout.setValue("Second-" + Integer.MAX_VALUE);
 
     if (token != null) {
       HierarchicalProperty lockToken = activeLock.addChild(new HierarchicalProperty(new QName("DAV:",
