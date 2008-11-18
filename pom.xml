@@ -10,7 +10,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.9.3</version>
+  <version>1.9.3.1</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -188,8 +188,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/tags/1.9.3/target/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.9.3/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/tags/1.9.3.1/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.9.3.1/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -198,15 +198,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/tags/1.9.3/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/tags/1.9.3.1/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.9.3/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/tags/1.9.3.1/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/tags/1.9.3/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/tags/1.9.3/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/tags/1.9.3.1/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/tags/1.9.3.1/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
@@ -284,9 +284,9 @@
       <properties>
         <org.exoplatform.tool.version>trunk</org.exoplatform.tool.version>
         <org.exoplatform.kernel.version>2.0.2</org.exoplatform.kernel.version>
-        <org.exoplatform.core.version>2.1.1</org.exoplatform.core.version>
+        <org.exoplatform.core.version>2.1.0.1</org.exoplatform.core.version>
         <org.exoplatform.ws.version>1.2.1</org.exoplatform.ws.version>
-        <org.exoplatform.jcr.version>1.9.3</org.exoplatform.jcr.version>
+        <org.exoplatform.jcr.version>1.9.3.1</org.exoplatform.jcr.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>
