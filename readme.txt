@@ -1,7 +1,7 @@
 eXo JCR core 1.8.3 relese notes
 ===============================
 JCR 1.8.3.1 
-- Fixed posible memory leak in xml export operation.
+- Fixed posible memory leak in xml export operation (http://jira.exoplatform.org/browse/JCR-619). 
 
 JCR 1.8.3 changes after the v.1.8.2
 
