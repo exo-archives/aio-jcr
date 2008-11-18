@@ -1,5 +1,10 @@
-JCR 1.9 release notes
-=====================
+JCR 1.9.0.1 release notes
+=========================
+
+JCR 1.9.0.1 it's a customer patch
+
+- JCR-554 Close of SessionProvider throws ConcurrentModificationException; ported from JCR 1.10
+
 
 JCR version 1.9 includes a lot of new features and improvements such as: 
 
