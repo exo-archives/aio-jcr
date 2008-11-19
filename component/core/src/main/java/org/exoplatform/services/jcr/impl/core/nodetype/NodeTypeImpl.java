@@ -24,7 +24,6 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnmappableCharacterException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -189,7 +188,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
     }
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getName */
+  /**
+   * {@inheritDoc}
+   */
   public String getName() {
 
     String n;
@@ -197,29 +198,36 @@ public class NodeTypeImpl implements ExtendedNodeType {
       n = manager.getLocationFactory().createJCRName(qName).getAsString();
     } catch (RepositoryException e) {
       // should never happen
-      e.printStackTrace();
-      throw new RuntimeException("TYPE NAME >>> " + qName + " " + e);
+      throw new RuntimeException("TYPE NAME >>> " + qName + " " + e, e);
     }
     return n;
 
   }
 
-  /** @see javax.jcr.nodetype.NodeType#isMixin */
+  /**
+   * {@inheritDoc}
+   */
   public boolean isMixin() {
     return mixin;
   }
 
-  /** @see javax.jcr.nodetype.NodeType#hasOrderableChildNodes */
+  /**
+   * {@inheritDoc}
+   */
   public boolean hasOrderableChildNodes() {
     return orderableChild;
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getPrimaryItemName */
+  /**
+   * {@inheritDoc}
+   */
   public String getPrimaryItemName() {
     return primaryItemName;
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getSupertypes */
+  /**
+   * {@inheritDoc}
+   */
   public NodeType[] getSupertypes() {
     ArrayList<NodeType> stypesList = new ArrayList<NodeType>();
     fillSupertypes(stypesList, this);
@@ -233,7 +241,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return new NodeType[0];
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getDeclaredSupertypes */
+  /**
+   * {@inheritDoc}
+   */
   public NodeType[] getDeclaredSupertypes() {
     if (declaredSupertypes != null)
       return declaredSupertypes;
@@ -242,7 +252,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getDeclaredSupertypes */
+  /**
+   * {@inheritDoc}
+   */
   public boolean isNodeType(String nodeTypeName) {
     NodeType superType = null;
     try {
@@ -254,6 +266,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return isSameOrSubType(superType, this);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isNodeType(InternalQName nodeTypeQName) {
     NodeType superType = null;
     try {
@@ -265,7 +280,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return isSameOrSubType(superType, this);
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getPropertyDefs */
+  /**
+   * {@inheritDoc}
+   */
   public PropertyDefinition[] getPropertyDefinitions() {
 
     Set<PropertyDefinition> propertyDefsList = new LinkedHashSet<PropertyDefinition>();
@@ -294,7 +311,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getDeclaredPropertyDefs */
+  /**
+   * {@inheritDoc}
+   */
   public PropertyDefinition[] getDeclaredPropertyDefinitions() {
     if (declaredPropertyDefinitions != null)
       return declaredPropertyDefinitions;
@@ -302,7 +321,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
       return new PropertyDefinition[0];
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getChildNodeDefs */
+  /**
+   * {@inheritDoc}
+   */
   public NodeDefinition[] getChildNodeDefinitions() {
     ArrayList<NodeDefinition> nodeDefsList = new ArrayList<NodeDefinition>();
     if (declaredChildNodeDefinitions != null) {
@@ -332,7 +353,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return new NodeDefinition[0];
   }
 
-  /** @see javax.jcr.nodetype.NodeType#getDeclaredChildNodeDefs */
+  /**
+   * {@inheritDoc}
+   */
   public NodeDefinition[] getDeclaredChildNodeDefinitions() {
     if (declaredChildNodeDefinitions != null)
       return declaredChildNodeDefinitions;
@@ -340,10 +363,12 @@ public class NodeTypeImpl implements ExtendedNodeType {
       return new NodeDefinition[0];
   }
 
-  /** @see javax.jcr.nodetype.NodeType#canSetProperty */
+  /**
+   * {@inheritDoc}
+   */
   public boolean canSetProperty(String propertyName, Value value) {
-
     PropertyDefinition def = getPropertyDefinitions(propertyName).getDefinition(false);
+    
     if (def != null) {
       if (def.isProtected()) {
         return false;
@@ -397,7 +422,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
           return false;
         }
         // try parse...
-        Calendar calDate = JCRDateFormat.parse(likeDataString);
+        JCRDateFormat.parse(likeDataString);
         // validate
         return checkValueConstraints(constrains, value);
       } catch (Exception e) {
@@ -532,8 +557,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
       Charset cs = Charset.forName(charSetName);
       CharsetEncoder cse = cs.newEncoder();
       ByteBuffer encoded = cse.encode(cb);
-      return new String(encoded.array()).trim(); // Trim is very
-      // important!!!
+      return new String(encoded.array()).trim(); // Trim is very important!!!
     } catch (IllegalStateException e) {
       return null;
     } catch (MalformedInputException e) {
@@ -554,7 +578,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
     }
   }
 
-  /** @see javax.jcr.nodetype.NodeType#canSetProperty */
+  /**
+   * {@inheritDoc}
+   */
   public boolean canSetProperty(String propertyName, Value[] values) {
     PropertyDefinition def = getPropertyDefinitions(propertyName).getDefinition(true);
     if (def != null) {
@@ -589,20 +615,26 @@ public class NodeTypeImpl implements ExtendedNodeType {
     }
   }
 
-  /** @see javax.jcr.nodetype.NodeType#canAddChildNode */
+  /**
+   * {@inheritDoc}
+   */
   public boolean canAddChildNode(String childNodeName) {
     NodeDefinition childNodeDef = getChildNodeDefinition(childNodeName);
     return !(childNodeDef == null || childNodeDef.isProtected() || childNodeDef.getDefaultPrimaryType() == null);
   }
 
-  /** @see javax.jcr.nodetype.NodeType#canAddChildNode */
+  /**
+   * {@inheritDoc}
+   */
   public boolean canAddChildNode(String childNodeName, String nodeTypeName) {
     NodeDefinition childNodeDef = getChildNodeDefinition(childNodeName);
     return !(childNodeDef == null || childNodeDef.isProtected())
         && isChildNodePrimaryTypeAllowed(nodeTypeName);
   }
 
-  /** @see javax.jcr.nodetype.NodeType#canRemoveItem */
+  /**
+   * {@inheritDoc}
+   */
   public boolean canRemoveItem(String itemName) {
     PropertyDefinition propDef = getPropertyDefinitions(itemName).getAnyDefinition();
     if (propDef != null)
@@ -615,11 +647,14 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public PropertyDefinitions getPropertyDefinitions(String name) {
-    PropertyDefinitions defs = new PropertyDefinitions();
+    final PropertyDefinitions defs = new PropertyDefinitions();
 
-    for (int i = 0; i < getPropertyDefinitions().length; i++) {
-      PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) getPropertyDefinitions()[i];
+    for (PropertyDefinition pd : getPropertyDefinitions()) {
+      PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) pd;
 
       if (propDef.getName().equals(name) || propDef.isResidualSet()) {
         defs.setDefinition(propDef);
@@ -628,10 +663,12 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return defs;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public NodeDefinition getChildNodeDefinition(String name) {
     NodeDefinition residual = null;
-    for (int i = 0; i < getChildNodeDefinitions().length; i++) {
-      NodeDefinition nodeDef = getChildNodeDefinitions()[i];
+    for (NodeDefinition nodeDef : getChildNodeDefinitions()) {
       if (nodeDef.getName().equals(name)) {
         return nodeDef;
       } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
@@ -641,14 +678,15 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return residual;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean equals(Object obj) {
     if ((obj instanceof ExtendedNodeType))
       return qName.equals(((ExtendedNodeType) obj).getQName());
     else
       return false;
   }
-
-  // //////////////////////////////////
 
   protected boolean checkValueConstraints(String[] constraints, Value value) {
 
@@ -665,10 +703,11 @@ public class NodeTypeImpl implements ExtendedNodeType {
     } else {
       return true;
     }
+
     return false;
   }
 
-  protected void fillSupertypes(List<NodeType> list, NodeType subtype) {
+  protected void fillSupertypes(final List<NodeType> list, final NodeType subtype) {
     if (subtype.getDeclaredSupertypes() != null) {
       for (int i = 0; i < subtype.getDeclaredSupertypes().length; i++) {
         list.add(subtype.getDeclaredSupertypes()[i]);
@@ -677,6 +716,15 @@ public class NodeTypeImpl implements ExtendedNodeType {
     }
   }
 
+  /**
+   * Is same or sub type.
+   * 
+   * @param superType
+   *          NodeType
+   * @param subType
+   *          NodeType
+   * @return boolean
+   */
   public static boolean isSameOrSubType(NodeType superType, NodeType subType) {
     if (superType.equals(subType))
       return true;
@@ -691,25 +739,31 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public ArrayList<ItemDefinition> getManadatoryItemDefs() {
+    final ArrayList<ItemDefinition> itemDefs = new ArrayList<ItemDefinition>();
 
-    ArrayList<ItemDefinition> itemDefs = new ArrayList<ItemDefinition>();
     for (int i = 0; i < getPropertyDefinitions().length; i++) {
       if (getPropertyDefinitions()[i].isMandatory())
         itemDefs.add(getPropertyDefinitions()[i]);
     }
+
     for (int i = 0; i < getChildNodeDefinitions().length; i++) {
       if (getChildNodeDefinitions()[i].isMandatory())
         itemDefs.add(getChildNodeDefinitions()[i]);
     }
 
     return itemDefs;
-
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isChildNodePrimaryTypeAllowed(String typeName) {
 
-    NodeDefinition[] definitions = this.getChildNodeDefinitions();
+    final NodeDefinition[] definitions = this.getChildNodeDefinitions();
 
     NodeType testType;
     try {
@@ -734,72 +788,71 @@ public class NodeTypeImpl implements ExtendedNodeType {
   }
 
   /**
-   * @param mixin The mixin to set.
+   * {@inheritDoc}
    */
   public void setMixin(boolean mixin) {
     this.mixin = mixin;
   }
 
   /**
-   * @param name The name to set.
+   * {@inheritDoc}
    */
   public void setName(String name) throws RepositoryException {
-    // this.name = name;
     this.qName = ((NameValue) manager.getValueFactory().createValue(name, PropertyType.NAME)).getQName();
   }
 
   /**
-   * @param orderableChild The orderableChild to set.
+   * {@inheritDoc}
    */
   public void setOrderableChild(boolean orderableChild) {
     this.orderableChild = orderableChild;
   }
 
   /**
-   * @param primaryItemName The primaryItemName to set.
+   * {@inheritDoc}
    */
   public void setPrimaryItemName(String primaryItemName) {
     this.primaryItemName = primaryItemName;
   }
 
   /**
-   * @param declaredNodeDefs The declaredNodeDefs to set.
+   * {@inheritDoc}
    */
   public void setDeclaredNodeDefs(NodeDefinition[] declaredNodeDefs) {
     this.declaredChildNodeDefinitions = declaredNodeDefs;
   }
 
   /**
-   * @param declaredPropertyDefs The declaredPropertyDefs to set.
+   * {@inheritDoc}
    */
   public void setDeclaredPropertyDefs(PropertyDefinition[] declaredPropertyDefs) {
     this.declaredPropertyDefinitions = declaredPropertyDefs;
   }
 
   /**
-   * @param declaredSupertypes The declaredSupertypes to set.
+   * {@inheritDoc}
    */
   public void setDeclaredSupertypes(NodeType[] declaredSupertypes) {
     this.declaredSupertypes = declaredSupertypes;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public InternalQName getQName() {
     return qName;
   }
 
   // //////////////// NEW METHODS (since 1.2) //////////
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType#getPropertyDefinitions(org.exoplatform.services.jcr.datamodel.InternalQName)
+  /**
+   * {@inheritDoc}
    */
   public PropertyDefinitions getPropertyDefinitions(InternalQName name) {
-    PropertyDefinitions defs = new PropertyDefinitions();
+    final PropertyDefinitions defs = new PropertyDefinitions();
 
-    for (int i = 0; i < getPropertyDefinitions().length; i++) {
-      PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) getPropertyDefinitions()[i];
-
+    for (PropertyDefinition pd : getPropertyDefinitions()) {
+      PropertyDefinitionImpl propDef = (PropertyDefinitionImpl) pd;
       if (propDef.getQName().equals(name) || propDef.isResidualSet()) {
         defs.setDefinition(propDef);
       }
@@ -807,15 +860,14 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return defs;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType#getChildNodeDefinition(org.exoplatform.services.jcr.datamodel.InternalQName)
+  /**
+   * {@inheritDoc}
    */
   public NodeDefinition getChildNodeDefinition(InternalQName name) {
     NodeDefinition residual = null;
-    for (int i = 0; i < getChildNodeDefinitions().length; i++) {
-      NodeDefinitionImpl nodeDef = (NodeDefinitionImpl) getChildNodeDefinitions()[i];
+
+    for (NodeDefinition cnd : getChildNodeDefinitions()) {
+      NodeDefinitionImpl nodeDef = (NodeDefinitionImpl) cnd;
       if (nodeDef.getQName().equals(name)) {
         return nodeDef;
       } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
