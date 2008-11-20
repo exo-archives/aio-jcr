@@ -189,8 +189,7 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES);
       for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
-        Node mtNode = nodes.nextNode();
-        types.add(readObjectFromNode(mtNode));
+        types.add(readObjectFromNode(nodes.nextNode()));
       }
       return types;
 
@@ -293,21 +292,21 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       String mtUUID = mtImpl.getUUId() != null
           ? mtImpl.getUUId()
           : ((MembershipTypeImpl) findMembershipType(session, mt.getName())).getUUId();
-      Node mNode = session.getNodeByUUID(mtUUID);
+      Node mtNode = session.getNodeByUUID(mtUUID);
 
-      String srcPath = mNode.getPath();
+      String srcPath = mtNode.getPath();
       int pos = srcPath.lastIndexOf('/');
       String prevName = srcPath.substring(pos + 1);
       String destPath = srcPath.substring(0, pos) + "/" + mt.getName();
 
       if (!prevName.equals(mt.getName())) {
         session.move(srcPath, destPath);
+        mtNode = (Node) session.getItem(destPath);
       }
 
-      Node nmtNode = (Node) session.getItem(destPath);
-      writeObjectToNode(mt, nmtNode);
+      writeObjectToNode(mt, mtNode);
       session.save();
-      return readObjectFromNode(nmtNode);
+      return readObjectFromNode(mtNode);
 
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not save membership type '" + mt.getName() + "'",
