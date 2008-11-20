@@ -49,6 +49,24 @@
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
   </component>
 
+  <!--component>
+    <key>org.exoplatform.services.organization.OrganizationService</key>
+    <type>org.exoplatform.services.organization.hibernate.OrganizationServiceImpl</type>
+  </component-->
+
+  <!--component>
+    <key>org.exoplatform.services.organization.OrganizationService</key>
+    <type>org.exoplatform.services.jcr.ext.organization.JCROrganizationServiceImpl</type>
+    <init-params>
+      <value-param>
+        <name>storage-workspace</name>
+        <description>Workspace in default repository where organization storage will be created</description>
+        <value>system</value>
+      </value-param>
+    </init-params>
+  </component-->
+
+
   <component>
     <key>org.exoplatform.services.transaction.TransactionService</key>
     <type>org.exoplatform.services.transaction.impl.jotm.TransactionServiceJotmImpl</type>
@@ -105,6 +123,93 @@
       </component-plugin>
     </component-plugins>
   </component>
+
+  <!--external-component-plugins>
+    <target-component>org.exoplatform.services.database.HibernateService</target-component>
+    <component-plugin> 
+      <name>add.hibernate.mapping</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.database.impl.AddHibernateMappingPlugin</type>
+      <init-params>
+        <values-param>
+          <name>hibernate.mapping</name>
+          <value>org/exoplatform/services/organization/impl/UserImpl.hbm.xml</value>
+          <value>org/exoplatform/services/organization/impl/MembershipImpl.hbm.xml</value>
+          <value>org/exoplatform/services/organization/impl/GroupImpl.hbm.xml</value>
+          <value>org/exoplatform/services/organization/impl/MembershipTypeImpl.hbm.xml</value>
+          <value>org/exoplatform/services/organization/impl/UserProfileData.hbm.xml</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins-->
+
+  <!--external-component-plugins>
+    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
+    <component-plugin>
+      <name>init.service.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.services.organization.OrganizationDatabaseInitializer</type>
+      <description>this listener populate organization data for the first launch</description>
+      <init-params>
+        <value-param>
+          <name>checkDatabaseAlgorithm</name>
+          <description>check database</description>
+          <value>entry</value>
+        </value-param>
+        <value-param>
+          <name>printInformation</name>
+          <description>Print information init database</description>
+          <value>false</value>
+        </value-param>
+        <object-param>
+          <name>configuration</name>
+          <description>description</description>
+          <object type="org.exoplatform.services.organization.OrganizationConfig">
+            <field  name="group">
+              <collection type="java.util.ArrayList">             
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+                    <field  name="name"><string>platform</string></field>
+                    <field  name="parentId"><string></string></field>
+                    <field  name="description"><string>the /platform group</string></field>
+                    <field  name="label"><string>Platform</string></field>                    
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+                    <field  name="name"><string>administrators</string></field>
+                    <field  name="parentId"><string>/platform</string></field>
+                    <field  name="description"><string>the /platform/administrators group</string></field>
+                    <field  name="label"><string>Administrators</string></field>
+                  </object>
+                </value>
+              </collection>
+            </field>
+
+            <field  name="user">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$User">
+                    <field  name="userName"><string>root</string></field>
+                    <field  name="password"><string>exo</string></field>
+                    <field  name="firstName"><string>Root</string></field>
+                    <field  name="lastName"><string>Root</string></field>
+                    <field  name="email"><string>root@localhost</string></field>
+                    <field  name="groups">
+                      <string>
+                      	*:/platform/administrators,*:/platform/users,
+                      	member:/organization/management/executive-board
+                      </string>
+                    </field>
+                  </object>
+                </value>
+              </collection>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins-->
 
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
