@@ -24,10 +24,12 @@ import javax.jcr.Session;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.lock.LockException;
 import javax.jcr.version.Version;
+import javax.ws.rs.core.Response;
 
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.apache.commons.logging.Log;
+import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
-import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -36,6 +38,8 @@ import org.exoplatform.services.rest.Response;
  */
 
 public class UnCheckOutCommand {
+  
+  private static Log log = ExoLogger.getLogger(UnCheckOutCommand.class);
 
   public Response uncheckout(Session session, String path) {
 
@@ -45,19 +49,20 @@ public class UnCheckOutCommand {
       Version restoreVersion = node.getBaseVersion();
       node.restore(restoreVersion, true);
 
-      return Response.Builder.ok().build();
+      return Response.ok().build();
 
     } catch (UnsupportedRepositoryOperationException e) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.status(HTTPStatus.CONFLICT).build();
 
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.notFound().build();
+      return Response.status(HTTPStatus.NOT_FOUND).build();
 
     } catch (RepositoryException exc) {
-      return Response.Builder.serverError().build();
+      log.error(exc.getMessage(), exc);
+      return Response.serverError().build();
     }
 
   }

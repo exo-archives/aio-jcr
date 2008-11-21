@@ -20,6 +20,9 @@ package org.exoplatform.services.jcr.webdav.resource;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SARL .<br/>
  * 
@@ -28,6 +31,8 @@ import javax.jcr.RepositoryException;
  */
 
 public class ResourceUtil {
+  
+  private static Log log = ExoLogger.getLogger(ResourceUtil.class);
 
   public static boolean isFile(Node node) {
     try {
@@ -36,8 +41,8 @@ public class ResourceUtil {
       if (!node.getNode("jcr:content").isNodeType("nt:resource"))
         return false;
       return true;
-    } catch (RepositoryException e) {
-      e.printStackTrace();
+    } catch (RepositoryException exc) {
+      log.error(exc.getMessage(), exc);
       return false;
     }
   }
@@ -47,8 +52,8 @@ public class ResourceUtil {
       if (node.isNodeType("nt:version"))
         return true;
       return false;
-    } catch (RepositoryException e) {
-      e.printStackTrace();
+    } catch (RepositoryException exc) {
+      log.error(exc.getMessage(), exc);
       return false;
     }
   }
@@ -58,8 +63,8 @@ public class ResourceUtil {
       if (node.isNodeType("mix:versionable"))
         return true;
       return false;
-    } catch (RepositoryException e) {
-      e.printStackTrace();
+    } catch (RepositoryException exc) {
+      log.error(exc.getMessage(), exc);
       return false;
     }
   }

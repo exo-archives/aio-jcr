@@ -16,11 +16,11 @@
  */
 package org.exoplatform.services.jcr.webdav.command;
 
-//import org.codehaus.cargo.container.InstalledLocalContainer;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.common.http.client.HTTPResponse;
+import org.exoplatform.services.jcr.webdav.BaseWebDavTest;
 import org.exoplatform.services.jcr.webdav.ContainerStarter;
 import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 
@@ -29,18 +29,18 @@ import junit.framework.TestCase;
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com Aug 13, 2008
  */
-public class TestHead extends TestCase {
+public class TestHead extends BaseWebDavTest {
 
   private final String            fileName    = TestUtils.getFullWorkSpacePath() + "/"
                                                   + TestUtils.getFileName();
 
   private final String            fileContent = "TEST FILE CONTENT...";
 
-//  private InstalledLocalContainer container;
+
 
   private HTTPConnection          connection;
 
-  @Override
+
   protected void setUp() throws Exception {
 
     // container = ContainerStarter.cargoContainerStart("8088", null);

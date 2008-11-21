@@ -23,10 +23,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.webdav.resource.IllegalResourceTypeException;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
@@ -34,7 +36,7 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedResource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.PropstatGroupedRepresentation;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.rest.transformer.SerializableEntity;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -42,7 +44,9 @@ import org.exoplatform.services.rest.transformer.SerializableEntity;
  * @version $Id: $
  */
 
-public class VersionTreeResponseEntity implements SerializableEntity {
+public class VersionTreeResponseEntity implements StreamingOutput {
+  
+  private static Log log = ExoLogger.getLogger(VersionTreeResponseEntity.class);
 
   protected XMLStreamWriter              xmlStreamWriter;
 
@@ -61,7 +65,7 @@ public class VersionTreeResponseEntity implements SerializableEntity {
     versions = versionedResource.getVersionHistory().getVersions();
   }
 
-  public void writeObject(OutputStream outputStream) throws IOException {
+  public void write(OutputStream outputStream) throws IOException {
     try {
       this.xmlStreamWriter = XMLOutputFactory.newInstance()
                                              .createXMLStreamWriter(outputStream,
@@ -94,9 +98,9 @@ public class VersionTreeResponseEntity implements SerializableEntity {
 
       xmlStreamWriter.writeEndElement();
       xmlStreamWriter.writeEndDocument();
-    } catch (Exception e) {
-      e.printStackTrace();
-      throw new IOException(e.getMessage());
+    } catch (Exception exc) {
+      log.error(exc.getMessage(), exc);
+      throw new IOException(exc.getMessage());
     }
   }
 

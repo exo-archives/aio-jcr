@@ -20,6 +20,7 @@ package org.exoplatform.services.jcr.webdav;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
 import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDav;
+import org.exoplatform.services.jcr.webdav.utils.TestUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.apache.commons.logging.Log;
 

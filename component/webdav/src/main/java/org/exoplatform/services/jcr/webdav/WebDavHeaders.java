@@ -147,5 +147,13 @@ public class WebDavHeaders {
    * Authoring</a> section 9 for more information.
    */
   public static final String OVERWRITE = "Overwrite";
+  
+  /**
+  * HTTP 1.1 "Last-Modified" header. See <a
+  * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
+  * section 14 "Header Field Definitions"</a> for more information.
+  */
+ public static final String LASTMODIFIED = "Last-Modified";
+
 
 }

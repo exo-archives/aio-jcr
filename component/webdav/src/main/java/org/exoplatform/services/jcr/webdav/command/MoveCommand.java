@@ -21,10 +21,12 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Response;
 
-import org.exoplatform.services.jcr.webdav.WebDavStatus;
-import org.exoplatform.services.rest.CacheControl;
-import org.exoplatform.services.rest.Response;
+import org.apache.commons.logging.Log;
+import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -34,6 +36,8 @@ import org.exoplatform.services.rest.Response;
 public class MoveCommand {
 
   private static CacheControl cacheControl = new CacheControl();
+  
+  private static Log log = ExoLogger.getLogger(MoveCommand.class);
 
   // Fix problem with moving under Windows Explorer.
   static {
@@ -44,19 +48,19 @@ public class MoveCommand {
     try {
       session.move(srcPath, destPath);
       session.save();
-      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
+      return Response.status(HTTPStatus.NO_CONTENT)
                              .cacheControl(cacheControl)
                              .build();
 
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.status(HTTPStatus.CONFLICT).build();
 
     } catch (RepositoryException exc) {
-      exc.printStackTrace();
-      return Response.Builder.serverError().build();
+      log.error(exc.getMessage(), exc);
+      return Response.serverError().build();
     }
 
   }
@@ -68,19 +72,19 @@ public class MoveCommand {
       sourceSession.getItem(srcPath).remove();
       sourceSession.save();
 
-      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT)
+      return Response.status(HTTPStatus.NO_CONTENT)
                              .cacheControl(cacheControl)
                              .build();
 
     } catch (LockException exc) {
-      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
+      return Response.status(HTTPStatus.LOCKED).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
+      return Response.status(HTTPStatus.CONFLICT).build();
 
     } catch (RepositoryException exc) {
-      exc.printStackTrace();
-      return Response.Builder.serverError().build();
+      log.error(exc.getMessage(), exc);
+      return Response.serverError().build();
     }
 
   }
