@@ -39,6 +39,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.ext.artifact.CRCGenerator;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
@@ -186,14 +187,15 @@ public class ArtifactStructureCorrector implements ResourceContainer {
       Property data = content.getProperty("jcr:data");
       String algorithm = "SHA1";
       try {
-        String checksum = getChecksum(data.getStream(), algorithm);
+
+        String checksum = CRCGenerator.getChecksum(data.getStream(), algorithm);
 
         LOGGER.info("Generate checksum for : " + src.getName());
 
         Node checkNode = parent.addNode(src.getName() + "." + algorithm.toLowerCase(), "nt:file");
 
         InputStream checksum_is = new ByteArrayInputStream(checksum.getBytes());
-        String mimeType = "text/xml";
+        String mimeType = "text/plain";
 
         Node sum_content = checkNode.addNode("jcr:content", "nt:resource");
         sum_content.setProperty("jcr:mimeType", mimeType);
@@ -210,33 +212,6 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
     }
 
-    private static final String HEX = "0123456789abcdef";
-
-    protected String getChecksum(InputStream in, String algo) throws NoSuchAlgorithmException,
-                                                             IOException {
-
-      MessageDigest md = MessageDigest.getInstance(algo);
-
-      DigestInputStream digestInputStream = new DigestInputStream(in, md);
-      digestInputStream.on(true);
-
-      while (digestInputStream.read() > -1) {
-        digestInputStream.read();
-      }
-
-      byte[] bytes = digestInputStream.getMessageDigest().digest();
-      StringBuffer sb = new StringBuffer();
-
-      for (byte b : bytes) {
-
-        int v = b & 0xFF;
-
-        sb.append((char) HEX.charAt(v >> 4));
-        sb.append((char) HEX.charAt(v & 0x0f));
-      }
-
-      return sb.toString();
-    }
   }
 
 }
