@@ -464,12 +464,12 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     }
 
     if (group == null) {
-      throw new OrganizationServiceException("Can not link membership record for user '"
+      throw new OrganizationServiceException("Can not create membership record for user '"
           + user.getUserName() + "' because group not found");
     }
 
     if (m == null) {
-      throw new OrganizationServiceException("Can not link membership record for user '"
+      throw new OrganizationServiceException("Can not create membership record for user '"
           + user.getUserName() + "' because membership type not found");
     }
 
