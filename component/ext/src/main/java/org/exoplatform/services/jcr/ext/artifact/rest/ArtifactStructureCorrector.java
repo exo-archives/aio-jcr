@@ -17,9 +17,10 @@
 package org.exoplatform.services.jcr.ext.artifact.rest;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 
@@ -37,7 +38,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
-import org.apache.maven.wagon.observers.ChecksumObserver;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -211,30 +211,32 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     }
 
     protected String getChecksum(InputStream in, String algo) throws NoSuchAlgorithmException,
-                                                             IOException {
-      ChecksumObserver checksum = null;
-      try {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                                                                IOException {
 
-        IOUtils.copy(in, out);
-        byte[] buffer = out.toByteArray();
+      String hex = "0123456789abcdef";
 
-        if ("MD5".equals(algo)) {
-          checksum = new ChecksumObserver("MD5"); // md5 by default
-        } else if ("SHA1".equals(algo)) {
-          checksum = new ChecksumObserver("SHA-1");
-        } else {
-          throw new NoSuchAlgorithmException("No support for algorithm " + algo + ".");
-        }
-        checksum.transferProgress(null, buffer, buffer.length);
-        checksum.transferCompleted(null);
+      MessageDigest md = MessageDigest.getInstance(algo);
 
-      } catch (IOException e) {
-        LOGGER.error("Error reading from stream", e);
+      DigestInputStream digestInputStream = new DigestInputStream(in, md);
+      digestInputStream.on(true);
+
+      while (digestInputStream.read() > -1) {
+        digestInputStream.read();
       }
-      return checksum.getActualChecksum();
-    }
 
+      byte[] bytes = digestInputStream.getMessageDigest().digest();
+      StringBuffer sb = new StringBuffer();
+
+      for (byte b : bytes) {
+
+        int v = b & 0xff;
+
+        sb.append((char) hex.charAt(v >> 4));
+        sb.append((char) hex.charAt(v & 0xf));
+      }
+
+      return sb.toString();
+    }
   }
 
 }
