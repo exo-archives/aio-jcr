@@ -38,11 +38,11 @@ import javax.jcr.Session;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
-import org.apache.maven.wagon.observers.ChecksumObserver;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.ext.artifact.CRCGenerator;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
@@ -190,7 +190,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
       Property data = content.getProperty("jcr:data");
       String algorithm = "SHA1";
       try {
-        String checksum = getChecksum(data.getStream(), algorithm);
+        String checksum = CRCGenerator.getChecksum(data.getStream(), algorithm);
 
         LOGGER.info("Generate checksum for : " + src.getName());
 
@@ -213,32 +213,6 @@ public class ArtifactStructureCorrector implements ResourceContainer {
       }
 
     }
-
-    protected String getChecksum(InputStream in, String algo) throws NoSuchAlgorithmException,
-                                                             IOException {
-      ChecksumObserver checksum = null;
-      try {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        IOUtils.copy(in, out);
-        byte[] buffer = out.toByteArray();
-
-        if ("MD5".equals(algo)) {
-          checksum = new ChecksumObserver("MD5"); // md5 by default
-        } else if ("SHA1".equals(algo)) {
-          checksum = new ChecksumObserver("SHA-1");
-        } else {
-          throw new NoSuchAlgorithmException("No support for algorithm " + algo + ".");
-        }
-        checksum.transferProgress(null, buffer, buffer.length);
-        checksum.transferCompleted(null);
-
-      } catch (IOException e) {
-        LOGGER.error("Error reading from stream", e);
-      }
-      return checksum.getActualChecksum();
-    }
-
   }
 
 }
