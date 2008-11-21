@@ -26,13 +26,13 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class MkColCommand {
 
-  private static Log                    log = ExoLogger.getLogger(MkColCommand.class);
+  private static Log                    log = ExoLogger.getLogger("jcr.MkColCommand");
 
   private final NullResourceLocksHolder nullResourceLocks;
 
@@ -65,23 +65,23 @@ public class MkColCommand {
       }
       session.save();
 
-    } catch (ItemExistsException exc) {
-      return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
+    } catch (ItemExistsException e) {
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
 
-    } catch (PathNotFoundException exc) {
-      return Response.status(HTTPStatus.CONFLICT).build();
+    } catch (PathNotFoundException e) {
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
 
-    } catch (AccessDeniedException exc) {
-      return Response.status(HTTPStatus.FORBIDDEN).build();
+    } catch (AccessDeniedException e) {
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
 
-    } catch (LockException exc) {
-      return Response.status(HTTPStatus.LOCKED).build();
+    } catch (LockException e) {
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
 
-    } catch (RepositoryException exc) {
-      return Response.serverError().build();
+    } catch (RepositoryException e) {
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
 
-    return Response.status(HTTPStatus.CREATED).build();
+    return Response.Builder.withStatus(WebDavStatus.CREATED).build();
   }
 
   private void addMixins(Node node, List<String> mixinTypes) {
@@ -89,8 +89,9 @@ public class MkColCommand {
       String curMixinType = mixinTypes.get(i);
       try {
         node.addMixin(curMixinType);
-      } catch (Exception exc) {
-        log.error("Can't add mixin [" + curMixinType + "]", exc);
+      } catch (Exception e) {
+        e.printStackTrace();
+        log.error("Can't add mixin [" + curMixinType + "]");
       }
     }
   }

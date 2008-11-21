@@ -24,7 +24,6 @@ package org.exoplatform.services.jcr.webdav;
  * @version $Id: $
  */
 
-@SuppressWarnings("serial")
 public class PreconditionException extends Exception {
 
   /**

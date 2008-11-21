@@ -31,6 +31,10 @@ public class WebDavProperty extends HierarchicalProperty {
 
   private int status;
 
+  // public WebDavProperty(String name, String value) {
+  // super(name, value);
+  // }
+  //  
   public WebDavProperty(QName name, String value) {
     super(name, value);
   }

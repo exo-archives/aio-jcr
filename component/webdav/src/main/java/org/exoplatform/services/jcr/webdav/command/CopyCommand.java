@@ -23,11 +23,9 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
-import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -37,23 +35,25 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class CopyCommand {
 
-  private static Log log = ExoLogger.getLogger(CopyCommand.class);
-
   public Response copy(Session destSession, String sourcePath, String destPath) {
     try {
       destSession.getWorkspace().copy(sourcePath, destPath);
-      return Response.status(HTTPStatus.CREATED).build();
-    } catch (ItemExistsException e) {     
-      return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
+      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
+    } catch (ItemExistsException e) {
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
     } catch (PathNotFoundException e) {
-      return Response.status(HTTPStatus.CONFLICT).build();
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
     } catch (AccessDeniedException e) {
-      return Response.status(HTTPStatus.FORBIDDEN).build();
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
     } catch (LockException e) {
-      return Response.status(HTTPStatus.LOCKED).build();
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
     } catch (RepositoryException e) {
-      log.error(e.getMessage(), e);
-      return Response.serverError().build();
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 
@@ -63,17 +63,22 @@ public class CopyCommand {
                        String destPath) {
     try {
       destSession.getWorkspace().copy(sourceWorkspace, sourcePath, destPath);
-      return Response.status(HTTPStatus.CREATED).build();
+      return Response.Builder.withStatus(WebDavStatus.CREATED).build();
     } catch (ItemExistsException e) {
-      return Response.status(HTTPStatus.METHOD_NOT_ALLOWED).build();
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.METHOD_NOT_ALLOWED).build();
     } catch (PathNotFoundException e) {
-      return Response.status(HTTPStatus.CONFLICT).build();
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.CONFLICT).build();
     } catch (AccessDeniedException e) {
-      return Response.status(HTTPStatus.FORBIDDEN).build();
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.FORBIDDEN).build();
     } catch (LockException e) {
-      return Response.status(HTTPStatus.LOCKED).build();
+      e.printStackTrace();
+      return Response.Builder.withStatus(WebDavStatus.LOCKED).build();
     } catch (RepositoryException e) {
-      return Response.serverError().build();
+      e.printStackTrace();
+      return Response.Builder.serverError().errorMessage(e.getMessage()).build();
     }
   }
 }

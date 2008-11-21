@@ -17,13 +17,13 @@
 package org.exoplatform.services.jcr.webdav;
 
 //import org.codehaus.cargo.container.InstalledLocalContainer;
-import junit.framework.TestCase;
-
-import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.client.CookieModule;
 import org.exoplatform.common.http.client.HTTPConnection;
-import org.exoplatform.services.jcr.webdav.utils.TestUtils;
+import org.exoplatform.services.jcr.webdav.WebDavConstants.WebDav;
 import org.exoplatform.services.log.ExoLogger;
+import org.apache.commons.logging.Log;
+
+import junit.framework.TestCase;
 
 /**
  * Created by The eXo Platform SAS Author : Dmytro Katayev work.visor.ck@gmail.com 22 Sep 2008

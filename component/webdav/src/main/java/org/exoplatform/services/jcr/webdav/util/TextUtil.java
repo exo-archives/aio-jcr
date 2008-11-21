@@ -112,7 +112,8 @@ public class TextUtil {
 
     if (path.startsWith("/"))
       return path.substring(1);
-    return path;
+    else
+      return path;
   }
 
   public static String pathOnly(String path) {

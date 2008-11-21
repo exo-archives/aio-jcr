@@ -25,6 +25,9 @@ import java.util.Calendar;
 import javax.jcr.Node;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
+import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.security.ConversationState;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -53,27 +56,32 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
     d.setProperty("jcr:lastModified", Calendar.getInstance());
     d.setProperty("jcr:data", new ByteArrayInputStream(data.getBytes()));
     session.save();
-
+    tlsp = (ThreadLocalSessionProviderService) container.getComponentInstanceOfType(ThreadLocalSessionProviderService.class);
+    tlsp.setSessionProvider(null, new SessionProvider(ConversationState.getCurrent()));
   }
-
+  
+  public void tearDown() throws Exception {
+    super.tearDown();
+    tlsp.removeSessionProvider(null);
+  }
+  
+  private ThreadLocalSessionProviderService tlsp;
+  
   public void testURL() throws Exception {
-    // NOTE don't use this under web container (found problem with tomcat)
-    // It looks like ClassLoader problem.
-    // Instead use next: new URL(null, spec, UnifiedNodeReference.getURLStreamHandler)
-    URL url = new URL("jcr://exo:exo@db1/ws/#/jcr:system/");
+    UnifiedNodeReference nodeRef = new UnifiedNodeReference("jcr://db1/ws/#/jcr:system/");
+    URL url = nodeRef.getURL();
     assertEquals("jcr", url.getProtocol());
-    assertEquals("exo:exo", url.getUserInfo());
-    assertEquals("exo:exo@db1", url.getAuthority());
     assertEquals("db1", url.getHost());
-    assertEquals("/ws/", url.getPath());
+    assertEquals("/ws", url.getPath());
     assertEquals("/jcr:system/", url.getRef());
   }
 
   public void testNodeRepresentation() throws Exception {
     // there is no node representation for nt:unstructured
     // default must work, by default work document view node representation.
-    URL url = new URL("jcr://db1/ws/#/testRoot/");
-    JcrURLConnection conn = (JcrURLConnection) url.openConnection();
+    UnifiedNodeReference nodeRef = new UnifiedNodeReference("jcr://db1/ws/#/testRoot/");
+    JcrURLConnection conn = (JcrURLConnection) nodeRef.getURL().openConnection();
+    
     conn.setDoOutput(false);
     Node content = (Node) conn.getContent();
     InputStream in = conn.getInputStream();
@@ -84,18 +92,19 @@ public class JcrURLConnectionTest extends BaseStandaloneTest {
     in.read(b);
     in.close();
     log.info(new String(b));
+    conn.disconnect();
   }
 
   public void testNtFileNodeRepresentation() throws Exception {
     // should be work node representation for nt:file
-    URL url = new URL("jcr://db1/ws/#/testRoot/" + fname + "/");
-    JcrURLConnection conn = (JcrURLConnection) url.openConnection();
+    UnifiedNodeReference nodeRef = new UnifiedNodeReference("jcr://db1/ws/#/testRoot/" + fname + "/");
+    JcrURLConnection conn = (JcrURLConnection) nodeRef.getURL().openConnection();
     conn.setDoOutput(false);
 
     assertEquals("text/plain", conn.getContentType());
     log.info(conn.getLastModified());
     compareStream(conn.getInputStream(), new ByteArrayInputStream(data.getBytes()));
-
+    conn.disconnect();
   }
 
 }

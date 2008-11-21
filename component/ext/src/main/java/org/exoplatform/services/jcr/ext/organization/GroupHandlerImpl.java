@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -128,10 +129,6 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     try {
       String parentId = (parent == null) ? "" : parent.getId();
       String parentPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + parentId;
-      if (!session.itemExists(parentPath)) {
-        return;
-      }
-
       Node parentNode = (Node) session.getItem(parentPath);
       Node gNode = parentNode.addNode(child.getGroupName(), "exo:hierarchyGroup");
 
@@ -211,15 +208,12 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     }
 
     try {
-      String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + groupId;
-      if (!session.itemExists(gPath)) {
-        return null;
-      }
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + groupId);
+      return readObjectFromNode(gNode);
 
-      Node gNode = (Node) session.getItem(gPath);
-      Group g = readObjectFromNode(gNode);
-      return g;
-
+    } catch (PathNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group by groupId '" + groupId + "'", e);
     }
@@ -295,7 +289,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
   public Collection findGroups(Group parent) throws Exception {
     Session session = service.getStorageSession();
     try {
-      return findGroups(session, parent, false);
+      return findGroups(session, parent);
     } finally {
       session.logout();
     }
@@ -315,30 +309,24 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    * @throws Exception
    *           An exception is throwed is the method cannot access the database
    */
-  private Collection findGroups(Session session, Group parent, boolean recursive) throws Exception {
+  private Collection findGroups(Session session, Group parent) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findGroups started");
     }
 
+    List<Group> types = new ArrayList<Group>();
     try {
-      List<Group> types = new ArrayList<Group>();
-
       String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS;
-      if (parent == null || session.itemExists(gPath + parent.getId())) {
-        String parentId = parent == null ? "" : parent.getId();
-        Node parentNode = (Node) session.getItem(gPath + parentId);
-        for (NodeIterator gNodes = parentNode.getNodes(); gNodes.hasNext();) {
-          Node gNode = gNodes.nextNode();
-          Group g = readObjectFromNode(gNode);
-          types.add(g);
+      String parentId = parent == null ? "" : parent.getId();
+      Node parentNode = (Node) session.getItem(gPath + parentId);
 
-          if (recursive) {
-            types.addAll(findGroups(session, g, recursive));
-          }
-        }
+      for (NodeIterator gNodes = parentNode.getNodes(); gNodes.hasNext();) {
+        types.add(readObjectFromNode(gNodes.nextNode()));
       }
       return types;
 
+    } catch (PathNotFoundException e) {
+      return types;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find groups", e);
     }
@@ -382,7 +370,16 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     }
 
     try {
-      return findGroups(session, null, true);
+      List<Group> types = new ArrayList<Group>();
+
+      String statement = "select * from exo:group";
+      Query query = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
+      QueryResult res = query.execute();
+      for (NodeIterator gNodes = res.getNodes(); gNodes.hasNext();) {
+        types.add(readObjectFromNode(gNodes.nextNode()));
+      }
+      return types;
+
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not get all groups ", e);
     }

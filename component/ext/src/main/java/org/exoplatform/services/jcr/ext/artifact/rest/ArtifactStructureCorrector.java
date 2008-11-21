@@ -17,13 +17,16 @@
 package org.exoplatform.services.jcr.ext.artifact.rest;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
+import javax.jcr.Credentials;
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -31,20 +34,21 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
+import org.apache.maven.wagon.observers.ChecksumObserver;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.rest.HTTPMethod;
+import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.URITemplate;
+import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Credential;
@@ -53,12 +57,10 @@ import org.exoplatform.services.security.UsernameCredential;
 
 /**
  * Created by The eXo Platform SARL Author : Volodymyr Krasnikov
- * volodymyr.krasnikov@exoplatform.com.ua 29.10.2007
+ * volodymyr.krasnikov@exoplatform.com.ua 29 Жов 2007
  */
 public class ArtifactStructureCorrector implements ResourceContainer {
   private static final Log  LOGGER = ExoLogger.getLogger(ArtifactStructureCorrector.class);
-  
-  private static final String HEX = "0123456789abcdef";
 
   private RepositoryService repoService;
 
@@ -93,12 +95,12 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
   }
 
-  @GET
-  @Path("/corrector/")
+  @HTTPMethod("GET")
+  @URITemplate("/corrector/")
   public Response correctStructure() throws RepositoryException {
     new Thread(new ChecksumGenerator(currentSession(sessionProvider)),
                "Correct jcr struct, Append checksums to artifacts").start();
-    return Response.ok().build();
+    return Response.Builder.ok().build();
   }
 
   private Session currentSession(SessionProvider sp) throws RepositoryException {
@@ -114,7 +116,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
     public void run() {
 
-      LOGGER.info("Maven artifact checksums Updater started");
+      LOGGER.info("======> Maven artifact checksums Updater started");
 
       try {
         Node rootNode = (Node) session.getItem(rootNodePath);
@@ -127,7 +129,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         LOGGER.error("General repository exception", e);
       }
 
-      LOGGER.info("Maven artifact checksums Updater finished!");
+      LOGGER.info("======> Maven artifact checksums Updater finished!");
     }
 
     private void _jcrSpaning(Node current_root) throws RepositoryException {
@@ -213,32 +215,30 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     }
 
     protected String getChecksum(InputStream in, String algo) throws NoSuchAlgorithmException,
-                                                                IOException {
+                                                             IOException {
+      ChecksumObserver checksum = null;
+      try {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-      
+        IOUtils.copy(in, out);
+        byte[] buffer = out.toByteArray();
 
-      MessageDigest md = MessageDigest.getInstance(algo);
+        if ("MD5".equals(algo)) {
+          checksum = new ChecksumObserver("MD5"); // md5 by default
+        } else if ("SHA1".equals(algo)) {
+          checksum = new ChecksumObserver("SHA-1");
+        } else {
+          throw new NoSuchAlgorithmException("No support for algorithm " + algo + ".");
+        }
+        checksum.transferProgress(null, buffer, buffer.length);
+        checksum.transferCompleted(null);
 
-      DigestInputStream digestInputStream = new DigestInputStream(in, md);
-      digestInputStream.on(true);
-
-      while (digestInputStream.read() > -1) {
-        digestInputStream.read();
+      } catch (IOException e) {
+        LOGGER.error("Error reading from stream", e);
       }
-
-      byte[] bytes = digestInputStream.getMessageDigest().digest();
-      StringBuffer sb = new StringBuffer();
-
-      for (byte b : bytes) {
-
-        int v = b & 0xff;
-
-        sb.append((char) HEX.charAt(v >> 4));
-        sb.append((char) HEX.charAt(v & 0xf));
-      }
-
-      return sb.toString();
+      return checksum.getActualChecksum();
     }
+
   }
 
 }

@@ -79,7 +79,6 @@ public class RepositoryImpl implements ManageableRepository {
    */
   private static final CredentialsImpl   SYSTEM_CREDENTIALS = new CredentialsImpl(SystemIdentity.SYSTEM,
                                                                                   "".toCharArray());
-
   /**
    * Logger.
    */

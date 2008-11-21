@@ -20,24 +20,27 @@ package org.exoplatform.services.jcr.webdav.command.propfind;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.commons.logging.Log;
+import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.webdav.Depth;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.IllegalResourceTypeException;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.PropstatGroupedRepresentation;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -46,9 +49,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 
-public class PropFindResponseEntity implements StreamingOutput {
-  
-  private static Log log = ExoLogger.getLogger(PropFindResponseEntity.class);
+public class PropFindResponseEntity implements SerializableEntity {
 
   protected XMLStreamWriter              xmlStreamWriter;
 
@@ -80,7 +81,7 @@ public class PropFindResponseEntity implements StreamingOutput {
    * @see
    * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
    */
-  public void write(OutputStream stream) throws IOException {
+  public void writeObject(OutputStream stream) throws IOException {
     this.outputStream = stream;
     try {
       this.xmlStreamWriter = XMLOutputFactory.newInstance()
@@ -102,9 +103,9 @@ public class PropFindResponseEntity implements StreamingOutput {
       xmlStreamWriter.writeEndDocument();
 
       // rootNode.accept(this);
-    } catch (Exception exc) {
-      log.error(exc.getMessage(), exc);
-      throw new IOException(exc.getMessage());
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new IOException(e.getMessage());
     }
   }
 

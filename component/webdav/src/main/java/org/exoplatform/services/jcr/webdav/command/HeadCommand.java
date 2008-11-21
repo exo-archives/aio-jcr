@@ -22,18 +22,15 @@ import java.net.URI;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
-import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.services.jcr.webdav.WebDavHeaders;
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.resource.ResourceUtil;
 import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -42,8 +39,6 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class HeadCommand {
-  
-  private static Log log = ExoLogger.getLogger(HeadCommand.class);
 
   public Response head(Session session, String path, String baseURI) {
     try {
@@ -59,19 +54,19 @@ public class HeadCommand {
         String contentType = resource.getProperty(PropertyConstants.GETCONTENTTYPE).getValue();
         String contentLength = resource.getProperty(PropertyConstants.GETCONTENTLENGTH).getValue();
 
-        return Response.ok()
-                               .header(WebDavHeaders.LASTMODIFIED, lastModified)
-                               .header(WebDavHeaders.CONTENTTYPE, contentType)
-                               .header(WebDavHeaders.CONTENTLENGTH, contentLength)
+        return Response.Builder.ok()
+                               .header(WebDavConst.Headers.LASTMODIFIED, lastModified)
+                               .header(WebDavConst.Headers.CONTENTTYPE, contentType)
+                               .header(WebDavConst.Headers.CONTENTLENGTH, contentLength)
                                .build();
       }
 
-      return Response.ok().build();
+      return Response.Builder.ok().build();
     } catch (PathNotFoundException exc) {
-      return Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.Builder.notFound().build();
+
     } catch (Exception exc) {
-      log.error(exc.getMessage(), exc);
-      return Response.serverError().build();
+      return Response.Builder.serverError().build();
     }
   }
 

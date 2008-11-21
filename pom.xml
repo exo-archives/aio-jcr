@@ -10,7 +10,7 @@
   <groupId>org.exoplatform.jcr</groupId>
   <artifactId>config</artifactId>
   <name>eXo JCR Config</name>
-  <version>1.10.1-SNAPSHOT</version>
+  <version>trunk</version>
   <packaging>pom</packaging>
 
   <modules>
@@ -189,8 +189,8 @@
                 <taskdef resource="emma_ant.properties" classpathref="maven.dependency.classpath" />
                 <emma enabled="true">
                   <!-- merged file will be rewritted by last project -->
-                  <merge outfile="${exo.projects.directory.src}/jcr/branches/1.10.1-SNAPSHOT/coverage.es">
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.1-SNAPSHOT/">
+                  <merge outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.es">
+                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/">
                       <include name="**/target/emma/*.e*" />
                       <include name="**/target/emma/*.e*" />
                     </fileset>
@@ -199,15 +199,15 @@
                   </merge>
                   <report>
                     <sourcepath>
-                      <dirset dir="${exo.projects.directory.src}/jcr/branches/1.10.1-SNAPSHOT/">
+                      <dirset dir="${exo.projects.directory.src}/jcr/trunk/">
                         <include name="**/src/**/java" />
                       </dirset>
                     </sourcepath>
-                    <fileset dir="${exo.projects.directory.src}/jcr/branches/1.10.1-SNAPSHOT/target/">
+                    <fileset dir="${exo.projects.directory.src}/jcr/trunk/target/">
                       <include name="*.es" />
                     </fileset>
-                    <html outfile="${exo.projects.directory.src}/jcr/branches/1.10.1-SNAPSHOT/target/coverage.html" />
-                    <xml outfile="${exo.projects.directory.src}/jcr/branches/1.10.1-SNAPSHOT/target/coverage.xml" />
+                    <html outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.html" />
+                    <xml outfile="${exo.projects.directory.src}/jcr/trunk/target/coverage.xml" />
                   </report>
                 </emma>
               </tasks>
@@ -247,7 +247,8 @@
          </plugin>
      </plugins>
   </reporting>
-  <!-- repositories>
+
+  <repositories>
     <repository>
       <id>maven.org</id>
       <url>http://repo1.maven.org/maven2</url>
@@ -255,10 +256,6 @@
     <repository>
       <id>ibiblio.org</id>
       <url>http://www.ibiblio.org/maven2</url>
-    </repository>
-    <repository>
-      <id>exo-vietnam</id>
-      <url>http://vnserver.exoplatform.org/maven2</url>
     </repository>
     <repository>
       <id>objectweb.org</id>
@@ -270,10 +267,10 @@
     </repository>
     <repository>
       <id>java.net</id>
-      <url>https://maven-repository.dev.java.net/nonav/repository</url>
+      <url>https://maven-repository.dev.java.net/nonav/repository/</url>
       <layout>legacy</layout>
     </repository>
-  </repositories -->
+  </repositories>
 
   <profiles>
     <profile>
@@ -287,7 +284,7 @@
         <org.exoplatform.kernel.version>trunk</org.exoplatform.kernel.version>
         <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
         <org.exoplatform.ws.version>trunk</org.exoplatform.ws.version>
-        <org.exoplatform.jcr.version>1.10.1-SNAPSHOT</org.exoplatform.jcr.version>
+        <org.exoplatform.jcr.version>trunk</org.exoplatform.jcr.version>
         <exo.tck.skip>true</exo.tck.skip>
         <exo.test.forkMode>once</exo.test.forkMode>
       </properties>

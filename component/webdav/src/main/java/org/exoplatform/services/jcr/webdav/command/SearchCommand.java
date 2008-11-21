@@ -21,16 +21,14 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
-import javax.ws.rs.core.Response;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.command.dasl.SearchRequestEntity;
 import org.exoplatform.services.jcr.webdav.command.dasl.SearchResultResponseEntity;
 import org.exoplatform.services.jcr.webdav.command.dasl.UnsupportedQueryException;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -39,8 +37,6 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class SearchCommand {
-  
-  private static Log log = ExoLogger.getLogger(SearchCommand.class);
 
   public Response search(Session session, HierarchicalProperty body, String baseURI) {
     try {
@@ -56,16 +52,15 @@ public class SearchCommand {
                                                                                nsContext,
                                                                                baseURI);
 
-      return Response.status(HTTPStatus.MULTISTATUS).entity(searchResult).build();
+      return Response.Builder.withStatus(WebDavStatus.MULTISTATUS).entity(searchResult).build();
     } catch (PathNotFoundException exc) {
-      return Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.Builder.notFound().build();
 
     } catch (UnsupportedQueryException exc) {
-      return Response.status(HTTPStatus.BAD_REQUEST).build();
+      return Response.Builder.badRequest().build();
 
     } catch (Exception exc) {
-      log.error(exc.getMessage(), exc);
-      return Response.serverError().build();
+      return Response.Builder.serverError().build();
     }
 
   }

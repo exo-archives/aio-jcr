@@ -58,7 +58,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov </a>
  * @version $Id: WorkspaceStorageCacheImpl.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
+@Deprecated
 public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
 
   static public int                                     MAX_CACHE_SIZE     = 200;

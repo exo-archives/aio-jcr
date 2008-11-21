@@ -21,9 +21,9 @@ import javax.jcr.Item;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.core.Response;
 
-import org.exoplatform.common.http.HTTPStatus;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
+import org.exoplatform.services.rest.Response;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -38,13 +38,13 @@ public class DeleteCommand {
       Item item = session.getItem(path);
       item.remove();
       session.save();
-      return Response.status(HTTPStatus.NO_CONTENT).build();
+      return Response.Builder.withStatus(WebDavStatus.NO_CONTENT).build();
 
     } catch (PathNotFoundException exc) {
-      return Response.status(HTTPStatus.NOT_FOUND).build();
+      return Response.Builder.notFound().build();
 
     } catch (RepositoryException exc) {
-      return Response.status(HTTPStatus.FORBIDDEN).build();
+      return Response.Builder.forbidden().build();
     }
   }
 

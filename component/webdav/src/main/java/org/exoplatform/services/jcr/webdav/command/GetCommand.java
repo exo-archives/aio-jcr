@@ -19,20 +19,23 @@ package org.exoplatform.services.jcr.webdav.command;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.core.Response;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.webdav.Range;
+import org.exoplatform.services.jcr.webdav.WebDavConst;
 import org.exoplatform.services.jcr.webdav.WebDavHeaders;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
@@ -44,9 +47,12 @@ import org.exoplatform.services.jcr.webdav.util.MultipartByterangesEntity;
 import org.exoplatform.services.jcr.webdav.util.RangedInputStream;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
-import org.exoplatform.services.log.ExoLogger;
-
-//TODO [org.exoplatform.services.jcr.webdav.command.GetCommand.java] Code CleanUP 
+import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.transformer.SerializableTransformer;
+import org.exoplatform.services.rest.transformer.XSLT4SourceOutputTransformer;
+import org.exoplatform.services.rest.transformer.XSLTConstants;
+import org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl;
+import org.exoplatform.services.xml.transform.trax.TRAXTemplatesService;
 
 /**
  * Created by The eXo Platform SAS Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -55,8 +61,6 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class GetCommand {
-  
-  private static Log log = ExoLogger.getLogger(GetCommand.class);
 
   /**
    * GET content of the resource. Can be return content of the file. The content returns in the XML
@@ -111,18 +115,18 @@ public class GetCommand {
 
         // content length is not present
         if (contentLength == 0) {
-          return Response.ok()
+          return Response.Builder.ok()
                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                                 .entity(istream)
+                                 .entity(istream, contentType)
                                  .build();
         }
 
         // no ranges request
         if (ranges.size() == 0) {
-          return Response.ok()
+          return Response.Builder.ok()
                                  .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                                 .entity(istream)
+                                 .entity(istream, contentType)
                                  .build();
         }
 
@@ -130,7 +134,7 @@ public class GetCommand {
         if (ranges.size() == 1) {
           Range range = ranges.get(0);
           if (!validateRange(range, contentLength))
-            return Response.status(HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+            return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
                                    .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
                                    .build();
 
@@ -140,13 +144,13 @@ public class GetCommand {
 
           RangedInputStream rangedInputStream = new RangedInputStream(istream, start, end);
 
-          return Response.status(HTTPStatus.PARTIAL)
+          return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
                                  .header(WebDavHeaders.CONTENTLENGTH,
                                          Long.toString(returnedContentLength))
                                  .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
                                  .header(WebDavHeaders.CONTENTRANGE,
                                          "bytes " + start + "-" + end + "/" + contentLength)
-                                 .entity(rangedInputStream)
+                                 .entity(rangedInputStream, contentType)
                                  .build();
         }
 
@@ -154,7 +158,7 @@ public class GetCommand {
         for (int i = 0; i < ranges.size(); i++) {
           Range range = ranges.get(i);
           if (!validateRange(range, contentLength))
-            return Response.status(HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+            return Response.Builder.withStatus(WebDavStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
                                    .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
                                    .build();
           ranges.set(i, range);
@@ -165,31 +169,42 @@ public class GetCommand {
                                                                                     contentType,
                                                                                     contentLength);
 
-        return Response.status(HTTPStatus.PARTIAL)
+        return Response.Builder.withStatus(WebDavStatus.PARTIAL_CONTENT)
                                .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                               .entity(mByterangesEntity
-                                       /**  ,WebDavHeaders.MULTIPART_BYTERANGES + 
-                                        *   WebDavConst.BOUNDARY**/
-                                       )
+                               .entity(mByterangesEntity,
+                                       WebDavHeaders.MULTIPART_BYTERANGES + WebDavConst.BOUNDARY)
+                               .transformer(new SerializableTransformer())
                                .build();
       } else {
         // Collection processing;
         resource = new CollectionResource(uri, node, nsContext);
         istream = ((CollectionResource) resource).getContentAsStream(baseURI);
 
-        return Response.ok()
-                               .entity(new StreamSource(istream))
+        ExoContainer container = ExoContainerContext.getCurrentContainer();
+        TRAXTemplatesService templateService = (TRAXTemplatesService) container.getComponentInstanceOfType(TRAXTemplatesServiceImpl.class);
+
+        Map<String, String> tp = new HashMap<String, String>();
+        tp.put(XSLTConstants.XSLT_TEMPLATE, "get.method.template");
+
+        XSLT4SourceOutputTransformer transformer = new XSLT4SourceOutputTransformer(templateService);
+
+        return Response.Builder.ok()
+                               .entity(new StreamSource(istream), "text/html")
+                               .transformer(transformer)
+                               .setTransformerParameters(tp)
                                .build();
 
       }
 
     } catch (PathNotFoundException exc) {
-      return Response.status(HTTPStatus.NOT_FOUND).build();
+      exc.printStackTrace();
+      return Response.Builder.notFound().build();
     } catch (RepositoryException exc) {
-      return Response.serverError().build();
+      exc.printStackTrace();
+      return Response.Builder.serverError().build();
     } catch (Exception exc) {
-      log.error(exc.getMessage(), exc);
-      return Response.serverError().build();
+      exc.printStackTrace();
+      return Response.Builder.serverError().build();
     }
   }
 

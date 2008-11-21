@@ -32,19 +32,18 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
-import javax.ws.rs.core.StreamingOutput;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.webdav.WebDavConst;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.jcr.webdav.xml.PropertyWriteUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
+import org.exoplatform.services.rest.transformer.SerializableEntity;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -52,7 +51,7 @@ import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
  * @version $Id: $
  */
 
-public class PropPatchResponseEntity implements StreamingOutput {
+public class PropPatchResponseEntity implements SerializableEntity {
 
   private final WebDavNamespaceContext     nsContext;
 
@@ -86,7 +85,7 @@ public class PropPatchResponseEntity implements StreamingOutput {
     this.removeList = removeList;
   }
 
-  public void write(OutputStream outStream) throws IOException {
+  public void writeObject(OutputStream outStream) throws IOException {
     try {
       XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance()
                                                         .createXMLStreamWriter(outStream,
@@ -140,15 +139,15 @@ public class PropPatchResponseEntity implements StreamingOutput {
           node.save();
         }
 
-        statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
       } catch (AccessDeniedException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.FORBIDDEN);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
       } catch (ItemNotFoundException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
       } catch (PathNotFoundException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
       } catch (RepositoryException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.CONFLICT);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
       }
 
       if (!propStats.containsKey(statname)) {
@@ -166,7 +165,7 @@ public class PropPatchResponseEntity implements StreamingOutput {
       try {
 
         if (NON_REMOVING_PROPS.contains(removeProperty.getName())) {
-          statname = WebDavConst.getStatusDescription(HTTPStatus.CONFLICT);
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
 
           if (!propStats.containsKey(statname)) {
             propStats.put(statname, new HashSet<HierarchicalProperty>());
@@ -185,15 +184,15 @@ public class PropPatchResponseEntity implements StreamingOutput {
         property.remove();
         property.save();
 
-        statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
       } catch (AccessDeniedException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.FORBIDDEN);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
       } catch (ItemNotFoundException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
       } catch (PathNotFoundException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
       } catch (RepositoryException e) {
-        statname = WebDavConst.getStatusDescription(HTTPStatus.CONFLICT);
+        statname = WebDavStatus.getStatusDescription(WebDavStatus.CONFLICT);
       }
 
       if (!propStats.containsKey(statname)) {

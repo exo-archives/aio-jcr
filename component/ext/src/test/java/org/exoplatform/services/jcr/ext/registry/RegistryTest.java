@@ -25,6 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
+import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
 import org.exoplatform.services.security.ConversationState;
 import org.w3c.dom.Document;
 
@@ -94,9 +95,8 @@ public class RegistryTest extends BaseStandaloneTest {
 
     RegistryEntry entry = regService.getEntry(sessionProviderService.getSessionProvider(null),
                                               RegistryService.EXO_USERS + "/exo_service");
-    // FIXME
-//    PassthroughOutputTransformer transformer = new PassthroughOutputTransformer();
-//    transformer.writeTo(entry.getAsInputStream(), System.out);
+    PassthroughOutputTransformer transformer = new PassthroughOutputTransformer();
+    transformer.writeTo(entry.getAsInputStream(), System.out);
 
     regService.recreateEntry(sessionProviderService.getSessionProvider(null),
                              RegistryService.EXO_USERS,

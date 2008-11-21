@@ -29,12 +29,9 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.util.HierarchicalProperty;
-import org.exoplatform.services.jcr.webdav.WebDavConst;
+import org.exoplatform.services.jcr.webdav.WebDavStatus;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SARL .<br/>
@@ -44,8 +41,6 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class PropstatGroupedRepresentation {
-  
-  private static Log log = ExoLogger.getLogger(PropstatGroupedRepresentation.class);
 
   protected final Map<String, Set<HierarchicalProperty>> propStats;
 
@@ -75,7 +70,7 @@ public class PropstatGroupedRepresentation {
   }
 
   public final Map<String, Set<HierarchicalProperty>> getPropStats() throws RepositoryException {
-    String statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
+    String statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
     if (propNames == null) {
       propStats.put(statname, resource.getProperties(namesOnly));
     } else {
@@ -84,19 +79,20 @@ public class PropstatGroupedRepresentation {
         HierarchicalProperty prop = new HierarchicalProperty(propName);
         try {
           prop = resource.getProperty(propName);
-          statname = WebDavConst.getStatusDescription(HTTPStatus.OK);
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.OK);
 
-        } catch (AccessDeniedException exc) {
-          statname = WebDavConst.getStatusDescription(HTTPStatus.FORBIDDEN);
-          log.error(exc.getMessage(), exc);
-        } catch (ItemNotFoundException exc) {
-          statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.FORBIDDEN);
+          e.printStackTrace();
+        } catch (ItemNotFoundException e) {
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
+          e.printStackTrace();
 
         } catch (PathNotFoundException e) {
-          statname = WebDavConst.getStatusDescription(HTTPStatus.NOT_FOUND);
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.NOT_FOUND);
 
         } catch (RepositoryException e) {
-          statname = WebDavConst.getStatusDescription(HTTPStatus.INTERNAL_ERROR);
+          statname = WebDavStatus.getStatusDescription(WebDavStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (!propStats.containsKey(statname)) {

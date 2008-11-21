@@ -26,92 +26,106 @@ import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.resource.JcrURLConnection;
 import org.exoplatform.services.jcr.ext.resource.NodeRepresentationService;
 import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
-import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.Credential;
-import org.exoplatform.services.security.PasswordCredential;
-import org.exoplatform.services.security.UsernameCredential;
 import org.picocontainer.Startable;
 
 /**
+ * URLStreamHandler for protocol <tt>jcr://</tt>.
+ * 
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class Handler extends URLStreamHandler implements Startable {
 
   /*
-   * This is implements as Startable to be independent from other services. It should be guaranty
-   * created, and set special system property.
+   * This is implements as Startable to be independent from other services. It
+   * should be guaranty created, and set special system property.
+   * Static fields repositoryService, nodeRepresentationService should be
+   * initialized once when Handler created by container. 
    */
 
-  private static final String                 protocolPathPkg       = "org.exoplatform.services.jcr.ext.resource";
+  /**
+   * It specifies the package prefix name with should be added in System
+   * property java.protocol.handler.pkgs. Protocol handlers will be in a class
+   * called <tt>jcr</tt>.Handler.
+   */
+  private static final String                      protocolPathPkg = "org.exoplatform.services.jcr.ext.resource";
 
-  private static Authenticator                authenticator_;
+  /**
+   * Repository service.
+   */
+  private static RepositoryService                 repositoryService;
 
-  private static RepositoryService            repositoryService_;
+  /**
+   * See {@link NodeRepresentationService}.
+   */
+  private static NodeRepresentationService         nodeRepresentationService;
 
-  private static NodeRepresentationService    nodeRepresentationService_;
+  private static ThreadLocalSessionProviderService threadLocalSessionProviderService;
 
-  private static ThreadLocal<SessionProvider> sessionProviderKeeper = new ThreadLocal<SessionProvider>();
-
-  public Handler(Authenticator authenticator,
-                 RepositoryService repositoryService,
-                 NodeRepresentationService nodeRepresentationService) {
-    authenticator_ = authenticator;
-    repositoryService_ = repositoryService;
-    nodeRepresentationService_ = nodeRepresentationService;
-  }
-
-  public Handler() {
-    // this constructor will be used by java.net.URL
+  public Handler(RepositoryService rs,
+                 NodeRepresentationService nrs,
+                 ThreadLocalSessionProviderService tsps) {
+    repositoryService = rs;
+    nodeRepresentationService = nrs;
+    threadLocalSessionProviderService = tsps;
   }
 
   /*
-   * (non-Javadoc)
-   * @see java.net.URLStreamHandler#openConnection(java.net.URL)
+   * This constructor will be used by java.net.URL .
+   * NOTE Currently it is not possible use next under servlet container:
+   * URL url = new URL("jcr://repo/workspace#/path");
+   * even system property 'java.protocol.handler.pkgs' contains correct
+   * package name for handler java.net.URL use SystemClassLoader, and it
+   * does work when handler is lib/.jar file or in .war file.
+   * This bug is described here:
+   * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4648098
+   */
+  public Handler() {
+  }
+
+  // URLStreamHandler
+  
+  /**
+   * {@inheritDoc}
    */
   @Override
   protected URLConnection openConnection(URL url) throws IOException {
     try {
       UnifiedNodeReference nodeReference = new UnifiedNodeReference(url);
 
-      SessionProvider sp = sessionProviderKeeper.get();
+      // First try use user specified session provider, e.g. 
+      // ThreadLocalSessionProvider or System SessionProvider 
+      SessionProvider sessionProvider = threadLocalSessionProviderService.getSessionProvider(null);
 
-      ConversationState conversationState = ConversationState.getCurrent();
-      if (sp == null && conversationState != null) {
-        sp = (SessionProvider) conversationState.getAttribute(SessionProvider.SESSION_PROVIDER);
+      if (sessionProvider == null && ConversationState.getCurrent() != null)
+        sessionProvider = (SessionProvider) ConversationState.getCurrent()
+                                                             .getAttribute(SessionProvider.SESSION_PROVIDER);
+
+      // if still not set use anonymous session provider
+      if (sessionProvider == null) {
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> anonymous");
+        sessionProvider = SessionProvider.createAnonimProvider();
       }
-
-      if (sp == null) {
-        Credential[] cred = parseCredentials(nodeReference.getUserInfo());
-        if (cred == null) {
-          if (conversationState == null)
-            sp = SessionProvider.createAnonimProvider();
-          else
-            sp = new SessionProvider(conversationState);
-        } else {
-          String userId = authenticator_.validateUser(cred);
-          sp = new SessionProvider(new ConversationState(authenticator_.createIdentity(userId)));
-        }
-      }
-
+      
       ManageableRepository repository;
       String repositoryName = nodeReference.getRepository();
       if (repositoryName == null || repositoryName.length() == 0)
-        repository = sp.getCurrentRepository();
+        repository = sessionProvider.getCurrentRepository();
       else
-        repository = repositoryService_.getRepository(repositoryName);
+        repository = repositoryService.getRepository(repositoryName);
 
       String workspaceName = nodeReference.getWorkspace();
       if (workspaceName == null || workspaceName.length() == 0)
-        workspaceName = sp.getCurrentWorkspace();
+        workspaceName = sessionProvider.getCurrentWorkspace();
 
-      Session ses = sp.getSession(workspaceName, repository);
-      JcrURLConnection conn = new JcrURLConnection(nodeReference, ses, nodeRepresentationService_);
+      Session ses = sessionProvider.getSession(workspaceName, repository);
+      JcrURLConnection conn = new JcrURLConnection(nodeReference, ses, nodeRepresentationService);
       return conn;
 
     } catch (Exception e) {
@@ -120,9 +134,10 @@ public class Handler extends URLStreamHandler implements Startable {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#start()
+  // Startable
+  
+  /**
+   * {@inheritDoc}
    */
   public void start() {
     String existingProtocolPathPkgs = System.getProperty("java.protocol.handler.pkgs");
@@ -133,46 +148,11 @@ public class Handler extends URLStreamHandler implements Startable {
           + protocolPathPkg);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#stop()
+  /**
+   * {@inheritDoc}
    */
   public void stop() {
     // nothing to do!
-  }
-
-  /**
-   * Set session provider, it useful on startup time and for update script, when there is no any
-   * users.
-   * 
-   * @param sp
-   *          the SessionProvider.
-   */
-  public void setSessionProvider(SessionProvider sessionProvider) {
-    sessionProviderKeeper.set(sessionProvider);
-  }
-
-  /**
-   * Close session.
-   */
-  public void removeSessionProvider() {
-    sessionProviderKeeper.get().close();
-    sessionProviderKeeper.remove();
-  }
-
-  private static Credential[] parseCredentials(String userInfo) {
-    if (userInfo == null)
-      return null;
-
-    int colon = userInfo.indexOf(':');
-
-    if (colon > 0)
-      return new Credential[] { new UsernameCredential(userInfo.substring(0, colon)),
-          new PasswordCredential(userInfo.substring(colon + 1)) };
-    if (colon < 0)
-      return new Credential[] { new UsernameCredential(userInfo) };
-
-    return null;
   }
 
 }

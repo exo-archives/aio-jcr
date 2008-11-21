@@ -463,6 +463,16 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       log.debug("linkMembership");
     }
 
+    if (group == null) {
+      throw new OrganizationServiceException("Can not create membership record for user '"
+          + user.getUserName() + "' because group not found");
+    }
+
+    if (m == null) {
+      throw new OrganizationServiceException("Can not create membership record for user '"
+          + user.getUserName() + "' because membership type not found");
+    }
+
     try {
       // create membership type '*'
       if (m.getName().equals("*")
@@ -498,7 +508,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       }
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not link membership for user '"
+      throw new OrganizationServiceException("Can not link membership record for user '"
           + user.getUserName() + "' group '" + group.getGroupName() + "' and membership type '"
           + m.getName() + "'", e);
     }

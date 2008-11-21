@@ -29,9 +29,6 @@ import javax.jcr.Session;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.logging.Log;
-import org.exoplatform.services.log.ExoLogger;
-
 /**
  * Created by The eXo Platform SARL Author : Vitaly Guly <gavrik-vetal@ukr.net/mail.ru>
  * 
@@ -39,8 +36,6 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class WebDavNamespaceContext implements NamespaceContext {
-  
-  private static Log log = ExoLogger.getLogger(WebDavNamespaceContext.class);
 
   /*
    * Key: NameSpace Value: Prefix
@@ -77,10 +72,10 @@ public class WebDavNamespaceContext implements NamespaceContext {
     String uri = null;
     try {
       uri = namespaceRegistry.getURI(prefix);
-    } catch (NamespaceException exc) {
+    } catch (NamespaceException e) {
       uri = namespaces.get(prefix);
-    } catch (RepositoryException exc) {
-      log.error(exc.getMessage(), exc);
+    } catch (RepositoryException e) {
+      e.printStackTrace();
     }
     return uri;
   }
@@ -93,10 +88,10 @@ public class WebDavNamespaceContext implements NamespaceContext {
     String prefix = null;
     try {
       prefix = namespaceRegistry.getPrefix(namespaceURI);
-    } catch (NamespaceException exc) {
+    } catch (NamespaceException e) {
       prefix = prefixes.get(namespaceURI);
-    } catch (RepositoryException exc) {
-      log.error(exc.getMessage(), exc);
+    } catch (RepositoryException e) {
+      e.printStackTrace();
     }
     return prefix;
 

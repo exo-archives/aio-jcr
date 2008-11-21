@@ -33,6 +33,7 @@ import org.exoplatform.services.jcr.ext.app.SessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.webdav.xml.XMLInputTransformer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 
@@ -140,9 +141,9 @@ public abstract class BaseStandaloneWebDavTest extends TestCase {
                         serv.lockTokens(null, null));
   }
 
-//  public HierarchicalProperty body(String xml) throws IOException {
-//    XMLInputTransformer transformer = new XMLInputTransformer();
-//    return (HierarchicalProperty) transformer.readFrom(new ByteArrayInputStream(xml.getBytes()));
-//  }
+  public HierarchicalProperty body(String xml) throws IOException {
+    XMLInputTransformer transformer = new XMLInputTransformer();
+    return (HierarchicalProperty) transformer.readFrom(new ByteArrayInputStream(xml.getBytes()));
+  }
 
 }
