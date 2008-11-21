@@ -56,17 +56,10 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picocontainer.Startable;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
-import org.apache.maven.wagon.observers.ChecksumObserver;
-
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -77,6 +70,10 @@ import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
 import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS .<br/> Service responsible for Administration Maven repository
@@ -827,8 +824,13 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     if (nodeChecksumFile.canAddMixin(mixinType))
       nodeChecksumFile.addMixin(mixinType);
     try {
-      InputStream checksum_is = new ByteArrayInputStream(getChecksum(srcFile, algorithm).getBytes());
-      String mimeType = "text/xml";
+      
+      FileInputStream fileInputStream = new FileInputStream(srcFile);
+      
+      String checksum = CRCGenerator.getChecksum(fileInputStream, algorithm);
+      
+      InputStream checksum_is = new ByteArrayInputStream(checksum.getBytes());
+      String mimeType = "text/plain";
 
       Node content = nodeChecksumFile.addNode("jcr:content", "nt:resource");
       content.setProperty("jcr:mimeType", mimeType);
@@ -843,26 +845,6 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     } catch (NoSuchAlgorithmException e) {
       LOGGER.error("No such algorithm for generating checksums", e);
     }
-  }
-
-  protected String getChecksum(File file, String algo) throws NoSuchAlgorithmException, IOException {
-    ChecksumObserver checksum = null;
-    try {
-      byte[] buffer = FileUtils.readFileToByteArray(file);
-      if ("MD5".equals(algo)) {
-        checksum = new ChecksumObserver("MD5"); // md5 by default
-      } else if ("SHA1".equals(algo)) {
-        checksum = new ChecksumObserver("SHA-1");
-      } else {
-        throw new NoSuchAlgorithmException("No support for algorithm " + algo + ".");
-      }
-      checksum.transferProgress(null, buffer, buffer.length);
-      checksum.transferCompleted(null);
-
-    } catch (IOException e) {
-      LOGGER.error("Error reading from stream", e);
-    }
-    return checksum.getActualChecksum();
   }
 
   protected File createSingleMetadata(String groupId, String artifactId, String version) throws FileNotFoundException {
