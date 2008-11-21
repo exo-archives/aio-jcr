@@ -57,6 +57,8 @@ import org.exoplatform.services.security.UsernameCredential;
  */
 public class ArtifactStructureCorrector implements ResourceContainer {
   private static final Log  LOGGER = ExoLogger.getLogger(ArtifactStructureCorrector.class);
+  
+  private static final String HEX = "0123456789abcdef";
 
   private RepositoryService repoService;
 
@@ -213,7 +215,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     protected String getChecksum(InputStream in, String algo) throws NoSuchAlgorithmException,
                                                                 IOException {
 
-      String hex = "0123456789abcdef";
+      
 
       MessageDigest md = MessageDigest.getInstance(algo);
 
@@ -231,8 +233,8 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
         int v = b & 0xff;
 
-        sb.append((char) hex.charAt(v >> 4));
-        sb.append((char) hex.charAt(v & 0xf));
+        sb.append((char) HEX.charAt(v >> 4));
+        sb.append((char) HEX.charAt(v & 0xf));
       }
 
       return sb.toString();
