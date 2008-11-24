@@ -61,17 +61,41 @@
   </component>
   
   <component>
-    <type>org.exoplatform.services.rest.ResourceDispatcher</type>
+    <type>org.exoplatform.services.rest.impl.RequestHandlerImpl</type>
+    <component-plugins>
+    <component-plugin>
+      <name>ws.rs.method.filter</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.services.rest.impl.method.MethodInvokerFilterComponentPlugin</type>
+      <!--
+      <init-params>
+        <value-param>
+          <name>name</name>
+          <value>filter class</value>
+        </value-param>
+      </init-params>
+      -->
+    </component-plugin>
+    </component-plugins>
   </component>
   
+
   <component>
-    <type>org.exoplatform.services.rest.ResourceBinder</type>
-    <init-params>
-      <value-param>
-        <name>strategy</name>
-        <value>org.exoplatform.services.rest.container.HTTPAnnotatedContainerResolvingStrategy</value>
-      </value-param>
-    </init-params>
+<!--    <type>org.exoplatform.services.rest.ResourceDispatcher</type>-->
+    <type>org.exoplatform.services.rest.impl.RequestDispatcher</type>
+  </component>
+  
+<!--  <component>-->
+<!--    <type>org.exoplatform.services.rest.ResourceBinder</type>-->
+<!--    <init-params>-->
+<!--      <value-param>-->
+<!--        <name>strategy</name>-->
+<!--        <value>org.exoplatform.services.rest.container.HTTPAnnotatedContainerResolvingStrategy</value>-->
+<!--      </value-param>-->
+<!--    </init-params>-->
+<!--  </component>-->
+  <component>
+    <type>org.exoplatform.services.rest.impl.ResourceBinder</type>
   </component>
   
   <component>
@@ -376,19 +400,6 @@
   
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationService</type>
-    <component-plugins>
-      <component-plugin>
-        <name>noderepresentation</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactoryLoaderPlugin</type>
-        <init-params>
-          <properties-param>
-            <name>node-representation-factories</name>
-            <property name="nt:file" value="org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory"/>
-          </properties-param>
-        </init-params>
-      </component-plugin>
-    </component-plugins>
   </component>
   
   <component>

@@ -24,13 +24,17 @@ import java.util.Calendar;
 
 import javax.jcr.Node;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class JcrURLConnectionTest extends BaseStandaloneTest {
+  
+  private static final Log      log = ExoLogger.getLogger(JcrURLConnectionTest.class);
 
   private String fname;
 

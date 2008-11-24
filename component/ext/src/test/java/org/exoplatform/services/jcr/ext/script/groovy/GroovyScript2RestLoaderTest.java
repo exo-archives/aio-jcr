@@ -17,19 +17,25 @@
 
 package org.exoplatform.services.jcr.ext.script.groovy;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
+import javax.ws.rs.ext.MessageBodyWriter;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.rest.MultivaluedMetadata;
-import org.exoplatform.services.rest.Request;
-import org.exoplatform.services.rest.ResourceBinder;
-import org.exoplatform.services.rest.ResourceDispatcher;
-import org.exoplatform.services.rest.ResourceIdentifier;
-import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.ContainerResponseWriter;
+import org.exoplatform.services.rest.GenericContainerResponse;
+import org.exoplatform.services.rest.RequestHandler;
+import org.exoplatform.services.rest.impl.ContainerRequest;
+import org.exoplatform.services.rest.impl.ContainerResponse;
+import org.exoplatform.services.rest.impl.InputHeadersMap;
+import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
+import org.exoplatform.services.rest.impl.RequestDispatcher;
+import org.exoplatform.services.rest.impl.ResourceBinder;
 
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
@@ -41,22 +47,21 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
   private ResourceBinder     binder;
 
-  private ResourceDispatcher dispatcher;
+  private RequestHandler handler;
 
   private Node               scriptFile;
 
   private Node               script;
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.ext.BaseStandaloneTest#setUp()
+  /**
+   * {@inheritDoc}
    */
   public void setUp() throws Exception {
     super.setUp();
 
     binder = (ResourceBinder) container.getComponentInstanceOfType(ResourceBinder.class);
     binder.clear();
-    dispatcher = (ResourceDispatcher) container.getComponentInstanceOfType(ResourceDispatcher.class);
+    handler = (RequestHandler) container.getComponentInstanceOfType(RequestHandler.class);
 
     testRoot = root.addNode("testRoot", "nt:unstructured");
     scriptFile = testRoot.addNode("script", "nt:file");
@@ -85,29 +90,43 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
   }
 
   public void testBindScripts() throws Exception {
-    // one script should be binded from start
-    assertEquals(1, binder.getAllDescriptors().size());
+//     one script should be binded from start
+    assertEquals(1, binder.getRootResources().size());
 
     script.setProperty("exo:autoload", false);
     session.save();
-    assertEquals(0, binder.getAllDescriptors().size());
+    assertEquals(0, binder.getRootResources().size());
 
     // bind script again
     script.setProperty("exo:autoload", true);
     session.save();
-    assertEquals(1, binder.getAllDescriptors().size());
+    assertEquals(1, binder.getRootResources().size());
   }
 
   public void testDispatchScript() throws Exception {
-    assertEquals(1, binder.getAllDescriptors().size());
-    Request request = new Request(null,
-                                  new ResourceIdentifier("/test/groovy1/test/"),
-                                  "GET",
-                                  new MultivaluedMetadata(),
-                                  new MultivaluedMetadata());
-    Response response = dispatcher.dispatch(request);
-    assertEquals(200, response.getStatus());
-    assertEquals("Hello from groovy to test!", response.getEntity());
+    assertEquals(1, binder.getRootResources().size());
+    ContainerRequest creq = new ContainerRequest("GET",
+                                                 new URI("/groovy-test/groovy1/test"),
+                                                 new URI(""),
+                                                 null,
+                                                 new InputHeadersMap(new MultivaluedMapImpl()));
+    
+    ContainerResponse cres = new ContainerResponse(new ContainerResponseWriter() {
+
+      public void writeBody(GenericContainerResponse arg0, MessageBodyWriter arg1) throws IOException {
+        // TODO Auto-generated method stub
+        
+      }
+
+      public void writeHeaders(GenericContainerResponse arg0) throws IOException {
+        // TODO Auto-generated method stub
+        
+      }});
+    
+    handler.handleRequest(creq, cres);
+    
+    assertEquals(200, cres.getStatus());
+    assertEquals("Hello from groovy to test", cres.getEntity());
 
     // change script source code
     script.setProperty("jcr:data", Thread.currentThread()
@@ -116,16 +135,28 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     session.save();
 
     // must be rebounded , not created other one
-    assertEquals(1, binder.getAllDescriptors().size());
-    // relative URI changed
-    request = new Request(null,
-                          new ResourceIdentifier("/test/groovy2/test/"),
-                          "GET",
-                          new MultivaluedMetadata(),
-                          new MultivaluedMetadata());
-    response = dispatcher.dispatch(request);
-    assertEquals(200, response.getStatus());
-    assertEquals("Hello from groovy to >>>>> test!", response.getEntity());
+    assertEquals(1, binder.getRootResources().size());
+    creq = new ContainerRequest("GET",
+                                                 new URI("/groovy-test/groovy2/test"),
+                                                 new URI(""),
+                                                 null,
+                                                 new InputHeadersMap(new MultivaluedMapImpl()));
+    
+    cres = new ContainerResponse(new ContainerResponseWriter() {
+
+      public void writeBody(GenericContainerResponse arg0, MessageBodyWriter arg1) throws IOException {
+        // TODO Auto-generated method stub
+        
+      }
+
+      public void writeHeaders(GenericContainerResponse arg0) throws IOException {
+        // TODO Auto-generated method stub
+        
+      }});
+    
+    handler.handleRequest(creq, cres);
+    assertEquals(200, cres.getStatus());
+    assertEquals("Hello from groovy to >>>>> test", cres.getEntity());
   }
 
 }

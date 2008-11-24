@@ -20,6 +20,9 @@ import javax.jcr.Node;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.log.ExoLogger;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -28,6 +31,8 @@ import javax.jcr.lock.LockException;
  */
 
 public class ReplicationLockTest extends BaseReplicationTest {
+  
+  private static final Log      log = ExoLogger.getLogger(ReplicationLockTest.class);
 
   public void testLock() throws Exception {
     Node nodeLocked = root.addNode("Node Locked");

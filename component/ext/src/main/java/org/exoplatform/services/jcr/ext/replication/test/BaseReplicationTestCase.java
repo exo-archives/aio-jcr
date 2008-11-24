@@ -42,7 +42,7 @@ public abstract class BaseReplicationTestCase {
   /**
    * The apache logger.
    */
-  protected static Log       log         = ExoLogger.getLogger("ext.AbstractReplicationTestCase");
+  protected static Log       log         = ExoLogger.getLogger(BaseReplicationTestCase.class);
 
   /**
    * Definition the size of buffer.
@@ -70,7 +70,7 @@ public abstract class BaseReplicationTestCase {
   protected Node             rootNode;
 
   /**
-   * The Credentials to workspace. 
+   * The Credentials to workspace.
    */
   private Credentials        credentials;
 
@@ -80,8 +80,8 @@ public abstract class BaseReplicationTestCase {
   protected Repository       repository;
 
   /**
-   * BaseReplicationTestCase  constructor.
-   *
+   * BaseReplicationTestCase constructor.
+   * 
    * @param repositoryService
    *          the RepositoryService.
    * @param reposytoryName
@@ -116,42 +116,44 @@ public abstract class BaseReplicationTestCase {
 
   /**
    * addNodePath.
-   *
+   * 
    * @param repoPath
    *          the repository path
-   * @return Node
-   *           the Node
-   * @throws RepositoryException 
+   * @return Node the Node
+   * @throws RepositoryException
    *           will be generated the RepositoryException.
    */
   protected Node addNodePath(String repoPath) throws RepositoryException {
     Node resultNode = rootNode;
     String[] sArray = repoPath.split("[::]");
 
-    for (String nodeName : sArray)
-      if (resultNode.hasNode(nodeName))
+    for (String nodeName : sArray) {
+      if (resultNode.hasNode(nodeName)) {
         resultNode = resultNode.getNode(nodeName);
-      else
+      } else {
         resultNode = resultNode.addNode(nodeName, "nt:unstructured");
+      }
+    }
 
     return resultNode;
   }
 
   /**
    * getNormalizePath.
-   *
+   * 
    * @param repoPath
-   *         the repository path split '::' 
-   * @return String
-   *          return the repository path split '/' 
+   *          the repository path split '::'
+   * @return String return the repository path split '/'
    */
   protected String getNormalizePath(String repoPath) {
+    // return repoPath;
+    // TODO remove it ?
     return repoPath.replaceAll("[:][:]", "/");
   }
 
   /**
    * compareStream.
-   *
+   * 
    * @param etalon
    *          the eatalon stream
    * @param data
@@ -172,7 +174,7 @@ public abstract class BaseReplicationTestCase {
    *          the etalon stream
    * @param data
    *          testing stream
-   * @param etalonPos 
+   * @param etalonPos
    *          etalon position
    * @param dataPos
    *          testing position
@@ -212,20 +214,23 @@ public abstract class BaseReplicationTestCase {
         for (int i = 0; i < dread; i++) {
           byte eb = ebuff[i];
           byte db = dbuff[i];
-          if (eb != db)
+          if (eb != db) {
             throw new Exception("Streams is not equals. Wrong byte stored at position " + dindex
                 + " of data stream. Expected 0x" + Integer.toHexString(eb) + " '"
                 + new String(new byte[] { eb }) + "' but found 0x" + Integer.toHexString(db) + " '"
                 + new String(new byte[] { db }) + "'");
+          }
 
           erindex++;
           dindex++;
-          if (length > 0 && dindex >= length)
+          if (length > 0 && dindex >= length) {
             return; // tested length reached
+          }
         }
 
-        if (dread < eread)
+        if (dread < eread) {
           dbuff = new byte[eread - dread];
+        }
       }
     }
 

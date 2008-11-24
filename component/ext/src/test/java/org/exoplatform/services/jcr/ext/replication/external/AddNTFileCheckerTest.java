@@ -45,7 +45,6 @@ public class AddNTFileCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + relPath + "/" + fileNameArray[i] + "/" + fSize + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.ADD_NT_FILE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -67,7 +66,6 @@ public class AddNTFileCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + relPath + "/" + fileNameArray[i] + "/" + fSize + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_NT_FILE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 4000);
@@ -88,7 +86,6 @@ public class AddNTFileCheckerTest extends BaseTestCaseChecker {
           + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
           + workingWorkspace + "/" + masterMember.getLogin() + "/" + masterMember.getPassword()
           + "/" + relPath + "/" + fileNameArray[i] + "/"
-          + ReplicationTestService.Constants.OPERATION_PREFIX
           + ReplicationTestService.Constants.OperationType.DELETE;
 
       BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(masterMember);
@@ -110,7 +107,6 @@ public class AddNTFileCheckerTest extends BaseTestCaseChecker {
             + ReplicationTestService.Constants.BASE_URL + "/" + workingRepository + "/"
             + workingWorkspace + "/" + slaveMember.getLogin() + "/" + slaveMember.getPassword()
             + "/" + relPath + "/" + fileNameArray[i] + "/"
-            + ReplicationTestService.Constants.OPERATION_PREFIX
             + ReplicationTestService.Constants.OperationType.CHECK_DELETE;
 
         BasicAuthenticationHttpClient client = new BasicAuthenticationHttpClient(slaveMember, 4000);

@@ -1,25 +1,23 @@
 package org.exoplatform.groovy.test
 
-import org.exoplatform.services.rest.HTTPMethod
-import org.exoplatform.services.rest.URITemplate
-import org.exoplatform.services.rest.URIParam
-import org.exoplatform.services.rest.Response
-import org.exoplatform.services.rest.OutputTransformer
-import org.exoplatform.services.rest.transformer.StringOutputTransformer
-import org.exoplatform.services.rest.container.ResourceContainer
+import javax.ws.rs.GET
+import javax.ws.rs.Path
+import javax.ws.rs.PathParam
 
-@URITemplate("/test/")
-class Test1 implements ResourceContainer {
+import org.exoplatform.services.rest.resource.ResourceContainer
+
+
+@Path("groovy-test")
+public class Test1 implements ResourceContainer {
   
   
   public Test1() {
   }
   
-  @HTTPMethod("GET")
-  @URITemplate("/groovy1/{param}/")
-  @OutputTransformer(StringOutputTransformer.class)
-  public Response method(@URIParam("param") String name) {
-    def Response resp = Response.Builder.ok("Hello from groovy to " + name + "!", "text/plain").build()
+  @GET
+  @Path("/groovy1/{param}/")
+  public String method(@PathParam("param") String name) {
+    def String resp = "Hello from groovy to " + name
     return resp
   }
   

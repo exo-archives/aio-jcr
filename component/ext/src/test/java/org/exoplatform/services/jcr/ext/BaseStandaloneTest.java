@@ -33,7 +33,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public abstract class BaseStandaloneTest extends TestCase {
 
-  protected static Log          log = ExoLogger.getLogger("jcr.JCRExtTest");
+  private static final Log      log = ExoLogger.getLogger(BaseStandaloneTest.class);
 
   protected SessionImpl         session;
 

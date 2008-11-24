@@ -53,9 +53,8 @@ import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
 import org.exoplatform.services.jcr.ext.resource.jcr.Handler;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.ResourceBinder;
-import org.exoplatform.services.rest.container.InvalidResourceDescriptorException;
-import org.exoplatform.services.rest.container.ResourceContainer;
+import org.exoplatform.services.rest.impl.ResourceBinder;
+import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
 
 /**
@@ -64,35 +63,33 @@ import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
  */
 public class GroovyScript2RestLoader implements Startable {
 
-  public static final String               DEFAULT_NODETYPE     = "exo:groovyResourceContainer";
+  public static final String                    DEFAULT_NODETYPE    = "exo:groovyResourceContainer";
 
-  private static final Log                 Log                  = ExoLogger.getLogger("jcr.script.GroovyScript2RestLoader");
+  private static final String                   SERVICE_NAME        = "GroovyScript2RestLoader";
 
-  private static final String              SERVICE_NAME         = "GroovyScript2RestLoader";
+  private InitParams                            initParams;
 
-  private InitParams                       initParams;
+  private ResourceBinder                        binder;
 
-  private ResourceBinder                   binder;
-
-  private GroovyScriptInstantiator         groovyScriptInstantiator;
+  private GroovyScriptInstantiator              groovyScriptInstantiator;
 
   // used for processing URL : jcr://repository/workspace#/root/node1/....
-  private Handler                          handler;
+  private Handler                               handler;
 
-  private RepositoryService                repositoryService;
+  private RepositoryService                     repositoryService;
 
-  private RegistryService                  registryService;
+  private RegistryService                       registryService;
 
-  private ObservationListenerConfiguration observationListenerConfiguration;
+  private ObservationListenerConfiguration      observationListenerConfiguration;
 
-  private String                           nodeType;
+  private String                                nodeType;
 
-  private Map<String, String>              scriptsURL2ClassName = new HashMap<String, String>();
+  private Map<String, Class<?>> scriptsURL2ClassMap = new HashMap<String, Class<?>>();
 
   /**
    * Logger.
    */
-  private static Log                       log                  = ExoLogger.getLogger("jcr.GroovyScrip2RestLoader");
+  private static final Log                      log                 = ExoLogger.getLogger(GroovyScript2RestLoader.class);
 
   public GroovyScript2RestLoader(ResourceBinder binder,
                                  GroovyScriptInstantiator groovyScriptInstantiator,
@@ -121,9 +118,9 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Remove script with specified URL from ResourceBinder.
    * 
-   * @param url
-   *          the URL. The <code>url.toString()</code> must be corresponded to script class name,
-   *          otherwise IllegalArgumentException will be thrown.
+   * @param url the URL. The <code>url.toString()</code> must be corresponded to
+   *          script class, otherwise IllegalArgumentException will be
+   *          thrown.
    * @see GroovyScriptRestLoader#loadScript(URL).
    * @see GroovyScript2RestLoader#loadScript(String, InputStream)
    */
@@ -134,16 +131,14 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Remove script by specified key from ResourceBinder.
    * 
-   * @param key
-   *          the key with which script was created.
-   * 
+   * @param key the key with which script was created.
    * @see GroovyScriptRestLoader#loadScript(URL).
    * @see GroovyScript2RestLoader#loadScript(String, InputStream)
    */
   public void unloadScript(String key) {
-    if (scriptsURL2ClassName.containsKey(key)) {
-      binder.unbind(scriptsURL2ClassName.get(key));
-      scriptsURL2ClassName.remove(key);
+    if (scriptsURL2ClassMap.containsKey(key)) {
+       binder.unbind(scriptsURL2ClassMap.get(key));
+      scriptsURL2ClassMap.remove(key);
     } else {
       throw new IllegalArgumentException("Specified key '" + key
           + "' does not corresponds to any class name.");
@@ -151,45 +146,38 @@ public class GroovyScript2RestLoader implements Startable {
   }
 
   /**
-   * @param url
-   *          the RUL for loading script.
-   * @throws InvalidResourceDescriptorException
-   *           if loaded object is not valid ResourceContainer.
-   * @throws IOException
-   *           it script can't be loaded.
+   * @param url the RUL for loading script.
+   * @throws InvalidResourceDescriptorException if loaded object is not valid
+   *           ResourceContainer.
+   * @throws IOException it script can't be loaded.
    */
-  public void loadScript(URL url) throws InvalidResourceDescriptorException, IOException {
+  public void loadScript(URL url) throws IOException {
 
     ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(url);
     binder.bind(resourceContainer);
 
     // add mapping script URL to name of class.
-    scriptsURL2ClassName.put(url.toString(), resourceContainer.getClass().getName());
-    Log.info("Add new groovy scripts, URL: " + url);
+    scriptsURL2ClassMap.put(url.toString(), resourceContainer.getClass());
+    log.info("Add new groovy scripts, URL: " + url);
 
   }
 
   /**
    * Load script from given stream.
    * 
-   * @param key
-   *          the key which must be corresponded to object class name.
-   * @param stream
-   *          the stream which represents grrovy script.
-   * @throws InvalidResourceDescriptorException
-   *           if loaded Object can't be added in ResourceBinder.
-   * @throws IOException
-   *           if script can't be loaded or parsed.
+   * @param key the key which must be corresponded to object class name.
+   * @param stream the stream which represents grrovy script.
+   * @throws InvalidResourceDescriptorException if loaded Object can't be added
+   *           in ResourceBinder.
+   * @throws IOException if script can't be loaded or parsed.
    * @see ResourceBinder#bind(ResourceContainer)
    */
-  public void loadScript(String key, InputStream stream) throws InvalidResourceDescriptorException,
-                                                        IOException {
+  public void loadScript(String key, InputStream stream) throws IOException {
     ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(stream);
     binder.bind(resourceContainer);
-
     // add mapping script URL to name of class.
-    scriptsURL2ClassName.put(key, resourceContainer.getClass().getName());
-    Log.info("Add new groovy scripts, script key: " + key);
+    scriptsURL2ClassMap.put(key, resourceContainer.getClass());
+    log.info("Add new groovy scripts, script key: " + key);
   }
 
   /*
@@ -226,10 +214,12 @@ public class GroovyScript2RestLoader implements Startable {
 
       ManageableRepository repository = repositoryService.getRepository(repositoryName);
 
-      // SessionProvider sessionProvider = SessionProvider.createSystemProvider();
+      // SessionProvider sessionProvider =
+      // SessionProvider.createSystemProvider();
 
       for (String workspaceName : workspaceNames) {
-        // Session session = sessionProvider.getSession(workspaceName, repository);
+        // Session session = sessionProvider.getSession(workspaceName,
+        // repository);
         Session session = repository.getSystemSession(workspaceName);
 
         // add observation listeners
@@ -284,8 +274,7 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Read parameters from RegistryService.
    * 
-   * @param sessionProvider
-   *          The SessionProvider
+   * @param sessionProvider The SessionProvider
    * @throws RepositoryException
    * @throws PathNotFoundException
    */
@@ -331,8 +320,7 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Write parameters to RegistryService.
    * 
-   * @param sessionProvider
-   *          The SessionProvider
+   * @param sessionProvider The SessionProvider
    * @throws ParserConfigurationException
    * @throws SAXException
    * @throws IOException
@@ -370,10 +358,8 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Get attribute value.
    * 
-   * @param element
-   *          The element to get attribute value
-   * @param attr
-   *          The attribute name
+   * @param element The element to get attribute value
+   * @param attr The attribute name
    * @return Value of attribute if present and null in other case
    */
   private String getAttributeSmart(Element element, String attr) {
@@ -383,12 +369,9 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Set attribute value. If value is null the attribute will be removed.
    * 
-   * @param element
-   *          The element to set attribute value
-   * @param attr
-   *          The attribute name
-   * @param value
-   *          The value of attribute
+   * @param element The element to set attribute value
+   * @param attr The attribute name
+   * @param value The value of attribute
    */
   private void setAttributeSmart(Element element, String attr, String value) {
     if (value == null) {
@@ -403,9 +386,9 @@ public class GroovyScript2RestLoader implements Startable {
    */
   private void readParamsFromFile() {
     if (initParams != null) {
-      nodeType = initParams.getValuesParam("nodetype") != null
-          ? initParams.getValueParam("nodetype").getValue()
-          : DEFAULT_NODETYPE;
+      nodeType = initParams.getValuesParam("nodetype") != null ? initParams.getValueParam("nodetype")
+                                                                           .getValue()
+                                                              : DEFAULT_NODETYPE;
 
       ObjectParameter param = initParams.getObjectParam("observation.config");
       observationListenerConfiguration = (ObservationListenerConfiguration) param.getObject();
