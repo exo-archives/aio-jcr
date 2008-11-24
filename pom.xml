@@ -252,23 +252,38 @@
     <repository>
       <id>maven.org</id>
       <url>http://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
     <repository>
       <id>ibiblio.org</id>
       <url>http://www.ibiblio.org/maven2</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
     <repository>
       <id>objectweb.org</id>
       <url>http://maven.objectweb.org/maven2</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
     <repository>
       <id>objectweb.org-snapshot</id>
       <url>http://maven.objectweb.org/maven2-snapshot/</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
     <repository>
       <id>java.net</id>
       <url>https://maven-repository.dev.java.net/nonav/repository/</url>
       <layout>legacy</layout>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -281,8 +296,8 @@
       </activation>
       <properties>
         <org.exoplatform.tool.version>trunk</org.exoplatform.tool.version>
-        <org.exoplatform.kernel.version>trunk</org.exoplatform.kernel.version>
-        <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
+        <org.exoplatform.kernel.version>2.0.5-SNAPSHOT</org.exoplatform.kernel.version>
+        <org.exoplatform.core.version>2.1.4-SNAPSHOT</org.exoplatform.core.version>
         <org.exoplatform.ws.version>trunk</org.exoplatform.ws.version>
         <org.exoplatform.jcr.version>trunk</org.exoplatform.jcr.version>
         <exo.tck.skip>true</exo.tck.skip>
