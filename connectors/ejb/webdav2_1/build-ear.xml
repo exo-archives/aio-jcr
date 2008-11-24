@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>trunk</version>
+    <version>1.10.2-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.exoplatform.jcr</groupId>
@@ -25,15 +25,6 @@
       <type>ejb</type>
       <scope>runtime</scope>
     </dependency>
-    <!-- 
-    <dependency>
-      <groupId>org.exoplatform.ws</groupId>
-      <artifactId>exo.ws.commons</artifactId>
-      <version>${org.exoplatform.ws.version}</version>
-      <type>jar</type>
-      <scope>runtime</scope>
-    </dependency>
-    -->
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.webdav.ejbconnector2_1.client</artifactId>
