@@ -25,7 +25,7 @@ import java.util.List;
  * @version $Id: PropertyDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class PropertyDefinitionValue extends ItemDefinitionValue {
+public final class PropertyDefinitionValue extends ItemDefinitionValue {
 
   private int          requiredType;
 

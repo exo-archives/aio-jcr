@@ -65,3 +65,4 @@ public interface ExtendedNodeType extends NodeType {
 
   void setPrimaryItemName(String primaryItemName);
 }
+

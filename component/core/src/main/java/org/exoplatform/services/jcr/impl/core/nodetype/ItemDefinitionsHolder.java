@@ -31,7 +31,9 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/> per-repository component holding all Child Nodes and
+ * Created by The eXo Platform SAS. <br/> 
+ * 
+ * Per-repository component holding all Child Nodes and
  * Properties Definitions as flat Map For ex definition for jcr:primaryType will be repeated as many
  * times as many primary nodetypes is registered (as each primary nodetype extends nt:base directly
  * or indirectly) and so on.

@@ -25,7 +25,7 @@ import java.util.List;
  * @version $Id: NodeDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class NodeDefinitionValue extends ItemDefinitionValue {
+public final class NodeDefinitionValue extends ItemDefinitionValue {
 
   private String       defaultNodeTypeName;
 

@@ -65,7 +65,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
-  protected static Log                                                log               = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
+  protected static final Log                                          LOG               = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
 
   private static final String                                         NODETYPES_FILE    = "nodetypes.xml";
 
@@ -337,15 +337,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   /**
-   * Registers node type from object
-   * 
-   * @param nodeType
-   *          - the node type object
-   * @param alreadyExistsBehaviour
-   *          - if node type with such a name already exists: IGNORE_IF_EXISTS - does not register
-   *          new node (default) FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
-   *          replaces registerd type with new one
-   * @throws RepositoryException
+   * {@inheritDoc}
    */
   public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
 
@@ -370,7 +362,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       if (alreadyExistsBehaviour == FAIL_IF_EXISTS) {
         throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
       } else
-        log.warn("NodeType " + nodeType.getName() + " is already registered");
+        LOG.warn("NodeType " + nodeType.getName() + " is already registered");
       return;
     }
 
@@ -383,39 +375,32 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
           persister.saveChanges();
         }
       } catch (InvalidItemStateException e) {
-        log.warn("Error of storing node type " + nodeType.getName()
+        LOG.warn("Error of storing node type " + nodeType.getName()
             + ". May be node type already registered .", e);
       }
-      if(log.isDebugEnabled())
-        log.debug("NodeType " + nodeType.getName() + " initialized. "
+      if(LOG.isDebugEnabled())
+        LOG.debug("NodeType " + nodeType.getName() + " initialized. "
             + (System.currentTimeMillis() - start) + " ms");
     } else {
-      if(log.isDebugEnabled())
-        log.debug("NodeType " + nodeType.getName()
+      if(LOG.isDebugEnabled())
+        LOG.debug("NodeType " + nodeType.getName()
             + " registered but not initialized (storage is not initialized). "
             + (System.currentTimeMillis() - start) + " ms");
     }
   }
 
   /**
-   * Registers node type from class containing the NT definition The class should have constructor
-   * with one parameter NodeTypeManager
-   * 
-   * @param nodeTypeType
-   *          - Class containing node type definition
-   * @param alreadyExistsBehaviour
-   *          if node type with such a name already exists: IGNORE_IF_EXISTS - does not register new
-   *          node (default) FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
-   *          replaces registerd type with new one
-   * @throws RepositoryException
+   * {@inheritDoc}
    */
   public void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
                                                                                                 InstantiationException {
 
     registerNodeType((ExtendedNodeType) makeNtFromClass(nodeTypeType), alreadyExistsBehaviour);
-
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException {
 
     if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
@@ -424,7 +409,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
           || nodeTypeValue.getName().equals("exo:privilegeable")) {
         // skip this node, so it's not necessary at this runtime
         // + "' -- it's not necessary at this runtime";
-        log.warn("Node type " + nodeTypeValue.getName()
+        LOG.warn("Node type " + nodeTypeValue.getName()
             + " is not register due to DISABLE control policy");
         return;
       }
@@ -434,17 +419,10 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     nodeTypeValue.validateNodeType();
     NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
     registerNodeType(nodeType, alreadyExistsBehaviour);
-
   }
 
   /**
-   * Registers node type using xml document
-   * 
-   * @param xml
-   * @param alreadyExistsBehaviour
-   * @throws RepositoryException
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager#registerNodeType(java.io.InputStream,
-   *      int)
+   * {@inheritDoc}
    */
   public void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
 
@@ -461,19 +439,16 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
           registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
         } else {
           // Hm! Smth is wrong in xml document
-          log.error("Empty nodeTypeValue in xml document, index: " + i + ", skiping...");
+          LOG.error("Empty nodeTypeValue in xml document, index: " + i + ", skiping...");
         }
       }
-      log.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
+      LOG.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
           + (System.currentTimeMillis() - start) + " ms.");
     } catch (JiBXException e) {
       throw new RepositoryException("Error in config initialization " + e, e);
     }
   }
-
-  /**
-   */
-
+  
   private NodeType makeNtFromClass(Class<ExtendedNodeType> nodeTypeType) throws InstantiationException {
 
     try {
@@ -496,16 +471,16 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       } else {
         String msg = "Resource file '" + NODETYPES_FILE
             + "' with NodeTypes configuration does not found. Can not create node type manager";
-        log.error(msg);
+        LOG.error(msg);
         throw new RepositoryException(msg);
       }
     } catch (Exception e) {
       String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
           + NODETYPES_FILE + "'. " + e;
-      log.error(msg);
+      LOG.error(msg);
       throw new RepositoryException(msg, e);
     } finally {
-      log.info("Initialization of default nodetypes done. " + (System.currentTimeMillis() - start)
+      LOG.info("Initialization of default nodetypes done. " + (System.currentTimeMillis() - start)
           + " ms.");
     }
   }
@@ -522,10 +497,10 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         nodeTypes.put(((ExtendedNodeType) nodeType).getQName(), (ExtendedNodeType) nodeType);
       }
       if (loadedNt.size() > 0)
-        log.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
+        LOG.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
             + (System.currentTimeMillis() - start) + " ms");
     } catch (PathNotFoundException e) {
-      log.warn("NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible");
+      LOG.warn("NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible");
       return;
     }
   }
@@ -543,7 +518,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         subType = getNodeType(typeNames[i]);
         testType = getNodeType(testTypeName);
       } catch (RepositoryException e) {
-        log.error("Error obtaining node type " + e);
+        LOG.error("Error obtaining node type " + e);
         continue;
       }
 
@@ -586,7 +561,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       subType = getNodeType(typeName);
       testType = getNodeType(testTypeName);
     } catch (RepositoryException e) {
-      log.error("Error obtaining node type " + e);
+      LOG.error("Error obtaining node type " + e);
       return false;
     }
 
@@ -609,6 +584,14 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   public ItemDefinitionsHolder getItemDefinitionsHolder() {
     return itemDefintionsHolder;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public NodeTypeValue getNodeTypeValue(String ntName) throws NoSuchNodeTypeException,
+                                                      RepositoryException {
+    throw new RepositoryException("Unsupported operation");
   }
 
   /**
