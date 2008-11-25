@@ -53,12 +53,8 @@ public class PropertyImpl extends ItemImpl implements Property {
 
   protected int                 type;
 
-  // private PropertyDefinitions definitions;
   private PropertyDefinition    propertyDef;
 
-  /**
-   * just to simplify operations
-   */
   private TransientPropertyData propertyData;
 
   PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException,
@@ -83,7 +79,6 @@ public class PropertyImpl extends ItemImpl implements Property {
     this.propertyData = (TransientPropertyData) data;
     this.type = propertyData.getType();
 
-    // [PN] 03.01.07
     this.location = session.getLocationFactory().createJCRPath(getData().getQPath());
     this.propertyDef = null;
     initDefinitions(this.propertyData.isMultiValued());
@@ -262,30 +257,6 @@ public class PropertyImpl extends ItemImpl implements Property {
     if (definitions == null)
       throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
 
-    propertyDef = definitions.getDefinition(multiple);
-  }
-
-  /**
-   * @throws RepositoryException
-   * @throws ConstraintViolationException
-   */
-  private void initDefinitions_Old(boolean multiple) throws RepositoryException,
-                                                    ConstraintViolationException {
-
-    NodeType[] nodeTypes = parent().getAllNodeTypes();
-    PropertyDefinitions defs = null;
-    PropertyDefinitions definitions = null;
-    for (int i = 0; i < nodeTypes.length; i++) {
-      defs = ((ExtendedNodeType) nodeTypes[i]).getPropertyDefinitions(getInternalName());
-      if (defs.getAnyDefinition() != null) { // includes residual set
-        definitions = defs;
-        if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
-          break;
-      }
-    }
-
-    if (definitions == null)
-      throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
     propertyDef = definitions.getDefinition(multiple);
   }
 
