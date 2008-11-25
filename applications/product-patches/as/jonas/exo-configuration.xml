@@ -52,6 +52,86 @@
       </value-param>
     </init-params> 
   </component>
+
+ <component>
+    <key>org.exoplatform.services.cifs.CIFSService</key>
+    <type>org.exoplatform.services.cifs.CIFSServiceImpl</type>
+    <init-params>
+      <!-- Repository configuration -->
+      <value-param>
+        <name>repository-name</name>
+        <value>repository</value>
+      </value-param>
+    
+      <!-- Server Configuration -->
+    
+      <!-- Enable server -->
+      <value-param>
+        <name>enable_smb</name>
+        <value>true</value>
+      </value-param>
+    
+      <!-- Broadcast mask, if not specified 255.255.255.0 assign -->
+      <value-param>
+        <name>broadcast_mask</name>
+        <value>255.255.255.255</value>
+      </value-param>
+			
+      <!--Host name-->
+      <value-param>
+        <name>host_name</name>
+        <value>SmbUniqSs</value>
+      </value-param>
+
+      <!--Worgroup - if not determined used local domain name-->
+      <value-param>
+        <name>workgroup</name>
+        <value>office</value>
+      </value-param>
+
+      <!--Comment - set server comment-->
+      <value-param>
+        <name>comment</name>
+        <value>This server is specific SMB server which works with JCR repository.</value>
+      </value-param>
+			
+      <!-- NetBIOS transport (Java impl) configuration-->
+      <properties-param>
+        <name>netbios_java</name>
+        <property name="enabled" value="false"/>
+        <property name="session_port" value="139"/>
+        <property name="datagram_port" value="138"/>
+        <property name="name_port" value="137"/>
+        <!-- NetBIOS host announce config -->
+        <property name="announce_enabled" value="true"/>
+        <property name="announce_interval" value = "5"/>
+      </properties-param>
+ 	
+      <!--use JNI NetBIOS SMB transport layer - only for Windows-->
+      <properties-param>
+        <name>winnetbios</name>
+        <property name="enabled" value="true"/>
+        <property name="netbiosname" value="UniqCIFS"/>
+        <!--LANA - if not determined or equal -1 used all available -->
+        <property name="lanas" value="-1"/>
+        <!-- native API for Win NetBIOS : netbios or winsock -->
+        <property name="nativeapi" value="netbios"/>
+        <!-- Win32 NetBIOS host announce config -->
+        <property name="announce_enabled" value ="true"/>
+        <property name="announce_interval" value = "5"/>
+      </properties-param>
+ 		        
+      <!-- set security mode -->
+      <!-- security signatures is not suported -->
+ 		        			
+      <properties-param>
+        <name>security_param</name>
+        <property name="challenge_response" value="true"/>
+      </properties-param>
+ 		        
+    </init-params>
+  </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
     <component-plugin>
