@@ -22,6 +22,7 @@ import java.net.URI;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
@@ -60,9 +61,9 @@ public class HeadCommand {
         String contentLength = resource.getProperty(PropertyConstants.GETCONTENTLENGTH).getValue();
 
         return Response.ok()
-                               .header(WebDavHeaders.LASTMODIFIED, lastModified)
-                               .header(WebDavHeaders.CONTENTTYPE, contentType)
-                               .header(WebDavHeaders.CONTENTLENGTH, contentLength)
+                               .header(HttpHeaders.LAST_MODIFIED, lastModified)
+                               .header(HttpHeaders.CONTENT_TYPE, contentType)
+                               .header(HttpHeaders.CONTENT_LENGTH, contentLength)
                                .build();
       }
 

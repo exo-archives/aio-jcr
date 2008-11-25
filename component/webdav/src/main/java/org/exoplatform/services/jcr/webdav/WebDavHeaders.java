@@ -47,32 +47,11 @@ public class WebDavHeaders {
   public static final String ALLOW = "Allow";
 
   /**
-   * HTTP 1.1 "Authorization" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
-   */
-  public static final String AUTHORIZATION = "Authorization";
-
-  /**
-   * HTTP 1.1 "Content-Length" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
-   */
-  public static final String CONTENTLENGTH = "Content-Length";
-
-  /**
    * HTTP 1.1 "Content-Range" header. See <a
    * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
    * section 14 "Header Field Definitions"</a> for more information.
    */
   public static final String CONTENTRANGE = "Content-Range";
-
-  /**
-   * HTTP 1.1 "Content-type" header. See <a
-   * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-   * section 14 "Header Field Definitions"</a> for more information.
-   */
-  public static final String CONTENTTYPE = "Content-type";
 
   /**
    * WebDav "DAV" header. See <a href='http://www.ietf.org/rfc/rfc2518.txt'>
@@ -147,13 +126,5 @@ public class WebDavHeaders {
    * Authoring</a> section 9 for more information.
    */
   public static final String OVERWRITE = "Overwrite";
-  
-  /**
-  * HTTP 1.1 "Last-Modified" header. See <a
-  * href='http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html'> HTTP/1.1
-  * section 14 "Header Field Definitions"</a> for more information.
-  */
- public static final String LASTMODIFIED = "Last-Modified";
-
 
 }

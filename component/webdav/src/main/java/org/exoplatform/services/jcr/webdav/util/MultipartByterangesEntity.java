@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.logging.Log;
@@ -79,7 +80,7 @@ public class MultipartByterangesEntity implements StreamingOutput {
         print("--" + WebDavConst.BOUNDARY, ostream);
         println(ostream);
         // content-type
-        print(WebDavHeaders.CONTENTTYPE + ": " + contentType_, ostream);
+        print(HttpHeaders.CONTENT_TYPE + ": " + contentType_, ostream);
         println(ostream);
         // current range
         print(WebDavHeaders.CONTENTRANGE + ": bytes " + range.getStart() + "-" + range.getEnd()

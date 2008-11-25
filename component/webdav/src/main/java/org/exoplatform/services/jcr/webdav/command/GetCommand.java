@@ -25,6 +25,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.stream.StreamSource;
 
@@ -120,7 +121,7 @@ public class GetCommand {
         // no ranges request
         if (ranges.size() == 0) {
           return Response.ok()
-                         .header(WebDavHeaders.CONTENTLENGTH, Long.toString(contentLength))
+                         .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
                          .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
                          .entity(istream)
                          .build();
@@ -141,7 +142,7 @@ public class GetCommand {
           RangedInputStream rangedInputStream = new RangedInputStream(istream, start, end);
 
           return Response.status(HTTPStatus.PARTIAL)
-                         .header(WebDavHeaders.CONTENTLENGTH, Long.toString(returnedContentLength))
+                         .header(HttpHeaders.CONTENT_LENGTH, Long.toString(returnedContentLength))
                          .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
                          .header(WebDavHeaders.CONTENTRANGE,
                                  "bytes " + start + "-" + end + "/" + contentLength)
