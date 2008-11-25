@@ -24,6 +24,7 @@ import javax.jcr.Session;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.lock.LockException;
 import javax.jcr.version.Version;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
@@ -49,7 +50,7 @@ public class UnCheckOutCommand {
       Version restoreVersion = node.getBaseVersion();
       node.restore(restoreVersion, true);
 
-      return Response.ok().build();
+      return Response.ok().header(HttpHeaders.CACHE_CONTROL, "no-cache").build();
 
     } catch (UnsupportedRepositoryOperationException e) {
       return Response.status(HTTPStatus.CONFLICT).build();
