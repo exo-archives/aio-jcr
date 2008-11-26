@@ -284,8 +284,8 @@
       </activation>
       <properties>
         <org.exoplatform.tool.version>trunk</org.exoplatform.tool.version>
-        <org.exoplatform.kernel.version>trunk</org.exoplatform.kernel.version>
-        <org.exoplatform.core.version>trunk</org.exoplatform.core.version>
+        <org.exoplatform.kernel.version>2.0.6-SNAPSHOT</org.exoplatform.kernel.version>
+        <org.exoplatform.core.version>2.1.4-SNAPSHOT</org.exoplatform.core.version>
         <org.exoplatform.ws.version>2.0</org.exoplatform.ws.version>
         <org.exoplatform.jcr.version>1.11-SNAPSHOT</org.exoplatform.jcr.version>
         <exo.tck.skip>true</exo.tck.skip>
