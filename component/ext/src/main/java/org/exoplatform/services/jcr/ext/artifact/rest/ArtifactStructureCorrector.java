@@ -17,16 +17,13 @@
 package org.exoplatform.services.jcr.ext.artifact.rest;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
 
-import javax.jcr.Credentials;
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -38,11 +35,11 @@ import javax.jcr.Session;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
-import org.apache.maven.wagon.observers.ChecksumObserver;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.ext.artifact.CRCGenerator;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.HTTPMethod;
@@ -190,14 +187,15 @@ public class ArtifactStructureCorrector implements ResourceContainer {
       Property data = content.getProperty("jcr:data");
       String algorithm = "SHA1";
       try {
-        String checksum = getChecksum(data.getStream(), algorithm);
+
+        String checksum = CRCGenerator.getChecksum(data.getStream(), algorithm);
 
         LOGGER.info("Generate checksum for : " + src.getName());
 
         Node checkNode = parent.addNode(src.getName() + "." + algorithm.toLowerCase(), "nt:file");
 
         InputStream checksum_is = new ByteArrayInputStream(checksum.getBytes());
-        String mimeType = "text/xml";
+        String mimeType = "text/plain";
 
         Node sum_content = checkNode.addNode("jcr:content", "nt:resource");
         sum_content.setProperty("jcr:mimeType", mimeType);
@@ -212,31 +210,6 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         LOGGER.error("Streams exception while eval checksums", e);
       }
 
-    }
-
-    protected String getChecksum(InputStream in, String algo) throws NoSuchAlgorithmException,
-                                                             IOException {
-      ChecksumObserver checksum = null;
-      try {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        IOUtils.copy(in, out);
-        byte[] buffer = out.toByteArray();
-
-        if ("MD5".equals(algo)) {
-          checksum = new ChecksumObserver("MD5"); // md5 by default
-        } else if ("SHA1".equals(algo)) {
-          checksum = new ChecksumObserver("SHA-1");
-        } else {
-          throw new NoSuchAlgorithmException("No support for algorithm " + algo + ".");
-        }
-        checksum.transferProgress(null, buffer, buffer.length);
-        checksum.transferCompleted(null);
-
-      } catch (IOException e) {
-        LOGGER.error("Error reading from stream", e);
-      }
-      return checksum.getActualChecksum();
     }
 
   }

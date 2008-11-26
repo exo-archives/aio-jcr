@@ -165,6 +165,17 @@
           <name>configuration</name>
           <description>description</description>
           <object type="org.exoplatform.services.organization.OrganizationConfig">
+            <field  name="membershipType">
+              <collection type="java.util.ArrayList">
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$MembershipType">
+                    <field  name="type"><string>member</string></field>
+                    <field  name="description"><string>member membership type</string></field>
+                  </object>
+                </value>                
+              </collection>
+            </field>
+
             <field  name="group">
               <collection type="java.util.ArrayList">             
                 <value>
@@ -183,6 +194,14 @@
                     <field  name="label"><string>Administrators</string></field>
                   </object>
                 </value>
+                <value>
+                  <object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+                    <field  name="name"><string>users</string></field>
+                    <field  name="parentId"><string>/platform</string></field>
+                    <field  name="description"><string>the /platform/users group</string></field>
+                    <field  name="label"><string>Users</string></field>
+                  </object>
+                </value>
               </collection>
             </field>
 
@@ -197,8 +216,7 @@
                     <field  name="email"><string>root@localhost</string></field>
                     <field  name="groups">
                       <string>
-                      	*:/platform/administrators,*:/platform/users,
-                      	member:/organization/management/executive-board
+                      	*:/platform/administrators
                       </string>
                     </field>
                   </object>

@@ -84,11 +84,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>maven</groupId>
-			<artifactId>wagon-provider-api</artifactId>
-			<version>1.0-alpha-3</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
 			<version>1.5</version>

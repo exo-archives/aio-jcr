@@ -617,6 +617,10 @@
 
   <testCase name="SaveUserProfileTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.userprofile.SaveUserProfileTest" />
+  </testCase>
+
+  <testCase name="CreateNewUserTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.usecases.CreateNewUserTest" />
   </testCase-->
 
 </testSuite>
