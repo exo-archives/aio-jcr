@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,6 +30,7 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
+import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.ValueFactory;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
@@ -36,13 +38,7 @@ import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
@@ -56,7 +52,10 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
-
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -662,5 +661,26 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         la[i].nodeTypeUnregistered(ntName);
       }
     }
+  }
+
+  public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
+                                                                    int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
+                                                                                               RepositoryException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public void unregisterNodeType(String name) throws UnsupportedRepositoryOperationException,
+                                             NoSuchNodeTypeException,
+                                             RepositoryException {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void unregisterNodeTypes(String[] names) throws UnsupportedRepositoryOperationException,
+                                                 NoSuchNodeTypeException,
+                                                 RepositoryException {
+    // TODO Auto-generated method stub
+    
   }
 }
