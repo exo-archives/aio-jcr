@@ -22,7 +22,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -34,6 +33,12 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
  */
 public interface NodeTypeDataManager {
 
+  /**
+   * Return all NodeTypes.
+   *
+   * @return List of NodeTypeData
+   * @throws RepositoryException in case of error
+   */
   List<NodeTypeData> getAllNodeTypes() throws RepositoryException;
   
   NodeTypeData findNodeType(InternalQName qname) throws NoSuchNodeTypeException,

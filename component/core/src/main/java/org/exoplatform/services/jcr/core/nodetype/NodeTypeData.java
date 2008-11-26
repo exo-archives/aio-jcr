@@ -23,45 +23,70 @@ import org.exoplatform.commons.utils.QName;
  * 
  * Define base abstraction for NodeType data used in core.
  * 
- * <br/>Date: 25.11.2008 
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>Date: 25.11.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class NodeTypeData {
 
+  protected QName   name;
+
+  protected QName   primaryItemName;
+
+  protected QName[] declaredChildNodeDefinitions;
+
+  protected QName[] declaredPropertyDefinitions;
+
+  protected QName[] declaredSupertypeNames;
+
+  protected boolean hasOrderableChildNodes;
+
+  protected boolean mixin;
+
+  public NodeTypeData(QName name,
+                      QName primaryItemName,
+                      boolean mixin,
+                      boolean hasOrderableChildNodes,
+                      QName[] declaredSupertypeNames,
+                      QName[] declaredChildNodeDefinitions,
+                      QName[] declaredPropertyDefinitions) {
+
+    this.name = name;
+    this.primaryItemName = primaryItemName;
+    this.mixin = mixin;
+    this.hasOrderableChildNodes = hasOrderableChildNodes;
+    this.declaredSupertypeNames = declaredSupertypeNames;
+    this.declaredPropertyDefinitions = declaredPropertyDefinitions;
+    this.declaredChildNodeDefinitions = declaredChildNodeDefinitions;
+  }
+
   public QName[] getDeclaredChildNodeDefinitions() {
-    // TODO Auto-generated method stub
-    return null;
+    return declaredChildNodeDefinitions;
   }
 
   public QName[] getDeclaredPropertyDefinitions() {
-    // TODO Auto-generated method stub
-    return null;
+    return declaredPropertyDefinitions;
   }
 
   public QName[] getDeclaredSupertypeNames() {
-    // TODO Auto-generated method stub
-    return null;
+    return declaredSupertypeNames;
   }
 
   public QName getPrimaryItemName() {
-    // TODO Auto-generated method stub
-    return null;
+    return primaryItemName;
   }
 
-  public QName getQName() {
-    // TODO Auto-generated method stub
-    return null;
+  public QName getName() {
+    return name;
   }
 
   public boolean hasOrderableChildNodes() {
-    // TODO Auto-generated method stub
-    return false;
+    return hasOrderableChildNodes;
   }
 
   public boolean isMixin() {
-    // TODO Auto-generated method stub
-    return false;
+    return mixin;
   }
+
 }
