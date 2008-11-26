@@ -16,21 +16,47 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import org.exoplatform.commons.utils.QName;
+
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 25.11.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class ItemDefinitionData {
 
-//  Name: QName
-//  DeclaringNodeType: QName[]
-//  AutoCreated: boolean
-//  Mandatory: boolean
-//  OnParentVersion: integer
-//  Protected: boolean
-  
+  public static final String RESIDUAL_SET = "*";
+
+  public boolean isResidualSet() {
+    // TODO
+    return this.getName().getName().equals(RESIDUAL_SET);
+  }
+
+  public QName getName() {
+    return null;
+  }
+
+  public QName[] getDeclaringNodeType() {
+    return null;
+  }
+
+  public boolean isAutoCreated() {
+    return false;
+  }
+
+  public boolean isMandatory() {
+    return false;
+  }
+
+  public int getOnParentVersion() {
+    return 0;
+  }
+
+  public boolean isProtected() {
+    return false;
+  }
+
 }

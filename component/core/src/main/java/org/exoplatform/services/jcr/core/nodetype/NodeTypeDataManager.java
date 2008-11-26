@@ -28,23 +28,38 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 25.11.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface NodeTypeDataManager {
 
-  NodeTypeData findNodeType(InternalQName qname) throws NoSuchNodeTypeException, RepositoryException;
+  List<NodeTypeData> getAllNodeTypes() throws RepositoryException;
   
-  NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
+  NodeTypeData findNodeType(InternalQName qname) throws NoSuchNodeTypeException,
+                                                RepositoryException;
+
+  boolean isOrderableChildNodesSupported(InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException;
+
+  NodeDefinitionData findNodeDefinition(InternalQName nodeName,
                                         InternalQName primaryType,
                                         InternalQName[] mixinTypes) throws RepositoryException;
+
+  NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList) throws RepositoryException;
+
+  PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
+                                                  InternalQName primaryType,
+                                                  InternalQName[] mixinTypes) throws RepositoryException;
+
+  PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
+                                                  List<NodeTypeData> typesList) throws RepositoryException;
+
+  boolean isNodeType(InternalQName testTypeName, InternalQName typeName);
+
+  boolean isNodeType(InternalQName testTypeName, InternalQName typeName, InternalQName[] typeNames);
   
-  boolean isOrderableChildNodesSupported(InternalQName primaryType,
-                                 InternalQName[] mixinTypes) throws RepositoryException;
-  
-  NodeDefinitionImpl findNodeDefinition(InternalQName nodeName,
-                                        List<ExtendedNodeType> typesList) throws RepositoryException;
+  boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames);
   
   
+
 }

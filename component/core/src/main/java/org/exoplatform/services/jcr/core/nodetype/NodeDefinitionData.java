@@ -16,18 +16,28 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import org.exoplatform.commons.utils.QName;
+
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 25.11.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class NodeDefinitionData extends ItemDefinitionData {
 
-//  RequiredPrimaryTypes: QName[]
-//  DefaultPrimaryType: QName
-//  AllowsSameNameSiblings: boolean
-  
+  public QName[] getRequiredPrimaryTypes() {
+    return null;
+  }
+
+  public QName getDefaultPrimaryType() {
+    return null;
+  }
+
+  public boolean isAllowsSameNameSiblings() {
+    return false;
+  }
+
 }

@@ -20,15 +20,26 @@ package org.exoplatform.services.jcr.core.nodetype;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 25.11.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class PropertyDefinitionData extends ItemDefinitionData {
 
-//  RequiredType: integer
-//  ValueConstraints: String[]
-//  DefaultValues: ValueData[]
-//  Multiple: boolean
-  
+  public int getRequiredType() {
+    return 0;
+  }
+
+  public String[] getValueConstraints() {
+    return null;
+  }
+
+  public String[] getDefaultValues() {
+    return null;
+  }
+
+  public boolean isMultiple() {
+    return false;
+  }
+
 }
