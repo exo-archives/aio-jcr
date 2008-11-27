@@ -61,6 +61,10 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
                                                                                           "exo"));
       assertFalse("'demo' with password 'exo_' was authenticated", uHandler.authenticate("demo",
                                                                                          "exo_"));
+
+      assertFalse("'demo' with password 'exo_' was authenticated", uHandler.authenticate("_demo_",
+                                                                                         "exo"));
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown.");
