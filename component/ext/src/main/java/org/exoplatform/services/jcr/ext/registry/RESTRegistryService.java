@@ -58,7 +58,7 @@ public class RESTRegistryService implements ResourceContainer {
   /**
    * Logger.
    */
-  private static final Log                  log          = ExoLogger.getLogger(RESTRegistryService.class);
+  private static final Log                  log          = ExoLogger.getLogger(RESTRegistryService.class.getName());
 
   /**
    * 
@@ -189,16 +189,15 @@ public class RESTRegistryService implements ResourceContainer {
     try {
       regService.getRepositoryService().setCurrentRepositoryName(repository);
       regService.removeEntry(sessionProvider, normalizePath(entryPath));
-      return null; // TODO minds status 204 'No content' ???
+      return null; // minds status 204 'No content'
     } catch (PathNotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
     } catch (Exception e) {
       log.error("Remove registry entry failed", e);
       throw new WebApplicationException(e);
-    } 
+    }
   }
 
-  // TODO Clear code
   private static String normalizePath(String path) {
     if (path.endsWith("/"))
       return path.substring(0, path.length() - 1);

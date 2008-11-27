@@ -45,7 +45,10 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class BackupOperator {
 
-  private Log                   log = ExoLogger.getLogger("ext.BackupOperator");
+  /**
+   * Apache loger.
+   */
+  private Log                   log = ExoLogger.getLogger(BackupOperator.class);
 
   protected final BackupManager backupManager;
 

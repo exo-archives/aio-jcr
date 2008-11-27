@@ -32,8 +32,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>
- * Date: 18.08.2008
+ * <br/>Date: 18.08.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: SynchronizationService.java 111 2008-11-11 11:11:11Z peterit $
@@ -73,14 +72,12 @@ public class SynchronizationService implements ResourceContainer {
     String userName, password;
     if (lpair.length > 0) {
       userName = lpair[0];
-      if (lpair.length > 1) {
+      if (lpair.length > 1)
         password = lpair[1];
-      } else {
+      else
         password = lpair[1];
-      }
-    } else {
+    } else
       userName = password = null;
-    }
 
     return new RequestIdentity(userName, password);
   }

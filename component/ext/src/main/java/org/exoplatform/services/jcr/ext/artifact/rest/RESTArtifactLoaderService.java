@@ -128,9 +128,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
     PropertiesParam props = initParams.getPropertiesParam("artifact.workspace");
 
-    if (props == null) {
+    if (props == null)
       throw new IllegalArgumentException("Properties-param 'artifact.workspace' expected.");
-    }
 
     this.nodeRepresentationService = nodeRepresentationService;
     this.repositoryService = repositoryService;
@@ -140,10 +139,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     this.workspace = props.getProperty("workspace");
 
     this.mavenRoot = props.getProperty("mavenRoot");
-    // TODO clear code
-    if (mavenRoot.startsWith("/")) {
+    if (mavenRoot.startsWith("/"))
       mavenRoot = mavenRoot.substring(1);
-    }
     if (!mavenRoot.endsWith("/"))
       mavenRoot += "/";
 
@@ -241,10 +238,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    *           in JCR errors occur.
    */
   private static boolean isFile(Node node) throws RepositoryException {
-    if (!node.isNodeType("nt:file")){
+    if (!node.isNodeType("nt:file")) {
       return false;
     }
-    if (!node.getNode("jcr:content").isNodeType("nt:resource")){
+    if (!node.getNode("jcr:content").isNodeType("nt:resource")) {
       return false;
     }
     return true;
@@ -408,9 +405,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       }
     }.start();
 
-    // application/xhtml+xml content type is recommended for XHTML, but IE6
-    // does't support this.
-    return Response.ok(pi, /* "application/xhtml+xml" */"text/html").build();
+    // application/xhtml+xml content type is recommended for XHTML, but IE6 does't support this.
+    return Response.ok(pi, "text/html").build();
 
   }
 

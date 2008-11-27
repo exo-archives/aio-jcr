@@ -42,7 +42,7 @@ public abstract class BaseReplicationTestCase {
   /**
    * The apache logger.
    */
-  protected static Log       log         = ExoLogger.getLogger(BaseReplicationTestCase.class);
+  private static final Log   log         = ExoLogger.getLogger(BaseReplicationTestCase.class);
 
   /**
    * Definition the size of buffer.
@@ -127,13 +127,11 @@ public abstract class BaseReplicationTestCase {
     Node resultNode = rootNode;
     String[] sArray = repoPath.split("[::]");
 
-    for (String nodeName : sArray) {
-      if (resultNode.hasNode(nodeName)) {
+    for (String nodeName : sArray)
+      if (resultNode.hasNode(nodeName))
         resultNode = resultNode.getNode(nodeName);
-      } else {
+      else
         resultNode = resultNode.addNode(nodeName, "nt:unstructured");
-      }
-    }
 
     return resultNode;
   }
@@ -214,23 +212,20 @@ public abstract class BaseReplicationTestCase {
         for (int i = 0; i < dread; i++) {
           byte eb = ebuff[i];
           byte db = dbuff[i];
-          if (eb != db) {
+          if (eb != db)
             throw new Exception("Streams is not equals. Wrong byte stored at position " + dindex
                 + " of data stream. Expected 0x" + Integer.toHexString(eb) + " '"
                 + new String(new byte[] { eb }) + "' but found 0x" + Integer.toHexString(db) + " '"
                 + new String(new byte[] { db }) + "'");
-          }
 
           erindex++;
           dindex++;
-          if (length > 0 && dindex >= length) {
-            return; // tested length reached
-          }
+          if (length > 0 && dindex >= length)
+            return;
         }
 
-        if (dread < eread) {
+        if (dread < eread)
           dbuff = new byte[eread - dread];
-        }
       }
     }
 

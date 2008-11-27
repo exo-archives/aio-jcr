@@ -19,8 +19,6 @@ package org.exoplatform.services.jcr.ext.artifact.rest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 
@@ -73,13 +71,13 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
     this.repoService = repoService;
 
-    if (initParams == null){
+    if (initParams == null) {
       throw new RepositoryConfigurationException("Init parameters expected !!!");
     }
 
     PropertiesParam props = initParams.getPropertiesParam("artifact.workspace");
 
-    if (props == null){
+    if (props == null) {
       throw new RepositoryConfigurationException("Property parameters 'locations' expected");
     }
 
@@ -139,24 +137,9 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         Node node = nodeIterator.nextNode();
 
         if (!node.isNodeType("nt:file")) { // not a resource
-          /*
-           * if (node.canAddMixin("exo:groupId")) node.addMixin("exo:groupId");
-           */
           jcrSpaning(node);
         } else {
-          // jcr structure
 
-          /*
-           * Node versionNode = node.getParent(); Node artifactNode = versionNode.getParent(); if
-           * (versionNode.canAddMixin("exo:versionId")) { versionNode.removeMixin("exo:groupId");
-           * versionNode.addMixin("exo:versionId"); session.save(); } if
-           * (artifactNode.canAddMixin("exo:artifactId")) {
-           * LOGGER.info("Set exo:artifactId mixin to : " + artifactNode.getName());
-           * artifactNode.removeMixin("exo:groupId"); artifactNode.addMixin("exo:artifactId");
-           * session.save(); }
-           */
-
-          // checksum
           String path = node.getPath();
           String ext = FilenameUtils.getExtension(path);
           if (!ext.equalsIgnoreCase(algorithm)) {
@@ -196,7 +179,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         Node checkNode = parent.addNode(src.getName() + "." + algorithm.toLowerCase(), "nt:file");
 
         InputStream checksum_is = new ByteArrayInputStream(checksum.getBytes());
-        String mimeType = "text/xml";
+        String mimeType = "text/plain";
 
         Node sum_content = checkNode.addNode("jcr:content", "nt:resource");
         sum_content.setProperty("jcr:mimeType", mimeType);
@@ -212,8 +195,5 @@ public class ArtifactStructureCorrector implements ResourceContainer {
       }
 
     }
-   
-
   }
-
 }

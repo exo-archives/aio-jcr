@@ -73,7 +73,6 @@ public class GroovyScript2RestLoader implements Startable {
 
   private GroovyScriptInstantiator              groovyScriptInstantiator;
 
-  // used for processing URL : jcr://repository/workspace#/root/node1/....
   private Handler                               handler;
 
   private RepositoryService                     repositoryService;
@@ -89,7 +88,7 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Logger.
    */
-  private static final Log                      log                 = ExoLogger.getLogger(GroovyScript2RestLoader.class);
+  private static final Log                      log                 = ExoLogger.getLogger(GroovyScript2RestLoader.class.getName());
 
   public GroovyScript2RestLoader(ResourceBinder binder,
                                  GroovyScriptInstantiator groovyScriptInstantiator,
@@ -214,15 +213,9 @@ public class GroovyScript2RestLoader implements Startable {
 
       ManageableRepository repository = repositoryService.getRepository(repositoryName);
 
-      // SessionProvider sessionProvider =
-      // SessionProvider.createSystemProvider();
-
       for (String workspaceName : workspaceNames) {
-        // Session session = sessionProvider.getSession(workspaceName,
-        // repository);
         Session session = repository.getSystemSession(workspaceName);
 
-        // add observation listeners
         session.getWorkspace()
                .getObservationManager()
                .addEventListener(new GroovyScript2RestUpdateListener(repositoryName,
@@ -236,7 +229,6 @@ public class GroovyScript2RestLoader implements Startable {
                                  new String[] { nodeType },
                                  false);
 
-        // load all nodes exo:groovy2rest with exo:autoload=true
         String xpath = "//element(*, " + nodeType + ")[@exo:autoload='true']";
         Query query = session.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
 
@@ -245,15 +237,14 @@ public class GroovyScript2RestLoader implements Startable {
         while (nodeIterator.hasNext()) {
           Node node = nodeIterator.nextNode();
 
-          // skip nodes from /jcr:system
-          if (node.getPath().startsWith("/jcr:system"))
+          if (node.getPath().startsWith("/jcr:system")){
             continue;
+          }
 
           UnifiedNodeReference unifiedNodeReference = new UnifiedNodeReference(repositoryName,
                                                                                workspaceName,
                                                                                node.getPath());
 
-          // use URL as key
           loadScript(unifiedNodeReference.getURL().toString(), node.getProperty("jcr:data")
                                                                    .getStream());
         }
