@@ -1,7 +1,7 @@
 JCR 1.9.3.1 release notes
 =========================
 
-JCR 1.9.3.1 it's a customer patch (1.9.3 with backward compatibility to Core 2.1)
+JCR 1.9.3.1 it's a customer patch.
 
 - dependency to eXo Kernel 2.0.4 (in 1.9.3 was to eXo Kernel 2.0.2), Core 2.1.3 (was 2.1.1), WS 1.3.1 (was 1.2.1)
 - JCR-618 Single-db container SQL scripts patches for DB2, DB2_v8 and Postgres 
