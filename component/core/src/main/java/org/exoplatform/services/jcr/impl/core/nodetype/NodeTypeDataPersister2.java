@@ -67,14 +67,11 @@ public class NodeTypeDataPersister2 {
 
   private DataManager     dataManager;
 
-  private LocationFactory locationFactory;
-
   private PlainChangesLog changesLog;
 
   private NodeData        ntRoot;
 
-  public NodeTypeDataPersister2(LocationFactory locationFactory, DataManager dataManager) {
-    this.locationFactory = locationFactory;
+  public NodeTypeDataPersister2(DataManager dataManager) {
     this.dataManager = dataManager;
     this.changesLog = new PlainChangesLogImpl();
     try {
