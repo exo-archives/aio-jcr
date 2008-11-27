@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.core.nodetype;
 
 import org.exoplatform.commons.utils.QName;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS.
@@ -28,16 +29,37 @@ import org.exoplatform.commons.utils.QName;
  */
 public class NodeDefinitionData extends ItemDefinitionData {
 
-  public QName[] getRequiredPrimaryTypes() {
-    return null;
+  protected final InternalQName[] requiredPrimaryTypes;
+
+  protected final InternalQName   defaultPrimaryType;
+
+  protected final boolean allowsSameNameSiblings;
+
+  public NodeDefinitionData(InternalQName name,
+                            InternalQName declaringNodeType,
+                            boolean autoCreated,
+                            boolean mandatory,
+                            int onParentVersion,
+                            boolean protectedItem,
+                            InternalQName[] requiredPrimaryTypes,
+                            InternalQName defaultPrimaryType,
+                            boolean allowsSameNameSiblings) {
+    super(name, declaringNodeType, autoCreated, mandatory, onParentVersion, protectedItem);
+    this.requiredPrimaryTypes = requiredPrimaryTypes;
+    this.defaultPrimaryType = defaultPrimaryType;
+    this.allowsSameNameSiblings = allowsSameNameSiblings;
   }
 
-  public QName getDefaultPrimaryType() {
-    return null;
+  public InternalQName[] getRequiredPrimaryTypes() {
+    return requiredPrimaryTypes;
+  }
+
+  public InternalQName getDefaultPrimaryType() {
+    return defaultPrimaryType;
   }
 
   public boolean isAllowsSameNameSiblings() {
-    return false;
+    return allowsSameNameSiblings;
   }
 
 }

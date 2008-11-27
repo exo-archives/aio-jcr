@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
-import org.exoplatform.commons.utils.QName;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS.
@@ -30,33 +30,59 @@ public class ItemDefinitionData {
 
   public static final String RESIDUAL_SET = "*";
 
+  protected final InternalQName      name;
+
+  protected final InternalQName    declaringNodeType;
+
+  protected final boolean    autoCreated;
+
+  protected final boolean    mandatory;
+
+  protected final int        onParentVersion;
+
+  protected final boolean    protectedItem;
+
+  public ItemDefinitionData(InternalQName name,
+                            InternalQName declaringNodeType,
+                            boolean autoCreated,
+                            boolean mandatory,
+                            int        onParentVersion,
+                            boolean protectedItem) {
+    this.name = name;
+    this.declaringNodeType = declaringNodeType;
+    this.autoCreated = autoCreated;
+    this.mandatory = mandatory;
+    this.onParentVersion = onParentVersion;
+    this.protectedItem = protectedItem;
+  }
+
   public boolean isResidualSet() {
     // TODO
     return this.getName().getName().equals(RESIDUAL_SET);
   }
 
-  public QName getName() {
-    return null;
+  public InternalQName getName() {
+    return name;
   }
 
-  public QName[] getDeclaringNodeType() {
-    return null;
+  public InternalQName getDeclaringNodeType() {
+    return declaringNodeType;
   }
 
   public boolean isAutoCreated() {
-    return false;
+    return autoCreated;
   }
 
   public boolean isMandatory() {
-    return false;
+    return mandatory;
   }
 
   public int getOnParentVersion() {
-    return 0;
+    return onParentVersion;
   }
 
   public boolean isProtected() {
-    return false;
+    return protectedItem;
   }
 
 }

@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
-import org.exoplatform.commons.utils.QName;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS.
@@ -30,27 +30,27 @@ import org.exoplatform.commons.utils.QName;
  */
 public class NodeTypeData {
 
-  protected QName   name;
+  protected InternalQName   name;
 
-  protected QName   primaryItemName;
+  protected InternalQName   primaryItemName;
+  
+  protected InternalQName[] declaredSupertypeNames;
 
-  protected QName[] declaredChildNodeDefinitions;
-
-  protected QName[] declaredPropertyDefinitions;
-
-  protected QName[] declaredSupertypeNames;
+  protected PropertyDefinitionData[] declaredPropertyDefinitions;
+  
+  protected NodeDefinitionData[] declaredChildNodeDefinitions;
 
   protected boolean hasOrderableChildNodes;
 
   protected boolean mixin;
 
-  public NodeTypeData(QName name,
-                      QName primaryItemName,
+  public NodeTypeData(InternalQName name,
+                      InternalQName primaryItemName,
                       boolean mixin,
                       boolean hasOrderableChildNodes,
-                      QName[] declaredSupertypeNames,
-                      QName[] declaredChildNodeDefinitions,
-                      QName[] declaredPropertyDefinitions) {
+                      InternalQName[] declaredSupertypeNames,
+                      PropertyDefinitionData[] declaredPropertyDefinitions,
+                      NodeDefinitionData[] declaredChildNodeDefinitions) {
 
     this.name = name;
     this.primaryItemName = primaryItemName;
@@ -61,23 +61,23 @@ public class NodeTypeData {
     this.declaredChildNodeDefinitions = declaredChildNodeDefinitions;
   }
 
-  public QName[] getDeclaredChildNodeDefinitions() {
+  public NodeDefinitionData[] getDeclaredChildNodeDefinitions() {
     return declaredChildNodeDefinitions;
   }
 
-  public QName[] getDeclaredPropertyDefinitions() {
+  public PropertyDefinitionData[] getDeclaredPropertyDefinitions() {
     return declaredPropertyDefinitions;
   }
 
-  public QName[] getDeclaredSupertypeNames() {
+  public InternalQName[] getDeclaredSupertypeNames() {
     return declaredSupertypeNames;
   }
 
-  public QName getPrimaryItemName() {
+  public InternalQName getPrimaryItemName() {
     return primaryItemName;
   }
 
-  public QName getName() {
+  public InternalQName getName() {
     return name;
   }
 

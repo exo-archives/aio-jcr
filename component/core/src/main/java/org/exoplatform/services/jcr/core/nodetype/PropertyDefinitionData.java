@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -26,20 +28,45 @@ package org.exoplatform.services.jcr.core.nodetype;
  */
 public class PropertyDefinitionData extends ItemDefinitionData {
 
+  protected final int      requiredType;
+
+  protected final String[] valueConstraints;
+
+  protected final String[] defaultValues;
+
+  protected final boolean  multiple;
+
+  public PropertyDefinitionData(InternalQName name,
+                                InternalQName declaringNodeType,
+                                boolean autoCreated,
+                                boolean mandatory,
+                                int onParentVersion,
+                                boolean protectedItem,
+                                int requiredType,
+                                String[] valueConstraints,
+                                String[] defaultValues,
+                                boolean multiple) {
+    super(name, declaringNodeType, autoCreated, mandatory, onParentVersion, protectedItem);
+    this.requiredType = requiredType;
+    this.valueConstraints = valueConstraints;
+    this.defaultValues = defaultValues;
+    this.multiple = multiple;
+  }
+
   public int getRequiredType() {
-    return 0;
+    return requiredType;
   }
 
   public String[] getValueConstraints() {
-    return null;
+    return valueConstraints;
   }
 
   public String[] getDefaultValues() {
-    return null;
+    return defaultValues;
   }
 
   public boolean isMultiple() {
-    return false;
+    return multiple;
   }
 
 }
