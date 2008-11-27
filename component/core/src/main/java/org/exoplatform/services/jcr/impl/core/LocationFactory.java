@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -136,7 +135,7 @@ public class LocationFactory {
    * @return
    * @throws RepositoryException
    */
-  public JCRName parseJCRName(String name) throws PathNotFoundException, RepositoryException {
+  public JCRName parseJCRName(String name) throws RepositoryException {
     JCRPath.PathElement entry = parsePathEntry(new JCRPath(), name);
 
     return new JCRName(entry.getNamespace(), entry.getName(), entry.getPrefix());
@@ -153,8 +152,7 @@ public class LocationFactory {
     return path.getEntries();
   }
 
-  private JCRPath.PathElement parsePathEntry(JCRPath path, String name) throws PathNotFoundException,
-                                                                       RepositoryException {
+  private JCRPath.PathElement parsePathEntry(JCRPath path, String name) throws RepositoryException {
 
     // should be reset here (if there is explicit index) or
     // in JCRPath.Entry() (with index == 1)
@@ -205,8 +203,7 @@ public class LocationFactory {
     }
   }
 
-  private JCRPath parseNames(String path, boolean absolute) throws PathNotFoundException,
-                                                           RepositoryException {
+  private JCRPath parseNames(String path, boolean absolute) throws RepositoryException {
 
     if (path == null) {
       throw new RepositoryException("Illegal relPath " + path);

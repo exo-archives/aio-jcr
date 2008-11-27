@@ -37,16 +37,12 @@ public class JCRName {
 
   protected final int    hashCode;
 
-  // [PN] 05.02.07 use of canonical representation for the string values
-  // see: http://java.sun.com/j2se/1.5.0/docs/api/java/lang/String.html#intern()
   JCRName(String namespace, String name, String prefix) {
     this.name = name.intern();
     this.namespace = namespace.intern();
     this.prefix = prefix.intern();
 
     this.stringName = ((this.prefix.length() == 0 ? "" : this.prefix + ":") + this.name);
-
-    // this.hashCode = 31 * this.stringName.hashCode();
 
     int hk = 31 + this.namespace.hashCode();
     hk = hk * 31 + this.name.hashCode();

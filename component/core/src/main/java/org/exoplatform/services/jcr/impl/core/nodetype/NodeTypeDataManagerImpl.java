@@ -158,8 +158,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     // We have to validate node value before registering it
     ntvalue.validateNodeType();
 
-    // NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
-
     // declaring NT name
     InternalQName ntName = locationFactory.parseJCRName(ntvalue.getName()).getInternalName();
 
@@ -281,6 +279,11 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
+  protected NodeTypeData validateNodeType(NodeTypeData nodeType) {
+
+    return nodeType; // TODO
+  }
+  
   // impl
 
   public NodeDefinitionData findNodeDefinition(InternalQName nodeName,

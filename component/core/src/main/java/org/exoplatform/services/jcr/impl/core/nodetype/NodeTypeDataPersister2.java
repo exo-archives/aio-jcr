@@ -26,7 +26,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
-import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.OnParentVersionAction;
 
 import org.apache.commons.logging.Log;
@@ -47,6 +46,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -67,11 +67,14 @@ public class NodeTypeDataPersister2 {
 
   private DataManager     dataManager;
 
+  private LocationFactory locationFactory;
+
   private PlainChangesLog changesLog;
 
   private NodeData        ntRoot;
 
-  public NodeTypeDataPersister2(DataManager dataManager) {
+  public NodeTypeDataPersister2(LocationFactory locationFactory, DataManager dataManager) {
+    this.locationFactory = locationFactory;
     this.dataManager = dataManager;
     this.changesLog = new PlainChangesLogImpl();
     try {
@@ -310,13 +313,14 @@ public class NodeTypeDataPersister2 {
         initNodeDefProps(childNodes, nodeType.getDeclaredChildNodeDefinitions()[i]);
       }
     }
+
     return ntNode;
   }
 
   private void initPropertyDefProps(NodeData parent, PropertyDefinitionData def) throws ValueFormatException,
                                                                                 RepositoryException {
 
-    if (def.getName() != null) { // Mandatory false
+    if (def.getName() != null) {
       TransientPropertyData name = TransientPropertyData.createPropertyData(parent,
                                                                             Constants.JCR_NAME,
                                                                             PropertyType.NAME,
@@ -553,7 +557,7 @@ public class NodeTypeDataPersister2 {
 
             declaredSupertypes = supertypes;
           } catch (PathNotFoundException e) {
-            declaredSupertypes = null;
+            declaredSupertypes = new InternalQName[0];
           } catch (IllegalNameException e) {
             LOG.error("NodeType supertype name is not valid. " + e + ". NodeType "
                 + ntName.getAsString() + " skipped.");
@@ -593,6 +597,8 @@ public class NodeTypeDataPersister2 {
               InternalQName pname;
               try {
                 pname = ValueDataConvertor.readQName(pdr.getPropertyValue(Constants.JCR_NAME));
+              } catch (PathNotFoundException e) {
+                pname = null; // residual property definition
               } catch (IllegalNameException e) {
                 LOG.error("Property definition name is not valid. " + e + ". NodeType "
                     + ntName.getAsString() + " skipped.");
@@ -602,14 +608,11 @@ public class NodeTypeDataPersister2 {
               String[] valueConstraints;
               try {
                 List<ValueData> valueConstraintValues = pdr.getPropertyValues(Constants.JCR_VALUECONSTRAINTS);
-                List<String> vcs = new ArrayList<String>();
-                for (int j = 0; j < valueConstraintValues.size(); j++) {
-                  if (valueConstraintValues.get(j) != null)
-                    vcs.add(ValueDataConvertor.readString(valueConstraintValues.get(j)));
-                }
-                valueConstraints = vcs.toArray(new String[vcs.size()]);
+                valueConstraints = new String[valueConstraintValues.size()];
+                for (int j = 0; j < valueConstraintValues.size(); j++)
+                  valueConstraints[j] = ValueDataConvertor.readString(valueConstraintValues.get(j));
               } catch (PathNotFoundException e) {
-                valueConstraints = null;
+                valueConstraints = new String[0];
               }
 
               String[] defaultValues;
@@ -619,7 +622,7 @@ public class NodeTypeDataPersister2 {
                 for (int i = 0; i < dvl.size(); i++)
                   defaultValues[i] = ValueDataConvertor.readString(dvl.get(i));
               } catch (PathNotFoundException e) {
-                defaultValues = null;
+                defaultValues = new String[0];
               }
 
               PropertyDefinitionData pDef = new PropertyDefinitionData(pname,
@@ -633,15 +636,19 @@ public class NodeTypeDataPersister2 {
                                                                        defaultValues,
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_MULTIPLE)));
               if (LOG.isDebugEnabled())
-                LOG.debug("Property definitions readed " + pDef.getName().getAsString() + " "
-                    + (System.currentTimeMillis() - ntStart));
+                LOG.debug("Property definitions readed "
+                    + (pname != null ? pname.getAsString() : Constants.JCR_ANY_NAME.getAsString())
+                    + " " + (System.currentTimeMillis() - ntStart));
 
               declaredPropertyDefs[pdi] = pDef;
             }
 
             declaredProperties = declaredPropertyDefs;
           } catch (PathNotFoundException e) {
-            declaredProperties = null;
+            LOG.error("Property definitions is not valid. " + e + ". NodeType "
+                + ntName.getAsString() + " skipped.");
+            continue nextNodeType;
+            // declaredProperties = new PropertyDefinitionData[0];
           }
 
           // --------- Child nodes definitions ----------
@@ -676,6 +683,8 @@ public class NodeTypeDataPersister2 {
               InternalQName nname;
               try {
                 nname = ValueDataConvertor.readQName(cdr.getPropertyValue(Constants.JCR_NAME));
+              } catch (PathNotFoundException e) {
+                nname = null; // residual
               } catch (IllegalNameException e) {
                 LOG.error("Child node definition name is not valid. " + e + ". NodeType "
                     + ntName.getAsString() + " skipped.");
@@ -695,45 +704,41 @@ public class NodeTypeDataPersister2 {
                 defaultNodeTypeName = null;
               }
 
+              List<ValueData> requiredNodeTypesValues = cdr.getPropertyValues(Constants.JCR_REQUIREDPRIMARYTYPES);
+              InternalQName[] requiredNodeTypes = new InternalQName[requiredNodeTypesValues.size()];
               try {
-                List<ValueData> requiredNodeTypesValues = cdr.getPropertyValues(Constants.JCR_REQUIREDPRIMARYTYPES);
-                InternalQName[] requiredNodeTypes = new InternalQName[requiredNodeTypesValues.size()];
-                try {
-                  for (int j = 0; j < requiredNodeTypesValues.size(); j++) {
-                    if (requiredNodeTypesValues.get(j) != null)
-                      requiredNodeTypes[j] = ValueDataConvertor.readQName(requiredNodeTypesValues.get(j));
-                    else
-                      requiredNodeTypes[j] = null;
-                  }
-                } catch (IllegalNameException e) {
-                  LOG.error("Child node required nodetype name is not valid. " + e + ". NodeType "
-                            + ntName.getAsString() + " skipped.");
-                  continue nextNodeType;
-                }
-
-                NodeDefinitionData nDef = new NodeDefinitionData(nname,
-                                                                 ntName,
-                                                                 ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_AUTOCREATED)),
-                                                                 ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_MANDATORY)),
-                                                                 (int) ValueDataConvertor.readLong(cdr.getPropertyValue(Constants.JCR_ONPARENTVERSION)),
-                                                                 ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_PROTECTED)),
-                                                                 requiredNodeTypes,
-                                                                 defaultNodeTypeName,
-                                                                 ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_SAMENAMESIBLINGS)));
-
-                declaredChildNodesDefs[cdi] = nDef;
-
-                if (LOG.isDebugEnabled())
-                  LOG.debug("Child nodes definitions readed " + nname.getAsString() + " "
-                      + (System.currentTimeMillis() - ntStart));
-              } catch (PathNotFoundException e) {
-                declaredChildNodesDefs[cdi] = null;
+                for (int j = 0; j < requiredNodeTypesValues.size(); j++)
+                  requiredNodeTypes[j] = ValueDataConvertor.readQName(requiredNodeTypesValues.get(j));
+              } catch (IllegalNameException e) {
+                LOG.error("Child node required nodetype name is not valid. " + e + ". NodeType "
+                    + ntName.getAsString() + " skipped.");
+                continue nextNodeType;
               }
+
+              NodeDefinitionData nDef = new NodeDefinitionData(nname,
+                                                               ntName,
+                                                               ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_AUTOCREATED)),
+                                                               ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_MANDATORY)),
+                                                               (int) ValueDataConvertor.readLong(cdr.getPropertyValue(Constants.JCR_ONPARENTVERSION)),
+                                                               ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_PROTECTED)),
+                                                               requiredNodeTypes,
+                                                               defaultNodeTypeName,
+                                                               ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_SAMENAMESIBLINGS)));
+
+              declaredChildNodesDefs[cdi] = nDef;
+
+              if (LOG.isDebugEnabled())
+                LOG.debug("Child nodes definitions readed "
+                    + (nname != null ? nname.getAsString() : Constants.JCR_ANY_NAME.getAsString())
+                    + " " + (System.currentTimeMillis() - ntStart));
             }
 
             declaredChildNodes = declaredChildNodesDefs;
           } catch (PathNotFoundException e) {
-            declaredChildNodes = null;
+            LOG.error("Child nodes definitions is not valid. " + e + ". NodeType "
+                      + ntName.getAsString() + " skipped.");
+            continue nextNodeType;
+            //declaredChildNodes = new NodeDefinitionData[0];
           }
 
           // -------- NodeType done --------

@@ -485,9 +485,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                       getWorkspace().getName());
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getItem(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public ItemImpl getItem(String absPath) throws PathNotFoundException, RepositoryException {
 
@@ -505,6 +504,9 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public LocationFactory getLocationFactory() {
     return locationFactory;
   }
