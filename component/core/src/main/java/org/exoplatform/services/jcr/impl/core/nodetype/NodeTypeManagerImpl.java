@@ -721,8 +721,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       QueryHandler queryHandler = it.next();
       QueryHits hits = queryHandler.executeQuery(query, true, new InternalQName[0], new boolean[0]);
       for (int i = 0; i < hits.length(); i++) {
-        // if (LOG.isDebugEnabled())
-        LOG.info(result.add(hits.getFieldContent(i, FieldNames.UUID)));
+        result.add(hits.getFieldContent(i, FieldNames.UUID));
       }
 
     }
