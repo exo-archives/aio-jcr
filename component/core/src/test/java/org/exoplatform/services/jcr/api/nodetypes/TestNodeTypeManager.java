@@ -3,6 +3,7 @@ package org.exoplatform.services.jcr.api.nodetypes;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.Node;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
@@ -12,6 +13,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
@@ -65,9 +67,22 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
                                      true,
                                      new InternalQName[0],
                                      new boolean[0]);
-    List<String> uuidList = new ArrayList(hits.length());
+    List<String> uuidList = new ArrayList<String>(hits.length());
     for (int i = 0; i < hits.length(); i++) {
       uuidList.add(hits.getFieldContent(i, FieldNames.UUID));
     }
+    assertTrue(uuidList.size() > 0);
+  }
+
+  public void testNtQueryNtBase() throws Exception {
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    QueryHandler qh = ntManager.getQueryHandlers().iterator().next();
+
+    assertTrue(ntManager.getNodes(Constants.MIX_VERSIONABLE).size() == 0);
+    Node t = root.addNode("tt");
+    t.addMixin("mix:versionable");
+    session.save();
+    assertTrue(ntManager.getNodes(Constants.MIX_VERSIONABLE).size() != 0);
+
   }
 }
