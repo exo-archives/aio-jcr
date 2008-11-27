@@ -145,32 +145,19 @@ public class QueryResultImpl implements QueryResult {
   /**
    * Creates a new query result.
    * 
-   * @param index
-   *          the search index where the query is executed.
-   * @param itemMgr
-   *          the item manager of the session executing the query.
-   * @param resolver
-   *          the namespace resolver of the session executing the query.
-   * @param accessMgr
-   *          the access manager of the session executiong the query.
-   * @param queryImpl
-   *          the query instance which created this query result.
-   * @param query
-   *          the lucene query to execute on the index.
-   * @param spellSuggestion
-   *          the spell suggestion or <code>null</code> if none is available.
-   * @param selectProps
-   *          the select properties of the query.
-   * @param orderProps
-   *          the names of the order properties.
-   * @param orderSpecs
-   *          the order specs, one for each order property name.
-   * @param documentOrder
-   *          if <code>true</code> the result is returned in document order.
-   * @param limit
-   *          the maximum result size
-   * @param offset
-   *          the offset in the total result set
+   * @param index the search index where the query is executed.
+   * @param itemMgr the item manager of the session executing the query.
+   * @param resolver the namespace resolver of the session executing the query.
+   * @param accessMgr the access manager of the session executiong the query.
+   * @param queryImpl the query instance which created this query result.
+   * @param query the lucene query to execute on the index.
+   * @param spellSuggestion the spell suggestion or <code>null</code> if none is available.
+   * @param selectProps the select properties of the query.
+   * @param orderProps the names of the order properties.
+   * @param orderSpecs the order specs, one for each order property name.
+   * @param documentOrder if <code>true</code> the result is returned in document order.
+   * @param limit the maximum result size
+   * @param offset the offset in the total result set
    */
   public QueryResultImpl(SearchIndex index,
                          SessionDataManager itemMgr,
@@ -255,11 +242,10 @@ public class QueryResultImpl implements QueryResult {
    * he is done using it.
    * 
    * @return hits for this query result.
-   * @throws IOException
-   *           if an error occurs while executing the query.
+   * @throws IOException if an error occurs while executing the query.
    */
   protected QueryHits executeQuery() throws IOException {
-    return index.executeQuery(queryImpl, query, orderProps, orderSpecs);
+    return index.executeQuery(query, queryImpl.needsSystemTree(), orderProps, orderSpecs);
   }
 
   // --------------------------------< internal >------------------------------
@@ -282,10 +268,8 @@ public class QueryResultImpl implements QueryResult {
    * of {@link #resultNodes} is less than <code>size</code> then there are no more than
    * <code>resultNodes.size()</code> results for this query.
    * 
-   * @param size
-   *          the number of results to fetch for the query.
-   * @throws RepositoryException
-   *           if an error occurs while executing the query.
+   * @param size the number of results to fetch for the query.
+   * @throws RepositoryException if an error occurs while executing the query.
    */
   private void getResults(long size) throws RepositoryException {
     if (log.isDebugEnabled()) {
@@ -452,8 +436,7 @@ public class QueryResultImpl implements QueryResult {
     }
 
     /**
-     * @throws UnsupportedOperationException
-     *           always.
+     * @throws UnsupportedOperationException always.
      */
     public void remove() {
       throw new UnsupportedOperationException("remove");

@@ -1,11 +1,21 @@
 package org.exoplatform.services.jcr.api.nodetypes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 
+import org.apache.lucene.search.MatchAllDocsQuery;
+
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
+import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
+import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
 
 /**
  * Created by The eXo Platform SAS.
@@ -48,4 +58,16 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
     assertEquals("nt:unstructured", nts.nextNodeType().getName());
   }
 
+  public void testNtQuery() throws Exception {
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    QueryHandler qh = ntManager.getQueryHandler().get(0);
+    QueryHits hits = qh.executeQuery(new MatchAllDocsQuery(),
+                                     true,
+                                     new InternalQName[0],
+                                     new boolean[0]);
+    List<String> uuidList = new ArrayList(hits.length());
+    for (int i = 0; i < hits.length(); i++) {
+      uuidList.add(hits.getFieldContent(i, FieldNames.UUID));
+    }
+  }
 }

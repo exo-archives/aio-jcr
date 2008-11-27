@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +50,7 @@ import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
+import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
@@ -95,14 +97,10 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * RepositoryContainer constructor.
    * 
-   * @param parent
-   *          container
-   * @param config
-   *          Repository configuration
-   * @throws RepositoryException
-   *           container initialization error
-   * @throws RepositoryConfigurationException
-   *           configuration error
+   * @param parent container
+   * @param config Repository configuration
+   * @throws RepositoryException container initialization error
+   * @throws RepositoryConfigurationException configuration error
    */
   public RepositoryContainer(ExoContainer parent, RepositoryEntry config) throws RepositoryException,
       RepositoryConfigurationException {
@@ -149,8 +147,7 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Get workspace Container by name.
    * 
-   * @param workspaceName
-   *          name
+   * @param workspaceName name
    * @return WorkspaceContainer
    */
   public WorkspaceContainer getWorkspaceContainer(String workspaceName) {
@@ -160,8 +157,7 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Get workspace configuration entry by name.
    * 
-   * @param wsName
-   *          workspace name
+   * @param wsName workspace name
    * @return WorkspaceEntry
    */
   public WorkspaceEntry getWorkspaceEntry(String wsName) {
@@ -175,12 +171,9 @@ public class RepositoryContainer extends ExoContainer {
   /**
    * Register workspace from configuration.
    * 
-   * @param wsConfig
-   *          configuration
-   * @throws RepositoryException
-   *           initialization error
-   * @throws RepositoryConfigurationException
-   *           configuration error
+   * @param wsConfig configuration
+   * @throws RepositoryException initialization error
+   * @throws RepositoryConfigurationException configuration error
    */
   public void registerWorkspace(final WorkspaceEntry wsConfig) throws RepositoryException,
                                                               RepositoryConfigurationException {
@@ -356,7 +349,6 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Initialize worspaces (root node and jcr:system for system workspace).
-   * 
    * <p>
    * Runs on container start.
    * 
@@ -365,9 +357,21 @@ public class RepositoryContainer extends ExoContainer {
    */
   private void init() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
+    // SearchManager searchManager = (SearchManager)
+    // workspaceContainer.getComponentInstanceOfType(SearchManager.class);
+    NodeTypeManagerImpl typeManager = (NodeTypeManagerImpl) this.getComponentInstanceOfType(NodeTypeManagerImpl.class);
+    // typeManager.setQueryHandler(searchManager.getHandler());
+    List<QueryHandler> qhList = new ArrayList<QueryHandler>();
     for (WorkspaceEntry ws : wsEntries) {
       initWorkspace(ws);
+      WorkspaceContainer workspaceContainer = getWorkspaceContainer(ws.getName());
+      SearchManager searchManager = (SearchManager) workspaceContainer.getComponentInstanceOfType(SearchManager.class);
+      qhList.add(searchManager.getHandler());
     }
+    SystemSearchManagerHolder searchManager = (SystemSearchManagerHolder) this.getComponentInstanceOfType(SystemSearchManagerHolder.class);
+    qhList.add(searchManager.get().getHandler());
+    typeManager.setQueryHandler(qhList);
+
   }
 
   /**
@@ -386,6 +390,13 @@ public class RepositoryContainer extends ExoContainer {
     // Init Root and jcr:system if workspace is system workspace
     WorkspaceInitializer wsInitializer = (WorkspaceInitializer) workspaceContainer.getComponentInstanceOfType(WorkspaceInitializer.class);
     wsInitializer.initWorkspace();
+
+    // SearchManager searchManager = (SearchManager)
+    // workspaceContainer.getComponentInstanceOfType(SearchManager.class);
+    // NodeTypeManagerImpl typeManager = (NodeTypeManagerImpl)
+    // workspaceContainer.getComponentInstanceOfType(NodeTypeManagerImpl.class);
+    // typeManager.setQueryHandler(searchManager.getHandler());
+
   }
 
   // ////// initialize --------------
@@ -449,7 +460,6 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Load namespaces and nodetypes from persistent repository.
-   * 
    * <p>
    * Runs on container start.
    * 
@@ -466,7 +476,6 @@ public class RepositoryContainer extends ExoContainer {
 
   /**
    * Workspaces order comparator.
-   * 
    */
   private static class WorkspaceOrderComparator implements Comparator<WorkspaceEntry> {
     private final String sysWs;

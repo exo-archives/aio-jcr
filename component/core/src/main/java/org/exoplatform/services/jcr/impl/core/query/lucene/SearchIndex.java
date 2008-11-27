@@ -229,25 +229,14 @@ public class SearchIndex implements QueryHandler {
     throw new UnsupportedOperationException("deleteNode");
   }
 
-  /**
-   * Executes the query on the search index.
-   * 
-   * @param queryImpl the query impl.
-   * @param query the lucene query.
-   * @param orderProps name of the properties for sort order.
-   * @param orderSpecs the order specs for the sort order properties. <code>true</code> indicates
-   *          ascending order, <code>false</code> indicates descending.
-   * @return the lucene Hits object.
-   * @throws IOException if an error occurs while searching the index.
-   */
-  public QueryHits executeQuery(AbstractQueryImpl queryImpl,
-                                Query query,
+  public QueryHits executeQuery(Query query,
+                                boolean needsSystemTree,
                                 InternalQName[] orderProps,
                                 boolean[] orderSpecs) throws IOException {
     checkOpen();
     SortField[] sortFields = createSortFields(orderProps, orderSpecs);
 
-    IndexReader reader = getIndexReader(queryImpl.needsSystemTree());
+    IndexReader reader = getIndexReader(needsSystemTree);
     IndexSearcher searcher = new IndexSearcher(reader);
     Hits hits;
     if (sortFields.length > 0) {

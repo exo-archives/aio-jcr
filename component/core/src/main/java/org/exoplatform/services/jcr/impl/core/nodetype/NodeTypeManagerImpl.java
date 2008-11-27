@@ -38,7 +38,13 @@ import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.PropertyDefinition;
 
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
@@ -49,13 +55,11 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -64,39 +68,48 @@ import org.jibx.runtime.JiBXException;
  */
 public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
-  protected static final Log                                          LOG               = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
+  protected static final Log                   LOG               = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
 
-  private static final String                                         NODETYPES_FILE    = "nodetypes.xml";
+  private static final String                  NODETYPES_FILE    = "nodetypes.xml";
 
-  public static final String                                          NODETYPES_ROOT    = "/jcr:system/jcr:nodetypes";
+  public static final String                   NODETYPES_ROOT    = "/jcr:system/jcr:nodetypes";
 
-  private ValueFactory                                                valueFactory;
+  private ValueFactory                         valueFactory;
 
-  private LocationFactory                                             locationFactory;
+  private LocationFactory                      locationFactory;
 
   // private List<NodeType> nodeTypes;
-  private Map<InternalQName, ExtendedNodeType>                        nodeTypes;
+  private Map<InternalQName, ExtendedNodeType> nodeTypes;
 
-  private String                                                      accessControlPolicy;
+  private String                               accessControlPolicy;
 
-  private ItemDefinitionsHolder                                       itemDefintionsHolder;
+  private ItemDefinitionsHolder                itemDefintionsHolder;
 
-  private NamespaceRegistry                                           namespaceRegistry = null;
+  private NamespaceRegistry                    namespaceRegistry = null;
 
-  private NodeTypeDataPersister                                       persister         = null;
+  private NodeTypeDataPersister                persister         = null;
+
+  private List<QueryHandler>                   queryHandlerList;
+
+  public List<QueryHandler> getQueryHandler() {
+    return queryHandlerList;
+  }
+
+  public void setQueryHandler(List<QueryHandler> queryHandler) {
+    this.queryHandlerList = queryHandler;
+  }
 
   /**
    * Listeners (soft references)
    */
-  private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners         = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
+  private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
 
   public NodeTypeManagerImpl(RepositoryEntry config,
                              LocationFactory locationFactory,
                              ValueFactoryImpl valueFactory,
                              NamespaceRegistry namespaceRegistry,
                              NodeTypeDataPersister persister) throws RepositoryException {
-    this(
-         locationFactory,
+    this(locationFactory,
          valueFactory,
          namespaceRegistry,
          config.getAccessControl(),
@@ -111,9 +124,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                 String accessControlPolicy,
                                 NodeTypeDataPersister persister,
                                 Map<InternalQName, ExtendedNodeType> nodeTypes) {
-    this.nodeTypes = nodeTypes != null
-        ? nodeTypes
-        : new LinkedHashMap<InternalQName, ExtendedNodeType>();
+    this.nodeTypes = nodeTypes != null ? nodeTypes
+                                      : new LinkedHashMap<InternalQName, ExtendedNodeType>();
     this.valueFactory = valueFactory;
     this.locationFactory = locationFactory;
     this.namespaceRegistry = namespaceRegistry;
@@ -129,6 +141,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                                              session,
                                                              persister,
                                                              nodeTypes);
+    wntm.setQueryHandler(queryHandlerList);
     return wntm;
   }
 
@@ -303,8 +316,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available primary node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException
-   *           if an error occurs.
+   * @throws RepositoryException if an error occurs.
    */
   public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -321,8 +333,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available mixin node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException
-   *           if an error occurs.
+   * @throws RepositoryException if an error occurs.
    */
   public NodeTypeIterator getMixinNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -377,11 +388,11 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         LOG.warn("Error of storing node type " + nodeType.getName()
             + ". May be node type already registered .", e);
       }
-      if(LOG.isDebugEnabled())
+      if (LOG.isDebugEnabled())
         LOG.debug("NodeType " + nodeType.getName() + " initialized. "
             + (System.currentTimeMillis() - start) + " ms");
     } else {
-      if(LOG.isDebugEnabled())
+      if (LOG.isDebugEnabled())
         LOG.debug("NodeType " + nodeType.getName()
             + " registered but not initialized (storage is not initialized). "
             + (System.currentTimeMillis() - start) + " ms");
@@ -447,7 +458,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       throw new RepositoryException("Error in config initialization " + e, e);
     }
   }
-  
+
   private NodeType makeNtFromClass(Class<ExtendedNodeType> nodeTypeType) throws InstantiationException {
 
     try {
@@ -596,8 +607,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Add a <code>NodeTypeRegistryListener</code>
    * 
-   * @param listener
-   *          the new listener to be informed on (un)registration of node types
+   * @param listener the new listener to be informed on (un)registration of node types
    */
   public void addListener(NodeTypeManagerListener listener) {
     if (!listeners.containsKey(listener)) {
@@ -608,8 +618,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Remove a <code>NodeTypeRegistryListener</code>.
    * 
-   * @param listener
-   *          an existing listener
+   * @param listener an existing listener
    */
   public void removeListener(NodeTypeManagerListener listener) {
     listeners.remove(listener);
@@ -617,7 +626,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   /**
    * Notify the listeners that a node type <code>ntName</code> has been registered.
-   *
+   * 
    * @param ntName NT name.
    */
   private void notifyRegistered(InternalQName ntName) {
@@ -664,8 +673,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
-                                                                    int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
-                                                                                               RepositoryException {
+                                            int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
+                                                                       RepositoryException {
     // TODO Auto-generated method stub
     return null;
   }
@@ -674,13 +683,13 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                              NoSuchNodeTypeException,
                                              RepositoryException {
     // TODO Auto-generated method stub
-    
+
   }
 
   public void unregisterNodeTypes(String[] names) throws UnsupportedRepositoryOperationException,
                                                  NoSuchNodeTypeException,
                                                  RepositoryException {
     // TODO Auto-generated method stub
-    
+
   }
 }
