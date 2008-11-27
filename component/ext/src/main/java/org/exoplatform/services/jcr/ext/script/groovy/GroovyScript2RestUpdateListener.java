@@ -49,9 +49,8 @@ public class GroovyScript2RestUpdateListener implements EventListener {
     this.session = session;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.observation.EventListener#onEvent(javax.jcr.observation.EventIterator)
+  /**
+   * {@inheritDoc}
    */
   public void onEvent(EventIterator eventIterator) {
     // waiting for Event.PROPERTY_ADDED and Event.PROPERTY_CHANGED

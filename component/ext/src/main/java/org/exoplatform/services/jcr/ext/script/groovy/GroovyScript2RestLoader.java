@@ -179,9 +179,8 @@ public class GroovyScript2RestLoader implements Startable {
     log.info("Add new groovy scripts, script key: " + key);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#start()
+  /**
+   * {@inheritDoc}
    */
   public void start() {
     if (registryService != null && !registryService.getForceXMLConfigurationValue(initParams)) {
@@ -254,9 +253,8 @@ public class GroovyScript2RestLoader implements Startable {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.picocontainer.Startable#stop()
+  /**
+   * {@inheritDoc}
    */
   public void stop() {
     // nothing to do!
@@ -392,7 +390,7 @@ public class GroovyScript2RestLoader implements Startable {
         + observationListenerConfiguration.getWorkspaces());
   }
 
-  /*
+  /**
    * Should be used in configuration.xml as object parameter.
    */
   public static class ObservationListenerConfiguration {
