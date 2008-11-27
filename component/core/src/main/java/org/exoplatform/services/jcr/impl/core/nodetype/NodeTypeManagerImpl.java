@@ -21,9 +21,12 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 import javax.jcr.InvalidItemStateException;
@@ -89,14 +92,14 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   private NodeTypeDataPersister                persister         = null;
 
-  private List<QueryHandler>                   queryHandlerList;
+  private final Set<QueryHandler>              queryHandlers;
 
-  public List<QueryHandler> getQueryHandler() {
-    return queryHandlerList;
+  public Set<QueryHandler> getQueryHandlers() {
+    return queryHandlers;
   }
 
-  public void setQueryHandler(List<QueryHandler> queryHandler) {
-    this.queryHandlerList = queryHandler;
+  public void addQueryHandler(QueryHandler queryHandler) {
+    queryHandlers.add(queryHandler);
   }
 
   /**
@@ -133,6 +136,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     this.persister = persister;
 
     this.itemDefintionsHolder = new ItemDefinitionsHolder(new NodeTypesHierarchyHolder());
+    this.queryHandlers = new HashSet<QueryHandler>();
   }
 
   public WorkspaceNTManagerImpl createWorkspaceNTManager(SessionImpl session) throws RepositoryException {
@@ -141,7 +145,10 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                                              session,
                                                              persister,
                                                              nodeTypes);
-    wntm.setQueryHandler(queryHandlerList);
+    Iterator<QueryHandler> qhIterator = queryHandlers.iterator();
+    while (qhIterator.hasNext()) {
+      wntm.addQueryHandler(qhIterator.next());
+    }
     return wntm;
   }
 

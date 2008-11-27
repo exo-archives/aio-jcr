@@ -60,7 +60,7 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
 
   public void testNtQuery() throws Exception {
     NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
-    QueryHandler qh = ntManager.getQueryHandler().get(0);
+    QueryHandler qh = ntManager.getQueryHandlers().iterator().next();
     QueryHits hits = qh.executeQuery(new MatchAllDocsQuery(),
                                      true,
                                      new InternalQName[0],

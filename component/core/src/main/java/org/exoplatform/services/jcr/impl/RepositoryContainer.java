@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -50,7 +49,6 @@ import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
-import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.SearchManager;
 import org.exoplatform.services.jcr.impl.core.query.SystemSearchManager;
@@ -357,20 +355,18 @@ public class RepositoryContainer extends ExoContainer {
    */
   private void init() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
-    // SearchManager searchManager = (SearchManager)
-    // workspaceContainer.getComponentInstanceOfType(SearchManager.class);
+
     NodeTypeManagerImpl typeManager = (NodeTypeManagerImpl) this.getComponentInstanceOfType(NodeTypeManagerImpl.class);
-    // typeManager.setQueryHandler(searchManager.getHandler());
-    List<QueryHandler> qhList = new ArrayList<QueryHandler>();
+
     for (WorkspaceEntry ws : wsEntries) {
       initWorkspace(ws);
       WorkspaceContainer workspaceContainer = getWorkspaceContainer(ws.getName());
       SearchManager searchManager = (SearchManager) workspaceContainer.getComponentInstanceOfType(SearchManager.class);
-      qhList.add(searchManager.getHandler());
+      typeManager.addQueryHandler(searchManager.getHandler());
     }
+
     SystemSearchManagerHolder searchManager = (SystemSearchManagerHolder) this.getComponentInstanceOfType(SystemSearchManagerHolder.class);
-    qhList.add(searchManager.get().getHandler());
-    typeManager.setQueryHandler(qhList);
+    typeManager.addQueryHandler(searchManager.get().getHandler());
 
   }
 
