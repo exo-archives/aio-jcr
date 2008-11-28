@@ -155,14 +155,12 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     }
 
     try {
-      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
-          + username);
-      User user = readObjectFromNode(uNode);
+      User user = findUserByName(session, username);
 
       boolean authenticated = (user != null ? user.getPassword().equals(password) : false);
       if (authenticated) {
         user.setLastLoginTime(Calendar.getInstance().getTime());
-        writeObjectToNode(user, uNode);
+        saveUser(session, user, false);
       }
 
       return authenticated;
