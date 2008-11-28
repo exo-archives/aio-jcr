@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.OrganizationService;
 
 /**
  * Created by The eXo Platform SAS.
@@ -32,15 +33,15 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
 
   private GroupHandler               gHandler;
 
-  private JCROrganizationServiceImpl organizationService;
+  private OrganizationService organizationService;
 
   /**
    * {@inheritDoc}
    */
   public void setUp() throws Exception {
     super.setUp();
-    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
-    gHandler = new GroupHandlerImpl(organizationService);
+    organizationService = (OrganizationService) container.getComponentInstanceOfType(OrganizationService.class);
+    gHandler = organizationService.getGroupHandler();
   }
 
   /**
@@ -73,6 +74,14 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
    */
   public void testFindGroupsByUser() throws Exception {
     try {
+      // Hibernate org service returns
+      // [Group[/organization/management/executive-board|executive-board], Group[/platform/administrators|administrators], Group[/platform/users|users]]
+      // JCR returns
+      // [[groupId=/platform/administrators][groupName=administrators][parentId=/platform], 
+      // [groupId=/platform/users][groupName=users][parentId=/platform],
+      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/organization/management], 
+      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/organization/management], 
+      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/organization/management]]
       Collection g = gHandler.findGroupsOfUser("john");
       assertTrue("user John are in 3 groups", g.size() == 3);
     } catch (Exception e) {
