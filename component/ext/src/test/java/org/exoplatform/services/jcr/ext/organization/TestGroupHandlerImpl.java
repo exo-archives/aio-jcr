@@ -69,6 +69,19 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
   }
 
   /**
+   * Find group by id and check it properties.
+   */
+  public void testFindGroupsByUser() throws Exception {
+    try {
+      Collection g = gHandler.findGroupsOfUser("john");
+      assertTrue("user John are in 3 groups", g.size() == 3);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown.");
+    }
+  }
+  
+  /**
    * Find groups by specific parent and check it count.
    */
   public void testFindGroups() throws Exception {
