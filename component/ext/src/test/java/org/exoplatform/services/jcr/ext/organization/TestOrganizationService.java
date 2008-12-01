@@ -361,7 +361,7 @@ public class TestOrganizationService extends BaseStandaloneTest {
      */
     System.out.println(" --------- find groups by user -------------");
     Collection<Group> groups = groupHandler_.findGroupsOfUser(Benj);
-    assertEquals("expect group is: ", 4, groups.size());
+    assertEquals("expect group is: ", 2, groups.size()); // PN 28.11.2008, fix to 2 was 4
 
     /*
      * find all groups has membership type "TYPE" relate with Benj expect

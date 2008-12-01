@@ -259,31 +259,50 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     try {
       List<Group> types = new ArrayList<Group>();
-      String mtUUID = (membershipType == null)
-          ? null
-          : ((Node) session.getItem(service.getStoragePath() + "/"
-              + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + membershipType)).getUUID();
-      String whereStatement = (mtUUID == null) ? "" : " where exo:membershipType='" + mtUUID + "'";
+//      String mtUUID = (membershipType == null)
+//          ? null
+//          : ((Node) session.getItem(service.getStoragePath() + "/"
+//              + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + membershipType)).getUUID();
+//      String whereStatement = (mtUUID == null) ? "" : " where exo:membershipType='" + mtUUID + "'";
+//
+//      // find memberships
+//      String mStatement = "select * from exo:userMembership" + whereStatement;
+//      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
+//      QueryResult mRes = mQuery.execute();
+//      for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
+//        Node mNode = mNodes.nextNode();
+//        Node uNode = mNode.getParent();
+//
+//        // check user name
+//        if (uNode.getName().equals(userName)) {
+//          Node gNode = session.getNodeByUUID(readStringProperty(mNode,
+//                                                                MembershipHandlerImpl.EXO_GROUP));
+//          Group g = readObjectFromNode(gNode);
+//          types.add(g);
+//        }
+//      }
 
-      // find memberships
-      String mStatement = "select * from exo:userMembership" + whereStatement;
-      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
-      QueryResult mRes = mQuery.execute();
-      for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
-        Node mNode = mNodes.nextNode();
-        Node uNode = mNode.getParent();
+      // //////////////
+      Node user = (Node) session.getItem(service.getStoragePath() + "/"
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
+      NodeIterator memberships = user.getNodes("exo:membership");
+      nextGroup: while (memberships.hasNext()) {
+        Node membership = memberships.nextNode();
 
-        // check user name
-        if (uNode.getName().equals(userName)) {
-          Node gNode = session.getNodeByUUID(readStringProperty(mNode,
-                                                                MembershipHandlerImpl.EXO_GROUP));
-          Group g = readObjectFromNode(gNode);
-          types.add(g);
+        if (membershipType != null
+          && !membershipType.equals(membership.getProperty(MembershipHandlerImpl.EXO_MEMBERSHIP_TYPE).getNode().getName())) {
+          continue nextGroup; // membership doesn't match
         }
+
+        Node group = membership.getProperty("exo:group").getNode();
+        for (Group eg : types) {
+          if (eg.getId().equals(readStringProperty(group, EXO_GROUP_ID)))
+            continue nextGroup; // already listed
+        }
+        types.add(readObjectFromNode(group)); // add
       }
 
       return types;
-
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find groups", e);
     }
