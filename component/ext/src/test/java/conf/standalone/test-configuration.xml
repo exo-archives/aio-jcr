@@ -842,7 +842,7 @@
                     <field name="groups">
                       <string>
                         validator:/platform/administrators,manager:/platform/users,
-                        *:/organization/management/executive-board
+                        *:/organization/management/executive-board, manager:/organization/management/executive-board, validator:/organization/management/executive-board
                       </string>
                     </field>
                   </object>
