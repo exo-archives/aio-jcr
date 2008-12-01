@@ -30,12 +30,8 @@ public class PropertyDefinitionDatas {
 
   private PropertyDefinitionData singleDef = null;
 
-  public PropertyDefinitionDatas() {
-    super();
-  }
-
-  public void setDefinition(PropertyDefinitionData def) {
-    boolean residual = ((ExtendedItemDefinition) def).isResidualSet();
+  public void setDefinition(final PropertyDefinitionData def) {
+    final boolean residual = def.isResidualSet();
     if (def.isMultiple()) {
       if ((residual && multiDef == null) || !residual)
         multiDef = def;
@@ -45,7 +41,7 @@ public class PropertyDefinitionDatas {
     }
   }
 
-  public PropertyDefinitionData getDefinition(boolean multiple) {
+  public PropertyDefinitionData getDefinition(final boolean multiple) {
 
     refresh();
 
@@ -72,14 +68,11 @@ public class PropertyDefinitionDatas {
   private void refresh() {
     // if both defined should be both either residual or not
     if (multiDef != null && singleDef != null) {
-      if (((ItemDefinitionData) multiDef).isResidualSet()
-          && !((ExtendedItemDefinition) singleDef).isResidualSet())
+      if (multiDef.isResidualSet() && !singleDef.isResidualSet())
         multiDef = null;
-      if (((ExtendedItemDefinition) singleDef).isResidualSet()
-          && !((ExtendedItemDefinition) multiDef).isResidualSet())
+      if (singleDef.isResidualSet() && !multiDef.isResidualSet())
         singleDef = null;
     }
-
   }
 
   public String dump() {

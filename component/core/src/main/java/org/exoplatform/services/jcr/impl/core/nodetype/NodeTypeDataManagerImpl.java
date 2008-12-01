@@ -71,6 +71,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   protected final String                           accessControlPolicy;
 
   protected final Map<InternalQName, NodeTypeData> nodeTypes = new ConcurrentHashMap<InternalQName, NodeTypeData>();
+  
+  protected final ItemDefinitionDataHolder defsHolder;
 
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
@@ -84,6 +86,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     this.accessControlPolicy = config.getAccessControl();
 
+    this.defsHolder = new ItemDefinitionDataHolder(new NodeTypeDataHierarchyHolder());
+    
     initDefault();
   }
 
@@ -279,6 +283,16 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
+  /**
+   * 
+   * Validate NodeTypeData and return new instance or throw an exception.
+   * The new instance will be a guarany of valid NodeType.
+   * 
+   * Check according the JSR-170/JSR-283 spec.
+   *
+   * @param nodeType NodeTypeData to be checked
+   * @return valid NodeTypeData
+   */
   protected NodeTypeData validateNodeType(NodeTypeData nodeType) {
 
     return nodeType; // TODO
@@ -289,25 +303,20 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public NodeDefinitionData findNodeDefinition(InternalQName nodeName,
                                                InternalQName primaryType,
                                                InternalQName[] mixinTypes) throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    
+    return defsHolder.getDefaultChildNodeDefinition(primaryType, mixinTypes, nodeName);
   }
 
-  public NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList) throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public NodeTypeData findNodeType(InternalQName qname) throws NoSuchNodeTypeException,
+  public NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,
                                                        RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    return nodeTypes.get(typeName);
   }
 
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                          InternalQName primaryType,
                                                          InternalQName[] mixinTypes) throws RepositoryException {
-    // TODO Auto-generated method stub
+    
+    //defsHolder.getPropertyDefinition(parentNodeType, childName, multiValued);
     return null;
   }
 

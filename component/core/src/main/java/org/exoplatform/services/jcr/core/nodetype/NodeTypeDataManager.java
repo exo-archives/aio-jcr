@@ -41,7 +41,7 @@ public interface NodeTypeDataManager {
    */
   List<NodeTypeData> getAllNodeTypes() throws RepositoryException;
   
-  NodeTypeData findNodeType(InternalQName qname) throws NoSuchNodeTypeException,
+  NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,
                                                 RepositoryException;
 
   boolean isOrderableChildNodesSupported(InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException;
@@ -50,7 +50,7 @@ public interface NodeTypeDataManager {
                                         InternalQName primaryType,
                                         InternalQName[] mixinTypes) throws RepositoryException;
 
-  NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList) throws RepositoryException;
+  //NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList) throws RepositoryException;
 
   PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                   InternalQName primaryType,

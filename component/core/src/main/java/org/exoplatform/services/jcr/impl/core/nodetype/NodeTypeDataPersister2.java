@@ -645,7 +645,6 @@ public class NodeTypeDataPersister2 {
             LOG.error("Property definitions is not valid. " + e + ". NodeType "
                 + ntName.getAsString() + " skipped.");
             continue nextNodeType;
-            // declaredProperties = new PropertyDefinitionData[0];
           }
 
           // --------- Child nodes definitions ----------
@@ -735,7 +734,6 @@ public class NodeTypeDataPersister2 {
             LOG.error("Child nodes definitions is not valid. " + e + ". NodeType "
                       + ntName.getAsString() + " skipped.");
             continue nextNodeType;
-            //declaredChildNodes = new NodeDefinitionData[0];
           }
 
           // -------- NodeType done --------
