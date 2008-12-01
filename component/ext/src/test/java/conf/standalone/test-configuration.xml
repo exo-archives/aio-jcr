@@ -433,7 +433,7 @@
     </init-params>
   </component>
   
-  <!-- component>
+  <!--component>
     <key>org.exoplatform.services.database.HibernateService</key>
     <jmx-name>database:type=HibernateService</jmx-name>
     <type>org.exoplatform.services.database.impl.HibernateServiceImpl</type>
@@ -461,6 +461,7 @@
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.organization.hibernate.OrganizationServiceImpl</type>
   </component>
+
   <external-component-plugins>
     <target-component>org.exoplatform.services.database.HibernateService</target-component>
     <component-plugin> 
@@ -478,7 +479,7 @@
         </values-param>
       </init-params>
     </component-plugin>
-  </external-component-plugins -->
+  </external-component-plugins-->
   
   <!-- org service initializer, copied from ECM portal.war -->
   <external-component-plugins>
@@ -846,8 +847,8 @@
                     </field>
                     <field name="groups">
                       <string>
-                        validator:/platform/administrators,manager:/platform/users,
-                        *:/organization/management/executive-board
+                       validator:/platform/administrators,manager:/platform/users,
+                        *:/organization/management/executive-board, manager:/organization/management/executive-board, validator:/organization/management/executive-board
                       </string>
                     </field>
                   </object>

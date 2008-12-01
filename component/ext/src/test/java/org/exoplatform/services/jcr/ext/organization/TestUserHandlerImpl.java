@@ -21,6 +21,7 @@ import java.util.Calendar;
 import org.exoplatform.commons.utils.ObjectPageList;
 import org.exoplatform.commons.utils.PageList;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 
@@ -32,11 +33,11 @@ import org.exoplatform.services.organization.UserHandler;
  */
 public class TestUserHandlerImpl extends BaseStandaloneTest {
 
-  private Calendar                   calendar;
+  private Calendar            calendar;
 
-  private JCROrganizationServiceImpl organizationService;
+  private OrganizationService organizationService;
 
-  private UserHandler                uHandler;
+  private UserHandler         uHandler;
 
   /**
    * {@inheritDoc}
@@ -44,9 +45,8 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
   public void setUp() throws Exception {
     super.setUp();
 
-    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
-
-    uHandler = new UserHandlerImpl(organizationService);
+    organizationService = (OrganizationService) container.getComponentInstance(OrganizationService.class);
+    uHandler = organizationService.getUserHandler();
 
     calendar = Calendar.getInstance();
     calendar.set(2008, 1, 1);
@@ -61,6 +61,9 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
                                                                                           "exo"));
       assertFalse("'demo' with password 'exo_' was authenticated", uHandler.authenticate("demo",
                                                                                          "exo_"));
+      assertFalse("'demo_' with password 'exo' was authenticated", uHandler.authenticate("demo_",
+                                                                                         "exo"));
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown.");

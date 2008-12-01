@@ -31,7 +31,7 @@ import org.exoplatform.services.organization.OrganizationService;
  */
 public class TestGroupHandlerImpl extends BaseStandaloneTest {
 
-  private GroupHandler               gHandler;
+  private GroupHandler        gHandler;
 
   private OrganizationService organizationService;
 
@@ -75,13 +75,17 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
   public void testFindGroupsByUser() throws Exception {
     try {
       // Hibernate org service returns
-      // [Group[/organization/management/executive-board|executive-board], Group[/platform/administrators|administrators], Group[/platform/users|users]]
+      // [Group[/organization/management/executive-board|executive-board],
+      // Group[/platform/administrators|administrators], Group[/platform/users|users]]
       // JCR returns
-      // [[groupId=/platform/administrators][groupName=administrators][parentId=/platform], 
+      // [[groupId=/platform/administrators][groupName=administrators][parentId=/platform],
       // [groupId=/platform/users][groupName=users][parentId=/platform],
-      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/organization/management], 
-      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/organization/management], 
-      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/organization/management]]
+      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/
+      // organization/management],
+      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/
+      // organization/management],
+      // [groupId=/organization/management/executive-board][groupName=executive-board][parentId=/
+      // organization/management]]
       Collection g = gHandler.findGroupsOfUser("john");
       assertTrue("user John are in 3 groups", g.size() == 3);
     } catch (Exception e) {
@@ -89,7 +93,7 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
       fail("Exception should not be thrown.");
     }
   }
-  
+
   /**
    * Find groups by specific parent and check it count.
    */

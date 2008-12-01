@@ -24,6 +24,7 @@ import java.util.Collection;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
+import org.exoplatform.services.organization.OrganizationService;
 
 /**
  * Created by The eXo Platform SAS.
@@ -33,17 +34,18 @@ import org.exoplatform.services.organization.MembershipTypeHandler;
  */
 public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
 
-  private MembershipTypeHandler      mtHandler;
+  private MembershipTypeHandler mtHandler;
 
-  private JCROrganizationServiceImpl organizationService;
+  private OrganizationService   organizationService;
 
   /**
    * {@inheritDoc}
    */
   public void setUp() throws Exception {
     super.setUp();
-    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
-    mtHandler = new MembershipTypeHandlerImpl(organizationService);
+
+    organizationService = (OrganizationService) container.getComponentInstance(OrganizationService.class);
+    mtHandler = organizationService.getMembershipTypeHandler();
   }
 
   /**

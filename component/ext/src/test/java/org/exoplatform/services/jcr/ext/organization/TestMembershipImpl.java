@@ -29,6 +29,7 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 
@@ -39,15 +40,15 @@ import org.exoplatform.services.organization.UserHandler;
  * @version $Id: TestMembershipImpl.java 111 2008-11-11 11:11:11Z $
  */
 public class TestMembershipImpl extends BaseStandaloneTest {
-  private GroupHandler               gHandler;
+  private GroupHandler          gHandler;
 
-  private MembershipHandler          mHandler;
+  private MembershipHandler     mHandler;
 
-  private UserHandler                uHandler;
+  private UserHandler           uHandler;
 
-  private MembershipTypeHandler      mtHandler;
+  private MembershipTypeHandler mtHandler;
 
-  private JCROrganizationServiceImpl organizationService;
+  private OrganizationService   organizationService;
 
   /**
    * {@inheritDoc}
@@ -55,12 +56,13 @@ public class TestMembershipImpl extends BaseStandaloneTest {
   public void setUp() throws Exception {
     super.setUp();
 
-    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
+    organizationService = (OrganizationService) container.getComponentInstanceOfType(OrganizationService.class);
+    gHandler = organizationService.getGroupHandler();
 
-    gHandler = new GroupHandlerImpl(organizationService);
-    uHandler = new UserHandlerImpl(organizationService);
-    mHandler = new MembershipHandlerImpl(organizationService);
-    mtHandler = new MembershipTypeHandlerImpl(organizationService);
+    gHandler = organizationService.getGroupHandler();
+    uHandler = organizationService.getUserHandler();
+    mHandler = organizationService.getMembershipHandler();
+    mtHandler = organizationService.getMembershipTypeHandler();
   }
 
   /**
@@ -94,7 +96,17 @@ public class TestMembershipImpl extends BaseStandaloneTest {
       mHandler.findMembership(m.getId());
       assertTrue("Can not find membership", m != null);
 
-      m = mHandler.findMembershipByUserGroupAndType("marry_", "/platform/users", "member");
+      m = mHandler.findMembershipByUserGroupAndType("non-existed-marry",
+                                                    "/platform/users",
+                                                    "member");
+      assertTrue("Membership is found but must be absent", m == null);
+
+      m = mHandler.findMembershipByUserGroupAndType("marry", "/non-existed-group", "member");
+      assertTrue("Membership is found but must be absent", m == null);
+
+      m = mHandler.findMembershipByUserGroupAndType("marry",
+                                                    "/platform/users",
+                                                    "non-existed-member");
       assertTrue("Membership is found but must be absent", m == null);
 
     } catch (Exception e) {
@@ -110,6 +122,10 @@ public class TestMembershipImpl extends BaseStandaloneTest {
     try {
       Collection list = mHandler.findMembershipsByUser("john");
       assertTrue("Found " + list.size() + " memberships but 5 is present", list.size() == 5);
+
+      list = mHandler.findMembershipsByUser("non-existed-user");
+      assertTrue("Found " + list.size() + " memberships but 0 is present", list.size() == 0);
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -123,6 +139,12 @@ public class TestMembershipImpl extends BaseStandaloneTest {
     try {
       Collection list = mHandler.findMembershipsByUserAndGroup("john", "/platform/users");
       assertTrue("Found " + list.size() + " memberships but 1 is present", list.size() == 1);
+
+      list = mHandler.findMembershipsByUserAndGroup("non-existed-john", "/platform/users");
+      assertTrue("Found " + list.size() + " memberships but 0 is present", list.size() == 0);
+
+      list = mHandler.findMembershipsByUserAndGroup("john", "/non-existed-group");
+      assertTrue("Found " + list.size() + " memberships but 0 is present", list.size() == 0);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -225,6 +247,51 @@ public class TestMembershipImpl extends BaseStandaloneTest {
       fail("Exception should not be thrown");
     }
 
+  }
+
+  /**
+   * Find users by group and check it count.
+   */
+  public void testLinkMembership() throws Exception {
+    try {
+      // create users
+      User u = uHandler.createUserInstance("linkUser");
+      u.setEmail("email");
+      u.setFirstName("first");
+      u.setLastName("last");
+      u.setPassword("pwd");
+      uHandler.createUser(u, true);
+      u = uHandler.findUserByName("linkUser");
+
+      // create groups
+      Group g = gHandler.createGroupInstance();
+      g.setGroupName("linkGroup");
+      g.setLabel("label");
+      g.setDescription("desc");
+      gHandler.createGroup(g, true);
+      g = gHandler.findGroupById("/linkGroup");
+
+      // Create membership types
+      MembershipType mt = mtHandler.createMembershipTypeInstance();
+      mt.setName("linkType");
+      mt.setDescription("desc");
+      mtHandler.createMembershipType(mt, true);
+      mt = mtHandler.findMembershipType("linkType");
+
+      // link membership
+      mHandler.linkMembership(u, g, mt, false);
+
+      Membership m = mHandler.findMembershipByUserGroupAndType("linkUser", "/linkGroup", "linkType");
+      assertNotNull(m);
+
+      uHandler.removeUser("linkUser", false);
+      gHandler.removeGroup(g, false);
+      mtHandler.removeMembershipType("linkType", false);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
   }
 
   /**

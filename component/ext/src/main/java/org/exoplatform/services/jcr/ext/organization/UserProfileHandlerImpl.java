@@ -132,15 +132,9 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     }
 
     try {
-      String attrPath = service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS + "/"
-          + userName + "/" + UserHandlerImpl.EXO_PROFILE + "/" + EXO_ATTRIBUTES;
-
-      // if attributes is absent return null
-      if (!session.itemExists(attrPath)) {
-        return null;
-      }
-
-      Node attrNode = (Node) session.getItem(attrPath);
+      Node attrNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName + "/" + UserHandlerImpl.EXO_PROFILE
+          + "/" + EXO_ATTRIBUTES);
 
       UserProfile userProfile = new UserProfileImpl(userName);
       for (PropertyIterator props = attrNode.getProperties(); props.hasNext();) {
@@ -153,6 +147,8 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       }
       return userProfile;
 
+    } catch (PathNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find user profile", e);
     }
@@ -190,8 +186,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       Node storagePath = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS);
       for (NodeIterator nodes = storagePath.getNodes(); nodes.hasNext();) {
-        Node uNode = nodes.nextNode();
-        UserProfile userProfile = findUserProfileByName(session, uNode.getName());
+        UserProfile userProfile = findUserProfileByName(session, nodes.nextNode().getName());
         if (userProfile != null) {
           types.add(userProfile);
         }
@@ -325,9 +320,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
         preSave(profile, false);
       }
 
-      Object[] keys = profile.getUserInfoMap().keySet().toArray();
-      for (int i = 0; i < keys.length; i++) {
-        String key = (String) keys[i];
+      for (String key : profile.getUserInfoMap().keySet()) {
         attrNode.setProperty(key, profile.getAttribute(key));
       }
 

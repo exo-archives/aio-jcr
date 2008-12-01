@@ -154,13 +154,20 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       log.debug("User.authenticate method is started");
     }
 
-    User user = findUserByName(session, username);
-    boolean authenticated = (user != null ? user.getPassword().equals(password) : false);
-    if (authenticated) {
-      user.setLastLoginTime(Calendar.getInstance().getTime());
-      saveUser(session, user, false);
+    try {
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
+          + username);
+      boolean authenticated = readStringProperty(uNode, EXO_PASSWORD).equals(password);
+      if (authenticated) {
+        uNode.setProperty(EXO_LAST_LOGIN_TIME, Calendar.getInstance());
+      }
+      return authenticated;
+
+    } catch (PathNotFoundException e) {
+      return false;
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not authenticate user '" + username + "'", e);
     }
-    return authenticated;
   }
 
   /**

@@ -27,6 +27,7 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
@@ -39,34 +40,34 @@ import org.exoplatform.services.organization.UserProfileHandler;
 
 public class TestOrganizationService extends BaseStandaloneTest {
 
-  static String                      Group1  = "Group1";
+  static String               Group1  = "Group1";
 
-  static String                      Group2  = "Group2";
+  static String               Group2  = "Group2";
 
-  static String                      Benj    = "Benj";
+  static String               Benj    = "Benj";
 
-  static String                      Tuan    = "Tuan";
+  static String               Tuan    = "Tuan";
 
-  private JCROrganizationServiceImpl organizationService;
+  private OrganizationService organizationService;
 
-  UserHandler                        userHandler_;
+  UserHandler                 userHandler_;
 
-  UserProfileHandler                 profileHandler_;
+  UserProfileHandler          profileHandler_;
 
-  GroupHandler                       groupHandler_;
+  GroupHandler                groupHandler_;
 
-  MembershipTypeHandler              mtHandler_;
+  MembershipTypeHandler       mtHandler_;
 
-  MembershipHandler                  membershipHandler_;
+  MembershipHandler           membershipHandler_;
 
-  boolean                            runtest = true;
+  boolean                     runtest = true;
 
   public void setUp() throws Exception {
     super.setUp();
 
     if (!runtest)
       return;
-    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
+    organizationService = (OrganizationService) container.getComponentInstance(OrganizationService.class);
 
     userHandler_ = organizationService.getUserHandler();
     profileHandler_ = organizationService.getUserProfileHandler();

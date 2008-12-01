@@ -23,6 +23,7 @@ import java.util.Calendar;
 import java.util.Collection;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.organization.UserProfile;
@@ -35,11 +36,11 @@ import org.exoplatform.services.organization.UserProfileHandler;
  * @version $Id: TestUserProfileHandlerImpl.java 111 2008-11-11 11:11:11Z $
  */
 public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
-  private JCROrganizationServiceImpl organizationService;
+  private OrganizationService organizationService;
 
-  private UserHandler                uHandler;
+  private UserHandler         uHandler;
 
-  private UserProfileHandler         upHandler;
+  private UserProfileHandler  upHandler;
 
   /**
    * {@inheritDoc}
@@ -47,10 +48,9 @@ public class TestUserProfileHandlerImpl extends BaseStandaloneTest {
   public void setUp() throws Exception {
     super.setUp();
 
-    organizationService = (JCROrganizationServiceImpl) container.getComponentInstanceOfType(JCROrganizationServiceImpl.class);
-
-    upHandler = new UserProfileHandlerImpl(organizationService);
-    uHandler = new UserHandlerImpl(organizationService);
+    organizationService = (OrganizationService) container.getComponentInstance(OrganizationService.class);
+    upHandler = organizationService.getUserProfileHandler();
+    uHandler = organizationService.getUserHandler();
   }
 
   /**

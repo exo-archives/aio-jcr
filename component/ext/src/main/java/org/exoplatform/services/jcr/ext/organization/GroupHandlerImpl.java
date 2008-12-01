@@ -22,6 +22,7 @@ import java.util.List;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
@@ -211,15 +212,12 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     }
 
     try {
-      String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + groupId;
-      if (!session.itemExists(gPath)) {
-        return null;
-      }
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + groupId);
+      return readObjectFromNode(gNode);
 
-      Node gNode = (Node) session.getItem(gPath);
-      Group g = readObjectFromNode(gNode);
-      return g;
-
+    } catch (PathNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find group by groupId '" + groupId + "'", e);
     }
@@ -259,30 +257,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     try {
       List<Group> types = new ArrayList<Group>();
-//      String mtUUID = (membershipType == null)
-//          ? null
-//          : ((Node) session.getItem(service.getStoragePath() + "/"
-//              + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + membershipType)).getUUID();
-//      String whereStatement = (mtUUID == null) ? "" : " where exo:membershipType='" + mtUUID + "'";
-//
-//      // find memberships
-//      String mStatement = "select * from exo:userMembership" + whereStatement;
-//      Query mQuery = session.getWorkspace().getQueryManager().createQuery(mStatement, Query.SQL);
-//      QueryResult mRes = mQuery.execute();
-//      for (NodeIterator mNodes = mRes.getNodes(); mNodes.hasNext();) {
-//        Node mNode = mNodes.nextNode();
-//        Node uNode = mNode.getParent();
-//
-//        // check user name
-//        if (uNode.getName().equals(userName)) {
-//          Node gNode = session.getNodeByUUID(readStringProperty(mNode,
-//                                                                MembershipHandlerImpl.EXO_GROUP));
-//          Group g = readObjectFromNode(gNode);
-//          types.add(g);
-//        }
-//      }
 
-      // //////////////
       Node user = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
       NodeIterator memberships = user.getNodes("exo:membership");
@@ -290,7 +265,9 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
         Node membership = memberships.nextNode();
 
         if (membershipType != null
-          && !membershipType.equals(membership.getProperty(MembershipHandlerImpl.EXO_MEMBERSHIP_TYPE).getNode().getName())) {
+            && !membershipType.equals(membership.getProperty(MembershipHandlerImpl.EXO_MEMBERSHIP_TYPE)
+                                                .getNode()
+                                                .getName())) {
           continue nextGroup; // membership doesn't match
         }
 
