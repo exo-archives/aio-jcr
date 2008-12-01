@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.exoplatform.jcr</groupId>
     <artifactId>config</artifactId>
-    <version>1.8.3.1</version>
+    <version>1.8.3.2</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -147,7 +147,7 @@
             <include>**/audit/*Test.java</include>
             <include>**/registry/*Test.java</include>
             <include>**/access/*.java</include>
-	          <include>**/replication/Test*.java</include>
+	    <include>**/replication/Test*.java</include>
             <include>**/app/*Test.java</include>
             <!--include>**/backup/TestBackupScheduler.java</include>
             <include>**/backup/TestBackupManager.java</include-->

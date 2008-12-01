@@ -21,9 +21,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.Iterator;
 
 import javax.jcr.RepositoryException;
 
@@ -173,7 +173,7 @@ public class AccessControlList implements Externalizable {
     int ownLength = in.readInt();
     if (ownLength != 0) {
       buf = new byte[ownLength];
-      in.read(buf);
+      in.readFully(buf);
       this.owner = new String(buf, "UTF-8");
     } else {
       this.owner = null;
@@ -184,11 +184,11 @@ public class AccessControlList implements Externalizable {
     for (int i = 0; i < listSize; i++) {
       // reading access control entrys identity
       buf = new byte[in.readInt()];
-      in.read(buf);
+      in.readFully(buf);
       String ident = new String(buf, "UTF-8");
       // reading permission
       buf = new byte[in.readInt()];
-      in.read(buf);
+      in.readFully(buf);
       String perm = new String(buf, "UTF-8");
 
       aces.add(new AccessControlEntry(ident, perm));

@@ -1,5 +1,11 @@
-eXo JCR core 1.8.3.1 relese notes
+eXo JCR core 1.8.3.2 relese notes
 =================================
+
+JCR 1.8.3.2 it's a customer patch
+
+- JCR 1.8.3.2 is changes after the v.1.8.3.1
+- Fixed java.lang.OutOfMemoryError in AccessControlList.readExternal (http://jira.exoplatform.org/browse/JCR-633). 
+
 
 JCR 1.8.3.1 it's a customer patch
 
