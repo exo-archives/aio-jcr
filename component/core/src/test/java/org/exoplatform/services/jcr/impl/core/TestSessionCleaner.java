@@ -16,10 +16,10 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.lang.ref.WeakReference;
 
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
  * @version $Id: TestSessionCleaner.java 14508 2008-05-20 10:07:45Z ksm $
  */
 public class TestSessionCleaner extends JcrImplBaseTest {
-  private final static int  AGENT_COUNT          = 10;
+  private final static int  AGENT_COUNT          = 100;
 
   private SessionRegistry   sessionRegistry;
 
@@ -75,7 +75,7 @@ public class TestSessionCleaner extends JcrImplBaseTest {
 
     assertNotNull(sessionRegistry);
 
-    Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT + 20);
+    Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT + 1000);
 
     assertFalse(session2.isLive());
 
@@ -88,6 +88,186 @@ public class TestSessionCleaner extends JcrImplBaseTest {
     // The weak reference must now be null
     assertNull(ref.get());
 
+  }
+
+  public void testSessionLoginLogoutSimultaneouslyMultiThread() throws InterruptedException {
+    assertNotNull(sessionRegistry);
+
+    class AgentLogin extends Thread {
+
+      SessionImpl workSession;
+
+      int         sleepTime;
+
+      boolean     sessionStarted = false;
+
+      public AgentLogin(int sleepTime) {
+        this.sleepTime = sleepTime;
+      }
+
+      @Override
+      public void run() {
+        try {
+          Thread.sleep(sleepTime);
+          workSession = (SessionImpl) repository.login(credentials, "ws");
+          sessionStarted = true;
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Exception should not be thrown");
+        }
+      }
+    }
+
+    class AgentLogout extends Thread {
+      AgentLogin agentLogin;
+
+      public AgentLogout(AgentLogin agentLogin) {
+        this.agentLogin = agentLogin;
+      }
+
+      @Override
+      public void run() {
+        try {
+          while (!agentLogin.sessionStarted) {
+            Thread.sleep(1000);
+          }
+
+          Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT / 2);
+
+          if (agentLogin.workSession.isLive()) {
+            agentLogin.workSession.logout();
+          }
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Exception should not be thrown");
+        }
+      }
+    }
+
+    // start
+    List<Object> agents = new ArrayList<Object>();
+
+    int sleepTime = 0;
+    for (int i = 0; i < AGENT_COUNT; i++) {
+      AgentLogin agentLogin = new AgentLogin(sleepTime);
+      agents.add(agentLogin);
+      agentLogin.start();
+
+      AgentLogout agentLogout = new AgentLogout(agentLogin);
+      agents.add(agentLogout);
+      agentLogout.start();
+
+      sleepTime = SessionRegistry.DEFAULT_CLEANER_TIMEOUT / 10
+          + (sleepTime >= 2 * SessionRegistry.DEFAULT_CLEANER_TIMEOUT ? 0 : sleepTime);
+    }
+
+    // wait to stop all threads
+    boolean isNeedWait = true;
+    while (isNeedWait) {
+      isNeedWait = false;
+      for (int i = 0; i < AGENT_COUNT * 2; i++) {
+        Thread agent = (Thread) agents.get(i);
+        if (agent.isAlive()) {
+          isNeedWait = true;
+          break;
+        }
+      }
+      Thread.sleep(100);
+    }
+
+    assertFalse(sessionRegistry.isInUse("ws"));
+  }
+
+  public void testSessionLoginLogoutMultiThread() throws InterruptedException {
+    assertNotNull(sessionRegistry);
+
+    class AgentLogin extends Thread {
+
+      SessionImpl workSession;
+
+      int         sleepTime;
+
+      boolean     sessionStarted = false;
+
+      public AgentLogin(int sleepTime) {
+        this.sleepTime = sleepTime;
+      }
+
+      @Override
+      public void run() {
+        try {
+          Thread.sleep(sleepTime);
+          workSession = (SessionImpl) repository.login(credentials, "ws");
+          sessionStarted = true;
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Exception should not be thrown");
+        }
+      }
+    }
+
+    class AgentLogout extends Thread {
+      AgentLogin agentLogin;
+
+      public AgentLogout(AgentLogin agentLogin) {
+        this.agentLogin = agentLogin;
+      }
+
+      @Override
+      public void run() {
+        try {
+          while (!agentLogin.sessionStarted) {
+            Thread.sleep(1000);
+          }
+
+          Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT / 2);
+
+          if (agentLogin.workSession.isLive()) {
+            agentLogin.workSession.logout();
+          }
+
+        } catch (Exception e) {
+          e.printStackTrace();
+          fail("Exception should not be thrown");
+        }
+      }
+    }
+
+    // start
+    List<Object> agents = new ArrayList<Object>();
+
+    int sleepTime = 0;
+    for (int i = 0; i < AGENT_COUNT; i++) {
+      AgentLogin agentLogin = new AgentLogin(sleepTime);
+      agents.add(agentLogin);
+      agentLogin.start();
+
+      AgentLogout agentLogout = new AgentLogout(agentLogin);
+      agents.add(agentLogout);
+      agentLogout.start();
+
+      sleepTime = SessionRegistry.DEFAULT_CLEANER_TIMEOUT / 10
+          + (sleepTime >= 2 * SessionRegistry.DEFAULT_CLEANER_TIMEOUT ? 0 : sleepTime);
+    }
+
+    // wait to stop all threads
+    boolean isNeedWait = true;
+    while (isNeedWait) {
+      isNeedWait = false;
+      for (int i = 0; i < AGENT_COUNT * 2; i++) {
+        Thread agent = (Thread) agents.get(i);
+        if (agent.isAlive()) {
+          isNeedWait = true;
+          break;
+        }
+      }
+      Thread.sleep(100);
+    }
+
+    assertFalse(sessionRegistry.isInUse("ws"));
   }
 
   public void testSessionRemoveMultiThread() throws InterruptedException {
@@ -122,7 +302,7 @@ public class TestSessionCleaner extends JcrImplBaseTest {
             result = session2.isLive();
           } else {
             log.info("start pasive session");
-            Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT + 20);
+            Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT + 1000);
             result = !session2.isLive();
           }
 

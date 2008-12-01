@@ -17,7 +17,7 @@
 package org.exoplatform.services.jcr.impl.core;
 
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.picocontainer.Startable;
 
@@ -44,26 +44,22 @@ public final class SessionRegistry implements Startable {
   protected long                         timeOut;
 
   public SessionRegistry(RepositoryEntry entry) {
-    sessionsMap = new WeakHashMap<String, SessionImpl>();
+    sessionsMap = new ConcurrentHashMap<String, SessionImpl>();
     if (entry != null) {
       this.timeOut = entry.getSessionTimeOut() > 0 ? entry.getSessionTimeOut() : 0;
     }
   }
 
   public void registerSession(SessionImpl session) {
-    synchronized (sessionsMap) {
-      sessionsMap.put(session.getId(), session);
-    }
+    sessionsMap.put(session.getId(), session);
   }
 
   public void unregisterSession(String sessionId) {
-    synchronized (sessionsMap) {
-      sessionsMap.remove(sessionId);
-    }
+    sessionsMap.remove(sessionId);
   }
 
   public SessionImpl getSession(String sessionId) {
-    return sessionsMap.get(sessionId);
+    return sessionId == null ? null : sessionsMap.get(sessionId);
   }
 
   public boolean isInUse(String workspaceName) {
@@ -112,15 +108,9 @@ public final class SessionRegistry implements Startable {
 
     @Override
     protected void callPeriodically() throws Exception {
-      SessionImpl[] sessions;
-      synchronized (sessionsMap) {
-        sessionsMap.values().toArray(sessions = new SessionImpl[sessionsMap.size()]);
-      }
-      synchronized (sessions) {
-        for (int i = 0; i < sessions.length; i++) {
-          if (sessions[i].getLastAccessTime() + sessionTimeOut < System.currentTimeMillis()) {
-            sessions[i].logout();
-          }
+      for (SessionImpl session : sessionsMap.values()) {
+        if (session.getLastAccessTime() + sessionTimeOut < System.currentTimeMillis()) {
+          session.logout();
         }
       }
     }
