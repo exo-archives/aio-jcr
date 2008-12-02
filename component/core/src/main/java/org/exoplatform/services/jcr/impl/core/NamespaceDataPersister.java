@@ -217,42 +217,6 @@ public class NamespaceDataPersister {
     changesLog.add(ItemState.createDeletedState(nsNode));
   }
 
-  @Deprecated
-  Map<String, String> loadNamespaces() throws PathNotFoundException, RepositoryException {
-
-    Map<String, String> nsMap = new HashMap<String, String>();
-
-    if (isInialized()) {
-      NodeDataReader nsReader = new NodeDataReader(nsRoot, dataManager, null);
-      nsReader.setRememberSkiped(true);
-      nsReader.forNodesByType(Constants.EXO_NAMESPACE);
-      nsReader.read();
-
-      List<NodeDataReader> nsData = nsReader.getNodesByType(Constants.EXO_NAMESPACE);
-      for (NodeDataReader nsr : nsData) {
-        nsr.forProperty(Constants.EXO_URI_NAME, PropertyType.STRING)
-           .forProperty(Constants.EXO_PREFIX, PropertyType.STRING);
-        nsr.read();
-
-        String exoUri = nsr.getPropertyValue(Constants.EXO_URI_NAME).getString();
-        String exoPrefix = nsr.getPropertyValue(Constants.EXO_PREFIX).getString();
-        nsMap.put(exoPrefix, exoUri);
-        log.info("Namespace " + exoPrefix + " is loaded");
-      }
-
-      for (NodeData skipedNs : nsReader.getSkiped()) {
-        log.warn("Namespace node "
-            + skipedNs.getQPath().getName().getAsString()
-            + " (primary type '"
-            + skipedNs.getPrimaryTypeName().getAsString()
-            + "') is not supported for loading. Nodes with 'exo:namespace' node type is supported only now.");
-      }
-    } else {
-      log.warn("Namespace storage (/jcr:system/exo:namespaces node) is not initialized. No namespaces loaded.");
-    }
-    return nsMap;
-  }
-
   void loadNamespaces(Map<String, String> namespacesMap, Map<String, String> urisMap) throws RepositoryException {
 
     if (!isInialized()) {
