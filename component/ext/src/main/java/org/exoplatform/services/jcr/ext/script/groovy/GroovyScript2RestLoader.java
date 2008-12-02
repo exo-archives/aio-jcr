@@ -249,7 +249,9 @@ public class GroovyScript2RestLoader implements Startable {
         }
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      // TODO generate correct error messages, one for observation listener
+      // initialize and another for load script
+      log.error("Error occurs ", e);
     }
   }
 
@@ -270,6 +272,9 @@ public class GroovyScript2RestLoader implements Startable {
   private void readParamsFromRegistryService(SessionProvider sessionProvider) throws PathNotFoundException,
                                                                              RepositoryException {
 
+    if (log.isDebugEnabled())
+      log.debug("<<< Read init parametrs from registry service.");
+    
     observationListenerConfiguration = new ObservationListenerConfiguration();
 
     String entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + "nodeType";
@@ -292,10 +297,8 @@ public class GroovyScript2RestLoader implements Startable {
 
     String ws[] = workspaces.split(";");
     List<String> wsList = new ArrayList<String>();
-    for (int i = 0; i < ws.length; i++) {
-      if (!ws[i].equals("")) {
-        wsList.add(ws[i]);
-      }
+    for (String w : ws) {
+      wsList.add(w);
     }
 
     observationListenerConfiguration.setWorkspaces(wsList);
@@ -319,7 +322,9 @@ public class GroovyScript2RestLoader implements Startable {
                                                                             SAXException,
                                                                             ParserConfigurationException,
                                                                             RepositoryException {
-
+    if (log.isDebugEnabled())
+      log.debug(">>> Save init parametrs in registry service.");
+    
     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     Element root = doc.createElement(SERVICE_NAME);
     doc.appendChild(root);
@@ -328,12 +333,14 @@ public class GroovyScript2RestLoader implements Startable {
     setAttributeSmart(element, "value", nodeType);
     root.appendChild(element);
 
-    String workspaces = "";
+    StringBuffer sb = new StringBuffer();
     for (String workspace : observationListenerConfiguration.getWorkspaces()) {
-      workspaces += workspace + ";";
+      if (sb.length() > 0)
+        sb.append(';');
+      sb.append(workspace);
     }
     element = doc.createElement("workspaces");
-    setAttributeSmart(element, "value", workspaces);
+    setAttributeSmart(element, "value", sb.toString());
     root.appendChild(element);
 
     element = doc.createElement("repository");
