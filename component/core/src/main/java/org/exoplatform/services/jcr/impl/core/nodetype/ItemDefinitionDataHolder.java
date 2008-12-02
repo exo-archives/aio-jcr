@@ -116,23 +116,15 @@ public class ItemDefinitionDataHolder {
    *          name of child node
    * @return default ChildNodeDefinition or null if not found
    */
-  public NodeDefinitionData getDefaultChildNodeDefinition(InternalQName primaryNodeType,
-                                                          InternalQName[] mixinNodeTypes,
-                                                          InternalQName childName) {
+  public NodeDefinitionData getDefaultChildNodeDefinition(InternalQName childName,
+                                                          InternalQName... nodeTypes) {
 
-    DefaultNodeDefKey key = new DefaultNodeDefKey(primaryNodeType, childName);
-    NodeDefinitionData def = defNodeDefinitions.get(key);
-    if (def != null)
-      return def;
-
-    if (mixinNodeTypes != null)
-      for (InternalQName parentNodeType : mixinNodeTypes) {
-        key = new DefaultNodeDefKey(parentNodeType, childName);
-        def = defNodeDefinitions.get(key);
-        if (def != null)
-          return def;
-      }
-
+    for (InternalQName parentNodeType : nodeTypes) {
+      NodeDefinitionData def = defNodeDefinitions.get(new DefaultNodeDefKey(parentNodeType,
+                                                                            childName));
+      if (def != null)
+        return def;
+    }
     return null;
   }
 
@@ -163,38 +155,24 @@ public class ItemDefinitionDataHolder {
    * @param multiValued
    * @return Child PropertyDefinition or null if not found
    */
-  public PropertyDefinitionDatas getPropertyDefinitions(final InternalQName primaryType,
-                                                        final InternalQName[] mixinTypes,
-                                                        final InternalQName propertyName) {
+  public PropertyDefinitionDatas getPropertyDefinitions(final InternalQName propertyName,
+                                                        final InternalQName... nodeTypes) {
 
     final PropertyDefinitionDatas pdefs = new PropertyDefinitionDatas();
 
-    // primary type
-    // start with single-valued
-    PropertyDefinitionData def = propertyDefinitions.get(new PropertyDefKey(primaryType,
-                                                                            propertyName,
-                                                                            false));
-    if (def != null)
-      pdefs.setDefinition(def);
+    for (InternalQName nt : nodeTypes) {
+      // single-valued
+      PropertyDefinitionData def = propertyDefinitions.get(new PropertyDefKey(nt,
+                                                                              propertyName,
+                                                                              false));
+      if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
+        pdefs.setDefinition(def); // set if same is not exists
 
-    // try multi-valued
-    def = propertyDefinitions.get(new PropertyDefKey(primaryType, propertyName, true));
-    if (def != null)
-      pdefs.setDefinition(def);
-
-    // mixins
-    if (mixinTypes != null)
-      for (InternalQName mixin : mixinTypes) {
-        // single-valued
-        def = propertyDefinitions.get(new PropertyDefKey(mixin, propertyName, false));
-        if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
-          pdefs.setDefinition(def); // set if same is not exists
-
-        // multi-valued
-        def = propertyDefinitions.get(new PropertyDefKey(mixin, propertyName, true));
-        if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
-          pdefs.setDefinition(def); // set if same is not exists
-      }
+      // multi-valued
+      def = propertyDefinitions.get(new PropertyDefKey(nt, propertyName, true));
+      if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
+        pdefs.setDefinition(def); // set if same is not exists
+    }
 
     // TODO try residual
 
@@ -218,9 +196,9 @@ public class ItemDefinitionDataHolder {
    * @param multiValued
    * @return Child PropertyDefinition or null if not found
    */
-  public PropertyDefinitionData getPropertyDefinition(InternalQName parentNodeType,
-                                                      InternalQName childName,
-                                                      boolean multiValued) {
+  public PropertyDefinitionData getPropertyDefinition(InternalQName childName,
+                                                      boolean multiValued,
+                                                      InternalQName parentNodeType) {
 
     PropertyDefKey key = new PropertyDefKey(parentNodeType, childName, multiValued);
     PropertyDefinitionData def = propertyDefinitions.get(key);

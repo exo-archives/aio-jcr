@@ -307,7 +307,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   // impl
 
-  public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
+  public NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName nodeTypeName,
                                                     InternalQName parentTypeName) throws RepositoryException {
 
@@ -315,10 +315,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
   
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
-                                                    InternalQName primaryTypeName,
-                                                    InternalQName[] mixinTypeNames) throws RepositoryException {
+                                                    InternalQName... nodeTypeNames) throws RepositoryException {
 
-    return defsHolder.getDefaultChildNodeDefinition(primaryTypeName, mixinTypeNames, nodeName);
+    return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
   }
 
   public NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,
@@ -327,55 +326,24 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                                         InternalQName primaryTypeName,
-                                                         InternalQName[] mixinTypeNames) throws RepositoryException {
+                                                         InternalQName... nodeTypeNames) throws RepositoryException {
 
-    return defsHolder.getPropertyDefinitions(primaryTypeName, mixinTypeNames, propertyName);
+    return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
 
   public List<NodeTypeData> getAllNodeTypes() throws RepositoryException {
     return new ArrayList<NodeTypeData>(nodeTypes.values());
   }
 
-  public boolean isNodeType(InternalQName testTypeName, InternalQName typeName) {
-    return typesHierarchy.isNodeType(testTypeName, typeName);
+  public boolean isNodeType(InternalQName testTypeName, InternalQName... typesNames) {
+    return typesHierarchy.isNodeType(testTypeName, typesNames);
   }
 
-  public boolean isNodeType(InternalQName testTypeName,
-                            InternalQName primaryTypeName,
-                            InternalQName[] mixinTypeNames) {
+  public boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames) throws RepositoryException {
 
-    if (typesHierarchy.isNodeType(testTypeName, primaryTypeName))
-      return true;
-
-    for (InternalQName mixin : mixinTypeNames) {
-      if (typesHierarchy.isNodeType(testTypeName, mixin))
-        return true;
-    }
-
-    return false;
-  }
-
-  public boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames) {
-
-    for (InternalQName mixin : typeNames) {
-      if (typesHierarchy.isNodeType(testTypeName, mixin))
-        return true;
-    }
-
-    return false;
-  }
-
-  public boolean isOrderableChildNodesSupported(InternalQName primaryType,
-                                                InternalQName[] mixinTypes) throws RepositoryException {
-
-    for (int i = -1; i < mixinTypes.length; i++) {
-      NodeTypeData nt;
-      if (i < 0)
-        nt = nodeTypes.get(primaryType);
-      else
-        nt = nodeTypes.get(mixinTypes[i]);
-
+    for (InternalQName name : nodeTypeNames) {
+      NodeTypeData nt = nodeTypes.get(name);
+      
       if (nt != null && nt.hasOrderableChildNodes())
         return true;
 

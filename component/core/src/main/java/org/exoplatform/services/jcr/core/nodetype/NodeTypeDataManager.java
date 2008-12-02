@@ -44,31 +44,23 @@ public interface NodeTypeDataManager {
   NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,
                                                 RepositoryException;
 
-  boolean isOrderableChildNodesSupported(InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException;
+  boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames) throws RepositoryException;
 
-  NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
+  NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                         InternalQName nodeTypeName,
                                         InternalQName parentTypeName) throws RepositoryException;
   
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
-                                        InternalQName primaryTypeName,
-                                        InternalQName[] mixinTypeNames) throws RepositoryException;
+                                             InternalQName... nodeTypeNames) throws RepositoryException;
 
   //NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList) throws RepositoryException;
 
-  PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                                  InternalQName primaryTypeName,
-                                                  InternalQName[] mixinTypeNames) throws RepositoryException;
+  PropertyDefinitionDatas findPropertyDefinitions(InternalQName nodeName,
+                                                  InternalQName... nodeTypeNames) throws RepositoryException;
 
   //PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
   //                                                List<NodeTypeData> typesList) throws RepositoryException;
 
-  boolean isNodeType(InternalQName testTypeName, InternalQName typeName);
-
-  boolean isNodeType(InternalQName testTypeName, InternalQName primaryTypeName, InternalQName[] mixinTypeNames);
-  
-  boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames);
-  
-  
+  boolean isNodeType(InternalQName testTypeName, InternalQName... typeNames);
 
 }

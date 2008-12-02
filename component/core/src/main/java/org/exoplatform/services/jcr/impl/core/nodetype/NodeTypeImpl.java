@@ -68,7 +68,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
     try {
       InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
       
-      NodeDefinitionData cdef = manager.findChildNodeDefinition(cname, data.getName(), null);
+      NodeDefinitionData cdef = manager.findChildNodeDefinition(cname, data.getName());
       return cdef != null;
     } catch (RepositoryException e) {
       LOG.error("Child node name is wrong " + e);
@@ -79,8 +79,9 @@ public class NodeTypeImpl implements ExtendedNodeType {
   public boolean canAddChildNode(String childNodeName, String nodeTypeName) {
     try {
       InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
+      InternalQName ntname = locationFactory.parseJCRName(nodeTypeName).getInternalName();
       
-      NodeDefinitionData cdef = manager.findChildNodeDefinition(cname, data.getName(), null);
+      NodeDefinitionData cdef = manager.getChildNodeDefinition(cname, ntname, data.getName());
       return cdef != null;
     } catch (RepositoryException e) {
       LOG.error("Child node name is wrong " + e);

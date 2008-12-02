@@ -39,15 +39,18 @@ public class NodeTypeDataHierarchyHolder {
     nodeTypes = new ConcurrentHashMap<InternalQName, Set<InternalQName>>();
   }
 
-  public boolean isNodeType(final InternalQName testTypeName, final InternalQName superTypeName) {
-    if (testTypeName.equals(superTypeName))
-      return true;
+  public boolean isNodeType(final InternalQName testTypeName, final InternalQName... typesNames) {
+
+    for (InternalQName typeName : typesNames) {
+      if (testTypeName.equals(typeName))
+        return true;
+
+      Set<InternalQName> superTypes = nodeTypes.get(typeName);
+      if (superTypes != null && (superTypes.contains(testTypeName)))
+        return true;
+    }
     
-    final Set<InternalQName> testTypes = nodeTypes.get(testTypeName);
-    if (testTypes == null)
-      return false;
-    
-    return testTypes.contains(superTypeName);
+    return false;
   }
 
   public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
@@ -68,8 +71,9 @@ public class NodeTypeDataHierarchyHolder {
       }
     }
   }
-  
-  private void addSupertypes(final Collection<InternalQName> list, final Collection<InternalQName> supers) {
+
+  private void addSupertypes(final Collection<InternalQName> list,
+                             final Collection<InternalQName> supers) {
     if (supers != null) {
       for (InternalQName su : supers) {
         list.add(su);
