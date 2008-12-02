@@ -711,8 +711,52 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     queryHandlers.add(queryHandler);
   }
 
+  /**
+   * Return
+   * 
+   * @param nodeType
+   * @return
+   * @throws RepositoryException
+   * @throws IOException
+   */
   public Set<String> getNodes(InternalQName nodeType) throws RepositoryException, IOException {
+    return getNodes(nodeType, new InternalQName[0], new InternalQName[0]);
+  }
+
+  /**
+   * Return
+   * 
+   * @param nodeType
+   * @return
+   * @throws RepositoryException
+   * @throws IOException
+   */
+  public Set<String> getNodes(InternalQName nodeType,
+                              InternalQName[] includeProperties,
+                              InternalQName[] excludeProperties) throws RepositoryException,
+                                                                IOException {
     Query query = getQuery(nodeType);
+    if (includeProperties.length > 0) {
+      BooleanQuery tmp = new BooleanQuery();
+      for (int i = 0; i < includeProperties.length; i++) {
+
+        String field = locationFactory.createJCRName(includeProperties[i]).getAsString();
+        tmp.add(new TermQuery(new Term(FieldNames.PROPERTIES_SET, field)), Occur.MUST);
+      }
+      tmp.add(query, Occur.MUST);
+      query = tmp;
+    }
+
+    if (excludeProperties.length > 0) {
+      BooleanQuery tmp = new BooleanQuery();
+      for (int i = 0; i < includeProperties.length; i++) {
+
+        String field = locationFactory.createJCRName(includeProperties[i]).getAsString();
+        tmp.add(new TermQuery(new Term(FieldNames.PROPERTIES_SET, field)), Occur.MUST_NOT);
+      }
+      tmp.add(query, Occur.MUST_NOT);
+      query = tmp;
+    }
 
     Iterator<QueryHandler> it = queryHandlers.iterator();
     Set<String> result = new HashSet<String>();

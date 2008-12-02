@@ -1,13 +1,20 @@
 package org.exoplatform.services.jcr.api.nodetypes;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.RepositoryException;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
+import javax.jcr.version.VersionException;
 
 import org.apache.lucene.search.MatchAllDocsQuery;
 
@@ -76,13 +83,44 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
 
   public void testNtQueryNtBase() throws Exception {
     NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
-    QueryHandler qh = ntManager.getQueryHandlers().iterator().next();
 
     assertTrue(ntManager.getNodes(Constants.MIX_VERSIONABLE).size() == 0);
     Node t = root.addNode("tt");
     t.addMixin("mix:versionable");
     session.save();
     assertTrue(ntManager.getNodes(Constants.MIX_VERSIONABLE).size() != 0);
+  }
+
+  public void testNtQueryFindNodeByProperty() throws ItemExistsException,
+                                             PathNotFoundException,
+                                             VersionException,
+                                             ConstraintViolationException,
+                                             LockException,
+                                             RepositoryException,
+                                             IOException {
+    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    int refNodes = ntManager.getNodes(Constants.MIX_REFERENCEABLE).size();
+    Node testNode1 = root.addNode("test1");
+    testNode1.addMixin("mix:referenceable");
+    testNode1.setProperty("p1", 1);
+    Node testNode2 = root.addNode("test2");
+    testNode2.addMixin("mix:referenceable");
+    testNode2.setProperty("p2", 2);
+
+    session.save();
+    assertEquals(2, ntManager.getNodes(Constants.MIX_REFERENCEABLE).size() - refNodes);
+    assertEquals(1, ntManager.getNodes(Constants.MIX_REFERENCEABLE,
+                                       new InternalQName[] { new InternalQName("", "p1") },
+                                       new InternalQName[0]).size());
+    assertEquals(1, ntManager.getNodes(Constants.MIX_REFERENCEABLE,
+                                       new InternalQName[] { new InternalQName("", "p2") },
+
+                                       new InternalQName[0]).size());
+
+    assertEquals(0, ntManager.getNodes(Constants.MIX_REFERENCEABLE,
+                                       new InternalQName[0],
+                                       new InternalQName[] { new InternalQName("", "p1"),
+                                           new InternalQName("", "p2") }).size());
 
   }
 }
