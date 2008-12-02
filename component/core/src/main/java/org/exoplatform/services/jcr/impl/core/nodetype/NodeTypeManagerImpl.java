@@ -16,24 +16,17 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
-import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.ValueFactory;
@@ -43,35 +36,25 @@ import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
-
 import org.apache.commons.logging.Log;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.BooleanClause.Occur;
-
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValuesList;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
-import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
-import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -91,7 +74,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   private LocationFactory                                             locationFactory;
 
-  // private List<NodeType> nodeTypes;
   private Map<InternalQName, ExtendedNodeType>                        nodeTypes;
 
   private String                                                      accessControlPolicy;
@@ -100,9 +82,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   private NamespaceRegistry                                           namespaceRegistry = null;
 
-  private NodeTypeDataPersister                                       persister         = null;
-
-  private final Set<QueryHandler>                                     queryHandlers;
+  private final NodeTypeDataManager                                   typesManager;
 
   /**
    * Listeners (soft references)
@@ -110,58 +90,112 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners         = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
 
   public NodeTypeManagerImpl(RepositoryEntry config,
-                             LocationFactory locationFactory,
-                             ValueFactoryImpl valueFactory,
-                             NamespaceRegistry namespaceRegistry,
-                             NodeTypeDataPersister persister) throws RepositoryException {
+                              LocationFactory locationFactory,
+                              ValueFactoryImpl valueFactory,
+                              NamespaceRegistry namespaceRegistry,
+                              NodeTypeDataManager typesManager) throws RepositoryException {
     this(locationFactory,
          valueFactory,
          namespaceRegistry,
          config.getAccessControl(),
-         persister,
+         typesManager,
          null);
     initDefault();
   }
 
   protected NodeTypeManagerImpl(LocationFactory locationFactory,
-                                ValueFactoryImpl valueFactory,
-                                NamespaceRegistry namespaceRegistry,
-                                String accessControlPolicy,
-                                NodeTypeDataPersister persister,
-                                Map<InternalQName, ExtendedNodeType> nodeTypes) {
-    this.nodeTypes = nodeTypes != null ? nodeTypes
-                                      : new LinkedHashMap<InternalQName, ExtendedNodeType>();
+                                 ValueFactoryImpl valueFactory,
+                                 NamespaceRegistry namespaceRegistry,
+                                 String accessControlPolicy,
+                                 NodeTypeDataManager typesManager,
+                                 Map<InternalQName, ExtendedNodeType> nodeTypes) {
+    this.nodeTypes = nodeTypes != null
+        ? nodeTypes
+        : new ConcurrentHashMap<InternalQName, ExtendedNodeType>();
     this.valueFactory = valueFactory;
     this.locationFactory = locationFactory;
     this.namespaceRegistry = namespaceRegistry;
     this.accessControlPolicy = accessControlPolicy;
-    this.persister = persister;
+    this.typesManager = typesManager;
 
     this.itemDefintionsHolder = new ItemDefinitionsHolder(new NodeTypesHierarchyHolder());
-    this.queryHandlers = new HashSet<QueryHandler>();
   }
 
-  public WorkspaceNTManagerImpl createWorkspaceNTManager(SessionImpl session) throws RepositoryException {
-    WorkspaceNTManagerImpl wntm = new WorkspaceNTManagerImpl(namespaceRegistry,
-                                                             accessControlPolicy,
-                                                             session,
-                                                             persister,
-                                                             nodeTypes);
-    Iterator<QueryHandler> qhIterator = queryHandlers.iterator();
-    while (qhIterator.hasNext()) {
-      wntm.addQueryHandler(qhIterator.next());
-    }
-    return wntm;
-  }
+  // TODO
+//  public WorkspaceNTManagerImpl createWorkspaceNTManager(SessionImpl session) throws RepositoryException {
+//    WorkspaceNTManagerImpl wntm = new WorkspaceNTManagerImpl(namespaceRegistry,
+//                                                             accessControlPolicy,
+//                                                             session,
+//                                                             persister,
+//                                                             nodeTypes);
+//    return wntm;
+//  }
 
+  // JSR-170 stuff ================================
+  
   /**
    * 6.10.4 Returns the NodeType specified by nodeTypeName. If no node type by that name is
    * registered, a NoSuchNodeTypeException is thrown.
    */
   public NodeType getNodeType(String nodeTypeName) throws NoSuchNodeTypeException,
                                                   RepositoryException {
-    return getNodeType(locationFactory.parseJCRName(nodeTypeName).getInternalName());
+    InternalQName ntname = locationFactory.parseJCRName(nodeTypeName).getInternalName();
+    ExtendedNodeType nt = nodeTypes.get(ntname);
+    if (nt != null)
+      return nt;
+    
+    
+    return getNodeType();
   }
+  
+
+  /** 6.10.4 Returns all available node types. */
+  public NodeTypeIterator getAllNodeTypes() {
+
+    EntityCollection ec = new EntityCollection();
+    ec.addAll(nodeTypes.values());
+    return ec;
+  }
+
+  /**
+   * Returns an iterator over all available primary node types.
+   * 
+   * @return An <code>NodeTypeIterator</code>.
+   * @throws RepositoryException
+   *           if an error occurs.
+   */
+  public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
+    EntityCollection ec = new EntityCollection();
+    NodeTypeIterator allTypes = getAllNodeTypes();
+    while (allTypes.hasNext()) {
+      NodeType type = allTypes.nextNodeType();
+      if (!type.isMixin())
+        ec.add(type);
+    }
+    return ec;
+  }
+
+  /**
+   * Returns an iterator over all available mixin node types.
+   * 
+   * @return An <code>NodeTypeIterator</code>.
+   * @throws RepositoryException
+   *           if an error occurs.
+   */
+  public NodeTypeIterator getMixinNodeTypes() throws RepositoryException {
+    EntityCollection ec = new EntityCollection();
+    NodeTypeIterator allTypes = getAllNodeTypes();
+    while (allTypes.hasNext()) {
+      NodeType type = allTypes.nextNodeType();
+      if (type.isMixin())
+        ec.add(type);
+    }
+    return ec;
+  }
+  
+  
+  
+  // eXo stuff ================================
 
   public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException,
                                                           RepositoryException {
@@ -175,8 +209,14 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         + qName.getAsString() + "' not found.");
   }
 
-  public ExtendedNodeType findNodeType(InternalQName qName) {
-    return nodeTypes.get(qName);
+  public ExtendedNodeType findNodeType(InternalQName qName) throws NoSuchNodeTypeException, RepositoryException {
+    ExtendedNodeType nt = nodeTypes.get(qName);
+    if (nt == null) {
+      NodeTypeData ntd = typesManager.findNodeType(qName);
+      // TODO
+      //nt = new NodeTypeImpl2();
+    }
+    return nt;
   }
 
   public List<ExtendedNodeType> getNodeTypes(InternalQName primaryType, InternalQName[] mixinTypes) throws NoSuchNodeTypeException,
@@ -313,48 +353,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return false;
   }
 
-  /** 6.10.4 Returns all available node types. */
-  public NodeTypeIterator getAllNodeTypes() {
-
-    EntityCollection ec = new EntityCollection();
-    ec.addAll(nodeTypes.values());
-    return ec;
-  }
-
-  /**
-   * Returns an iterator over all available primary node types.
-   * 
-   * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException if an error occurs.
-   */
-  public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
-    EntityCollection ec = new EntityCollection();
-    NodeTypeIterator allTypes = getAllNodeTypes();
-    while (allTypes.hasNext()) {
-      NodeType type = allTypes.nextNodeType();
-      if (!type.isMixin())
-        ec.add(type);
-    }
-    return ec;
-  }
-
-  /**
-   * Returns an iterator over all available mixin node types.
-   * 
-   * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException if an error occurs.
-   */
-  public NodeTypeIterator getMixinNodeTypes() throws RepositoryException {
-    EntityCollection ec = new EntityCollection();
-    NodeTypeIterator allTypes = getAllNodeTypes();
-    while (allTypes.hasNext()) {
-      NodeType type = allTypes.nextNodeType();
-      if (type.isMixin())
-        ec.add(type);
-    }
-    return ec;
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -387,25 +385,26 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
     nodeTypes.put(nodeType.getQName(), nodeType);
 
-    if (persister.isInitialized()) {
-      try {
-        if (!persister.hasNodeTypeData(nodeType.getName())) {
-          persister.addNodeType(nodeType);
-          persister.saveChanges();
-        }
-      } catch (InvalidItemStateException e) {
-        LOG.warn("Error of storing node type " + nodeType.getName()
-            + ". May be node type already registered .", e);
-      }
-      if (LOG.isDebugEnabled())
-        LOG.debug("NodeType " + nodeType.getName() + " initialized. "
-            + (System.currentTimeMillis() - start) + " ms");
-    } else {
-      if (LOG.isDebugEnabled())
-        LOG.debug("NodeType " + nodeType.getName()
-            + " registered but not initialized (storage is not initialized). "
-            + (System.currentTimeMillis() - start) + " ms");
-    }
+    // TODO
+//    if (persister.isInitialized()) {
+//      try {
+//        if (!persister.hasNodeTypeData(nodeType.getName())) {
+//          persister.addNodeType(nodeType);
+//          persister.saveChanges();
+//        }
+//      } catch (InvalidItemStateException e) {
+//        LOG.warn("Error of storing node type " + nodeType.getName()
+//            + ". May be node type already registered .", e);
+//      }
+//      if (LOG.isDebugEnabled())
+//        LOG.debug("NodeType " + nodeType.getName() + " initialized. "
+//            + (System.currentTimeMillis() - start) + " ms");
+//    } else {
+//      if (LOG.isDebugEnabled())
+//        LOG.debug("NodeType " + nodeType.getName()
+//            + " registered but not initialized (storage is not initialized). "
+//            + (System.currentTimeMillis() - start) + " ms");
+//    }
   }
 
   /**
@@ -436,8 +435,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
     // We have to validate node value before registering it
     nodeTypeValue.validateNodeType();
-    NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
-    registerNodeType(nodeType, alreadyExistsBehaviour);
+    // NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
+    // registerNodeType(nodeType, alreadyExistsBehaviour);
   }
 
   /**
@@ -506,22 +505,24 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   public void loadFromStorage() throws RepositoryException {
 
-    long start = System.currentTimeMillis();
-
-    try {
-      List<NodeType> rNodeTypes = new ArrayList<NodeType>();
-      rNodeTypes.addAll(nodeTypes.values());
-      List<NodeType> loadedNt = persister.loadNodetypes(rNodeTypes, this);
-      for (NodeType nodeType : loadedNt) {
-        nodeTypes.put(((ExtendedNodeType) nodeType).getQName(), (ExtendedNodeType) nodeType);
-      }
-      if (loadedNt.size() > 0)
-        LOG.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
-            + (System.currentTimeMillis() - start) + " ms");
-    } catch (PathNotFoundException e) {
-      LOG.warn("NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible");
-      return;
-    }
+    // long start = System.currentTimeMillis();
+    //
+    // try {
+    // List<NodeType> rNodeTypes = new ArrayList<NodeType>();
+    // rNodeTypes.addAll(nodeTypes.values());
+    // List<NodeType> loadedNt = persister.loadNodetypes(rNodeTypes, this);
+    // for (NodeType nodeType : loadedNt) {
+    // nodeTypes.put(((ExtendedNodeType) nodeType).getQName(), (ExtendedNodeType) nodeType);
+    // }
+    // if (loadedNt.size() > 0)
+    // LOG.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
+    // + (System.currentTimeMillis() - start) + " ms");
+    // } catch (PathNotFoundException e) {
+    // LOG.warn(
+    // "NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible"
+    // );
+    // return;
+    // }
   }
 
   public boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames) {
@@ -616,7 +617,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Add a <code>NodeTypeRegistryListener</code>
    * 
-   * @param listener the new listener to be informed on (un)registration of node types
+   * @param listener
+   *          the new listener to be informed on (un)registration of node types
    */
   public void addListener(NodeTypeManagerListener listener) {
     if (!listeners.containsKey(listener)) {
@@ -627,7 +629,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Remove a <code>NodeTypeRegistryListener</code>.
    * 
-   * @param listener an existing listener
+   * @param listener
+   *          an existing listener
    */
   public void removeListener(NodeTypeManagerListener listener) {
     listeners.remove(listener);
@@ -636,7 +639,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Notify the listeners that a node type <code>ntName</code> has been registered.
    * 
-   * @param ntName NT name.
+   * @param ntName
+   *          NT name.
    */
   private void notifyRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -652,7 +656,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Notify the listeners that a node type <code>ntName</code> has been re-registered.
    * 
-   * @param ntName NT name.
+   * @param ntName
+   *          NT name.
    */
   private void notifyReRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -668,7 +673,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Notify the listeners that a node type <code>ntName</code> has been unregistered.
    * 
-   * @param ntName NT name.
+   * @param ntName
+   *          NT name.
    */
   private void notifyUnregistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -701,133 +707,4 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     // TODO Auto-generated method stub
 
   }
-
-  // TODO make me private
-  public Set<QueryHandler> getQueryHandlers() {
-    return queryHandlers;
-  }
-
-  public void addQueryHandler(QueryHandler queryHandler) {
-    queryHandlers.add(queryHandler);
-  }
-
-  /**
-   * Return
-   * 
-   * @param nodeType
-   * @return
-   * @throws RepositoryException
-   * @throws IOException
-   */
-  public Set<String> getNodes(InternalQName nodeType) throws RepositoryException, IOException {
-    return getNodes(nodeType, new InternalQName[0], new InternalQName[0]);
-  }
-
-  /**
-   * Return
-   * 
-   * @param nodeType
-   * @return
-   * @throws RepositoryException
-   * @throws IOException
-   */
-  public Set<String> getNodes(InternalQName nodeType,
-                              InternalQName[] includeProperties,
-                              InternalQName[] excludeProperties) throws RepositoryException,
-                                                                IOException {
-    Query query = getQuery(nodeType);
-    if (includeProperties.length > 0) {
-      BooleanQuery tmp = new BooleanQuery();
-      for (int i = 0; i < includeProperties.length; i++) {
-
-        String field = locationFactory.createJCRName(includeProperties[i]).getAsString();
-        tmp.add(new TermQuery(new Term(FieldNames.PROPERTIES_SET, field)), Occur.MUST);
-      }
-      tmp.add(query, Occur.MUST);
-      query = tmp;
-    }
-
-    if (excludeProperties.length > 0) {
-      BooleanQuery tmp = new BooleanQuery();
-      for (int i = 0; i < includeProperties.length; i++) {
-
-        String field = locationFactory.createJCRName(includeProperties[i]).getAsString();
-        tmp.add(new TermQuery(new Term(FieldNames.PROPERTIES_SET, field)), Occur.MUST_NOT);
-      }
-      tmp.add(query, Occur.MUST_NOT);
-      query = tmp;
-    }
-
-    Iterator<QueryHandler> it = queryHandlers.iterator();
-    Set<String> result = new HashSet<String>();
-
-    while (it.hasNext()) {
-      QueryHandler queryHandler = it.next();
-      QueryHits hits = queryHandler.executeQuery(query, true, new InternalQName[0], new boolean[0]);
-      for (int i = 0; i < hits.length(); i++) {
-        result.add(hits.getFieldContent(i, FieldNames.UUID));
-      }
-
-    }
-    return result;
-  }
-
-  private Query getQuery(InternalQName nodeType) throws RepositoryException {
-    List<Term> terms = new ArrayList<Term>();
-    // try {
-    String mixinTypesField = locationFactory.createJCRName(Constants.JCR_MIXINTYPES).getAsString();
-    String primaryTypeField = locationFactory.createJCRName(Constants.JCR_PRIMARYTYPE)
-                                             .getAsString();
-
-    // ExtendedNodeTypeManager ntMgr = session.getWorkspace().getNodeTypeManager();
-    NodeType base = getNodeType(nodeType);
-
-    if (base.isMixin()) {
-      // search for nodes where jcr:mixinTypes is set to this mixin
-      Term t = new Term(FieldNames.PROPERTIES,
-                        FieldNames.createNamedValue(mixinTypesField,
-                                                    locationFactory.createJCRName(nodeType)
-                                                                   .getAsString()));
-      terms.add(t);
-    } else {
-      // search for nodes where jcr:primaryType is set to this type
-      Term t = new Term(FieldNames.PROPERTIES,
-                        FieldNames.createNamedValue(primaryTypeField,
-                                                    locationFactory.createJCRName(nodeType)
-                                                                   .getAsString()));
-      terms.add(t);
-    }
-
-    // now search for all node types that are derived from base
-    NodeTypeIterator allTypes = getAllNodeTypes();
-    while (allTypes.hasNext()) {
-      ExtendedNodeType nt = (ExtendedNodeType) allTypes.nextNodeType();
-      NodeType[] superTypes = nt.getSupertypes();
-      if (Arrays.asList(superTypes).contains(base)) {
-        String ntName = locationFactory.createJCRName(nt.getQName()).getAsString();
-        Term t;
-        if (nt.isMixin()) {
-          // search on jcr:mixinTypes
-          t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(mixinTypesField, ntName));
-        } else {
-          // search on jcr:primaryType
-          t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(primaryTypeField, ntName));
-        }
-        terms.add(t);
-      }
-    }
-    if (terms.size() == 0) {
-      // exception occured
-      return new BooleanQuery();
-    } else if (terms.size() == 1) {
-      return new TermQuery((Term) terms.get(0));
-    } else {
-      BooleanQuery b = new BooleanQuery();
-      for (Iterator it = terms.iterator(); it.hasNext();) {
-        b.add(new TermQuery((Term) it.next()), Occur.SHOULD);
-      }
-      return b;
-    }
-  }
-
 }

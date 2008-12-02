@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import javax.jcr.nodetype.NodeType;
 
 import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -30,26 +30,40 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
 
-  protected NodeType            declaringNodeType;
+  protected final NodeType      declaringNodeType;
 
-  protected final String        name;
+  protected final String  name;
 
-  protected boolean             autoCreate;
+  protected final boolean autoCreate;
 
-  protected int                 onVersion;
+  protected final int     onVersion;
 
-  protected boolean             readOnly;
+  protected final boolean readOnly;
 
-  protected boolean             mandatory;
+  protected final boolean mandatory;
 
-  protected final InternalQName qName;
+  protected int     hashCode;
 
-  protected int                 hashCode;
-
-  public ItemDefinitionImpl(String name, InternalQName qName) {
+  public ItemDefinitionImpl(String name,
+                            NodeType declaringNodeType,
+                            boolean autoCreate,
+                            int onVersion,
+                            boolean readOnly,
+                            boolean mandatory) {
+    this.declaringNodeType = declaringNodeType;
+    this.autoCreate = autoCreate;
+    this.onVersion = onVersion;
+    this.readOnly = readOnly;
+    this.mandatory = mandatory;
     this.name = name;
-    this.qName = qName;
-    this.hashCode = qName == null ? 0 : qName.hashCode();
+    
+    int hk = 7;
+    hk = 31 * hk + name.hashCode();
+    hk = 31 * hk + (autoCreate ? 0 : 1);
+    hk = 31 * hk + (readOnly ? 0 : 1);
+    hk = 31 * hk + (mandatory ? 0 : 1);
+    hk = 31 * hk + onVersion;
+    this.hashCode = hk;
   }
 
   @Override
@@ -57,121 +71,52 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
     return hashCode;
   }
 
-  public ItemDefinitionImpl(String name,
-                            NodeType declaringNodeType,
-                            boolean autoCreate,
-                            int onVersion,
-                            boolean readOnly,
-                            boolean mandatory,
-                            InternalQName qName) {
-    super();
-    this.declaringNodeType = declaringNodeType;
-    this.autoCreate = autoCreate;
-    this.onVersion = onVersion;
-    this.readOnly = readOnly;
-    this.mandatory = mandatory;
-    if (qName == null) {
-      System.out.println("==================  qName==null! ==========");
-      (new Exception()).printStackTrace();
-    }
-    this.qName = qName;
-    this.name = name;
-    this.hashCode = qName == null ? 0 : qName.hashCode();
-  }
-
   /**
-   * @see javax.jcr.nodetype.ItemDef#getName
+   * {@inheritDoc}
    */
   public String getName() {
     return name;
   }
 
   /**
-   * @see javax.jcr.nodetype.ItemDef#isAutoCreate
+   * {@inheritDoc}
    */
   public boolean isAutoCreated() {
     return autoCreate;
   }
 
   /**
-   * @see javax.jcr.nodetype.ItemDef#getOnParentVersion
+   * {@inheritDoc}
    */
   public int getOnParentVersion() {
     return onVersion;
   }
 
   /**
-   * @see javax.jcr.nodetype.ItemDef#isProtected
+   * {@inheritDoc}
    */
   public boolean isProtected() {
     return readOnly;
   }
 
   /**
-   * @see javax.jcr.nodetype.ItemDef#isMandatory
+   * {@inheritDoc}
    */
   public boolean isMandatory() {
     return mandatory;
   }
 
   /**
-   * @see javax.jcr.nodetype.ItemDef#getDeclaringNodeType
+   * {@inheritDoc}
    */
   public NodeType getDeclaringNodeType() {
     return declaringNodeType;
   }
 
-  // ////////////////////////////////////////////
-
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition#isResidualSet()
+  /**
+   * {@inheritDoc}
    */
   public boolean isResidualSet() {
-    return this.name.equals(ExtendedItemDefinition.RESIDUAL_SET);
-  }
-
-  /**
-   * @param autoCreate
-   *          The autoCreate to set.
-   */
-  public void setAutoCreate(boolean autoCreate) {
-    this.autoCreate = autoCreate;
-  }
-
-  /**
-   * @param declaringNodeType
-   *          The declaringNodeType to set.
-   */
-  public void setDeclaringNodeType(NodeType declaringNodeType) {
-    this.declaringNodeType = declaringNodeType;
-  }
-
-  /**
-   * @param mandatory
-   *          The mandatory to set.
-   */
-  public void setMandatory(boolean mandatory) {
-    this.mandatory = mandatory;
-  }
-
-  /**
-   * @param onVersion
-   *          The onVersion to set.
-   */
-  public void setOnVersion(int onVersion) {
-    this.onVersion = onVersion;
-  }
-
-  /**
-   * @param readOnly
-   *          The readOnly to set.
-   */
-  public void setReadOnly(boolean readOnly) {
-    this.readOnly = readOnly;
-  }
-
-  public InternalQName getQName() {
-    return qName;
+    return this.name.equals(Constants.JCR_ANY_NAME.getName());
   }
 }

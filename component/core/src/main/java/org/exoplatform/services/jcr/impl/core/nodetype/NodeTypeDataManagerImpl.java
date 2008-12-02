@@ -65,7 +65,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   protected final NamespaceRegistry                namespaceRegistry;
 
-  protected final NodeTypeDataPersister2           persister;
+  protected final NodeTypeDataPersister           persister;
 
   protected final LocationFactory                  locationFactory;
 
@@ -80,9 +80,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
                                  NamespaceRegistry namespaceRegistry,
-                                 NodeTypeDataPersister2 persister) throws RepositoryException {
+                                 NodeTypeDataPersister persister) throws RepositoryException {
 
     this.namespaceRegistry = namespaceRegistry;
+    
     this.persister = persister;
 
     this.locationFactory = locationFactory;
@@ -90,6 +91,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.accessControlPolicy = config.getAccessControl();
 
     this.typesHierarchy = new NodeTypeDataHierarchyHolder();
+    
     this.defsHolder = new ItemDefinitionDataHolder(this.typesHierarchy);
 
     initDefault();
@@ -98,7 +100,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   private void initDefault() throws RepositoryException {
     long start = System.currentTimeMillis();
     try {
-      InputStream xml = NodeTypeManagerImpl2.class.getResourceAsStream(NODETYPES_FILE);
+      InputStream xml = NodeTypeManagerImpl.class.getResourceAsStream(NODETYPES_FILE);
       if (xml != null) {
         registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
       } else {
@@ -305,11 +307,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   // impl
 
-  public NodeDefinitionData findNodeDefinition(InternalQName nodeName,
-                                               InternalQName primaryType,
-                                               InternalQName[] mixinTypes) throws RepositoryException {
+  public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
+                                                    InternalQName nodeTypeName,
+                                                    InternalQName parentTypeName) throws RepositoryException {
 
-    return defsHolder.getDefaultChildNodeDefinition(primaryType, mixinTypes, nodeName);
+    return defsHolder.getChildNodeDefinition(parentTypeName, nodeName, nodeTypeName);
+  }
+  
+  public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
+                                                    InternalQName primaryTypeName,
+                                                    InternalQName[] mixinTypeNames) throws RepositoryException {
+
+    return defsHolder.getDefaultChildNodeDefinition(primaryTypeName, mixinTypeNames, nodeName);
   }
 
   public NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,

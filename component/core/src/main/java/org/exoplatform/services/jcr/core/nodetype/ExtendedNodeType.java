@@ -51,18 +51,18 @@ public interface ExtendedNodeType extends NodeType {
 
   InternalQName getQName();
 
-  void setDeclaredNodeDefs(NodeDefinition[] declaredNodeDefs);
-
-  void setDeclaredPropertyDefs(PropertyDefinition[] declaredPropertyDefs);
-
-  void setDeclaredSupertypes(NodeType[] declaredSupertypes);
-
-  void setMixin(boolean mixin);
-
-  void setName(String name) throws RepositoryException;
-
-  void setOrderableChild(boolean orderableChild);
-
-  void setPrimaryItemName(String primaryItemName);
+//  void setDeclaredNodeDefs(NodeDefinition[] declaredNodeDefs);
+//
+//  void setDeclaredPropertyDefs(PropertyDefinition[] declaredPropertyDefs);
+//
+//  void setDeclaredSupertypes(NodeType[] declaredSupertypes);
+//
+//  void setMixin(boolean mixin);
+//
+//  void setName(String name) throws RepositoryException;
+//
+//  void setOrderableChild(boolean orderableChild);
+//
+//  void setPrimaryItemName(String primaryItemName);
 }
 

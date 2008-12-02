@@ -46,7 +46,11 @@ public interface NodeTypeDataManager {
 
   boolean isOrderableChildNodesSupported(InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException;
 
-  NodeDefinitionData findNodeDefinition(InternalQName nodeName,
+  NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
+                                        InternalQName nodeTypeName,
+                                        InternalQName parentTypeName) throws RepositoryException;
+  
+  NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                         InternalQName primaryTypeName,
                                         InternalQName[] mixinTypeNames) throws RepositoryException;
 
