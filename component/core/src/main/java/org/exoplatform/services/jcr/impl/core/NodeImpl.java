@@ -1648,7 +1648,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
        * (if the movement of A causes it to be re-ordered with respect to its same-name siblings) or
        * be identical (if A does not have same-name siblings or if the movement of A does not change
        * its order relative to its same-name siblings). Additionally, an implementation should
-       * generate appropriate events reflecting the “shifting over” of the node B and any nodes that
+       * generate appropriate events reflecting the "shifting over" of the node B and any nodes that
        * come after it in the child node ordering. Each such shifted node would also produce a
        * NODE_REMOVED and NODE_ADDED event pair with paths differing at most by a final index.
        */
@@ -1772,38 +1772,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     dataManager.getTransactManager().save(changesLog);
 
     session.getActionHandler().postCheckout(this);
-  }
-
-  /**
-   * @deprecated use isCheckedOut
-   * @return
-   * @throws UnsupportedRepositoryOperationException
-   * @throws RepositoryException
-   */
-  public boolean isCheckedOut_Old() throws UnsupportedRepositoryOperationException,
-                                   RepositoryException {
-
-    checkValid();
-
-    if (isRoot())
-      return true;
-
-    if (this.isNodeType(Constants.MIX_VERSIONABLE)) {
-      return ((Property) dataManager.getItem(nodeData(), new QPathEntry(Constants.JCR_ISCHECKEDOUT,
-                                                                        0), false)).getBoolean();
-    }
-
-    NodeImpl ancestor = parent();
-    while (!ancestor.isRoot()) {
-      if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
-        return ancestor.isCheckedOut();
-      else
-        ancestor = (NodeImpl) ancestor.parent();
-    }
-    if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
-      return ancestor.isCheckedOut();
-    else
-      return true;
   }
 
   public boolean isCheckedOut() throws UnsupportedRepositoryOperationException, RepositoryException {
@@ -2475,76 +2443,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       // using VH helper as for one new VH, all changes in changes log
       new VersionHistoryDataHelper(parent, changes, dataManager, session.getWorkspace()
                                                                         .getNodeTypeManager());
-      for (ItemState istate : changes.getAllStates()) {
-        dataManager.update(istate, false);
-      }
-    }
-  }
-
-  /**
-   * TODO remove this method Add autocreated items to this node. No checks will be passed for
-   * autocreated items.
-   * 
-   * @deprecated use addAutoCreatedItems
-   */
-  @Deprecated
-  public void addAutoCreatedItems_Old(InternalQName nodeTypeName) throws RepositoryException,
-                                                                 ConstraintViolationException {
-
-    ExtendedNodeType type = nodeType(nodeTypeName);
-    NodeDefinition[] nodeDefs = type.getChildNodeDefinitions();
-    PropertyDefinition[] propDefs = type.getPropertyDefinitions();
-
-    // Add autocreated child properties
-    for (int i = 0; i < propDefs.length; i++) {
-
-      if (propDefs[i] == null) // it is possible for not mandatory propDef
-        continue;
-
-      if (propDefs[i].isAutoCreated()) {
-        PropertyDefinitionImpl pdImpl = (PropertyDefinitionImpl) propDefs[i];
-
-        ItemData pdata = dataManager.getItemData(nodeData(), new QPathEntry(pdImpl.getQName(), 0));
-        if (pdata == null || pdata.isNode()) {
-
-          List<ValueData> listAutoCreateValue = autoCreatedValue(nodeData(), type, pdImpl);
-
-          if (listAutoCreateValue != null)
-            dataManager.update(ItemState.createAddedState(TransientPropertyData.createPropertyData(nodeData(),
-                                                                                                   pdImpl.getQName(),
-                                                                                                   pdImpl.getRequiredType(),
-                                                                                                   pdImpl.isMultiple(),
-                                                                                                   listAutoCreateValue)),
-                               false);
-        } else {
-          if (log.isDebugEnabled()) {
-            log.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
-                + "   during the automatic creation of items for " + nodeTypeName.getAsString()
-                + " nodetype or mixin type");
-          }
-        }
-      }
-    }
-
-    // Add autocreated child nodes
-    for (int i = 0; i < nodeDefs.length; i++) {
-      if (nodeDefs[i].isAutoCreated()) {
-        NodeDefinitionImpl ndImpl = (NodeDefinitionImpl) nodeDefs[i];
-
-        dataManager.update(ItemState.createAddedState(TransientNodeData.createNodeData(nodeData(),
-                                                                                       ndImpl.getQName(),
-                                                                                       ((ExtendedNodeType) ndImpl.getDefaultPrimaryType()).getQName(),
-                                                                                       IdGenerator.generate())),
-                           false);
-      }
-    }
-
-    // versionable
-    if (type.isNodeType(Constants.MIX_VERSIONABLE)) {
-      PlainChangesLogImpl changes = new PlainChangesLogImpl();
-      // using VH helper as for one new VH, all changes in changes log
-      new VersionHistoryDataHelper(nodeData(), changes, dataManager, session.getWorkspace()
-                                                                            .getNodeTypeManager());
       for (ItemState istate : changes.getAllStates()) {
         dataManager.update(istate, false);
       }
