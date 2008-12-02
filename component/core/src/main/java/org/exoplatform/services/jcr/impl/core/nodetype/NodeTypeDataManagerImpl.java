@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jcr.InvalidItemStateException;
@@ -64,15 +65,17 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   protected final NamespaceRegistry                namespaceRegistry;
 
-  protected final NodeTypeDataPersister2            persister;
+  protected final NodeTypeDataPersister2           persister;
 
   protected final LocationFactory                  locationFactory;
 
   protected final String                           accessControlPolicy;
 
-  protected final Map<InternalQName, NodeTypeData> nodeTypes = new ConcurrentHashMap<InternalQName, NodeTypeData>();
-  
-  protected final ItemDefinitionDataHolder defsHolder;
+  protected final Map<InternalQName, NodeTypeData> nodeTypes      = new ConcurrentHashMap<InternalQName, NodeTypeData>();
+
+  protected final NodeTypeDataHierarchyHolder      typesHierarchy;
+
+  protected final ItemDefinitionDataHolder         defsHolder;
 
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
@@ -86,8 +89,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     this.accessControlPolicy = config.getAccessControl();
 
-    this.defsHolder = new ItemDefinitionDataHolder(new NodeTypeDataHierarchyHolder());
-    
+    this.typesHierarchy = new NodeTypeDataHierarchyHolder();
+    this.defsHolder = new ItemDefinitionDataHolder(this.typesHierarchy);
+
     initDefault();
   }
 
@@ -285,72 +289,95 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   /**
    * 
-   * Validate NodeTypeData and return new instance or throw an exception.
-   * The new instance will be a guarany of valid NodeType.
+   * Validate NodeTypeData and return new instance or throw an exception. The new instance will be a
+   * guarany of valid NodeType.
    * 
    * Check according the JSR-170/JSR-283 spec.
-   *
-   * @param nodeType NodeTypeData to be checked
+   * 
+   * @param nodeType
+   *          NodeTypeData to be checked
    * @return valid NodeTypeData
    */
   protected NodeTypeData validateNodeType(NodeTypeData nodeType) {
 
     return nodeType; // TODO
   }
-  
+
   // impl
 
   public NodeDefinitionData findNodeDefinition(InternalQName nodeName,
                                                InternalQName primaryType,
                                                InternalQName[] mixinTypes) throws RepositoryException {
-    
+
     return defsHolder.getDefaultChildNodeDefinition(primaryType, mixinTypes, nodeName);
   }
 
   public NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,
-                                                       RepositoryException {
+                                                          RepositoryException {
     return nodeTypes.get(typeName);
   }
 
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                                         InternalQName primaryType,
-                                                         InternalQName[] mixinTypes) throws RepositoryException {
-    
-    //defsHolder.getPropertyDefinition(parentNodeType, childName, multiValued);
-    return null;
-  }
+                                                         InternalQName primaryTypeName,
+                                                         InternalQName[] mixinTypeNames) throws RepositoryException {
 
-  public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                                         List<NodeTypeData> typesList) throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    return defsHolder.getPropertyDefinitions(primaryTypeName, mixinTypeNames, propertyName);
   }
 
   public List<NodeTypeData> getAllNodeTypes() throws RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    return new ArrayList<NodeTypeData>(nodeTypes.values());
   }
 
   public boolean isNodeType(InternalQName testTypeName, InternalQName typeName) {
-    // TODO Auto-generated method stub
-    return false;
+    return typesHierarchy.isNodeType(testTypeName, typeName);
   }
 
   public boolean isNodeType(InternalQName testTypeName,
-                            InternalQName typeName,
-                            InternalQName[] typeNames) {
-    // TODO Auto-generated method stub
+                            InternalQName primaryTypeName,
+                            InternalQName[] mixinTypeNames) {
+
+    if (typesHierarchy.isNodeType(testTypeName, primaryTypeName))
+      return true;
+
+    for (InternalQName mixin : mixinTypeNames) {
+      if (typesHierarchy.isNodeType(testTypeName, mixin))
+        return true;
+    }
+
     return false;
   }
 
   public boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames) {
-    // TODO Auto-generated method stub
+
+    for (InternalQName mixin : typeNames) {
+      if (typesHierarchy.isNodeType(testTypeName, mixin))
+        return true;
+    }
+
     return false;
   }
 
   public boolean isOrderableChildNodesSupported(InternalQName primaryType,
                                                 InternalQName[] mixinTypes) throws RepositoryException {
-    // TODO Auto-generated method stub
+
+    for (int i = -1; i < mixinTypes.length; i++) {
+      NodeTypeData nt;
+      if (i < 0)
+        nt = nodeTypes.get(primaryType);
+      else
+        nt = nodeTypes.get(mixinTypes[i]);
+
+      if (nt != null && nt.hasOrderableChildNodes())
+        return true;
+
+      Set<InternalQName> supers = typesHierarchy.getSupertypes(nt.getName());
+      for (InternalQName suName : supers) {
+        NodeTypeData su = nodeTypes.get(suName);
+        if (su != null && su.hasOrderableChildNodes())
+          return true;
+      }
+    }
+
     return false;
   }
 

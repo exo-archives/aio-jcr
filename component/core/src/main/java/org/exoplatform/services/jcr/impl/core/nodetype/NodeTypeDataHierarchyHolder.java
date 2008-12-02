@@ -31,7 +31,6 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  * @author Gennady Azarenkov
  * @version $Id: NodeTypesHierarchyHolder.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
 public class NodeTypeDataHierarchyHolder {
 
   private final Map<InternalQName, Set<InternalQName>> nodeTypes;
@@ -40,26 +39,28 @@ public class NodeTypeDataHierarchyHolder {
     nodeTypes = new ConcurrentHashMap<InternalQName, Set<InternalQName>>();
   }
 
-  public boolean isNodeType(InternalQName testTypeName, InternalQName superTypeName) {
+  public boolean isNodeType(final InternalQName testTypeName, final InternalQName superTypeName) {
     if (testTypeName.equals(superTypeName))
       return true;
-    Set<InternalQName> testTypes = nodeTypes.get(testTypeName);
+    
+    final Set<InternalQName> testTypes = nodeTypes.get(testTypeName);
     if (testTypes == null)
       return false;
+    
     return testTypes.contains(superTypeName);
   }
 
-  public Set<InternalQName> getSupertypes(InternalQName nodeTypeName) {
+  public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
     return nodeTypes.get(nodeTypeName);
   }
 
-  void addNodeType(NodeTypeData nodeType) {
-    Set<InternalQName> supers = new HashSet<InternalQName>();
+  void addNodeType(final NodeTypeData nodeType) {
+    final Set<InternalQName> supers = new HashSet<InternalQName>();
     fillSupertypes(supers, nodeType.getDeclaredSupertypeNames());
     nodeTypes.put(nodeType.getName(), supers);
   }
 
-  private void fillSupertypes(Collection<InternalQName> list, InternalQName[] supers) {
+  private void fillSupertypes(final Collection<InternalQName> list, final InternalQName[] supers) {
     if (supers != null) {
       for (InternalQName su : supers) {
         list.add(su);
@@ -68,7 +69,7 @@ public class NodeTypeDataHierarchyHolder {
     }
   }
   
-  private void addSupertypes(Collection<InternalQName> list, Collection<InternalQName> supers) {
+  private void addSupertypes(final Collection<InternalQName> list, final Collection<InternalQName> supers) {
     if (supers != null) {
       for (InternalQName su : supers) {
         list.add(su);

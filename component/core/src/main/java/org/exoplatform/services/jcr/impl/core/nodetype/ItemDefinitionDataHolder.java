@@ -26,15 +26,15 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/> 
+ * Created by The eXo Platform SAS. <br/>
  * 
- * Per-repository component holding all Child Nodes and
- * Properties Definitions as flat Map For ex definition for jcr:primaryType will be repeated as many
- * times as many primary nodetypes is registered (as each primary nodetype extends nt:base directly
- * or indirectly) and so on.
+ * Per-repository component holding all Child Nodes and Properties Definitions as flat Map For ex
+ * definition for jcr:primaryType will be repeated as many times as many primary nodetypes is
+ * registered (as each primary nodetype extends nt:base directly or indirectly) and so on.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ItemDefinitionsHolder.java 11907 2008-03-13 15:36:21Z ksm $
@@ -42,18 +42,18 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class ItemDefinitionDataHolder {
 
-  private static Log                                                 log           = ExoLogger.getLogger("jcr.ItemDefinitionDataHolder");
+  private static Log                                            log           = ExoLogger.getLogger("jcr.ItemDefinitionDataHolder");
 
-  private static InternalQName                                       RESIDUAL_NAME = new InternalQName(null,
-                                                                                                       "*");
+  private static InternalQName                                  RESIDUAL_NAME = new InternalQName(null,
+                                                                                                  "*");
 
-  private final HashMap<ChildNodeDefKey, NodeDefinitionData>         nodeDefinitions;
+  private final HashMap<ChildNodeDefKey, NodeDefinitionData>    nodeDefinitions;
 
   private final HashMap<PropertyDefKey, PropertyDefinitionData> propertyDefinitions;
 
-  private final HashMap<DefaultNodeDefKey, NodeDefinitionData>       defNodeDefinitions;
+  private final HashMap<DefaultNodeDefKey, NodeDefinitionData>  defNodeDefinitions;
 
-  private final NodeTypeDataHierarchyHolder                             nodeTypesHierarchy;
+  private final NodeTypeDataHierarchyHolder                     nodeTypesHierarchy;
 
   public ItemDefinitionDataHolder(NodeTypeDataHierarchyHolder nodeTypesHierarchy) {
     this.nodeDefinitions = new HashMap<ChildNodeDefKey, NodeDefinitionData>();
@@ -119,23 +119,23 @@ public class ItemDefinitionDataHolder {
   public NodeDefinitionData getDefaultChildNodeDefinition(InternalQName primaryNodeType,
                                                           InternalQName[] mixinNodeTypes,
                                                           InternalQName childName) {
-    
+
     DefaultNodeDefKey key = new DefaultNodeDefKey(primaryNodeType, childName);
     NodeDefinitionData def = defNodeDefinitions.get(key);
     if (def != null)
       return def;
-    
-    for (InternalQName parentNodeType : mixinNodeTypes) {
-      key = new DefaultNodeDefKey(parentNodeType, childName);
-      def = defNodeDefinitions.get(key);
-      if (def != null)
-        return def;
-    }
-    
+
+    if (mixinNodeTypes != null)
+      for (InternalQName parentNodeType : mixinNodeTypes) {
+        key = new DefaultNodeDefKey(parentNodeType, childName);
+        def = defNodeDefinitions.get(key);
+        if (def != null)
+          return def;
+      }
+
     return null;
   }
 
-  
   /**
    * @param parentNodeTypes
    *          name of parent node types
@@ -164,57 +164,52 @@ public class ItemDefinitionDataHolder {
    * @return Child PropertyDefinition or null if not found
    */
   public PropertyDefinitionDatas getPropertyDefinitions(final InternalQName primaryType,
-                                                      final InternalQName[] mixinTypes,
-                                                      final InternalQName propertyName) {
+                                                        final InternalQName[] mixinTypes,
+                                                        final InternalQName propertyName) {
 
     final PropertyDefinitionDatas pdefs = new PropertyDefinitionDatas();
-    
+
     // primary type
     // start with single-valued
-    PropertyDefKey key = new PropertyDefKey(primaryType, propertyName, false);
-    PropertyDefinitionData def = propertyDefinitions.get(key);
+    PropertyDefinitionData def = propertyDefinitions.get(new PropertyDefKey(primaryType,
+                                                                            propertyName,
+                                                                            false));
     if (def != null)
       pdefs.setDefinition(def);
-    else {
-      // try multi-valued
-      key = new PropertyDefKey(primaryType, propertyName, true);
-      def = propertyDefinitions.get(key);
-      pdefs.setDefinition(def);
-    }
 
-    // try residual
-    
+    // try multi-valued
+    def = propertyDefinitions.get(new PropertyDefKey(primaryType, propertyName, true));
+    if (def != null)
+      pdefs.setDefinition(def);
+
     // mixins
-    for (InternalQName mixin : mixinTypes) {
-      // single-valued
-      key = new PropertyDefKey(mixin, propertyName, false);
-      def = propertyDefinitions.get(key);
-      if (def != null) {
-        if (pdefs.getDefinition(def.isMultiple()) == null)  
-          pdefs.setDefinition(def); // TODO set if not exists
-      } else {
-        // or multi-valued
-        key = new PropertyDefKey(mixin, propertyName, true);
-        def = propertyDefinitions.get(key);
-        if (pdefs.getDefinition(def.isMultiple()) == null)  
-          pdefs.setDefinition(def); // TODO set if not exists
+    if (mixinTypes != null)
+      for (InternalQName mixin : mixinTypes) {
+        // single-valued
+        def = propertyDefinitions.get(new PropertyDefKey(mixin, propertyName, false));
+        if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
+          pdefs.setDefinition(def); // set if same is not exists
+
+        // multi-valued
+        def = propertyDefinitions.get(new PropertyDefKey(mixin, propertyName, true));
+        if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
+          pdefs.setDefinition(def); // set if same is not exists
       }
-      
-      // try residual
-    }
-    
-//    if (pdefs.getAnyDefinition() == null) { 
-//      // try residual def
-//      if (def == null) {
-//        key = new PropertyDefKey(parentNodeType, RESIDUAL_NAME, multiValued);
-//        return propertyDefinitions.get(key);
-//      } else
-//        return def;
-//    }
-    
+
+    // TODO try residual
+
+    // if (pdefs.getAnyDefinition() == null) {
+    // // try residual def
+    // if (def == null) {
+    // key = new PropertyDefKey(parentNodeType, RESIDUAL_NAME, multiValued);
+    // return propertyDefinitions.get(key);
+    // } else
+    // return def;
+    // }
+
     return pdefs;
   }
-  
+
   /**
    * @param parentNodeType
    *          name of parent node type
@@ -224,8 +219,8 @@ public class ItemDefinitionDataHolder {
    * @return Child PropertyDefinition or null if not found
    */
   public PropertyDefinitionData getPropertyDefinition(InternalQName parentNodeType,
-                                                           InternalQName childName,
-                                                           boolean multiValued) {
+                                                      InternalQName childName,
+                                                      boolean multiValued) {
 
     PropertyDefKey key = new PropertyDefKey(parentNodeType, childName, multiValued);
     PropertyDefinitionData def = propertyDefinitions.get(key);
@@ -252,30 +247,27 @@ public class ItemDefinitionDataHolder {
    */
   void putDefinitions(NodeTypeData nodeType) {
     nodeTypesHierarchy.addNodeType(nodeType);
-    
+
     // put child node defs
     NodeDefinitionData[] nodeDefs = nodeType.getDeclaredChildNodeDefinitions();
     for (NodeDefinitionData nodeDef : nodeDefs) {
       // put required node type defs
       // TODO put super's child node defs
       for (InternalQName rnt : nodeDef.getRequiredPrimaryTypes()) {
-        ChildNodeDefKey nodeDefKey = new ChildNodeDefKey(nodeType.getName(),
-                                                         nodeDef.getName(),
-                                                         rnt);
+        ChildNodeDefKey nodeDefKey = new ChildNodeDefKey(nodeType.getName(), nodeDef.getName(), rnt);
         nodeDefinitions.put(nodeDefKey, nodeDef);
-        
+
         if (log.isDebugEnabled()) {
-          log.debug("NodeDef added: parent NT: " + nodeType.getName().getAsString() + " child nodeName: "
-              + nodeDef.getName().getAsString() + " childNT: " + rnt.getAsString() + " hash: "
-              + nodeDefKey.hashCode());
+          log.debug("NodeDef added: parent NT: " + nodeType.getName().getAsString()
+              + " child nodeName: " + nodeDef.getName().getAsString() + " childNT: "
+              + rnt.getAsString() + " hash: " + nodeDefKey.hashCode());
         }
       }
-      
+
       // put default node definition
-      DefaultNodeDefKey defNodeDefKey = new DefaultNodeDefKey(nodeType.getName(),
-                                                              nodeDef.getName());
+      DefaultNodeDefKey defNodeDefKey = new DefaultNodeDefKey(nodeType.getName(), nodeDef.getName());
       defNodeDefinitions.put(defNodeDefKey, nodeDef);
-      
+
       if (log.isDebugEnabled()) {
         log.debug("Default NodeDef added: parent NT: " + nodeType.getName().getAsString()
             + " child nodeName: " + nodeDef.getName() + " hash: " + defNodeDefKey.hashCode());
@@ -287,21 +279,21 @@ public class ItemDefinitionDataHolder {
     PropertyDefinitionData[] propDefs = nodeType.getDeclaredPropertyDefinitions();
     for (PropertyDefinitionData propDef : propDefs) {
       PropertyDefKey propDefKey = new PropertyDefKey(nodeType.getName(),
-                                                               propDef.getName(),
-                                                               propDef.isMultiple());
+                                                     propDef.getName(),
+                                                     propDef.isMultiple());
       propertyDefinitions.put(propDefKey, propDef);
-      
+
       if (log.isDebugEnabled()) {
-        log.debug("PropDef added: parent NT: " + nodeType.getName().getAsString() + " child propName: "
-            + propDef.getName().getAsString() + " isMultiple: " + propDef.isMultiple() + " hash: "
-            + propDefKey.hashCode());
+        log.debug("PropDef added: parent NT: " + nodeType.getName().getAsString()
+            + " child propName: " + propDef.getName().getAsString() + " isMultiple: "
+            + propDef.isMultiple() + " hash: " + propDefKey.hashCode());
       }
     }
-    
+
     // TODO traverse supertypes for child nodes and props - DO IT FROM NT MANAGER
-//    for (InternalQName su : nodeType.getDeclaredSupertypeNames()) {
-//      nodeTypesHierarchy.
-//    }
+    // for (InternalQName su : nodeType.getDeclaredSupertypeNames()) {
+    // nodeTypesHierarchy.
+    // }
   }
 
   /**
@@ -353,8 +345,8 @@ public class ItemDefinitionDataHolder {
   private class PropertyDefKey extends ItemDefKey {
 
     private PropertyDefKey(InternalQName parentNodeType,
-                                InternalQName childName,
-                                boolean multiValued) {
+                           InternalQName childName,
+                           boolean multiValued) {
       super(parentNodeType, childName);
       hashCode = 31 * hashCode + (multiValued ? 1 : 0);
     }

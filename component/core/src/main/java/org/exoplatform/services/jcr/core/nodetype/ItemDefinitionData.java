@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.core.nodetype;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -27,8 +28,6 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  * @version $Id$
  */
 public class ItemDefinitionData {
-
-  public static final String RESIDUAL_SET = "*";
 
   protected final InternalQName      name;
 
@@ -58,7 +57,7 @@ public class ItemDefinitionData {
 
   public boolean isResidualSet() {
     // TODO
-    return this.getName().getName().equals(RESIDUAL_SET);
+    return this.getName().equals(Constants.JCR_ANY_NAME);
   }
 
   public InternalQName getName() {

@@ -47,21 +47,21 @@ public interface NodeTypeDataManager {
   boolean isOrderableChildNodesSupported(InternalQName primaryType, InternalQName[] mixinTypes) throws RepositoryException;
 
   NodeDefinitionData findNodeDefinition(InternalQName nodeName,
-                                        InternalQName primaryType,
-                                        InternalQName[] mixinTypes) throws RepositoryException;
+                                        InternalQName primaryTypeName,
+                                        InternalQName[] mixinTypeNames) throws RepositoryException;
 
   //NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList) throws RepositoryException;
 
   PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                                  InternalQName primaryType,
-                                                  InternalQName[] mixinTypes) throws RepositoryException;
+                                                  InternalQName primaryTypeName,
+                                                  InternalQName[] mixinTypeNames) throws RepositoryException;
 
-  PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                                  List<NodeTypeData> typesList) throws RepositoryException;
+  //PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
+  //                                                List<NodeTypeData> typesList) throws RepositoryException;
 
   boolean isNodeType(InternalQName testTypeName, InternalQName typeName);
 
-  boolean isNodeType(InternalQName testTypeName, InternalQName typeName, InternalQName[] typeNames);
+  boolean isNodeType(InternalQName testTypeName, InternalQName primaryTypeName, InternalQName[] mixinTypeNames);
   
   boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames);
   
