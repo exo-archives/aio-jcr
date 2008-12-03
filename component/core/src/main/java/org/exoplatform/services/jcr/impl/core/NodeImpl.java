@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
-import java.io.IOException; 
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.ArrayList;
@@ -59,7 +59,6 @@ import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
@@ -67,6 +66,7 @@ import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -117,7 +117,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   protected LocationFactory sysLocFactory;
 
-  private NodeDefinition    definition;
+  private NodeDefinitionData    definition;
 
   /**
    * @param data

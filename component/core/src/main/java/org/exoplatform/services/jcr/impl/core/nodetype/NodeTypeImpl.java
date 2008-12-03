@@ -16,10 +16,19 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.UnmappableCharacterException;
 import java.util.ArrayList;
 
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.jcr.ValueFactory;
 import javax.jcr.nodetype.ItemDefinition;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
@@ -30,9 +39,13 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -53,12 +66,16 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   protected final LocationFactory     locationFactory;
 
+  protected final ValueFactory        valueFactory;
+
   public NodeTypeImpl(NodeTypeData data,
                       NodeTypeDataManager manager,
-                      LocationFactory locationFactory) {
+                      LocationFactory locationFactory,
+                      ValueFactory valueFactory) {
     this.data = data;
     this.manager = manager;
     this.locationFactory = locationFactory;
+    this.valueFactory = valueFactory;
   }
 
   // JSR-170 stuff ==========================
@@ -67,11 +84,11 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
     try {
       InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
-      
+
       NodeDefinitionData cdef = manager.findChildNodeDefinition(cname, data.getName());
       return cdef != null;
     } catch (RepositoryException e) {
-      LOG.error("Child node name is wrong " + e);
+      LOG.error("canAddChildNode " + e, e);
       return false;
     }
   }
@@ -80,28 +97,88 @@ public class NodeTypeImpl implements ExtendedNodeType {
     try {
       InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
       InternalQName ntname = locationFactory.parseJCRName(nodeTypeName).getInternalName();
-      
+
       NodeDefinitionData cdef = manager.getChildNodeDefinition(cname, ntname, data.getName());
       return cdef != null;
     } catch (RepositoryException e) {
-      LOG.error("Child node name is wrong " + e);
+      if (LOG.isDebugEnabled())
+        LOG.debug("canAddChildNode " + e, e);
       return false;
     }
   }
 
   public boolean canRemoveItem(String itemName) {
-    // TODO Auto-generated method stub
-    return false;
+    try {
+      InternalQName iname = locationFactory.parseJCRName(itemName).getInternalName();
+
+      PropertyDefinitionDatas pdefs = manager.findPropertyDefinitions(iname, data.getName());
+      PropertyDefinitionData pd = pdefs.getAnyDefinition();
+      if (pd != null)
+        return !(pd.isMandatory() || pd.isProtected());
+
+      NodeDefinitionData cndef = manager.findChildNodeDefinition(iname, data.getName());
+      if (cndef != null)
+        return !(cndef.isMandatory() || cndef.isProtected());
+
+      return false;
+    } catch (RepositoryException e) {
+      if (LOG.isDebugEnabled())
+        LOG.debug("canRemoveItem " + e, e);
+      return false;
+    }
   }
 
   public boolean canSetProperty(String propertyName, Value value) {
-    // TODO Auto-generated method stub
-    return false;
+    try {
+      InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
+
+      PropertyDefinitionDatas pdefs = manager.findPropertyDefinitions(pname, data.getName());
+      PropertyDefinitionData pd = pdefs.getDefinition(false);
+      if (pd != null) {
+        if (pd.isProtected())
+          // can set (edit)
+          return false;
+        else if (value != null)
+          // can set (add or edit)
+          return canSetPropertyForType(pd.getRequiredType(), value, pd.getValueConstraints());
+        else
+          // can remove
+          return !pd.isMandatory();
+      } else
+        return false;
+    } catch (RepositoryException e) {
+      LOG.error("canSetProperty value " + e, e);
+      return false;
+    }
   }
 
   public boolean canSetProperty(String propertyName, Value[] values) {
-    // TODO Auto-generated method stub
-    return false;
+    try {
+      InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
+
+      PropertyDefinitionDatas pdefs = manager.findPropertyDefinitions(pname, data.getName());
+      PropertyDefinitionData pd = pdefs.getDefinition(false);
+      if (pd != null) {
+        if (pd.isProtected())
+          // can set (edit)
+          return false;
+        else if (values != null) {
+          // can set (add or edit)
+          int res = 0;
+          for (Value value : values) {
+            if (canSetPropertyForType(pd.getRequiredType(), value, pd.getValueConstraints()))
+              res++;
+          }
+          return res == values.length;
+        } else
+          // can remove
+          return !pd.isMandatory();
+      } else
+        return false;
+    } catch (RepositoryException e) {
+      LOG.error("canSetProperty value " + e, e);
+      return false;
+    }
   }
 
   public NodeDefinition[] getChildNodeDefinitions() {
@@ -140,13 +217,24 @@ public class NodeTypeImpl implements ExtendedNodeType {
   }
 
   public String getName() {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      return locationFactory.createJCRName(data.getName()).getAsString();
+    } catch (RepositoryException e) {
+      // TODO
+      throw new RuntimeException("Wrong name in data " + e, e);
+    }
   }
 
   public String getPrimaryItemName() {
-    // TODO Auto-generated method stub
-    return null;
+    try {
+      if (data.getPrimaryItemName() != null)
+        return locationFactory.createJCRName(data.getPrimaryItemName()).getAsString();
+      else
+        return null;
+    } catch (RepositoryException e) {
+      // TODO
+      throw new RuntimeException("Wrong primary item name in data " + e, e);
+    }
   }
 
   public PropertyDefinition[] getPropertyDefinitions() {
@@ -155,23 +243,27 @@ public class NodeTypeImpl implements ExtendedNodeType {
   }
 
   public NodeType[] getSupertypes() {
-    // TODO Auto-generated method stub
+    InternalQName[] dsupers = data.getDeclaredSupertypeNames();
+    // TODO traverse inherited supers
+
     return null;
   }
 
   public boolean hasOrderableChildNodes() {
-    // TODO Auto-generated method stub
-    return false;
+    return data.hasOrderableChildNodes();
   }
 
   public boolean isMixin() {
-    // TODO Auto-generated method stub
-    return false;
+    return data.isMixin();
   }
 
   public boolean isNodeType(String nodeTypeName) {
-    // TODO Auto-generated method stub
-    return false;
+    try {
+      return manager.isNodeType(locationFactory.parseJCRName(nodeTypeName).getInternalName(),
+                                data.getName());
+    } catch (RepositoryException e) {
+      throw new RuntimeException("Wrong nodetype name " + e, e);
+    }
   }
 
   // eXo stuff =====
@@ -213,6 +305,223 @@ public class NodeTypeImpl implements ExtendedNodeType {
   public boolean isNodeType(InternalQName nodeTypeQName) {
     // TODO Auto-generated method stub
     return false;
+  }
+
+  // internal stuff ============================
+
+  /**
+   * Ported from 1.10.
+   * 
+   * Check on empty value (property remove) removed.
+   */
+  private boolean canSetPropertyForType(int requiredType, Value value, String[] constrains) {
+
+    if (requiredType == value.getType()) {
+      return checkValueConstraints(constrains, value);
+    } else if (requiredType == PropertyType.BINARY
+        && (value.getType() == PropertyType.STRING || value.getType() == PropertyType.DATE
+            || value.getType() == PropertyType.LONG || value.getType() == PropertyType.DOUBLE
+            || value.getType() == PropertyType.NAME || value.getType() == PropertyType.PATH || value.getType() == PropertyType.BOOLEAN)) {
+      return checkValueConstraints(constrains, value);
+    } else if (requiredType == PropertyType.BOOLEAN) {
+      if (value.getType() == PropertyType.STRING) {
+        return checkValueConstraints(constrains, value);
+      } else if (value.getType() == PropertyType.BINARY) {
+        try {
+          return isCharsetString(value.getString(), Constants.DEFAULT_ENCODING)
+              && checkValueConstraints(constrains, value);
+        } catch (Exception e) {
+          // Hm, this is not string and not UTF-8 too
+          return false;
+        }
+      } else {
+        return false;
+      }
+    } else if (requiredType == PropertyType.DATE) {
+      String likeDataString = null;
+      try {
+        if (value.getType() == PropertyType.STRING) {
+          likeDataString = value.getString();
+        } else if (value.getType() == PropertyType.BINARY) {
+          likeDataString = getCharsetString(value.getString(), Constants.DEFAULT_ENCODING);
+        } else if (value.getType() == PropertyType.DOUBLE || value.getType() == PropertyType.LONG) {
+          return checkValueConstraints(constrains, value);
+        } else {
+          return false;
+        }
+        // try parse...
+        JCRDateFormat.parse(likeDataString);
+        // validate
+        return checkValueConstraints(constrains, value);
+      } catch (Exception e) {
+        // Hm, this is not date format string
+        return false;
+      }
+    } else if (requiredType == PropertyType.DOUBLE) {
+      String likeDoubleString = null;
+      try {
+        if (value.getType() == PropertyType.STRING) {
+          likeDoubleString = value.getString();
+        } else if (value.getType() == PropertyType.BINARY) {
+          likeDoubleString = getCharsetString(value.getString(), Constants.DEFAULT_ENCODING);
+        } else if (value.getType() == PropertyType.DATE) {
+          return true;
+        } else if (value.getType() == PropertyType.LONG) {
+          return checkValueConstraints(constrains, value);
+        } else {
+          return false;
+        }
+        Double doubleValue = new Double(likeDoubleString);
+        return doubleValue != null && checkValueConstraints(constrains, value);
+      } catch (Exception e) {
+        // Hm, this is not double formated string
+        return false;
+      }
+    } else if (requiredType == PropertyType.LONG) {
+      String likeLongString = null;
+      try {
+        if (value.getType() == PropertyType.STRING) {
+          likeLongString = value.getString();
+        } else if (value.getType() == PropertyType.BINARY) {
+          likeLongString = getCharsetString(value.getString(), Constants.DEFAULT_ENCODING);
+        } else if (value.getType() == PropertyType.DATE) {
+          return true;
+        } else if (value.getType() == PropertyType.DOUBLE) {
+          return true;
+        } else {
+          return false;
+        }
+        Long longValue = new Long(likeLongString);
+        return longValue != null && checkValueConstraints(constrains, value);
+      } catch (Exception e) {
+        // Hm, this is not long formated string
+        return false;
+      }
+    } else if (requiredType == PropertyType.NAME) {
+      String likeNameString = null;
+      try {
+        if (value.getType() == PropertyType.STRING) {
+          likeNameString = value.getString();
+        } else if (value.getType() == PropertyType.BINARY) {
+          likeNameString = getCharsetString(value.getString(), Constants.DEFAULT_ENCODING);
+        } else if (value.getType() == PropertyType.PATH) {
+          String pathString = value.getString();
+          String[] pathParts = pathString.split("\\/");
+          if (pathString.startsWith("/") && (pathParts.length > 1 || pathString.indexOf("[") > 0)) {
+            // Path is not relative - absolute
+            // FALSE if it is more than one element long
+            // or has an index
+            return false;
+          } else if (!pathParts.equals("/") && pathParts.length == 1 && pathString.indexOf("[") < 0) {
+            // Path is relative
+            // TRUE if it is one element long
+            // and has no index
+            return checkValueConstraints(constrains, value);
+          } else if (pathString.startsWith("/") && pathString.lastIndexOf("/") < 1
+              && pathString.indexOf("[") < 0) {
+            return checkValueConstraints(constrains, value);
+          } else {
+            return false;
+          }
+        } else {
+          return false;
+        }
+        try {
+          Value nameValue = valueFactory.createValue(likeNameString, requiredType);
+          return nameValue != null && checkValueConstraints(constrains, value);
+        } catch (Exception e) {
+          return false;
+        }
+      } catch (Exception e) {
+        return false;
+      }
+    } else if (requiredType == PropertyType.PATH) {
+      String likeNameString = null;
+      try {
+        if (value.getType() == PropertyType.STRING) {
+          likeNameString = value.getString();
+        } else if (value.getType() == PropertyType.BINARY) {
+          likeNameString = getCharsetString(value.getString(), Constants.DEFAULT_ENCODING);
+        } else if (value.getType() == PropertyType.NAME) {
+          return checkValueConstraints(constrains, value);
+        } else {
+          return false;
+        }
+        try {
+          Value nameValue = valueFactory.createValue(likeNameString, requiredType);
+          return nameValue != null && checkValueConstraints(constrains, value);
+        } catch (Exception e) {
+          return false;
+        }
+      } catch (Exception e) {
+        return false;
+      }
+    } else if (requiredType == PropertyType.STRING) {
+      String likeStringString = null;
+      try {
+        if (value.getType() == PropertyType.BINARY) {
+          likeStringString = getCharsetString(value.getString(), Constants.DEFAULT_ENCODING);
+        } else if (value.getType() == PropertyType.DATE || value.getType() == PropertyType.LONG
+            || value.getType() == PropertyType.BOOLEAN || value.getType() == PropertyType.NAME
+            || value.getType() == PropertyType.PATH || value.getType() == PropertyType.DOUBLE) {
+          likeStringString = value.getString();
+        } else {
+          return false;
+        }
+        return likeStringString != null && checkValueConstraints(constrains, value);
+      } catch (Exception e) {
+        return false;
+      }
+    } else if (requiredType == PropertyType.UNDEFINED) {
+      return checkValueConstraints(constrains, value);
+    } else {
+      return false;
+    }
+  }
+
+  private boolean checkValueConstraints(String[] constraints, Value value) {
+
+    if (constraints != null && constraints.length > 0) {
+      for (int i = 0; i < constraints.length; i++) {
+        try {
+          if (constraints[i].equals(value.getString())) {
+            return true;
+          }
+        } catch (RepositoryException e) {
+          LOG.error("Can't get value's string value " + e, e);
+        }
+      }
+    } else
+      return true;
+
+    return false;
+  }
+
+  private String getCharsetString(String source, String charSetName) {
+    try {
+      CharBuffer cb = CharBuffer.wrap(source.toCharArray());
+      Charset cs = Charset.forName(charSetName);
+      CharsetEncoder cse = cs.newEncoder();
+      ByteBuffer encoded = cse.encode(cb);
+      return new String(encoded.array()).trim(); // Trim is very important!!!
+    } catch (IllegalStateException e) {
+      return null;
+    } catch (MalformedInputException e) {
+      return null;
+    } catch (UnmappableCharacterException e) {
+      return null;
+    } catch (CharacterCodingException e) {
+      return null;
+    }
+  }
+
+  private boolean isCharsetString(String source, String charSetName) {
+    try {
+      String s = getCharsetString(source, charSetName);
+      return s != null;
+    } catch (Exception e) {
+      return false;
+    }
   }
 
 }

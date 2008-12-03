@@ -311,12 +311,14 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                     InternalQName nodeTypeName,
                                                     InternalQName parentTypeName) throws RepositoryException {
 
+    // TODO residual 
     return defsHolder.getChildNodeDefinition(parentTypeName, nodeName, nodeTypeName);
   }
   
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName... nodeTypeNames) throws RepositoryException {
 
+    // TODO residual 
     return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
   }
 
@@ -328,6 +330,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                          InternalQName... nodeTypeNames) throws RepositoryException {
 
+    // TODO residual 
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
 
