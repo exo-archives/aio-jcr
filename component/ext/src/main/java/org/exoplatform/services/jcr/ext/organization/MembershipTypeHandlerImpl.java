@@ -189,7 +189,10 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/"
           + STORAGE_EXO_MEMBERSHIP_TYPES);
       for (NodeIterator nodes = storageNode.getNodes(); nodes.hasNext();) {
-        types.add(readObjectFromNode(nodes.nextNode()));
+        Node mtNode = nodes.nextNode();
+        if (!mtNode.getName().equals("*")) {
+          types.add(readObjectFromNode(mtNode));
+        }
       }
       return types;
 
@@ -251,6 +254,8 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       session.save();
       return mt;
 
+    } catch (PathNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove membership type '" + name + "'", e);
     }
@@ -297,9 +302,9 @@ public class MembershipTypeHandlerImpl extends CommonHandler implements Membersh
       String srcPath = mtNode.getPath();
       int pos = srcPath.lastIndexOf('/');
       String prevName = srcPath.substring(pos + 1);
-      String destPath = srcPath.substring(0, pos) + "/" + mt.getName();
 
       if (!prevName.equals(mt.getName())) {
+        String destPath = srcPath.substring(0, pos) + "/" + mt.getName();
         session.move(srcPath, destPath);
         mtNode = (Node) session.getItem(destPath);
       }

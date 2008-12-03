@@ -383,33 +383,23 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       log.debug("User.findUsersByGroup method is started");
     }
 
+    List<User> users = new ArrayList<User>();
     try {
-      List<User> users = new ArrayList<User>();
+      Node gNode = (Node) session.getItem(service.getStoragePath() + "/"
+          + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId);
 
-      // get UUId of the group
-      String gPath = service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS + groupId;
-      if (session.itemExists(gPath)) {
-        Node gNode = (Node) session.getItem(gPath);
-
-        // find memberships
-        String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
-            + "'";
-        Query mquery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
-        QueryResult mres = mquery.execute();
-        for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
-          Node membership = membs.nextNode();
-
-          // get user
-          Node userNode = membership.getParent();
-          User user = findUserByName(session, userNode.getName());
-          if (user != null) {
-            users.add(user);
-          }
-        }
+      // find memberships
+      String statement = "select * from exo:userMembership where exo:group='" + gNode.getUUID()
+          + "'";
+      Query mquery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
+      QueryResult mres = mquery.execute();
+      for (NodeIterator membs = mres.getNodes(); membs.hasNext();) {
+        users.add(readObjectFromNode(membs.nextNode().getParent()));
       }
-
       return new ObjectPageList(users, 10);
 
+    } catch (PathNotFoundException e) {
+      return new ObjectPageList(users, 10);
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not users by group '" + groupId + "'", e);
     }
@@ -448,11 +438,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       List<User> types = new ArrayList<User>();
       Node storageNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS);
       for (NodeIterator uNodes = storageNode.getNodes(); uNodes.hasNext();) {
-        Node uNode = uNodes.nextNode();
-        User user = findUserByName(session, uNode.getName());
-        if (user != null) {
-          types.add(user);
-        }
+        types.add(readObjectFromNode(uNodes.nextNode()));
       }
       return new ObjectPageList(types, pageSize);
 
@@ -495,13 +481,9 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     }
 
     try {
-      String uPath = service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/" + userName;
-      if (!session.itemExists(uPath)) {
-        return null;
-      }
-
-      Node uNode = (Node) session.getItem(uPath);
-      User user = findUserByName(session, userName);
+      Node uNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_USERS + "/"
+          + userName);
+      User user = readObjectFromNode(uNode);
 
       if (broadcast) {
         preDelete(user);
@@ -516,6 +498,8 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
 
       return user;
 
+    } catch (PathNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove user '" + userName + "'", e);
     }
@@ -572,19 +556,18 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       String srcPath = uNode.getPath();
       int pos = srcPath.lastIndexOf('/');
       String prevName = srcPath.substring(pos + 1);
-      String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
 
       if (!prevName.equals(user.getUserName())) {
+        String destPath = srcPath.substring(0, pos) + "/" + user.getUserName();
         session.move(srcPath, destPath);
+        uNode = (Node) session.getItem(destPath);
       }
-
-      Node nmtNode = (Node) session.getItem(destPath);
 
       if (broadcast) {
         preSave(user, false);
       }
 
-      writeObjectToNode(user, nmtNode);
+      writeObjectToNode(user, uNode);
       session.save();
 
       if (broadcast) {

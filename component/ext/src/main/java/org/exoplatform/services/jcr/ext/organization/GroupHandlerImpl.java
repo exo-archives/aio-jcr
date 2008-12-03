@@ -128,12 +128,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
 
     try {
       String parentId = (parent == null) ? "" : parent.getId();
-      String parentPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS + parentId;
-      if (!session.itemExists(parentPath)) {
-        return;
-      }
-
-      Node parentNode = (Node) session.getItem(parentPath);
+      Node parentNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + parentId);
       Node gNode = parentNode.addNode(child.getGroupName(), "exo:hierarchyGroup");
 
       Group group = new GroupImpl(child.getGroupName(), parentId, gNode.getUUID());
@@ -255,9 +251,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       log.debug("findGroupByMembership started");
     }
 
+    List<Group> types = new ArrayList<Group>();
     try {
-      List<Group> types = new ArrayList<Group>();
-
       Node user = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
       NodeIterator memberships = user.getNodes("exo:membership");
@@ -279,6 +274,8 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
         types.add(readObjectFromNode(group)); // add
       }
 
+      return types;
+    } catch (PathNotFoundException e) {
       return types;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find groups", e);
@@ -316,25 +313,24 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       log.debug("findGroups started");
     }
 
+    List<Group> types = new ArrayList<Group>();
     try {
-      List<Group> types = new ArrayList<Group>();
+      String parentId = parent == null ? "" : parent.getId();
+      Node parentNode = (Node) session.getItem(service.getStoragePath() + "/" + STORAGE_EXO_GROUPS
+          + parentId);
+      for (NodeIterator gNodes = parentNode.getNodes(); gNodes.hasNext();) {
+        Node gNode = gNodes.nextNode();
+        Group g = readObjectFromNode(gNode);
+        types.add(g);
 
-      String gPath = service.getStoragePath() + "/" + STORAGE_EXO_GROUPS;
-      if (parent == null || session.itemExists(gPath + parent.getId())) {
-        String parentId = parent == null ? "" : parent.getId();
-        Node parentNode = (Node) session.getItem(gPath + parentId);
-        for (NodeIterator gNodes = parentNode.getNodes(); gNodes.hasNext();) {
-          Node gNode = gNodes.nextNode();
-          Group g = readObjectFromNode(gNode);
-          types.add(g);
-
-          if (recursive) {
-            types.addAll(findGroups(session, g, recursive));
-          }
+        if (recursive) {
+          types.addAll(findGroups(session, g, recursive));
         }
       }
       return types;
 
+    } catch (PathNotFoundException e) {
+      return types;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find groups", e);
     }

@@ -19,8 +19,6 @@
  */
 package org.exoplatform.services.jcr.ext.organization;
 
-import java.util.Collection;
-
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.MembershipTypeHandler;
@@ -51,25 +49,17 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
   /**
    * Find membership type with specific name.
    */
-  public void testFindMembershipType() {
+  public void testFindMembershipType() throws Exception {
     MembershipType mt;
     try {
       mt = mtHandler.findMembershipType("manager");
-      assertTrue("Membership type 'member' is absent but must be present", mt != null);
-      assertTrue("Membership type name not equal 'manager' but equal '" + mt.getName() + "'",
-                 mt.getName().equals("manager"));
-      assertTrue("Membership type description not equal 'manager membership type' but equal '"
-          + mt.getDescription() + "'", mt.getDescription().equals("manager membership type"));
+      assertNotNull(mt);
+      assertEquals(mt.getName(), "manager");
+      assertEquals(mt.getDescription(), "manager membership type");
+
+      assertNull(mtHandler.findMembershipType("manager_"));
     } catch (Exception e1) {
       e1.printStackTrace();
-      fail("Exception should not be thrown");
-    }
-
-    try {
-      mt = mtHandler.findMembershipType("manager_");
-      assertTrue("Membership type 'member_' is present but must be absent", mt == null);
-    } catch (Exception e) {
-      e.printStackTrace();
       fail("Exception should not be thrown");
     }
   }
@@ -77,10 +67,12 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
   /**
    * Find all membership types in the storage and check count.
    */
-  public void testFindMembershipTypes() {
+  public void testFindMembershipTypes() throws Exception {
     try {
-      Collection mts = mtHandler.findMembershipTypes();
-      assertTrue("Membership type count must be equal 4 but equal " + mts.size(), mts.size() == 4);
+      // manager
+      // member
+      // validator
+      assertEquals(mtHandler.findMembershipTypes().size(), 3);
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -90,12 +82,20 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
   /**
    * Create new membership type and try to remove it.
    */
-  public void testRemoveMembershipType() {
+  public void testRemoveMembershipType() throws Exception {
     try {
       createMembershipType("type", "desc");
-      mtHandler.removeMembershipType("type", true);
-      assertTrue("Membership type 'type' is present but must be removed",
-                 mtHandler.findMembershipType("type") == null);
+      MembershipType mt = mtHandler.removeMembershipType("type", true);
+      assertEquals(mt.getName(), "type");
+      assertNull(mtHandler.findMembershipType("type"));
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail("Exception should not be thrown");
+    }
+
+    try {
+      assertNull(mtHandler.removeMembershipType("not-existed-mt", true));
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
@@ -105,39 +105,22 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
   /**
    * Create new membership type and try to save with new name and than with new description.
    */
-  public void testSaveMembershipType() {
-    createMembershipType("type", "desc");
-    MembershipType mt;
+  public void testSaveMembershipType() throws Exception {
     try {
-      mt = mtHandler.findMembershipType("type");
+      createMembershipType("type", "desc");
+      MembershipType mt = mtHandler.findMembershipType("type");
 
-      // change name, description and save
-      mt.setName("newType");
-      mtHandler.saveMembershipType(mt, true);
-
-      mt = mtHandler.findMembershipType("newType");
-      assertTrue("Membership type name not equal 'newType' but equal '" + mt.getName() + "'",
-                 mt.getName().equals("newType"));
-      assertTrue("Membership type description not equal 'desc' but equal '" + mt.getDescription()
-          + "'", mt.getDescription().equals("desc"));
-
-      // check that previous membership type is absent
-      assertTrue("Membership type 'type' is present but must be renamed",
-                 mtHandler.findMembershipType("type") == null);
-
-      // change description only and save
+      // change description
       mt.setDescription("newDesc");
       mtHandler.saveMembershipType(mt, true);
-
-      mt = mtHandler.findMembershipType("newType");
-      assertTrue("Membership type description not equal 'newDesc' but equal '"
-          + mt.getDescription() + "'", mt.getDescription().equals("newDesc"));
-
-      mtHandler.removeMembershipType(mt.getName(), true);
+      mt = mtHandler.findMembershipType("type");
+      assertEquals(mt.getDescription(), "newDesc");
 
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown");
+    } finally {
+      mtHandler.removeMembershipType("type", true);
     }
   }
 
@@ -151,10 +134,10 @@ public class TestMembershipTypeHandlerImpl extends BaseStandaloneTest {
    * @throws Exception
    */
   private void createMembershipType(String type, String desc) {
-    MembershipType mt = mtHandler.createMembershipTypeInstance();
-    mt.setName(type);
-    mt.setDescription(desc);
     try {
+      MembershipType mt = mtHandler.createMembershipTypeInstance();
+      mt.setName(type);
+      mt.setDescription(desc);
       mtHandler.createMembershipType(mt, true);
     } catch (Exception e) {
       e.printStackTrace();

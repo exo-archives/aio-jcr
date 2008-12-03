@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.jcr.ItemNotFoundException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
@@ -187,6 +188,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       Node mNode = session.getNodeByUUID(id);
       return readObjectFromNode(session, mNode);
 
+    } catch (ItemNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by UUId", e);
     }
@@ -464,6 +467,16 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName());
 
+      if (!session.itemExists(service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS
+          + group.getId())) {
+        return;
+      }
+
+      if (!session.itemExists(service.getStoragePath() + "/"
+          + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + m.getName())) {
+        return;
+      }
+
       Membership membership = new MembershipImpl(null,
                                                  user.getUserName(),
                                                  group.getId(),
@@ -525,6 +538,8 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
 
       return membership;
 
+    } catch (ItemNotFoundException e) {
+      return null;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not find membership by UUId", e);
     }
@@ -573,16 +588,15 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       log.debug("removeMembershipByUser");
     }
 
+    List<Membership> types = new ArrayList<Membership>();
     try {
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + userName);
 
-      List<Membership> types = new ArrayList<Membership>();
-      types = (List) findMembershipsByUser(session, userName);
-
       for (NodeIterator mNodes = uNode.getNodes(UserHandlerImpl.EXO_MEMBERSHIP); mNodes.hasNext();) {
         Node mNode = mNodes.nextNode();
         Membership membership = readObjectFromNode(session, mNode);
+        types.add(membership);
 
         if (broadcast) {
           preDelete(membership);
@@ -601,8 +615,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
       return types;
 
     } catch (PathNotFoundException e) {
-      throw new OrganizationServiceException("Can not find user '" + userName
-          + "' for remove membership.");
+      return types;
     } catch (Exception e) {
       throw new OrganizationServiceException("Can not remove membership by user '" + userName + "'",
                                              e);
