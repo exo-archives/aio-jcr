@@ -42,10 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class ItemDefinitionDataHolder {
 
-  private static Log                                            log           = ExoLogger.getLogger("jcr.ItemDefinitionDataHolder");
-
-  private static InternalQName                                  RESIDUAL_NAME = new InternalQName(null,
-                                                                                                  "*");
+  private static Log                                            LOG           = ExoLogger.getLogger("jcr.ItemDefinitionDataHolder");
 
   private final HashMap<ChildNodeDefKey, NodeDefinitionData>    nodeDefinitions;
 
@@ -81,10 +78,10 @@ public class ItemDefinitionDataHolder {
 
     // try residual def
     if (def == null)
-      def = getNodeDefinitionFromThisOrSupertypes(parentNodeType, RESIDUAL_NAME, childNodeType);
+      def = getNodeDefinitionFromThisOrSupertypes(parentNodeType, Constants.JCR_ANY_NAME, childNodeType);
 
-    if (log.isDebugEnabled()) {
-      log.debug("Get NodeDef: parent NT: " + parentNodeType.getAsString() + " child nodeName: "
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Get NodeDef: parent NT: " + parentNodeType.getAsString() + " child nodeName: "
           + childName.getAsString() + " childNT: " + childNodeType.getAsString());
     }
 
@@ -205,7 +202,7 @@ public class ItemDefinitionDataHolder {
 
     // try residual def
     if (def == null) {
-      key = new PropertyDefKey(parentNodeType, RESIDUAL_NAME, multiValued);
+      key = new PropertyDefKey(parentNodeType, Constants.JCR_ANY_NAME, multiValued);
       return propertyDefinitions.get(key);
     } else
       return def;
@@ -235,8 +232,8 @@ public class ItemDefinitionDataHolder {
         ChildNodeDefKey nodeDefKey = new ChildNodeDefKey(nodeType.getName(), nodeDef.getName(), rnt);
         nodeDefinitions.put(nodeDefKey, nodeDef);
 
-        if (log.isDebugEnabled()) {
-          log.debug("NodeDef added: parent NT: " + nodeType.getName().getAsString()
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("NodeDef added: parent NT: " + nodeType.getName().getAsString()
               + " child nodeName: " + nodeDef.getName().getAsString() + " childNT: "
               + rnt.getAsString() + " hash: " + nodeDefKey.hashCode());
         }
@@ -246,8 +243,8 @@ public class ItemDefinitionDataHolder {
       DefaultNodeDefKey defNodeDefKey = new DefaultNodeDefKey(nodeType.getName(), nodeDef.getName());
       defNodeDefinitions.put(defNodeDefKey, nodeDef);
 
-      if (log.isDebugEnabled()) {
-        log.debug("Default NodeDef added: parent NT: " + nodeType.getName().getAsString()
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Default NodeDef added: parent NT: " + nodeType.getName().getAsString()
             + " child nodeName: " + nodeDef.getName() + " hash: " + defNodeDefKey.hashCode());
       }
     }
@@ -261,8 +258,8 @@ public class ItemDefinitionDataHolder {
                                                      propDef.isMultiple());
       propertyDefinitions.put(propDefKey, propDef);
 
-      if (log.isDebugEnabled()) {
-        log.debug("PropDef added: parent NT: " + nodeType.getName().getAsString()
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("PropDef added: parent NT: " + nodeType.getName().getAsString()
             + " child propName: " + propDef.getName().getAsString() + " isMultiple: "
             + propDef.isMultiple() + " hash: " + propDefKey.hashCode());
       }

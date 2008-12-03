@@ -30,6 +30,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
 import javax.jcr.nodetype.ItemDefinition;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
@@ -202,18 +203,37 @@ public class NodeTypeImpl implements ExtendedNodeType {
   }
 
   public NodeDefinition[] getDeclaredChildNodeDefinitions() {
-    // TODO Auto-generated method stub
+    NodeDefinitionData[] ndefs = data.getDeclaredChildNodeDefinitions();
+    // TODO
     return null;
   }
 
   public PropertyDefinition[] getDeclaredPropertyDefinitions() {
-    // TODO Auto-generated method stub
+    PropertyDefinitionData[] pdefs = data.getDeclaredPropertyDefinitions();
+    // TODO
     return null;
   }
 
   public NodeType[] getDeclaredSupertypes() {
-    // TODO Auto-generated method stub
-    return null;
+    InternalQName[] snames = data.getDeclaredSupertypeNames();
+
+    NodeType[] supers = new NodeType[snames.length];
+
+    try {
+
+      for (int i = 0; i < snames.length; i++) {
+        supers[i] = new NodeTypeImpl(manager.findNodeType(snames[i]),
+                                     manager,
+                                     locationFactory,
+                                     valueFactory);
+      }
+
+    } catch (RepositoryException e) {
+      LOG.error("Supertype name is wrong " + e);
+      throw new RuntimeException("Supertype name is wrong " + e, e);
+    }
+
+    return supers;
   }
 
   public String getName() {
