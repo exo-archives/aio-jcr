@@ -28,7 +28,13 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
@@ -44,18 +50,14 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
  * 
- * <br/>Date: 26.11.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z
+ *          pnedonosko $
  */
 public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
@@ -65,7 +67,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   protected final NamespaceRegistry                namespaceRegistry;
 
-  protected final NodeTypeDataPersister           persister;
+  protected final NodeTypeDataPersister            persister;
 
   protected final LocationFactory                  locationFactory;
 
@@ -83,7 +85,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                  NodeTypeDataPersister persister) throws RepositoryException {
 
     this.namespaceRegistry = namespaceRegistry;
-    
+
     this.persister = persister;
 
     this.locationFactory = locationFactory;
@@ -91,7 +93,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.accessControlPolicy = config.getAccessControl();
 
     this.typesHierarchy = new NodeTypeDataHierarchyHolder();
-    
+
     this.defsHolder = new ItemDefinitionDataHolder(this.typesHierarchy);
 
     initDefault();
@@ -290,31 +292,88 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
+   * Validate NodeTypeData and return new instance or throw an exception. The
+   * new instance will be a guarany of valid NodeType. Check according the
+   * JSR-170/JSR-283 spec.
    * 
-   * Validate NodeTypeData and return new instance or throw an exception. The new instance will be a
-   * guarany of valid NodeType.
-   * 
-   * Check according the JSR-170/JSR-283 spec.
-   * 
-   * @param nodeType
-   *          NodeTypeData to be checked
+   * @param nodeType NodeTypeData to be checked
    * @return valid NodeTypeData
+   * @throws RepositoryException
    */
-  protected NodeTypeData validateNodeType(NodeTypeData nodeType) {
+  protected NodeTypeData validateNodeType(NodeTypeData nodeType) throws RepositoryException {
+    // TODO possible remove
+    InternalQName name = nodeType.getName();
+    InternalQName primaryItemName = nodeType.getPrimaryItemName();
+    boolean mixin = nodeType.isMixin();
+    boolean hasOrderableChildNodes = nodeType.hasOrderableChildNodes();
+    InternalQName[] declaredSupertypeNames = nodeType.getDeclaredSupertypeNames();
+    PropertyDefinitionData[] declaredPropertyDefinitions = nodeType.getDeclaredPropertyDefinitions();
+    NodeDefinitionData[] declaredChildNodeDefinitions = nodeType.getDeclaredChildNodeDefinitions();
 
-    return nodeType; // TODO
+    if (nodeType == null) {
+      throw new RepositoryException("NodeType object " + nodeType + " is null");
+    }
+
+    long start = System.currentTimeMillis();
+
+    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)
+        && nodeType.getName().equals("exo:privilegeable")) {
+      throw new RepositoryException("NodeType exo:privilegeable is DISABLED");
+    }
+    for (int i = 0; i < declaredSupertypeNames.length; i++) {
+      if (findNodeType(declaredSupertypeNames[i]) == null) {
+        throw new RepositoryException("Super type " + declaredSupertypeNames[i].getAsString()
+            + " not registred");
+      }
+    }
+    for (int i = 0; i < declaredPropertyDefinitions.length; i++) {
+      if (declaredPropertyDefinitions[i].getDeclaringNodeType().equals(name)) {
+        throw new RepositoryException("Invalid declared  node type in property definitions with name "
+            + declaredPropertyDefinitions[i].getName().getAsString() + " not registred");
+      }
+    }
+    for (int i = 0; i < declaredChildNodeDefinitions.length; i++) {
+      if (declaredChildNodeDefinitions[i].getDeclaringNodeType().equals(name)) {
+        throw new RepositoryException("Invalid declared  node type in child node definitions with name "
+            + declaredChildNodeDefinitions[i].getName().getAsString() + " not registred");
+      }
+      if (findNodeType(declaredChildNodeDefinitions[i].getDefaultPrimaryType()) == null) {
+        throw new RepositoryException("Default primary type"
+            + declaredSupertypeNames[i].getAsString() + " not registred");
+      }
+      for (int j = 0; j < declaredChildNodeDefinitions[i].getRequiredPrimaryTypes().length; j++) {
+        if (findNodeType(declaredChildNodeDefinitions[i].getRequiredPrimaryTypes()[j]) == null) {
+          throw new RepositoryException("Required primary type"
+              + declaredSupertypeNames[i].getAsString() + " not registred");
+        }
+
+      }
+    }
+
+    if (name == null) {
+      throw new RepositoryException("NodeType implementation class "
+          + nodeType.getClass().getName() + " is not supported in this method");
+    }
+
+    return new NodeTypeData(name,
+                            primaryItemName,
+                            mixin,
+                            hasOrderableChildNodes,
+                            declaredSupertypeNames,
+                            declaredPropertyDefinitions,
+                            declaredChildNodeDefinitions);
   }
 
   // impl
 
   public NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
-                                                    InternalQName nodeTypeName,
-                                                    InternalQName parentTypeName) throws RepositoryException {
+                                                   InternalQName nodeTypeName,
+                                                   InternalQName parentTypeName) throws RepositoryException {
 
     // TODO residual 
     return defsHolder.getChildNodeDefinition(parentTypeName, nodeName, nodeTypeName);
   }
-  
+
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName... nodeTypeNames) throws RepositoryException {
 
@@ -346,7 +405,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     for (InternalQName name : nodeTypeNames) {
       NodeTypeData nt = nodeTypes.get(name);
-      
+
       if (nt != null && nt.hasOrderableChildNodes())
         return true;
 
