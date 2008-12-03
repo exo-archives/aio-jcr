@@ -78,8 +78,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   private String                                                      accessControlPolicy;
 
-  private ItemDefinitionsHolder                                       itemDefintionsHolder;
-
   private NamespaceRegistry                                           namespaceRegistry = null;
 
   private final NodeTypeDataManager                                   typesManager;
@@ -117,8 +115,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     this.namespaceRegistry = namespaceRegistry;
     this.accessControlPolicy = accessControlPolicy;
     this.typesManager = typesManager;
-
-    this.itemDefintionsHolder = new ItemDefinitionsHolder(new NodeTypesHierarchyHolder());
   }
 
   // TODO
@@ -144,8 +140,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     if (nt != null)
       return nt;
     
-    
-    return getNodeType();
+    // FIXME
+    return null;
   }
   
 
@@ -601,11 +597,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public ValueFactory getValueFactory() {
     return valueFactory;
   }
-
-  public ItemDefinitionsHolder getItemDefinitionsHolder() {
-    return itemDefintionsHolder;
-  }
-
+  
   /**
    * {@inheritDoc}
    */

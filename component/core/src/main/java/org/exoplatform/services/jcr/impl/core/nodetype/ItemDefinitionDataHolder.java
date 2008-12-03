@@ -37,7 +37,7 @@ import org.exoplatform.services.log.ExoLogger;
  * registered (as each primary nodetype extends nt:base directly or indirectly) and so on.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ItemDefinitionsHolder.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id: ItemDefinitionDataHolder.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
 public class ItemDefinitionDataHolder {
