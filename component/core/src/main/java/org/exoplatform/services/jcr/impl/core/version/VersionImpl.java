@@ -376,8 +376,8 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
                                       boolean removeExisting,
                                       SessionChangesLog delegatedLog) throws RepositoryException {
 
-    if (log.isDebugEnabled())
-      log.debug("Restore on parent " + destParent.getQPath().getAsString() + " as "
+    if (LOG.isDebugEnabled())
+      LOG.debug("Restore on parent " + destParent.getQPath().getAsString() + " as "
           + name.getAsString() + ", removeExisting=" + removeExisting);
 
     DataManager dmanager = restoreSession.getTransientNodesManager().getTransactManager();

@@ -49,6 +49,10 @@ public interface ExtendedNodeType extends NodeType {
 
   PropertyDefinitions getPropertyDefinitions(String name);
 
+  /**
+   * TODO just for adoption, remove it on final.
+   */
+  @Deprecated
   InternalQName getQName();
 
 //  void setDeclaredNodeDefs(NodeDefinition[] declaredNodeDefs);

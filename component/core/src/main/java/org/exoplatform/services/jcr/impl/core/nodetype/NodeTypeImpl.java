@@ -219,20 +219,13 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
     NodeType[] supers = new NodeType[snames.length];
 
-    try {
-
-      for (int i = 0; i < snames.length; i++) {
-        supers[i] = new NodeTypeImpl(manager.findNodeType(snames[i]),
-                                     manager,
-                                     locationFactory,
-                                     valueFactory);
-      }
-
-    } catch (RepositoryException e) {
-      LOG.error("Supertype name is wrong " + e);
-      throw new RuntimeException("Supertype name is wrong " + e, e);
+    for (int i = 0; i < snames.length; i++) {
+      supers[i] = new NodeTypeImpl(manager.findNodeType(snames[i]),
+                                   manager,
+                                   locationFactory,
+                                   valueFactory);
     }
-
+    
     return supers;
   }
 
@@ -312,9 +305,12 @@ public class NodeTypeImpl implements ExtendedNodeType {
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Deprecated
   public InternalQName getQName() {
-    // TODO Auto-generated method stub
-    return null;
+    return data.getName();
   }
 
   public boolean isChildNodePrimaryTypeAllowed(String typeName) {

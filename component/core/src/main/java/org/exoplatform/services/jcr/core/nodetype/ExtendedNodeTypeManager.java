@@ -45,7 +45,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
 
   public static final int REPLACE_IF_EXISTS = 4;
 
-  NodeType getNodeType(InternalQName qname) throws NoSuchNodeTypeException, RepositoryException;
+  NodeType findNodeType(InternalQName qname) throws NoSuchNodeTypeException, RepositoryException;
 
   /**
    * The node-type node should be created and saved(!) as /jcr:system/jcr:nodetypes/"name" as

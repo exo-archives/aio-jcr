@@ -92,7 +92,7 @@ public class PropertyTypeRegistry implements NodeTypeManagerListener {
 
   public void nodeTypeRegistered(InternalQName ntName) {
     try {
-      ExtendedNodeType def = registry.getNodeType(ntName);
+      ExtendedNodeType def = registry.findNodeType(ntName);
       PropertyDefinition[] propDefs = def.getPropertyDefinitions();
       synchronized (typeMapping) {
         for (int i = 0; i < propDefs.length; i++) {

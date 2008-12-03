@@ -62,10 +62,10 @@ class WorkspaceNTManagerImpl extends NodeTypeManagerImpl {
     return session;
   }
 
-  public ExtendedNodeType getNodeType(InternalQName qName) throws NoSuchNodeTypeException,
+  public ExtendedNodeType findNodeType(InternalQName qName) throws NoSuchNodeTypeException,
                                                           RepositoryException {
 
-    NodeTypeImpl nt = (NodeTypeImpl) super.getNodeType(qName);
+    NodeTypeImpl nt = (NodeTypeImpl) super.findNodeType(qName);
     /*
      * if (nt.value != null) { return new WorkspaceNTImpl(nt, nt.value, session); }
      */

@@ -630,9 +630,9 @@ public abstract class ItemImpl implements Item {
     ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
 
     NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
-    nodeTypes[0] = ntm.getNodeType(primaryTypeName);
+    nodeTypes[0] = ntm.findNodeType(primaryTypeName);
     for (int i = 1; i <= mixinNames.length; i++) {
-      nodeTypes[i] = ntm.getNodeType(mixinNames[i - 1]);
+      nodeTypes[i] = ntm.findNodeType(mixinNames[i - 1]);
     }
 
     return nodeTypes;

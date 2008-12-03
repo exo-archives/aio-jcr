@@ -331,7 +331,7 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
       String primaryTypeField = resolver.createJCRName(Constants.JCR_PRIMARYTYPE).getAsString();
 
       ExtendedNodeTypeManager ntMgr = session.getWorkspace().getNodeTypeManager();
-      NodeType base = ntMgr.getNodeType(node.getValue());
+      NodeType base = ntMgr.findNodeType(node.getValue());
 
       if (base.isMixin()) {
         // search for nodes where jcr:mixinTypes is set to this mixin

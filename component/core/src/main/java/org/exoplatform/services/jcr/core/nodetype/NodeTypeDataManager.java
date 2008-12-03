@@ -16,10 +16,10 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import java.io.InputStream;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
@@ -39,28 +39,33 @@ public interface NodeTypeDataManager {
    * @return List of NodeTypeData
    * @throws RepositoryException in case of error
    */
-  List<NodeTypeData> getAllNodeTypes() throws RepositoryException;
+  List<NodeTypeData> getAllNodeTypes();
   
-  NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,
-                                                RepositoryException;
+  NodeTypeData findNodeType(InternalQName typeName);
 
-  boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames) throws RepositoryException;
+  boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames);
 
   NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                         InternalQName nodeTypeName,
-                                        InternalQName parentTypeName) throws RepositoryException;
+                                        InternalQName parentTypeName);
   
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
-                                             InternalQName... nodeTypeNames) throws RepositoryException;
+                                             InternalQName... nodeTypeNames);
 
-  //NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList) throws RepositoryException;
+  //NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList);
 
   PropertyDefinitionDatas findPropertyDefinitions(InternalQName nodeName,
-                                                  InternalQName... nodeTypeNames) throws RepositoryException;
+                                                  InternalQName... nodeTypeNames) ;
 
   //PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-  //                                                List<NodeTypeData> typesList) throws RepositoryException;
+  //                                                List<NodeTypeData> typesList);
 
   boolean isNodeType(InternalQName testTypeName, InternalQName... typeNames);
+  
+  void registerNodeType(NodeTypeData nodeType, int alreadyExistsBehaviour) throws RepositoryException;
+  
+  void registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException;
+  
+  void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
 
 }

@@ -104,9 +104,9 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
       try {
         return new String(versionableUuid.getValues().get(0).getAsByteArray());
       } catch (IllegalStateException e) {
-        log.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
+        LOG.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
       } catch (IOException e) {
-        log.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
+        LOG.error("jcr:versionableUuid, error of read " + e + ". Version history " + getPath(), e);
       }
 
     throw new ItemNotFoundException("A property jcr:versionableUuid is not found. Version history "
@@ -558,8 +558,8 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
                                                               ntManager,
                                                               changesLog);
 
-    if (log.isDebugEnabled())
-      log.debug("Before frozen visitor: " + changesLog.dump());
+    if (LOG.isDebugEnabled())
+      LOG.debug("Before frozen visitor: " + changesLog.dump());
 
     versionableNodeData.accept(visitor);
 

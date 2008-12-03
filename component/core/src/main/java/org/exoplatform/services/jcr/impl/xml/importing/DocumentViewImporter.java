@@ -525,7 +525,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                           parent.getMixinTypeNames(),
                                           nodeName);
 
-      nodeTypes.add(ntManager.getNodeType(nodeNt));
+      nodeTypes.add(ntManager.findNodeType(nodeNt));
       props.put(Constants.JCR_PRIMARYTYPE, locationFactory.createJCRName(nodeNt).getAsString());
     }
 
@@ -543,7 +543,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
         if (Constants.JCR_PRIMARYTYPE.equals(propInternalQName)) {
           String primaryNodeType = StringConverter.denormalizeString(attValue);
           InternalQName ntName = locationFactory.parseJCRName(primaryNodeType).getInternalName();
-          nodeTypes.add(ntManager.getNodeType(ntName));
+          nodeTypes.add(ntManager.findNodeType(ntName));
           props.put(propInternalQName, primaryNodeType);
         } else if (Constants.JCR_MIXINTYPES.equals(propInternalQName)) {
           String[] amTypes = attValue.split(" ");

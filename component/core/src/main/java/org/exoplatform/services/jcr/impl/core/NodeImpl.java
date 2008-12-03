@@ -67,6 +67,7 @@ import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -113,20 +114,25 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class NodeImpl extends ItemImpl implements ExtendedNode {
 
-  protected static Log      log = ExoLogger.getLogger("jcr.NodeImpl");
+  protected static final Log      LOG = ExoLogger.getLogger("jcr.NodeImpl");
 
-  protected LocationFactory sysLocFactory;
+  protected final LocationFactory sysLocFactory;
 
-  private NodeDefinitionData    definition;
+  protected NodeDefinitionData    definition;
 
   /**
+   * NodeImpl constructor.
+   * 
    * @param data
+   *          Node data
    * @param session
+   *          Session
    * @throws RepositoryException
+   *           if error occurs during the Node data loading
    */
   public NodeImpl(NodeData data, SessionImpl session) throws RepositoryException {
     super(data, session);
-    sysLocFactory = session.getSystemLocationFactory();
+    this.sysLocFactory = session.getSystemLocationFactory();
     loadData(data);
   }
 
@@ -143,6 +149,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("Load data failed: Node expected");
 
     NodeData nodeData = (NodeData) data;
+    
+    // TODO do we need this three checks here?
     if (nodeData.getPrimaryTypeName() == null)
       throw new RepositoryException("Load data: NodeData has no primaryTypeName. Null value found. "
           + (nodeData.getQPath() != null ? nodeData.getQPath().getAsString() : "[null path node]")
@@ -203,15 +211,15 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public NodeIterator getNodes() throws RepositoryException {
 
     long start = System.currentTimeMillis();
-    if (log.isDebugEnabled())
-      log.debug("getNodes() >>>>>");
+    if (LOG.isDebugEnabled())
+      LOG.debug("getNodes() >>>>>");
 
     checkValid();
     try {
       return new EntityCollection(childNodes());
     } finally {
-      if (log.isDebugEnabled())
-        log.debug("getNodes() <<<<< " + ((System.currentTimeMillis() - start) / 1000d) + "sec");
+      if (LOG.isDebugEnabled())
+        LOG.debug("getNodes() <<<<< " + ((System.currentTimeMillis() - start) / 1000d) + "sec");
     }
   }
 
@@ -237,8 +245,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public NodeIterator getNodes(String namePattern) throws RepositoryException {
 
     long start = System.currentTimeMillis();
-    if (log.isDebugEnabled())
-      log.debug("getNodes(String) >>>>>");
+    if (LOG.isDebugEnabled())
+      LOG.debug("getNodes(String) >>>>>");
 
     checkValid();
 
@@ -251,8 +259,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
       return new EntityCollection(list);
     } finally {
-      if (log.isDebugEnabled())
-        log.debug("getNodes(String) <<<<< " + ((System.currentTimeMillis() - start) / 1000d)
+      if (LOG.isDebugEnabled())
+        LOG.debug("getNodes(String) <<<<< " + ((System.currentTimeMillis() - start) / 1000d)
             + "sec");
     }
   }
@@ -266,8 +274,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     JCRPath itemPath = locationFactory.parseRelPath(relPath);
 
-    if (log.isDebugEnabled())
-      log.debug("getProperty() " + getLocation().getAsString(false) + " " + relPath);
+    if (LOG.isDebugEnabled())
+      LOG.debug("getProperty() " + getLocation().getAsString(false) + " " + relPath);
 
     ItemImpl prop = dataManager.getItem(nodeData(), itemPath.getInternalPath().getEntries(), true);
     if (prop == null || prop.isNode())
@@ -304,16 +312,16 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public PropertyIterator getProperties() throws RepositoryException {
 
     long start = System.currentTimeMillis();
-    if (log.isDebugEnabled())
-      log.debug("getProperties() >>>>>");
+    if (LOG.isDebugEnabled())
+      LOG.debug("getProperties() >>>>>");
 
     checkValid();
 
     try {
       return new EntityCollection(childProperties());
     } finally {
-      if (log.isDebugEnabled())
-        log.debug("getProperties() <<<<< " + ((System.currentTimeMillis() - start) / 1000d) + "sec");
+      if (LOG.isDebugEnabled())
+        LOG.debug("getProperties() <<<<< " + ((System.currentTimeMillis() - start) / 1000d) + "sec");
     }
   }
 
@@ -349,7 +357,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           r = qname1.getAsString().compareTo(qname2.getAsString());
         }
       } catch (Exception e) {
-        log.error("PropertiesOrderComparator error: " + e, e);
+        LOG.error("PropertiesOrderComparator error: " + e, e);
       }
       return r;
     }
@@ -361,8 +369,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public PropertyIterator getProperties(String namePattern) throws RepositoryException {
 
     long start = System.currentTimeMillis();
-    if (log.isDebugEnabled())
-      log.debug("getProperties(String) >>>>>");
+    if (LOG.isDebugEnabled())
+      LOG.debug("getProperties(String) >>>>>");
 
     checkValid();
 
@@ -376,8 +384,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
       return new EntityCollection(list);
     } finally {
-      if (log.isDebugEnabled())
-        log.debug("getProperties(String) <<<<< " + ((System.currentTimeMillis() - start) / 1000d)
+      if (LOG.isDebugEnabled())
+        LOG.debug("getProperties(String) <<<<< " + ((System.currentTimeMillis() - start) / 1000d)
             + "sec");
     }
   }
@@ -723,8 +731,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     addAutoCreatedItems(node.nodeData(), primaryTypeName);
 
-    if (log.isDebugEnabled())
-      log.debug("new node : " + node.getPath() + " name: " + " primaryType: "
+    if (LOG.isDebugEnabled())
+      LOG.debug("new node : " + node.getPath() + " name: " + " primaryType: "
           + node.getPrimaryNodeType().getName() + " index: " + node.getIndex() + " parent: "
           + parentNode);
 
@@ -758,8 +766,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                     .findNodeDefinition(nameToAdd,
                                                         parentNode.getPrimaryTypeName(),
                                                         parentNode.getMixinTypeNames());
-        if (log.isDebugEnabled())
-          log.debug("Calculate index for " + nameToAdd + " " + sibling.getQPath().getAsString());
+        if (LOG.isDebugEnabled())
+          LOG.debug("Calculate index for " + nameToAdd + " " + sibling.getQPath().getAsString());
 
         if (def.allowsSameNameSiblings())
           ind++;
@@ -1062,9 +1070,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    // should not be null
+    // TODO should not be null
     if (nodeData().getMixinTypeNames() == null)
       throw new RepositoryException("Data Container implementation error getMixinTypeNames == null");
+    
     ExtendedNodeType[] mixinNodeTypes = new ExtendedNodeType[nodeData().getMixinTypeNames().length];
     for (int i = 0; i < mixinNodeTypes.length; i++) {
       mixinNodeTypes[i] = nodeType(nodeData().getMixinTypeNames()[i]);
@@ -1245,7 +1254,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
       changes.addAll(remover.getRemovedStates());
     } catch (ItemNotFoundException e) {
-      log.debug("No corresponding node in workspace: " + srcWorkspaceName);
+      LOG.debug("No corresponding node in workspace: " + srcWorkspaceName);
       return;
     }
 
@@ -1285,8 +1294,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // Add both to mixinNodeTypes and to jcr:mixinTypes property
     NodeType type = nodeType(mixinName);
-    if (log.isDebugEnabled())
-      log.debug("Node.addMixin " + mixinName + " " + getPath());
+    if (LOG.isDebugEnabled())
+      LOG.debug("Node.addMixin " + mixinName + " " + getPath());
 
     // Mixin or not
     if (type == null || !type.isMixin())
@@ -1313,7 +1322,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     for (int i = 0; i < mixinTypes.length; i++) {
       if (type.equals(nodeType(mixinTypes[i]))) {
         // we already have this mixin type
-        log.warn("Node.addMixin node already has this mixin type " + mixinName + " " + getPath());
+        LOG.warn("Node.addMixin node already has this mixin type " + mixinName + " " + getPath());
         return;
       }
     }
@@ -1364,8 +1373,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // launch event
     session.getActionHandler().postAddMixin(this, mixinName);
 
-    if (log.isDebugEnabled())
-      log.debug("Node.addMixin Property " + prop.getQPath().getAsString() + " values "
+    if (LOG.isDebugEnabled())
+      LOG.debug("Node.addMixin Property " + prop.getQPath().getAsString() + " values "
           + mixinTypes.length);
   }
 
@@ -2445,8 +2454,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                false);
         } else {
           // TODO if autocreated property exists it's has wrong data (e.g. ACL) - throw an exception
-          if (log.isDebugEnabled()) {
-            log.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
                 + "   during the automatic creation of items for " + nodeTypeName.getAsString()
                 + " nodetype or mixin type");
           }
@@ -2517,8 +2526,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                                                    listAutoCreateValue)),
                                false);
         } else {
-          if (log.isDebugEnabled()) {
-            log.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
                 + "   during the automatic creation of items for " + nodeTypeName.getAsString()
                 + " nodetype or mixin type");
           }
@@ -2855,7 +2864,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   private ExtendedNodeType nodeType(InternalQName qName) throws NoSuchNodeTypeException,
                                                         RepositoryException {
-    return session.getWorkspace().getNodeTypeManager().getNodeType(qName);
+    return session.getWorkspace().getNodeTypeManager().findNodeType(qName);
   }
 
   public ExtendedNodeType[] getAllNodeTypes() throws RepositoryException {

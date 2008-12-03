@@ -368,32 +368,31 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   public NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                                    InternalQName nodeTypeName,
-                                                   InternalQName parentTypeName) throws RepositoryException {
+                                                   InternalQName parentTypeName) {
 
     // TODO residual 
     return defsHolder.getChildNodeDefinition(parentTypeName, nodeName, nodeTypeName);
   }
 
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
-                                                    InternalQName... nodeTypeNames) throws RepositoryException {
+                                                    InternalQName... nodeTypeNames) {
 
     // TODO residual 
     return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
   }
 
-  public NodeTypeData findNodeType(InternalQName typeName) throws NoSuchNodeTypeException,
-                                                          RepositoryException {
+  public NodeTypeData findNodeType(InternalQName typeName) {
     return nodeTypes.get(typeName);
   }
 
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                                         InternalQName... nodeTypeNames) throws RepositoryException {
+                                                         InternalQName... nodeTypeNames) {
 
     // TODO residual 
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
 
-  public List<NodeTypeData> getAllNodeTypes() throws RepositoryException {
+  public List<NodeTypeData> getAllNodeTypes() {
     return new ArrayList<NodeTypeData>(nodeTypes.values());
   }
 
@@ -401,7 +400,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return typesHierarchy.isNodeType(testTypeName, typesNames);
   }
 
-  public boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames) throws RepositoryException {
+  public boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames) {
 
     for (InternalQName name : nodeTypeNames) {
       NodeTypeData nt = nodeTypes.get(name);

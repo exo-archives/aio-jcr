@@ -249,7 +249,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       String value = propertyInfo.getValues().get(i).toString();
 
       mixinNames[i] = locationFactory.parseJCRName(value).getInternalName();
-      currentNodeInfo.addNodeType((ntManager.getNodeType(mixinNames[i])));
+      currentNodeInfo.addNodeType((ntManager.findNodeType(mixinNames[i])));
       values.add(new TransientValueData(value.toString()));
     }
 
@@ -307,7 +307,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       }
     }
     //
-    nodeData.addNodeType((ntManager.getNodeType(primaryTypeName)));
+    nodeData.addNodeType((ntManager.findNodeType(primaryTypeName)));
     nodeData.setPrimaryTypeName(primaryTypeName);
 
     propertyData = new ImportPropertyData(QPath.makeChildPath(nodeData.getQPath(),
