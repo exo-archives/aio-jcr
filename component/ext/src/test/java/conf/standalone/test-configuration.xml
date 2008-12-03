@@ -421,7 +421,7 @@
     </init-params>
   </component>
   
-  <!--component>
+  <component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.jcr.ext.organization.JCROrganizationServiceImpl</type>
     <init-params>
@@ -431,7 +431,7 @@
         <value>ws</value>
       </value-param>
     </init-params>
-  </component-->
+  </component>
   
   <!--component>
     <key>org.exoplatform.services.database.HibernateService</key>
@@ -457,7 +457,7 @@
     </init-params>
   </component-->
   
-  <component>
+  <!--component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.organization.hibernate.OrganizationServiceImpl</type>
   </component>
@@ -479,7 +479,7 @@
         </values-param>
       </init-params>
     </component-plugin>
-  </external-component-plugins>
+  </external-component-plugins-->
   
   <!-- org service initializer, copied from ECM portal.war -->
   <external-component-plugins>
