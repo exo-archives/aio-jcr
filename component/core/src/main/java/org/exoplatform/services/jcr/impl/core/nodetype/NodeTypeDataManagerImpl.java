@@ -71,23 +71,11 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   protected final String                           accessControlPolicy;
 
-  protected final Map<InternalQName, NodeTypeData> nodeTypes      = new ConcurrentHashMap<InternalQName, NodeTypeData>();
+  //protected final Map<InternalQName, NodeTypeData> nodeTypes      = new ConcurrentHashMap<InternalQName, NodeTypeData>();
 
   protected final NodeTypeDataHierarchyHolder      typesHierarchy;
 
   protected final ItemDefinitionDataHolder         defsHolder;
-
-  class NodeTypeHolder {
-    
-    private final NodeTypeData nodeType;
-    
-    private final Set<InternalQName> superTypes;
-    
-    NodeTypeHolder(NodeTypeData nodeType) {
-      this.nodeType = nodeType;
-      this.superTypes = new HashSet<InternalQName>();
-    }
-  }
   
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
@@ -414,7 +402,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     for (InternalQName name : nodeTypeNames) {
       NodeTypeData nt = nodeTypes.get(name);
-
+      
       if (nt != null && nt.hasOrderableChildNodes())
         return true;
 

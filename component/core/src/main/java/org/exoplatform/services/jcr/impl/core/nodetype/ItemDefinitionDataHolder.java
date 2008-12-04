@@ -50,13 +50,13 @@ public class ItemDefinitionDataHolder {
 
   private final HashMap<DefaultNodeDefKey, NodeDefinitionData>  defNodeDefinitions;
 
-  private final NodeTypeDataHierarchyHolder                     nodeTypesHierarchy;
+  //private final NodeTypeDataHierarchyHolder                     nodeTypesHierarchy;
 
   public ItemDefinitionDataHolder(NodeTypeDataHierarchyHolder nodeTypesHierarchy) {
     this.nodeDefinitions = new HashMap<ChildNodeDefKey, NodeDefinitionData>();
     this.propertyDefinitions = new HashMap<PropertyDefKey, PropertyDefinitionData>();
     this.defNodeDefinitions = new HashMap<DefaultNodeDefKey, NodeDefinitionData>();
-    this.nodeTypesHierarchy = nodeTypesHierarchy;
+    //this.nodeTypesHierarchy = nodeTypesHierarchy;
   }
 
   /**
@@ -95,12 +95,12 @@ public class ItemDefinitionDataHolder {
     if (def != null)
       return def;
 
-    // asks supers
-    for (InternalQName su : nodeTypesHierarchy.getSupertypes(parentNodeType)) {
-      def = nodeDefinitions.get(new ChildNodeDefKey(su, childName, childNodeType));
-      if (def != null)
-        break;
-    }
+    // asks supers in DATA manager
+//    for (InternalQName su : nodeTypesHierarchy.getSupertypes(parentNodeType)) {
+//      def = nodeDefinitions.get(new ChildNodeDefKey(su, childName, childNodeType));
+//      if (def != null)
+//        break;
+//    }
 
     return def;
   }
@@ -212,7 +212,7 @@ public class ItemDefinitionDataHolder {
    * @param nodeType
    */
   void putDefinitions(NodeTypeData nodeType) {
-    nodeTypesHierarchy.addNodeType(nodeType);
+    //nodeTypesHierarchy.addNodeType(nodeType);
 
     // put child node defs
     NodeDefinitionData[] nodeDefs = nodeType.getDeclaredChildNodeDefinitions();

@@ -33,10 +33,22 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  */
 public class NodeTypeDataHierarchyHolder {
 
-  private final Map<InternalQName, Set<InternalQName>> nodeTypes;
+  private final Map<InternalQName, NodeTypeHolder> nodeTypes;
 
+  class NodeTypeHolder {
+    
+    final NodeTypeData nodeType;
+    
+    final Set<InternalQName> superTypes;
+    
+    NodeTypeHolder(NodeTypeData nodeType, Set<InternalQName> superTypes) {
+      this.nodeType = nodeType;
+      this.superTypes = superTypes;
+    }
+  }
+  
   public NodeTypeDataHierarchyHolder() {
-    nodeTypes = new ConcurrentHashMap<InternalQName, Set<InternalQName>>();
+    nodeTypes = new ConcurrentHashMap<InternalQName, NodeTypeHolder>();
   }
 
   public boolean isNodeType(final InternalQName testTypeName, final InternalQName... typesNames) {
@@ -45,7 +57,7 @@ public class NodeTypeDataHierarchyHolder {
       if (testTypeName.equals(typeName))
         return true;
 
-      Set<InternalQName> superTypes = nodeTypes.get(typeName);
+      Set<InternalQName> superTypes = nodeTypes.get(typeName).superTypes;
       if (superTypes != null && (superTypes.contains(testTypeName)))
         return true;
     }
@@ -54,20 +66,20 @@ public class NodeTypeDataHierarchyHolder {
   }
 
   public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
-    return nodeTypes.get(nodeTypeName);
+    return nodeTypes.get(nodeTypeName).superTypes;
   }
 
   void addNodeType(final NodeTypeData nodeType) {
     final Set<InternalQName> supers = new HashSet<InternalQName>();
     fillSupertypes(supers, nodeType.getDeclaredSupertypeNames());
-    nodeTypes.put(nodeType.getName(), supers);
+    nodeTypes.put(nodeType.getName(), new NodeTypeHolder(nodeType, supers));
   }
 
   private void fillSupertypes(final Collection<InternalQName> list, final InternalQName[] supers) {
     if (supers != null) {
       for (InternalQName su : supers) {
         list.add(su);
-        addSupertypes(list, nodeTypes.get(su));
+        addSupertypes(list, nodeTypes.get(su).superTypes);
       }
     }
   }
@@ -77,7 +89,7 @@ public class NodeTypeDataHierarchyHolder {
     if (supers != null) {
       for (InternalQName su : supers) {
         list.add(su);
-        addSupertypes(list, nodeTypes.get(su));
+        addSupertypes(list, nodeTypes.get(su).superTypes);
       }
     }
   }
