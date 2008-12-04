@@ -26,6 +26,7 @@
   </driverGroup>
 
   <!-- Organization Service -->
+  <!-- Group methods -->
   <testCase name="AddChildTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.group.AddChildTest" />
   </testCase>
@@ -58,6 +59,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.group.SaveGroupTest" />
   </testCase>
 
+  <!-- Membership methods -->
   <testCase name="FindMembershipTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.membership.FindMembershipTest" />
   </testCase>
@@ -94,6 +96,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.membership.RemoveMembershipTest" />
   </testCase>
 
+  <!-- MembershipType methods -->
   <testCase name="CreateMembershipTypeTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.membershiptype.CreateMembershipTypeTest" />
   </testCase>
@@ -114,6 +117,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.membershiptype.SaveMembershipTypeTest" />
   </testCase>
 
+  <!-- User methods -->
   <testCase name="AuthenticateTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.user.AuthenticateTest" />
   </testCase>
@@ -146,6 +150,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.user.SaveUserTest" />
   </testCase>
 
+  <!-- UserProfile methods -->
   <testCase name="FindUserProfileByNameTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.userprofile.FindUserProfileByNameTest" />
   </testCase>
