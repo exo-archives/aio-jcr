@@ -191,7 +191,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   // eXo stuff ================================
 
   public ExtendedNodeType findNodeType(InternalQName nodeTypeName) throws NoSuchNodeTypeException,
-                                                                 RepositoryException {
+                                                                  RepositoryException {
 
     NodeTypeData ntdata = typesManager.findNodeType(nodeTypeName);
     if (ntdata != null)
@@ -340,34 +340,34 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    */
   public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
 
-    if (nodeType == null) {
-      throw new RepositoryException("NodeType object " + nodeType + " is null");
-    }
+    // if (nodeType == null) {
+    // throw new RepositoryException("NodeType object " + nodeType + " is null");
+    // }
+    //
+    // long start = System.currentTimeMillis();
+    //
+    // if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)
+    // && nodeType.getName().equals("exo:privilegeable")) {
+    // throw new RepositoryException("NodeType exo:privilegeable is DISABLED");
+    // }
+    //
+    // InternalQName qname = nodeType.getQName();
+    // if (qname == null) {
+    // throw new RepositoryException("NodeType implementation class "
+    // + nodeType.getClass().getName() + " is not supported in this method");
+    // }
+    //
+    // if (findNodeType(qname) != null) {
+    // if (alreadyExistsBehaviour == FAIL_IF_EXISTS) {
+    // throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
+    // } else
+    // LOG.warn("NodeType " + nodeType.getName() + " is already registered");
+    // return;
+    // }
+    //
+    // // TODO nodeTypes.put(nodeType.getQName(), nodeType);
+    // typesManager.registerNodeType(nodeType, alreadyExistsBehaviour);
 
-    long start = System.currentTimeMillis();
-
-    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)
-        && nodeType.getName().equals("exo:privilegeable")) {
-      throw new RepositoryException("NodeType exo:privilegeable is DISABLED");
-    }
-
-    InternalQName qname = nodeType.getQName();
-    if (qname == null) {
-      throw new RepositoryException("NodeType implementation class "
-          + nodeType.getClass().getName() + " is not supported in this method");
-    }
-
-    if (findNodeType(qname) != null) {
-      if (alreadyExistsBehaviour == FAIL_IF_EXISTS) {
-        throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
-      } else
-        LOG.warn("NodeType " + nodeType.getName() + " is already registered");
-      return;
-    }
-
-    // TODO nodeTypes.put(nodeType.getQName(), nodeType);
-    typesManager.registerNodeType(nodeType, alreadyExistsBehaviour);
-    
     // TODO
     // if (persister.isInitialized()) {
     // try {
@@ -396,7 +396,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
                                                                                                 InstantiationException {
 
-    registerNodeType((ExtendedNodeType) makeNtFromClass(nodeTypeType), alreadyExistsBehaviour);
+    // registerNodeType((ExtendedNodeType) makeNtFromClass(nodeTypeType), alreadyExistsBehaviour);
   }
 
   /**
@@ -420,6 +420,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     nodeTypeValue.validateNodeType();
     // NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
     // registerNodeType(nodeType, alreadyExistsBehaviour);
+    
+    typesManager.registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
   }
 
   /**

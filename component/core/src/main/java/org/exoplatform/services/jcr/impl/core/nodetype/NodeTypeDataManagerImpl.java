@@ -127,35 +127,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * {@inheritDoc}
    */
-  public void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
-
-    try {
-      IBindingFactory factory = BindingDirectory.getFactory(NodeTypeValuesList.class);
-      IUnmarshallingContext uctx = factory.createUnmarshallingContext();
-      NodeTypeValuesList nodeTypeValuesList = (NodeTypeValuesList) uctx.unmarshalDocument(xml, null);
-      ArrayList ntvList = nodeTypeValuesList.getNodeTypeValuesList();
-
-      long start = System.currentTimeMillis();
-      for (int i = 0; i < ntvList.size(); i++) {
-        if (ntvList.get(i) != null) {
-          NodeTypeValue nodeTypeValue = (NodeTypeValue) ntvList.get(i);
-          registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
-        } else {
-          // Hm! Smth is wrong in xml document
-          LOG.error("Empty nodeTypeValue in xml document, index: " + i + ", skiping...");
-        }
-      }
-      LOG.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
-          + (System.currentTimeMillis() - start) + " ms.");
-    } catch (JiBXException e) {
-      throw new RepositoryException("Error in config initialization " + e, e);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException {
+  public NodeTypeData registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException {
 
     if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
       List<String> nsupertypes = ntvalue.getDeclaredSupertypeNames();
@@ -165,7 +137,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         // + "' -- it's not necessary at this runtime";
         LOG.warn("Node type " + ntvalue.getName()
             + " is not register due to DISABLE control policy");
-        return;
+        return null;
       }
     }
 
@@ -238,7 +210,52 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                            nodes);
 
     registerNodeType(ntdata, alreadyExistsBehaviour);
+    
+    return ntdata;
   }
+  
+  public Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntvalues, int alreadyExistsBehaviour) throws RepositoryException {
+    // 1. validate collection and self/new referencing, TODO
+    
+    // 2. traverse and reg
+    Collection<NodeTypeData> nts = new ArrayList<NodeTypeData>();
+    for (NodeTypeValue v: ntvalues) {
+      nts.add(registerNodeType(v, alreadyExistsBehaviour));
+    }
+    
+    return nts;
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
+
+    try {
+      IBindingFactory factory = BindingDirectory.getFactory(NodeTypeValuesList.class);
+      IUnmarshallingContext uctx = factory.createUnmarshallingContext();
+      NodeTypeValuesList nodeTypeValuesList = (NodeTypeValuesList) uctx.unmarshalDocument(xml, null);
+      ArrayList ntvList = nodeTypeValuesList.getNodeTypeValuesList();
+
+      long start = System.currentTimeMillis();
+      Collection<NodeTypeData> nts = new ArrayList<NodeTypeData>();
+      for (int i = 0; i < ntvList.size(); i++) {
+        if (ntvList.get(i) != null) {
+          NodeTypeValue nodeTypeValue = (NodeTypeValue) ntvList.get(i);
+          nts.add(registerNodeType(nodeTypeValue, alreadyExistsBehaviour));
+        } else {
+          // Hm! Smth is wrong in xml document
+          LOG.error("Empty nodeTypeValue in xml document, index: " + i + ", skiping...");
+        }
+      }
+      LOG.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
+          + (System.currentTimeMillis() - start) + " ms.");
+      
+      return nts;
+    } catch (JiBXException e) {
+      throw new RepositoryException("Error in config initialization " + e, e);
+    }
+  }  
 
   /**
    * {@inheritDoc}
@@ -293,6 +310,15 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
+  public void registerNodeTypes(Collection<NodeTypeData> nodeTypes, int alreadyExistsBehaviour) throws RepositoryException {
+    // 1. validate collection and self/new referencing, TODO
+    
+    // 2. traverse and reg
+    for (NodeTypeData nt: nodeTypes) {
+      registerNodeType(nt, alreadyExistsBehaviour);
+    }
+  }
+  
   /**
    * Validate NodeTypeData and return new instance or throw an exception. The
    * new instance will be a guarany of valid NodeType. Check according the

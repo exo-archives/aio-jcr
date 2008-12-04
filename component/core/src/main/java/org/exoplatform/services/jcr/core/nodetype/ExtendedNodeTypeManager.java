@@ -51,7 +51,7 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    * The node-type node should be created and saved(!) as /jcr:system/jcr:nodetypes/"name" as
    * nt:nodeType node before calling this method.
    */
-  void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException;
+  //void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException;
 
   /**
    * Registers node type from class containing the NT definition. The class should have constructor
@@ -66,8 +66,8 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
    * @throws RepositoryException
    * @deprecated
    */
-  void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
-                                                                                         InstantiationException;
+  //void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
+  //                                                                                       InstantiationException;
 
   /**
    * Registers node type using value object.

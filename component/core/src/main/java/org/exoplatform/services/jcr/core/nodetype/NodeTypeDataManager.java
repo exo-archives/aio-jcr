@@ -64,8 +64,12 @@ public interface NodeTypeDataManager {
   
   void registerNodeType(NodeTypeData nodeType, int alreadyExistsBehaviour) throws RepositoryException;
   
-  void registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException;
+  void registerNodeTypes(Collection<NodeTypeData> nodeTypes, int alreadyExistsBehaviour) throws RepositoryException;
   
-  void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
+  NodeTypeData registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException;
+  
+  Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues, int alreadyExistsBehaviour) throws RepositoryException;
+  
+  Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
 
 }

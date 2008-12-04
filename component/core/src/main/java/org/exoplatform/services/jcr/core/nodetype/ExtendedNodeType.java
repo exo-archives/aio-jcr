@@ -35,18 +35,25 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 public interface ExtendedNodeType extends NodeType {
 
+  @Deprecated
   PropertyDefinitions getPropertyDefinitions(InternalQName name);
 
+  @Deprecated
   NodeDefinition getChildNodeDefinition(InternalQName name);
 
+  @Deprecated
   boolean isNodeType(InternalQName nodeTypeQName);
 
+  @Deprecated
   boolean isChildNodePrimaryTypeAllowed(String typeName);
 
+  @Deprecated
   NodeDefinition getChildNodeDefinition(String name);
 
+  @Deprecated
   ArrayList<ItemDefinition> getManadatoryItemDefs();
 
+  @Deprecated
   PropertyDefinitions getPropertyDefinitions(String name);
 
   /**
