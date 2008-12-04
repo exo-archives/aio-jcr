@@ -116,8 +116,8 @@ public class RepositoryContainer extends ExoContainer {
 
     this.config = config;
     this.mbeanServer = createMBeanServer("jcrrep" + getName() + "mx");
-
-    this.mbeanContext = parent.getMBeanContext() + ",repository=" + getName();
+    final String parentContext = parent.getMBeanContext(); 
+    this.mbeanContext = (parentContext == null ? "" : parentContext + ",") + "repository=" + getName();
 
     registerComponents();
   }
