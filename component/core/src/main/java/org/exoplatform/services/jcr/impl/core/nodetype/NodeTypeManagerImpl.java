@@ -671,8 +671,13 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
                                             int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
                                                                        RepositoryException {
-    // TODO Auto-generated method stub
-    return null;
+    
+    Collection<NodeTypeData> nts = typesManager.registerNodeTypes(values, alreadyExistsBehaviour);
+    EntityCollection types = new EntityCollection();
+    for (NodeTypeData ntdata : nts)
+      types.add(new NodeTypeImpl(ntdata, typesManager, locationFactory, valueFactory));
+    
+    return types;
   }
 
   public void unregisterNodeType(String name) throws UnsupportedRepositoryOperationException,
