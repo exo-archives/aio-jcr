@@ -412,13 +412,29 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public NodeTypeData findNodeType(InternalQName typeName) {
     return hierarchy.getNodeType(typeName);
   }
-
-  public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
+  
+  public PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
                                                          InternalQName... nodeTypeNames) {
 
     // TODO residual
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
+  
+  public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
+                                                         InternalQName primaryNodeType,
+                                                         InternalQName... mixinTypes) {
+    
+    if (mixinTypes != null) {
+      InternalQName[] nts = new InternalQName[mixinTypes.length + 1];
+      nts[0] = primaryNodeType;
+      for (int i=0; i<mixinTypes.length; i++) {
+        nts[i + 1] = mixinTypes[i];  
+      }
+      return getPropertyDefinitions(propertyName, nts);
+    } else
+      return getPropertyDefinitions(propertyName, primaryNodeType);
+  }
+
 
   public Collection<NodeTypeData> getAllNodeTypes() {
     return hierarchy.getAllNodeTypes();

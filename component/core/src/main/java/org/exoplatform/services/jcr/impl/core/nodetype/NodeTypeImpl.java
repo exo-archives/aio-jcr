@@ -112,7 +112,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
     try {
       InternalQName iname = locationFactory.parseJCRName(itemName).getInternalName();
 
-      PropertyDefinitionDatas pdefs = manager.findPropertyDefinitions(iname, data.getName());
+      PropertyDefinitionDatas pdefs = manager.getPropertyDefinitions(iname, data.getName());
       PropertyDefinitionData pd = pdefs.getAnyDefinition();
       if (pd != null)
         return !(pd.isMandatory() || pd.isProtected());
@@ -133,7 +133,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
     try {
       InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
 
-      PropertyDefinitionDatas pdefs = manager.findPropertyDefinitions(pname, data.getName());
+      PropertyDefinitionDatas pdefs = manager.getPropertyDefinitions(pname, data.getName());
       PropertyDefinitionData pd = pdefs.getDefinition(false);
       if (pd != null) {
         if (pd.isProtected())
@@ -157,7 +157,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
     try {
       InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
 
-      PropertyDefinitionDatas pdefs = manager.findPropertyDefinitions(pname, data.getName());
+      PropertyDefinitionDatas pdefs = manager.getPropertyDefinitions(pname, data.getName());
       PropertyDefinitionData pd = pdefs.getDefinition(false);
       if (pd != null) {
         if (pd.isProtected())
