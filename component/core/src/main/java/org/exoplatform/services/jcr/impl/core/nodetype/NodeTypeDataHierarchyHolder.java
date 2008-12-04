@@ -57,8 +57,8 @@ public class NodeTypeDataHierarchyHolder {
       if (testTypeName.equals(typeName))
         return true;
 
-      Set<InternalQName> superTypes = nodeTypes.get(typeName).superTypes;
-      if (superTypes != null && (superTypes.contains(testTypeName)))
+      NodeTypeHolder nt = nodeTypes.get(typeName);
+      if (nt != null && (nt.superTypes.contains(testTypeName)))
         return true;
     }
     
@@ -66,7 +66,8 @@ public class NodeTypeDataHierarchyHolder {
   }
 
   public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
-    return nodeTypes.get(nodeTypeName).superTypes;
+    NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
+    return nt != null ? nt.superTypes : null;
   }
 
   void addNodeType(final NodeTypeData nodeType) {
