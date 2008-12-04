@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,15 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
@@ -50,6 +44,10 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.log.ExoLogger;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
@@ -79,6 +77,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   protected final ItemDefinitionDataHolder         defsHolder;
 
+  class NodeTypeHolder {
+    
+    private final NodeTypeData nodeType;
+    
+    private final Set<InternalQName> superTypes;
+    
+    NodeTypeHolder(NodeTypeData nodeType) {
+      this.nodeType = nodeType;
+      this.superTypes = new HashSet<InternalQName>();
+    }
+  }
+  
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
                                  NamespaceRegistry namespaceRegistry,

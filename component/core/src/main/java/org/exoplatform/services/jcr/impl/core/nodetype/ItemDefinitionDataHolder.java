@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
 
 public class ItemDefinitionDataHolder {
 
-  private static Log                                            LOG           = ExoLogger.getLogger("jcr.ItemDefinitionDataHolder");
+  private static Log                                            LOG = ExoLogger.getLogger("jcr.ItemDefinitionDataHolder");
 
   private final HashMap<ChildNodeDefKey, NodeDefinitionData>    nodeDefinitions;
 
@@ -76,33 +76,32 @@ public class ItemDefinitionDataHolder {
                                                                    childName,
                                                                    childNodeType);
 
-    // try residual def
+    // residual
     if (def == null)
-      def = getNodeDefinitionFromThisOrSupertypes(parentNodeType, Constants.JCR_ANY_NAME, childNodeType);
-
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Get NodeDef: parent NT: " + parentNodeType.getAsString() + " child nodeName: "
-          + childName.getAsString() + " childNT: " + childNodeType.getAsString());
-    }
+      def = getNodeDefinitionFromThisOrSupertypes(parentNodeType,
+                                                  Constants.JCR_ANY_NAME,
+                                                  childNodeType);
 
     return def;
-
   }
 
   private NodeDefinitionData getNodeDefinitionFromThisOrSupertypes(InternalQName parentNodeType,
                                                                    InternalQName childName,
                                                                    InternalQName childNodeType) {
-    ChildNodeDefKey key = new ChildNodeDefKey(parentNodeType, childName, childNodeType);
-    NodeDefinitionData def = nodeDefinitions.get(key);
+
+    NodeDefinitionData def = nodeDefinitions.get(new ChildNodeDefKey(parentNodeType,
+                                                                     childName,
+                                                                     childNodeType));
     if (def != null)
       return def;
-    Iterator<InternalQName> i = nodeTypesHierarchy.getSupertypes(parentNodeType).iterator();
-    while (i.hasNext()) {
-      key = new ChildNodeDefKey(parentNodeType, childName, i.next());
-      def = nodeDefinitions.get(key);
+
+    // asks supers
+    for (InternalQName su : nodeTypesHierarchy.getSupertypes(parentNodeType)) {
+      def = nodeDefinitions.get(new ChildNodeDefKey(su, childName, childNodeType));
       if (def != null)
         break;
     }
+
     return def;
   }
 
@@ -122,25 +121,15 @@ public class ItemDefinitionDataHolder {
       if (def != null)
         return def;
     }
-    return null;
-  }
 
-  /**
-   * @param parentNodeTypes
-   *          name of parent node types
-   * @param childName
-   *          name of child node
-   * @return default ChildNodeDefinition or null if not found
-   */
-  @Deprecated
-  public NodeDefinitionData getDefaultChildNodeDefinition(List<InternalQName> parentNodeTypes,
-                                                          InternalQName childName) {
-    for (InternalQName parentNodeType : parentNodeTypes) {
-      DefaultNodeDefKey key = new DefaultNodeDefKey(parentNodeType, childName);
-      NodeDefinitionData def = defNodeDefinitions.get(key);
+    // residual
+    for (InternalQName parentNodeType : nodeTypes) {
+      NodeDefinitionData def = defNodeDefinitions.get(new DefaultNodeDefKey(parentNodeType,
+                                                                            Constants.JCR_ANY_NAME));
       if (def != null)
         return def;
     }
+
     return null;
   }
 
@@ -202,10 +191,12 @@ public class ItemDefinitionDataHolder {
 
     // try residual def
     if (def == null) {
-      key = new PropertyDefKey(parentNodeType, Constants.JCR_ANY_NAME, multiValued);
-      return propertyDefinitions.get(key);
-    } else
-      return def;
+      return propertyDefinitions.get(new PropertyDefKey(parentNodeType,
+                                                        Constants.JCR_ANY_NAME,
+                                                        multiValued));
+    } 
+    
+    return def;
   }
 
   void putAllDefinitions(List<NodeTypeData> nodeTypes) {
@@ -265,7 +256,7 @@ public class ItemDefinitionDataHolder {
       }
     }
 
-    // TODO traverse supertypes for child nodes and props - DO IT FROM NT MANAGER
+    // TODO traverse supertypes for child nodes and props
     // for (InternalQName su : nodeType.getDeclaredSupertypeNames()) {
     // nodeTypesHierarchy.
     // }
