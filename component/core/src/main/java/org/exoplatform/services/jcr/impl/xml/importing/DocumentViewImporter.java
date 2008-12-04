@@ -40,6 +40,7 @@ import org.apache.ws.commons.util.Base64;
 import org.apache.ws.commons.util.Base64.DecodingException;
 
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
@@ -313,7 +314,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
                   log.error("Can't present value as string. " + e.getMessage());
                   valueAsString = "[Can't present value as string]";
                 }
-                log.debug("Property " + PropertyType.nameFromValue(pType) + ": " + propName + "="
+                log.debug("Property " + ExtendedPropertyType.nameFromValue(pType) + ": " + propName + "="
                     + valueAsString);
               }
               values.add(((BaseValue) value).getInternalData());
@@ -525,7 +526,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                           parent.getMixinTypeNames(),
                                           nodeName);
 
-      nodeTypes.add(ntManager.findNodeType(nodeNt));
+      nodeTypes.add(ntManager.getNodeType(nodeNt));
       props.put(Constants.JCR_PRIMARYTYPE, locationFactory.createJCRName(nodeNt).getAsString());
     }
 
@@ -543,7 +544,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
         if (Constants.JCR_PRIMARYTYPE.equals(propInternalQName)) {
           String primaryNodeType = StringConverter.denormalizeString(attValue);
           InternalQName ntName = locationFactory.parseJCRName(primaryNodeType).getInternalName();
-          nodeTypes.add(ntManager.findNodeType(ntName));
+          nodeTypes.add(ntManager.getNodeType(ntName));
           props.put(propInternalQName, primaryNodeType);
         } else if (Constants.JCR_MIXINTYPES.equals(propInternalQName)) {
           String[] amTypes = attValue.split(" ");
