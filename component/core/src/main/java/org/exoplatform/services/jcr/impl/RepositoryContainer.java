@@ -25,7 +25,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.query.QueryManager;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 
 import org.apache.commons.logging.Log;
 
@@ -92,6 +91,8 @@ public class RepositoryContainer extends ExoContainer {
    */
   private final Log                     log               = ExoLogger.getLogger("jcr.RepositoryContainer");
 
+  private final String                  mbeanContext;
+
   /**
    * RepositoryContainer constructor.
    * 
@@ -114,7 +115,9 @@ public class RepositoryContainer extends ExoContainer {
       config.setAccessControl(AccessControlPolicy.OPTIONAL);
 
     this.config = config;
-    this.mbeanServer = MBeanServerFactory.createMBeanServer("jcrrep" + getName() + "mx");
+    this.mbeanServer = createMBeanServer("jcrrep" + getName() + "mx");
+
+    this.mbeanContext = parent.getMBeanContext() + ",repository=" + getName();
 
     registerComponents();
   }
@@ -131,6 +134,11 @@ public class RepositoryContainer extends ExoContainer {
     return this.mbeanServer;
   }
 
+  @Override
+  public String getMBeanContext() {
+    return mbeanContext;
+  }
+  
   /**
    * @return Returns the name.
    */

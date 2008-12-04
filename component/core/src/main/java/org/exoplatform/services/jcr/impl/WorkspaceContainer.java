@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.impl;
 
 import javax.jcr.RepositoryException;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 
 import org.apache.commons.logging.Log;
 
@@ -46,6 +45,7 @@ public class WorkspaceContainer extends ExoContainer {
   private final RepositoryContainer repositoryContainer;
 
   private final MBeanServer         mbeanServer;
+  private final String              mbeanContext;
 
   public WorkspaceContainer(RepositoryContainer parent, WorkspaceEntry config) throws RepositoryException,
       RepositoryConfigurationException {
@@ -56,8 +56,9 @@ public class WorkspaceContainer extends ExoContainer {
     repositoryContainer = parent;
     this.name = config.getName();
 
-    this.mbeanServer = MBeanServerFactory.createMBeanServer("jcrws" + name + "at"
+    this.mbeanServer = createMBeanServer("jcrws" + name + "at"
         + repositoryContainer.getName() + "mx");
+    this.mbeanContext = parent.getMBeanContext() + ",workspace=" + name;
   }
 
   @Override
@@ -65,6 +66,11 @@ public class WorkspaceContainer extends ExoContainer {
     return mbeanServer;
   }
 
+  @Override
+  public String getMBeanContext() {
+    return mbeanContext;
+  }
+  
   // Components access methods -------
 
   public SessionFactory getSessionFactory() {
