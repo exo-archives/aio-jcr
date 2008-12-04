@@ -16,8 +16,10 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,6 +53,25 @@ public class NodeTypeDataHierarchyHolder {
     nodeTypes = new ConcurrentHashMap<InternalQName, NodeTypeHolder>();
   }
 
+  public NodeTypeData getNodeType(final InternalQName nodeTypeName) {
+    final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
+    return nt != null ? nt.nodeType : null; 
+  }
+  
+  public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
+    final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
+    return nt != null ? nt.superTypes : null;
+  }  
+  
+  public Collection<NodeTypeData> getAllNodeTypes() {
+    Collection<NodeTypeHolder> hs = nodeTypes.values();
+    List<NodeTypeData> nts = new ArrayList<NodeTypeData>(hs.size());
+    for (NodeTypeHolder nt: hs) {
+      nts.add(nt.nodeType);
+    }
+    return nts;
+  }  
+  
   public boolean isNodeType(final InternalQName testTypeName, final InternalQName... typesNames) {
 
     for (InternalQName typeName : typesNames) {
@@ -63,11 +84,6 @@ public class NodeTypeDataHierarchyHolder {
     }
     
     return false;
-  }
-
-  public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
-    NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
-    return nt != null ? nt.superTypes : null;
   }
 
   void addNodeType(final NodeTypeData nodeType) {

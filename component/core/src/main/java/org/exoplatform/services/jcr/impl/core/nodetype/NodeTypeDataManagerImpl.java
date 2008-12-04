@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +29,7 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
@@ -50,6 +45,10 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.log.ExoLogger;
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
@@ -73,10 +72,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   protected final String                                              accessControlPolicy;
 
-  // protected final Map<InternalQName, NodeTypeData> nodeTypes = new
-  // ConcurrentHashMap<InternalQName, NodeTypeData>();
-
-  protected final NodeTypeDataHierarchyHolder                         typesHierarchy;
+  protected final NodeTypeDataHierarchyHolder                         hierarchy;
 
   protected final ItemDefinitionDataHolder                            defsHolder;
 
@@ -98,9 +94,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     this.accessControlPolicy = config.getAccessControl();
 
-    this.typesHierarchy = new NodeTypeDataHierarchyHolder();
+    this.hierarchy = new NodeTypeDataHierarchyHolder();
 
-    this.defsHolder = new ItemDefinitionDataHolder(this.typesHierarchy);
+    this.defsHolder = new ItemDefinitionDataHolder(this.hierarchy);
     this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
     initDefault();
   }
@@ -274,7 +270,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       return;
     }
 
-    nodeTypes.put(nodeType.getName(), nodeType);
+    hierarchy.addNodeType(nodeType);
 
     if (persister.isInitialized()) {
       try {
@@ -388,7 +384,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   public NodeTypeData findNodeType(InternalQName typeName) {
-    return nodeTypes.get(typeName);
+    return hierarchy.getNodeType(typeName);
   }
 
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
@@ -398,25 +394,25 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
 
-  public List<NodeTypeData> getAllNodeTypes() {
-    return new ArrayList<NodeTypeData>(nodeTypes.values());
+  public Collection<NodeTypeData> getAllNodeTypes() {
+    return hierarchy.getAllNodeTypes();
   }
 
   public boolean isNodeType(InternalQName testTypeName, InternalQName... typesNames) {
-    return typesHierarchy.isNodeType(testTypeName, typesNames);
+    return hierarchy.isNodeType(testTypeName, typesNames);
   }
 
   public boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames) {
 
     for (InternalQName name : nodeTypeNames) {
-      NodeTypeData nt = nodeTypes.get(name);
+      NodeTypeData nt = hierarchy.getNodeType(name);
 
       if (nt != null && nt.hasOrderableChildNodes())
         return true;
 
-      Set<InternalQName> supers = typesHierarchy.getSupertypes(nt.getName());
+      Set<InternalQName> supers = hierarchy.getSupertypes(nt.getName());
       for (InternalQName suName : supers) {
-        NodeTypeData su = nodeTypes.get(suName);
+        NodeTypeData su = hierarchy.getNodeType(suName);
         if (su != null && su.hasOrderableChildNodes())
           return true;
       }

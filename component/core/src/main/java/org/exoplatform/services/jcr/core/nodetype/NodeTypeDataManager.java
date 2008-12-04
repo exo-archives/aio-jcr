@@ -17,7 +17,7 @@
 package org.exoplatform.services.jcr.core.nodetype;
 
 import java.io.InputStream;
-import java.util.List;
+import java.util.Collection;
 
 import javax.jcr.RepositoryException;
 
@@ -39,7 +39,7 @@ public interface NodeTypeDataManager {
    * @return List of NodeTypeData
    * @throws RepositoryException in case of error
    */
-  List<NodeTypeData> getAllNodeTypes();
+  Collection<NodeTypeData> getAllNodeTypes();
   
   NodeTypeData findNodeType(InternalQName typeName);
 
