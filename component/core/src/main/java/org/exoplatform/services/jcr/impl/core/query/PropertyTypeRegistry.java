@@ -24,23 +24,20 @@ import java.util.List;
 import java.util.Map;
 
 import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NodeTypeIterator;
-import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
 
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.impl.core.nodetype.ItemDefinitionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerListener;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * The <code>PropertyTypeRegistry</code> keeps track of registered node type definitions and its
- * property types. It provides a fast type lookup for a given property name.
+ * The <code>PropertyTypeRegistry</code> keeps track of registered node type
+ * definitions and its property types. It provides a fast type lookup for a
+ * given property name.
  */
 public class PropertyTypeRegistry implements NodeTypeManagerListener {
 
@@ -53,30 +50,33 @@ public class PropertyTypeRegistry implements NodeTypeManagerListener {
   private static final TypeMapping[]              EMPTY       = new TypeMapping[0];
 
   /** The NodeTypeRegistry */
-  private final NodeTypeManagerImpl               registry;
+  private final NodeTypeDataManager               nodeTypeDataManager;
 
   /** Property Name to TypeMapping[] mapping */
   private final Map<InternalQName, TypeMapping[]> typeMapping = new HashMap<InternalQName, TypeMapping[]>();
 
   /**
-   * Creates a new <code>PropertyTypeRegistry</code> instance. This instance is *not* registered as
-   * listener to the NodeTypeRegistry in the constructor!
+   * Creates a new <code>PropertyTypeRegistry</code> instance. This instance is
+   * *not* registered as listener to the NodeTypeRegistry in the constructor!
    * 
-   * @param reg
-   *          the <code>NodeTypeRegistry</code> where to read the property type information.
+   * @param reg the <code>NodeTypeRegistry</code> where to read the property
+   *          type information.
    */
-  public PropertyTypeRegistry(NodeTypeManagerImpl reg) {
-    this.registry = reg;
+  public PropertyTypeRegistry(NodeTypeDataManager nodeTypeDataManager) {
+    this.nodeTypeDataManager = nodeTypeDataManager;
     fillCache();
   }
 
+  public NodeTypeDataManager getNodeTypeDataManager() {
+    return nodeTypeDataManager;
+  }
+
   /**
-   * Returns an array of type mappings for a given property name <code>propName</code>. If
-   * <code>propName</code> is not defined as a property in any registered node type an empty array
-   * is returned.
+   * Returns an array of type mappings for a given property name
+   * <code>propName</code>. If <code>propName</code> is not defined as a
+   * property in any registered node type an empty array is returned.
    * 
-   * @param propName
-   *          the name of the property.
+   * @param propName the name of the property.
    * @return an array of <code>TypeMapping</code> instances.
    */
   public TypeMapping[] getPropertyTypes(InternalQName propName) {
@@ -91,30 +91,25 @@ public class PropertyTypeRegistry implements NodeTypeManagerListener {
   }
 
   public void nodeTypeRegistered(InternalQName ntName) {
-    try {
-      ExtendedNodeType def = registry.findNodeType(ntName);
-      PropertyDefinition[] propDefs = def.getPropertyDefinitions();
-      synchronized (typeMapping) {
-        for (int i = 0; i < propDefs.length; i++) {
-          int type = propDefs[i].getRequiredType();
-          if (!((ItemDefinitionImpl) propDefs[i]).isResidualSet() && type != PropertyType.UNDEFINED) {
-            InternalQName name = ((ItemDefinitionImpl) propDefs[i]).getQName();
-            // only remember defined property types
-            TypeMapping[] types = typeMapping.get(name);
-            if (types == null) {
-              types = new TypeMapping[1];
-            } else {
-              TypeMapping[] tmp = new TypeMapping[types.length + 1];
-              System.arraycopy(types, 0, tmp, 0, types.length);
-              types = tmp;
-            }
-            types[types.length - 1] = new TypeMapping(ntName, type, propDefs[i].isMultiple());
-            typeMapping.put(name, types);
+    NodeTypeData def = nodeTypeDataManager.findNodeType(ntName);
+    PropertyDefinitionData[] propDefs = def.getDeclaredPropertyDefinitions();
+    synchronized (typeMapping) {
+      for (int i = 0; i < propDefs.length; i++) {
+        int type = propDefs[i].getRequiredType();
+        if (!propDefs[i].isResidualSet() && type != PropertyType.UNDEFINED) {
+          InternalQName name = propDefs[i].getName();
+          TypeMapping[] types = typeMapping.get(name);
+          if (types == null) {
+            types = new TypeMapping[1];
+          } else {
+            TypeMapping[] tmp = new TypeMapping[types.length + 1];
+            System.arraycopy(types, 0, tmp, 0, types.length);
+            types = tmp;
           }
+          types[types.length - 1] = new TypeMapping(ntName, type, propDefs[i].isMultiple());
+          typeMapping.put(name, types);
         }
       }
-    } catch (RepositoryException e) {
-      log.error("Unable to get newly registered node type definition for name: " + ntName);
     }
   }
 
@@ -158,13 +153,13 @@ public class PropertyTypeRegistry implements NodeTypeManagerListener {
   }
 
   /**
-   * Initially fills the cache of this registry with property type definitions from the
-   * {@link org.apache.jackrabbit.core.nodetype.NodeTypeRegistry}.
+   * Initially fills the cache of this registry with property type definitions
+   * from the {@link org.apache.jackrabbit.core.nodetype.NodeTypeRegistry}.
    */
   private void fillCache() {
-    NodeTypeIterator ntTypes = registry.getAllNodeTypes();
-    for (; ntTypes.hasNext();) {
-      nodeTypeRegistered(((NodeTypeImpl) ntTypes.nextNodeType()).getQName());
+    List<NodeTypeData> ntTypes = nodeTypeDataManager.getAllNodeTypes();
+    for (NodeTypeData nodeTypeData : ntTypes) {
+      nodeTypeRegistered(nodeTypeData.getName());
     }
   }
 

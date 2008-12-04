@@ -40,6 +40,7 @@ import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
@@ -51,7 +52,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -90,10 +90,11 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   /**
    * The node type registry.
    */
-  protected final NodeTypeManagerImpl   ntReg;
+  protected final NodeTypeDataManager   nodeTypeDataManager;
 
   /**
-   * QueryHandler of the parent search manager or <code>null</code> if there is none.
+   * QueryHandler of the parent search manager or <code>null</code> if there is
+   * none.
    */
   protected final SearchManager         parentSearchManager;
 
@@ -111,16 +112,16 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * @param ntReg the node type registry.
    * @param itemMgr the shared item state manager.
    * @param rootNodeId the id of the root node.
-   * @param parentMgr the parent search manager or <code>null</code> if there is no parent search
-   *          manager.
-   * @param excludedNodeId id of the node that should be excluded from indexing. Any descendant of
-   *          that node will also be excluded from indexing.
+   * @param parentMgr the parent search manager or <code>null</code> if there is
+   *          no parent search manager.
+   * @param excludedNodeId id of the node that should be excluded from indexing.
+   *          Any descendant of that node will also be excluded from indexing.
    * @throws RepositoryException if the search manager cannot be initialized
    * @throws RepositoryConfigurationException
    */
   public SearchManager(QueryHandlerEntry config,
                        NamespaceRegistryImpl nsReg,
-                       NodeTypeManagerImpl ntReg,
+                       NodeTypeDataManager ntReg,
                        WorkspacePersistentDataManager itemMgr,
                        SystemSearchManagerHolder parentSearchManager,
                        DocumentReaderService extractor,
@@ -130,15 +131,15 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     this.extractor = extractor;
 
     this.config = config;
-    this.ntReg = ntReg;
+    this.nodeTypeDataManager = ntReg;
     this.nsReg = nsReg;
     this.itemMgr = itemMgr;
     this.cfm = cfm;
-    
+
     this.parentSearchManager = parentSearchManager != null ? parentSearchManager.get() : null;
     itemMgr.addItemPersistenceListener(this);
     initializeQueryHandler();
-    
+
     log.info(config.getIndexDir() + "  !" + config);
   }
 
@@ -146,12 +147,12 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * Creates a query object from a node that can be executed on the workspace.
    * 
    * @param session the session of the user executing the query.
-   * @param itemMgr the item manager of the user executing the query. Needed to return
-   *          <code>Node</code> instances in the result set.
+   * @param itemMgr the item manager of the user executing the query. Needed to
+   *          return <code>Node</code> instances in the result set.
    * @param node a node of type nt:query.
    * @return a <code>Query</code> instance to execute.
-   * @throws InvalidQueryException if <code>absPath</code> is not a valid persisted query (that is,
-   *           a node of type nt:query)
+   * @throws InvalidQueryException if <code>absPath</code> is not a valid
+   *           persisted query (that is, a node of type nt:query)
    * @throws RepositoryException if any other error occurs.
    */
   public Query createQuery(SessionImpl session, SessionDataManager sessionDataManager, Node node) throws InvalidQueryException,
@@ -165,13 +166,13 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
    * Creates a query object that can be executed on the workspace.
    * 
    * @param session the session of the user executing the query.
-   * @param itemMgr the item manager of the user executing the query. Needed to return
-   *          <code>Node</code> instances in the result set.
+   * @param itemMgr the item manager of the user executing the query. Needed to
+   *          return <code>Node</code> instances in the result set.
    * @param statement the actual query statement.
    * @param language the syntax of the query statement.
    * @return a <code>Query</code> instance to execute.
-   * @throws InvalidQueryException if the query is malformed or the <code>language</code> is
-   *           unknown.
+   * @throws InvalidQueryException if the query is malformed or the
+   *           <code>language</code> is unknown.
    * @throws RepositoryException if any other error occurs.
    */
   public Query createQuery(SessionImpl session,
@@ -328,10 +329,10 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   }
 
   public void start() {
-    
+
     if (log.isDebugEnabled())
       log.debug("start");
-    
+
     // Calculating excluded node identifiers
     excludedPaths.add(Constants.JCR_SYSTEM_PATH);
 
@@ -369,10 +370,12 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
   }
 
   /**
-   * Checks if the given event should be excluded based on the {@link #excludePath} setting.
+   * Checks if the given event should be excluded based on the
+   * {@link #excludePath} setting.
    * 
    * @param event observation event
-   * @return <code>true</code> if the event should be excluded, <code>false</code> otherwise
+   * @return <code>true</code> if the event should be excluded,
+   *         <code>false</code> otherwise
    */
   protected boolean isExcluded(ItemState event) {
 
@@ -391,7 +394,7 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     QueryHandlerContext context = new QueryHandlerContext(itemMgr,
                                                           config.getRootNodeIdentifer() != null ? config.getRootNodeIdentifer()
                                                                                                : Constants.ROOT_UUID,
-                                                          ntReg,
+                                                          nodeTypeDataManager,
                                                           nsReg,
                                                           parentHandler,
                                                           config.getIndexDir(),

@@ -17,13 +17,16 @@
 package org.exoplatform.services.jcr.impl.core.query;
 
 import org.exoplatform.services.document.DocumentReaderService;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+
+import sun.management.FileSystem;
 
 /**
- * Acts as an argument for the {@link QueryHandler} to keep the interface stable. This class
- * provides access to the environment where the query handler is running in.
+ * Acts as an argument for the {@link QueryHandler} to keep the interface
+ * stable. This class provides access to the environment where the query handler
+ * is running in.
  */
 public class QueryHandlerContext {
   /**
@@ -34,7 +37,7 @@ public class QueryHandlerContext {
   /**
    * The node type registry of the repository
    */
-  private final NodeTypeManagerImpl   ntRegistry;
+  private final NodeTypeDataManager   nodeTypeDataManager;
 
   /**
    * The namespace registry of the repository.
@@ -66,46 +69,42 @@ public class QueryHandlerContext {
   /**
    * Creates a new context instance.
    * 
-   * @param fs
-   *          a {@link FileSystem} this <code>QueryHandler</code> may use to store its index. If no
-   *          <code>FileSystem</code> has been configured <code>fs</code> is <code>null</code>.
-   * @param stateMgr
-   *          provides persistent item states.
-   * @param rootId
-   *          the id of the root node.
-   * @param ntRegistry
-   *          the node type registry.
-   * @param nsRegistry
-   *          the namespace registry.
-   * @param parentHandler
-   *          the parent query handler or <code>null</code> it there is no parent handler.
-   * @param excludedNodeId
-   *          id of the node that should be excluded from indexing. Any descendant of that node is
-   *          also excluded from indexing.
+   * @param fs a {@link FileSystem} this <code>QueryHandler</code> may use to
+   *          store its index. If no <code>FileSystem</code> has been configured
+   *          <code>fs</code> is <code>null</code>.
+   * @param stateMgr provides persistent item states.
+   * @param rootId the id of the root node.
+   * @param ntRegistry the node type registry.
+   * @param nsRegistry the namespace registry.
+   * @param parentHandler the parent query handler or <code>null</code> it there
+   *          is no parent handler.
+   * @param excludedNodeId id of the node that should be excluded from indexing.
+   *          Any descendant of that node is also excluded from indexing.
    */
   public QueryHandlerContext(ItemDataConsumer stateMgr,
                              String rootIdentifer,
-                             NodeTypeManagerImpl ntRegistry,
+                             NodeTypeDataManager nodeTypeDataManager,
                              NamespaceRegistryImpl nsRegistry,
                              QueryHandler parentHandler,
                              String indexDirectory,
                              DocumentReaderService extractor) {
     this.stateMgr = stateMgr;
     this.rootIdentifer = rootIdentifer;
-    this.ntRegistry = ntRegistry;
+    this.nodeTypeDataManager = nodeTypeDataManager;
     this.nsRegistry = nsRegistry;
     this.indexDirectory = indexDirectory;
     this.extractor = extractor;
-    this.propRegistry = new PropertyTypeRegistry(ntRegistry);
+    this.propRegistry = new PropertyTypeRegistry(nodeTypeDataManager);
     this.parentHandler = parentHandler;
-    this.ntRegistry.addListener(propRegistry);
+    this.nodeTypeDataManager.addListener(propRegistry);
   }
 
   /**
-   * Returns the persistent {@link ItemStateManager} of the workspace this <code>QueryHandler</code>
-   * is based on.
+   * Returns the persistent {@link ItemStateManager} of the workspace this
+   * <code>QueryHandler</code> is based on.
    * 
-   * @return the persistent <code>ItemStateManager</code> of the current workspace.
+   * @return the persistent <code>ItemStateManager</code> of the current
+   *         workspace.
    */
   public ItemDataConsumer getItemStateManager() {
     return stateMgr;
@@ -134,8 +133,8 @@ public class QueryHandlerContext {
    * 
    * @return the NodeTypeRegistry for this repository.
    */
-  public NodeTypeManagerImpl getNodeTypeRegistry() {
-    return ntRegistry;
+  public NodeTypeDataManager getNodeTypeDataManager() {
+    return nodeTypeDataManager;
   }
 
   /**
@@ -160,7 +159,7 @@ public class QueryHandlerContext {
    * Destroys this context and releases resources.
    */
   public void destroy() {
-    ntRegistry.removeListener(propRegistry);
+    nodeTypeDataManager.removeListener(propRegistry);
   }
 
   public DocumentReaderService getExtractor() {

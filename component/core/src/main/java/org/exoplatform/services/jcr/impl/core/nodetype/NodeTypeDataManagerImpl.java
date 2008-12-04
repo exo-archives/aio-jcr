@@ -18,17 +18,23 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
@@ -44,10 +50,6 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
@@ -59,24 +61,30 @@ import org.jibx.runtime.JiBXException;
  */
 public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
-  protected static final Log                       LOG            = ExoLogger.getLogger("jcr.NodeTypeDataManagerImpl");
+  protected static final Log                                          LOG            = ExoLogger.getLogger("jcr.NodeTypeDataManagerImpl");
 
-  private static final String                      NODETYPES_FILE = "nodetypes.xml";
+  private static final String                                         NODETYPES_FILE = "nodetypes.xml";
 
-  protected final NamespaceRegistry                namespaceRegistry;
+  protected final NamespaceRegistry                                   namespaceRegistry;
 
-  protected final NodeTypeDataPersister            persister;
+  protected final NodeTypeDataPersister                               persister;
 
-  protected final LocationFactory                  locationFactory;
+  protected final LocationFactory                                     locationFactory;
 
-  protected final String                           accessControlPolicy;
+  protected final String                                              accessControlPolicy;
 
-  //protected final Map<InternalQName, NodeTypeData> nodeTypes      = new ConcurrentHashMap<InternalQName, NodeTypeData>();
+  // protected final Map<InternalQName, NodeTypeData> nodeTypes = new
+  // ConcurrentHashMap<InternalQName, NodeTypeData>();
 
-  protected final NodeTypeDataHierarchyHolder      typesHierarchy;
+  protected final NodeTypeDataHierarchyHolder                         typesHierarchy;
 
-  protected final ItemDefinitionDataHolder         defsHolder;
-  
+  protected final ItemDefinitionDataHolder                            defsHolder;
+
+  /**
+   * Listeners (soft references)
+   */
+  private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners;
+
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
                                  NamespaceRegistry namespaceRegistry,
@@ -93,7 +101,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.typesHierarchy = new NodeTypeDataHierarchyHolder();
 
     this.defsHolder = new ItemDefinitionDataHolder(this.typesHierarchy);
-
+    this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
     initDefault();
   }
 
@@ -368,14 +376,14 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                    InternalQName nodeTypeName,
                                                    InternalQName parentTypeName) {
 
-    // TODO residual 
+    // TODO residual
     return defsHolder.getChildNodeDefinition(parentTypeName, nodeName, nodeTypeName);
   }
 
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName... nodeTypeNames) {
 
-    // TODO residual 
+    // TODO residual
     return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
   }
 
@@ -386,7 +394,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                          InternalQName... nodeTypeNames) {
 
-    // TODO residual 
+    // TODO residual
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
 
@@ -402,7 +410,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     for (InternalQName name : nodeTypeNames) {
       NodeTypeData nt = nodeTypes.get(name);
-      
+
       if (nt != null && nt.hasOrderableChildNodes())
         return true;
 
@@ -417,4 +425,75 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return false;
   }
 
+  /**
+   * Add a <code>NodeTypeRegistryListener</code>
+   * 
+   * @param listener the new listener to be informed on (un)registration of node
+   *          types
+   */
+  public void addListener(NodeTypeManagerListener listener) {
+    if (!listeners.containsKey(listener)) {
+      listeners.put(listener, listener);
+    }
+  }
+
+  /**
+   * Remove a <code>NodeTypeRegistryListener</code>.
+   * 
+   * @param listener an existing listener
+   */
+  public void removeListener(NodeTypeManagerListener listener) {
+    listeners.remove(listener);
+  }
+
+  /**
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * registered.
+   * 
+   * @param ntName NT name.
+   */
+  private void notifyRegistered(InternalQName ntName) {
+    // copy listeners to array to avoid ConcurrentModificationException
+    NodeTypeManagerListener[] la = listeners.values()
+                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
+    for (int i = 0; i < la.length; i++) {
+      if (la[i] != null) {
+        la[i].nodeTypeRegistered(ntName);
+      }
+    }
+  }
+
+  /**
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * re-registered.
+   * 
+   * @param ntName NT name.
+   */
+  private void notifyReRegistered(InternalQName ntName) {
+    // copy listeners to array to avoid ConcurrentModificationException
+    NodeTypeManagerListener[] la = listeners.values()
+                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
+    for (int i = 0; i < la.length; i++) {
+      if (la[i] != null) {
+        la[i].nodeTypeReRegistered(ntName);
+      }
+    }
+  }
+
+  /**
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * unregistered.
+   * 
+   * @param ntName NT name.
+   */
+  private void notifyUnregistered(InternalQName ntName) {
+    // copy listeners to array to avoid ConcurrentModificationException
+    NodeTypeManagerListener[] la = listeners.values()
+                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
+    for (int i = 0; i < la.length; i++) {
+      if (la[i] != null) {
+        la[i].nodeTypeUnregistered(ntName);
+      }
+    }
+  }
 }
