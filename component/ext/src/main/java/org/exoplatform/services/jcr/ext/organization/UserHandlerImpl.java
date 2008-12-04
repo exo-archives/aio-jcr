@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.organization;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.jcr.Node;
@@ -338,17 +339,13 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     QueryResult uRes = uQuery.execute();
     for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
       Node uNode = uNodes.nextNode();
-      String userName = uNode.getName();
-      if (query.getUserName() == null || userName.indexOf(removeAsterix(query.getUserName())) != -1) {
-        User user = findUserByName(session, uNode.getName());
-        if ((user != null)
-            && (query.getFromLoginDate() == null || (user.getLastLoginTime() != null && query.getFromLoginDate()
-                                                                                             .getTime() <= user.getLastLoginTime()
-                                                                                                               .getTime()))
-            && (query.getToLoginDate() == null || (user.getLastLoginTime() != null && query.getToLoginDate()
-                                                                                           .getTime() >= user.getLastLoginTime()
-                                                                                                             .getTime()))) {
-          types.add(user);
+      if (query.getUserName() == null || isNameLike(uNode.getName(), query.getUserName())) {
+        Date lastLoginTime = readDateProperty(uNode, EXO_LAST_LOGIN_TIME);
+        if ((query.getFromLoginDate() == null || (lastLoginTime != null && query.getFromLoginDate()
+                                                                                .getTime() <= lastLoginTime.getTime()))
+            && (query.getToLoginDate() == null || (lastLoginTime != null && query.getToLoginDate()
+                                                                                 .getTime() >= lastLoginTime.getTime()))) {
+          types.add(readObjectFromNode(uNode));
         }
       }
     }
@@ -709,6 +706,31 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       str = str.substring(0, str.length() - 1);
     }
     return str;
+  }
+
+  private boolean isNameLike(String userName, String queryName) {
+    boolean startWith = false;
+    boolean endWith = false;
+
+    if (queryName.startsWith("*")) {
+      startWith = true;
+      queryName = queryName.substring(1);
+    }
+
+    if (queryName.endsWith("*")) {
+      endWith = true;
+      queryName = queryName.substring(0, queryName.length() - 1);
+    }
+
+    if (startWith && endWith) {
+      return userName.indexOf(queryName) != -1;
+    } else if (startWith) {
+      return userName.startsWith(queryName);
+    } else if (endWith) {
+      return userName.endsWith(queryName);
+    } else {
+      return userName.equals(queryName);
+    }
   }
 
 }

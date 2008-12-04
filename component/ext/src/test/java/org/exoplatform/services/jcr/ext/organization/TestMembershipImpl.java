@@ -155,7 +155,7 @@ public class TestMembershipImpl extends BaseStandaloneTest {
   }
 
   /**
-   * Find users by group and check it count.
+   * Link membership.
    */
   public void testLinkMembership() throws Exception {
     try {
@@ -189,14 +189,31 @@ public class TestMembershipImpl extends BaseStandaloneTest {
       Membership m = mHandler.findMembershipByUserGroupAndType("linkUser", "/linkGroup", "linkType");
       assertNotNull(m);
 
+      mHandler.removeMembership(m.getId(), true);
+
+      mHandler.createMembership(m, true);
+      m = mHandler.findMembershipByUserGroupAndType("linkUser", "/linkGroup", "linkType");
+      assertNotNull(m);
+
+      g = gHandler.createGroupInstance();
+      g.setGroupName("not-existed-group");
+      mHandler.linkMembership(u, g, mt, true);
+      assertNull(mHandler.findMembershipByUserGroupAndType(u.getUserName(), g.getId(), mt.getName()));
+
+      u = uHandler.createUserInstance("not-existed-user");
+      mHandler.linkMembership(u, g, mt, true);
+      assertNull(mHandler.findMembershipByUserGroupAndType(u.getUserName(), g.getId(), mt.getName()));
+
       try {
-        g = gHandler.createGroupInstance();
-        g.setGroupName("not-existed-group");
-        mHandler.linkMembership(u, g, mt, false);
-        assertNull(gHandler.findGroupById("/not-existed-group"));
+        mHandler.linkMembership(u, null, mt, true);
+        fail("Exception should be thrown");
       } catch (Exception e) {
-        e.printStackTrace();
-        fail("Exception should not be thrown");
+      }
+
+      try {
+        mHandler.linkMembership(u, g, null, true);
+        fail("Exception should be thrown");
+      } catch (Exception e) {
       }
 
     } catch (Exception e) {
@@ -207,7 +224,7 @@ public class TestMembershipImpl extends BaseStandaloneTest {
       mHandler.removeMembership(m.getId(), true);
       uHandler.removeUser("linkUser", true);
       gHandler.removeGroup(gHandler.findGroupById("/linkGroup"), true);
-      // mtHandler.removeMembershipType("linkType", true);
+      mtHandler.removeMembershipType("linkType", true);
     }
   }
 

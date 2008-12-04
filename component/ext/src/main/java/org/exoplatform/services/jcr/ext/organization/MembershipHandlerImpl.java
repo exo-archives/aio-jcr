@@ -120,28 +120,40 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     try {
       createAnyMembershipType(session, m.getMembershipType(), broadcast);
 
+      if (!session.itemExists(service.getStoragePath() + "/" + UserHandlerImpl.STORAGE_EXO_USERS
+          + "/" + m.getUserName())) {
+        return;
+      }
+
+      if (!session.itemExists(service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS
+          + m.getGroupId())) {
+        return;
+      }
+
+      if (!session.itemExists(service.getStoragePath() + "/"
+          + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + m.getMembershipType())) {
+        return;
+      }
+
       Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
           + UserHandlerImpl.STORAGE_EXO_USERS + "/" + m.getUserName());
 
-      Membership membership = new MembershipImpl(null,
-                                                 m.getUserName(),
-                                                 m.getGroupId(),
-                                                 m.getMembershipType());
       Node mNode = uNode.addNode(UserHandlerImpl.EXO_MEMBERSHIP);
 
       if (broadcast) {
-        preSave(membership, true);
+        preSave(m, true);
       }
 
-      writeObjectToNode(session, membership, mNode);
+      writeObjectToNode(session, m, mNode);
       session.save();
 
       if (broadcast) {
-        postSave(membership, true);
+        postSave(m, true);
       }
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not create membership", e);
+      throw new OrganizationServiceException("Can not create membership record", e);
     }
+
   }
 
   /**
@@ -457,48 +469,18 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
                               Group group,
                               MembershipType m,
                               boolean broadcast) throws Exception {
-    if (log.isDebugEnabled()) {
-      log.debug("linkMembership");
+    if (group == null) {
+      throw new OrganizationServiceException("Can not create membership record for user '"
+          + user.getUserName() + "' because group not found");
     }
 
-    try {
-      createAnyMembershipType(session, m.getName(), broadcast);
-
-      Node uNode = (Node) session.getItem(service.getStoragePath() + "/"
-          + UserHandlerImpl.STORAGE_EXO_USERS + "/" + user.getUserName());
-
-      if (!session.itemExists(service.getStoragePath() + "/" + GroupHandlerImpl.STORAGE_EXO_GROUPS
-          + group.getId())) {
-        return;
-      }
-
-      if (!session.itemExists(service.getStoragePath() + "/"
-          + MembershipTypeHandlerImpl.STORAGE_EXO_MEMBERSHIP_TYPES + "/" + m.getName())) {
-        return;
-      }
-
-      Membership membership = new MembershipImpl(null,
-                                                 user.getUserName(),
-                                                 group.getId(),
-                                                 m.getName());
-      Node mNode = uNode.addNode(UserHandlerImpl.EXO_MEMBERSHIP);
-
-      if (broadcast) {
-        preSave(membership, true);
-      }
-
-      writeObjectToNode(session, membership, mNode);
-      session.save();
-
-      if (broadcast) {
-        postSave(membership, true);
-      }
-
-    } catch (Exception e) {
-      throw new OrganizationServiceException("Can not link membership for user '"
-          + user.getUserName() + "' group '" + group.getGroupName() + "' and membership type '"
-          + m.getName() + "'", e);
+    if (m == null) {
+      throw new OrganizationServiceException("Can not create membership record for user '"
+          + user.getUserName() + "' because membership type not found");
     }
+
+    Membership membership = new MembershipImpl(null, user.getUserName(), group.getId(), m.getName());
+    createMembership(session, membership, broadcast);
   }
 
   /**

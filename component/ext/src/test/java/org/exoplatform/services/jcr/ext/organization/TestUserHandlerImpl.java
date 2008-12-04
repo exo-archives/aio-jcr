@@ -99,6 +99,18 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
 
       query.setUserName("*tolik*");
       assertEquals(uHandler.findUsers(query).getAll().size(), 1);
+
+      query.setUserName("*tolik");
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
+
+      query.setUserName("tolik*");
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
+
+      query.setUserName("tolik");
+      assertEquals(uHandler.findUsers(query).getAll().size(), 1);
+
+      query.setUserName("tol");
+      assertEquals(uHandler.findUsers(query).getAll().size(), 0);
       query.setUserName(null);
 
       query.setFirstName("first");
