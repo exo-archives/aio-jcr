@@ -108,10 +108,9 @@ public class Handler extends URLStreamHandler implements Startable {
                                                              .getAttribute(SessionProvider.SESSION_PROVIDER);
 
       // if still not set use anonymous session provider
-      if (sessionProvider == null) {
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>> anonymous");
+      if (sessionProvider == null)
         sessionProvider = SessionProvider.createAnonimProvider();
-      }
+      
       
       ManageableRepository repository;
       String repositoryName = nodeReference.getRepository();
