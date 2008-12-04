@@ -13,8 +13,8 @@
 		<param name="japex.numberOfThreads" value="1" />
 
 		<param name="jcr.initializer"	value="org.exoplatform.jcr.benchmark.init.EXOJCRStandaloneInitializer" />
-		<param name="jcr.user" value="admin" />
-		<param name="jcr.password" value="admin" />
+		<param name="jcr.user" value="root" />
+		<param name="jcr.password" value="exo" />
 		<param name="jcr.workspace" value="ws" />
 		<param name="jcr.sessionPolicy" value="single" />
 

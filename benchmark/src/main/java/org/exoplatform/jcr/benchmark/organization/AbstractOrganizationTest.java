@@ -19,7 +19,7 @@ package org.exoplatform.jcr.benchmark.organization;
 import org.exoplatform.container.StandaloneContainer;
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
-import org.exoplatform.services.organization.BaseOrganizationService;
+import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.MembershipHandler;
 import org.exoplatform.services.organization.MembershipTypeHandler;
@@ -38,7 +38,7 @@ public abstract class AbstractOrganizationTest extends JCRTestBase {
 
   protected StandaloneContainer     container;
 
-  protected BaseOrganizationService organizationService;
+  protected OrganizationService organizationService;
 
   protected GroupHandler            gHandler;
 
@@ -55,7 +55,7 @@ public abstract class AbstractOrganizationTest extends JCRTestBase {
     super.doPrepare(tc, context);
 
     container = StandaloneContainer.getInstance();
-    organizationService = (BaseOrganizationService) container.getComponentInstance(org.exoplatform.services.organization.OrganizationService.class);
+    organizationService = (OrganizationService) container.getComponentInstance(OrganizationService.class);
     gHandler = organizationService.getGroupHandler();
     mtHandler = organizationService.getMembershipTypeHandler();
     mHandler = organizationService.getMembershipHandler();

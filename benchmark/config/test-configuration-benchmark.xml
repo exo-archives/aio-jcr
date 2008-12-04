@@ -45,16 +45,16 @@
     </init-params>
   </component>
 
-  <component>
+  <!--component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
-  </component>
+  </component-->
 
   <!--component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.organization.hibernate.OrganizationServiceImpl</type>
   </component-->
 
-  <!--component>
+  <component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.jcr.ext.organization.JCROrganizationServiceImpl</type>
     <init-params>
@@ -64,7 +64,7 @@
         <value>system</value>
       </value-param>
     </init-params>
-  </component-->
+  </component>
 
 
   <component>
@@ -143,7 +143,7 @@
     </component-plugin>
   </external-component-plugins-->
 
-  <!--external-component-plugins>
+  <external-component-plugins>
     <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
     <component-plugin>
       <name>init.service.listener</name>
@@ -227,7 +227,7 @@
         </object-param>
       </init-params>
     </component-plugin>
-  </external-component-plugins-->
+  </external-component-plugins>
 
   <external-component-plugins>
     <target-component>org.exoplatform.services.naming.InitialContextInitializer</target-component>
