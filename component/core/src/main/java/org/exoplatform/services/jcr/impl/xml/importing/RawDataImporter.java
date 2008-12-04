@@ -21,11 +21,11 @@ import java.util.Map;
 import javax.jcr.NamespaceRegistry;
 
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.security.ConversationState;
 
@@ -40,7 +40,7 @@ public interface RawDataImporter {
   public abstract ContentImporter createContentImporter(NodeData parent,
                                                         int uuidBehavior,
                                                         ItemDataConsumer dataConsumer,
-                                                        NodeTypeManagerImpl ntManager,
+                                                        NodeTypeDataManager ntManager,
                                                         LocationFactory locationFactory,
                                                         ValueFactoryImpl valueFactory,
                                                         NamespaceRegistry namespaceRegistry,

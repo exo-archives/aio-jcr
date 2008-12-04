@@ -31,9 +31,9 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -46,7 +46,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -87,7 +86,7 @@ public class SystemViewImporter extends BaseXmlImporter {
                             QPath ancestorToSave,
                             int uuidBehavior,
                             ItemDataConsumer dataConsumer,
-                            NodeTypeManagerImpl ntManager,
+                            NodeTypeDataManager ntManager,
                             LocationFactory locationFactory,
                             ValueFactoryImpl valueFactory,
                             NamespaceRegistry namespaceRegistry,
@@ -111,9 +110,8 @@ public class SystemViewImporter extends BaseXmlImporter {
           currentWorkspaceName);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
+  /**
+   * {@inheritDoc}
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
     // property values
@@ -135,10 +133,8 @@ public class SystemViewImporter extends BaseXmlImporter {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   * java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void endElement(String uri, String localName, String name) throws RepositoryException {
     InternalQName elementName = locationFactory.parseJCRName(name).getInternalName();
@@ -159,10 +155,8 @@ public class SystemViewImporter extends BaseXmlImporter {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#startElement(java.lang.String,
-   * java.lang.String, java.lang.String, java.util.Map)
+  /**
+   * {@inheritDoc}
    */
   public void startElement(String namespaceURI,
                            String localName,
@@ -267,6 +261,8 @@ public class SystemViewImporter extends BaseXmlImporter {
   }
 
   /**
+   * endNode.
+   *
    * @throws RepositoryException
    */
   private void endNode() throws RepositoryException {
@@ -281,6 +277,8 @@ public class SystemViewImporter extends BaseXmlImporter {
   }
 
   /**
+   * endPrimaryType.
+   *
    * @return
    * @throws PathNotFoundException
    * @throws RepositoryException

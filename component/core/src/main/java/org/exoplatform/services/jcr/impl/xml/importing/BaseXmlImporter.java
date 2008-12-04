@@ -37,10 +37,10 @@ import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -94,8 +94,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
   protected final NamespaceRegistry   namespaceRegistry;
 
-  // protected final ExtendedNodeTypeManager ntManager; // TODO use interface
-  protected final NodeTypeManagerImpl ntManager;
+  protected final NodeTypeDataManager ntManager;
 
   protected final RepositoryImpl      repository;
 
@@ -113,7 +112,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
                          QPath ancestorToSave,
                          int uuidBehavior,
                          ItemDataConsumer dataConsumer,
-                         NodeTypeManagerImpl ntManager,
+                         NodeTypeDataManager ntManager,
                          LocationFactory locationFactory,
                          ValueFactoryImpl valueFactory,
                          NamespaceRegistry namespaceRegistry,

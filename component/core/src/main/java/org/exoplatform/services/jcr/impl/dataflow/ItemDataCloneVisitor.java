@@ -23,6 +23,7 @@ import java.util.List;
 import javax.jcr.ItemExistsException;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -32,7 +33,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.ItemImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 
 /**
@@ -82,7 +82,7 @@ public class ItemDataCloneVisitor extends DefaultItemDataCopyVisitor {
    */
   public ItemDataCloneVisitor(NodeData parent,
                               InternalQName dstNodeName,
-                              NodeTypeManagerImpl nodeTypeManager,
+                              NodeTypeDataManager nodeTypeManager,
                               SessionDataManager srcDataManager,
                               SessionDataManager dstDataManager,
                               boolean removeExisting,

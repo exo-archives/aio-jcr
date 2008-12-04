@@ -22,6 +22,7 @@ import java.util.Stack;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -31,7 +32,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -69,7 +69,7 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   /**
    * The NodeTypeManager
    */
-  protected NodeTypeManagerImpl ntManager;
+  protected NodeTypeDataManager ntManager;
 
   protected QPath               ancestorToSave = null;
 
@@ -90,7 +90,7 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
 
   public DefaultItemDataCopyVisitor(NodeData parent,
                                     InternalQName destNodeName,
-                                    NodeTypeManagerImpl nodeTypeManager,
+                                    NodeTypeDataManager nodeTypeManager,
                                     SessionDataManager dataManager,
                                     boolean keepIdentifiers) {
     super(dataManager);
@@ -103,11 +103,8 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     this.parents.add(parent);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
-   * .jcr.datamodel.PropertyData, int)
+  /**
+   * {@inheritDoc}
    */
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
@@ -141,11 +138,8 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     itemAddStates.add(new ItemState(newProperty, ItemState.ADDED, true, ancestorToSave, level != 0));
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#entering(org.exoplatform.services
-   * .jcr.datamodel.NodeData, int)
+  /**
+   * {@inheritDoc}
    */
   @Override
   protected void entering(NodeData node, int level) throws RepositoryException {
@@ -184,22 +178,16 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     itemAddStates.add(new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0));
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
-   * .jcr.datamodel.PropertyData, int)
+  /**
+   * {@inheritDoc}
    */
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor#leaving(org.exoplatform.services
-   * .jcr.datamodel.NodeData, int)
+  /**
+   * {@inheritDoc}
    */
   @Override
   protected void leaving(NodeData node, int level) throws RepositoryException {
@@ -207,19 +195,25 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
   }
 
   /**
-   * Returns the current parent node
+   * Returns the current parent node.
    */
   protected NodeData curParent() {
     return parents.peek();
   }
 
   /**
-   * Returns the list of item add states
+   * Returns the list of item add states.
    */
   public List<ItemState> getItemAddStates() {
     return itemAddStates;
   }
 
+  /**
+   * Find item states.
+   *
+   * @param itemPath item path
+   * @return List of states
+   */
   protected List<ItemState> findItemStates(QPath itemPath) {
     List<ItemState> istates = new ArrayList<ItemState>();
     for (ItemState istate : itemAddStates) {
@@ -229,6 +223,12 @@ public abstract class DefaultItemDataCopyVisitor extends ItemDataTraversingVisit
     return istates;
   }
 
+  /**
+   * Find last ItemState.
+   *
+   * @param itemPath item path
+   * @return ItemState
+   */
   protected ItemState findLastItemState(QPath itemPath) {
     for (int i = itemAddStates.size() - 1; i >= 0; i--) {
       ItemState istate = itemAddStates.get(i);

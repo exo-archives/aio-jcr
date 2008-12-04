@@ -33,16 +33,16 @@ import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
 import org.apache.ws.commons.util.Base64;
 import org.apache.ws.commons.util.Base64.DecodingException;
-
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
@@ -54,7 +54,6 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -104,7 +103,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
                               QPath ancestorToSave,
                               int uuidBehavior,
                               ItemDataConsumer dataConsumer,
-                              NodeTypeManagerImpl ntManager,
+                              NodeTypeDataManager ntManager,
                               LocationFactory locationFactory,
                               ValueFactoryImpl valueFactory,
                               NamespaceRegistry namespaceRegistry,
@@ -263,15 +262,15 @@ public class DocumentViewImporter extends BaseXmlImporter {
         newProperty = endUuid(nodeData, propName);
 
       } else {
-        PropertyDefinition pDef;
-        PropertyDefinitions defs;
+        PropertyDefinitionData pDef;
+        PropertyDefinitionDatas defs;
         try {
           defs = ntManager.findPropertyDefinitions(propName,
                                                    nodeData.getPrimaryTypeName(),
                                                    mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
           pDef = defs.getAnyDefinition();
 
-        } catch (RepositoryException e) {
+        } catch (RepositoryException e) { // FIXME
           if (!((Boolean) context.get(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS))) {
             log.warn(e.getLocalizedMessage());
             continue;

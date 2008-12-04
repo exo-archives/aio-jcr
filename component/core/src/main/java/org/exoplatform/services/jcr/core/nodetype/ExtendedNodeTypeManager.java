@@ -45,6 +45,8 @@ public interface ExtendedNodeTypeManager extends NodeTypeManager {
 
   public static final int REPLACE_IF_EXISTS = 4;
 
+  NodeTypeDataManager getDataManager();
+  
   NodeType findNodeType(InternalQName qname) throws NoSuchNodeTypeException, RepositoryException;
 
   /**

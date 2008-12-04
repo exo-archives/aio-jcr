@@ -6,7 +6,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -16,7 +16,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
@@ -27,7 +26,7 @@ public class ItemDataCopyVisitor extends DefaultItemDataCopyVisitor {
 
   public ItemDataCopyVisitor(NodeData parent,
                              InternalQName destNodeName,
-                             NodeTypeManagerImpl nodeTypeManager,
+                             NodeTypeDataManager nodeTypeManager,
                              SessionDataManager dataManager,
                              boolean keepIdentifiers) {
     super(parent, destNodeName, nodeTypeManager, dataManager, keepIdentifiers);

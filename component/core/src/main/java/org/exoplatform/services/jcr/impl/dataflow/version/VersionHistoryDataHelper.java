@@ -25,6 +25,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.version.VersionException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -54,7 +55,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
   protected final ItemDataConsumer    dataManager;
 
-  protected final NodeTypeManagerImpl ntManager;
+  protected final NodeTypeDataManager ntManager;
 
   private final String                versionHistoryIdentifier;
 
@@ -70,7 +71,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
    */
   public VersionHistoryDataHelper(NodeData source,
                                   ItemDataConsumer dataManager,
-                                  NodeTypeManagerImpl ntManager) {
+                                  NodeTypeDataManager ntManager) {
     super(source.getQPath(),
           source.getIdentifier(),
           source.getPersistedVersion(),
@@ -101,7 +102,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   public VersionHistoryDataHelper(NodeData versionable,
                                   PlainChangesLogImpl changes,
                                   ItemDataConsumer dataManager,
-                                  NodeTypeManagerImpl ntManager) throws RepositoryException {
+                                  NodeTypeDataManager ntManager) throws RepositoryException {
 
     this(versionable,
          changes,
@@ -126,7 +127,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   public VersionHistoryDataHelper(NodeData versionable,
                                   PlainChangesLogImpl changes,
                                   ItemDataConsumer dataManager,
-                                  NodeTypeManagerImpl ntManager,
+                                  NodeTypeDataManager ntManager,
                                   String versionHistoryIdentifier,
                                   String baseVersionIdentifier) throws RepositoryException {
     this.dataManager = dataManager;

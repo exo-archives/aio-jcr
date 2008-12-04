@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
@@ -48,6 +47,7 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeValuesList;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
@@ -74,10 +74,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   protected final LocationFactory                                     locationFactory;
 
-  // protected final Map<InternalQName, ExtendedNodeType> nodeTypes;
-
-  protected final String                                              accessControlPolicy;
-
   protected final NodeTypeDataManager                                 typesManager;
 
   /**
@@ -85,46 +81,22 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * free the self reference
    */
   private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners      = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
-
-  public NodeTypeManagerImpl(RepositoryEntry config,
-                             LocationFactory locationFactory,
-                             ValueFactoryImpl valueFactory,
-                             NamespaceRegistry namespaceRegistry,
-                             NodeTypeDataManager typesManager) throws RepositoryException {
-    this(locationFactory,
-         valueFactory,
-         namespaceRegistry,
-         config.getAccessControl(),
-         typesManager,
-         null);
-    initDefault();
-  }
-
-  protected NodeTypeManagerImpl(LocationFactory locationFactory,
+  
+  public NodeTypeManagerImpl(LocationFactory locationFactory,
                                 ValueFactoryImpl valueFactory,
-                                NamespaceRegistry namespaceRegistry,
-                                String accessControlPolicy,
-                                NodeTypeDataManager typesManager,
-                                Map<InternalQName, ExtendedNodeType> nodeTypes) {
-    // this.nodeTypes = nodeTypes != null
-    // ? nodeTypes
-    // : new ConcurrentHashMap<InternalQName, ExtendedNodeType>();
+                                NodeTypeDataManager typesManager) {
     this.valueFactory = valueFactory;
     this.locationFactory = locationFactory;
-    this.accessControlPolicy = accessControlPolicy;
     this.typesManager = typesManager;
   }
 
-  // TODO
-  // public WorkspaceNTManagerImpl createWorkspaceNTManager(SessionImpl session) throws
-  // RepositoryException {
-  // WorkspaceNTManagerImpl wntm = new WorkspaceNTManagerImpl(namespaceRegistry,
-  // accessControlPolicy,
-  // session,
-  // persister,
-  // nodeTypes);
-  // return wntm;
-  // }
+  @Deprecated
+  public WorkspaceNTManagerImpl createWorkspaceNTManager(SessionImpl session) throws RepositoryException {
+    WorkspaceNTManagerImpl wntm = new WorkspaceNTManagerImpl(null,
+                                                             session,
+                                                             typesManager);
+    return wntm;
+  }
 
   // JSR-170 stuff ================================
 
@@ -189,6 +161,10 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   // eXo stuff ================================
+  
+  public NodeTypeDataManager getDataManager() {
+    return typesManager;
+  }
 
   public ExtendedNodeType findNodeType(InternalQName nodeTypeName) throws NoSuchNodeTypeException,
                                                                   RepositoryException {
@@ -404,23 +380,23 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    */
   public void registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException {
 
-    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
-      List<String> nsupertypes = nodeTypeValue.getDeclaredSupertypeNames();
-      if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
-          || nodeTypeValue.getName().equals("exo:privilegeable")) {
-        // skip this node, so it's not necessary at this runtime
-        // + "' -- it's not necessary at this runtime";
-        LOG.warn("Node type " + nodeTypeValue.getName()
-            + " is not register due to DISABLE control policy");
-        return;
-      }
-    }
+//    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
+//      List<String> nsupertypes = nodeTypeValue.getDeclaredSupertypeNames();
+//      if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
+//          || nodeTypeValue.getName().equals("exo:privilegeable")) {
+//        // skip this node, so it's not necessary at this runtime
+//        // + "' -- it's not necessary at this runtime";
+//        LOG.warn("Node type " + nodeTypeValue.getName()
+//            + " is not register due to DISABLE control policy");
+//        return;
+//      }
+//    }
+//
+//    // We have to validate node value before registering it
+//    nodeTypeValue.validateNodeType();
+//    // NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
+//    // registerNodeType(nodeType, alreadyExistsBehaviour);
 
-    // We have to validate node value before registering it
-    nodeTypeValue.validateNodeType();
-    // NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
-    // registerNodeType(nodeType, alreadyExistsBehaviour);
-    
     typesManager.registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
   }
 
@@ -671,12 +647,12 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
                                             int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
                                                                        RepositoryException {
-    
+
     Collection<NodeTypeData> nts = typesManager.registerNodeTypes(values, alreadyExistsBehaviour);
     EntityCollection types = new EntityCollection();
     for (NodeTypeData ntdata : nts)
       types.add(new NodeTypeImpl(ntdata, typesManager, locationFactory, valueFactory));
-    
+
     return types;
   }
 

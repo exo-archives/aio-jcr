@@ -27,9 +27,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.xml.sax.ContentHandler;
-
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -48,6 +47,7 @@ import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceDataImporter;
 import org.exoplatform.services.security.ConversationState;
+import org.xml.sax.ContentHandler;
 
 /**
  * Created by The eXo Platform SAS.
@@ -184,7 +184,7 @@ public class ExportImportFactory {
                                          int uuidBehavior,
                                          ItemDataKeeper dataKeeper,
                                          ItemDataConsumer dataConsumer,
-                                         NodeTypeManagerImpl ntManager,
+                                         NodeTypeDataManager ntManager,
                                          LocationFactory locationFactory,
                                          ValueFactoryImpl valueFactory,
                                          NamespaceRegistry namespaceRegistry,
@@ -220,7 +220,7 @@ public class ExportImportFactory {
                                           int uuidBehavior,
                                           ItemDataKeeper dataKeeper,
                                           ItemDataConsumer dataConsumer,
-                                          NodeTypeManagerImpl ntManager,
+                                          NodeTypeDataManager ntManager,
                                           LocationFactory locationFactory,
                                           ValueFactoryImpl valueFactory,
                                           NamespaceRegistry namespaceRegistry,

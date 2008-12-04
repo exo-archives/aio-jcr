@@ -36,8 +36,8 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -72,7 +72,7 @@ public class StreamImporter implements RawDataImporter {
                         int uuidBehavior,
                         ItemDataKeeper dataKeeper,
                         ItemDataConsumer dataConsumer,
-                        NodeTypeManagerImpl ntManager,
+                        NodeTypeDataManager ntManager,
                         LocationFactory locationFactory,
                         ValueFactoryImpl valueFactory,
                         NamespaceRegistry namespaceRegistry,
@@ -97,17 +97,13 @@ public class StreamImporter implements RawDataImporter {
                                           currentWorkspaceName);
   }
 
-  /*
-   * (non-Javadoc)
-   * @seeorg.exoplatform.services.jcr.impl.xml.importing.RawDataImporter#createContentImporter(org.
-   * exoplatform.services.jcr.impl.core.NodeImpl, int,
-   * org.exoplatform.services.jcr.impl.xml.XmlSaveType,
-   * org.exoplatform.services.ext.action.InvocationContext)
+  /**
+   * {@inheritDoc}
    */
   public ContentImporter createContentImporter(NodeData parent,
                                                int uuidBehavior,
                                                ItemDataConsumer dataConsumer,
-                                               NodeTypeManagerImpl ntManager,
+                                               NodeTypeDataManager ntManager,
                                                LocationFactory locationFactory,
                                                ValueFactoryImpl valueFactory,
                                                NamespaceRegistry namespaceRegistry,

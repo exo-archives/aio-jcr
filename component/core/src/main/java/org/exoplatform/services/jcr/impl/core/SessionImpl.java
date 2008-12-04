@@ -51,9 +51,6 @@ import javax.jcr.observation.ObservationManager;
 import javax.jcr.version.VersionException;
 import javax.xml.stream.XMLStreamException;
 
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
@@ -63,6 +60,7 @@ import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.core.SessionLifecycleListener;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
@@ -85,6 +83,8 @@ import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -123,8 +123,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   private final List<SessionLifecycleListener> lifecycleListeners;
 
-  // private final SessionFactory sessionFactory;
-
   private final String                         id;
 
   private final SessionActionInterceptor       actionHandler;
@@ -134,6 +132,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   private final SessionRegistry                sessionRegistry;
 
   protected final SessionDataManager           dataManager;
+
+  protected final NodeTypeDataManager          nodeTypeManager;
 
   public SessionImpl(String workspaceName, ConversationState userState, ExoContainer container) throws RepositoryException {
 
@@ -165,6 +165,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
     this.dataManager = new SessionDataManager(this, workspaceDataManager);
 
+    this.nodeTypeManager = (NodeTypeDataManager) container.getComponentInstanceOfType(NodeTypeDataManager.class);
+
     this.workspace = new WorkspaceImpl(workspaceName, container, this, observationManager);
 
     this.lifecycleListeners = new ArrayList<SessionLifecycleListener>();
@@ -181,17 +183,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#addLockToken(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void addLockToken(String lt) {
     getLockManager().addLockToken(getId(), lt);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#checkPermission(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void checkPermission(String absPath, String actions) throws AccessControlException {
 
@@ -205,10 +205,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#exportDocumentView(java.lang.String, org.xml.sax.ContentHandler,
-   * boolean, boolean)
+  /**
+   * {@inheritDoc}
    */
   public void exportDocumentView(String absPath,
                                  ContentHandler contentHandler,
@@ -245,6 +243,9 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void exportDocumentView(String absPath,
                                  OutputStream out,
                                  boolean skipBinary,
@@ -279,11 +280,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#exportSystemView(java.lang.String, org.xml.sax.ContentHandler, boolean,
-   * boolean)
-   */
   public void exportWorkspaceSystemView(OutputStream out, boolean skipBinary, boolean noRecurse) throws IOException,
                                                                                                 PathNotFoundException,
                                                                                                 RepositoryException {
@@ -313,10 +309,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#exportSystemView(java.lang.String, org.xml.sax.ContentHandler, boolean,
-   * boolean)
+  /**
+   * {@inheritDoc}
    */
   public void exportSystemView(String absPath,
                                ContentHandler contentHandler,
@@ -349,10 +343,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#exportSystemView(java.lang.String, java.io.OutputStream, boolean,
-   * boolean)
+  /**
+   * {@inheritDoc}
    */
   public void exportSystemView(String absPath,
                                OutputStream out,
@@ -398,25 +390,22 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     return actionHandler;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getAllNamespacePrefixes()
+  /**
+   * {@inheritDoc}
    */
   public String[] getAllNamespacePrefixes() throws RepositoryException {
     return getNamespacePrefixes();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getAttribute(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Object getAttribute(String name) {
     return userState.getAttribute(name);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getAttributeNames()
+  /**
+   * {@inheritDoc}
    */
   public String[] getAttributeNames() {
 
@@ -438,13 +427,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     return container;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public String getId() {
     return id;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getImportContentHandler(java.lang.String, int)
+  /**
+   * {@inheritDoc}
    */
   public ContentHandler getImportContentHandler(String parentAbsPath, int uuidBehavior) throws
 
@@ -474,7 +465,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                       uuidBehavior,
                                                       new ItemDataKeeperAdapter(getTransientNodesManager()),
                                                       getTransientNodesManager(),
-                                                      getWorkspace().getNodeTypeManager(),
+                                                      nodeTypeManager,
                                                       getLocationFactory(),
                                                       getValueFactory(),
                                                       getWorkspace().getNamespaceRegistry(),
@@ -501,7 +492,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   public long getLastAccessTime() {
     return lastAccessTime;
-
   }
 
   /**
@@ -515,17 +505,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     return lockManager;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getLockTokens()
+  /**
+   * {@inheritDoc}
    */
   public String[] getLockTokens() {
     return getLockManager().getLockTokens(getId());
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getNamespacePrefix(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getNamespacePrefix(String uri) throws NamespaceException, RepositoryException {
     if (prefixes.containsKey(uri)) {
@@ -534,18 +522,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     return workspace.getNamespaceRegistry().getPrefix(uri);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespacePrefixByURI(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getNamespacePrefixByURI(String uri) throws NamespaceException, RepositoryException {
     return getNamespacePrefix(uri);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getNamespacePrefixes()
+  /**
+   * {@inheritDoc}
    */
   public String[] getNamespacePrefixes() throws RepositoryException {
     Collection<String> allPrefixes = new LinkedList<String>();
@@ -561,9 +546,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     return allPrefixes.toArray(new String[allPrefixes.size()]);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getNamespaceURI(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getNamespaceURI(String prefix) throws NamespaceException, RepositoryException {
     String uri = null;
@@ -579,19 +563,16 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     return workspace.getNamespaceRegistry().getURI(prefix);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespaceURIByPrefix(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getNamespaceURIByPrefix(String prefix) throws NamespaceException,
                                                       RepositoryException {
     return getNamespaceURI(prefix);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getNodeByUUID(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public Node getNodeByUUID(String uuid) throws ItemNotFoundException, RepositoryException {
     Item item = dataManager.getItemByIdentifier(uuid, true);
@@ -606,17 +587,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getRepository()
+  /**
+   * {@inheritDoc}
    */
   public Repository getRepository() {
     return repository;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getRootNode()
+  /**
+   * {@inheritDoc}
    */
   public Node getRootNode() throws RepositoryException {
     Item item = dataManager.getItemByIdentifier(Constants.ROOT_UUID, true);
@@ -630,43 +609,38 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
   public SessionDataManager getTransientNodesManager() {
     return this.dataManager;
   }
-
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getUserID()
+  
+  /**
+   * {@inheritDoc}
    */
   public String getUserID() {
     return userState.getIdentity().getUserId();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getValueFactory()
+  /**
+   * {@inheritDoc}
    */
   public ValueFactoryImpl getValueFactory() throws UnsupportedRepositoryOperationException,
                                            RepositoryException {
     return valueFactory;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#getWorkspace()
+  /**
+   * {@inheritDoc}
    */
   public WorkspaceImpl getWorkspace() {
     return workspace;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#hasPendingChanges()
+  /**
+   * {@inheritDoc}
    */
   public boolean hasPendingChanges() throws RepositoryException {
     return dataManager.hasPendingChanges(Constants.ROOT_PATH);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#impersonate(javax.jcr.Credentials)
+  /**
+   * {@inheritDoc}
    */
   public Session impersonate(Credentials credentials) throws LoginException, RepositoryException {
 
@@ -689,9 +663,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#importXML(java.lang.String, java.io.InputStream, int)
+  /**
+   * {@inheritDoc}
    */
   public void importXML(String parentAbsPath, InputStream in, int uuidBehavior) throws IOException,
                                                                                PathNotFoundException,
@@ -705,11 +678,6 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     importXML(parentAbsPath, in, uuidBehavior, context);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedSession#importXML(java.lang.String,
-   * java.io.InputStream, int, boolean)
-   */
   public void importXML(String parentAbsPath,
                         InputStream in,
                         int uuidBehavior,
@@ -726,6 +694,9 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void importXML(String parentAbsPath,
                         InputStream in,
                         int uuidBehavior,
@@ -756,7 +727,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
                                                                           uuidBehavior,
                                                                           new ItemDataKeeperAdapter(getTransientNodesManager()),
                                                                           getTransientNodesManager(),
-                                                                          getWorkspace().getNodeTypeManager(),
+                                                                          nodeTypeManager,
                                                                           getLocationFactory(),
                                                                           getValueFactory(),
                                                                           getWorkspace().getNamespaceRegistry(),
@@ -768,17 +739,15 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     importer.importStream(in);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#isLive()
+  /**
+   * {@inheritDoc}
    */
   public boolean isLive() {
     return live;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#itemExists(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public boolean itemExists(String absPath) {
     try {
@@ -789,9 +758,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     return false;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#logout()
+  /**
+   * {@inheritDoc}
    */
   public void logout() {
     for (int i = 0; i < lifecycleListeners.size(); i++) {
@@ -801,6 +769,9 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     this.live = false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void move(String srcAbsPath, String destAbsPath) throws ItemExistsException,
                                                          PathNotFoundException,
                                                          VersionException,
@@ -849,36 +820,36 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     ItemDataMoveVisitor initializer = new ItemDataMoveVisitor((NodeData) destParentNode.getData(),
                                                               destNodePath.getName()
                                                                           .getInternalName(),
-                                                              getWorkspace().getNodeTypeManager(),
+                                                              nodeTypeManager,
                                                               getTransientNodesManager(),
                                                               true);
 
     getTransientNodesManager().rename((NodeData) srcNode.getData(), initializer);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#refresh(boolean)
+  /**
+   * {@inheritDoc}
    */
   public void refresh(boolean keepChanges) throws RepositoryException {
     getRootNode().refresh(keepChanges);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void registerLifecycleListener(SessionLifecycleListener listener) {
     this.lifecycleListeners.add(listener);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#removeLockToken(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void removeLockToken(String lt) {
     getLockManager().removeLockToken(getId(), lt);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#save()
+  /**
+   * {@inheritDoc}
    */
   public void save() throws AccessDeniedException,
                     LockException,
@@ -888,9 +859,8 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     getRootNode().save();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Session#setNamespacePrefix(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public void setNamespacePrefix(String prefix, String uri) throws NamespaceException,
                                                            RepositoryException {

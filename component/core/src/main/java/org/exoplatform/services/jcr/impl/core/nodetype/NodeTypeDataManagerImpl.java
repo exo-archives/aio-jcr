@@ -53,10 +53,8 @@ import org.jibx.runtime.JiBXException;
 /**
  * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
- * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z
- *          pnedonosko $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
 public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
@@ -99,6 +97,13 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.defsHolder = new ItemDefinitionDataHolder(this.hierarchy);
     this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
     initDefault();
+  }
+
+  /**
+   * @return the accessControlPolicy
+   */
+  public String getAccessControlPolicy() {
+    return accessControlPolicy;
   }
 
   private void initDefault() throws RepositoryException {
@@ -210,22 +215,23 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                            nodes);
 
     registerNodeType(ntdata, alreadyExistsBehaviour);
-    
+
     return ntdata;
   }
-  
-  public Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntvalues, int alreadyExistsBehaviour) throws RepositoryException {
+
+  public Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntvalues,
+                                                    int alreadyExistsBehaviour) throws RepositoryException {
     // 1. validate collection and self/new referencing, TODO
-    
+
     // 2. traverse and reg
     Collection<NodeTypeData> nts = new ArrayList<NodeTypeData>();
-    for (NodeTypeValue v: ntvalues) {
+    for (NodeTypeValue v : ntvalues) {
       nts.add(registerNodeType(v, alreadyExistsBehaviour));
     }
-    
+
     return nts;
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -250,12 +256,12 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       }
       LOG.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
           + (System.currentTimeMillis() - start) + " ms.");
-      
+
       return nts;
     } catch (JiBXException e) {
       throw new RepositoryException("Error in config initialization " + e, e);
     }
-  }  
+  }
 
   /**
    * {@inheritDoc}
@@ -312,19 +318,19 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   public void registerNodeTypes(Collection<NodeTypeData> nodeTypes, int alreadyExistsBehaviour) throws RepositoryException {
     // 1. validate collection and self/new referencing, TODO
-    
+
     // 2. traverse and reg
-    for (NodeTypeData nt: nodeTypes) {
+    for (NodeTypeData nt : nodeTypes) {
       registerNodeType(nt, alreadyExistsBehaviour);
     }
   }
-  
+
   /**
-   * Validate NodeTypeData and return new instance or throw an exception. The
-   * new instance will be a guarany of valid NodeType. Check according the
-   * JSR-170/JSR-283 spec.
+   * Validate NodeTypeData and return new instance or throw an exception. The new instance will be a
+   * guarany of valid NodeType. Check according the JSR-170/JSR-283 spec.
    * 
-   * @param nodeType NodeTypeData to be checked
+   * @param nodeType
+   *          NodeTypeData to be checked
    * @return valid NodeTypeData
    * @throws RepositoryException
    */
@@ -408,55 +414,90 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     // TODO residual
     return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
   }
+  
+  public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
+                                                    InternalQName primaryNodeType,
+                                                    InternalQName... mixinTypes) {
+
+    // TODO residual
+    
+    NodeDefinitionData cnd = defsHolder.getDefaultChildNodeDefinition(nodeName, primaryNodeType);
+    if (cnd != null)
+      return cnd;
+    
+    return defsHolder.getDefaultChildNodeDefinition(nodeName, mixinTypes);
+  }
 
   public NodeTypeData findNodeType(InternalQName typeName) {
     return hierarchy.getNodeType(typeName);
   }
-  
+
   public PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
-                                                         InternalQName... nodeTypeNames) {
+                                                        InternalQName... nodeTypeNames) {
 
     // TODO residual
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
-  
+
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                          InternalQName primaryNodeType,
                                                          InternalQName... mixinTypes) {
-    
+
     if (mixinTypes != null) {
       InternalQName[] nts = new InternalQName[mixinTypes.length + 1];
       nts[0] = primaryNodeType;
-      for (int i=0; i<mixinTypes.length; i++) {
-        nts[i + 1] = mixinTypes[i];  
+      for (int i = 0; i < mixinTypes.length; i++) {
+        nts[i + 1] = mixinTypes[i];
       }
       return getPropertyDefinitions(propertyName, nts);
     } else
       return getPropertyDefinitions(propertyName, primaryNodeType);
   }
 
-
   public Collection<NodeTypeData> getAllNodeTypes() {
     return hierarchy.getAllNodeTypes();
   }
 
-  public boolean isNodeType(InternalQName testTypeName, InternalQName... typesNames) {
+  public boolean isNodeType(final InternalQName testTypeName, final InternalQName... typesNames) {
     return hierarchy.isNodeType(testTypeName, typesNames);
   }
 
-  public boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames) {
+  public boolean isNodeType(final InternalQName testTypeName,
+                            final InternalQName primaryType,
+                            final InternalQName[] mixinTypes) {
 
-    for (InternalQName name : nodeTypeNames) {
+    if (hierarchy.isNodeType(testTypeName, primaryType))
+      return true;
+
+    if (hierarchy.isNodeType(testTypeName, mixinTypes))
+      return true;
+
+    return false;
+  }
+
+  public boolean isOrderableChildNodesSupported(final InternalQName primaryType,
+                                                final InternalQName[] mixinTypes) {
+
+    final int nlen = mixinTypes != null ? mixinTypes.length : 0;
+    for (int i = -1; i < nlen; i++) {
+      InternalQName name;
+      if (i < 0)
+        name = primaryType;
+      else
+        name = mixinTypes[i];
+
       NodeTypeData nt = hierarchy.getNodeType(name);
 
-      if (nt != null && nt.hasOrderableChildNodes())
-        return true;
-
-      Set<InternalQName> supers = hierarchy.getSupertypes(nt.getName());
-      for (InternalQName suName : supers) {
-        NodeTypeData su = hierarchy.getNodeType(suName);
-        if (su != null && su.hasOrderableChildNodes())
+      if (nt != null) {
+        if (nt.hasOrderableChildNodes())
           return true;
+
+        Set<InternalQName> supers = hierarchy.getSupertypes(nt.getName());
+        for (InternalQName suName : supers) {
+          NodeTypeData su = hierarchy.getNodeType(suName);
+          if (su != null && su.hasOrderableChildNodes())
+            return true;
+        }
       }
     }
 
@@ -466,8 +507,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * Add a <code>NodeTypeRegistryListener</code>
    * 
-   * @param listener the new listener to be informed on (un)registration of node
-   *          types
+   * @param listener
+   *          the new listener to be informed on (un)registration of node types
    */
   public void addListener(NodeTypeManagerListener listener) {
     if (!listeners.containsKey(listener)) {
@@ -478,17 +519,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * Remove a <code>NodeTypeRegistryListener</code>.
    * 
-   * @param listener an existing listener
+   * @param listener
+   *          an existing listener
    */
   public void removeListener(NodeTypeManagerListener listener) {
     listeners.remove(listener);
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been
-   * registered.
+   * Notify the listeners that a node type <code>ntName</code> has been registered.
    * 
-   * @param ntName NT name.
+   * @param ntName
+   *          NT name.
    */
   private void notifyRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -502,10 +544,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been
-   * re-registered.
+   * Notify the listeners that a node type <code>ntName</code> has been re-registered.
    * 
-   * @param ntName NT name.
+   * @param ntName
+   *          NT name.
    */
   private void notifyReRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -519,10 +561,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been
-   * unregistered.
+   * Notify the listeners that a node type <code>ntName</code> has been unregistered.
    * 
-   * @param ntName NT name.
+   * @param ntName
+   *          NT name.
    */
   private void notifyUnregistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException

@@ -35,49 +35,55 @@ public interface NodeTypeDataManager {
 
   /**
    * Return all NodeTypes.
-   *
+   * 
    * @return List of NodeTypeData
-   * @throws RepositoryException in case of error
+   * @throws RepositoryException
+   *           in case of error
    */
   Collection<NodeTypeData> getAllNodeTypes();
-  
+
   NodeTypeData findNodeType(InternalQName typeName);
 
-  boolean isOrderableChildNodesSupported(InternalQName... nodeTypeNames);
+  boolean isOrderableChildNodesSupported(InternalQName primaryNodeType,
+                                         InternalQName[] mixinTypes);
 
   NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
-                                        InternalQName nodeTypeName,
-                                        InternalQName parentTypeName);
-  
-  NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
-                                             InternalQName... nodeTypeNames);
-  
+                                            InternalQName nodeTypeName,
+                                            InternalQName parentTypeName);
+
+  NodeDefinitionData findChildNodeDefinition(InternalQName nodeName, InternalQName... nodeTypeNames);
+
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                              InternalQName primaryNodeType,
                                              InternalQName... mixinTypes);
 
-  //NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList);
+  // NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList);
 
   PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
-                                                  InternalQName... nodeTypeNames) ;
-  
-  PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-                                             InternalQName primaryNodeType,
-                                             InternalQName... mixinTypes);
+                                                 InternalQName... nodeTypeNames);
 
-  //PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-  //                                                List<NodeTypeData> typesList);
+  PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
+                                                  InternalQName primaryNodeType,
+                                                  InternalQName[] mixinTypes);
+
+  // PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
+  // List<NodeTypeData> typesList);
+
+  boolean isNodeType(InternalQName testTypeName,
+                     InternalQName primaryNodeType,
+                     InternalQName[] mixinNames);
 
   boolean isNodeType(InternalQName testTypeName, InternalQName... typeNames);
-  
+
   void registerNodeType(NodeTypeData nodeType, int alreadyExistsBehaviour) throws RepositoryException;
-  
+
   void registerNodeTypes(Collection<NodeTypeData> nodeTypes, int alreadyExistsBehaviour) throws RepositoryException;
-  
+
   NodeTypeData registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException;
-  
-  Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues, int alreadyExistsBehaviour) throws RepositoryException;
-  
+
+  Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues,
+                                             int alreadyExistsBehaviour) throws RepositoryException;
+
   Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
 
 }

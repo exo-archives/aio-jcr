@@ -25,9 +25,9 @@ import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -60,7 +60,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
 
   protected QPath                   ancestorToSave            = null;
 
-  private final NodeTypeManagerImpl nodeTypeManager;
+  private final NodeTypeDataManager nodeTypeManager;
 
   private final AccessManager       accessManager;
 
@@ -76,7 +76,7 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
 
   public ItemDataRemoveVisitor(ItemDataConsumer dataManager,
                                QPath ancestorToSave,
-                               NodeTypeManagerImpl nodeTypeManager,
+                               NodeTypeDataManager nodeTypeManager,
                                AccessManager accessManager,
                                ConversationState userState) {
     super(dataManager);

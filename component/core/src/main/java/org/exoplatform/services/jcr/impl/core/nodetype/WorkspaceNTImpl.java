@@ -35,13 +35,14 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id: WorkspaceNTImpl.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
+@Deprecated
 public class WorkspaceNTImpl implements ExtendedNodeType {
 
   private NodeTypeImpl nodeType;
 
   private SessionImpl  session;
 
+  @Deprecated
   public WorkspaceNTImpl(NodeTypeImpl nodeType, SessionImpl session) {
     super();
     this.session = session;
@@ -155,38 +156,6 @@ public class WorkspaceNTImpl implements ExtendedNodeType {
 
   public PropertyDefinitions getPropertyDefinitions(String name) {
     return nodeType.getPropertyDefinitions(name);
-  }
-
-  public void setDeclaredNodeDefs(NodeDefinition[] nodeDefinitions) {
-    nodeType.setDeclaredNodeDefs(nodeDefinitions);
-  }
-
-  public void setDeclaredPropertyDefs(PropertyDefinition[] propertyDefinitions) {
-    nodeType.setDeclaredPropertyDefs(propertyDefinitions);
-  }
-
-  public void setDeclaredSupertypes(NodeType[] nodeTypes) {
-    nodeType.setDeclaredSupertypes(nodeTypes);
-  }
-
-  public void setMixin(boolean mixin) {
-    nodeType.setMixin(mixin);
-  }
-
-  public void setName(String name) {
-    try {
-      nodeType.setName(name);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
-  public void setOrderableChild(boolean child) {
-    nodeType.setOrderableChild(child);
-  }
-
-  public void setPrimaryItemName(String primaryItemName) {
-    nodeType.setPrimaryItemName(primaryItemName);
   }
 
 }

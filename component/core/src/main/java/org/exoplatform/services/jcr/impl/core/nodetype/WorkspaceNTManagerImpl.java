@@ -16,17 +16,14 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
-import java.util.Map;
-
-import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
@@ -37,24 +34,21 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
  * @version $Id: WorkspaceNTManagerImpl.java 11907 2008-03-13 15:36:21Z ksm $
  */
-
+@Deprecated
 class WorkspaceNTManagerImpl extends NodeTypeManagerImpl {
 
   protected static Log log = ExoLogger.getLogger("jcr.WorkspaceNTManagerImpl");
 
   private SessionImpl  session;
-
-  WorkspaceNTManagerImpl(NamespaceRegistry namespaceRegistry,
-                         String accessControlPolicy,
+  
+  @Deprecated
+  WorkspaceNTManagerImpl(String accessControlPolicy,
                          SessionImpl session,
-                         NodeTypeDataPersister persister,
-                         Map<InternalQName, ExtendedNodeType> nodeTypes) throws RepositoryException {
+                         NodeTypeDataManager typesManager) throws RepositoryException {
     super(session.getLocationFactory(),
           session.getValueFactory(),
-          namespaceRegistry,
-          accessControlPolicy,
-          persister,
-          nodeTypes);
+          //accessControlPolicy,
+          typesManager);
     this.session = session;
   }
 
