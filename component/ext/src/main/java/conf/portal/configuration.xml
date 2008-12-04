@@ -114,20 +114,6 @@
 
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationService</type>
-    <!--  component-plugins>
-      <component-plugin>
-        <name>noderepresentation</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.jcr.ext.resource.NodeRepresentationFactoryLoaderPlugin</type>
-        <init-params>
-          <properties-param>
-            <name>node-representation-factories</name>
-            <property name="nt:file" value="org.exoplatform.services.jcr.ext.resource.representation.NtFileNodeRepresentationFactory"/>
-          </properties-param>
-        </init-params>
-      </component-plugin>
-    </component-plugins
--->
   </component>
   
   <component>
@@ -141,7 +127,7 @@
   <component>
     <type>org.exoplatform.services.jcr.ext.resource.representation.NtResourceNodeRepresentationFactory</type>
   </component>
-<!-- 
+ 
   <component>
     <type>org.exoplatform.services.jcr.ext.script.groovy.GroovyScript2RestLoader</type>
     <init-params>
@@ -154,7 +140,8 @@
           <field name="workspaces">
             <collection type="java.util.ArrayList">
               <value>
-                <string>collaboration</string>
+<!--                <string>collaboration</string>-->
+                <string>production</string>
               </value>
             </collection>
           </field>
@@ -162,7 +149,11 @@
       </object-param>
     </init-params>
   </component>
--->
+
+  <component>
+    <type>org.exoplatform.services.jcr.ext.script.groovy.GroovyScriptService</type>
+  </component>
+  
 <!--
   <component>
     <type>org.exoplatform.services.jcr.ext.artifact.ArtifactManagingServiceImpl</type>

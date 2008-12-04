@@ -34,7 +34,6 @@ import org.exoplatform.services.rest.impl.ContainerRequest;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.InputHeadersMap;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
-import org.exoplatform.services.rest.impl.RequestDispatcher;
 import org.exoplatform.services.rest.impl.ResourceBinder;
 
 /**
@@ -67,12 +66,12 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
     scriptFile = testRoot.addNode("script", "nt:file");
     script = scriptFile.addNode("jcr:content", GroovyScript2RestLoader.DEFAULT_NODETYPE);
     script.setProperty("exo:autoload", true);
+    script.setProperty("exo:load", true);
     script.setProperty("jcr:mimeType", "text/groovy");
     script.setProperty("jcr:lastModified", Calendar.getInstance());
     script.setProperty("jcr:data", Thread.currentThread()
                                          .getContextClassLoader()
                                          .getResourceAsStream("test1.groovy"));
-
     session.save();
   }
 
@@ -93,12 +92,12 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 //     one script should be binded from start
     assertEquals(1, binder.getRootResources().size());
 
-    script.setProperty("exo:autoload", false);
+    script.setProperty("exo:load", false);
     session.save();
     assertEquals(0, binder.getRootResources().size());
 
     // bind script again
-    script.setProperty("exo:autoload", true);
+    script.setProperty("exo:load", true);
     session.save();
     assertEquals(1, binder.getRootResources().size());
   }

@@ -136,11 +136,11 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public void unloadScript(String key) {
     if (scriptsURL2ClassMap.containsKey(key)) {
-       binder.unbind(scriptsURL2ClassMap.get(key));
+      binder.unbind(scriptsURL2ClassMap.get(key));
       scriptsURL2ClassMap.remove(key);
+      log.info("Remove groovy script, key " + key);
     } else {
-      throw new IllegalArgumentException("Specified key '" + key
-          + "' does not corresponds to any class name.");
+      log.warn("Specified key '" + key + "' does not corresponds to any class name.");
     }
   }
 
@@ -221,7 +221,7 @@ public class GroovyScript2RestLoader implements Startable {
                                                                      workspaceName,
                                                                      this,
                                                                      session),
-                                 Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED,
+                                 Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED,
                                  "/",
                                  true,
                                  null,
