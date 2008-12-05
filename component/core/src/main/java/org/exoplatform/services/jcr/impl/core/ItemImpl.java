@@ -33,7 +33,6 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.ItemDefinition;
-import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
@@ -44,6 +43,9 @@ import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.Identifier;
@@ -55,7 +57,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.value.PathValue;
 import org.exoplatform.services.jcr.impl.core.value.PermissionValue;
@@ -109,7 +110,8 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * Return a status of the item state. If the state is invalid the item can't be used anymore.
+   * Return a status of the item state. If the state is invalid the item can't
+   * be used anymore.
    * 
    * @return boolean flag, true if an item is usable in the session.
    */
@@ -118,7 +120,8 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * Checking if this item has valid item state, i.e. wasn't removed (and saved).
+   * Checking if this item has valid item state, i.e. wasn't removed (and
+   * saved).
    * 
    * @return true or throws an InvalidItemStateException exception otherwise
    * @throws InvalidItemStateException
@@ -285,8 +288,8 @@ public abstract class ItemImpl implements Item {
   }
 
   /**
-   * Check when it's a Node and is versionable will a version history removed. Case of last version
-   * in version history.
+   * Check when it's a Node and is versionable will a version history removed.
+   * Case of last version in version history.
    * 
    * @throws RepositoryException
    * @throws ConstraintViolationException
@@ -296,7 +299,7 @@ public abstract class ItemImpl implements Item {
                                     ConstraintViolationException,
                                     VersionException {
     if (isNode()) {
-      NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+      NodeTypeDataManager ntManager = session.getWorkspace().getNodeTypesHolder();
       NodeData node = (NodeData) data;
       if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
                                node.getPrimaryTypeName(),
@@ -351,9 +354,9 @@ public abstract class ItemImpl implements Item {
     ItemImpl oldItem = dataManager.getItem(parentNode.nodeData(),
                                            new QPathEntry(propertyName, 0),
                                            true);
-    PropertyDefinition def = null;
+    PropertyDefinitionData def = null;
 
-    NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManager ntm = session.getWorkspace().getNodeTypesHolder();
     NodeData parentData = (NodeData) parentNode.getData();
     if (oldItem == null || oldItem.isNode()) { // new prop
       identifier = IdGenerator.generate();
@@ -515,7 +518,7 @@ public abstract class ItemImpl implements Item {
       throw new RepositoryException("It is impossible to call save() on the newly added item "
           + getPath());
 
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManager ntManager = session.getWorkspace().getNodeTypesHolder();
 
     if (isNode()) {
       // validate
@@ -539,7 +542,8 @@ public abstract class ItemImpl implements Item {
             if (changedItem.isDeleted())
               refNodes.add(refNode); // add to refs (delete - alway is first)
             else if (changedItem.isAdded() || changedItem.isRenamed())
-              refNodes.remove(refNode); // remove from refs (add - always at the end)
+              refNodes.remove(refNode); // remove from refs (add - always at the
+            // end)
           }
         }
       }
@@ -623,13 +627,13 @@ public abstract class ItemImpl implements Item {
     return parent;
   }
 
-  protected ExtendedNodeType[] nodeTypes(NodeData node) throws RepositoryException {
+  protected NodeTypeData[] nodeTypes(NodeData node) throws RepositoryException {
 
     InternalQName primaryTypeName = node.getPrimaryTypeName();
     InternalQName[] mixinNames = node.getMixinTypeNames();
-    ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
+    NodeTypeData[] nodeTypes = new NodeTypeData[mixinNames.length + 1];
 
-    NodeTypeManagerImpl ntm = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManager ntm = session.getWorkspace().getNodeTypesHolder();
     nodeTypes[0] = ntm.findNodeType(primaryTypeName);
     for (int i = 1; i <= mixinNames.length; i++) {
       nodeTypes[i] = ntm.findNodeType(mixinNames[i - 1]);
@@ -661,7 +665,9 @@ public abstract class ItemImpl implements Item {
     if (isNode())
       ndata = (NodeData) getData();
     else
-      ndata = parentData(); // (NodeData) dataManager.getItemData(data.getParentIdentifier())
+      ndata = parentData(); // (NodeData)
+    // dataManager.getItemData(data.getParentIdentifier
+    // ())
 
     return session.getAccessManager().hasPermission(ndata.getACL(),
                                                     action,
@@ -749,8 +755,8 @@ public abstract class ItemImpl implements Item {
     }
   }
 
-  private void checkValueConstraints(PropertyDefinition def, List<ValueData> newValues, int type) throws ConstraintViolationException,
-                                                                                                 RepositoryException {
+  private void checkValueConstraints(PropertyDefinitionData def, List<ValueData> newValues, int type) throws ConstraintViolationException,
+                                                                                                     RepositoryException {
 
     ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(),
                                                                       session);
@@ -759,7 +765,8 @@ public abstract class ItemImpl implements Item {
       if (!constraints.match(value, type)) {
         String strVal = null;
         try {
-          if (type != PropertyType.BINARY) {// [VO]20.06.07, PropertyType.BINARY may have large size
+          if (type != PropertyType.BINARY) {// [VO]20.06.07, PropertyType.BINARY
+            // may have large size
             strVal = ((TransientValueData) value).getString();
           } else {
             strVal = "PropertyType.BINARY";

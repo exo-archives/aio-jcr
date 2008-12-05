@@ -53,19 +53,18 @@ import javax.jcr.nodetype.ItemDefinition;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.OnParentVersionAction;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionHistory;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
@@ -88,8 +87,6 @@ import org.exoplatform.services.jcr.impl.core.itemfilters.ItemFilter;
 import org.exoplatform.services.jcr.impl.core.itemfilters.NamePatternFilter;
 import org.exoplatform.services.jcr.impl.core.lock.LockImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.version.ItemDataMergeVisitor;
@@ -128,12 +125,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * NodeImpl constructor.
    * 
-   * @param data
-   *          Node data
-   * @param session
-   *          Session
-   * @throws RepositoryException
-   *           if error occurs during the Node data loading
+   * @param data Node data
+   * @param session Session
+   * @throws RepositoryException if error occurs during the Node data loading
    */
   public NodeImpl(NodeData data, SessionImpl session) throws RepositoryException {
     super(data, session);
@@ -180,10 +174,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * Init NodeDefinition.
    * 
-   * @throws RepositoryException
-   *           if error occurs
-   * @throws ConstraintViolationException
-   *           if definition not found
+   * @throws RepositoryException if error occurs
+   * @throws ConstraintViolationException if definition not found
    */
   private void initDefinition() throws RepositoryException, ConstraintViolationException {
 
@@ -430,17 +422,25 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    ExtendedNodeType[] types = this.getAllNodeTypes();
+    NodeTypeDataManager nodeTypeDataManager = session.getWorkspace().getNodeTypesHolder();
 
-    for (int i = 0; i < types.length; i++) {
-      if (types[i].getPrimaryItemName() != null) {
+    // load nodeDatas
+    List<NodeTypeData> nodeTypes = new ArrayList<NodeTypeData>();
+    nodeTypes.add(nodeTypeDataManager.findNodeType(nodeData().getPrimaryTypeName()));
+    InternalQName[] mixinNames = nodeData().getMixinTypeNames();
+    for (int i = 0; i < mixinNames.length; i++) {
+      nodeTypes.add(nodeTypeDataManager.findNodeType(mixinNames[i]));
+    }
+
+    // Searching default
+    for (NodeTypeData ntData : nodeTypes) {
+      if (ntData.getPrimaryItemName() != null) {
         Item primaryItem = dataManager.getItem(nodeData(),
-                                               new QPathEntry(locationFactory.parseJCRName(types[i].getPrimaryItemName())
-                                                                             .getInternalName(),
-                                                              0),
+                                               new QPathEntry(ntData.getName(), 0),
                                                true);
         if (primaryItem != null)
           return primaryItem;
+
       }
     }
 
@@ -556,33 +556,46 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     InternalQName name = itemPath.getName().getInternalName();
 
     // find node type
-    JCRName nodeTypeName = parent.findNodeType(itemPath.getName().getAsString());
+    NodeDefinitionData def = session.getWorkspace()
+                                    .getNodeTypesHolder()
+                                    .findChildNodeDefinition(name,
+                                                             nodeData().getPrimaryTypeName(),
+                                                             nodeData().getMixinTypeNames());
+    if (def == null)
+      throw new ConstraintViolationException("Can not define node type for " + name.getAsString());
+
+    // JCRName nodeTypeName =
+    // parent.findNodeType(itemPath.getName().getAsString());
 
     // try to make new node
-    return doAddNode(parent, name, nodeTypeName.getInternalName());
+    return doAddNode(parent, name, def.getName());
 
   }
 
-  private JCRName findNodeType(String name) throws RepositoryException,
-                                           ConstraintViolationException {
-
-    NodeType[] nodeTypes = getAllNodeTypes();
-    String residualNodeTypeName = null;
-    for (int j = 0; j < nodeTypes.length; j++) {
-      NodeDefinition[] nodeDefs = nodeTypes[j].getChildNodeDefinitions();
-      for (int i = 0; i < nodeDefs.length; i++) {
-        NodeDefinition nodeDef = nodeDefs[i];
-        if (nodeDef.getName().equals(name)) {
-          return sysLocFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName());
-        } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
-          residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
-        }
-      }
-    }
-    if (residualNodeTypeName == null)
-      throw new ConstraintViolationException("Can not define node type for " + name);
-    return sysLocFactory.parseJCRName(residualNodeTypeName);
-  }
+  //
+  // @Deprecated
+  // private JCRName findNodeType(String name) throws RepositoryException,
+  // ConstraintViolationException {
+  //
+  // NodeType[] nodeTypes = getAllNodeTypes();
+  // String residualNodeTypeName = null;
+  // for (int j = 0; j < nodeTypes.length; j++) {
+  // NodeDefinition[] nodeDefs = nodeTypes[j].getChildNodeDefinitions();
+  // for (int i = 0; i < nodeDefs.length; i++) {
+  // NodeDefinition nodeDef = nodeDefs[i];
+  // if (nodeDef.getName().equals(name)) {
+  // return
+  // sysLocFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName());
+  // } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
+  // residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
+  // }
+  // }
+  // }
+  // if (residualNodeTypeName == null)
+  // throw new ConstraintViolationException("Can not define node type for " +
+  // name);
+  // return sysLocFactory.parseJCRName(residualNodeTypeName);
+  // }
 
   /**
    * @see javax.jcr.Node#addNode
@@ -633,24 +646,21 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     // Check if nodeType exists and not mixin
     String ptStr = sysLocFactory.createJCRName(primaryTypeName).getAsString();
-
-    if (nodeType(primaryTypeName).isMixin())
+    NodeTypeDataManager nodeTypeDataManager = session.getWorkspace().getNodeTypesHolder();
+    if (nodeTypeDataManager.findNodeType(primaryTypeName).isMixin())
       throw new ConstraintViolationException("Add Node failed: Node Type <" + ptStr
           + "> is MIXIN type!");
 
     // Check if new node's node type is allowed by its parent definition
-    NodeType[] types = getAllNodeTypes();
-    for (int i = 0; i < types.length; i++) {
-      ExtendedNodeType t = (ExtendedNodeType) types[i];
-      if (t.isChildNodePrimaryTypeAllowed(ptStr)) {
-        break;
-      } else if (i == types.length - 1) {
-        throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to "
-            + getPath() + " node type " + primaryTypeName.getAsString()
-            + " is not allowed as child's node type for parent node type ");
-      }
-    }
 
+    if (!nodeTypeDataManager.isChildNodePrimaryTypeAllowed(primaryTypeName,
+                                                           nodeData().getPrimaryTypeName(),
+                                                           nodeData().getMixinTypeNames())) {
+      throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to "
+          + getPath() + " node type " + primaryTypeName.getAsString()
+          + " is not allowed as child's node type for parent node type ");
+
+    }
     // Check if node is not protected
     if (session.getWorkspace()
                .getNodeTypesHolder()
@@ -677,49 +687,57 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                                                     VersionException,
                                                                                                     LockException {
 
+    validateChildNode(name, primaryTypeName);
     // /////// VALIDATION /////////
-
-    if (nodeType(primaryTypeName).isMixin())
-      throw new ConstraintViolationException("Can not add node to " + parentNode.getPath()
-          + " node type " + primaryTypeName.getAsString() + " is mixin ");
-
-    String ptStr = sysLocFactory.createJCRName(primaryTypeName).getAsString();
-    // Check if new node's node type is allowed by its parent definition
-    NodeType[] types = getAllNodeTypes();
-    for (int i = 0; i < types.length; i++) {
-      ExtendedNodeType t = (ExtendedNodeType) types[i];
-      if (t.isChildNodePrimaryTypeAllowed(ptStr)) {
-        break;
-      } else if (i == types.length - 1) {
-        throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to "
-            + getPath() + " node type " + primaryTypeName.getAsString()
-            + " is not allowed as child's node type for parent node type ");
-      }
-    }
-    NodeDefinitionData def = session.getWorkspace()
-                                    .getNodeTypesHolder()
-                                    .findChildNodeDefinition(name,
-                                                             parentNode.nodeData()
-                                                                       .getPrimaryTypeName(),
-                                                             parentNode.nodeData()
-                                                                       .getMixinTypeNames());
-    if (def == null)
-      throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to "
-          + getPath() + ". Node type " + primaryTypeName.getAsString()
-          + " is not allowed as child's node  " + ptStr + " for parent node type ");
-
-    // Check if node is not protected
-    if (def.isProtected())
-      throw new ConstraintViolationException("Can't add protected node " + name.getAsString()
-          + " to " + parentNode.getPath());
-
-    // Check if versionable ancestor is not checked-in
-    if (!checkedOut())
-      throw new VersionException("Node " + getPath() + " or its nearest ancestor is checked-in");
-
-    // Check locking
-    if (!checkLocking())
-      throw new LockException("Node " + getPath() + " is locked ");
+    //
+    // if (nodeType(primaryTypeName).isMixin())
+    // throw new ConstraintViolationException("Can not add node to " +
+    // parentNode.getPath()
+    // + " node type " + primaryTypeName.getAsString() + " is mixin ");
+    //
+    // String ptStr =
+    // sysLocFactory.createJCRName(primaryTypeName).getAsString();
+    // // Check if new node's node type is allowed by its parent definition
+    // NodeType[] types = getAllNodeTypes();
+    // for (int i = 0; i < types.length; i++) {
+    // ExtendedNodeType t = (ExtendedNodeType) types[i];
+    // if (t.isChildNodePrimaryTypeAllowed(ptStr)) {
+    // break;
+    // } else if (i == types.length - 1) {
+    // throw new ConstraintViolationException("Can't add node " +
+    // name.getAsString() + " to "
+    // + getPath() + " node type " + primaryTypeName.getAsString()
+    // + " is not allowed as child's node type for parent node type ");
+    // }
+    // }
+    // NodeDefinitionData def = session.getWorkspace()
+    // .getNodeTypesHolder()
+    // .findChildNodeDefinition(name,
+    // parentNode.nodeData()
+    // .getPrimaryTypeName(),
+    // parentNode.nodeData()
+    // .getMixinTypeNames());
+    // if (def == null)
+    // throw new ConstraintViolationException("Can't add node " +
+    // name.getAsString() + " to "
+    // + getPath() + ". Node type " + primaryTypeName.getAsString()
+    // + " is not allowed as child's node  " + ptStr +
+    // " for parent node type ");
+    //
+    // // Check if node is not protected
+    // if (def.isProtected())
+    // throw new ConstraintViolationException("Can't add protected node " +
+    // name.getAsString()
+    // + " to " + parentNode.getPath());
+    //
+    // // Check if versionable ancestor is not checked-in
+    // if (!checkedOut())
+    // throw new VersionException("Node " + getPath() +
+    // " or its nearest ancestor is checked-in");
+    //
+    // // Check locking
+    // if (!checkLocking())
+    // throw new LockException("Node " + getPath() + " is locked ");
 
     // //////// END VALIDATION ////////
 
@@ -763,7 +781,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   }
 
-  public int getNextChildOrderNum(List<NodeData> siblings) throws RepositoryException {
+  public int getNextChildOrderNum(List<NodeData> siblings) {
     int max = -1;
     for (NodeData sibling : siblings) {
       int cur = sibling.getOrderNumber();
@@ -1079,7 +1097,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public NodeType getPrimaryNodeType() throws RepositoryException {
 
     checkValid();
-
     return nodeType(nodeData().getPrimaryTypeName());
   }
 
@@ -1245,7 +1262,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           NodeImpl correspAncestor = (NodeImpl) correspSession.getNodeByUUID(ancestor.getUUID());
           JCRPath.PathElement[] relJCRPath = getLocation().getRelPath(getDepth() - i);
           try {
-            return (NodeImpl) correspAncestor.getNode(getRelPath(relJCRPath));
+            return correspAncestor.getNode(getRelPath(relJCRPath));
           } catch (ItemNotFoundException e) {
           }
         }
@@ -1259,7 +1276,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
   }
 
-  private String getRelPath(JCRPath.PathElement[] relPath) throws RepositoryException {
+  private String getRelPath(JCRPath.PathElement[] relPath) {
     String path = "";
     for (int i = 0; i < relPath.length; i++) {
       path += relPath[i].getAsString(false);
@@ -1696,15 +1713,18 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       ((TransientNodeData) newData).setOrderNumber(j);
 
       /*
-       * 8.3.7.8 Re-ordering a set of Child Nodes. When an orderBefore(A, B) is performed, an
-       * implementation must generate a NODE_REMOVED for node A and a NODE_ADDED for node A. Note
-       * that the paths associated with these two events will either differ by the last index number
-       * (if the movement of A causes it to be re-ordered with respect to its same-name siblings) or
-       * be identical (if A does not have same-name siblings or if the movement of A does not change
-       * its order relative to its same-name siblings). Additionally, an implementation should
-       * generate appropriate events reflecting the "shifting" over of the node B and any nodes that
-       * come after it in the child node ordering. Each such shifted node would also produce a
-       * NODE_REMOVED and NODE_ADDED event pair with paths differing at most by a final index.
+       * 8.3.7.8 Re-ordering a set of Child Nodes. When an orderBefore(A, B) is
+       * performed, an implementation must generate a NODE_REMOVED for node A
+       * and a NODE_ADDED for node A. Note that the paths associated with these
+       * two events will either differ by the last index number (if the movement
+       * of A causes it to be re-ordered with respect to its same-name siblings)
+       * or be identical (if A does not have same-name siblings or if the
+       * movement of A does not change its order relative to its same-name
+       * siblings). Additionally, an implementation should generate appropriate
+       * events reflecting the "shifting" over of the node B and any nodes that
+       * come after it in the child node ordering. Each such shifted node would
+       * also produce a NODE_REMOVED and NODE_ADDED event pair with paths
+       * differing at most by a final index.
        */
       if (sdata.getQPath().equals(srcPath)) {
         deleteState = new ItemState(sdata, ItemState.DELETED, true, null, false, false);
@@ -1828,37 +1848,39 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     session.getActionHandler().postCheckout(this);
   }
 
-  /**
-   * @deprecated use isCheckedOut
-   * @return
-   * @throws UnsupportedRepositoryOperationException
-   * @throws RepositoryException
-   */
-  public boolean isCheckedOut_Old() throws UnsupportedRepositoryOperationException,
-                                   RepositoryException {
-
-    checkValid();
-
-    if (isRoot())
-      return true;
-
-    if (this.isNodeType(Constants.MIX_VERSIONABLE)) {
-      return ((Property) dataManager.getItem(nodeData(), new QPathEntry(Constants.JCR_ISCHECKEDOUT,
-                                                                        0), false)).getBoolean();
-    }
-
-    NodeImpl ancestor = parent();
-    while (!ancestor.isRoot()) {
-      if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
-        return ancestor.isCheckedOut();
-      else
-        ancestor = (NodeImpl) ancestor.parent();
-    }
-    if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
-      return ancestor.isCheckedOut();
-    else
-      return true;
-  }
+  // /**
+  // * @deprecated use isCheckedOut
+  // * @return
+  // * @throws UnsupportedRepositoryOperationException
+  // * @throws RepositoryException
+  // */
+  // public boolean isCheckedOut_Old() throws
+  // UnsupportedRepositoryOperationException,
+  // RepositoryException {
+  //
+  // checkValid();
+  //
+  // if (isRoot())
+  // return true;
+  //
+  // if (this.isNodeType(Constants.MIX_VERSIONABLE)) {
+  // return ((Property) dataManager.getItem(nodeData(), new
+  // QPathEntry(Constants.JCR_ISCHECKEDOUT,
+  // 0), false)).getBoolean();
+  // }
+  //
+  // NodeImpl ancestor = parent();
+  // while (!ancestor.isRoot()) {
+  // if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
+  // return ancestor.isCheckedOut();
+  // else
+  // ancestor = ancestor.parent();
+  // }
+  // if (ancestor.isNodeType(Constants.MIX_VERSIONABLE))
+  // return ancestor.isCheckedOut();
+  // else
+  // return true;
+  // }
 
   public boolean isCheckedOut() throws UnsupportedRepositoryOperationException, RepositoryException {
 
@@ -1897,10 +1919,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Get nearest versionable ancestor NodeData. If the node is mix:versionable this NodeData will be
-   * returned.
+   * Get nearest versionable ancestor NodeData. If the node is mix:versionable
+   * this NodeData will be returned.
    * 
-   * @return NodeData of versionable ancestor or null if no versionable ancestor exists.
+   * @return NodeData of versionable ancestor or null if no versionable ancestor
+   *         exists.
    * @throws RepositoryException
    */
   public NodeData getVersionableAncestor() throws RepositoryException {
@@ -1941,8 +1964,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * For internal use. Doesn't check the InvalidItemStateException and may return unpooled
-   * VersionHistory object.
+   * For internal use. Doesn't check the InvalidItemStateException and may
+   * return unpooled VersionHistory object.
    */
   public VersionHistoryImpl versionHistory(boolean pool) throws UnsupportedRepositoryOperationException,
                                                         RepositoryException {
@@ -2015,7 +2038,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     ((VersionImpl) version).restore(this.getSession(),
                                     destParent,
                                     nodeData().getQPath().getName(),
-                                    removeExisting);// log.info(dataManager.dump())
+                                    removeExisting);//log.info(dataManager.dump(
+    // ))
   }
 
   public void restore(String versionName, boolean removeExisting) throws VersionException,
@@ -2040,7 +2064,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
       // restore at this position
       this.restore(version, removeExisting);
-      // throw new RepositoryException("Can't restore node to the path '" + relPath + "'");
+      // throw new RepositoryException("Can't restore node to the path '" +
+      // relPath + "'");
     } else {
 
       // restore at relPath
@@ -2087,7 +2112,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
         // Dest node not found
         if (!destParent.checkedOut())
           throw new VersionException("Parent of a node at relPath is versionable and checked-in "
-              + destNode.getPath());
+              + destParent.getPath());
       }
 
       ((VersionImpl) version).restore(session,
@@ -2462,7 +2487,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Add autocreated items to this node. No checks will be passed for autocreated items.
+   * Add autocreated items to this node. No checks will be passed for
+   * autocreated items.
    */
   public void addAutoCreatedItems(InternalQName nodeTypeName) throws RepositoryException,
                                                              ConstraintViolationException {
@@ -2479,7 +2505,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // Add autocreated child properties
     for (PropertyDefinitionData pdef : ntmanager.getAllPropertyDefinitions(type.getName())) {
 
-      // if (propDefs[i] == null) // TODO it is possible for not mandatory propDef
+      // if (propDefs[i] == null) // TODO it is possible for not mandatory
+      // propDef
       // continue;
 
       if (pdef.isAutoCreated()) {
@@ -2497,7 +2524,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                                                    listAutoCreateValue)),
                                false);
         } else {
-          // TODO if autocreated property exists it's has wrong data (e.g. ACL) - throw an exception
+          // TODO if autocreated property exists it's has wrong data (e.g. ACL)
+          // - throw an exception
           if (LOG.isDebugEnabled()) {
             LOG.debug("Skipping existed property " + pdef.getName() + " in " + getPath()
                 + "   during the automatic creation of items for " + nodeTypeName.getAsString()
@@ -2521,11 +2549,13 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     // versionable
-    if (type.isNodeType(Constants.MIX_VERSIONABLE)) {
+    if (session.getWorkspace()
+               .getNodeTypesHolder()
+               .isNodeType(Constants.MIX_VERSIONABLE, new InternalQName[] { type.getName() })) {
       PlainChangesLogImpl changes = new PlainChangesLogImpl();
       // using VH helper as for one new VH, all changes in changes log
       new VersionHistoryDataHelper(parent, changes, dataManager, session.getWorkspace()
-                                                                        .getNodeTypeManager());
+                                                                        .getNodeTypesHolder());
       for (ItemState istate : changes.getAllStates()) {
         dataManager.update(istate, false);
       }
@@ -2535,29 +2565,35 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   private List<ValueData> autoCreatedValue(NodeData parent,
                                            NodeTypeData type,
                                            PropertyDefinitionData def) throws RepositoryException {
-
+    NodeTypeDataManager typeDataManager = session.getWorkspace().getNodeTypesHolder();
     List<ValueData> vals = new ArrayList<ValueData>();
-    if (type.isNodeType(Constants.NT_BASE) && def.getQName().equals(Constants.JCR_PRIMARYTYPE)) {
+
+    if (typeDataManager.isNodeType(Constants.NT_BASE, new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.JCR_PRIMARYTYPE)) {
       vals.add(new TransientValueData(parent.getPrimaryTypeName()));
 
-    } else if (type.isNodeType(Constants.MIX_REFERENCEABLE)
-        && def.getQName().equals(Constants.JCR_UUID)) {
+    } else if (typeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.JCR_UUID)) {
       vals.add(new TransientValueData(parent.getIdentifier()));
 
-    } else if (type.isNodeType(Constants.NT_HIERARCHYNODE)
-        && def.getQName().equals(Constants.JCR_CREATED)) {
+    } else if (typeDataManager.isNodeType(Constants.NT_HIERARCHYNODE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.JCR_CREATED)) {
       vals.add(new TransientValueData(dataManager.getTransactManager()
                                                  .getStorageDataManager()
                                                  .getCurrentTime()));
 
-    } else if (type.isNodeType(Constants.EXO_OWNEABLE)
-        && def.getQName().equals(Constants.EXO_OWNER)) {
+    } else if (typeDataManager.isNodeType(Constants.EXO_OWNEABLE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.EXO_OWNER)) {
       String owner = session.getUserID();
       vals.add(new TransientValueData(owner));
       setACL(new AccessControlList(owner, getACL().getPermissionEntries()));
 
-    } else if (type.isNodeType(Constants.EXO_PRIVILEGEABLE)
-        && def.getQName().equals(Constants.EXO_PERMISSIONS)) {
+    } else if (typeDataManager.isNodeType(Constants.EXO_PRIVILEGEABLE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.EXO_PERMISSIONS)) {
       for (AccessControlEntry ace : parent.getACL().getPermissionEntries()) {
         vals.add(new TransientValueData(ace));
       }
@@ -2618,7 +2654,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedNode#setPermissions(java.util.Map)
+   * @see
+   * org.exoplatform.services.jcr.core.ExtendedNode#setPermissions(java.util
+   * .Map)
    */
   public void setPermissions(Map permissions) throws RepositoryException,
                                              AccessDeniedException,
@@ -2726,7 +2764,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedNode#removePermission(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.ExtendedNode#removePermission(java.lang
+   * .String)
    */
   public void removePermission(String identity) throws RepositoryException, AccessControlException {
 
@@ -2746,8 +2786,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.core.ExtendedNode#removePermission(java.lang.String,java.lang.
-   * String)
+   * org.exoplatform.services.jcr.core.ExtendedNode#removePermission(java.lang
+   * .String,java.lang. String)
    */
   public void removePermission(String identity, String permission) throws RepositoryException,
                                                                   AccessControlException {
@@ -2767,8 +2807,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedNode#setPermission(java.lang.String,
-   * java.lang.String[])
+   * @see
+   * org.exoplatform.services.jcr.core.ExtendedNode#setPermission(java.lang.
+   * String, java.lang.String[])
    */
   public void setPermission(String identity, String[] permission) throws RepositoryException,
                                                                  AccessControlException {
@@ -2794,7 +2835,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.ExtendedNode#checkPermission(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.core.ExtendedNode#checkPermission(java.lang
+   * .String)
    */
   public void checkPermission(String actions) throws AccessControlException, RepositoryException {
 
@@ -2833,26 +2876,28 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   // ////////////////// NEW METHODS (since 1.5) ////////////////
-
+  @Deprecated
   private ExtendedNodeType nodeType(InternalQName qName) throws NoSuchNodeTypeException,
                                                         RepositoryException {
-    return session.getWorkspace().getNodeTypeManager().findNodeType(qName);
+
+    return session.getWorkspace().getNodeTypesHolder().findNodeType(qName);
   }
 
-  public ExtendedNodeType[] getAllNodeTypes() throws RepositoryException {
-    // ExtendedNodeType primaryType = nodeType(nodeData().getPrimaryTypeName());
-    //
-    // InternalQName[] mixinNames = nodeData().getMixinTypeNames();
-    // ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
-    // nodeTypes[0] = primaryType;
-    // for (int i = 1; i <= mixinNames.length; i++) {
-    // nodeTypes[i] = nodeType(mixinNames[i - 1]);
-    // }
-    //
-    // return nodeTypes;
-
-    return nodeTypes(nodeData());
-  }
+  // @Deprecated
+  // public ExtendedNodeType[] getAllNodeTypes() throws RepositoryException {
+  // ExtendedNodeType primaryType = nodeType(nodeData().getPrimaryTypeName());
+  //
+  // InternalQName[] mixinNames = nodeData().getMixinTypeNames();
+  // ExtendedNodeType[] nodeTypes = new ExtendedNodeType[mixinNames.length + 1];
+  // nodeTypes[0] = primaryType;
+  // for (int i = 1; i <= mixinNames.length; i++) {
+  // nodeTypes[i] = nodeType(mixinNames[i - 1]);
+  // }
+  //
+  // return nodeTypes;
+  //
+  // return nodeTypes(nodeData());
+  // }
 
   protected NodeData nodeData() {
     return (NodeData) data;
