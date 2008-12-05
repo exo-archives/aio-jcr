@@ -19,14 +19,13 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.NamespaceException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.query.InvalidQueryException;
 
 import org.apache.commons.logging.Log;
@@ -38,8 +37,8 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 
 import org.exoplatform.commons.utils.ISO8601;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
@@ -76,113 +75,109 @@ import org.exoplatform.services.jcr.impl.xml.XMLChar;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Implements a query builder that takes an abstract query tree and creates a lucene
- * {@link org.apache.lucene.search.Query} tree that can be executed on an index. todo introduce a
- * node type hierarchy for efficient translation of NodeTypeQueryNode
+ * Implements a query builder that takes an abstract query tree and creates a
+ * lucene {@link org.apache.lucene.search.Query} tree that can be executed on an
+ * index. todo introduce a node type hierarchy for efficient translation of
+ * NodeTypeQueryNode
  */
 public class LuceneQueryBuilder implements QueryNodeVisitor {
   /**
    * Namespace URI for xpath functions
    */
-  private static final String  NS_FN_PREFIX     = "fn";
+  private static final String       NS_FN_PREFIX     = "fn";
 
-  public static final String   NS_FN_URI        = "http://www.w3.org/2005/xpath-functions";
+  public static final String        NS_FN_URI        = "http://www.w3.org/2005/xpath-functions";
 
   /**
    * Deprecated namespace URI for xpath functions
    */
-  private static final String  NS_FN_OLD_PREFIX = "fn_old";
+  private static final String       NS_FN_OLD_PREFIX = "fn_old";
 
-  public static final String   NS_FN_OLD_URI    = "http://www.w3.org/2004/10/xpath-functions";
+  public static final String        NS_FN_OLD_URI    = "http://www.w3.org/2004/10/xpath-functions";
 
   /**
    * Namespace URI for XML schema
    */
-  private static final String  NS_XS_PREFIX     = "xs";
+  private static final String       NS_XS_PREFIX     = "xs";
 
-  public static final String   NS_XS_URI        = "http://www.w3.org/2001/XMLSchema";
+  public static final String        NS_XS_URI        = "http://www.w3.org/2001/XMLSchema";
 
   /**
    * Logger for this class
    */
-  private static final Log     log              = ExoLogger.getLogger(LuceneQueryBuilder.class);
+  private static final Log          log              = ExoLogger.getLogger(LuceneQueryBuilder.class);
 
   /**
    * Root node of the abstract query tree
    */
-  private QueryRootNode        root;
+  private QueryRootNode             root;
 
   /**
    * Session of the user executing this query
    */
-  private SessionImpl          session;
+  private SessionImpl               session;
 
   /**
    * The shared item state manager of the workspace.
    */
-  private ItemDataConsumer     sharedItemMgr;
+  private ItemDataConsumer          sharedItemMgr;
 
   /**
    * Namespace mappings to internal prefixes
    */
-  private NamespaceMappings    nsMappings;
+  private NamespaceMappings         nsMappings;
 
   /**
    * Name and Path resolver
    */
-  private LocationFactory      resolver;
+  private LocationFactory           resolver;
 
   /**
    * The analyzer instance to use for contains function query parsing
    */
-  private Analyzer             analyzer;
+  private Analyzer                  analyzer;
 
   /**
    * The property type registry.
    */
-  private PropertyTypeRegistry propRegistry;
+  private PropertyTypeRegistry      propRegistry;
 
   /**
    * The synonym provider or <code>null</code> if none is configured.
    */
-  private SynonymProvider      synonymProvider;
+  private SynonymProvider           synonymProvider;
 
   /**
    * Wether the index format is new or old.
    */
-  private IndexFormatVersion   indexFormatVersion;
+  private IndexFormatVersion        indexFormatVersion;
 
   /**
    * Exceptions thrown during tree translation
    */
-  private List<Exception>      exceptions       = new ArrayList<Exception>();
+  private List<Exception>           exceptions       = new ArrayList<Exception>();
+
+  private final NodeTypeDataManager nodeTypeDataManager;
 
   /**
    * Creates a new <code>LuceneQueryBuilder</code> instance.
    * 
-   * @param root
-   *          the root node of the abstract query tree.
-   * @param session
-   *          of the user executing this query.
-   * @param sharedItemMgr
-   *          the shared item state manager of the workspace.
-   * @param hmgr
-   *          a hierarchy manager based on sharedItemMgr.
-   * @param nsMappings
-   *          namespace resolver for internal prefixes.
-   * @param analyzer
-   *          for parsing the query statement of the contains function.
-   * @param propReg
-   *          the property type registry.
-   * @param synonymProvider
-   *          the synonym provider or <code>null</code> if node is configured.
-   * @param indexFormatVersion
-   *          the index format version for the lucene query.
+   * @param root the root node of the abstract query tree.
+   * @param session of the user executing this query.
+   * @param sharedItemMgr the shared item state manager of the workspace.
+   * @param hmgr a hierarchy manager based on sharedItemMgr.
+   * @param nsMappings namespace resolver for internal prefixes.
+   * @param analyzer for parsing the query statement of the contains function.
+   * @param propReg the property type registry.
+   * @param synonymProvider the synonym provider or <code>null</code> if node is
+   *          configured.
+   * @param indexFormatVersion the index format version for the lucene query.
    */
   private LuceneQueryBuilder(QueryRootNode root,
                              SessionImpl session,
                              ItemDataConsumer sharedItemMgr,
                              NamespaceMappings nsMappings,
+                             NodeTypeDataManager nodeTypeDataManager,
                              Analyzer analyzer,
                              PropertyTypeRegistry propReg,
                              SynonymProvider synonymProvider,
@@ -191,41 +186,35 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
     this.session = session;
     this.sharedItemMgr = sharedItemMgr;
     this.nsMappings = nsMappings;
+    this.nodeTypeDataManager = nodeTypeDataManager;
     this.analyzer = analyzer;
     this.propRegistry = propReg;
     this.synonymProvider = synonymProvider;
     this.indexFormatVersion = indexFormatVersion;
-
     this.resolver = new LocationFactory(nsMappings);
   }
 
   /**
-   * Creates a lucene {@link org.apache.lucene.search.Query} tree from an abstract query tree.
+   * Creates a lucene {@link org.apache.lucene.search.Query} tree from an
+   * abstract query tree.
    * 
-   * @param root
-   *          the root node of the abstract query tree.
-   * @param session
-   *          of the user executing the query.
-   * @param sharedItemMgr
-   *          the shared item state manager of the workspace.
-   * @param nsMappings
-   *          namespace resolver for internal prefixes.
-   * @param analyzer
-   *          for parsing the query statement of the contains function.
-   * @param propReg
-   *          the property type registry to lookup type information.
-   * @param synonymProvider
-   *          the synonym provider or <code>null</code> if node is configured.
-   * @param indexFormatVersion
-   *          the index format version to be used
+   * @param root the root node of the abstract query tree.
+   * @param session of the user executing the query.
+   * @param sharedItemMgr the shared item state manager of the workspace.
+   * @param nsMappings namespace resolver for internal prefixes.
+   * @param analyzer for parsing the query statement of the contains function.
+   * @param propReg the property type registry to lookup type information.
+   * @param synonymProvider the synonym provider or <code>null</code> if node is
+   *          configured.
+   * @param indexFormatVersion the index format version to be used
    * @return the lucene query tree.
-   * @throws RepositoryException
-   *           if an error occurs during the translation.
+   * @throws RepositoryException if an error occurs during the translation.
    */
   public static Query createQuery(QueryRootNode root,
                                   SessionImpl session,
                                   ItemDataConsumer sharedItemMgr,
                                   NamespaceMappings nsMappings,
+                                  NodeTypeDataManager nodeTypeDataManager,
                                   Analyzer analyzer,
                                   PropertyTypeRegistry propReg,
                                   SynonymProvider synonymProvider,
@@ -235,6 +224,7 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
                                                         session,
                                                         sharedItemMgr,
                                                         nsMappings,
+                                                        nodeTypeDataManager,
                                                         analyzer,
                                                         propReg,
                                                         synonymProvider,
@@ -252,7 +242,8 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
   }
 
   /**
-   * Starts the tree traversal and returns the lucene {@link org.apache.lucene.search.Query}.
+   * Starts the tree traversal and returns the lucene
+   * {@link org.apache.lucene.search.Query}.
    * 
    * @return the lucene <code>Query</code>.
    */
@@ -330,8 +321,9 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
       String mixinTypesField = resolver.createJCRName(Constants.JCR_MIXINTYPES).getAsString();
       String primaryTypeField = resolver.createJCRName(Constants.JCR_PRIMARYTYPE).getAsString();
 
-      ExtendedNodeTypeManager ntMgr = session.getWorkspace().getNodeTypeManager();
-      NodeType base = ntMgr.findNodeType(node.getValue());
+      // ExtendedNodeTypeManager ntMgr =
+      // session.getWorkspace().getNodeTypeManager();
+      NodeTypeData base = nodeTypeDataManager.findNodeType(node.getValue());
 
       if (base.isMixin()) {
         // search for nodes where jcr:mixinTypes is set to this mixin
@@ -350,15 +342,14 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
       }
 
       // now search for all node types that are derived from base
-      NodeTypeIterator allTypes = ntMgr.getAllNodeTypes();
-      while (allTypes.hasNext()) {
-        ExtendedNodeType nt = (ExtendedNodeType) allTypes.nextNodeType();
-        NodeType[] superTypes = nt.getSupertypes();
-        if (Arrays.asList(superTypes).contains(base)) {
-          InternalQName n = nt.getQName();// session.getQName(nt.getName());
-          String ntName = nsMappings.translatePropertyName(n);
+      Collection<NodeTypeData> allTypes = nodeTypeDataManager.getAllNodeTypes();
+      for (NodeTypeData nodeTypeData : allTypes) {
+        // ExtendedNodeType nt = (ExtendedNodeType) allTypes.nextNodeType();
+        InternalQName[] superTypes = nodeTypeData.getDeclaredSupertypeNames();
+        if (Arrays.asList(superTypes).contains(base.getName())) {
+          String ntName = nsMappings.translatePropertyName(nodeTypeData.getName());
           Term t;
-          if (nt.isMixin()) {
+          if (nodeTypeData.isMixin()) {
             // search on jcr:mixinTypes
             t = new Term(FieldNames.PROPERTIES,
                          FieldNames.createNamedValue(mixinTypesField, ntName));
@@ -997,13 +988,12 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
   // ---------------------------< internal >-----------------------------------
 
   /**
-   * Wraps a constraint query around <code>q</code> that limits the nodes to those where
-   * <code>propName</code> is the name of a single value property on the node instance.
+   * Wraps a constraint query around <code>q</code> that limits the nodes to
+   * those where <code>propName</code> is the name of a single value property on
+   * the node instance.
    * 
-   * @param q
-   *          the query to wrap.
-   * @param propName
-   *          the name of a property that only has one value.
+   * @param q the query to wrap.
+   * @param propName the name of a property that only has one value.
    * @return the wrapped query <code>q</code>.
    */
   private Query createSingleValueConstraint(Query q, String propName) {
@@ -1022,16 +1012,15 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
   }
 
   /**
-   * Returns an array of String values to be used as a term to lookup the search index for a String
-   * <code>literal</code> of a certain property name. This method will lookup the
-   * <code>propertyName</code> in the node type registry trying to find out the
-   * {@link javax.jcr.PropertyType}s. If no property type is found looking up node type information,
-   * this method will guess the property type.
+   * Returns an array of String values to be used as a term to lookup the search
+   * index for a String <code>literal</code> of a certain property name. This
+   * method will lookup the <code>propertyName</code> in the node type registry
+   * trying to find out the {@link javax.jcr.PropertyType}s. If no property type
+   * is found looking up node type information, this method will guess the
+   * property type.
    * 
-   * @param propertyName
-   *          the name of the property in the relation.
-   * @param literal
-   *          the String literal in the relation.
+   * @param propertyName the name of the property in the relation.
+   * @param literal the String literal in the relation.
    * @return the String values to use as term for the query.
    */
   private String[] getStringValues(InternalQName propertyName, String literal) {
@@ -1155,8 +1144,8 @@ public class LuceneQueryBuilder implements QueryNodeVisitor {
   }
 
   /**
-   * Depending on the index format this method returns a query that matches all nodes that have a
-   * property named 'field'
+   * Depending on the index format this method returns a query that matches all
+   * nodes that have a property named 'field'
    * 
    * @param field
    * @return Query that matches all nodes that have a property named 'field'

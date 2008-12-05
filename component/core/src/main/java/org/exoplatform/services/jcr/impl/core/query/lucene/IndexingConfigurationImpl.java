@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.core.query.lucene;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -210,7 +211,7 @@ public class IndexingConfigurationImpl implements IndexingConfiguration {
 
     for (int i = 0; i < indexingConfigs.getLength(); i++) {
       // Reset node types iterator
-      List<NodeTypeData> nTypes = ntReg.getAllNodeTypes();
+      Collection<NodeTypeData> nTypes = context.getNodeTypeDataManager().getAllNodeTypes();
 
       Node configNode = indexingConfigs.item(i);
 

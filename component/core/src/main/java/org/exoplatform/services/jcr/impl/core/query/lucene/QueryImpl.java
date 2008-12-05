@@ -117,6 +117,7 @@ public class QueryImpl extends AbstractQueryImpl {
                                                  session,
                                                  index.getContext().getItemStateManager(),
                                                  index.getNamespaceMappings(),
+                                                 index.getContext().getNodeTypeDataManager(),
                                                  index.getTextAnalyzer(),
                                                  propReg,
                                                  index.getSynonymProvider(),
