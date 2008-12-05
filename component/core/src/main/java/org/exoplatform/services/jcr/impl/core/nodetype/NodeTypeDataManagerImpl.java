@@ -219,6 +219,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return ntdata;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntvalues,
                                                     int alreadyExistsBehaviour) throws RepositoryException {
     // 1. validate collection and self/new referencing, TODO
@@ -316,6 +319,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void registerNodeTypes(Collection<NodeTypeData> nodeTypes, int alreadyExistsBehaviour) throws RepositoryException {
     // 1. validate collection and self/new referencing, TODO
 
@@ -332,6 +338,13 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @param nodeType
    *          NodeTypeData to be checked
    * @return valid NodeTypeData
+   * @throws RepositoryException
+   */
+  /**
+   * validateNodeType.
+   *
+   * @param nodeType
+   * @return
    * @throws RepositoryException
    */
   protected NodeTypeData validateNodeType(NodeTypeData nodeType) throws RepositoryException {
@@ -400,6 +413,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   // impl
 
+  /**
+   * {@inheritDoc}
+   */
   public NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                                    InternalQName nodeTypeName,
                                                    InternalQName parentTypeName) {
@@ -408,6 +424,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return defsHolder.getChildNodeDefinition(parentTypeName, nodeName, nodeTypeName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName... nodeTypeNames) {
 
@@ -415,6 +434,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
   }
   
+  /**
+   * {@inheritDoc}
+   */
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName primaryNodeType,
                                                     InternalQName... mixinTypes) {
@@ -428,10 +450,16 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return defsHolder.getDefaultChildNodeDefinition(nodeName, mixinTypes);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public NodeTypeData findNodeType(InternalQName typeName) {
     return hierarchy.getNodeType(typeName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
                                                         InternalQName... nodeTypeNames) {
 
@@ -439,9 +467,12 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                          InternalQName primaryNodeType,
-                                                         InternalQName... mixinTypes) {
+                                                         InternalQName[] mixinTypes) {
 
     if (mixinTypes != null) {
       InternalQName[] nts = new InternalQName[mixinTypes.length + 1];
@@ -454,14 +485,23 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       return getPropertyDefinitions(propertyName, primaryNodeType);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Collection<NodeTypeData> getAllNodeTypes() {
     return hierarchy.getAllNodeTypes();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isNodeType(final InternalQName testTypeName, final InternalQName... typesNames) {
     return hierarchy.isNodeType(testTypeName, typesNames);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isNodeType(final InternalQName testTypeName,
                             final InternalQName primaryType,
                             final InternalQName[] mixinTypes) {
@@ -475,6 +515,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isOrderableChildNodesSupported(final InternalQName primaryType,
                                                 final InternalQName[] mixinTypes) {
 

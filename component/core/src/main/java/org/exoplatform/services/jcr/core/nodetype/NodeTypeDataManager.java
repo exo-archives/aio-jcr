@@ -53,7 +53,7 @@ public interface NodeTypeDataManager {
 
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                              InternalQName primaryNodeType,
-                                             InternalQName... mixinTypes);
+                                             InternalQName[] mixinTypes);
 
   // NodeDefinitionData findNodeDefinition(InternalQName nodeName,
   // List<NodeTypeData> typesList);
