@@ -31,12 +31,15 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -230,8 +233,34 @@ public class PropertyImpl extends ItemImpl implements Property {
       throw new RepositoryException("FATAL: property definition is NULL " + getPath() + " "
           + propertyData.getValues());
     }
+    String name = locationFactory.createJCRName(propertyDef.getName() != null ? propertyDef.getName()
+                                                                             : Constants.JCR_ANY_NAME)
+                                 .getAsString();
+    ExtendedNodeTypeManager nodeTypeManager = (ExtendedNodeTypeManager) session.getWorkspace()
+                                                                               .getNodeTypeManager();
 
-    return propertyDef;
+    Value[] defaultValues = new Value[propertyDef.getDefaultValues().length];
+    String[] propVal = propertyDef.getDefaultValues();
+    // there can be null in definition but should not be null value
+    if (propVal != null) {
+      for (int i = 0; i < propVal.length; i++) {
+        if (propertyDef.getRequiredType() == PropertyType.UNDEFINED)
+          defaultValues[i] = valueFactory.createValue(propVal[i]);
+        else
+          defaultValues[i] = valueFactory.createValue(propVal[i], propertyDef.getRequiredType());
+      }
+    }
+
+    return new PropertyDefinitionImpl(name,
+                                      nodeTypeManager.findNodeType(propertyDef.getDeclaringNodeType()),
+                                      propertyDef.getRequiredType(),
+                                      propertyDef.getValueConstraints(),
+                                      defaultValues,
+                                      propertyDef.isAutoCreated(),
+                                      propertyDef.isMandatory(),
+                                      propertyDef.getOnParentVersion(),
+                                      propertyDef.isProtected(),
+                                      propertyDef.isMultiple());
 
   }
 
