@@ -479,10 +479,14 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     String pathToRemove = "";
 
-    if (rootNodePath.length() > 1) // artifact root is some real node
-      pathToRemove = rootNodePath + "/" + artifact.getAsPath();
-    else
+    if (rootNodePath.length() > 1) { // artifact root is some real node
+      if (rootNodePath.endsWith("/"))
+         pathToRemove = rootNodePath + artifact.getAsPath();
+      else 
+         pathToRemove = rootNodePath + "/" + artifact.getAsPath();
+   } else {
       pathToRemove = "/" + artifact.getAsPath(); // "/" - is root path
+    }
 
     LOGGER.debug("Remove node: " + pathToRemove);
 
