@@ -24,6 +24,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -34,7 +35,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
@@ -64,7 +64,7 @@ public class VersionHistoryRemover {
   /**
    * NodeTypeManager.
    */
-  private final NodeTypeManagerImpl ntManager;
+  private final NodeTypeDataManager ntManager;
 
   /**
    * Repository.
@@ -102,30 +102,20 @@ public class VersionHistoryRemover {
   private final ConversationState   userState;
 
   /**
-   * @param vhID
-   *          - version history identifier.
-   * @param dataManager
-   *          - ItemDataConsumer.
-   * @param ntManager
-   *          - NodeTypeManagerImpl.
-   * @param repository
-   *          - RepositoryImpl.
-   * @param currentWorkspaceName
-   *          - current workspace name.
-   * @param containingHistory
-   *          - containingHistory.
-   * @param ancestorToSave
-   *          - ancestor to save.
-   * @param transientChangesLog
-   *          - changes log.
-   * @param accessManager
-   *          - access manager.
-   * @param userState
-   *          - user state.
+   * @param vhID - version history identifier.
+   * @param dataManager - ItemDataConsumer.
+   * @param ntManager - NodeTypeManagerImpl.
+   * @param repository - RepositoryImpl.
+   * @param currentWorkspaceName - current workspace name.
+   * @param containingHistory - containingHistory.
+   * @param ancestorToSave - ancestor to save.
+   * @param transientChangesLog - changes log.
+   * @param accessManager - access manager.
+   * @param userState - user state.
    */
   public VersionHistoryRemover(String vhID,
                                ItemDataConsumer dataManager,
-                               NodeTypeManagerImpl ntManager,
+                               NodeTypeDataManager ntManager,
                                RepositoryImpl repository,
                                String currentWorkspaceName,
                                QPath containingHistory,
@@ -149,8 +139,7 @@ public class VersionHistoryRemover {
   /**
    * Remove history.
    * 
-   * @exception RepositoryException
-   *              if an repository error occurs.
+   * @exception RepositoryException if an repository error occurs.
    */
   public void remove() throws RepositoryException {
     NodeData vhnode = (NodeData) dataManager.getItemData(vhID);
@@ -188,9 +177,8 @@ public class VersionHistoryRemover {
           // Ask ALL references incl. properties from version storage.
           if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)) {
             if (!sref.getQPath().isDescendantOf(vhnode.getQPath())
-                && (containingHistory != null
-                    ? !sref.getQPath().isDescendantOf(containingHistory)
-                    : true))
+                && (containingHistory != null ? !sref.getQPath().isDescendantOf(containingHistory)
+                                             : true))
               // has a reference to the VH in version storage,
               // it's a REFERENCE property jcr:childVersionHistory of
               // nt:versionedChild
