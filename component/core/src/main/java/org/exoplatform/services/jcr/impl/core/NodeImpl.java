@@ -2443,9 +2443,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     dataManager.getTransactManager().save(changesLog);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Node#holdsLock()
+  /**
+   * {@inheritDoc}
    */
   public boolean holdsLock() throws RepositoryException {
 
@@ -2453,9 +2452,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return session.getLockManager().holdsLock((NodeData) getData());
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.Node#isLocked()
+  /**
+   * {@inheritDoc}
    */
   public boolean isLocked() throws RepositoryException {
 
