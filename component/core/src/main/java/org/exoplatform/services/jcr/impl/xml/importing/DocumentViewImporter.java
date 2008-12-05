@@ -92,12 +92,10 @@ public class DocumentViewImporter extends BaseXmlImporter {
   /**
    * Document view importer.
    * 
-   * @param parent
-   *          - parent node
+   * @param parent - parent node
    * @param uuidBehavior
    * @param saveType
-   * @param respectPropertyDefinitionsConstraints
-   *          sdf;gkjwpeoirjtg
+   * @param respectPropertyDefinitionsConstraints sdf;gkjwpeoirjtg
    */
   public DocumentViewImporter(NodeData parent,
                               QPath ancestorToSave,
@@ -131,7 +129,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[], int, int)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#characters(char[],
+   * int, int)
    */
   public void characters(char[] ch, int start, int length) throws RepositoryException {
 
@@ -186,8 +186,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java.lang.String,
-   * java.lang.String, java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.impl.xml.importing.Importer#endElement(java
+   * .lang.String, java.lang.String, java.lang.String)
    */
   public void endElement(String uri, String localName, String qName) throws RepositoryException {
     tree.pop();
@@ -265,9 +266,9 @@ public class DocumentViewImporter extends BaseXmlImporter {
         PropertyDefinitionData pDef;
         PropertyDefinitionDatas defs;
         try {
-          defs = ntManager.findPropertyDefinitions(propName,
-                                                   nodeData.getPrimaryTypeName(),
-                                                   mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
+          InternalQName[] nTypes = mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size() + 1]);
+          nTypes[nTypes.length - 1] = nodeData.getPrimaryTypeName();
+          defs = ntManager.findPropertyDefinitions(propName, nTypes);
           pDef = defs.getAnyDefinition();
 
         } catch (RepositoryException e) { // FIXME
@@ -313,8 +314,8 @@ public class DocumentViewImporter extends BaseXmlImporter {
                   log.error("Can't present value as string. " + e.getMessage());
                   valueAsString = "[Can't present value as string]";
                 }
-                log.debug("Property " + ExtendedPropertyType.nameFromValue(pType) + ": " + propName + "="
-                    + valueAsString);
+                log.debug("Property " + ExtendedPropertyType.nameFromValue(pType) + ": " + propName
+                    + "=" + valueAsString);
               }
               values.add(((BaseValue) value).getInternalData());
             }

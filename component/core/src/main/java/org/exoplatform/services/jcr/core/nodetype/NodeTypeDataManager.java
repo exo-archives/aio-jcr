@@ -24,12 +24,12 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
  * 
- * <br/>Date: 25.11.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: NodeTypeDataManager.java 24422 2008-12-04 23:59:42Z pnedonosko
+ *          $
  */
 public interface NodeTypeDataManager {
 
@@ -37,15 +37,13 @@ public interface NodeTypeDataManager {
    * Return all NodeTypes.
    * 
    * @return List of NodeTypeData
-   * @throws RepositoryException
-   *           in case of error
+   * @throws RepositoryException in case of error
    */
   Collection<NodeTypeData> getAllNodeTypes();
 
   NodeTypeData findNodeType(InternalQName typeName);
 
-  boolean isOrderableChildNodesSupported(InternalQName primaryNodeType,
-                                         InternalQName[] mixinTypes);
+  boolean isOrderableChildNodesSupported(InternalQName primaryNodeType, InternalQName[] mixinTypes);
 
   NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                             InternalQName nodeTypeName,
@@ -57,7 +55,8 @@ public interface NodeTypeDataManager {
                                              InternalQName primaryNodeType,
                                              InternalQName... mixinTypes);
 
-  // NodeDefinitionData findNodeDefinition(InternalQName nodeName, List<NodeTypeData> typesList);
+  // NodeDefinitionData findNodeDefinition(InternalQName nodeName,
+  // List<NodeTypeData> typesList);
 
   PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
                                                  InternalQName... nodeTypeNames);
@@ -85,5 +84,18 @@ public interface NodeTypeDataManager {
                                              int alreadyExistsBehaviour) throws RepositoryException;
 
   Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
+
+  // Proposed methods
+
+  // boolean isChildNodePrimaryTypeAllowed(InternalQName parentNodeType,
+  // InternalQName[] parentMixinNames,
+  // InternalQName childNodeTypeName) throws NoSuchNodeTypeException,
+  // RepositoryException;
+  // or
+
+  // boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
+  // InternalQName... typeNames) throws NoSuchNodeTypeException,
+  // RepositoryException;
+  //   
 
 }
