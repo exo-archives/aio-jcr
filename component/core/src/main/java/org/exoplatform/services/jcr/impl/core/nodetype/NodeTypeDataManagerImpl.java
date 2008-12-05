@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -342,7 +343,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    */
   /**
    * validateNodeType.
-   *
+   * 
    * @param nodeType
    * @return
    * @throws RepositoryException
@@ -427,26 +428,46 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * {@inheritDoc}
    */
+  public NodeDefinitionData[] getAllChildNodeDefinitions(InternalQName... nodeTypeNames) {
+    Collection<NodeDefinitionData> defs = new HashSet<NodeDefinitionData>();
+
+    for (InternalQName ntname : nodeTypeNames) {
+      for (NodeDefinitionData cnd : hierarchy.getNodeType(ntname).getDeclaredChildNodeDefinitions())
+        defs.add(cnd);
+
+      for (InternalQName suname : hierarchy.getSupertypes(ntname)) {
+        for (NodeDefinitionData cnd : hierarchy.getNodeType(suname)
+                                               .getDeclaredChildNodeDefinitions())
+          defs.add(cnd);
+      }
+    }
+
+    return defs.toArray(new NodeDefinitionData[defs.size()]);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName... nodeTypeNames) {
 
     // TODO residual
     return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName primaryNodeType,
-                                                    InternalQName... mixinTypes) {
+                                                    InternalQName[] mixinTypes) {
 
     // TODO residual
-    
+
     NodeDefinitionData cnd = defsHolder.getDefaultChildNodeDefinition(nodeName, primaryNodeType);
     if (cnd != null)
       return cnd;
-    
+
     return defsHolder.getDefaultChildNodeDefinition(nodeName, mixinTypes);
   }
 
@@ -467,6 +488,26 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public PropertyDefinitionData[] getAllPropertyDefinitions(InternalQName... nodeTypeNames) {
+    Collection<PropertyDefinitionData> defs = new HashSet<PropertyDefinitionData>();
+
+    for (InternalQName ntname : nodeTypeNames) {
+      for (PropertyDefinitionData pd : hierarchy.getNodeType(ntname).getDeclaredPropertyDefinitions())
+        defs.add(pd);
+
+      for (InternalQName suname : hierarchy.getSupertypes(ntname)) {
+        for (PropertyDefinitionData pd : hierarchy.getNodeType(suname)
+                                               .getDeclaredPropertyDefinitions())
+          defs.add(pd);
+      }
+    }
+
+    return defs.toArray(new PropertyDefinitionData[defs.size()]);
+  }
+  
   /**
    * {@inheritDoc}
    */

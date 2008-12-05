@@ -69,6 +69,8 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -139,6 +141,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     loadData(data);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void loadData(ItemData data) throws RepositoryException,
                                      InvalidItemStateException,
@@ -158,31 +163,40 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       throw new RepositoryException("Load data: NodeData has no primaryTypeName. Null value found. "
           + (nodeData.getQPath() != null ? nodeData.getQPath().getAsString() : "[null path node]")
           + " " + nodeData);
+
     if (nodeData.getMixinTypeNames() == null)
       throw new RepositoryException("Load data: NodeData has no mixinTypeNames. Null value found. "
           + (nodeData.getQPath() != null ? nodeData.getQPath().getAsString() : "[null path node]"));
+
     if (nodeData.getACL() == null)
       throw new RepositoryException("ACL is NULL " + nodeData.getQPath().getAsString());
 
     this.data = nodeData;
     this.location = session.getLocationFactory().createJCRPath(getData().getQPath());
+
+    initDefinition();
   }
 
+  /**
+   * Init NodeDefinition.
+   * 
+   * @throws RepositoryException
+   *           if error occurs
+   * @throws ConstraintViolationException
+   *           if definition not found
+   */
   private void initDefinition() throws RepositoryException, ConstraintViolationException {
 
     if (this.isRoot()) { // root - no parent
-      this.nodeDefinition = new NodeDefinitionImpl(null,
-                                                   null,
-                                                   new NodeType[] { session.getWorkspace()
-                                                                           .getNodeTypeManager()
-                                                                           .getNodeType(locationFactory.createJCRName(Constants.NT_BASE)
-                                                                                                       .getAsString()) },
-                                                   null,
-                                                   true,
-                                                   true,
-                                                   OnParentVersionAction.ABORT,
-                                                   false,
-                                                   false);
+      this.definition = new NodeDefinitionData(null,
+                                               null,
+                                               true,
+                                               true,
+                                               OnParentVersionAction.ABORT,
+                                               true,
+                                               new InternalQName[] { Constants.NT_BASE },
+                                               null,
+                                               false);
       return;
     }
 
@@ -1133,16 +1147,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                        OnParentVersionAction.ABORT,
                                                        false,
                                                        false);
-
-          this.definition = new NodeDefinitionData(null,
-                                                   null,
-                                                   true,
-                                                   true,
-                                                   OnParentVersionAction.ABORT,
-                                                   true,
-                                                   new InternalQName[] { Constants.NT_BASE },
-                                                   null,
-                                                   false);
         }
       } else {
 
@@ -1328,31 +1332,34 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     checkValid();
 
-    InternalQName name = locationFactory.parseJCRName(mixinName).getInternalName();
-    doAddMixin(name);
-  }
-
-  public void doAddMixin(InternalQName mixinName) throws NoSuchNodeTypeException,
-                                                 ConstraintViolationException,
-                                                 VersionException,
-                                                 LockException,
-                                                 RepositoryException {
-
-    // Add both to mixinNodeTypes and to jcr:mixinTypes property
-    NodeType type = nodeType(mixinName);
     if (LOG.isDebugEnabled())
       LOG.debug("Node.addMixin " + mixinName + " " + getPath());
 
+    InternalQName name = locationFactory.parseJCRName(mixinName).getInternalName();
+
+    // Does the node already has the mixin
+    for (InternalQName mixin : nodeData().getMixinTypeNames()) {
+      if (name.equals(mixin)) {
+        // we already have this mixin type
+        LOG.warn("Node already of mixin type " + mixinName + " " + getPath());
+        return;
+      }
+    }
+
+    NodeTypeData type = session.getWorkspace().getNodeTypesHolder().findNodeType(name);
+
     // Mixin or not
     if (type == null || !type.isMixin())
-      throw new NoSuchNodeTypeException("Node Type " + mixinName + " not found or not mixin type.");
+      throw new NoSuchNodeTypeException("Nodetype " + mixinName + " not found or not mixin type.");
 
     // Validate
-    if (hasSameOrSubtypeMixin((ExtendedNodeType) type))
+    if (session.getWorkspace().getNodeTypesHolder().isNodeType(type.getName(),
+                                                               nodeData().getPrimaryTypeName(),
+                                                               nodeData().getMixinTypeNames()))
       throw new ConstraintViolationException("Can not add mixin type " + mixinName + " to "
           + getPath());
 
-    if (getDefinition().isProtected())
+    if (definition.isProtected())
       throw new ConstraintViolationException("Can not add mixin type. Node is protected "
           + getPath());
 
@@ -1364,16 +1371,19 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (!checkLocking())
       throw new LockException("Node " + getPath() + " is locked ");
 
-    InternalQName[] mixinTypes = nodeData().getMixinTypeNames();
-    for (int i = 0; i < mixinTypes.length; i++) {
-      if (type.equals(nodeType(mixinTypes[i]))) {
-        // we already have this mixin type
-        LOG.warn("Node.addMixin node already has this mixin type " + mixinName + " " + getPath());
-        return;
-      }
-    }
+    doAddMixin(type);
+  }
+
+  public void doAddMixin(NodeTypeData type) throws NoSuchNodeTypeException,
+                                           ConstraintViolationException,
+                                           VersionException,
+                                           LockException,
+                                           RepositoryException {
+
+    // Add both to mixinNodeTypes and to jcr:mixinTypes property
 
     // Prepare mixin values
+    InternalQName[] mixinTypes = nodeData().getMixinTypeNames();
     List<InternalQName> newMixin = new ArrayList<InternalQName>(mixinTypes.length + 1);
     List<ValueData> values = new ArrayList<ValueData>(mixinTypes.length + 1);
 
@@ -1382,8 +1392,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       newMixin.add(cn);
       values.add(new TransientValueData(cn));
     }
-    newMixin.add(mixinName);
-    values.add(new TransientValueData(mixinName));
+    newMixin.add(type.getName());
+    values.add(new TransientValueData(type.getName()));
 
     TransientPropertyData prop = (TransientPropertyData) dataManager.getItemData(((NodeData) getData()),
                                                                                  new QPathEntry(Constants.JCR_MIXINTYPES,
@@ -1414,10 +1424,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     updateMixin(newMixin);
     dataManager.update(state, false);
 
-    addAutoCreatedItems(mixinName);
+    addAutoCreatedItems(type.getName());
 
     // launch event
-    session.getActionHandler().postAddMixin(this, mixinName);
+    session.getActionHandler().postAddMixin(this, type.getName());
 
     if (LOG.isDebugEnabled())
       LOG.debug("Node.addMixin Property " + prop.getQPath().getAsString() + " values "
@@ -1478,36 +1488,31 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     prop.setValues(values);
 
+    NodeTypeDataManager ntmanager = session.getWorkspace().getNodeTypesHolder();
+
     // remove mix:versionable stuff
-    if (session.getWorkspace().getNodeTypesHolder().isNodeType(Constants.MIX_VERSIONABLE,
-                                                               removedName)) {
+    if (ntmanager.isNodeType(Constants.MIX_VERSIONABLE, removedName))
       removeVersionable();
-    }
 
     // remove mix:lockable stuff
-    if (session.getWorkspace().getNodeTypesHolder().isNodeType(Constants.MIX_LOCKABLE, removedName)) {
+    if (ntmanager.isNodeType(Constants.MIX_LOCKABLE, removedName))
       removeLockable();
-    }
 
     // Set mixin property and locally
     updateMixin(newMixin);
 
     // Remove mixin nt definition node/properties from this node
     QPath ancestorToSave = nodeData().getQPath();
-    NodeTypeData removed = session.getWorkspace()
-                                      .getNodeTypesHolder()
-                                      .findNodeType(removedName);
-    for (PropertyDefinition pd : removed.getPropertyDefinitions()) {
-      InternalQName pdName = ((PropertyDefinitionImpl) pd).getQName();
-      ItemData p = dataManager.getItemData(nodeData(), new QPathEntry(pdName, 1));
+
+    for (PropertyDefinitionData pd : ntmanager.getAllPropertyDefinitions(removedName)) {
+      ItemData p = dataManager.getItemData(nodeData(), new QPathEntry(pd.getName(), 1));
       if (p != null && !p.isNode())
         // remove it
         dataManager.delete(p, ancestorToSave);
     }
 
-    for (NodeDefinition nd : removed.getChildNodeDefinitions()) {
-      InternalQName ndName = ((NodeDefinitionImpl) nd).getQName();
-      ItemData n = dataManager.getItemData(nodeData(), new QPathEntry(ndName, 1));
+    for (NodeDefinitionData nd : ntmanager.getAllChildNodeDefinitions(removedName)) {
+      ItemData n = dataManager.getItemData(nodeData(), new QPathEntry(nd.getName(), 1));
       if (n != null && n.isNode()) {
         // remove node with subtree
         ItemDataRemoveVisitor remover = new ItemDataRemoveVisitor(dataManager, ancestorToSave);
@@ -1533,19 +1538,27 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * @see javax.jcr.Node#canAddMixin
+   * {@inheritDoc}
    */
   public boolean canAddMixin(String mixinName) throws RepositoryException {
 
     checkValid();
 
-    if (hasSameOrSubtypeMixin(nodeType(locationFactory.parseJCRName(mixinName).getInternalName()))) {
-      return false;
-    }
+    NodeTypeData type = session.getWorkspace()
+                               .getNodeTypesHolder()
+                               .findNodeType(locationFactory.parseJCRName(mixinName)
+                                                            .getInternalName());
 
-    if (getDefinition().isProtected()) {
+    if (type == null)
+      throw new NoSuchNodeTypeException("Nodetype not found (mixin) " + mixinName);
+
+    if (session.getWorkspace().getNodeTypesHolder().isNodeType(type.getName(),
+                                                               nodeData().getPrimaryTypeName(),
+                                                               nodeData().getMixinTypeNames()))
       return false;
-    }
+
+    if (definition.isProtected())
+      return false;
 
     if (!checkedOut())
       return false;
@@ -1554,20 +1567,6 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       return false;
 
     return true;
-  }
-
-  private boolean hasSameOrSubtypeMixin(ExtendedNodeType type) throws RepositoryException,
-                                                              ValueFormatException {
-
-    InternalQName[] mixinTypes = nodeData().getMixinTypeNames();
-
-    for (int i = 0; i < mixinTypes.length; i++) {
-
-      if (NodeTypeImpl.isSameOrSubType(type, nodeType(mixinTypes[i]))) {
-        return true;
-      }
-    }
-    return false;
   }
 
   protected void removeLockable() throws RepositoryException {
@@ -1906,7 +1905,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
    */
   public NodeData getVersionableAncestor() throws RepositoryException {
     NodeData node = nodeData();
-    NodeTypeManagerImpl ntman = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManager ntman = session.getWorkspace().getNodeTypesHolder();
 
     while (node.getParentIdentifier() != null) {
       if (ntman.isNodeType(Constants.MIX_VERSIONABLE,
@@ -2473,9 +2472,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public void addAutoCreatedItems(NodeData parent, InternalQName nodeTypeName) throws RepositoryException,
                                                                               ConstraintViolationException {
 
-    ExtendedNodeType type = nodeType(nodeTypeName);
-    NodeDefinition[] nodeDefs = type.getChildNodeDefinitions();
-    PropertyDefinition[] propDefs = type.getPropertyDefinitions();
+    NodeTypeData type = session.getWorkspace().getNodeTypesHolder().findNodeType(nodeTypeName);
+
+    NodeDefinitionData[] nodeDefs = type.getChildNodeDefinitions();
+    PropertyDefinitionData[] propDefs = type.getPropertyDefinitions();
 
     // Add autocreated child properties
     for (int i = 0; i < propDefs.length; i++) {

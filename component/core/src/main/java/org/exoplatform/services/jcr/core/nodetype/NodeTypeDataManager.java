@@ -48,6 +48,8 @@ public interface NodeTypeDataManager {
   NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                             InternalQName nodeTypeName,
                                             InternalQName parentTypeName);
+  
+  NodeDefinitionData[] getAllChildNodeDefinitions(InternalQName... nodeTypeNames);
 
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName, InternalQName... nodeTypeNames);
 
@@ -55,18 +57,14 @@ public interface NodeTypeDataManager {
                                              InternalQName primaryNodeType,
                                              InternalQName[] mixinTypes);
 
-  // NodeDefinitionData findNodeDefinition(InternalQName nodeName,
-  // List<NodeTypeData> typesList);
-
   PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
                                                  InternalQName... nodeTypeNames);
 
+  PropertyDefinitionData[] getAllPropertyDefinitions(InternalQName... nodeTypeNames);
+  
   PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                   InternalQName primaryNodeType,
                                                   InternalQName[] mixinTypes);
-
-  // PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
-  // List<NodeTypeData> typesList);
 
   boolean isNodeType(InternalQName testTypeName,
                      InternalQName primaryNodeType,

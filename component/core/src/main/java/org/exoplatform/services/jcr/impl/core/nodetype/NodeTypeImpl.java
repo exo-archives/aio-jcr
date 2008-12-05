@@ -208,7 +208,6 @@ public class NodeTypeImpl implements ExtendedNodeType {
   public NodeDefinition[] getChildNodeDefinitions() {
 
     // TODO declared and from super
-
     return null;
   }
 
@@ -225,11 +224,12 @@ public class NodeTypeImpl implements ExtendedNodeType {
         LOG.error("Error of declared child node definition create " + e, e);
       }
     }
-    
+
     return ndefs;
   }
-  
-  private NodeDefinition makeNodeDefinition(NodeDefinitionData data) throws NoSuchNodeTypeException, RepositoryException {
+
+  private NodeDefinition makeNodeDefinition(NodeDefinitionData data) throws NoSuchNodeTypeException,
+                                                                    RepositoryException {
     InternalQName[] rnames = data.getRequiredPrimaryTypes();
     NodeType[] rnts = new NodeType[rnames.length];
     for (int j = 0; j < rnames.length; j++) {
@@ -243,14 +243,14 @@ public class NodeTypeImpl implements ExtendedNodeType {
         ? typesManager.findNodeType(data.getDefaultPrimaryType())
         : null;
     return new NodeDefinitionImpl(name,
-                                      this,
-                                      rnts,
-                                      defType,
-                                      data.isAutoCreated(),
-                                      data.isMandatory(),
-                                      data.getOnParentVersion(),
-                                      data.isProtected(),
-                                      data.isAllowsSameNameSiblings());
+                                  this,
+                                  rnts,
+                                  defType,
+                                  data.isAutoCreated(),
+                                  data.isMandatory(),
+                                  data.getOnParentVersion(),
+                                  data.isProtected(),
+                                  data.isAllowsSameNameSiblings());
   }
 
   public PropertyDefinition[] getDeclaredPropertyDefinitions() {
@@ -266,7 +266,8 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
     for (int i = 0; i < snames.length; i++) {
       supers[i] = new NodeTypeImpl(typesHolder.findNodeType(snames[i]),
-                                   manager,
+                                   typesHolder,
+                                   typesManager,
                                    locationFactory,
                                    valueFactory);
     }
