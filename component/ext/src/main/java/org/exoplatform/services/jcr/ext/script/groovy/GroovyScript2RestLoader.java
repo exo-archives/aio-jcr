@@ -63,26 +63,60 @@ import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
  */
 public class GroovyScript2RestLoader implements Startable {
 
+  /**
+   * Default node types for Groovy scripts.
+   */
   public static final String               DEFAULT_NODETYPE    = "exo:groovyResourceContainer";
 
+  /**
+   * Service name.
+   */
   private static final String              SERVICE_NAME        = "GroovyScript2RestLoader";
 
+  /**
+   * See {@link InitParams}.
+   */
   private InitParams                       initParams;
 
+  /**
+   * See {@link ResourceBinder}.
+   */
   private ResourceBinder                   binder;
 
+  /**
+   * See {@link GroovyScriptInstantiator}.
+   */
   private GroovyScriptInstantiator         groovyScriptInstantiator;
 
+  /**
+   * See {@link Handler}. Not used in this class but should be in constructor
+   * parameters for correct order of start components.
+   */
   private Handler                          handler;
 
+  /**
+   * See {@link RepositoryService}.
+   */
   private RepositoryService                repositoryService;
 
+  /**
+   * See {@link RegistryService}.
+   */
   private RegistryService                  registryService;
 
+  /**
+   * keeps configuration for observation listener.
+   */
   private ObservationListenerConfiguration observationListenerConfiguration;
 
+  /**
+   * Node type for Groovy scripts.
+   */
   private String                           nodeType;
 
+  /**
+   * Mapping scripts URL (or other key) to classes.
+   */
   private Map<String, Class<?>>            scriptsURL2ClassMap = new HashMap<String, Class<?>>();
 
   /**
@@ -136,12 +170,31 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public void unloadScript(String key) {
     if (scriptsURL2ClassMap.containsKey(key)) {
-      binder.unbind(scriptsURL2ClassMap.get(key));
-      scriptsURL2ClassMap.remove(key);
-      LOG.info("Remove groovy script, key " + key);
+      if (binder.unbind(scriptsURL2ClassMap.get(key))) {
+        scriptsURL2ClassMap.remove(key);
+        LOG.info("Remove groovy script, key " + key);
+      } else {
+        LOG.warn("Can't remove groovy script, key " + key);
+      }
     } else {
       LOG.warn("Specified key '" + key + "' does not corresponds to any class name.");
     }
+  }
+  
+  /**
+   * @param url script's key
+   * @return true if script loaded false otherwise
+   */
+  public boolean isLoaded(String key) {
+    return scriptsURL2ClassMap.containsKey(key);
+  }
+
+  /**
+   * @param url script's URL
+   * @return true if script loaded false otherwise
+   */
+  public boolean isLoaded(URL url) {
+    return isLoaded(url.toString());
   }
 
   /**
@@ -153,11 +206,13 @@ public class GroovyScript2RestLoader implements Startable {
   public void loadScript(URL url) throws IOException {
 
     ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(url);
-    binder.bind(resourceContainer);
-
-    // add mapping script URL to name of class.
-    scriptsURL2ClassMap.put(url.toString(), resourceContainer.getClass());
-    LOG.info("Add new groovy scripts, URL: " + url);
+    if (binder.bind(resourceContainer)) {
+      // add mapping script URL to name of class.
+      scriptsURL2ClassMap.put(url.toString(), resourceContainer.getClass());
+      LOG.info("Add new groovy scripts, URL: " + url);
+    } else {
+      LOG.warn("Groovy script was not binded, URL: " + url);
+    }
 
   }
 
@@ -173,10 +228,13 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public void loadScript(String key, InputStream stream) throws IOException {
     ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(stream);
-    binder.bind(resourceContainer);
-    // add mapping script URL to name of class.
-    scriptsURL2ClassMap.put(key, resourceContainer.getClass());
-    LOG.info("Add new groovy scripts, script key: " + key);
+    if (binder.bind(resourceContainer)) {
+      // add mapping script URL to name of class.
+      scriptsURL2ClassMap.put(key, resourceContainer.getClass());
+      LOG.info("Add new groovy scripts, script key: " + key);
+    } else {
+      LOG.warn("Groovy script was not binded, key: " + key);
+    }
   }
 
   /**
@@ -237,6 +295,7 @@ public class GroovyScript2RestLoader implements Startable {
             node.setProperty("exo:load", false);
           }
         }
+        
         session.save();
         session.getWorkspace()
                .getObservationManager()
@@ -253,9 +312,6 @@ public class GroovyScript2RestLoader implements Startable {
                                  false);
       }
     } catch (Exception e) {
-      e.printStackTrace();
-      // TODO generate correct error messages, one for observation listener
-      // initialize and another for load script
       LOG.error("Error occurs ", e);
     }
   }
@@ -407,22 +463,40 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public static class ObservationListenerConfiguration {
 
+    /**
+     * Repository name.
+     */
     private String       repository;
 
+    /**
+     * Workspace name.
+     */
     private List<String> workspaces;
 
+    /**
+     * @return get repository
+     */
     public String getRepository() {
       return repository;
     }
 
+    /**
+     * @param repository repository name
+     */
     public void setRepository(String repository) {
       this.repository = repository;
     }
 
+    /**
+     * @return get list of workspaces
+     */
     public List<String> getWorkspaces() {
       return workspaces;
     }
 
+    /**
+     * @param workspaces list of workspaces
+     */
     public void setWorkspaces(List<String> workspaces) {
       this.workspaces = workspaces;
     }

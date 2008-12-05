@@ -86,21 +86,22 @@ public class GroovyScript2RestLoaderTest extends BaseStandaloneTest {
 
   public void testBindScripts() throws Exception {
     // one script should be binded from start
-    assertTrue(script.getProperty("exo:load").getBoolean());
-    assertEquals(1, binder.getRootResources().size());
-
-    script.setProperty("exo:load", false);
-    session.save();
+    assertFalse(script.getProperty("exo:load").getBoolean());
     assertEquals(0, binder.getRootResources().size());
 
-    // bind script again
     script.setProperty("exo:load", true);
     session.save();
     assertEquals(1, binder.getRootResources().size());
+
+    // bind script again
+    script.setProperty("exo:load", false);
+    session.save();
+    assertEquals(0, binder.getRootResources().size());
   }
 
   public void testDispatchScript() throws Exception {
-    assertEquals(1, binder.getRootResources().size());
+    script.setProperty("exo:load", true);
+    session.save();
     ContainerRequest creq = new ContainerRequest("GET",
                                                  new URI("/groovy-test/groovy1/test"),
                                                  new URI(""),
