@@ -19,8 +19,6 @@ package org.exoplatform.services.jcr.ext.artifact.rest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 
@@ -112,8 +110,8 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     }
 
     public void run() {
-
-      LOGGER.info("======> Maven artifact checksums Updater started");
+      if (LOGGER.isDebugEnabled())
+        LOGGER.debug("======> Maven artifact checksums Updater started");
 
       try {
         Node rootNode = (Node) session.getItem(rootNodePath);
@@ -126,7 +124,8 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         LOGGER.error("General repository exception", e);
       }
 
-      LOGGER.info("======> Maven artifact checksums Updater finished!");
+      if (LOGGER.isDebugEnabled())
+        LOGGER.debug("======> Maven artifact checksums Updater finished!");
     }
 
     private void _jcrSpaning(Node current_root) throws RepositoryException {
@@ -137,24 +136,8 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         Node node = nodeIterator.nextNode();
 
         if (!node.isNodeType("nt:file")) { // not a resource
-          /*
-           * if (node.canAddMixin("exo:groupId")) node.addMixin("exo:groupId");
-           */
           _jcrSpaning(node);
         } else {
-          // jcr structure
-
-          /*
-           * Node versionNode = node.getParent(); Node artifactNode = versionNode.getParent(); if
-           * (versionNode.canAddMixin("exo:versionId")) { versionNode.removeMixin("exo:groupId");
-           * versionNode.addMixin("exo:versionId"); session.save(); } if
-           * (artifactNode.canAddMixin("exo:artifactId")) {
-           * LOGGER.info("Set exo:artifactId mixin to : " + artifactNode.getName());
-           * artifactNode.removeMixin("exo:groupId"); artifactNode.addMixin("exo:artifactId");
-           * session.save(); }
-           */
-
-          // checksum
           String path = node.getPath();
           String ext = FilenameUtils.getExtension(path);
           if (!ext.equalsIgnoreCase(algorithm)) {
