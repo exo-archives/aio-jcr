@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -33,7 +34,6 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.xml.importing.dataflow.ImportNodeData;
 import org.exoplatform.services.log.ExoLogger;
@@ -43,7 +43,8 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceContentImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id: WorkspaceContentImporter.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class WorkspaceContentImporter extends SystemViewImporter {
   /**
@@ -57,13 +58,13 @@ public class WorkspaceContentImporter extends SystemViewImporter {
   protected boolean   isFirstElementChecked = false;
 
   /**
-   * Class used to import content of workspace, using "System View XML Mapping", e.g. for restore
-   * data during backup. <br/> Assumes that root node of the workspace was already created,
-   * initialized and given as parent. <br/> If <b>system</b> workspace initialized from a scratch it
-   * will already contains root (/) and /jcr:system nodes, namespaces and nodetypes were registered.
+   * Class used to import content of workspace, using "System View XML Mapping",
+   * e.g. for restore data during backup. <br/> Assumes that root node of the
+   * workspace was already created, initialized and given as parent. <br/> If
+   * <b>system</b> workspace initialized from a scratch it will already contains
+   * root (/) and /jcr:system nodes, namespaces and nodetypes were registered.
    * 
-   * @param parent
-   *          , should not be null
+   * @param parent , should not be null
    * @param uuidBehavior
    * @param saveType
    * @param context
@@ -72,7 +73,7 @@ public class WorkspaceContentImporter extends SystemViewImporter {
                                   QPath ancestorToSave,
                                   int uuidBehavior,
                                   ItemDataConsumer dataConsumer,
-                                  NodeTypeManagerImpl ntManager,
+                                  NodeTypeDataManager ntManager,
                                   LocationFactory locationFactory,
                                   ValueFactoryImpl valueFactory,
                                   NamespaceRegistry namespaceRegistry,
@@ -99,8 +100,8 @@ public class WorkspaceContentImporter extends SystemViewImporter {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.xml.importing.SystemViewImporter#startElement(java.lang.String
-   * , java.lang.String, java.lang.String, java.util.Map)
+   * org.exoplatform.services.jcr.impl.xml.importing.SystemViewImporter#startElement
+   * (java.lang.String , java.lang.String, java.lang.String, java.util.Map)
    */
   @Override
   public void startElement(String namespaceURI,

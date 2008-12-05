@@ -31,10 +31,11 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
@@ -243,7 +244,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       String value = propertyInfo.getValues().get(i).toString();
 
       mixinNames[i] = locationFactory.parseJCRName(value).getInternalName();
-      currentNodeInfo.addNodeType((ntManager.findNodeType(mixinNames[i])));
+      currentNodeInfo.addNodeType((nodeTypeDataManager.findNodeType(mixinNames[i])));
       values.add(new TransientValueData(value.toString()));
     }
 
@@ -262,7 +263,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   /**
    * endNode.
-   *
+   * 
    * @throws RepositoryException
    */
   private void endNode() throws RepositoryException {
@@ -278,7 +279,7 @@ public class SystemViewImporter extends BaseXmlImporter {
 
   /**
    * endPrimaryType.
-   *
+   * 
    * @return
    * @throws PathNotFoundException
    * @throws RepositoryException
@@ -294,10 +295,10 @@ public class SystemViewImporter extends BaseXmlImporter {
     ImportNodeData nodeData = (ImportNodeData) tree.pop();
     if (!Constants.ROOT_UUID.equals(nodeData.getIdentifier())) {
       NodeData parentNodeData = getParent();
-
-      if (!isChildNodePrimaryTypeAllowed(parentNodeData.getPrimaryTypeName(),
-                                         parentNodeData.getMixinTypeNames(),
-                                         sName)) {
+      // nodeTypeDataManager.findChildNodeDefinition(primaryTypeName,)
+      if (!nodeTypeDataManager.isChildNodePrimaryTypeAllowed(primaryTypeName,
+                                                             parentNodeData.getPrimaryTypeName(),
+                                                             parentNodeData.getMixinTypeNames())) {
         throw new ConstraintViolationException("Can't add node "
             + nodeData.getQName().getAsString() + " to " + parentNodeData.getQPath().getAsString()
             + " node type " + sName + " is not allowed as child's node type for parent node type "
@@ -305,7 +306,7 @@ public class SystemViewImporter extends BaseXmlImporter {
       }
     }
     //
-    nodeData.addNodeType((ntManager.findNodeType(primaryTypeName)));
+    nodeData.addNodeType((nodeTypeDataManager.findNodeType(primaryTypeName)));
     nodeData.setPrimaryTypeName(primaryTypeName);
 
     propertyData = new ImportPropertyData(QPath.makeChildPath(nodeData.getQPath(),
@@ -360,17 +361,17 @@ public class SystemViewImporter extends BaseXmlImporter {
       // determinating is property multivalue;
       boolean isMultivalue = true;
 
-      PropertyDefinitions defs;
-      try {
-        defs = ntManager.findPropertyDefinitions(propertyInfo.getName(),
-                                                 currentNodeInfo.getPrimaryTypeName(),
-                                                 currentNodeInfo.getMixinTypeNames());
-      } catch (RepositoryException e) {
-        if (!((Boolean) context.get(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS))) {
-          log.warn(e.getLocalizedMessage());
-          return null;
-        }
-        throw e;
+      PropertyDefinitionDatas defs = nodeTypeDataManager.findPropertyDefinitions(propertyInfo.getName(),
+                                                                                 currentNodeInfo.getPrimaryTypeName(),
+                                                                                 currentNodeInfo.getMixinTypeNames());
+
+      if (defs == null) {
+        if (!((Boolean) context.get(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS)))
+          log.warn("Property definition not found for " + propertyInfo.getName());
+        else
+          throw new RepositoryException("Property definition not found for "
+              + propertyInfo.getName());
+
       }
 
       if (values.size() == 1) {
@@ -412,12 +413,16 @@ public class SystemViewImporter extends BaseXmlImporter {
     ImportPropertyData propertyData;
     ImportNodeData currentNodeInfo = (ImportNodeData) tree.pop();
 
-    currentNodeInfo.setMixReferenceable(isNodeType(Constants.MIX_REFERENCEABLE,
-                                                   currentNodeInfo.getCurrentNodeTypes()));
+    currentNodeInfo.setMixReferenceable(nodeTypeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                                                       currentNodeInfo.getNodeTypes()
+                                                                                      .toArray(new InternalQName[currentNodeInfo.getNodeTypes()
+                                                                                                                                .size()])));
 
     if (currentNodeInfo.isMixReferenceable()) {
-      currentNodeInfo.setMixVersionable(isNodeType(Constants.MIX_VERSIONABLE,
-                                                   currentNodeInfo.getCurrentNodeTypes()));
+      currentNodeInfo.setMixVersionable(nodeTypeDataManager.isNodeType(Constants.MIX_VERSIONABLE,
+                                                                       currentNodeInfo.getNodeTypes()
+                                                                                      .toArray(new InternalQName[currentNodeInfo.getNodeTypes()
+                                                                                                                                .size()])));
       checkReferenceable(currentNodeInfo, propertyInfo.getValues().get(0).toString());
     }
 
@@ -498,11 +503,10 @@ public class SystemViewImporter extends BaseXmlImporter {
   /**
    * Returns the value of the named XML attribute.
    * 
-   * @param attributes
-   *          set of XML attributes
-   * @param name
-   *          attribute name
-   * @return attribute value, or <code>null</code> if the named attribute is not found
+   * @param attributes set of XML attributes
+   * @param name attribute name
+   * @return attribute value, or <code>null</code> if the named attribute is not
+   *         found
    * @throws RepositoryException
    */
 

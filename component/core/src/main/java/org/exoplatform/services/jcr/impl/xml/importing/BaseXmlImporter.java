@@ -32,15 +32,11 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessManager;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
@@ -94,7 +90,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
   protected final NamespaceRegistry   namespaceRegistry;
 
-  protected final NodeTypeDataManager ntManager;
+  protected final NodeTypeDataManager nodeTypeDataManager;
 
   protected final RepositoryImpl      repository;
 
@@ -130,7 +126,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     this.context = context;
 
-    this.ntManager = ntManager;
+    this.nodeTypeDataManager = ntManager;
     this.locationFactory = locationFactory;
     this.uuidBehavior = uuidBehavior;
     this.repository = repository;
@@ -222,9 +218,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     int newIndex = 1;
 
-    NodeDefinitionData nodedef = ntManager.findChildNodeDefinition(name,
-                                                                   parentData.getPrimaryTypeName(),
-                                                                   parentData.getMixinTypeNames());
+    NodeDefinitionData nodedef = nodeTypeDataManager.findChildNodeDefinition(name,
+                                                                             parentData.getPrimaryTypeName(),
+                                                                             parentData.getMixinTypeNames());
 
     ItemData sameNameNode = null;
     try {
@@ -332,7 +328,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
     new VersionHistoryDataHelper(nodeData,
                                  changes,
                                  dataConsumer,
-                                 ntManager,
+                                 nodeTypeDataManager,
                                  nodeData.getVersionHistoryIdentifier(),
                                  nodeData.getBaseVersionIdentifier());
 
@@ -348,44 +344,51 @@ public abstract class BaseXmlImporter implements ContentImporter {
     }
   }
 
-  /**
-   * Find proper nodeType for subnode with name <b>name</b> and parent node type
-   * <b>parentNodeType</b> and mixin types <b>parentMixinNames</b>.
-   * 
-   * @param parentNodeType
-   * @param parentMixinNames
-   * @param name
-   * @return
-   * @throws RepositoryException
-   * @throws ConstraintViolationException
-   */
-  protected InternalQName findNodeType(InternalQName parentNodeType,
-                                       InternalQName[] parentMixinNames,
-                                       String name) throws RepositoryException,
-                                                   ConstraintViolationException {
-
-    List<ExtendedNodeType> nodeTypes = ntManager.getNodeTypes(parentNodeType, parentMixinNames);
-    String residualNodeTypeName = null;
-    for (ExtendedNodeType extendedNodeType : nodeTypes) {
-      NodeDefinition[] nodeDefs = extendedNodeType.getChildNodeDefinitions();
-      for (int i = 0; i < nodeDefs.length; i++) {
-        NodeDefinition nodeDef = nodeDefs[i];
-        if (nodeDef.getName().equals(name)) {
-          if (nodeDef.getDefaultPrimaryType() != null)
-            return locationFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName())
-                                  .getInternalName();
-        } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
-          if (nodeDef.getDefaultPrimaryType() != null)
-            residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
-        }
-      }
-    }
-
-    if (residualNodeTypeName == null)
-      throw new ConstraintViolationException("Can not define node-type for node " + name
-          + ", parent node type " + parentNodeType.getAsString());
-    return locationFactory.parseJCRName(residualNodeTypeName).getInternalName();
-  }
+  // /**
+  // * Find proper nodeType for subnode with name <b>name</b> and parent node
+  // type
+  // * <b>parentNodeType</b> and mixin types <b>parentMixinNames</b>.
+  // *
+  // * @param parentNodeType
+  // * @param parentMixinNames
+  // * @param name
+  // * @return
+  // * @throws RepositoryException
+  // * @throws ConstraintViolationException
+  // */
+  // @Deprecated
+  // protected InternalQName findNodeType(InternalQName parentNodeType,
+  // InternalQName[] parentMixinNames,
+  // String name) throws RepositoryException,
+  // ConstraintViolationException {
+  //
+  // List<ExtendedNodeType> nodeTypes =
+  // nodeTypeDataManager.getNodeTypes(parentNodeType,
+  // parentMixinNames);
+  // String residualNodeTypeName = null;
+  // for (ExtendedNodeType extendedNodeType : nodeTypes) {
+  // NodeDefinition[] nodeDefs = extendedNodeType.getChildNodeDefinitions();
+  // for (int i = 0; i < nodeDefs.length; i++) {
+  // NodeDefinition nodeDef = nodeDefs[i];
+  // if (nodeDef.getName().equals(name)) {
+  // if (nodeDef.getDefaultPrimaryType() != null)
+  // return
+  // locationFactory.parseJCRName(nodeDef.getDefaultPrimaryType().getName())
+  // .getInternalName();
+  // } else if (nodeDef.getName().equals(ExtendedItemDefinition.RESIDUAL_SET)) {
+  // if (nodeDef.getDefaultPrimaryType() != null)
+  // residualNodeTypeName = nodeDef.getDefaultPrimaryType().getName();
+  // }
+  // }
+  // }
+  //
+  // if (residualNodeTypeName == null)
+  // throw new ConstraintViolationException("Can not define node-type for node "
+  // + name
+  // + ", parent node type " + parentNodeType.getAsString());
+  // return
+  // locationFactory.parseJCRName(residualNodeTypeName).getInternalName();
+  // }
 
   /**
    * @return parent node.
@@ -394,49 +397,59 @@ public abstract class BaseXmlImporter implements ContentImporter {
     return tree.peek();
   }
 
-  /**
-   * Check if parentNodeType and parentMixinNames allowed nodeTypeName as
-   * nodetype of subnode.
-   * 
-   * @param parentNodeType
-   * @param parentMixinNames
-   * @param nodeTypeName
-   * @return
-   * @throws NoSuchNodeTypeException
-   * @throws RepositoryException
-   */
-  protected boolean isChildNodePrimaryTypeAllowed(InternalQName parentNodeType,
-                                                  InternalQName[] parentMixinNames,
-                                                  String nodeTypeName) throws NoSuchNodeTypeException,
-                                                                      RepositoryException {
+  // /**
+  // * Check if parentNodeType and parentMixinNames allowed nodeTypeName as
+  // * nodetype of subnode.
+  // *
+  // * @param parentNodeType
+  // * @param parentMixinNames
+  // * @param nodeTypeName
+  // * @return
+  // * @throws NoSuchNodeTypeException
+  // * @throws RepositoryException
+  // */
+  // protected boolean isChildNodePrimaryTypeAllowed(InternalQName
+  // parentNodeType,
+  // InternalQName[] parentMixinNames,
+  // String nodeTypeName) throws NoSuchNodeTypeException,
+  // RepositoryException {
+  //
+  // List<ExtendedNodeType> parenNt =
+  // nodeTypeDataManager.getNodeTypes(parentNodeType,
+  // parentMixinNames);
+  //
+  //    
+  // for (int i = 0; i < parentMixinNames.length; i++) {
+  // nodeTypeDataManager.findNodeType(parentMixinNames[i]).
+  // }
+  //    
+  // for (ExtendedNodeType extendedNodeType : parenNt) {
+  // if (extendedNodeType.isChildNodePrimaryTypeAllowed(nodeTypeName)) {
+  // return true;
+  // }
+  // }
+  //
+  // return false;
+  //
+  // }
 
-    List<ExtendedNodeType> parenNt = ntManager.getNodeTypes(parentNodeType, parentMixinNames);
-
-    for (ExtendedNodeType extendedNodeType : parenNt) {
-      if (extendedNodeType.isChildNodePrimaryTypeAllowed(nodeTypeName)) {
-        return true;
-      }
-    }
-
-    return false;
-
-  }
-
-  /**
-   * Check if name node type exists in nodeTypes.
-   * 
-   * @param name
-   * @param nodeTypes
-   * @return
-   */
-  protected boolean isNodeType(InternalQName name, List<ExtendedNodeType> nodeTypes) {
-    for (ExtendedNodeType nt : nodeTypes) {
-      if (nt.isNodeType(name)) {
-        return true;
-      }
-    }
-    return false;
-  }
+  // /**
+  // * Check if name node type exists in nodeTypes.
+  // *
+  // * @param name
+  // * @param nodeTypes
+  // * @return
+  // */
+  // @Deprecated
+  // protected boolean isNodeType(InternalQName name, List<ExtendedNodeType>
+  // nodeTypes) {
+  // for (ExtendedNodeType nt : nodeTypes) {
+  // if (nt.isNodeType(name)) {
+  // return true;
+  // }
+  // }
+  // return false;
+  // }
 
   /**
    * Check uuid collision. If collision happen reload path information.
@@ -527,8 +540,8 @@ public abstract class BaseXmlImporter implements ContentImporter {
         ItemState lastState = getLastItemState(identifier);
 
         if (sameUuidItem != null && (lastState == null || !lastState.isDeleted())) {
-          boolean isMixVersionable = ntManager.isNodeType(Constants.MIX_VERSIONABLE,
-                                                          sameUuidItem.getMixinTypeNames());
+          boolean isMixVersionable = nodeTypeDataManager.isNodeType(Constants.MIX_VERSIONABLE,
+                                                                    sameUuidItem.getMixinTypeNames());
 
           switch (uuidBehavior) {
           case ImportUUIDBehavior.IMPORT_UUID_CREATE_NEW:
@@ -642,9 +655,9 @@ public abstract class BaseXmlImporter implements ContentImporter {
                                                    ConstraintViolationException,
                                                    PathNotFoundException {
 
-    if (!ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                              sameUuidItem.getPrimaryTypeName(),
-                              sameUuidItem.getMixinTypeNames())) {
+    if (!nodeTypeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                        sameUuidItem.getPrimaryTypeName(),
+                                        sameUuidItem.getMixinTypeNames())) {
       throw new RepositoryException("An incoming referenceable node has the same "
           + " UUID as a identifier of non mix:referenceable"
           + " node already existing in the workspace!");
@@ -670,7 +683,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
 
     ItemDataRemoveVisitor visitor = new ItemDataRemoveVisitor(dataConsumer,
                                                               getAncestorToSave(),
-                                                              ntManager,
+                                                              nodeTypeDataManager,
                                                               accessManager,
                                                               userState);
     sameUuidItem.accept(visitor);
@@ -697,7 +710,7 @@ public abstract class BaseXmlImporter implements ContentImporter {
         String vhID = new String(vhpd.getValues().get(0).getAsByteArray());
         VersionHistoryRemover historyRemover = new VersionHistoryRemover(vhID,
                                                                          dataConsumer,
-                                                                         ntManager,
+                                                                         nodeTypeDataManager,
                                                                          repository,
                                                                          currentWorkspaceName,
                                                                          null,

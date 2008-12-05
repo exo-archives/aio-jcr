@@ -23,13 +23,13 @@ import javax.jcr.NamespaceRegistry;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.access.AccessManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataKeeper;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
@@ -38,7 +38,8 @@ import org.exoplatform.services.security.ConversationState;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
- * @version $Id: WorkspaceDataImporter.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @version $Id: WorkspaceDataImporter.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class WorkspaceDataImporter extends StreamImporter {
   private final Log log = ExoLogger.getLogger("jcr.WorkspaceDataImporter");
@@ -47,7 +48,7 @@ public class WorkspaceDataImporter extends StreamImporter {
                                int uuidBehavior,
                                ItemDataKeeper dataKeeper,
                                ItemDataConsumer dataConsumer,
-                               NodeTypeManagerImpl ntManager,
+                               NodeTypeDataManager ntManager,
                                LocationFactory locationFactory,
                                ValueFactoryImpl valueFactory,
                                NamespaceRegistry namespaceRegistry,
@@ -76,16 +77,16 @@ public class WorkspaceDataImporter extends StreamImporter {
 
   /*
    * (non-Javadoc)
-   * @seeorg.exoplatform.services.jcr.impl.xml.importing.StreamImporter#createContentImporter(org.
-   * exoplatform.services.jcr.impl.core.NodeImpl, int,
-   * org.exoplatform.services.jcr.impl.xml.XmlSaveType,
+   * @seeorg.exoplatform.services.jcr.impl.xml.importing.StreamImporter#
+   * createContentImporter(org. exoplatform.services.jcr.impl.core.NodeImpl,
+   * int, org.exoplatform.services.jcr.impl.xml.XmlSaveType,
    * org.exoplatform.services.ext.action.InvocationContext)
    */
   @Override
   public ContentImporter createContentImporter(NodeData parent,
                                                int uuidBehavior,
                                                ItemDataConsumer dataConsumer,
-                                               NodeTypeManagerImpl ntManager,
+                                               NodeTypeDataManager ntManager,
                                                LocationFactory locationFactory,
                                                ValueFactoryImpl valueFactory,
                                                NamespaceRegistry namespaceRegistry,
