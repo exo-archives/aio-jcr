@@ -2474,34 +2474,32 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     NodeTypeData type = session.getWorkspace().getNodeTypesHolder().findNodeType(nodeTypeName);
 
-    NodeDefinitionData[] nodeDefs = type.getChildNodeDefinitions();
-    PropertyDefinitionData[] propDefs = type.getPropertyDefinitions();
+    NodeTypeDataManager ntmanager = session.getWorkspace().getNodeTypesHolder();
 
     // Add autocreated child properties
-    for (int i = 0; i < propDefs.length; i++) {
+    for (PropertyDefinitionData pdef : ntmanager.getAllPropertyDefinitions(type.getName())) {
 
-      if (propDefs[i] == null) // it is possible for not mandatory propDef
-        continue;
+      // if (propDefs[i] == null) // TODO it is possible for not mandatory propDef
+      // continue;
 
-      if (propDefs[i].isAutoCreated()) {
-        PropertyDefinitionImpl pdImpl = (PropertyDefinitionImpl) propDefs[i];
+      if (pdef.isAutoCreated()) {
 
-        ItemData pdata = dataManager.getItemData(parent, new QPathEntry(pdImpl.getQName(), 0));
+        ItemData pdata = dataManager.getItemData(parent, new QPathEntry(pdef.getName(), 0));
         if (pdata == null || pdata.isNode()) {
 
-          List<ValueData> listAutoCreateValue = autoCreatedValue(parent, type, pdImpl);
+          List<ValueData> listAutoCreateValue = autoCreatedValue(parent, type, pdef);
 
           if (listAutoCreateValue != null)
             dataManager.update(ItemState.createAddedState(TransientPropertyData.createPropertyData(parent,
-                                                                                                   pdImpl.getQName(),
-                                                                                                   pdImpl.getRequiredType(),
-                                                                                                   pdImpl.isMultiple(),
+                                                                                                   pdef.getName(),
+                                                                                                   pdef.getRequiredType(),
+                                                                                                   pdef.isMultiple(),
                                                                                                    listAutoCreateValue)),
                                false);
         } else {
           // TODO if autocreated property exists it's has wrong data (e.g. ACL) - throw an exception
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Skipping existed property " + pdImpl.getName() + " in " + getPath()
+            LOG.debug("Skipping existed property " + pdef.getName() + " in " + getPath()
                 + "   during the automatic creation of items for " + nodeTypeName.getAsString()
                 + " nodetype or mixin type");
           }
@@ -2510,13 +2508,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     }
 
     // Add autocreated child nodes
-    for (int i = 0; i < nodeDefs.length; i++) {
-      if (nodeDefs[i].isAutoCreated()) {
-        NodeDefinitionImpl ndImpl = (NodeDefinitionImpl) nodeDefs[i];
-
-        TransientNodeData childNodeData = TransientNodeData.createNodeData(parent,
-                                                                           ndImpl.getQName(),
-                                                                           ((ExtendedNodeType) ndImpl.getDefaultPrimaryType()).getQName(),
+    for (NodeDefinitionData ndef : ntmanager.getAllChildNodeDefinitions(type.getName())) {
+      if (ndef.isAutoCreated()) {
+        TransientNodeData childNodeData = TransientNodeData.createNodeData(parent, ndef.getName(),
+        // TODO default NT may be null, or check it in NT manager
+                                                                           ndef.getDefaultPrimaryType(),
                                                                            IdGenerator.generate());
         dataManager.update(ItemState.createAddedState(childNodeData), false);
         addAutoCreatedItems(childNodeData, childNodeData.getPrimaryTypeName());
@@ -2537,8 +2533,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   private List<ValueData> autoCreatedValue(NodeData parent,
-                                           ExtendedNodeType type,
-                                           PropertyDefinitionImpl def) throws RepositoryException {
+                                           NodeTypeData type,
+                                           PropertyDefinitionData def) throws RepositoryException {
 
     List<ValueData> vals = new ArrayList<ValueData>();
     if (type.isNodeType(Constants.NT_BASE) && def.getQName().equals(Constants.JCR_PRIMARYTYPE)) {
