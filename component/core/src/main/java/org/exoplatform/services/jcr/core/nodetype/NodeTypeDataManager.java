@@ -26,10 +26,8 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 /**
  * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
- *         Nedonosko</a>
- * @version $Id: NodeTypeDataManager.java 24422 2008-12-04 23:59:42Z pnedonosko
- *          $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @version $Id$
  */
 public interface NodeTypeDataManager {
 
@@ -37,7 +35,8 @@ public interface NodeTypeDataManager {
    * Return all NodeTypes.
    * 
    * @return List of NodeTypeData
-   * @throws RepositoryException in case of error
+   * @throws RepositoryException
+   *           in case of error
    */
   Collection<NodeTypeData> getAllNodeTypes();
 
@@ -48,7 +47,7 @@ public interface NodeTypeDataManager {
   NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                             InternalQName nodeTypeName,
                                             InternalQName parentTypeName);
-  
+
   NodeDefinitionData[] getAllChildNodeDefinitions(InternalQName... nodeTypeNames);
 
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName, InternalQName... nodeTypeNames);
@@ -61,7 +60,7 @@ public interface NodeTypeDataManager {
                                                  InternalQName... nodeTypeNames);
 
   PropertyDefinitionData[] getAllPropertyDefinitions(InternalQName... nodeTypeNames);
-  
+
   PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                   InternalQName primaryNodeType,
                                                   InternalQName[] mixinTypes);
@@ -85,10 +84,9 @@ public interface NodeTypeDataManager {
 
   // Proposed methods
 
-  // boolean isChildNodePrimaryTypeAllowed(InternalQName parentNodeType,
-  // InternalQName[] parentMixinNames,
-  // InternalQName childNodeTypeName) throws NoSuchNodeTypeException,
-  // RepositoryException;
+  boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
+                                        InternalQName parentNodeType,
+                                        InternalQName[] parentMixinNames);
   // or
 
   // boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,

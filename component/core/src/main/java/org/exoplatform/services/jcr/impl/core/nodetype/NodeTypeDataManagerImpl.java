@@ -495,19 +495,20 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     Collection<PropertyDefinitionData> defs = new HashSet<PropertyDefinitionData>();
 
     for (InternalQName ntname : nodeTypeNames) {
-      for (PropertyDefinitionData pd : hierarchy.getNodeType(ntname).getDeclaredPropertyDefinitions())
+      for (PropertyDefinitionData pd : hierarchy.getNodeType(ntname)
+                                                .getDeclaredPropertyDefinitions())
         defs.add(pd);
 
       for (InternalQName suname : hierarchy.getSupertypes(ntname)) {
         for (PropertyDefinitionData pd : hierarchy.getNodeType(suname)
-                                               .getDeclaredPropertyDefinitions())
+                                                  .getDeclaredPropertyDefinitions())
           defs.add(pd);
       }
     }
 
     return defs.toArray(new PropertyDefinitionData[defs.size()]);
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -582,6 +583,27 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
           if (su != null && su.hasOrderableChildNodes())
             return true;
         }
+      }
+    }
+
+    return false;
+  }
+
+  public boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
+                                               InternalQName parentNodeType,
+                                               InternalQName[] parentMixinNames) {
+
+    for (NodeDefinitionData cnd : getAllChildNodeDefinitions(parentNodeType)) {
+      for (InternalQName req : cnd.getRequiredPrimaryTypes()) {
+        if (childNodeTypeName.equals(req))
+          return true;
+      }
+    }
+
+    for (NodeDefinitionData cnd : getAllChildNodeDefinitions(parentMixinNames)) {
+      for (InternalQName req : cnd.getRequiredPrimaryTypes()) {
+        if (childNodeTypeName.equals(req))
+          return true;
       }
     }
 
