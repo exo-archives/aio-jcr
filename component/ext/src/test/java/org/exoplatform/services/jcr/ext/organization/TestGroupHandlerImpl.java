@@ -135,6 +135,14 @@ public class TestGroupHandlerImpl extends BaseStandaloneTest {
       assertNull(gHandler.findGroupById("/organization/group1"));
       assertNull(gHandler.findGroupById("/organization/group1/group2"));
 
+      // create in root
+      createGroup(null, "group1", "label", "desc");
+      createGroup("/group1", "group2", "label", "desc");
+
+      gHandler.removeGroup(gHandler.findGroupById("/group1"), true);
+      assertNull(gHandler.findGroupById("/group1"));
+      assertNull(gHandler.findGroupById("/group1/group2"));
+
     } catch (Exception e) {
       e.printStackTrace();
       fail("Exception should not be thrown.");
