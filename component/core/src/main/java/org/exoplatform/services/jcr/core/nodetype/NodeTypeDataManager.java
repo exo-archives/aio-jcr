@@ -26,8 +26,10 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 /**
  * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: NodeTypeDataManager.java 24494 2008-12-05 12:26:49Z pnedonosko
+ *          $
  */
 public interface NodeTypeDataManager {
 
@@ -35,14 +37,16 @@ public interface NodeTypeDataManager {
    * Return all NodeTypes.
    * 
    * @return List of NodeTypeData
-   * @throws RepositoryException
-   *           in case of error
+   * @throws RepositoryException in case of error
    */
   Collection<NodeTypeData> getAllNodeTypes();
 
   NodeTypeData findNodeType(InternalQName typeName);
 
   boolean isOrderableChildNodesSupported(InternalQName primaryNodeType, InternalQName[] mixinTypes);
+
+  Collection<ItemDefinitionData> getManadatoryItemDefs(InternalQName primaryNodeType,
+                                                       InternalQName[] mixinTypes);
 
   NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                             InternalQName nodeTypeName,

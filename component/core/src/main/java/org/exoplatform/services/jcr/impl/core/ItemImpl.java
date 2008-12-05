@@ -42,7 +42,6 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
@@ -642,9 +641,10 @@ public abstract class ItemImpl implements Item {
     return nodeTypes;
   }
 
-  public ExtendedNodeType[] getParentNodeTypes() throws RepositoryException {
-    return nodeTypes(parentData());
-  }
+  // @Deprecated
+  // public ExtendedNodeType[] getParentNodeTypes() throws RepositoryException {
+  // return nodeTypes(parentData());
+  // }
 
   public String getInternalIdentifier() {
     return data.getIdentifier();

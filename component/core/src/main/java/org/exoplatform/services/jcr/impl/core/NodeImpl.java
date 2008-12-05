@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,7 +50,6 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.lock.Lock;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.ItemDefinition;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
@@ -65,7 +65,8 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -87,7 +88,6 @@ import org.exoplatform.services.jcr.impl.core.itemfilters.ItemFilter;
 import org.exoplatform.services.jcr.impl.core.itemfilters.NamePatternFilter;
 import org.exoplatform.services.jcr.impl.core.lock.LockImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeDefinitionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.version.ItemDataMergeVisitor;
 import org.exoplatform.services.jcr.impl.core.version.VersionHistoryImpl;
@@ -1097,7 +1097,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   public NodeType getPrimaryNodeType() throws RepositoryException {
 
     checkValid();
-    return nodeType(nodeData().getPrimaryTypeName());
+    ExtendedNodeTypeManager nodeTypeManager = (ExtendedNodeTypeManager) session.getWorkspace()
+                                                                               .getNodeTypeManager();
+    return nodeTypeManager.findNodeType(nodeData().getPrimaryTypeName());
   }
 
   /**
@@ -1110,10 +1112,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // TODO should not be null
     if (nodeData().getMixinTypeNames() == null)
       throw new RepositoryException("Data Container implementation error getMixinTypeNames == null");
-
-    ExtendedNodeType[] mixinNodeTypes = new ExtendedNodeType[nodeData().getMixinTypeNames().length];
+    ExtendedNodeTypeManager nodeTypeManager = (ExtendedNodeTypeManager) session.getWorkspace()
+                                                                               .getNodeTypeManager();
+    NodeType[] mixinNodeTypes = new NodeType[nodeData().getMixinTypeNames().length];
     for (int i = 0; i < mixinNodeTypes.length; i++) {
-      mixinNodeTypes[i] = nodeType(nodeData().getMixinTypeNames()[i]);
+      mixinNodeTypes[i] = nodeTypeManager.findNodeType(nodeData().getMixinTypeNames()[i]);
     }
 
     return mixinNodeTypes;
@@ -2597,12 +2600,15 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
       }
 
     } else {
-      Value[] propVal = def.getDefaultValues();
+      String[] propVal = def.getDefaultValues();
       // there can be null in definition but should not be null value
       if (propVal != null) {
-        for (Value v : propVal) {
+        for (String v : propVal) {
           if (v != null)
-            vals.add(((BaseValue) v).getInternalData());
+            if (def.getRequiredType() == PropertyType.UNDEFINED)
+              vals.add(((BaseValue) valueFactory.createValue(v)).getInternalData());
+            else
+              vals.add(((BaseValue) valueFactory.createValue(v, def.getRequiredType())).getInternalData());
           else {
             vals.add(null);
           }
@@ -2626,25 +2632,18 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                          AccessDeniedException,
                                          RepositoryException {
 
-    ArrayList<ItemDefinition> mandatoryItemDefs = ((ExtendedNodeType) getPrimaryNodeType()).getManadatoryItemDefs();
-    NodeType[] mixinTypes = getMixinNodeTypes();
-    for (int i = 0; i < mixinTypes.length; i++)
-      mandatoryItemDefs.addAll(((ExtendedNodeType) mixinTypes[i]).getManadatoryItemDefs());
-    Iterator<ItemDefinition> defs = mandatoryItemDefs.iterator();
-    while (defs.hasNext()) {
-      ItemDefinition def = defs.next();
+    Collection<ItemDefinitionData> mandatoryItemDefs = session.getWorkspace()
+                                                              .getNodeTypesHolder()
+                                                              .getManadatoryItemDefs(nodeData().getPrimaryTypeName(),
+                                                                                     nodeData().getMixinTypeNames());
+    for (ItemDefinitionData itemDefinitionData : mandatoryItemDefs) {
 
-      InternalQName defName = null;
-      if (def instanceof NodeDefinitionImpl) {
-        defName = ((NodeDefinitionImpl) def).getQName();
-      } else {
-        defName = ((PropertyDefinitionImpl) def).getQName();
-      }
-      if (getSession().getTransientNodesManager().getItemData(nodeData(),
-                                                              new QPathEntry(defName, 0)) == null)
-        throw new ConstraintViolationException("Mandatory item " + def.getName()
+      if (getSession().getTransientNodesManager()
+                      .getItemData(nodeData(), new QPathEntry(itemDefinitionData.getName(), 0)) == null)
+        throw new ConstraintViolationException("Mandatory item " + itemDefinitionData.getName()
             + " not found. Node [" + getPath() + " primary type: "
             + this.getPrimaryNodeType().getName() + "]");
+
     }
   }
 
@@ -2874,12 +2873,14 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   // ////////////////// NEW METHODS (since 1.5) ////////////////
-  @Deprecated
-  private ExtendedNodeType nodeType(InternalQName qName) throws NoSuchNodeTypeException,
-                                                        RepositoryException {
-
-    return session.getWorkspace().getNodeTypesHolder().findNodeType(qName);
-  }
+  // @Deprecated
+  // private ExtendedNodeType nodeType(InternalQName qName) throws
+  // NoSuchNodeTypeException,
+  // RepositoryException {
+  //    
+  // return session.getWorkspace().getNodeTypeManager()).getNodeTypesHolder().
+  // findNodeType(qName);
+  // }
 
   // @Deprecated
   // public ExtendedNodeType[] getAllNodeTypes() throws RepositoryException {

@@ -28,16 +28,15 @@ import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 import javax.jcr.version.VersionException;
 
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.impl.core.nodetype.PropertyDefinitionImpl;
 import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -51,11 +50,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 public class PropertyImpl extends ItemImpl implements Property {
 
-  protected int                 type;
+  protected int                  type;
 
-  private PropertyDefinition    propertyDef;
+  private PropertyDefinitionData propertyDef;
 
-  private TransientPropertyData propertyData;
+  private TransientPropertyData  propertyData;
 
   PropertyImpl(ItemData data, SessionImpl session) throws RepositoryException,
       ConstraintViolationException {
@@ -66,8 +65,8 @@ public class PropertyImpl extends ItemImpl implements Property {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform.services.jcr.datamodel
-   * .ItemData)
+   * org.exoplatform.services.jcr.impl.core.ItemImpl#loadData(org.exoplatform
+   * .services.jcr.datamodel .ItemData)
    */
   void loadData(ItemData data) throws RepositoryException, ConstraintViolationException {
 
@@ -242,18 +241,24 @@ public class PropertyImpl extends ItemImpl implements Property {
    */
   private void initDefinitions(boolean multiple) throws RepositoryException,
                                                 ConstraintViolationException {
-
-    PropertyDefinitions definitions = null;
+    //
+    // PropertyDefinitions definitions = null;
+    // 
+    // for (ExtendedNodeType nt : getParentNodeTypes()) {
+    // PropertyDefinitions defs = nt.getPropertyDefinitions(pname);
+    // if (defs.getAnyDefinition() != null) { // includes residual set
+    // definitions = defs;
+    // if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
+    // break;
+    // }
+    // }
+    NodeData parent = parentData();
     InternalQName pname = getData().getQPath().getName();
-    for (ExtendedNodeType nt : getParentNodeTypes()) {
-      PropertyDefinitions defs = nt.getPropertyDefinitions(pname);
-      if (defs.getAnyDefinition() != null) { // includes residual set
-        definitions = defs;
-        if (!((PropertyDefinitionImpl) defs.getAnyDefinition()).isResidualSet())
-          break;
-      }
-    }
-
+    PropertyDefinitionDatas definitions = session.getWorkspace()
+                                                 .getNodeTypesHolder()
+                                                 .findPropertyDefinitions(pname,
+                                                                          parent.getPrimaryTypeName(),
+                                                                          parent.getMixinTypeNames());
     if (definitions == null)
       throw new ConstraintViolationException("Definition for property " + getPath() + " not found.");
 
@@ -296,9 +301,10 @@ public class PropertyImpl extends ItemImpl implements Property {
   }
 
   /**
-   * @return multiValued property of data field (PropertyData) it's a life-state property field
-   *         which contains multiple-valued flag for value(s) data. Can be set in property creation
-   *         time or from persistent storage.
+   * @return multiValued property of data field (PropertyData) it's a life-state
+   *         property field which contains multiple-valued flag for value(s)
+   *         data. Can be set in property creation time or from persistent
+   *         storage.
    */
   public boolean isMultiValued() {
     return ((PropertyData) data).isMultiValued();

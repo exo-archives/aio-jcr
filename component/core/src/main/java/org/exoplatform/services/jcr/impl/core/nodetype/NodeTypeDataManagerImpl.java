@@ -30,10 +30,17 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionValue;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
@@ -46,16 +53,14 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z
+ *          pnedonosko $
  */
 public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
@@ -333,11 +338,11 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Validate NodeTypeData and return new instance or throw an exception. The new instance will be a
-   * guarany of valid NodeType. Check according the JSR-170/JSR-283 spec.
+   * Validate NodeTypeData and return new instance or throw an exception. The
+   * new instance will be a guarany of valid NodeType. Check according the
+   * JSR-170/JSR-283 spec.
    * 
-   * @param nodeType
-   *          NodeTypeData to be checked
+   * @param nodeType NodeTypeData to be checked
    * @return valid NodeTypeData
    * @throws RepositoryException
    */
@@ -613,8 +618,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * Add a <code>NodeTypeRegistryListener</code>
    * 
-   * @param listener
-   *          the new listener to be informed on (un)registration of node types
+   * @param listener the new listener to be informed on (un)registration of node
+   *          types
    */
   public void addListener(NodeTypeManagerListener listener) {
     if (!listeners.containsKey(listener)) {
@@ -625,18 +630,17 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * Remove a <code>NodeTypeRegistryListener</code>.
    * 
-   * @param listener
-   *          an existing listener
+   * @param listener an existing listener
    */
   public void removeListener(NodeTypeManagerListener listener) {
     listeners.remove(listener);
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been registered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * registered.
    * 
-   * @param ntName
-   *          NT name.
+   * @param ntName NT name.
    */
   private void notifyRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -650,10 +654,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been re-registered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * re-registered.
    * 
-   * @param ntName
-   *          NT name.
+   * @param ntName NT name.
    */
   private void notifyReRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -667,10 +671,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been unregistered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * unregistered.
    * 
-   * @param ntName
-   *          NT name.
+   * @param ntName NT name.
    */
   private void notifyUnregistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -681,5 +685,35 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         la[i].nodeTypeUnregistered(ntName);
       }
     }
+  }
+
+  public Collection<ItemDefinitionData> getManadatoryItemDefs(InternalQName primaryNodeType,
+                                                              InternalQName[] mixinTypes) {
+    Collection<ItemDefinitionData> mandatoryDefs = new HashSet<ItemDefinitionData>();
+    // primary type properties
+    ItemDefinitionData[] itemDefs = getAllPropertyDefinitions(new InternalQName[] { primaryNodeType });
+    for (int i = 0; i < itemDefs.length; i++) {
+      if (itemDefs[i].isMandatory())
+        mandatoryDefs.add(itemDefs[i]);
+    }
+    // primary type nodes
+    itemDefs = getAllChildNodeDefinitions(new InternalQName[] { primaryNodeType });
+    for (int i = 0; i < itemDefs.length; i++) {
+      if (itemDefs[i].isMandatory())
+        mandatoryDefs.add(itemDefs[i]);
+    }
+    // mixin properties
+    itemDefs = getAllPropertyDefinitions(mixinTypes);
+    for (int i = 0; i < itemDefs.length; i++) {
+      if (itemDefs[i].isMandatory())
+        mandatoryDefs.add(itemDefs[i]);
+    }
+    // mixin nodes
+    itemDefs = getAllChildNodeDefinitions(mixinTypes);
+    for (int i = 0; i < itemDefs.length; i++) {
+      if (itemDefs[i].isMandatory())
+        mandatoryDefs.add(itemDefs[i]);
+    }
+    return mandatoryDefs;
   }
 }
