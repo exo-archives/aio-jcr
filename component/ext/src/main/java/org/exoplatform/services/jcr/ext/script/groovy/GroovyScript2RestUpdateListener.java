@@ -53,40 +53,43 @@ public class GroovyScript2RestUpdateListener implements EventListener {
    * {@inheritDoc}
    */
   public void onEvent(EventIterator eventIterator) {
-    // waiting for Event.PROPERTY_ADDED, Event.PROPERTY_CHANGED, Event.PROPERTY_CHANGED
+    // waiting for Event.PROPERTY_ADDED, Event.PROPERTY_REMOVED, Event.PROPERTY_CHANGED
     try {
       while (eventIterator.hasNext()) {
         Event event = eventIterator.nextEvent();
         String path = event.getPath();
 
-        // jcr:data is mandatory for node-type 'exo:groovyResourceContainer'
-        // remove with node only, so unbind resource
-        if (event.getType() == Event.PROPERTY_REMOVED && path.endsWith("/jcr:data")) {
-          path = path.substring(0, path.lastIndexOf('/'));
-          unloadScript(path);
-          // nothing to do, node (script) removed
-          break;
-        }
+        Node node = null;
+        if (event.getType() != Event.PROPERTY_REMOVED)
+          node = session.getItem(path).getParent();
 
-        // interesting about change script source code
         if (path.endsWith("/jcr:data")) {
-          Node node = session.getItem(path).getParent();
-          // check is script should be automatically loaded
-          if (node.getProperty("exo:autoload").getBoolean()) {
-            if (event.getType() == Event.PROPERTY_CHANGED) {
+          switch (event.getType()) {
+          case Event.PROPERTY_REMOVED:
+            // jcr:data is mandatory for node-type 'exo:groovyResourceContainer'
+            // remove with node only, so unbind resource
+            unloadScript(path.substring(0, path.lastIndexOf('/')));
+            break;
+          case Event.PROPERTY_CHANGED:
+            // interesting about change script source code
+            if (node.getProperty("exo:autoload").getBoolean()) {
+              // check is script should be automatically loaded
               unloadScript(node);
-              loadScript(node);
-            } else {
-              // if Event.PROPERTY_ADDED
-              loadScript(node);
+//              loadScript(node);
+              node.setProperty("exo:load", true);
+              session.save();
             }
+            break;
+          case Event.PROPERTY_ADDED:
+            if (node.getProperty("exo:autoload").getBoolean()) {
+//            loadScript(node);
+              node.setProperty("exo:load", true);
+              session.save();
+            }
+            break;
           }
-        }
-        // property 'exo:load' changed, if it false script should be removed
-        // from ResourceBinder. Not care about Event.ADDED_NODE it will be catched
-        // by path.endsWith("/jcr:data").
-        if (path.endsWith("/exo:load") && event.getType() == Event.PROPERTY_CHANGED) {
-          Node node = session.getItem(path).getParent();
+        } else if (path.endsWith("/exo:load") && event.getType() == Event.PROPERTY_CHANGED) {
+          // property 'exo:load' changed, if it false script should be removed from ResourceBinder.
           if (node.getProperty("exo:load").getBoolean())
             loadScript(node);
           else
@@ -102,11 +105,9 @@ public class GroovyScript2RestUpdateListener implements EventListener {
     String unifiedNodePath = new UnifiedNodeReference(repository, workspace, node.getPath()).getURL()
                                                                                             .toString();
     groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data").getStream());
-    node.setProperty("exo:load", true);
   }
 
   private void unloadScript(Node node) throws Exception {
-    node.setProperty("exo:load", false);
     unloadScript(node.getPath());
   }
 

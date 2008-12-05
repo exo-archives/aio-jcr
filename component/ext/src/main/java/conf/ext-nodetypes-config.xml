@@ -238,20 +238,19 @@
       <supertype>nt:resource</supertype>
     </supertypes>
     <propertyDefinitions>
-      <propertyDefinition name="jcr:data" requiredType="Binary"
-        autoCreated="false" mandatory="true" onParentVersion="COPY"
-        protected="false" multiple="false">
+      <propertyDefinition name="jcr:data" requiredType="Binary" autoCreated="false"
+        mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
         <valueConstraints/>
       </propertyDefinition>
-      <propertyDefinition name="exo:autoload" requiredType="Boolean" autoCreated="false"
-      mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
+      <propertyDefinition name="exo:autoload" requiredType="Boolean" autoCreated="true"
+        mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
         <valueConstraints />
         <defaultValues>
           <defaultValue>false</defaultValue>
         </defaultValues>
       </propertyDefinition>
-      <propertyDefinition name="exo:load" requiredType="Boolean" autoCreated="false"
-      mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
+      <propertyDefinition name="exo:load" requiredType="Boolean" autoCreated="true"
+        mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
         <valueConstraints />
         <defaultValues>
           <defaultValue>false</defaultValue>
@@ -259,5 +258,5 @@
       </propertyDefinition>
     </propertyDefinitions>
 	</nodeType>
-
+  
 </nodeTypes>

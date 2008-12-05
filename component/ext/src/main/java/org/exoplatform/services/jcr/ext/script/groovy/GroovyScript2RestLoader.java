@@ -63,32 +63,32 @@ import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
  */
 public class GroovyScript2RestLoader implements Startable {
 
-  public static final String                    DEFAULT_NODETYPE    = "exo:groovyResourceContainer";
+  public static final String               DEFAULT_NODETYPE    = "exo:groovyResourceContainer";
 
-  private static final String                   SERVICE_NAME        = "GroovyScript2RestLoader";
+  private static final String              SERVICE_NAME        = "GroovyScript2RestLoader";
 
-  private InitParams                            initParams;
+  private InitParams                       initParams;
 
-  private ResourceBinder                        binder;
+  private ResourceBinder                   binder;
 
-  private GroovyScriptInstantiator              groovyScriptInstantiator;
+  private GroovyScriptInstantiator         groovyScriptInstantiator;
 
-  private Handler                               handler;
+  private Handler                          handler;
 
-  private RepositoryService                     repositoryService;
+  private RepositoryService                repositoryService;
 
-  private RegistryService                       registryService;
+  private RegistryService                  registryService;
 
-  private ObservationListenerConfiguration      observationListenerConfiguration;
+  private ObservationListenerConfiguration observationListenerConfiguration;
 
-  private String                                nodeType;
+  private String                           nodeType;
 
-  private Map<String, Class<?>> scriptsURL2ClassMap = new HashMap<String, Class<?>>();
+  private Map<String, Class<?>>            scriptsURL2ClassMap = new HashMap<String, Class<?>>();
 
   /**
    * Logger.
    */
-  private static final Log                      log                 = ExoLogger.getLogger(GroovyScript2RestLoader.class.getName());
+  private static final Log                 LOG                 = ExoLogger.getLogger(GroovyScript2RestLoader.class.getName());
 
   public GroovyScript2RestLoader(ResourceBinder binder,
                                  GroovyScriptInstantiator groovyScriptInstantiator,
@@ -138,9 +138,9 @@ public class GroovyScript2RestLoader implements Startable {
     if (scriptsURL2ClassMap.containsKey(key)) {
       binder.unbind(scriptsURL2ClassMap.get(key));
       scriptsURL2ClassMap.remove(key);
-      log.info("Remove groovy script, key " + key);
+      LOG.info("Remove groovy script, key " + key);
     } else {
-      log.warn("Specified key '" + key + "' does not corresponds to any class name.");
+      LOG.warn("Specified key '" + key + "' does not corresponds to any class name.");
     }
   }
 
@@ -157,7 +157,7 @@ public class GroovyScript2RestLoader implements Startable {
 
     // add mapping script URL to name of class.
     scriptsURL2ClassMap.put(url.toString(), resourceContainer.getClass());
-    log.info("Add new groovy scripts, URL: " + url);
+    LOG.info("Add new groovy scripts, URL: " + url);
 
   }
 
@@ -176,7 +176,7 @@ public class GroovyScript2RestLoader implements Startable {
     binder.bind(resourceContainer);
     // add mapping script URL to name of class.
     scriptsURL2ClassMap.put(key, resourceContainer.getClass());
-    log.info("Add new groovy scripts, script key: " + key);
+    LOG.info("Add new groovy scripts, script key: " + key);
   }
 
   /**
@@ -192,7 +192,7 @@ public class GroovyScript2RestLoader implements Startable {
         try {
           writeParamsToRegistryService(sessionProvider);
         } catch (Exception exc) {
-          log.error("Cannot write init configuration to RegistryService.", exc);
+          LOG.error("Cannot write init configuration to RegistryService.", exc);
         }
       } finally {
         sessionProvider.close();
@@ -200,10 +200,6 @@ public class GroovyScript2RestLoader implements Startable {
     } else {
       readParamsFromFile();
     }
-
-    // observation not configured
-    if (observationListenerConfiguration == null)
-      return;
 
     try {
 
@@ -215,20 +211,8 @@ public class GroovyScript2RestLoader implements Startable {
       for (String workspaceName : workspaceNames) {
         Session session = repository.getSystemSession(workspaceName);
 
-        session.getWorkspace()
-               .getObservationManager()
-               .addEventListener(new GroovyScript2RestUpdateListener(repositoryName,
-                                                                     workspaceName,
-                                                                     this,
-                                                                     session),
-                                 Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED,
-                                 "/",
-                                 true,
-                                 null,
-                                 new String[] { nodeType },
-                                 false);
-
-        String xpath = "//element(*, " + nodeType + ")[@exo:autoload='true']";
+//        String xpath = "//element(*, " + nodeType + ")[@exo:autoload='true']";
+        String xpath = "//element(*, " + nodeType + ")";
         Query query = session.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
 
         QueryResult result = query.execute();
@@ -236,22 +220,43 @@ public class GroovyScript2RestLoader implements Startable {
         while (nodeIterator.hasNext()) {
           Node node = nodeIterator.nextNode();
 
-          if (node.getPath().startsWith("/jcr:system")){
+          if (node.getPath().startsWith("/jcr:system")) {
             continue;
           }
 
-          UnifiedNodeReference unifiedNodeReference = new UnifiedNodeReference(repositoryName,
-                                                                               workspaceName,
-                                                                               node.getPath());
+          if (node.getProperty("exo:autoload").getBoolean()) {
 
-          loadScript(unifiedNodeReference.getURL().toString(), node.getProperty("jcr:data")
-                                                                   .getStream());
+            UnifiedNodeReference unifiedNodeReference = new UnifiedNodeReference(repositoryName,
+                                                                                 workspaceName,
+                                                                                 node.getPath());
+            loadScript(unifiedNodeReference.getURL().toString(), node.getProperty("jcr:data")
+                                                                     .getStream());
+            node.setProperty("exo:load", true);
+          } else {
+            // set it to false to be able to control script life cycle
+            node.setProperty("exo:load", false);
+          }
         }
+        session.save();
+        session.getWorkspace()
+               .getObservationManager()
+               .addEventListener(new GroovyScript2RestUpdateListener(repositoryName,
+                                                                     workspaceName,
+                                                                     this,
+                                                                     session),
+                                 Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED
+                                     | Event.PROPERTY_REMOVED,
+                                 "/",
+                                 true,
+                                 null,
+                                 new String[] { nodeType },
+                                 false);
       }
     } catch (Exception e) {
+      e.printStackTrace();
       // TODO generate correct error messages, one for observation listener
       // initialize and another for load script
-      log.error("Error occurs ", e);
+      LOG.error("Error occurs ", e);
     }
   }
 
@@ -272,8 +277,8 @@ public class GroovyScript2RestLoader implements Startable {
   private void readParamsFromRegistryService(SessionProvider sessionProvider) throws PathNotFoundException,
                                                                              RepositoryException {
 
-    if (log.isDebugEnabled())
-      log.debug("<<< Read init parametrs from registry service.");
+    if (LOG.isDebugEnabled())
+      LOG.debug("<<< Read init parametrs from registry service.");
     
     observationListenerConfiguration = new ObservationListenerConfiguration();
 
@@ -303,9 +308,9 @@ public class GroovyScript2RestLoader implements Startable {
 
     observationListenerConfiguration.setWorkspaces(wsList);
 
-    log.info("NodeType from RegistryService: " + nodeType);
-    log.info("Repository from RegistryService: " + observationListenerConfiguration.getRepository());
-    log.info("Workspaces node from RegistryService: "
+    LOG.info("NodeType from RegistryService: " + nodeType);
+    LOG.info("Repository from RegistryService: " + observationListenerConfiguration.getRepository());
+    LOG.info("Workspaces node from RegistryService: "
         + observationListenerConfiguration.getWorkspaces());
   }
 
@@ -322,8 +327,8 @@ public class GroovyScript2RestLoader implements Startable {
                                                                             SAXException,
                                                                             ParserConfigurationException,
                                                                             RepositoryException {
-    if (log.isDebugEnabled())
-      log.debug(">>> Save init parametrs in registry service.");
+    if (LOG.isDebugEnabled())
+      LOG.debug(">>> Save init parametrs in registry service.");
     
     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     Element root = doc.createElement(SERVICE_NAME);
@@ -390,10 +395,10 @@ public class GroovyScript2RestLoader implements Startable {
       observationListenerConfiguration = (ObservationListenerConfiguration) param.getObject();
     }
 
-    log.info("NodeType from configuration file: " + nodeType);
-    log.info("Repository from configuration file: "
+    LOG.info("NodeType from configuration file: " + nodeType);
+    LOG.info("Repository from configuration file: "
         + observationListenerConfiguration.getRepository());
-    log.info("Workspaces node from configuration file: "
+    LOG.info("Workspaces node from configuration file: "
         + observationListenerConfiguration.getWorkspaces());
   }
 
