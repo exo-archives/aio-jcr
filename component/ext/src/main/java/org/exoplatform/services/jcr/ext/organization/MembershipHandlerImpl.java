@@ -523,7 +523,7 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
     } catch (ItemNotFoundException e) {
       return null;
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find membership by UUId", e);
+      throw new OrganizationServiceException("Can not remove membership", e);
     }
   }
 

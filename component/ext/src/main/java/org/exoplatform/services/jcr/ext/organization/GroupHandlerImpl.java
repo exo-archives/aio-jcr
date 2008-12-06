@@ -202,7 +202,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
    *           An exception is throwed if the method cannot access the database or more than one
    *           group is found.
    */
-  Group findGroupById(Session session, String groupId) throws Exception {
+  private Group findGroupById(Session session, String groupId) throws Exception {
     if (log.isDebugEnabled()) {
       log.debug("findGroupById started");
     }
