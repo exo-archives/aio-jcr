@@ -80,10 +80,6 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.membership.FindMembershipsByUserTest" />
   </testCase>
 
-  <testCase name="FindMembershipTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.membership.FindMembershipTest" />
-  </testCase>
-
   <testCase name="LinkMembershipTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.membership.LinkMembershipTest" />
   </testCase>
@@ -167,6 +163,7 @@
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.userprofile.SaveUserProfileTest" />
   </testCase>
 
+  <!-- Usecases -->
   <testCase name="CreateNewUserTest">
     <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.organization.usecases.CreateNewUserTest" />
   </testCase>
