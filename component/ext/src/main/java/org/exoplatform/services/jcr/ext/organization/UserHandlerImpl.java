@@ -321,35 +321,40 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       log.debug("User.findUsers method is started");
     }
 
-    String where = "jcr:path LIKE '" + "%" + "'";
-    if (query.getEmail() != null) {
-      where += " AND " + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
-    }
-    if (query.getFirstName() != null) {
-      where += " AND " + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
-    }
-    if (query.getLastName() != null) {
-      where += " AND " + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
-    }
+    try {
+      String where = "jcr:path LIKE '" + "%" + "'";
+      if (query.getEmail() != null) {
+        where += " AND " + ("exo:email LIKE '" + query.getEmail().replace('*', '%') + "'");
+      }
+      if (query.getFirstName() != null) {
+        where += " AND " + ("exo:firstName LIKE '" + query.getFirstName().replace('*', '%') + "'");
+      }
+      if (query.getLastName() != null) {
+        where += " AND " + ("exo:lastName LIKE '" + query.getLastName().replace('*', '%') + "'");
+      }
 
-    List<User> types = new ArrayList<User>();
+      List<User> types = new ArrayList<User>();
 
-    String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
-    Query uQuery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
-    QueryResult uRes = uQuery.execute();
-    for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
-      Node uNode = uNodes.nextNode();
-      if (query.getUserName() == null || isNameLike(uNode.getName(), query.getUserName())) {
-        Date lastLoginTime = readDateProperty(uNode, EXO_LAST_LOGIN_TIME);
-        if ((query.getFromLoginDate() == null || (lastLoginTime != null && query.getFromLoginDate()
-                                                                                .getTime() <= lastLoginTime.getTime()))
-            && (query.getToLoginDate() == null || (lastLoginTime != null && query.getToLoginDate()
-                                                                                 .getTime() >= lastLoginTime.getTime()))) {
-          types.add(readObjectFromNode(uNode));
+      String statement = "select * from exo:user " + (where.length() == 0 ? "" : "where " + where);
+      Query uQuery = session.getWorkspace().getQueryManager().createQuery(statement, Query.SQL);
+      QueryResult uRes = uQuery.execute();
+      for (NodeIterator uNodes = uRes.getNodes(); uNodes.hasNext();) {
+        Node uNode = uNodes.nextNode();
+        if (query.getUserName() == null || isNameLike(uNode.getName(), query.getUserName())) {
+          Date lastLoginTime = readDateProperty(uNode, EXO_LAST_LOGIN_TIME);
+          if ((query.getFromLoginDate() == null || (lastLoginTime != null && query.getFromLoginDate()
+                                                                                  .getTime() <= lastLoginTime.getTime()))
+              && (query.getToLoginDate() == null || (lastLoginTime != null && query.getToLoginDate()
+                                                                                   .getTime() >= lastLoginTime.getTime()))) {
+            types.add(readObjectFromNode(uNode));
+          }
         }
       }
+      return new ObjectPageList(types, 10);
+
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find users", e);
     }
-    return new ObjectPageList(types, 10);
   }
 
   /**
@@ -398,7 +403,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
     } catch (PathNotFoundException e) {
       return new ObjectPageList(users, 10);
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not users by group '" + groupId + "'", e);
+      throw new OrganizationServiceException("Can not find users by group '" + groupId + "'", e);
     }
   }
 
@@ -440,7 +445,7 @@ public class UserHandlerImpl extends CommonHandler implements UserHandler {
       return new ObjectPageList(types, pageSize);
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find users", e);
+      throw new OrganizationServiceException("Can not get user page list", e);
     }
   }
 

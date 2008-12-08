@@ -134,7 +134,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
     try {
       return readUserProfile(session, userName);
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find user profile", e);
+      throw new OrganizationServiceException("Can not find '" + userName + "' profile", e);
     }
   }
 
@@ -367,7 +367,7 @@ public class UserProfileHandlerImpl extends CommonHandler implements UserProfile
       return userProfile;
 
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not read user profile data", e);
+      throw new OrganizationServiceException("Can not read user profile data from node", e);
     }
   }
 

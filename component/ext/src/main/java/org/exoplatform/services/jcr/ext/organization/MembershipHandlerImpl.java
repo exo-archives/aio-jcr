@@ -469,18 +469,27 @@ public class MembershipHandlerImpl extends CommonHandler implements MembershipHa
                               Group group,
                               MembershipType m,
                               boolean broadcast) throws Exception {
-    if (group == null) {
-      throw new OrganizationServiceException("Can not create membership record for user '"
-          + user.getUserName() + "' because group not found");
-    }
 
-    if (m == null) {
-      throw new OrganizationServiceException("Can not create membership record for user '"
-          + user.getUserName() + "' because membership type not found");
-    }
+    try {
+      if (group == null) {
+        throw new OrganizationServiceException("Can not create membership record for user '"
+            + user.getUserName() + "' because group not found");
+      }
 
-    Membership membership = new MembershipImpl(null, user.getUserName(), group.getId(), m.getName());
-    createMembership(session, membership, broadcast);
+      if (m == null) {
+        throw new OrganizationServiceException("Can not create membership record for '"
+            + user.getUserName() + "' because membership type not found");
+      }
+
+      Membership membership = new MembershipImpl(null,
+                                                 user.getUserName(),
+                                                 group.getId(),
+                                                 m.getName());
+      createMembership(session, membership, broadcast);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not link membership for user '"
+          + user.getUserName(), e);
+    }
   }
 
   /**

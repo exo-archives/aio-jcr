@@ -168,7 +168,11 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       log.debug("createGroup method");
     }
 
-    addChild(null, group, broadcast);
+    try {
+      addChild(null, group, broadcast);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not create group", e);
+    }
   }
 
   /**
@@ -278,7 +282,7 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
     } catch (PathNotFoundException e) {
       return types;
     } catch (Exception e) {
-      throw new OrganizationServiceException("Can not find groups", e);
+      throw new OrganizationServiceException("Can not find groups by membership", e);
     }
   }
 
@@ -344,7 +348,11 @@ public class GroupHandlerImpl extends CommonHandler implements GroupHandler {
       log.debug("findGroupsOfUser started");
     }
 
-    return findGroupByMembership(user, null);
+    try {
+      return findGroupByMembership(user, null);
+    } catch (Exception e) {
+      throw new OrganizationServiceException("Can not find groups", e);
+    }
   }
 
   /**
