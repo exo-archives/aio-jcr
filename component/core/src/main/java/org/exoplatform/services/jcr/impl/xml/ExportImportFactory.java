@@ -27,6 +27,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.xml.sax.ContentHandler;
+
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
@@ -35,7 +37,6 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.RepositoryImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.xml.exporting.BaseXmlExporter;
 import org.exoplatform.services.jcr.impl.xml.exporting.DocumentViewContentExporter;
@@ -47,7 +48,6 @@ import org.exoplatform.services.jcr.impl.xml.importing.ContentHandlerImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.WorkspaceDataImporter;
 import org.exoplatform.services.security.ConversationState;
-import org.xml.sax.ContentHandler;
 
 /**
  * Created by The eXo Platform SAS.
@@ -60,21 +60,14 @@ public class ExportImportFactory {
   /**
    * Create export visitor for given type of view.
    * 
-   * @param type
-   *          - 6.4 XML Mappings
-   * @param contentHandler
-   *          - for which will be generate SAX events
-   * @param skipBinary
-   *          - If skipBinary is true then any properties of PropertyType.BINARY will be serialized
-   *          as if they are empty.
-   * @param noRecurse
-   *          - if noRecurse is false, the whole subtree are serialized.
-   * @param dataManager
-   *          - ItemDataConsumer
-   * @param namespaceRegistry
-   *          - NamespaceRegistry
-   * @param systemValueFactory
-   *          - default value factory
+   * @param type - 6.4 XML Mappings
+   * @param contentHandler - for which will be generate SAX events
+   * @param skipBinary - If skipBinary is true then any properties of
+   *          PropertyType.BINARY will be serialized as if they are empty.
+   * @param noRecurse - if noRecurse is false, the whole subtree are serialized.
+   * @param dataManager - ItemDataConsumer
+   * @param namespaceRegistry - NamespaceRegistry
+   * @param systemValueFactory - default value factory
    * @return - visitor BaseXmlExporter.
    * @throws NamespaceException
    * @throws RepositoryException
@@ -109,21 +102,14 @@ public class ExportImportFactory {
   /**
    * Create export visitor for given type of view.
    * 
-   * @param type
-   *          - 6.4 XML Mappings
-   * @param stream
-   *          - output result stream
-   * @param skipBinary
-   *          - If skipBinary is true then any properties of PropertyType.BINARY will be serialized
-   *          as if they are empty.
-   * @param noRecurse
-   *          - if noRecurse is false, the whole subtree are serialized
-   * @param dataManager
-   *          - ItemDataConsumer
-   * @param namespaceRegistry
-   *          - NamespaceRegistry
-   * @param systemValueFactory
-   *          - default value factory
+   * @param type - 6.4 XML Mappings
+   * @param stream - output result stream
+   * @param skipBinary - If skipBinary is true then any properties of
+   *          PropertyType.BINARY will be serialized as if they are empty.
+   * @param noRecurse - if noRecurse is false, the whole subtree are serialized
+   * @param dataManager - ItemDataConsumer
+   * @param namespaceRegistry - NamespaceRegistry
+   * @param systemValueFactory - default value factory
    * @return - visitor BaseXmlExporter.
    * @throws NamespaceException
    * @throws RepositoryException
@@ -249,7 +235,7 @@ public class ExportImportFactory {
                                              int uuidBehavior,
                                              ItemDataKeeper dataKeeper,
                                              ItemDataConsumer dataConsumer,
-                                             NodeTypeManagerImpl ntManager,
+                                             NodeTypeDataManager ntManager,
                                              LocationFactory locationFactory,
                                              ValueFactoryImpl valueFactory,
                                              NamespaceRegistry namespaceRegistry,

@@ -16,11 +16,14 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +32,8 @@ import java.util.WeakHashMap;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -36,9 +41,15 @@ import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
 
 import org.apache.commons.logging.Log;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.BooleanClause.Occur;
 
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
@@ -51,7 +62,11 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
+import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
+import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -85,6 +100,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    */
   private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners;
 
+  private HashSet<QueryHandler>                                       queryHandlers;
+
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
                                  NamespaceRegistry namespaceRegistry,
@@ -103,6 +120,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.defsHolder = new ItemDefinitionDataHolder(this.hierarchy);
     this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
     initDefault();
+    this.queryHandlers = new HashSet<QueryHandler>();
   }
 
   /**
@@ -715,5 +733,134 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         mandatoryDefs.add(itemDefs[i]);
     }
     return mandatoryDefs;
+  }
+
+  // TODO make me private
+  public Set<QueryHandler> getQueryHandlers() {
+    return queryHandlers;
+  }
+
+  public void addQueryHandler(QueryHandler queryHandler) {
+    queryHandlers.add(queryHandler);
+  }
+
+  /**
+   * Return
+   * 
+   * @param nodeType
+   * @return
+   * @throws RepositoryException
+   * @throws IOException
+   */
+  public Set<String> getNodes(InternalQName nodeType) throws RepositoryException, IOException {
+    return getNodes(nodeType, new InternalQName[0], new InternalQName[0]);
+  }
+
+  /**
+   * Return
+   * 
+   * @param nodeType
+   * @return
+   * @throws RepositoryException
+   * @throws IOException
+   */
+  public Set<String> getNodes(InternalQName nodeType,
+                              InternalQName[] includeProperties,
+                              InternalQName[] excludeProperties) throws RepositoryException,
+                                                                IOException {
+    Query query = getQuery(nodeType);
+    if (includeProperties.length > 0) {
+      BooleanQuery tmp = new BooleanQuery();
+      for (int i = 0; i < includeProperties.length; i++) {
+
+        String field = locationFactory.createJCRName(includeProperties[i]).getAsString();
+        tmp.add(new TermQuery(new Term(FieldNames.PROPERTIES_SET, field)), Occur.MUST);
+      }
+      tmp.add(query, Occur.MUST);
+      query = tmp;
+    }
+
+    if (excludeProperties.length > 0) {
+      BooleanQuery tmp = new BooleanQuery();
+      for (int i = 0; i < includeProperties.length; i++) {
+
+        String field = locationFactory.createJCRName(includeProperties[i]).getAsString();
+        tmp.add(new TermQuery(new Term(FieldNames.PROPERTIES_SET, field)), Occur.MUST_NOT);
+      }
+      tmp.add(query, Occur.MUST_NOT);
+      query = tmp;
+    }
+
+    Iterator<QueryHandler> it = queryHandlers.iterator();
+    Set<String> result = new HashSet<String>();
+
+    while (it.hasNext()) {
+      QueryHandler queryHandler = it.next();
+      QueryHits hits = queryHandler.executeQuery(query, true, new InternalQName[0], new boolean[0]);
+      for (int i = 0; i < hits.length(); i++) {
+        result.add(hits.getFieldContent(i, FieldNames.UUID));
+      }
+
+    }
+    return result;
+  }
+
+  private Query getQuery(InternalQName nodeType) throws RepositoryException {
+    List<Term> terms = new ArrayList<Term>();
+    // try {
+    String mixinTypesField = locationFactory.createJCRName(Constants.JCR_MIXINTYPES).getAsString();
+    String primaryTypeField = locationFactory.createJCRName(Constants.JCR_PRIMARYTYPE)
+                                             .getAsString();
+
+    // ExtendedNodeTypeManager ntMgr =
+    // session.getWorkspace().getNodeTypeManager();
+    NodeType base = getNodeType(nodeType);
+
+    if (base.isMixin()) {
+      // search for nodes where jcr:mixinTypes is set to this mixin
+      Term t = new Term(FieldNames.PROPERTIES,
+                        FieldNames.createNamedValue(mixinTypesField,
+                                                    locationFactory.createJCRName(nodeType)
+                                                                   .getAsString()));
+      terms.add(t);
+    } else {
+      // search for nodes where jcr:primaryType is set to this type
+      Term t = new Term(FieldNames.PROPERTIES,
+                        FieldNames.createNamedValue(primaryTypeField,
+                                                    locationFactory.createJCRName(nodeType)
+                                                                   .getAsString()));
+      terms.add(t);
+    }
+
+    // now search for all node types that are derived from base
+    NodeTypeIterator allTypes = getAllNodeTypes();
+    while (allTypes.hasNext()) {
+      ExtendedNodeType nt = (ExtendedNodeType) allTypes.nextNodeType();
+      NodeType[] superTypes = nt.getSupertypes();
+      if (Arrays.asList(superTypes).contains(base)) {
+        String ntName = locationFactory.createJCRName(nt.getQName()).getAsString();
+        Term t;
+        if (nt.isMixin()) {
+          // search on jcr:mixinTypes
+          t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(mixinTypesField, ntName));
+        } else {
+          // search on jcr:primaryType
+          t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(primaryTypeField, ntName));
+        }
+        terms.add(t);
+      }
+    }
+    if (terms.size() == 0) {
+      // exception occured
+      return new BooleanQuery();
+    } else if (terms.size() == 1) {
+      return new TermQuery((Term) terms.get(0));
+    } else {
+      BooleanQuery b = new BooleanQuery();
+      for (Iterator it = terms.iterator(); it.hasNext();) {
+        b.add(new TermQuery((Term) it.next()), Occur.SHOULD);
+      }
+      return b;
+    }
   }
 }

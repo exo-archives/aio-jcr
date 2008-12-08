@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.NamespaceDataPersister;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
@@ -68,7 +69,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id: RepositoryContainer.java 13986 2008-05-08 10:48:43Z pnedonosko
+ *          $
  */
 public class RepositoryContainer extends ExoContainer {
 
@@ -356,7 +358,7 @@ public class RepositoryContainer extends ExoContainer {
   private void init() throws RepositoryException, RepositoryConfigurationException {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
 
-    NodeTypeManagerImpl typeManager = (NodeTypeManagerImpl) this.getComponentInstanceOfType(NodeTypeManagerImpl.class);
+    NodeTypeDataManager typeManager = (NodeTypeDataManager) this.getComponentInstanceOfType(NodeTypeDataManager.class);
 
     for (WorkspaceEntry ws : wsEntries) {
       initWorkspace(ws);

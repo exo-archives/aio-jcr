@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.core.query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -157,7 +158,7 @@ public class PropertyTypeRegistry implements NodeTypeManagerListener {
    * from the {@link org.apache.jackrabbit.core.nodetype.NodeTypeRegistry}.
    */
   private void fillCache() {
-    List<NodeTypeData> ntTypes = nodeTypeDataManager.getAllNodeTypes();
+    Collection<NodeTypeData> ntTypes = nodeTypeDataManager.getAllNodeTypes();
     for (NodeTypeData nodeTypeData : ntTypes) {
       nodeTypeRegistered(nodeTypeData.getName());
     }

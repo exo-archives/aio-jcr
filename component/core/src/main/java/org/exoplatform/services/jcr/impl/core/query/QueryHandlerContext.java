@@ -20,6 +20,7 @@ import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 
 import sun.management.FileSystem;
 
@@ -96,7 +97,7 @@ public class QueryHandlerContext {
     this.extractor = extractor;
     this.propRegistry = new PropertyTypeRegistry(nodeTypeDataManager);
     this.parentHandler = parentHandler;
-    this.nodeTypeDataManager.addListener(propRegistry);
+    ((NodeTypeDataManagerImpl) this.nodeTypeDataManager).addListener(propRegistry);
   }
 
   /**
@@ -159,7 +160,7 @@ public class QueryHandlerContext {
    * Destroys this context and releases resources.
    */
   public void destroy() {
-    nodeTypeDataManager.removeListener(propRegistry);
+    ((NodeTypeDataManagerImpl) this.nodeTypeDataManager).removeListener(propRegistry);
   }
 
   public DocumentReaderService getExtractor() {

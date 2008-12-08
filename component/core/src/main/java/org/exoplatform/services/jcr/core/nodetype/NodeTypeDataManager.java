@@ -22,6 +22,7 @@ import java.util.Collection;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
@@ -91,11 +92,8 @@ public interface NodeTypeDataManager {
   boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
                                         InternalQName parentNodeType,
                                         InternalQName[] parentMixinNames);
-  // or
 
-  // boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
-  // InternalQName... typeNames) throws NoSuchNodeTypeException,
-  // RepositoryException;
-  //   
+  // query
 
+  public void addQueryHandler(QueryHandler queryHandler);
 }

@@ -20,12 +20,9 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 
-import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
 import javax.jcr.UnsupportedRepositoryOperationException;
 import javax.jcr.ValueFactory;
@@ -35,9 +32,13 @@ import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.PropertyDefinition;
 
+import org.jibx.runtime.BindingDirectory;
+import org.jibx.runtime.IBindingFactory;
+import org.jibx.runtime.IUnmarshallingContext;
+import org.jibx.runtime.JiBXException;
+
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.access.AccessControlPolicy;
-import org.exoplatform.services.jcr.config.RepositoryEntry;
+
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
@@ -48,53 +49,53 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.log.ExoLogger;
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: NodeTypeManagerImpl.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id: NodeTypeManagerImpl.java 13986 2008-05-08 10:48:43Z pnedonosko
+ *          $
  */
 public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
-  protected static final Log                                          LOG            = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
+  protected static final Log          LOG            = ExoLogger.getLogger("jcr.NodeTypeManagerImpl");
 
-  private static final String                                         NODETYPES_FILE = "nodetypes.xml";
+  private static final String         NODETYPES_FILE = "nodetypes.xml";
 
-  public static final String                                          NODETYPES_ROOT = "/jcr:system/jcr:nodetypes";
+  public static final String          NODETYPES_ROOT = "/jcr:system/jcr:nodetypes";
 
-  protected final ValueFactory                                        valueFactory;
+  protected final ValueFactory        valueFactory;
 
-  protected final LocationFactory                                     locationFactory;
+  protected final LocationFactory     locationFactory;
 
-  protected final NodeTypeDataManager                                 typesManager;
+  protected final NodeTypeDataManager typesManager;
 
   /**
-   * Listeners (soft references) TODO Map<NodeTypeManagerListener, NodeTypeManagerListener> never
-   * free the self reference
+   * Listeners (soft references) TODO Map<NodeTypeManagerListener,
+   * NodeTypeManagerListener> never free the self reference
    */
-  private final Map<NodeTypeManagerListener, NodeTypeManagerListener> listeners      = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
-  
+  // private final Map<NodeTypeManagerListener, NodeTypeManagerListener>
+  // listeners = Collections.synchronizedMap(new
+  // WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
+  private HashSet<QueryHandler>       queryHandlers;
+
   public NodeTypeManagerImpl(LocationFactory locationFactory,
-                                ValueFactoryImpl valueFactory,
-                                NodeTypeDataManager typesManager) {
+                             ValueFactoryImpl valueFactory,
+                             NodeTypeDataManager typesManager) {
     this.valueFactory = valueFactory;
     this.locationFactory = locationFactory;
     this.typesManager = typesManager;
+
   }
 
   @Deprecated
   public WorkspaceNTManagerImpl createWorkspaceNTManager(SessionImpl session) throws RepositoryException {
-    WorkspaceNTManagerImpl wntm = new WorkspaceNTManagerImpl(null,
-                                                             session,
-                                                             typesManager);
+    WorkspaceNTManagerImpl wntm = new WorkspaceNTManagerImpl(null, session, typesManager);
     return wntm;
   }
 
@@ -128,8 +129,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available primary node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException
-   *           if an error occurs.
+   * @throws RepositoryException if an error occurs.
    */
   public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -146,8 +146,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available mixin node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException
-   *           if an error occurs.
+   * @throws RepositoryException if an error occurs.
    */
   public NodeTypeIterator getMixinNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -161,7 +160,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   // eXo stuff ================================
-  
+
   public NodeTypeDataManager getDataManager() {
     return typesManager;
   }
@@ -317,7 +316,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
 
     // if (nodeType == null) {
-    // throw new RepositoryException("NodeType object " + nodeType + " is null");
+    // throw new RepositoryException("NodeType object " + nodeType +
+    // " is null");
     // }
     //
     // long start = System.currentTimeMillis();
@@ -335,7 +335,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     //
     // if (findNodeType(qname) != null) {
     // if (alreadyExistsBehaviour == FAIL_IF_EXISTS) {
-    // throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
+    // throw new RepositoryException("NodeType " + nodeType.getName() +
+    // " is already registered");
     // } else
     // LOG.warn("NodeType " + nodeType.getName() + " is already registered");
     // return;
@@ -372,7 +373,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
                                                                                                 InstantiationException {
 
-    // registerNodeType((ExtendedNodeType) makeNtFromClass(nodeTypeType), alreadyExistsBehaviour);
+    // registerNodeType((ExtendedNodeType) makeNtFromClass(nodeTypeType),
+    // alreadyExistsBehaviour);
   }
 
   /**
@@ -380,22 +382,22 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    */
   public void registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException {
 
-//    if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
-//      List<String> nsupertypes = nodeTypeValue.getDeclaredSupertypeNames();
-//      if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
-//          || nodeTypeValue.getName().equals("exo:privilegeable")) {
-//        // skip this node, so it's not necessary at this runtime
-//        // + "' -- it's not necessary at this runtime";
-//        LOG.warn("Node type " + nodeTypeValue.getName()
-//            + " is not register due to DISABLE control policy");
-//        return;
-//      }
-//    }
-//
-//    // We have to validate node value before registering it
-//    nodeTypeValue.validateNodeType();
-//    // NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
-//    // registerNodeType(nodeType, alreadyExistsBehaviour);
+    // if (accessControlPolicy.equals(AccessControlPolicy.DISABLE)) {
+    // List<String> nsupertypes = nodeTypeValue.getDeclaredSupertypeNames();
+    // if (nsupertypes != null && nsupertypes.contains("exo:privilegeable")
+    // || nodeTypeValue.getName().equals("exo:privilegeable")) {
+    // // skip this node, so it's not necessary at this runtime
+    // // + "' -- it's not necessary at this runtime";
+    // LOG.warn("Node type " + nodeTypeValue.getName()
+    // + " is not register due to DISABLE control policy");
+    // return;
+    // }
+    // }
+    //
+    // // We have to validate node value before registering it
+    // nodeTypeValue.validateNodeType();
+    // // NodeTypeImpl nodeType = new NodeTypeImpl(this, nodeTypeValue);
+    // // registerNodeType(nodeType, alreadyExistsBehaviour);
 
     typesManager.registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
   }
@@ -473,7 +475,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     // rNodeTypes.addAll(nodeTypes.values());
     // List<NodeType> loadedNt = persister.loadNodetypes(rNodeTypes, this);
     // for (NodeType nodeType : loadedNt) {
-    // nodeTypes.put(((ExtendedNodeType) nodeType).getQName(), (ExtendedNodeType) nodeType);
+    // nodeTypes.put(((ExtendedNodeType) nodeType).getQName(),
+    // (ExtendedNodeType) nodeType);
     // }
     // if (loadedNt.size() > 0)
     // LOG.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
@@ -571,78 +574,79 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     throw new RepositoryException("Unsupported operation");
   }
 
-  /**
-   * Add a <code>NodeTypeRegistryListener</code>
-   * 
-   * @param listener
-   *          the new listener to be informed on (un)registration of node types
-   */
-  public void addListener(NodeTypeManagerListener listener) {
-    if (!listeners.containsKey(listener)) {
-      listeners.put(listener, listener);
-    }
-  }
-
-  /**
-   * Remove a <code>NodeTypeRegistryListener</code>.
-   * 
-   * @param listener
-   *          an existing listener
-   */
-  public void removeListener(NodeTypeManagerListener listener) {
-    listeners.remove(listener);
-  }
-
-  /**
-   * Notify the listeners that a node type <code>ntName</code> has been registered.
-   * 
-   * @param ntName
-   *          NT name.
-   */
-  private void notifyRegistered(InternalQName ntName) {
-    // copy listeners to array to avoid ConcurrentModificationException
-    NodeTypeManagerListener[] la = listeners.values()
-                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
-    for (int i = 0; i < la.length; i++) {
-      if (la[i] != null) {
-        la[i].nodeTypeRegistered(ntName);
-      }
-    }
-  }
-
-  /**
-   * Notify the listeners that a node type <code>ntName</code> has been re-registered.
-   * 
-   * @param ntName
-   *          NT name.
-   */
-  private void notifyReRegistered(InternalQName ntName) {
-    // copy listeners to array to avoid ConcurrentModificationException
-    NodeTypeManagerListener[] la = listeners.values()
-                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
-    for (int i = 0; i < la.length; i++) {
-      if (la[i] != null) {
-        la[i].nodeTypeReRegistered(ntName);
-      }
-    }
-  }
-
-  /**
-   * Notify the listeners that a node type <code>ntName</code> has been unregistered.
-   * 
-   * @param ntName
-   *          NT name.
-   */
-  private void notifyUnregistered(InternalQName ntName) {
-    // copy listeners to array to avoid ConcurrentModificationException
-    NodeTypeManagerListener[] la = listeners.values()
-                                            .toArray(new NodeTypeManagerListener[listeners.size()]);
-    for (int i = 0; i < la.length; i++) {
-      if (la[i] != null) {
-        la[i].nodeTypeUnregistered(ntName);
-      }
-    }
-  }
+  //
+  // /**
+  // * Add a <code>NodeTypeRegistryListener</code>
+  // *
+  // * @param listener the new listener to be informed on (un)registration of
+  // node
+  // * types
+  // */
+  // public void addListener(NodeTypeManagerListener listener) {
+  // if (!listeners.containsKey(listener)) {
+  // listeners.put(listener, listener);
+  // }
+  // }
+  //
+  // /**
+  // * Remove a <code>NodeTypeRegistryListener</code>.
+  // *
+  // * @param listener an existing listener
+  // */
+  // public void removeListener(NodeTypeManagerListener listener) {
+  // listeners.remove(listener);
+  // }
+  //
+  // /**
+  // * Notify the listeners that a node type <code>ntName</code> has been
+  // * registered.
+  // *
+  // * @param ntName NT name.
+  // */
+  // private void notifyRegistered(InternalQName ntName) {
+  // // copy listeners to array to avoid ConcurrentModificationException
+  // NodeTypeManagerListener[] la = listeners.values()
+  // .toArray(new NodeTypeManagerListener[listeners.size()]);
+  // for (int i = 0; i < la.length; i++) {
+  // if (la[i] != null) {
+  // la[i].nodeTypeRegistered(ntName);
+  // }
+  // }
+  // }
+  //
+  // /**
+  // * Notify the listeners that a node type <code>ntName</code> has been
+  // * re-registered.
+  // *
+  // * @param ntName NT name.
+  // */
+  // private void notifyReRegistered(InternalQName ntName) {
+  // // copy listeners to array to avoid ConcurrentModificationException
+  // NodeTypeManagerListener[] la = listeners.values()
+  // .toArray(new NodeTypeManagerListener[listeners.size()]);
+  // for (int i = 0; i < la.length; i++) {
+  // if (la[i] != null) {
+  // la[i].nodeTypeReRegistered(ntName);
+  // }
+  // }
+  // }
+  //
+  // /**
+  // * Notify the listeners that a node type <code>ntName</code> has been
+  // * unregistered.
+  // *
+  // * @param ntName NT name.
+  // */
+  // private void notifyUnregistered(InternalQName ntName) {
+  // // copy listeners to array to avoid ConcurrentModificationException
+  // NodeTypeManagerListener[] la = listeners.values()
+  // .toArray(new NodeTypeManagerListener[listeners.size()]);
+  // for (int i = 0; i < la.length; i++) {
+  // if (la[i] != null) {
+  // la[i].nodeTypeUnregistered(ntName);
+  // }
+  // }
+  // }
 
   public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
                                             int alreadyExistsBehaviour) throws UnsupportedRepositoryOperationException,
@@ -669,4 +673,5 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     // TODO Auto-generated method stub
 
   }
+
 }
