@@ -49,7 +49,6 @@ import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.jcr.RepositoryService;
-import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
@@ -265,7 +264,7 @@ public class GroovyScript2RestLoader implements Startable {
     } else {
       readParamsFromFile();
     }
-    
+
     // add script from config files to jcr.
     addScripts();
 
@@ -333,16 +332,24 @@ public class GroovyScript2RestLoader implements Startable {
   public void stop() {
     // nothing to do!
   }
-  
+
+  /**
+   * See {@link GroovyScript2RestLoaderPlugin}.
+   */
   private GroovyScript2RestLoaderPlugin loadPlugin;
-  
+
+  /**
+   * @param cp See {@link ComponentPlugin}
+   */
   public void addPlugin(ComponentPlugin cp) {
     if (cp instanceof GroovyScript2RestLoaderPlugin)
       loadPlugin = (GroovyScript2RestLoaderPlugin) cp;
   }
-  
+
+  /**
+   * Add scripts that specified in configuration.
+   */
   private void addScripts() {
-    System.out.println("------------------------------- "+loadPlugin.getXMLConfigs().size());
     if (loadPlugin == null || loadPlugin.getXMLConfigs().size() == 0)
       return;
     Session session = null;
@@ -367,16 +374,20 @@ public class GroovyScript2RestLoader implements Startable {
       }
 
       for (XMLGroovyScript2Rest xg : loadPlugin.getXMLConfigs()) {
-        Node scriptFile = node.addNode(xg.getName(), "nt:file");
+        String scriptName = xg.getName();
+        if (node.hasNode(scriptName)) {
+          LOG.warn("Node '" + node.getPath() + "/" + scriptName + "' already exists. ");
+          continue;
+        }
+        Node scriptFile = node.addNode(scriptName, "nt:file");
+        // TODO use the same node-type here and in observation listener
+        // configuration. Temporary use 'GroovyScript2RestLoader.DEFAULT_NODETYPE'
         Node script = scriptFile.addNode("jcr:content", GroovyScript2RestLoader.DEFAULT_NODETYPE);
         script.setProperty("exo:autoload", xg.isAutoload());
         script.setProperty("exo:load", false);
         script.setProperty("jcr:mimeType", "script/groovy");
         script.setProperty("jcr:lastModified", Calendar.getInstance());
-        System.out.println("---------------------- "+xg.getPath());
-        script.setProperty("jcr:data", Thread.currentThread()
-                                             .getContextClassLoader()
-                                             .getResourceAsStream(xg.getPath()));
+        script.setProperty("jcr:data", xg.getPath().openStream());
       }
       session.save();
     } catch (Exception e) {

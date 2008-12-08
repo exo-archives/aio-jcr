@@ -18,6 +18,7 @@
 package org.exoplatform.services.jcr.ext.script.groovy;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -44,27 +46,67 @@ import org.xml.sax.SAXException;
  */
 public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
 
+  /**
+   * Logger.
+   */
   private static final Log           LOG                       = ExoLogger.getLogger(GroovyScript2RestLoaderPlugin.class.getName());
 
+  /**
+   * QName for 'groovy-resource-container' tag.
+   */
   private static final QName         GROOVY_RESOURCE_CONTAINER = new QName("groovy-resource-container");
 
+  /**
+   * QName for 'path' tag.
+   */
   private static final QName         PATH                      = new QName("path");
 
+  /**
+   * QName for 'name' attribute in 'groovy-resource-container' tag.
+   */
   private static final QName         NAME_ATTRIBUTE            = new QName("name");
 
+  /**
+   * QName for 'autoload' attribute in 'groovy-resource-container' tag.
+   */
   private static final QName         AUTOLOAD_ATTRIBUTE        = new QName("autoload");
 
+  /**
+   * Configurations for scripts what were got from XML.
+   */
   private List<XMLGroovyScript2Rest> l                         = new ArrayList<XMLGroovyScript2Rest>();
 
+  /**
+   * Schema for validation XML document.
+   */
+  // dtd/groovy-resource-container.xsd
   private Schema                     schema;
 
+  /**
+   * Configuration URLs.
+   */
+  // conf/groovy2rest.xml
   private Enumeration<java.net.URL>  configFiles;
 
+  /**
+   * Repository.
+   */
   private String                     repository;
 
+  /**
+   * Workspace.
+   */
   private String                     workspace;
 
+  /**
+   * Root node for scripts. If it does not exist new one will be created.
+   */
   private String                     node;
+
+  /**
+   * Context Class-Loader.
+   */
+  private ClassLoader                classLoader;
 
   public GroovyScript2RestLoaderPlugin(InitParams params) {
     repository = params.getValueParam("repository").getValue();
@@ -73,11 +115,7 @@ public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
     init();
     while (configFiles.hasMoreElements()) {
       String cf = configFiles.nextElement().toString();
-      try {
-        processConfig(cf);
-      } catch (Exception e) {
-        LOG.error("Failed process config file " + cf, e);
-      }
+      processConfig(cf);
     }
   }
 
@@ -106,53 +144,86 @@ public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
     return node;
   }
 
-  private void init() {
+  /**
+   * Initialization.
+   */
+  protected void init() {
+    classLoader = Thread.currentThread().getContextClassLoader();
     try {
       schema = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema")
-                            .newSchema(new StreamSource(Thread.currentThread()
-                                                              .getContextClassLoader()
-                                                              .getResourceAsStream("dtd/groovy-resource-container.xsd")));
+                            .newSchema(new StreamSource(classLoader.getResourceAsStream("dtd/groovy-resource-container.xsd")));
     } catch (SAXException e) {
       LOG.error("Can't parse xml schema. ", e);
       throw new RuntimeException(e);
     }
     try {
-      configFiles = Thread.currentThread()
-                          .getContextClassLoader()
-                          .getResources("conf/groovy2rest.xml");
+      configFiles = classLoader.getResources("conf/groovy2rest.xml");
     } catch (IOException e) {
       LOG.error("Error occurs when try to get configuration files. ", e);
       throw new RuntimeException(e);
     }
   }
 
-  private void processConfig(String configFile) throws Exception {
-    LOG.info("Load configuration from " + configFile);
-    StreamSource source = new StreamSource(configFile);
-    schema.newValidator().validate(source);
-    XMLInputFactory xFactory = XMLInputFactory.newInstance();
-    XMLEventReader r = xFactory.createXMLEventReader(source);
-    XMLGroovyScript2Rest xg = new XMLGroovyScript2Rest();
-    while (r.hasNext()) {
-      XMLEvent event = r.nextEvent();
-      if (event.isStartElement()) {
-        StartElement se = event.asStartElement();
-        if (se.getName().equals(GROOVY_RESOURCE_CONTAINER)) {
-          xg.setName(se.getAttributeByName(NAME_ATTRIBUTE).getValue());
-          Attribute a = se.getAttributeByName(AUTOLOAD_ATTRIBUTE);
-          xg.setAutoload(a != null ? Boolean.valueOf(a.getValue()) : false);
-        } else if (se.getName().equals(PATH)) {
-          xg.setPath(r.getElementText());
+  /**
+   * Process configuration file.
+   * 
+   * @param configFile configuration file.
+   */
+  protected void processConfig(String configFile) {
+    XMLEventReader eventReader = null;
+    try {
+      LOG.info("Load configuration from " + configFile);
+      
+      // XML validation
+      StreamSource source = new StreamSource(configFile);
+      schema.newValidator().validate(source);
+      
+      int sep = configFile.lastIndexOf('!');
+      // get jar file path where configuration was loaded
+      String jarFile = configFile.substring(0, sep);
+      
+      // process XML events
+      eventReader = XMLInputFactory.newInstance().createXMLEventReader(source);
+      XMLGroovyScript2Rest xg = new XMLGroovyScript2Rest();
+      while (eventReader.hasNext()) {
+        XMLEvent event = eventReader.nextEvent();
+        if (event.isStartElement()) {
+          StartElement se = event.asStartElement();
+          if (se.getName().equals(GROOVY_RESOURCE_CONTAINER)) {
+            // start 'groovy-resource-container' tag 
+            xg.setName(se.getAttributeByName(NAME_ATTRIBUTE).getValue());
+            Attribute a = se.getAttributeByName(AUTOLOAD_ATTRIBUTE);
+            xg.setAutoload(a != null ? Boolean.valueOf(a.getValue()) : false);
+          } else if (se.getName().equals(PATH)) {
+            // start 'path' tag 
+            String p = eventReader.getElementText();
+            // script path should be relative to jar file where configuration was loaded
+            URL resource = new URL(jarFile + "!" + ((p.charAt(0) != '/') ? "/" + p : p));
+            xg.setPath(resource);
+          }
+        }
+        if (event.isEndElement()) {
+          // end 'groovy-resource-container' tag.
+          // One item of configuration was read save it in list.
+          if (event.asEndElement().getName().equals(GROOVY_RESOURCE_CONTAINER)) {
+            l.add(xg);
+            //
+            if (eventReader.hasNext())
+              xg = new XMLGroovyScript2Rest();
+          }
         }
       }
-      if (event.isEndElement()) {
-        if (event.asEndElement().getName().equals(GROOVY_RESOURCE_CONTAINER)) {
-          l.add(xg);
-          xg = new XMLGroovyScript2Rest();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      if (eventReader != null) {
+        try {
+          eventReader.close();
+        } catch (XMLStreamException e) {
+          LOG.error("Error occurs when try to close XMLEventReader. ", e);
         }
       }
     }
-    r.close();
   }
-
+  
 }

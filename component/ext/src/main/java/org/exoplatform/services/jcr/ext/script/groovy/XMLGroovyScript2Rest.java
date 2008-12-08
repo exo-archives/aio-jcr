@@ -17,19 +17,31 @@
 
 package org.exoplatform.services.jcr.ext.script.groovy;
 
+import java.net.URL;
+
 /**
  * @author <a href="mailto:andrew00x@gmail.com">Andrey Parfonov</a>
  * @version $Id: $
  */
 public class XMLGroovyScript2Rest {
 
+  /**
+   * Script name.
+   */
   private String  name;
 
-  private String  path;
+  /**
+   * From this URL script will be loaded.
+   */
+  private URL     path;
 
+  /**
+   * If this parameter true script will be loaded automatically. 
+   * @see {@link GroovyScript2RestLoader} 
+   */
   private boolean autoload;
 
-  public XMLGroovyScript2Rest(String name, String path, boolean autoload) {
+  public XMLGroovyScript2Rest(String name, URL path, boolean autoload) {
     this.name = name;
     this.path = path;
     this.autoload = autoload;
@@ -55,14 +67,14 @@ public class XMLGroovyScript2Rest {
   /**
    * @return the path
    */
-  public String getPath() {
+  public URL getPath() {
     return path;
   }
 
   /**
    * @param path the path to set
    */
-  public void setPath(String path) {
+  public void setPath(URL path) {
     this.path = path;
   }
 
