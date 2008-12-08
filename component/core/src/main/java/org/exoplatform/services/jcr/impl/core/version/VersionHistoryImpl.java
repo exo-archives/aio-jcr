@@ -47,7 +47,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.JCRName;
 import org.exoplatform.services.jcr.impl.core.JCRPath;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -85,7 +84,7 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     super.loadData(new VersionHistoryDataHelper((NodeData) vhData,
                                                 session.getTransientNodesManager()
                                                        .getTransactManager(),
-                                                session.getWorkspace().getNodeTypeManager()));
+                                                session.getWorkspace().getNodeTypesHolder()));
   }
 
   public VersionHistoryDataHelper getData() {
@@ -151,7 +150,8 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
   }
 
   /**
-   * For internal use. Doesn't check InvalidItemStateException. May return unpooled Version object.
+   * For internal use. Doesn't check InvalidItemStateException. May return
+   * unpooled Version object.
    */
   public Version version(String versionName, boolean pool) throws VersionException,
                                                           RepositoryException {
@@ -269,7 +269,8 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
     VersionImpl version = (VersionImpl) version(versionName, true);
 
     // check references.
-    // Note: References from /jcr:system/jcr:versionStorage never included to getReferences!
+    // Note: References from /jcr:system/jcr:versionStorage never included to
+    // getReferences!
     List<PropertyData> refs = dataManager.getReferencesData(version.getInternalIdentifier(), true);
     if (refs.size() > 0)
       throw new ReferentialIntegrityException("There are Reference property pointed to this Version "
@@ -552,11 +553,14 @@ public class VersionHistoryImpl extends VersionStorageDescendantNode implements 
                                                         new TransientValueData(frozenData.getIdentifier()));
     changesLog.add(ItemState.createAddedState(propData));
 
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    // NodeTypeManagerImpl ntManager =
+    // session.getWorkspace().getNodeTypesHolder();
     FrozenNodeInitializer visitor = new FrozenNodeInitializer(frozenData,
                                                               session.getTransientNodesManager(),
-                                                              ntManager,
-                                                              changesLog);
+                                                              session.getWorkspace()
+                                                                     .getNodeTypesHolder(),
+                                                              changesLog,
+                                                              session.getValueFactory());
 
     if (LOG.isDebugEnabled())
       LOG.debug("Before frozen visitor: " + changesLog.dump());

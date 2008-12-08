@@ -36,7 +36,6 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -44,12 +43,14 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS 19.12.2006 Helper class. Contains some functions for a version
- * history operations. Actually it's a wrapper for NodeData with additional methods. For use instead
- * a VersionHistoryImpl.
+ * Created by The eXo Platform SAS 19.12.2006 Helper class. Contains some
+ * functions for a version history operations. Actually it's a wrapper for
+ * NodeData with additional methods. For use instead a VersionHistoryImpl.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: VersionHistoryDataHelper.java 17564 2007-07-06 15:26:07Z peterit $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: VersionHistoryDataHelper.java 17564 2007-07-06 15:26:07Z
+ *          peterit $
  */
 public class VersionHistoryDataHelper extends TransientNodeData {
 
@@ -64,8 +65,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   /**
    * Create helper using existed version history node data
    * 
-   * @param source
-   *          - existed version history node data
+   * @param source - existed version history node data
    * @param dataManager
    * @param ntManager
    */
@@ -88,13 +88,11 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
 
   /**
-   * Create helper as we create a new version history. All changes will be placed into changes log.
-   * No persisted changes will be performed.
+   * Create helper as we create a new version history. All changes will be
+   * placed into changes log. No persisted changes will be performed.
    * 
-   * @param versionable
-   *          - mix:versionable node data
-   * @param changes
-   *          - changes log
+   * @param versionable - mix:versionable node data
+   * @param changes - changes log
    * @param dataManager
    * @param ntManager
    * @throws RepositoryException
@@ -113,13 +111,11 @@ public class VersionHistoryDataHelper extends TransientNodeData {
   }
 
   /**
-   * Create helper as we create a new version history. All changes will be placed into changes log.
-   * No persisted changes will be performed.
+   * Create helper as we create a new version history. All changes will be
+   * placed into changes log. No persisted changes will be performed.
    * 
-   * @param versionable
-   *          - mix:versionable node data
-   * @param changes
-   *          - changes log
+   * @param versionable - mix:versionable node data
+   * @param changes - changes log
    * @param dataManager
    * @param ntManager
    * @throws RepositoryException
@@ -248,7 +244,8 @@ public class VersionHistoryDataHelper extends TransientNodeData {
 
     NodeData versionStorageData = (NodeData) dataManager.getItemData(rootItem,
                                                                      new QPathEntry(Constants.JCR_VERSIONSTORAGE,
-                                                                                    1)); //Constants.
+                                                                                    1)); // Constants
+                                                                                         // .
     // JCR_VERSION_STORAGE_PATH
 
     InternalQName vhName = new InternalQName(null, versionHistoryIdentifier);

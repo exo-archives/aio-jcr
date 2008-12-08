@@ -43,7 +43,10 @@ import javax.jcr.query.QueryManager;
 import javax.jcr.version.Version;
 import javax.jcr.version.VersionException;
 
+import org.xml.sax.ContentHandler;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedWorkspace;
@@ -68,7 +71,6 @@ import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
 import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.log.ExoLogger;
-import org.xml.sax.ContentHandler;
 
 /**
  * Created by The eXo Platform SAS.
@@ -651,7 +653,8 @@ public class WorkspaceImpl implements ExtendedWorkspace {
         NodeData node = existedVersions.get(v);
 
         NodeData destParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-        NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version parent
+        NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version
+                                                                                   // parent
         // it's a VH
         VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
                                                                               dataManager,
@@ -722,8 +725,8 @@ public class WorkspaceImpl implements ExtendedWorkspace {
   private RepositoryImpl repository() {
     return (RepositoryImpl) session.getRepository();
   }
-  
-  NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
+
+  public NodeTypeDataManager getNodeTypesHolder() throws RepositoryException {
     return nodeTypeManager;
   }
 

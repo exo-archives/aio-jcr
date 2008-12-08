@@ -407,10 +407,10 @@ public class VersionImpl extends VersionStorageDescendantNode implements Version
 
     NodeData vh = (NodeData) dmanager.getItemData(nodeData().getParentIdentifier()); // version
     // parent it's a VH
-    VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
+    VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper(vh,
                                                                           dmanager,
                                                                           session.getWorkspace()
-                                                                                 .getNodeTypeManager());
+                                                                                 .getNodeTypesHolder());
 
     SessionChangesLog changesLog = restoreLog(destParent,
                                               name,

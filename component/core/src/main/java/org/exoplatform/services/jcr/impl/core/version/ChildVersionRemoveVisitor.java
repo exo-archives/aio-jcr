@@ -23,25 +23,23 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS 22.06.2007 Traverse through all versions in
+ * the version history and check if visited child histories isn't used in
+ * repository. If the child version isn't used it will be removed immediately.
  * 
- * 22.06.2007
- * 
- * Traverse through all versions in the version history and check if visited child histories isn't
- * used in repository. If the child version isn't used it will be removed immediately.
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: ChildVersionRemoveVisitor.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class ChildVersionRemoveVisitor extends ItemDataTraversingVisitor {
@@ -50,23 +48,21 @@ public class ChildVersionRemoveVisitor extends ItemDataTraversingVisitor {
 
   protected final Stack<NodeData>     parents = new Stack<NodeData>();
 
-  protected final NodeTypeManagerImpl ntManager;
+  protected final NodeTypeDataManager nodeTypeDataManager;
 
   protected final QPath               ancestorToSave;
 
   protected final QPath               containingHistory;
 
-  protected final SessionImpl         userSession;
-
-  public ChildVersionRemoveVisitor(SessionImpl userSession,
+  public ChildVersionRemoveVisitor(ItemDataConsumer dataManager,
+                                   NodeTypeDataManager nodeTypeDataManager,
                                    QPath containingHistory,
-                                   QPath ancestorToSave) throws RepositoryException {
-    super(userSession.getTransientNodesManager());
+                                   QPath ancestorToSave) {
+    super(dataManager);
 
     this.ancestorToSave = ancestorToSave;
     this.containingHistory = containingHistory;
-    this.userSession = userSession;
-    this.ntManager = userSession.getWorkspace().getNodeTypeManager();
+    this.nodeTypeDataManager = nodeTypeDataManager;
   }
 
   protected SessionDataManager dataManager() {
@@ -76,9 +72,9 @@ public class ChildVersionRemoveVisitor extends ItemDataTraversingVisitor {
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
     if (property.getQPath().getName().equals(Constants.JCR_CHILDVERSIONHISTORY)
-        && ntManager.isNodeType(Constants.NT_VERSIONEDCHILD,
-                                parents.peek().getPrimaryTypeName(),
-                                parents.peek().getMixinTypeNames())) {
+        && nodeTypeDataManager.isNodeType(Constants.NT_VERSIONEDCHILD,
+                                          parents.peek().getPrimaryTypeName(),
+                                          parents.peek().getMixinTypeNames())) {
 
       // check and remove child VH
       try {

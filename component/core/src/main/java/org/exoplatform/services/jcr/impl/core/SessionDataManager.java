@@ -84,8 +84,8 @@ public class SessionDataManager implements ItemDataConsumer {
   protected final ItemReferencePool          itemsPool;
 
   /**
-   * Contains items was deleted but still not saved. i.e. deleted in session. The list will be
-   * cleared by each session save call.
+   * Contains items was deleted but still not saved. i.e. deleted in session.
+   * The list will be cleared by each session save call.
    */
   protected final List<ItemImpl>             invalidated = new ArrayList<ItemImpl>();
 
@@ -129,11 +129,10 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return item data by internal <b>qpath</b> in this transient storage then in workspace
-   * container.
+   * Return item data by internal <b>qpath</b> in this transient storage then in
+   * workspace container.
    * 
-   * @param path
-   *          - absolute path
+   * @param path - absolute path
    * @return existed item data or null if not found
    * @throws RepositoryException
    * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services.jcr.datamodel.QPath)
@@ -151,12 +150,12 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return item data by parent NodeDada and relPathEntries If relpath is JCRPath.THIS_RELPATH = '.'
-   * it return itself
+   * Return item data by parent NodeDada and relPathEntries If relpath is
+   * JCRPath.THIS_RELPATH = '.' it return itself
    * 
    * @param parent
-   * @param relPath
-   *          - array of QPathEntry which represents the relation path to the searched item
+   * @param relPath - array of QPathEntry which represents the relation path to
+   *          the searched item
    * @return existed item data or null if not found
    * @throws RepositoryException
    */
@@ -179,8 +178,9 @@ public class SessionDataManager implements ItemDataConsumer {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services
-   * .jcr.datamodel.NodeData, org.exoplatform.services.jcr.datamodel.QPathEntry)
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.
+   * exoplatform.services .jcr.datamodel.NodeData,
+   * org.exoplatform.services.jcr.datamodel.QPathEntry)
    */
   public ItemData getItemData(NodeData parent, QPathEntry name) throws RepositoryException {
     if (name.getName().equals(JCRPath.PARENT_RELPATH)
@@ -202,7 +202,8 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return item data by identifier in this transient storage then in workspace container.
+   * Return item data by identifier in this transient storage then in workspace
+   * container.
    * 
    * @param identifier
    * @return existed item data or null if not found
@@ -225,12 +226,9 @@ public class SessionDataManager implements ItemDataConsumer {
   /**
    * Return Item by parent NodeDada and the name of searched item.
    * 
-   * @param parent
-   *          - parent of the searched item
-   * @param name
-   *          - item name
-   * @param pool
-   *          - indicates does the item fall in pool
+   * @param parent - parent of the searched item
+   * @param name - item name
+   * @param pool - indicates does the item fall in pool
    * @return existed item or null if not found
    * @throws RepositoryException
    */
@@ -267,15 +265,13 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return Item by parent NodeDada and array of QPathEntry which represent a relative path to the
-   * searched item
+   * Return Item by parent NodeDada and array of QPathEntry which represent a
+   * relative path to the searched item
    * 
-   * @param parent
-   *          - parent of the searched item
-   * @param relPath
-   *          - array of QPathEntry which represents the relation path to the searched item
-   * @param pool
-   *          - indicates does the item fall in pool
+   * @param parent - parent of the searched item
+   * @param relPath - array of QPathEntry which represents the relation path to
+   *          the searched item
+   * @param pool - indicates does the item fall in pool
    * @return existed item or null if not found
    * @throws RepositoryException
    */
@@ -322,12 +318,11 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return item by absolute path in this transient storage then in workspace container.
+   * Return item by absolute path in this transient storage then in workspace
+   * container.
    * 
-   * @param path
-   *          - absolute path to the searched item
-   * @param pool
-   *          - indicates does the item fall in pool
+   * @param path - absolute path to the searched item
+   * @param pool - indicates does the item fall in pool
    * @return existed item or null if not found
    * @throws RepositoryException
    */
@@ -361,12 +356,11 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return item by identifier in this transient storage then in workspace container.
+   * Return item by identifier in this transient storage then in workspace
+   * container.
    * 
-   * @param identifier
-   *          - identifier of searched item
-   * @param pool
-   *          - indicates does the item fall in pool
+   * @param identifier - identifier of searched item
+   * @param pool - indicates does the item fall in pool
    * @return existed item data or null if not found
    * @throws RepositoryException
    */
@@ -400,10 +394,10 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Returns true if this Session holds pending (that is, unsaved) changes; otherwise returns false.
+   * Returns true if this Session holds pending (that is, unsaved) changes;
+   * otherwise returns false.
    * 
-   * @param path
-   *          to the node item
+   * @param path to the node item
    * @return
    */
   public boolean hasPendingChanges(QPath path) {
@@ -411,13 +405,13 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Returns true if the item with <code>identifier</code> is a new item, meaning that it exists
-   * only in transient storage on the Session and has not yet been saved. Within a transaction,
-   * isNew on an Item may return false (because the item has been saved) even if that Item is not in
-   * persistent storage (because the transaction has not yet been committed).
+   * Returns true if the item with <code>identifier</code> is a new item,
+   * meaning that it exists only in transient storage on the Session and has not
+   * yet been saved. Within a transaction, isNew on an Item may return false
+   * (because the item has been saved) even if that Item is not in persistent
+   * storage (because the transaction has not yet been committed).
    * 
-   * @param identifier
-   *          of the item
+   * @param identifier of the item
    * @return
    */
   public boolean isNew(String identifier) {
@@ -436,11 +430,13 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Returns true if this Item has been saved but has subsequently been modified through the current
-   * session and therefore the state of this item as recorded in the session differs from the state
-   * of this item as saved. Within a transaction, isModified on an Item may return false (because
-   * the Item has been saved since the modification) even if the modification in question is not in
-   * persistent storage (because the transaction has not yet been committed).
+   * Returns true if this Item has been saved but has subsequently been modified
+   * through the current session and therefore the state of this item as
+   * recorded in the session differs from the state of this item as saved.
+   * Within a transaction, isModified on an Item may return false (because the
+   * Item has been saved since the modification) even if the modification in
+   * question is not in persistent storage (because the transaction has not yet
+   * been committed).
    * 
    * @param item
    * @return
@@ -497,7 +493,8 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return list with properties, for the parent node, for which user have access permeations
+   * Return list with properties, for the parent node, for which user have
+   * access permeations
    * 
    * @param parent
    * @param pool
@@ -539,7 +536,8 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return list with properties, for the parent node, for which user have access permeations
+   * Return list with properties, for the parent node, for which user have
+   * access permeations
    * 
    * @param parent
    * @param pool
@@ -578,8 +576,8 @@ public class SessionDataManager implements ItemDataConsumer {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData(org.exoplatform.services
-   * .jcr.datamodel.NodeData)
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData
+   * (org.exoplatform.services .jcr.datamodel.NodeData)
    */
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
     long start = System.currentTimeMillis();
@@ -598,8 +596,8 @@ public class SessionDataManager implements ItemDataConsumer {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData(org.exoplatform
-   * .services.jcr.datamodel.NodeData)
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData
+   * (org.exoplatform .services.jcr.datamodel.NodeData)
    */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     long start = 0;
@@ -634,11 +632,11 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Return the ACL of the location. A session pending changes will be searched too. Item path will
-   * be traversed from the root node to a last existing item.
+   * Return the ACL of the location. A session pending changes will be searched
+   * too. Item path will be traversed from the root node to a last existing
+   * item.
    * 
-   * @param path
-   *          - path of an ACL
+   * @param path - path of an ACL
    * @return - an item or its parent ancestor ACL
    * @throws RepositoryException
    */
@@ -709,7 +707,8 @@ public class SessionDataManager implements ItemDataConsumer {
         if (ri != null)
           itemsPool.reload(ri);
         else
-          // the item is invalid, case of version restore - the item from non current version
+          // the item is invalid, case of version restore - the item from non
+          // current version
           item.invalidate();
 
         invalidated.add(item);
@@ -723,7 +722,8 @@ public class SessionDataManager implements ItemDataConsumer {
 
     changesLog.addAll(initializer.getAllStates());
 
-    // in case of remane of same-name siblings there are a set of SNSes in changes log with broken
+    // in case of remane of same-name siblings there are a set of SNSes in
+    // changes log with broken
     // index chain.
     // to fix that we are making the reindex of SNSes
     changesLog.addAll(reindexSameNameSiblings(itemDataFrom, this));
@@ -732,12 +732,11 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Traverses all the descendants of incoming item and creates DELETED state for them Adds DELETED
-   * incoming state of incoming and descendants to the changes log and removes corresponding items
-   * from pool (if any)
+   * Traverses all the descendants of incoming item and creates DELETED state
+   * for them Adds DELETED incoming state of incoming and descendants to the
+   * changes log and removes corresponding items from pool (if any)
    * 
-   * @param itemState
-   *          - incoming state
+   * @param itemState - incoming state
    * @throws RepositoryException
    */
   public void delete(ItemData itemData) throws RepositoryException {
@@ -752,7 +751,8 @@ public class SessionDataManager implements ItemDataConsumer {
 
     boolean fireEvent = !isNew(itemData.getIdentifier());
 
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) session.getWorkspace()
+                                                                 .getNodeTypeManager();
 
     // if node mix:versionable vs will be removed from Item.remove method.
     boolean checkRemoveChildVersionStorages = false;
@@ -805,7 +805,8 @@ public class SessionDataManager implements ItemDataConsumer {
     }
 
     // 6 sort items to delete
-    // log.info(new SessionChangesLog(deletes, changesLog.getSessionId()).dump());
+    // log.info(new SessionChangesLog(deletes,
+    // changesLog.getSessionId()).dump());
     Collections.sort(deletes, new PathSorter());
 
     if (!fireEvent)
@@ -820,8 +821,8 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Check when it's a Node and is versionable will a version history removed. Case of last version
-   * in version history.
+   * Check when it's a Node and is versionable will a version history removed.
+   * Case of last version in version history.
    * 
    * @throws RepositoryException
    * @throws ConstraintViolationException
@@ -852,9 +853,8 @@ public class SessionDataManager implements ItemDataConsumer {
     // doesn't refers to a VH of the node being deleted.
     RepositoryImpl rep = (RepositoryImpl) session.getRepository();
     for (String wsName : rep.getWorkspaceNames()) {
-      SessionImpl wsSession = session.getWorkspace().getName().equals(wsName)
-          ? session
-          : (SessionImpl) rep.getSystemSession(wsName);
+      SessionImpl wsSession = session.getWorkspace().getName().equals(wsName) ? session
+                                                                             : (SessionImpl) rep.getSystemSession(wsName);
       try {
         for (PropertyData sref : wsSession.getTransientNodesManager()
                                           .getReferencesData(vhID, false)) {
@@ -863,9 +863,8 @@ public class SessionDataManager implements ItemDataConsumer {
           // Ask ALL references incl. properties from version storage.
           if (sref.getQPath().isDescendantOf(Constants.JCR_VERSION_STORAGE_PATH)) {
             if (!sref.getQPath().isDescendantOf(vhnode.getQPath())
-                && (containingHistory != null
-                    ? !sref.getQPath().isDescendantOf(containingHistory)
-                    : true))
+                && (containingHistory != null ? !sref.getQPath().isDescendantOf(containingHistory)
+                                             : true))
               // has a reference to the VH in version storage,
               // it's a REFERENCE property jcr:childVersionHistory of
               // nt:versionedChild
@@ -888,7 +887,10 @@ public class SessionDataManager implements ItemDataConsumer {
     }
 
     // remove child versions from VH (if found)
-    ChildVersionRemoveVisitor cvremover = new ChildVersionRemoveVisitor(session,
+
+    ChildVersionRemoveVisitor cvremover = new ChildVersionRemoveVisitor(session.getTransientNodesManager(),
+                                                                        session.getWorkspace()
+                                                                               .getNodeTypesHolder(),
                                                                         vhnode.getQPath(),
                                                                         ancestorToSave);
     vhnode.accept(cvremover);
@@ -898,11 +900,10 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Reindex same-name siblings of the node Reindex is actual for remove, move only. If node is
-   * added then its index always is a last in list of childs.
+   * Reindex same-name siblings of the node Reindex is actual for remove, move
+   * only. If node is added then its index always is a last in list of childs.
    * 
-   * @param node
-   *          , a node caused reindexing, i.e. deleted or moved node.
+   * @param node , a node caused reindexing, i.e. deleted or moved node.
    */
   protected List<ItemState> reindexSameNameSiblings(NodeData cause, ItemDataConsumer dataManager) throws RepositoryException {
     List<ItemState> changes = new ArrayList<ItemState>();
@@ -928,7 +929,8 @@ public class SessionDataManager implements ItemDataConsumer {
       changes.add(nodeDeletedState);
       changes.add(reindexedState);
 
-      // reload pooled implies... it's actual for session and workspace scope operations
+      // reload pooled implies... it's actual for session and workspace scope
+      // operations
       // TODO this operation must respect all sub-tree of reindexed node
       // http://jira.exoplatform.org/browse/JCR-340
       itemsPool.reload(reindexed);
@@ -947,12 +949,11 @@ public class SessionDataManager implements ItemDataConsumer {
   /**
    * Updates (adds or modifies) item state in the session transient storage
    * 
-   * @param itemState
-   *          - the state
-   * @param pool
-   *          - if true Manager force pooling this State so next calling will returna the same
-   *          object Common rule: use pool = true if the Item supposed to be returned by JCR API
-   *          (Node.addNode(), Node.setProperty() for ex) (NOTE: independently of pooling the
+   * @param itemState - the state
+   * @param pool - if true Manager force pooling this State so next calling will
+   *          returna the same object Common rule: use pool = true if the Item
+   *          supposed to be returned by JCR API (Node.addNode(),
+   *          Node.setProperty() for ex) (NOTE: independently of pooling the
    *          Manager always return actual Item state)
    * @return
    * @throws RepositoryException
@@ -1046,8 +1047,8 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Validate all user created changes saves like access permeations, mandatory items, value
-   * constraint.
+   * Validate all user created changes saves like access permeations, mandatory
+   * items, value constraint.
    * 
    * @param path
    * @throws RepositoryException
@@ -1064,7 +1065,8 @@ public class SessionDataManager implements ItemDataConsumer {
       if (itemState.isInternallyCreated()) {
         // skip internally created
         if (itemState.isMixinChanged()) {
-          // ...except of check of ACL correct size for internally created items.
+          // ...except of check of ACL correct size for internally created
+          // items.
           // If no permissions in the list throw exception.
           if (itemState.isDescendantOf(path)) {
             if (((NodeData) itemState.getData()).getACL().getPermissionsSize() < 1) {
@@ -1083,7 +1085,7 @@ public class SessionDataManager implements ItemDataConsumer {
           throw new ConstraintViolationException(path.getAsString()
               + " is the same or descendant of either Session.move()'s destination or source node only "
               + path.getAsString());
-        }  
+        }
       }
     }
   }
@@ -1155,7 +1157,8 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Validate ItemState which represents the add node, for it's all mandatory items
+   * Validate ItemState which represents the add node, for it's all mandatory
+   * items
    * 
    * @param changedItem
    * @throws ConstraintViolationException
@@ -1169,7 +1172,8 @@ public class SessionDataManager implements ItemDataConsumer {
       if (!changesLog.getItemState(changedItem.getData().getIdentifier()).isDeleted()) {
         NodeData nData = (NodeData) changedItem.getData();
         try {
-          // TODO do not use JCR API NodeImpl, we just need Nodes/Properties definition of all NTs
+          // TODO do not use JCR API NodeImpl, we just need Nodes/Properties
+          // definition of all NTs
           // here
           NodeImpl node = itemFactory.createNode(nData);
           // TODO move code from validateMandatoryChildren() to
@@ -1303,16 +1307,15 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * merges incoming data with changes stored in this log i.e: 1. incoming data still not modified
-   * if there are no corresponding changes 2. incoming data is refreshed with corresponding changes
-   * if any 3. new datas is added from changes 4. if chaged data is marked as "deleted" it removes
-   * from outgoing list WARN. THIS METHOD HAS SIBLING - mergeList, see below
+   * merges incoming data with changes stored in this log i.e: 1. incoming data
+   * still not modified if there are no corresponding changes 2. incoming data
+   * is refreshed with corresponding changes if any 3. new datas is added from
+   * changes 4. if chaged data is marked as "deleted" it removes from outgoing
+   * list WARN. THIS METHOD HAS SIBLING - mergeList, see below
    * 
    * @param rootData
-   * @param deep
-   *          if true - traverses
-   * @param action
-   *          : MERGE_NODES | MERGE_PROPS | MERGE_ITEMS
+   * @param deep if true - traverses
+   * @param action : MERGE_NODES | MERGE_PROPS | MERGE_ITEMS
    * @return
    */
   protected List<? extends ItemData> merge(ItemData rootData,
@@ -1348,8 +1351,9 @@ public class SessionDataManager implements ItemDataConsumer {
   }
 
   /**
-   * Merge a list of nodes and properties of root data. NOTE. Properties in the list will have empty
-   * value data. I.e. for operations not changes properties content. USED FOR DELETE
+   * Merge a list of nodes and properties of root data. NOTE. Properties in the
+   * list will have empty value data. I.e. for operations not changes properties
+   * content. USED FOR DELETE
    * 
    * @param rootData
    * @param dataManager
@@ -1422,9 +1426,8 @@ public class SessionDataManager implements ItemDataConsumer {
         }
       }
       if (action != MERGE_NODES) {
-        List<PropertyData> childProps = listOnly
-            ? dataManager.listChildPropertiesData((NodeData) parent)
-            : dataManager.getChildPropertiesData((NodeData) parent);
+        List<PropertyData> childProps = listOnly ? dataManager.listChildPropertiesData((NodeData) parent)
+                                                : dataManager.getChildPropertiesData((NodeData) parent);
         for (PropertyData childProp : childProps) {
           ret.put(childProp.getIdentifier(), childProp);
 
@@ -1527,9 +1530,9 @@ public class SessionDataManager implements ItemDataConsumer {
     /**
      * Reload an existed item in the pool with given data
      * 
-     * @param itemData
-     *          - given data
-     * @return an existed item of null if no item is pooled with a given data Identifier
+     * @param itemData - given data
+     * @return an existed item of null if no item is pooled with a given data
+     *         Identifier
      * @throws RepositoryException
      */
     ItemImpl reload(ItemData itemData) throws RepositoryException {
