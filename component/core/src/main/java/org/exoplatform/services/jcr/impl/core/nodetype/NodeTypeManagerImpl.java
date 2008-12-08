@@ -109,7 +109,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     NodeTypeData ntdata = typesManager.findNodeType(locationFactory.parseJCRName(nodeTypeName)
                                                                    .getInternalName());
     if (ntdata != null)
-      return new NodeTypeImpl(ntdata, typesManager, locationFactory, valueFactory);
+      return new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory);
     else
       throw new NoSuchNodeTypeException("Nodetype not found " + nodeTypeName);
   }
@@ -120,7 +120,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public NodeTypeIterator getAllNodeTypes() {
     EntityCollection ec = new EntityCollection();
     for (NodeTypeData ntdata : typesManager.getAllNodeTypes())
-      ec.add(new NodeTypeImpl(ntdata, typesManager, locationFactory, valueFactory));
+      ec.add(new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory));
 
     return ec;
   }
@@ -170,7 +170,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
     NodeTypeData ntdata = typesManager.findNodeType(nodeTypeName);
     if (ntdata != null)
-      return new NodeTypeImpl(ntdata, typesManager, locationFactory, valueFactory);
+      return new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory);
     else
       throw new NoSuchNodeTypeException("Nodetype not found " + nodeTypeName.getAsString());
   }
@@ -655,7 +655,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     Collection<NodeTypeData> nts = typesManager.registerNodeTypes(values, alreadyExistsBehaviour);
     EntityCollection types = new EntityCollection();
     for (NodeTypeData ntdata : nts)
-      types.add(new NodeTypeImpl(ntdata, typesManager, locationFactory, valueFactory));
+      types.add(new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory));
 
     return types;
   }

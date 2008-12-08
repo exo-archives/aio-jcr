@@ -21,7 +21,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
@@ -54,8 +54,10 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
     assertTrue(ntManager.getAllNodeTypes().getSize() > 0);
     assertTrue(ntManager.getPrimaryNodeTypes().getSize() > 0);
     assertTrue(ntManager.getMixinNodeTypes().getSize() > 0);
-    // assertEquals("nt",ntManager.getPrimaryNodeTypes().nextNodeType().getName().substring(0,2));
-    // assertEquals("mix",ntManager.getMixinNodeTypes().nextNodeType().getName().substring(0,3));
+    //assertEquals("nt",ntManager.getPrimaryNodeTypes().nextNodeType().getName()
+    // .substring(0,2));
+    //assertEquals("mix",ntManager.getMixinNodeTypes().nextNodeType().getName().
+    // substring(0,3));
   }
 
   public void testNodeTypesOrder() throws Exception {
@@ -63,12 +65,14 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
     NodeTypeIterator nts = ntManager.getPrimaryNodeTypes();
     assertTrue(nts.getSize() > 0);
     assertEquals("nt:base", nts.nextNodeType().getName());
-    // Prerequisites : the second entry in nodetypes.xml should be "nt:unstructured" !!!!!
+    // Prerequisites : the second entry in nodetypes.xml should be
+    // "nt:unstructured" !!!!!
     assertEquals("nt:unstructured", nts.nextNodeType().getName());
   }
 
   public void testNtQuery() throws Exception {
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManagerImpl ntManager = (NodeTypeDataManagerImpl) session.getWorkspace()
+                                                                         .getNodeTypesHolder();
     QueryHandler qh = ntManager.getQueryHandlers().iterator().next();
     QueryHits hits = qh.executeQuery(new MatchAllDocsQuery(),
                                      true,
@@ -82,7 +86,8 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
   }
 
   public void testNtQueryNtBase() throws Exception {
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManagerImpl ntManager = (NodeTypeDataManagerImpl) session.getWorkspace()
+                                                                         .getNodeTypesHolder();
 
     assertTrue(ntManager.getNodes(Constants.MIX_VERSIONABLE).size() == 0);
     Node t = root.addNode("tt");
@@ -98,7 +103,8 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
                                              LockException,
                                              RepositoryException,
                                              IOException {
-    NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+    NodeTypeDataManagerImpl ntManager = (NodeTypeDataManagerImpl) session.getWorkspace()
+                                                                         .getNodeTypesHolder();
     int refNodes = ntManager.getNodes(Constants.MIX_REFERENCEABLE).size();
     Node testNode1 = root.addNode("test1");
     testNode1.addMixin("mix:referenceable");

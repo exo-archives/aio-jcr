@@ -39,11 +39,10 @@ import org.exoplatform.services.jcr.impl.dataflow.session.SessionChangesLog;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
- * Created by The eXo Platform SAS
+ * Created by The eXo Platform SAS 07.12.2006
  * 
- * 07.12.2006
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: BaseVersionImplTest.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class BaseVersionImplTest extends JcrImplBaseTest {
@@ -142,7 +141,8 @@ public class BaseVersionImplTest extends JcrImplBaseTest {
 
   protected List<ValueData>       versionedVersionHistoryData;
 
-  // protected InternalQPath nodePath3 = InternalQPath.makeChildPath(Constants.ROOT_PATH, new
+  // protected InternalQPath nodePath3 =
+  // InternalQPath.makeChildPath(Constants.ROOT_PATH, new
   // InternalQName(Constants.NS_EXO_URI,"node 3"));
 
   protected String                rootUuid;
@@ -263,8 +263,10 @@ public class BaseVersionImplTest extends JcrImplBaseTest {
 
     visitor = new FrozenNodeInitializer(frozenRoot,
                                         session.getTransientNodesManager(),
-                                        ntManager,
-                                        changesLog);
+                                        session.getWorkspace().getNodeTypesHolder(),
+
+                                        changesLog,
+                                        session.getValueFactory());
   }
 
   public void tearDown() throws Exception {
@@ -276,10 +278,11 @@ public class BaseVersionImplTest extends JcrImplBaseTest {
   }
 
   /**
-   * Prepare in session log: /testRoot/node 1 /testRoot/node 1/property 1 /testRoot/node 1/property
-   * 2 /testRoot/node 2 /testRoot/node 2/property 3 /testRoot/node 2/property 4 /testRoot/node
-   * 2/node 3 /testRoot/node 2/node 3/property 5
-   * */
+   * Prepare in session log: /testRoot/node 1 /testRoot/node 1/property 1
+   * /testRoot/node 1/property 2 /testRoot/node 2 /testRoot/node 2/property 3
+   * /testRoot/node 2/property 4 /testRoot/node 2/node 3 /testRoot/node 2/node
+   * 3/property 5
+   */
   public void createVersionable(int testCase) throws Exception {
 
     versionableLog = new SessionChangesLog(session.getId());
@@ -421,7 +424,8 @@ public class BaseVersionImplTest extends JcrImplBaseTest {
                                                                                                 stringDataSinglevalued);
       versionableLog.add(ItemState.createAddedState(vChildNode1_node5_node1_property2));
 
-      // version history for store in jcr:childVersionHistory property during visitor work
+      // version history for store in jcr:childVersionHistory property during
+      // visitor work
       PropertyData vChildNode1_node5_nodeVersioned_versionHistory = TransientPropertyData.createPropertyData(vChildNode1_node5_nodeVersioned,
                                                                                                              Constants.JCR_VERSIONHISTORY,
                                                                                                              PropertyType.REFERENCE,

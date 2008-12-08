@@ -81,7 +81,8 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
   public void initRepository() throws RepositoryException {
     super.initRepository();
     if (!isInitialized) {
-      NodeTypeManagerImpl ntManager = session.getWorkspace().getNodeTypeManager();
+      NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) session.getWorkspace()
+                                                                   .getNodeTypeManager();
       InputStream is = TestDocumentViewImport.class.getResourceAsStream("/nodetypes/ext-registry-nodetypes.xml");
       ntManager.registerNodeTypes(is, 0);
       ntManager.registerNodeTypes(TestDocumentViewImport.class.getResourceAsStream("/org/exoplatform/services/jcr/api/nodetypes/ecm/nodetypes-config.xml"),
@@ -164,7 +165,8 @@ public abstract class AbstractImportTest extends JcrAPIBaseTest {
   }
 
   /**
-   * boolean isExportedByStream, boolean isImportedByStream, boolean isSystemViewExport
+   * boolean isExportedByStream, boolean isImportedByStream, boolean
+   * isSystemViewExport
    * 
    * @param firstAction
    * @param secondAction
