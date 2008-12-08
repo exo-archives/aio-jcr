@@ -21,9 +21,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -43,9 +45,11 @@ import org.xml.sax.SAXException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.container.component.ComponentPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.jcr.ext.registry.RegistryEntry;
@@ -62,6 +66,11 @@ import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
  * @version $Id: $
  */
 public class GroovyScript2RestLoader implements Startable {
+
+  /**
+   * Logger.
+   */
+  private static final Log                 LOG                 = ExoLogger.getLogger(GroovyScript2RestLoader.class.getName());
 
   /**
    * Default node types for Groovy scripts.
@@ -92,6 +101,7 @@ public class GroovyScript2RestLoader implements Startable {
    * See {@link Handler}. Not used in this class but should be in constructor
    * parameters for correct order of start components.
    */
+  @SuppressWarnings("unused")
   private Handler                          handler;
 
   /**
@@ -118,11 +128,6 @@ public class GroovyScript2RestLoader implements Startable {
    * Mapping scripts URL (or other key) to classes.
    */
   private Map<String, Class<?>>            scriptsURL2ClassMap = new HashMap<String, Class<?>>();
-
-  /**
-   * Logger.
-   */
-  private static final Log                 LOG                 = ExoLogger.getLogger(GroovyScript2RestLoader.class.getName());
 
   public GroovyScript2RestLoader(ResourceBinder binder,
                                  GroovyScriptInstantiator groovyScriptInstantiator,
@@ -152,8 +157,7 @@ public class GroovyScript2RestLoader implements Startable {
    * Remove script with specified URL from ResourceBinder.
    * 
    * @param url the URL. The <code>url.toString()</code> must be corresponded to
-   *          script class, otherwise IllegalArgumentException will be
-   *          thrown.
+   *          script class, otherwise IllegalArgumentException will be thrown.
    * @see GroovyScriptRestLoader#loadScript(URL).
    * @see GroovyScript2RestLoader#loadScript(String, InputStream)
    */
@@ -180,7 +184,7 @@ public class GroovyScript2RestLoader implements Startable {
       LOG.warn("Specified key '" + key + "' does not corresponds to any class name.");
     }
   }
-  
+
   /**
    * @param url script's key
    * @return true if script loaded false otherwise
@@ -241,6 +245,9 @@ public class GroovyScript2RestLoader implements Startable {
    * {@inheritDoc}
    */
   public void start() {
+    if (LOG.isDebugEnabled())
+      LOG.debug(">>> begin start");
+
     if (registryService != null && !registryService.getForceXMLConfigurationValue(initParams)) {
       SessionProvider sessionProvider = SessionProvider.createSystemProvider();
       try {
@@ -258,6 +265,9 @@ public class GroovyScript2RestLoader implements Startable {
     } else {
       readParamsFromFile();
     }
+    
+    // add script from config files to jcr.
+    addScripts();
 
     try {
 
@@ -269,7 +279,6 @@ public class GroovyScript2RestLoader implements Startable {
       for (String workspaceName : workspaceNames) {
         Session session = repository.getSystemSession(workspaceName);
 
-//        String xpath = "//element(*, " + nodeType + ")[@exo:autoload='true']";
         String xpath = "//element(*, " + nodeType + ")";
         Query query = session.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
 
@@ -295,7 +304,7 @@ public class GroovyScript2RestLoader implements Startable {
             node.setProperty("exo:load", false);
           }
         }
-        
+
         session.save();
         session.getWorkspace()
                .getObservationManager()
@@ -314,6 +323,8 @@ public class GroovyScript2RestLoader implements Startable {
     } catch (Exception e) {
       LOG.error("Error occurs ", e);
     }
+    if (LOG.isDebugEnabled())
+      LOG.debug("<<< end start");
   }
 
   /**
@@ -321,6 +332,59 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public void stop() {
     // nothing to do!
+  }
+  
+  private GroovyScript2RestLoaderPlugin loadPlugin;
+  
+  public void addPlugin(ComponentPlugin cp) {
+    if (cp instanceof GroovyScript2RestLoaderPlugin)
+      loadPlugin = (GroovyScript2RestLoaderPlugin) cp;
+  }
+  
+  private void addScripts() {
+    System.out.println("------------------------------- "+loadPlugin.getXMLConfigs().size());
+    if (loadPlugin == null || loadPlugin.getXMLConfigs().size() == 0)
+      return;
+    Session session = null;
+    try {
+      ManageableRepository repository = repositoryService.getRepository(loadPlugin.getRepository());
+      String workspace = loadPlugin.getWorkspace();
+      session = repository.getSystemSession(workspace);
+      String nodeName = loadPlugin.getNode();
+      Node node = null;
+      try {
+        node = (Node) session.getItem(nodeName);
+      } catch (PathNotFoundException e) {
+        StringTokenizer tokens = new StringTokenizer(nodeName, "/");
+        node = session.getRootNode();
+        while (tokens.hasMoreTokens()) {
+          String t = tokens.nextToken();
+          if (node.hasNode(t))
+            node = node.getNode(t);
+          else
+            node = node.addNode(t);
+        }
+      }
+
+      for (XMLGroovyScript2Rest xg : loadPlugin.getXMLConfigs()) {
+        Node scriptFile = node.addNode(xg.getName(), "nt:file");
+        Node script = scriptFile.addNode("jcr:content", GroovyScript2RestLoader.DEFAULT_NODETYPE);
+        script.setProperty("exo:autoload", xg.isAutoload());
+        script.setProperty("exo:load", false);
+        script.setProperty("jcr:mimeType", "script/groovy");
+        script.setProperty("jcr:lastModified", Calendar.getInstance());
+        System.out.println("---------------------- "+xg.getPath());
+        script.setProperty("jcr:data", Thread.currentThread()
+                                             .getContextClassLoader()
+                                             .getResourceAsStream(xg.getPath()));
+      }
+      session.save();
+    } catch (Exception e) {
+      LOG.error("Failed add scripts. ", e);
+    } finally {
+      if (session != null)
+        session.logout();
+    }
   }
 
   /**
@@ -335,7 +399,7 @@ public class GroovyScript2RestLoader implements Startable {
 
     if (LOG.isDebugEnabled())
       LOG.debug("<<< Read init parametrs from registry service.");
-    
+
     observationListenerConfiguration = new ObservationListenerConfiguration();
 
     String entryPath = RegistryService.EXO_SERVICES + "/" + SERVICE_NAME + "/" + "nodeType";
@@ -385,7 +449,7 @@ public class GroovyScript2RestLoader implements Startable {
                                                                             RepositoryException {
     if (LOG.isDebugEnabled())
       LOG.debug(">>> Save init parametrs in registry service.");
-    
+
     Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
     Element root = doc.createElement(SERVICE_NAME);
     doc.appendChild(root);
