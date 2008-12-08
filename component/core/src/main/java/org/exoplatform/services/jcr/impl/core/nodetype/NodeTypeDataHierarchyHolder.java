@@ -38,40 +38,55 @@ public class NodeTypeDataHierarchyHolder {
   private final Map<InternalQName, NodeTypeHolder> nodeTypes;
 
   class NodeTypeHolder {
-    
-    final NodeTypeData nodeType;
-    
+
+    final NodeTypeData       nodeType;
+
     final Set<InternalQName> superTypes;
-    
+
     NodeTypeHolder(NodeTypeData nodeType, Set<InternalQName> superTypes) {
       this.nodeType = nodeType;
       this.superTypes = superTypes;
     }
   }
-  
+
   public NodeTypeDataHierarchyHolder() {
     nodeTypes = new ConcurrentHashMap<InternalQName, NodeTypeHolder>();
   }
 
+  /**
+   * @param nodeTypeName
+   * @return
+   */
+  public Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName) {
+    // TODO Speed up this method
+    Set<InternalQName> resultSet = new HashSet<InternalQName>();
+    for (InternalQName ntName : nodeTypes.keySet()) {
+      if (getSupertypes(ntName).contains(nodeTypeName)) {
+        resultSet.add(ntName);
+      }
+    }
+    return resultSet;
+  }
+
   public NodeTypeData getNodeType(final InternalQName nodeTypeName) {
     final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
-    return nt != null ? nt.nodeType : null; 
+    return nt != null ? nt.nodeType : null;
   }
-  
+
   public Set<InternalQName> getSupertypes(final InternalQName nodeTypeName) {
     final NodeTypeHolder nt = nodeTypes.get(nodeTypeName);
     return nt != null ? nt.superTypes : null;
-  }  
-  
+  }
+
   public Collection<NodeTypeData> getAllNodeTypes() {
     Collection<NodeTypeHolder> hs = nodeTypes.values();
     List<NodeTypeData> nts = new ArrayList<NodeTypeData>(hs.size());
-    for (NodeTypeHolder nt: hs) {
+    for (NodeTypeHolder nt : hs) {
       nts.add(nt.nodeType);
     }
     return nts;
-  }  
-  
+  }
+
   public boolean isNodeType(final InternalQName testTypeName, final InternalQName... typesNames) {
 
     for (InternalQName typeName : typesNames) {
@@ -82,7 +97,7 @@ public class NodeTypeDataHierarchyHolder {
       if (nt != null && (nt.superTypes.contains(testTypeName)))
         return true;
     }
-    
+
     return false;
   }
 

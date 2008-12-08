@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,8 +31,6 @@ import java.util.WeakHashMap;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.NodeTypeIterator;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -49,7 +46,6 @@ import org.apache.lucene.search.BooleanClause.Occur;
 
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
@@ -814,7 +810,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     // ExtendedNodeTypeManager ntMgr =
     // session.getWorkspace().getNodeTypeManager();
-    NodeType base = getNodeType(nodeType);
+    NodeTypeData base = findNodeType(nodeType);
 
     if (base.isMixin()) {
       // search for nodes where jcr:mixinTypes is set to this mixin
@@ -832,33 +828,33 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       terms.add(t);
     }
 
-    // now search for all node types that are derived from base
-    NodeTypeIterator allTypes = getAllNodeTypes();
+    Iterator<InternalQName> allTypes = hierarchy.getDescendantNodeTypes(nodeType).iterator();
     while (allTypes.hasNext()) {
-      ExtendedNodeType nt = (ExtendedNodeType) allTypes.nextNodeType();
-      NodeType[] superTypes = nt.getSupertypes();
-      if (Arrays.asList(superTypes).contains(base)) {
-        String ntName = locationFactory.createJCRName(nt.getQName()).getAsString();
-        Term t;
-        if (nt.isMixin()) {
-          // search on jcr:mixinTypes
-          t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(mixinTypesField, ntName));
-        } else {
-          // search on jcr:primaryType
-          t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(primaryTypeField, ntName));
-        }
-        terms.add(t);
+
+      NodeTypeData nodeTypeData = findNodeType(allTypes.next());
+
+      String ntName = locationFactory.createJCRName(nodeTypeData.getName()).getAsString();
+      Term t;
+      if (nodeTypeData.isMixin()) {
+        // search on jcr:mixinTypes
+        t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(mixinTypesField, ntName));
+      } else {
+        // search on jcr:primaryType
+        t = new Term(FieldNames.PROPERTIES, FieldNames.createNamedValue(primaryTypeField, ntName));
       }
+      terms.add(t);
     }
+    // now search for all node types that are derived from base
+
     if (terms.size() == 0) {
       // exception occured
       return new BooleanQuery();
     } else if (terms.size() == 1) {
-      return new TermQuery((Term) terms.get(0));
+      return new TermQuery(terms.get(0));
     } else {
       BooleanQuery b = new BooleanQuery();
-      for (Iterator it = terms.iterator(); it.hasNext();) {
-        b.add(new TermQuery((Term) it.next()), Occur.SHOULD);
+      for (Term term : terms) {
+        b.add(new TermQuery(term), Occur.SHOULD);
       }
       return b;
     }
