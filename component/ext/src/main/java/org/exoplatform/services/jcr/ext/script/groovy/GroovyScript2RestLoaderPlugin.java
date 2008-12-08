@@ -46,6 +46,8 @@ import org.xml.sax.SAXException;
  */
 public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
 
+  // TODO loading script from war-files.
+
   /**
    * Logger.
    */
@@ -198,7 +200,7 @@ public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
             // start 'path' tag 
             String p = eventReader.getElementText();
             // script path should be relative to jar file where configuration was loaded
-            URL resource = new URL(jarFile + "!" + ((p.charAt(0) != '/') ? "/" + p : p));
+            URL resource = getURL(jarFile, p);
             xg.setPath(resource);
           }
         }
@@ -223,6 +225,18 @@ public class GroovyScript2RestLoaderPlugin extends BaseComponentPlugin {
           LOG.error("Error occurs when try to close XMLEventReader. ", e);
         }
       }
+    }
+  }
+  
+  protected URL getURL(String jarFile, String path) throws Exception {
+    int len = path.length();
+    if (path.startsWith("jar:")) {
+      path = path.substring("jar:".length(), len);
+      return new URL(jarFile + "!" + ((path.charAt(0) != '/') ? "/" + path : path));
+    } else if (path.startsWith("file:")) {
+      return new URL(path);
+    } else {
+      return new URL(jarFile + "!" + ((path.charAt(0) != '/') ? "/" + path : path));
     }
   }
   
