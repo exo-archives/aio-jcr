@@ -83,7 +83,7 @@ public class JcrConsoleClient {
 
       catalog = cservice.getCatalog("CLI");
 
-      Credentials cred = new SimpleCredentials("admin", "admin".toCharArray());
+      Credentials cred = new SimpleCredentials("root", "exo".toCharArray());
 
       // we need to login (see BasicAppContext, 38) and set current item before
       // ctx using

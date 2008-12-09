@@ -65,11 +65,11 @@
             <security>
               <security-role id="ID_EXO_USER">
                 <description>a simple user role</description>
-                <role-name>exo</role-name>
+                <role-name>users</role-name>
               </security-role>
               <security-role id="ID_EXO_ADMIN">
                 <description>a simple admin role</description>
-                <role-name>admin</role-name>
+                <role-name>administrators</role-name>
               </security-role>
             </security>
 

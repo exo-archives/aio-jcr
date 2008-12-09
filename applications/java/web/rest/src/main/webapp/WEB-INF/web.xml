@@ -62,8 +62,8 @@
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
     <auth-constraint>
-      <role-name>exo</role-name>
-      <role-name>admin</role-name>
+      <role-name>users</role-name>
+      <role-name>administrators</role-name>
     </auth-constraint>
     <user-data-constraint>
       <transport-guarantee>NONE</transport-guarantee>
@@ -77,12 +77,12 @@
 
   <security-role>
     <description>Security role1</description>
-    <role-name>admin</role-name>
+    <role-name>administrators</role-name>
   </security-role>
   
   <security-role>
     <description>Security role2</description>
-    <role-name>exo</role-name>
+    <role-name>users</role-name>
   </security-role>
 
 </web-app>
