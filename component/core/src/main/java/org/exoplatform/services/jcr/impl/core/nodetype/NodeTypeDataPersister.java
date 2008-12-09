@@ -629,9 +629,10 @@ public class NodeTypeDataPersister {
                                                                        ntName,
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_AUTOCREATED)),
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_MANDATORY)),
-                                                                       (int) ValueDataConvertor.readLong(pdr.getPropertyValue(Constants.JCR_ONPARENTVERSION)),
+
+                                                                       OnParentVersionAction.valueFromName(ValueDataConvertor.readString(pdr.getPropertyValue(Constants.JCR_ONPARENTVERSION))),
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_PROTECTED)),
-                                                                       (int) ValueDataConvertor.readLong(pdr.getPropertyValue(Constants.JCR_REQUIREDTYPE)),
+                                                                       ExtendedPropertyType.valueFromName(ValueDataConvertor.readString(pdr.getPropertyValue(Constants.JCR_REQUIREDTYPE))),
                                                                        valueConstraints,
                                                                        defaultValues,
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_MULTIPLE)));
@@ -719,7 +720,7 @@ public class NodeTypeDataPersister {
                                                                ntName,
                                                                ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_AUTOCREATED)),
                                                                ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_MANDATORY)),
-                                                               (int) ValueDataConvertor.readLong(cdr.getPropertyValue(Constants.JCR_ONPARENTVERSION)),
+                                                               OnParentVersionAction.valueFromName(ValueDataConvertor.readString(cdr.getPropertyValue(Constants.JCR_ONPARENTVERSION))),
                                                                ValueDataConvertor.readBoolean(cdr.getPropertyValue(Constants.JCR_PROTECTED)),
                                                                requiredNodeTypes,
                                                                defaultNodeTypeName,
