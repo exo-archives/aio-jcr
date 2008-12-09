@@ -173,14 +173,6 @@
 
   <component>
     <type>org.exoplatform.services.jcr.ext.script.groovy.GroovyScriptService</type>
-    <init-params>
-      <properties-param>
-        <name>workspace.config</name>
-        <property name="repository" value="repository" />
-<!--        <property name="workspace" value="collaboration" />-->
-        <property name="workspace" value="production" />
-      </properties-param>
-    </init-params>
   </component>
   
 <!--
