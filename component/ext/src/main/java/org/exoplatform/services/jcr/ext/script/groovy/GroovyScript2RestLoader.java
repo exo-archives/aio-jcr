@@ -57,7 +57,7 @@ import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
 import org.exoplatform.services.jcr.ext.resource.jcr.Handler;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.impl.ResourceBinder;
-import org.exoplatform.services.rest.resource.ResourceContainer;
+//import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
 
 /**
@@ -208,10 +208,11 @@ public class GroovyScript2RestLoader implements Startable {
    */
   public void loadScript(URL url) throws IOException {
 
-    ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(url);
-    if (binder.bind(resourceContainer)) {
+//    ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(url);
+    Object resource = groovyScriptInstantiator.instantiateScript(url);
+    if (binder.bind(/*resourceContainer*/resource)) {
       // add mapping script URL to name of class.
-      scriptsURL2ClassMap.put(url.toString(), resourceContainer.getClass());
+      scriptsURL2ClassMap.put(url.toString(), /*resourceContainer*/resource.getClass());
       LOG.info("Add new groovy scripts, URL: " + url);
     } else {
       LOG.warn("Groovy script was not binded, URL: " + url);
@@ -230,10 +231,11 @@ public class GroovyScript2RestLoader implements Startable {
    * @see ResourceBinder#bind(ResourceContainer)
    */
   public void loadScript(String key, InputStream stream) throws IOException {
-    ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(stream);
-    if (binder.bind(resourceContainer)) {
+//    ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(stream);
+    Object resource = groovyScriptInstantiator.instantiateScript(stream);
+    if (binder.bind(/*resourceContainer*/resource)) {
       // add mapping script URL to name of class.
-      scriptsURL2ClassMap.put(key, resourceContainer.getClass());
+      scriptsURL2ClassMap.put(key, /*resourceContainer*/resource.getClass());
       LOG.info("Add new groovy scripts, script key: " + key);
     } else {
       LOG.warn("Groovy script was not binded, key: " + key);

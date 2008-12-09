@@ -63,16 +63,16 @@ public class GroovyScriptService implements ResourceContainer {
    */
   private final RepositoryService                 repositoryService;
 
-  /**
-   * Repository name.
-   */
-  private final String                            repository;
-
-  /**
-   * Workspace name.
-   */
-  private final String                            workspace;
-
+  // /**
+  // * Repository name.
+  // */
+  // private final String repository;
+  //
+  // /**
+  // * Workspace name.
+  // */
+  // private final String workspace;
+  //
   /**
    * @param sessionProviderService See {@link ThreadLocalSessionProviderService}
    * @param repositoryService See {@link RepositoryService}
@@ -83,8 +83,10 @@ public class GroovyScriptService implements ResourceContainer {
                              InitParams params) {
     this.sessionProviderService = sessionProviderService;
     this.repositoryService = repositoryService;
-    repository = params.getPropertiesParam("workspace.config").getProperty("repository");
-    workspace = params.getPropertiesParam("workspace.config").getProperty("workspace");
+    // repository =
+    // params.getPropertiesParam("workspace.config").getProperty("repository");
+    // workspace =
+    // params.getPropertiesParam("workspace.config").getProperty("workspace");
   }
 
   /**
@@ -94,6 +96,8 @@ public class GroovyScriptService implements ResourceContainer {
    * 
    * @param stream the stream that contains groovy source code
    * @param uriInfo see {@link UriInfo}
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path path to resource to be created
    * @return Response with status 'created'
    */
@@ -102,6 +106,8 @@ public class GroovyScriptService implements ResourceContainer {
   @Path("{path:.*}/add")
   public Response addScript(InputStream stream,
                             @Context UriInfo uriInfo,
+                            @PathParam("repository") String repository,
+                            @PathParam("workspace") String workspace,
                             @PathParam("path") String path) {
     Session ses = null;
     try {
@@ -130,6 +136,8 @@ public class GroovyScriptService implements ResourceContainer {
    * 
    * @param stream the stream that contains groovy source code
    * @param uriInfo see {@link UriInfo}
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path path to resource to be created
    * @return Response with status 'created'
    */
@@ -138,6 +146,8 @@ public class GroovyScriptService implements ResourceContainer {
   @Path("{path:.*}/update")
   public Response updateScript(InputStream stream,
                                @Context UriInfo uriInfo,
+                               @PathParam("repository") String repository,
+                               @PathParam("workspace") String workspace,
                                @PathParam("path") String path) {
     Session ses = null;
     try {
@@ -168,6 +178,8 @@ public class GroovyScriptService implements ResourceContainer {
    * 
    * @param items iterator {@link FileItem}
    * @param uriInfo see {@link UriInfo}
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path path to resource to be created
    * @return Response with status 'created'
    */
@@ -176,6 +188,8 @@ public class GroovyScriptService implements ResourceContainer {
   @Path("{path:.*}/add")
   public Response addScripts(Iterator<FileItem> items,
                              @Context UriInfo uriInfo,
+                             @PathParam("repository") String repository,
+                             @PathParam("workspace") String workspace,
                              @PathParam("path") String path) {
     Session ses = null;
     try {
@@ -206,6 +220,8 @@ public class GroovyScriptService implements ResourceContainer {
    * 
    * @param items iterator {@link FileItem}
    * @param uriInfo see {@link UriInfo}
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path path to resource to be created
    * @return Response with status 'created'
    */
@@ -214,6 +230,8 @@ public class GroovyScriptService implements ResourceContainer {
   @Path("{path:.*}/update")
   public Response updateScripts(Iterator<FileItem> items,
                                 @Context UriInfo uriInfo,
+                                @PathParam("repository") String repository,
+                                @PathParam("workspace") String workspace,
                                 @PathParam("path") String path) {
     Session ses = null;
     try {
@@ -238,13 +256,17 @@ public class GroovyScriptService implements ResourceContainer {
   /**
    * Get source code of groovy script.
    * 
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path JCR path to node that contains script
    * @return groovy script as stream
    */
   @GET
   @Produces( { "script/groovy" })
   @Path("{path:.*}")
-  public InputStream getScript(@PathParam("path") String path) {
+  public InputStream getScript(@PathParam("repository") String repository,
+                               @PathParam("workspace") String workspace,
+                               @PathParam("path") String path) {
     Session ses = null;
     try {
       ses = sessionProviderService.getSessionProvider(null)
@@ -264,13 +286,17 @@ public class GroovyScriptService implements ResourceContainer {
   /**
    * Get groovy script's meta-information.
    * 
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path JCR path to node that contains script
    * @return groovy script's meta-information
    */
   @GET
   @Produces( { MediaType.APPLICATION_FORM_URLENCODED })
   @Path("{path:.*}")
-  public MultivaluedMap<String, String> getScriptMetadata(@PathParam("path") String path) {
+  public MultivaluedMap<String, String> getScriptMetadata(@PathParam("repository") String repository,
+                                                          @PathParam("workspace") String workspace,
+                                                          @PathParam("path") String path) {
     Session ses = null;
     try {
       ses = sessionProviderService.getSessionProvider(null)
@@ -297,11 +323,15 @@ public class GroovyScriptService implements ResourceContainer {
   /**
    * Remove node that contains groovy script.
    * 
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path JCR path to node that contains script
    */
   @GET
   @Path("{path:.*}/delete")
-  public void deleteScript(@PathParam("path") String path) {
+  public void deleteScript(@PathParam("repository") String repository,
+                           @PathParam("workspace") String workspace,
+                           @PathParam("path") String path) {
     Session ses = null;
     try {
       ses = sessionProviderService.getSessionProvider(null)
@@ -322,6 +352,8 @@ public class GroovyScriptService implements ResourceContainer {
    * deployed automatically when JCR repository startup and automatically
    * re-deployed when script source code changed.
    * 
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path JCR path to node that contains script
    * @param state value for property exo:autoload, if it is not specified then
    *          'true' will be used as default. <br /> Example:
@@ -330,7 +362,9 @@ public class GroovyScriptService implements ResourceContainer {
    */
   @GET
   @Path("{path:.*}/autoload")
-  public void autoload(@PathParam("path") String path,
+  public void autoload(@PathParam("repository") String repository,
+                       @PathParam("workspace") String workspace,
+                       @PathParam("path") String path,
                        @DefaultValue("true") @QueryParam("state") boolean state) {
     Session ses = null;
     try {
@@ -354,11 +388,15 @@ public class GroovyScriptService implements ResourceContainer {
    * undeployed. NOTE is script already deployed and <tt>state</tt> is
    * <tt>true</tt> script will be re-deployed.
    * 
+   * @param repository repository name
+   * @param workspace workspace name
    * @param path the path to JCR node that contains groovy script to be deployed
    */
   @GET
   @Path("{path:.*}/load")
-  public void load(@PathParam("path") String path,
+  public void load(@PathParam("repository") String repository,
+                   @PathParam("workspace") String workspace,
+                   @PathParam("path") String path,
                    @DefaultValue("true") @QueryParam("state") boolean state) {
     Session ses = null;
     try {
