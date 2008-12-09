@@ -47,6 +47,7 @@ import org.exoplatform.services.jcr.impl.core.SessionRegistry;
 import org.exoplatform.services.jcr.impl.core.WorkspaceInitializer;
 import org.exoplatform.services.jcr.impl.core.access.DefaultAccessManagerImpl;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataPersister;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
@@ -421,6 +422,7 @@ public class RepositoryContainer extends ExoContainer {
 
     registerComponentImplementation(NodeTypeDataPersister.class);
     registerComponentImplementation(NodeTypeManagerImpl.class);
+    registerComponentImplementation(NodeTypeDataManagerImpl.class);
 
     registerComponentImplementation(DefaultAccessManagerImpl.class);
 

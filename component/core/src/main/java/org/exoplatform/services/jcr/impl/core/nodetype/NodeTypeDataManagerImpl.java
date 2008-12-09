@@ -194,9 +194,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                              v.getValueConstraints()
                                                               .toArray(new String[v.getValueConstraints()
                                                                                    .size()]),
-                                                             v.getDefaultValueStrings()
-                                                              .toArray(new String[v.getDefaultValueStrings()
-                                                                                   .size()]),
+                                                             v.getDefaultValueStrings() == null ? null
+                                                                                               : v.getDefaultValueStrings()
+                                                                                                  .toArray(new String[v.getDefaultValueStrings()
+                                                                                                                       .size()]),
                                                              v.isMultiple());
       props[i] = pd;
     }
