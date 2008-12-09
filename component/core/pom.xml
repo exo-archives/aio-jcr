@@ -507,10 +507,10 @@
                 </property>
               </systemProperties>
               <includes>
-                <include>**/api/**/Test*.java</include>
-                <include>**/usecases/**/Test*.java</include>
+                <include>**/api/**/TestNodeTypeManager*.java</include>
+                <!-- include>**/usecases/**/Test*.java</include>
                 <include>**/usecases/**/*Test.java</include>
-                <include>**/impl/**/Test*.java</include>
+                <include>**/impl/**/Test*.java</include-->
                 
               </includes>
               <excludes>

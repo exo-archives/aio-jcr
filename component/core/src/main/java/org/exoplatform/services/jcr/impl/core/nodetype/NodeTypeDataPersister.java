@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.jcr.InvalidItemStateException;
@@ -29,6 +30,7 @@ import javax.jcr.ValueFormatException;
 import javax.jcr.version.OnParentVersionAction;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
@@ -57,7 +59,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: NodeTypeDataPersister.java 13962 2008-05-07 16:00:48Z pnedonosko $
+ * @version $Id: NodeTypeDataPersister.java 13962 2008-05-07 16:00:48Z
+ *          pnedonosko $
  */
 
 public class NodeTypeDataPersister {
@@ -160,8 +163,8 @@ public class NodeTypeDataPersister {
     }
   }
 
-  public synchronized void initStorage(List<NodeTypeData> nodetypes) throws PathNotFoundException,
-                                                                    RepositoryException {
+  public synchronized void initStorage(Collection<NodeTypeData> nodetypes) throws PathNotFoundException,
+                                                                          RepositoryException {
 
     if (!isInitialized()) {
       LOG.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not exists. Possible is not initialized (call initNodetypesRoot() before)");
@@ -443,7 +446,7 @@ public class NodeTypeDataPersister {
                                                                                           Constants.JCR_DEFAULTPRIMNARYTYPE,
                                                                                           PropertyType.NAME,
                                                                                           false);
-      defaultPrimaryType.setValue(new TransientValueData(def.getDefaultPrimaryType().getName()));
+      defaultPrimaryType.setValue(new TransientValueData(def.getDefaultPrimaryType()));
       changesLog.add(ItemState.createAddedState(defaultPrimaryType));
     }
 
@@ -476,8 +479,7 @@ public class NodeTypeDataPersister {
     return null;
   }
 
-  public List<NodeTypeData> loadNodetypes(NodeTypeManagerImpl ntManager) throws PathNotFoundException,
-                                                                        RepositoryException {
+  public List<NodeTypeData> loadFromStorage() throws PathNotFoundException, RepositoryException {
 
     if (!isInitialized()) {
       NodeData jcrSystem = (NodeData) dataManager.getItemData(Constants.SYSTEM_UUID);
@@ -587,7 +589,9 @@ public class NodeTypeDataPersister {
                  // jcr:requiredType
                  .forProperty(Constants.JCR_VALUECONSTRAINTS, PropertyType.STRING)
                  // jcr:valueConstraints
-                 .forProperty(Constants.JCR_DEFAULTVALUES, PropertyType.STRING); //jcr:defaultValues
+                 .forProperty(Constants.JCR_DEFAULTVALUES, PropertyType.STRING); // jcr
+              // :
+              // defaultValues
               pdr.read();
 
               InternalQName pname;
@@ -671,7 +675,8 @@ public class NodeTypeDataPersister {
                  // jcr:onParentVersion
                  .forProperty(Constants.JCR_SAMENAMESIBLINGS, PropertyType.STRING)
                  // jcr:sameNameSiblings
-                 .forProperty(Constants.JCR_DEFAULTPRIMNARYTYPE, PropertyType.NAME); // jcr:
+                 .forProperty(Constants.JCR_DEFAULTPRIMNARYTYPE, PropertyType.NAME); // jcr
+              // :
               // defaultPrimaryType
               cdr.read();
 
@@ -731,7 +736,7 @@ public class NodeTypeDataPersister {
             declaredChildNodes = declaredChildNodesDefs;
           } catch (PathNotFoundException e) {
             LOG.error("Child nodes definitions is not valid. " + e + ". NodeType "
-                      + ntName.getAsString() + " skipped.");
+                + ntName.getAsString() + " skipped.");
             continue nextNodeType;
           }
 

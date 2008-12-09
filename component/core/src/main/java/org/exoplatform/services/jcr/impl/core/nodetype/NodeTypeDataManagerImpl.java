@@ -183,23 +183,30 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     for (int i = 0; i < pdlist.size(); i++) {
       PropertyDefinitionValue v = pdlist.get(i);
 
-      PropertyDefinitionData pd = new PropertyDefinitionData(locationFactory.parseJCRName(v.getName())
-                                                                            .getInternalName(),
-                                                             ntName,
-                                                             v.isAutoCreate(),
-                                                             v.isMandatory(),
-                                                             v.getOnVersion(),
-                                                             v.isReadOnly(),
-                                                             v.getRequiredType(),
-                                                             v.getValueConstraints()
-                                                              .toArray(new String[v.getValueConstraints()
-                                                                                   .size()]),
-                                                             v.getDefaultValueStrings() == null ? null
-                                                                                               : v.getDefaultValueStrings()
-                                                                                                  .toArray(new String[v.getDefaultValueStrings()
-                                                                                                                       .size()]),
-                                                             v.isMultiple());
-      props[i] = pd;
+      PropertyDefinitionData pd;
+      try {
+        pd = new PropertyDefinitionData(locationFactory.parseJCRName(v.getName()).getInternalName(),
+                                        ntName,
+                                        v.isAutoCreate(),
+                                        v.isMandatory(),
+                                        v.getOnVersion(),
+                                        v.isReadOnly(),
+                                        v.getRequiredType(),
+                                        v.getValueConstraints() != null ? v.getValueConstraints()
+                                                                           .toArray(new String[v.getValueConstraints()
+                                                                                                .size()])
+                                                                       : new String[0],
+                                        v.getDefaultValueStrings() == null ? null
+                                                                          : v.getDefaultValueStrings()
+                                                                             .toArray(new String[v.getDefaultValueStrings()
+                                                                                                  .size()]),
+                                        v.isMultiple());
+
+        props[i] = pd;
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
     }
 
     List<NodeDefinitionValue> ndlist = ntvalue.getDeclaredChildNodeDefinitionValues();
@@ -209,8 +216,13 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
       List<String> rnts = v.getRequiredNodeTypeNames();
       InternalQName[] requiredNTs = new InternalQName[rnts.size()];
-      for (int ri = 0; i < rnts.size(); ri++) {
-        requiredNTs[i] = locationFactory.parseJCRName(rnts.get(ri)).getInternalName();
+      for (int ri = 0; ri < rnts.size(); ri++) {
+        requiredNTs[ri] = locationFactory.parseJCRName(rnts.get(ri)).getInternalName();
+      }
+      InternalQName defaultNodeName = null;
+      if (v.getDefaultNodeTypeName() != null) {
+        defaultNodeName = locationFactory.parseJCRName(v.getDefaultNodeTypeName())
+                                         .getInternalName();
       }
       NodeDefinitionData nd = new NodeDefinitionData(locationFactory.parseJCRName(v.getName())
                                                                     .getInternalName(),
@@ -220,15 +232,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                      v.getOnVersion(),
                                                      v.isReadOnly(),
                                                      requiredNTs,
-                                                     locationFactory.parseJCRName(v.getDefaultNodeTypeName())
-                                                                    .getInternalName(),
+                                                     defaultNodeName,
                                                      v.isSameNameSiblings());
       nodes[i] = nd;
     }
 
+    InternalQName primaryItemName = null;
+    if (ntvalue.getPrimaryItemName() != null)
+      primaryItemName = locationFactory.parseJCRName(ntvalue.getPrimaryItemName())
+                                       .getInternalName();
+
     NodeTypeData ntdata = new NodeTypeData(ntName,
-                                           locationFactory.parseJCRName(ntvalue.getPrimaryItemName())
-                                                          .getInternalName(),
+                                           primaryItemName,
                                            ntvalue.isMixin(),
                                            ntvalue.isOrderableChild(),
                                            supertypes,
@@ -278,9 +293,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
           LOG.error("Empty nodeTypeValue in xml document, index: " + i + ", skiping...");
         }
       }
+      registerNodeTypes(nts, alreadyExistsBehaviour);
+
       LOG.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
           + (System.currentTimeMillis() - start) + " ms.");
-
       return nts;
     } catch (JiBXException e) {
       throw new RepositoryException("Error in config initialization " + e, e);
@@ -318,6 +334,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
 
     hierarchy.addNodeType(nodeType);
+
+    defsHolder.putDefinitions(nodeType);
 
     if (persister.isInitialized()) {
       try {

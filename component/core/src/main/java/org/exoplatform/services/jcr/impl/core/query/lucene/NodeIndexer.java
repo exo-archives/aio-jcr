@@ -74,7 +74,8 @@ public class NodeIndexer {
   protected final ItemDataConsumer      stateProvider;
 
   /**
-   * Namespace mappings to use for indexing. This is the internal namespace mapping.
+   * Namespace mappings to use for indexing. This is the internal namespace
+   * mapping.
    */
   protected final NamespaceMappings     mappings;
 
@@ -94,8 +95,8 @@ public class NodeIndexer {
   protected IndexingConfiguration       indexingConfig;
 
   /**
-   * If set to <code>true</code> the fulltext field is stored and and a term vector is created with
-   * offset information.
+   * If set to <code>true</code> the fulltext field is stored and and a term
+   * vector is created with offset information.
    */
   protected boolean                     supportHighlighting = false;
 
@@ -109,14 +110,11 @@ public class NodeIndexer {
   /**
    * Creates a new node indexer.
    * 
-   * @param node
-   *          the node state to index.
-   * @param stateProvider
-   *          the persistent item state manager to retrieve properties. //StateManager
-   * @param mappings
-   *          internal namespace mappings.
-   * @param extractor
-   *          content extractor
+   * @param node the node state to index.
+   * @param stateProvider the persistent item state manager to retrieve
+   *          properties. //StateManager
+   * @param mappings internal namespace mappings.
+   * @param extractor content extractor
    */
   public NodeIndexer(NodeData node,
                      ItemDataConsumer stateProvider,
@@ -140,11 +138,10 @@ public class NodeIndexer {
   }
 
   /**
-   * If set to <code>true</code> additional information is stored in the index to support
-   * highlighting using the exo:excerpt pseudo property.
+   * If set to <code>true</code> additional information is stored in the index
+   * to support highlighting using the exo:excerpt pseudo property.
    * 
-   * @param b
-   *          <code>true</code> to enable highlighting support.
+   * @param b <code>true</code> to enable highlighting support.
    */
   public void setSupportHighlighting(boolean b) {
     supportHighlighting = b;
@@ -153,8 +150,7 @@ public class NodeIndexer {
   /**
    * Sets the index format version
    * 
-   * @param indexFormatVersion
-   *          the index format version
+   * @param indexFormatVersion the index format version
    */
   public void setIndexFormatVersion(IndexFormatVersion indexFormatVersion) {
     this.indexFormatVersion = indexFormatVersion;
@@ -163,8 +159,7 @@ public class NodeIndexer {
   /**
    * Sets the indexing configuration for this node indexer.
    * 
-   * @param config
-   *          the indexing configuration.
+   * @param config the indexing configuration.
    */
   public void setIndexingConfiguration(IndexingConfiguration config) {
     this.indexingConfig = config;
@@ -174,9 +169,8 @@ public class NodeIndexer {
    * Creates a lucene Document.
    * 
    * @return the lucene Document with the index layout.
-   * @throws RepositoryException
-   *           if an error occurs while reading property values from the
-   *           <code>ItemStateProvider</code>.
+   * @throws RepositoryException if an error occurs while reading property
+   *           values from the <code>ItemStateProvider</code>.
    */
   protected Document createDoc() throws RepositoryException {
     Document doc = new Document();
@@ -237,13 +231,11 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds a {@link FieldNames#MVP} field to <code>doc</code> with the resolved <code>name</code>
-   * using the internal search index namespace mapping.
+   * Adds a {@link FieldNames#MVP} field to <code>doc</code> with the resolved
+   * <code>name</code> using the internal search index namespace mapping.
    * 
-   * @param doc
-   *          the lucene document.
-   * @param name
-   *          the name of the multi-value property.
+   * @param doc the lucene document.
+   * @param name the name of the multi-value property.
    */
   private void addMVPName(Document doc, InternalQName name) throws RepositoryException {
     String propName = resolver.createJCRName(name).getAsString();
@@ -255,13 +247,13 @@ public class NodeIndexer {
   }
 
   /**
-   * For concurrency usage case all internal vars were made a final. Need to be rechecked.
+   * For concurrency usage case all internal vars were made a final. Need to be
+   * rechecked.
    */
   private void addValues(final Document doc, final PropertyData prop) throws RepositoryException {
 
     int propType = prop.getType();
     String fieldName = resolver.createJCRName(prop.getQPath().getName()).getAsString();
-
     if (propType == PropertyType.BINARY) {
 
       List<ValueData> data = null;
@@ -281,10 +273,10 @@ public class NodeIndexer {
             // ok, have a reader
             // if the prop obtainer from cache it will contains a values,
             // otherwise read prop with values from DM
-            data = prop.getValues().size() > 0
-                ? prop.getValues()
-                : ((PropertyData) stateProvider.getItemData(node,
-                                                            new QPathEntry(Constants.JCR_DATA, 0))).getValues();
+            data = prop.getValues().size() > 0 ? prop.getValues()
+                                              : ((PropertyData) stateProvider.getItemData(node,
+                                                                                          new QPathEntry(Constants.JCR_DATA,
+                                                                                                         0))).getValues();
             if (data == null)
               log.warn("null value found at property " + prop.getQPath().getAsString());
 
@@ -348,15 +340,15 @@ public class NodeIndexer {
         // read prop with values from DM
         // WARN. DON'T USE access item BY PATH - it's may be a node in case of
         // residual definitions in NT
-        List<ValueData> data = prop.getValues().size() > 0
-            ? prop.getValues()
-            : ((PropertyData) stateProvider.getItemData(prop.getIdentifier())).getValues();
+        List<ValueData> data = prop.getValues().size() > 0 ? prop.getValues()
+                                                          : ((PropertyData) stateProvider.getItemData(prop.getIdentifier())).getValues();
 
         if (data == null)
           log.warn("null value found at property " + prop.getQPath().getAsString());
 
         ExtendedValue val = null;
         InternalQName name = prop.getQPath().getName();
+
         for (ValueData value : data) {
           val = (ExtendedValue) vFactory.loadValue(((AbstractValueData) value).createTransientCopy(),
                                                    propType);
@@ -425,6 +417,7 @@ public class NodeIndexer {
           // real multi-valued
           addMVPName(doc, prop.getQPath().getName());
       } catch (RepositoryException e) {
+        e.printStackTrace();
         throw new RepositoryException("Index of property value error. "
             + prop.getQPath().getAsString() + ". " + e, e);
       }
@@ -434,12 +427,9 @@ public class NodeIndexer {
   /**
    * Adds a value to the lucene Document.
    * 
-   * @param doc
-   *          the document.
-   * @param value
-   *          the internal jackrabbit value.
-   * @param name
-   *          the name of the property.
+   * @param doc the document.
+   * @param value the internal jackrabbit value.
+   * @param name the name of the property.
    * @param
    * @throws RepositoryException
    * @throws IllegalStateException
@@ -525,10 +515,8 @@ public class NodeIndexer {
   /**
    * Adds the property name to the lucene _:PROPERTIES_SET field.
    * 
-   * @param doc
-   *          the document.
-   * @param name
-   *          the name of the property.
+   * @param doc the document.
+   * @param name the name of the property.
    */
   private void addPropertyName(Document doc, InternalQName name) throws RepositoryException {
     String fieldName = resolver.createJCRName(name).getAsString();
@@ -536,16 +524,14 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the binary value to the document as the named field. <p/> This implementation checks if
-   * this {@link #node} is of type nt:resource and if that is the case, tries to extract text from
-   * the binary property using the {@link #extractor}.
+   * Adds the binary value to the document as the named field. <p/> This
+   * implementation checks if this {@link #node} is of type nt:resource and if
+   * that is the case, tries to extract text from the binary property using the
+   * {@link #extractor}.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    * @throws RepositoryException
    */
   @Deprecated
@@ -610,14 +596,12 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the string representation of the boolean value to the document as the named field.
+   * Adds the string representation of the boolean value to the document as the
+   * named field.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    */
   protected void addBooleanValue(Document doc, String fieldName, Object internalValue) {
     doc.add(createFieldWithoutNorms(fieldName, internalValue.toString(), false));
@@ -625,34 +609,31 @@ public class NodeIndexer {
 
   /**
    * Creates a field of name <code>fieldName</code> with the value of <code>
-   * internalValue</code>. The
-   * created field is indexed without norms.
+   * internalValue</code>
+   * . The created field is indexed without norms.
    * 
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
-   * @param store
-   *          <code>true</code> if the value should be stored, <code>false</code> otherwise
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
+   * @param store <code>true</code> if the value should be stored,
+   *          <code>false</code> otherwise
    */
   protected Field createFieldWithoutNorms(String fieldName, String internalValue, boolean store) {
-    Field field = new Field(FieldNames.PROPERTIES, FieldNames.createNamedValue(fieldName,
-                                                                               internalValue), true
-        ? Field.Store.YES
-        : Field.Store.NO, Field.Index.NO_NORMS, Field.TermVector.NO);
+    Field field = new Field(FieldNames.PROPERTIES,
+                            FieldNames.createNamedValue(fieldName, internalValue),
+                            true ? Field.Store.YES : Field.Store.NO,
+                            Field.Index.NO_NORMS,
+                            Field.TermVector.NO);
     return field;
   }
 
   /**
-   * Adds the calendar value to the document as the named field. The calendar value is converted to
-   * an indexable string value using the {@link DateField} class.
+   * Adds the calendar value to the document as the named field. The calendar
+   * value is converted to an indexable string value using the {@link DateField}
+   * class.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    */
   protected void addCalendarValue(Document doc, String fieldName, Object internalValue) {
     Calendar value = (Calendar) internalValue;
@@ -661,15 +642,13 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the double value to the document as the named field. The double value is converted to an
-   * indexable string value using the {@link DoubleField} class.
+   * Adds the double value to the document as the named field. The double value
+   * is converted to an indexable string value using the {@link DoubleField}
+   * class.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    */
   protected void addDoubleValue(Document doc, String fieldName, Object internalValue) {
     double doubleVal = ((Double) internalValue).doubleValue();
@@ -677,15 +656,12 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the long value to the document as the named field. The long value is converted to an
-   * indexable string value using the {@link LongField} class.
+   * Adds the long value to the document as the named field. The long value is
+   * converted to an indexable string value using the {@link LongField} class.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    */
   protected void addLongValue(Document doc, String fieldName, Object internalValue) {
     long longVal = ((Long) internalValue).longValue();
@@ -693,47 +669,41 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the reference value to the document as the named field. The value's string representation
-   * is added as the reference data. Additionally the reference data is stored in the index.
+   * Adds the reference value to the document as the named field. The value's
+   * string representation is added as the reference data. Additionally the
+   * reference data is stored in the index.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    */
   protected void addReferenceValue(Document doc, String fieldName, Object internalValue) {
     doc.add(createFieldWithoutNorms(fieldName, internalValue.toString(), true));
   }
 
   /**
-   * Adds the path value to the document as the named field. The path value is converted to an
-   * indexable string value using the name space mappings with which this class has been created.
+   * Adds the path value to the document as the named field. The path value is
+   * converted to an indexable string value using the name space mappings with
+   * which this class has been created.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    */
   protected void addPathValue(Document doc, String fieldName, Object internalValue) {
     doc.add(createFieldWithoutNorms(fieldName, internalValue.toString(), false));
   }
 
   /**
-   * Adds the string value to the document both as the named field and optionally for full text
-   * indexing if <code>tokenized</code> is <code>true</code>.
+   * Adds the string value to the document both as the named field and
+   * optionally for full text indexing if <code>tokenized</code> is
+   * <code>true</code>.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
-   * @param tokenized
-   *          If <code>true</code> the string is also tokenized and fulltext indexed.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
+   * @param tokenized If <code>true</code> the string is also tokenized and
+   *          fulltext indexed.
    */
   protected void addStringValue(Document doc,
                                 String fieldName,
@@ -743,22 +713,18 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the string value to the document both as the named field and optionally for full text
-   * indexing if <code>tokenized</code> is <code>true</code>.
+   * Adds the string value to the document both as the named field and
+   * optionally for full text indexing if <code>tokenized</code> is
+   * <code>true</code>.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
-   * @param tokenized
-   *          If <code>true</code> the string is also tokenized and fulltext indexed.
-   * @param includeInNodeIndex
-   *          If <code>true</code> the string is also tokenized and added to the node scope fulltext
-   *          index.
-   * @param boost
-   *          the boost value for this string field.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
+   * @param tokenized If <code>true</code> the string is also tokenized and
+   *          fulltext indexed.
+   * @param includeInNodeIndex If <code>true</code> the string is also tokenized
+   *          and added to the node scope fulltext index.
+   * @param boost the boost value for this string field.
    */
   protected void addStringValue(Document doc,
                                 String fieldName,
@@ -790,16 +756,14 @@ public class NodeIndexer {
   }
 
   /**
-   * Adds the name value to the document as the named field. The name value is converted to an
-   * indexable string treating the internal value as a qualified name and mapping the name space
-   * using the name space mappings with which this class has been created.
+   * Adds the name value to the document as the named field. The name value is
+   * converted to an indexable string treating the internal value as a qualified
+   * name and mapping the name space using the name space mappings with which
+   * this class has been created.
    * 
-   * @param doc
-   *          The document to which to add the field
-   * @param fieldName
-   *          The name of the field to add
-   * @param internalValue
-   *          The value for the field to add to the document.
+   * @param doc The document to which to add the field
+   * @param fieldName The name of the field to add
+   * @param internalValue The value for the field to add to the document.
    */
   protected void addNameValue(Document doc, String fieldName, Object internalValue) {
     doc.add(createFieldWithoutNorms(fieldName, internalValue.toString(), false));
@@ -808,15 +772,15 @@ public class NodeIndexer {
   /**
    * Creates a fulltext field for the string <code>value</code>.
    * 
-   * @param value
-   *          the string value.
+   * @param value the string value.
    * @return a lucene field.
    */
   protected Field createFulltextField(String value) {
     if (supportHighlighting) {
       // store field compressed if greater than 16k
       Field.Store stored = Field.Store.YES;
-      // TODO make the stored parameter be configurable. COMPRESS or only Store.YES
+      // TODO make the stored parameter be configurable. COMPRESS or only
+      // Store.YES
       // if (value.length() > 0x4000) {
       // stored = Field.Store.COMPRESS;
       // } else {
@@ -837,8 +801,7 @@ public class NodeIndexer {
   /**
    * Creates a fulltext field for the reader <code>value</code>.
    * 
-   * @param value
-   *          the reader value.
+   * @param value the reader value.
    * @return a lucene field.
    */
   protected Field createFulltextField(Reader value) {
@@ -868,12 +831,12 @@ public class NodeIndexer {
   }
 
   /**
-   * Returns <code>true</code> if the property with the given name should be indexed.
+   * Returns <code>true</code> if the property with the given name should be
+   * indexed.
    * 
-   * @param propertyName
-   *          name of a property.
-   * @return <code>true</code> if the property should be fulltext indexed; <code>false</code>
-   *         otherwise.
+   * @param propertyName name of a property.
+   * @return <code>true</code> if the property should be fulltext indexed;
+   *         <code>false</code> otherwise.
    */
   protected boolean isIndexed(InternalQName propertyName) {
     if (indexingConfig == null) {
@@ -884,13 +847,12 @@ public class NodeIndexer {
   }
 
   /**
-   * Returns <code>true</code> if the property with the given name should also be added to the node
-   * scope index.
+   * Returns <code>true</code> if the property with the given name should also
+   * be added to the node scope index.
    * 
-   * @param propertyName
-   *          the name of a property.
-   * @return <code>true</code> if it should be added to the node scope index; <code>false</code>
-   *         otherwise.
+   * @param propertyName the name of a property.
+   * @return <code>true</code> if it should be added to the node scope index;
+   *         <code>false</code> otherwise.
    */
   protected boolean isIncludedInNodeIndex(InternalQName propertyName) {
     if (indexingConfig == null) {
@@ -903,8 +865,7 @@ public class NodeIndexer {
   /**
    * Returns the boost value for the given property name.
    * 
-   * @param propertyName
-   *          the name of a property.
+   * @param propertyName the name of a property.
    * @return the boost value for the given property name.
    */
   protected float getPropertyBoost(InternalQName propertyName) {

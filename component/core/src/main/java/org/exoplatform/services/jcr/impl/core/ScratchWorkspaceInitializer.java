@@ -33,7 +33,7 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.config.WorkspaceEntry;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -49,53 +49,56 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
-import org.exoplatform.services.jcr.impl.util.EntityCollection;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>
- * 
- * Default workspace intializer. <br/> Can be configured with root-nodetype and root-permissions
- * parameters. If root-nodetype and root-permissions are empty then <br/> root-nodetype =
- * nt:unstructured <br/> root-permissions = ACL default <br/> values will be applied.
+ * Created by The eXo Platform SAS. <br/> Default workspace intializer. <br/>
+ * Can be configured with root-nodetype and root-permissions parameters. If
+ * root-nodetype and root-permissions are empty then <br/> root-nodetype =
+ * nt:unstructured <br/> root-permissions = ACL default <br/> values will be
+ * applied.
  * 
  * @author Gennady Azarenkov
- * @version $Id: ScratchWorkspaceInitializer.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id: ScratchWorkspaceInitializer.java 13986 2008-05-08 10:48:43Z
+ *          pnedonosko $
  */
 
 public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
 
-  protected static final Log            log = ExoLogger.getLogger("jcr.WorkspaceInitializer");
+  protected static final Log           log = ExoLogger.getLogger("jcr.WorkspaceInitializer");
 
-  private final String                  systemWorkspaceName;
+  private final String                 systemWorkspaceName;
 
-  private final String                  workspaceName;
+  private final String                 workspaceName;
 
-  private final DataManager             dataManager;
+  private final DataManager            dataManager;
 
-  private final String                  accessControlType;
+  private final String                 accessControlType;
 
-  private final NamespaceDataPersister  nsPersister;
+  private final NamespaceDataPersister nsPersister;
 
-  private final ExtendedNodeTypeManager ntRegistry;
+  // private final ExtendedNodeTypeManager ntRegistry;
 
-  private final NodeTypeDataPersister   ntPersister;
+  private final NodeTypeDataPersister  ntPersister;
 
-  private final String                  rootPermissions;
+  private final String                 rootPermissions;
 
-  private final InternalQName           rootNodeType;
+  private final InternalQName          rootNodeType;
+
+  private final NodeTypeDataManager    nodeTypeDataManager;
 
   public ScratchWorkspaceInitializer(WorkspaceEntry config,
                                      RepositoryEntry repConfig,
                                      CacheableWorkspaceDataManager dataManager,
                                      LocationFactory locationFactory,
                                      NamespaceDataPersister nsPersister,
-                                     ExtendedNodeTypeManager ntRegistry,
+                                     NodeTypeDataManager nodeTypeDataManager,
                                      NodeTypeDataPersister ntPersister) throws RepositoryConfigurationException,
       PathNotFoundException,
       RepositoryException {
 
+    this.nodeTypeDataManager = nodeTypeDataManager;
     this.systemWorkspaceName = repConfig.getSystemWorkspaceName();
     this.accessControlType = repConfig.getAccessControl();
     this.workspaceName = config.getName();
@@ -133,16 +136,17 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
       }
     }
 
-    // default behaviour root-nodetype=nt:unstructured, root-permissions will be managed by
+    // default behaviour root-nodetype=nt:unstructured, root-permissions will be
+    // managed by
     // AccessControlList class
     this.rootPermissions = rootPermissions;
-    this.rootNodeType = rootNodeType != null
-        ? locationFactory.parseJCRName(rootNodeType).getInternalName()
-        : Constants.NT_UNSTRUCTURED;
+    this.rootNodeType = rootNodeType != null ? locationFactory.parseJCRName(rootNodeType)
+                                                              .getInternalName()
+                                            : Constants.NT_UNSTRUCTURED;
 
     this.dataManager = dataManager;
     this.nsPersister = nsPersister;
-    this.ntRegistry = ntRegistry;
+    // this.ntRegistry = ntRegistry;
     this.ntPersister = ntPersister;
   }
 
@@ -366,7 +370,7 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
     nsPersister.initStorage(jcrSystem, addACL, NamespaceRegistryImpl.DEF_NAMESPACES);
 
     ntPersister.initNodetypesRoot(jcrSystem, addACL);
-    ntPersister.initStorage(((EntityCollection) ntRegistry.getAllNodeTypes()).getList());
+    ntPersister.initStorage(nodeTypeDataManager.getAllNodeTypes());
 
     return jcrSystem;
   }

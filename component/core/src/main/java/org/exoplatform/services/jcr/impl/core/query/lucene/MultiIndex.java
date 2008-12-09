@@ -47,20 +47,26 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * A <code>MultiIndex</code> consists of a {@link VolatileIndex} and multiple
- * {@link PersistentIndex}es. The goal is to keep most parts of the index open with index readers
- * and write new index data to the volatile index. When the volatile index reaches a certain size
- * (see {@link SearchIndex#setMinMergeDocs(int)}) a new persistent index is created with the index
- * data from the volatile index, the same happens when the volatile index has been idle for some
- * time (see {@link SearchIndex#setVolatileIdleTime(int)}). The new persistent index is then added
- * to the list of already existing persistent indexes. Further operations on the new persistent
- * index will however only require an <code>IndexReader</code> which serves for queries but also for
- * delete operations on the index. <p/> The persistent indexes are merged from time to time. The
- * merge behaviour is configurable using the methods: {@link SearchIndex#setMaxMergeDocs(int)},
- * {@link SearchIndex#setMergeFactor(int)} and {@link SearchIndex#setMinMergeDocs(int)}. For
- * detailed description of the configuration parameters see also the lucene <code>IndexWriter</code>
- * class. <p/> This class is thread-safe. <p/> Note on implementation: Multiple modifying threads
- * are synchronized on a <code>MultiIndex</code> instance itself. Sychronization between a modifying
- * thread and reader threads is done using {@link #updateMonitor} and {@link #updateInProgress}.
+ * {@link PersistentIndex}es. The goal is to keep most parts of the index open
+ * with index readers and write new index data to the volatile index. When the
+ * volatile index reaches a certain size (see
+ * {@link SearchIndex#setMinMergeDocs(int)}) a new persistent index is created
+ * with the index data from the volatile index, the same happens when the
+ * volatile index has been idle for some time (see
+ * {@link SearchIndex#setVolatileIdleTime(int)}). The new persistent index is
+ * then added to the list of already existing persistent indexes. Further
+ * operations on the new persistent index will however only require an
+ * <code>IndexReader</code> which serves for queries but also for delete
+ * operations on the index. <p/> The persistent indexes are merged from time to
+ * time. The merge behaviour is configurable using the methods:
+ * {@link SearchIndex#setMaxMergeDocs(int)},
+ * {@link SearchIndex#setMergeFactor(int)} and
+ * {@link SearchIndex#setMinMergeDocs(int)}. For detailed description of the
+ * configuration parameters see also the lucene <code>IndexWriter</code> class.
+ * <p/> This class is thread-safe. <p/> Note on implementation: Multiple
+ * modifying threads are synchronized on a <code>MultiIndex</code> instance
+ * itself. Sychronization between a modifying thread and reader threads is done
+ * using {@link #updateMonitor} and {@link #updateInProgress}.
  */
 public class MultiIndex {
 
@@ -90,9 +96,10 @@ public class MultiIndex {
   private final IndexInfos            deletable            = new IndexInfos("deletable");
 
   /**
-   * List of open persistent indexes. This list may also contain an open PersistentIndex owned by
-   * the IndexMerger daemon. Such an index is not registered with indexNames and <b>must not</b> be
-   * used in regular index operations (delete node, etc.)!
+   * List of open persistent indexes. This list may also contain an open
+   * PersistentIndex owned by the IndexMerger daemon. Such an index is not
+   * registered with indexNames and <b>must not</b> be used in regular index
+   * operations (delete node, etc.)!
    */
   private final List<PersistentIndex> indexes              = new ArrayList<PersistentIndex>();
 
@@ -122,8 +129,8 @@ public class MultiIndex {
   private boolean                     updateInProgress     = false;
 
   /**
-   * If not <code>null</code> points to a valid <code>IndexReader</code> that reads from all
-   * indexes, including volatile and persistent indexes.
+   * If not <code>null</code> points to a valid <code>IndexReader</code> that
+   * reads from all indexes, including volatile and persistent indexes.
    */
   private CachingMultiIndexReader     multiReader;
 
@@ -133,7 +140,8 @@ public class MultiIndex {
   private final DocNumberCache        cache;
 
   /**
-   * Monitor to use to synchronize access to {@link #multiReader} and {@link #updateInProgress}.
+   * Monitor to use to synchronize access to {@link #multiReader} and
+   * {@link #updateInProgress}.
    */
   private final Object                updateMonitor        = new Object();
 
@@ -158,7 +166,8 @@ public class MultiIndex {
   private static final Timer          FLUSH_TIMER          = new Timer(true);
 
   /**
-   * Task that is periodically called by {@link #FLUSH_TIMER} and checks if index should be flushed.
+   * Task that is periodically called by {@link #FLUSH_TIMER} and checks if
+   * index should be flushed.
    */
   private final TimerTask             flushTask;
 
@@ -201,8 +210,8 @@ public class MultiIndex {
    * 
    * @param indexDir the base file system
    * @param handler the search handler
-   * @param excludedIDs Set&lt;NodeId> that contains uuids that should not be indexed nor further
-   *          traversed.
+   * @param excludedIDs Set&lt;NodeId> that contains uuids that should not be
+   *          indexed nor further traversed.
    * @param mapping the namespace mapping to use
    * @throws IOException if an error occurs
    */
@@ -344,8 +353,8 @@ public class MultiIndex {
   }
 
   /**
-   * Creates an initial index by traversing the node hierarchy starting at the node with
-   * <code>rootId</code>.
+   * Creates an initial index by traversing the node hierarchy starting at the
+   * node with <code>rootId</code>.
    * 
    * @param stateMgr the item state manager.
    * @param rootId the id of the node from where to start.
@@ -379,10 +388,11 @@ public class MultiIndex {
   /**
    * Atomically updates the index by removing some documents and adding others.
    * 
-   * @param remove Iterator of <code>UUID</code>s that identify documents to remove
-   * @param add Iterator of <code>Document</code>s to add. Calls to <code>next()</code> on this
-   *          iterator may return <code>null</code>, to indicate that a node could not be indexed
-   *          successfully.
+   * @param remove Iterator of <code>UUID</code>s that identify documents to
+   *          remove
+   * @param add Iterator of <code>Document</code>s to add. Calls to
+   *          <code>next()</code> on this iterator may return <code>null</code>,
+   *          to indicate that a node could not be indexed successfully.
    */
   synchronized void update(Iterator<String> remove, Iterator<Document> add) throws IOException {
     synchronized (updateMonitor) {
@@ -426,7 +436,8 @@ public class MultiIndex {
    * Adds a document to the index.
    * 
    * @param doc the document to add.
-   * @throws IOException if an error occurs while adding the document to the index.
+   * @throws IOException if an error occurs while adding the document to the
+   *           index.
    */
   void addDocument(Document doc) throws IOException {
     List<Document> add = Arrays.asList(new Document[] { doc });
@@ -489,11 +500,13 @@ public class MultiIndex {
   }
 
   /**
-   * Returns <code>IndexReader</code>s for the indexes named <code>indexNames</code>. An
-   * <code>IndexListener</code> is registered and notified when documents are deleted from one of
-   * the indexes in <code>indexNames</code>. <p/> Note: the number of <code>IndexReaders</code>
-   * returned by this method is not necessarily the same as the number of index names passed. An
-   * index might have been deleted and is not reachable anymore.
+   * Returns <code>IndexReader</code>s for the indexes named
+   * <code>indexNames</code>. An <code>IndexListener</code> is registered and
+   * notified when documents are deleted from one of the indexes in
+   * <code>indexNames</code>. <p/> Note: the number of <code>IndexReaders</code>
+   * returned by this method is not necessarily the same as the number of index
+   * names passed. An index might have been deleted and is not reachable
+   * anymore.
    * 
    * @param indexNames the names of the indexes for which to obtain readers.
    * @param listener the listener to notify when documents are deleted.
@@ -533,8 +546,8 @@ public class MultiIndex {
    * Creates a new Persistent index. The new index is not registered with this
    * <code>MultiIndex</code>.
    * 
-   * @param indexName the name of the index to open, or <code>null</code> if an index with a new
-   *          name should be created.
+   * @param indexName the name of the index to open, or <code>null</code> if an
+   *          index with a new name should be created.
    * @return a new <code>PersistentIndex</code>.
    * @throws IOException if a new index cannot be created.
    */
@@ -572,9 +585,9 @@ public class MultiIndex {
   }
 
   /**
-   * Returns <code>true</code> if this multi index has an index segment with the given name. This
-   * method even returns <code>true</code> if an index segments has not yet been loaded /
-   * initialized but exists on disk.
+   * Returns <code>true</code> if this multi index has an index segment with the
+   * given name. This method even returns <code>true</code> if an index segments
+   * has not yet been loaded / initialized but exists on disk.
    * 
    * @param indexName the name of the index segment.
    * @return <code>true</code> if it exists; otherwise <code>false</code>.
@@ -592,14 +605,15 @@ public class MultiIndex {
   }
 
   /**
-   * Replaces the indexes with names <code>obsoleteIndexes</code> with <code>index</code>. Documents
-   * that must be deleted in <code>index</code> can be identified with <code>Term</code>s in
-   * <code>deleted</code>.
+   * Replaces the indexes with names <code>obsoleteIndexes</code> with
+   * <code>index</code>. Documents that must be deleted in <code>index</code>
+   * can be identified with <code>Term</code>s in <code>deleted</code>.
    * 
    * @param obsoleteIndexes the names of the indexes to replace.
-   * @param index the new index that is the result of a merge of the indexes to replace.
-   * @param deleted <code>Term</code>s that identify documents that must be deleted in
-   *          <code>index</code>.
+   * @param index the new index that is the result of a merge of the indexes to
+   *          replace.
+   * @param deleted <code>Term</code>s that identify documents that must be
+   *          deleted in <code>index</code>.
    * @throws IOException if an exception occurs while replacing the indexes.
    */
   void replaceIndexes(String[] obsoleteIndexes, PersistentIndex index, Collection<Term> deleted) throws IOException {
@@ -659,11 +673,12 @@ public class MultiIndex {
   }
 
   /**
-   * Returns an read-only <code>IndexReader</code> that spans alls indexes of this
-   * <code>MultiIndex</code>.
+   * Returns an read-only <code>IndexReader</code> that spans alls indexes of
+   * this <code>MultiIndex</code>.
    * 
    * @return an <code>IndexReader</code>.
-   * @throws IOException if an error occurs constructing the <code>IndexReader</code>.
+   * @throws IOException if an error occurs constructing the
+   *           <code>IndexReader</code>.
    */
   public CachingMultiIndexReader getIndexReader() throws IOException {
     synchronized (updateMonitor) {
@@ -773,7 +788,8 @@ public class MultiIndex {
    * 
    * @param node the node to index.
    * @return the index document.
-   * @throws RepositoryException if an error occurs while reading from the workspace.
+   * @throws RepositoryException if an error occurs while reading from the
+   *           workspace.
    */
   Document createDocument(NodeData node) throws RepositoryException {
     return handler.createDocument(node, nsMappings, version);
@@ -784,8 +800,8 @@ public class MultiIndex {
    * 
    * @param id the id of the node to index.
    * @return the index document.
-   * @throws RepositoryException if an error occurs while reading from the workspace or if there is
-   *           no node with <code>id</code>.
+   * @throws RepositoryException if an error occurs while reading from the
+   *           workspace or if there is no node with <code>id</code>.
    */
   Document createDocument(String id) throws RepositoryException {
     ItemData data = handler.getContext().getItemStateManager().getItemData(id);
@@ -797,8 +813,8 @@ public class MultiIndex {
   }
 
   /**
-   * Returns <code>true</code> if the redo log contained entries while this index was instantiated;
-   * <code>false</code> otherwise.
+   * Returns <code>true</code> if the redo log contained entries while this
+   * index was instantiated; <code>false</code> otherwise.
    * 
    * @return <code>true</code> if the redo log contained entries.
    */
@@ -807,9 +823,10 @@ public class MultiIndex {
   }
 
   /**
-   * Removes the <code>index</code> from the list of active sub indexes. The Index is not acutally
-   * deleted right away, but postponed to the transaction commit. <p/> This method does not close
-   * the index, but rather expects that the index has already been closed.
+   * Removes the <code>index</code> from the list of active sub indexes. The
+   * Index is not acutally deleted right away, but postponed to the transaction
+   * commit. <p/> This method does not close the index, but rather expects that
+   * the index has already been closed.
    * 
    * @param index the index to delete.
    */
@@ -827,7 +844,8 @@ public class MultiIndex {
   }
 
   /**
-   * Flushes this <code>MultiIndex</code>. Persists all pending changes and resets the redo log.
+   * Flushes this <code>MultiIndex</code>. Persists all pending changes and
+   * resets the redo log.
    * 
    * @throws IOException if the flush fails.
    */
@@ -892,12 +910,13 @@ public class MultiIndex {
   }
 
   /**
-   * Executes action <code>a</code> and appends the action to the redo log if successful.
+   * Executes action <code>a</code> and appends the action to the redo log if
+   * successful.
    * 
    * @param a the <code>Action</code> to execute.
    * @return the executed action.
-   * @throws IOException if an error occurs while executing the action or appending the action to
-   *           the redo log.
+   * @throws IOException if an error occurs while executing the action or
+   *           appending the action to the redo log.
    */
   private Action executeAndLog(Action a) throws IOException {
     a.execute(this);
@@ -918,8 +937,8 @@ public class MultiIndex {
    * Checks if it is needed to commit the volatile index according to
    * {@link SearchIndex#getMinMergeDocs()}.
    * 
-   * @return <code>true</code> if the volatile index has been committed, <code>false</code>
-   *         otherwise.
+   * @return <code>true</code> if the volatile index has been committed,
+   *         <code>false</code> otherwise.
    * @throws IOException if an error occurs while committing the volatile index.
    */
   private boolean checkVolatileCommit() throws IOException {
@@ -931,11 +950,12 @@ public class MultiIndex {
   }
 
   /**
-   * Commits the volatile index to a persistent index. The new persistent index is added to the list
-   * of indexes but not written to disk. When this method returns a new volatile index has been
-   * created.
+   * Commits the volatile index to a persistent index. The new persistent index
+   * is added to the list of indexes but not written to disk. When this method
+   * returns a new volatile index has been created.
    * 
-   * @throws IOException if an error occurs while writing the volatile index to disk.
+   * @throws IOException if an error occurs while writing the volatile index to
+   *           disk.
    */
   private void commitVolatileIndex() throws IOException {
 
@@ -974,6 +994,7 @@ public class MultiIndex {
    */
   private void createIndex(NodeData node, ItemDataConsumer stateMgr) throws IOException,
                                                                     RepositoryException {
+    log.info("Create index for " + node.getQPath().getAsString());
     String id = node.getIdentifier();
 
     executeAndLog(new AddNode(getTransactionId(), id));
@@ -1015,7 +1036,8 @@ public class MultiIndex {
    * Deletes the index <code>directory</code>.
    * 
    * @param directory the index directory to delete.
-   * @return <code>true</code> if the delete was successful, <code>false</code> otherwise.
+   * @return <code>true</code> if the delete was successful, <code>false</code>
+   *         otherwise.
    */
   private boolean deleteIndex(File directory) {
     // trivial if it does not exist anymore
@@ -1053,9 +1075,9 @@ public class MultiIndex {
   }
 
   /**
-   * Checks the duration between the last commit to this index and the current time and flushes the
-   * index (if there are changes at all) if the duration (idle time) is more than
-   * {@link SearchIndex#getVolatileIdleTime()} seconds.
+   * Checks the duration between the last commit to this index and the current
+   * time and flushes the index (if there are changes at all) if the duration
+   * (idle time) is more than {@link SearchIndex#getVolatileIdleTime()} seconds.
    */
   private synchronized void checkFlush() {
     long idleTime = System.currentTimeMillis() - lastFlushTime;
@@ -1088,8 +1110,8 @@ public class MultiIndex {
   }
 
   /**
-   * Checks the indexing queue for finished text extractor jobs and updates the index accordingly if
-   * there are any new ones.
+   * Checks the indexing queue for finished text extractor jobs and updates the
+   * index accordingly if there are any new ones.
    */
   private synchronized void checkIndexingQueue() {
     Document[] docs = indexingQueue.getFinishedDocuments();
@@ -1209,8 +1231,8 @@ public class MultiIndex {
     public static final int TYPE_DELETE_INDEX           = 7;
 
     /**
-     * Transaction identifier for internal actions like volatile index commit triggered by timer
-     * thread.
+     * Transaction identifier for internal actions like volatile index commit
+     * triggered by timer thread.
      */
     static final long       INTERNAL_TRANSACTION        = -1;
 
@@ -1262,14 +1284,15 @@ public class MultiIndex {
      * Executes this action on the <code>index</code>.
      * 
      * @param index the index where to execute the action.
-     * @throws IOException if the action fails due to some I/O error in the index or some other
-     *           error.
+     * @throws IOException if the action fails due to some I/O error in the
+     *           index or some other error.
      */
     public abstract void execute(MultiIndex index) throws IOException;
 
     /**
-     * Executes the inverse operation of this action. That is, does an undo of this action. This
-     * default implementation does nothing, but returns silently.
+     * Executes the inverse operation of this action. That is, does an undo of
+     * this action. This default implementation does nothing, but returns
+     * silently.
      * 
      * @param index the index where to undo the action.
      * @throws IOException if the action cannot be undone.
@@ -1278,8 +1301,8 @@ public class MultiIndex {
     }
 
     /**
-     * Returns a <code>String</code> representation of this action that can be written to the
-     * {@link RedoLog}.
+     * Returns a <code>String</code> representation of this action that can be
+     * written to the {@link RedoLog}.
      * 
      * @return a <code>String</code> representation of this action.
      */
@@ -1351,8 +1374,8 @@ public class MultiIndex {
      * Creates a new AddIndex action.
      * 
      * @param transactionId the id of the transaction that executes this action.
-     * @param indexName the name of the index to add, or <code>null</code> if an index with a new
-     *          name should be created.
+     * @param indexName the name of the index to add, or <code>null</code> if an
+     *          index with a new name should be created.
      */
     AddIndex(long transactionId, String indexName) {
       super(transactionId, Action.TYPE_ADD_INDEX);
@@ -1447,9 +1470,11 @@ public class MultiIndex {
      * Creates a new AddNode action.
      * 
      * @param transactionId the id of the transaction that executes this action.
-     * @param arguments the arguments to this action. The uuid of the node to add
+     * @param arguments the arguments to this action. The uuid of the node to
+     *          add
      * @return the AddNode action.
-     * @throws IllegalArgumentException if the arguments are malformed. Not a UUID.
+     * @throws IllegalArgumentException if the arguments are malformed. Not a
+     *           UUID.
      */
     static AddNode fromString(long transactionId, String arguments) throws IllegalArgumentException {
       // simple length check
@@ -1535,7 +1560,8 @@ public class MultiIndex {
   }
 
   /**
-   * Creates an new sub index but does not add it to the active persistent index list.
+   * Creates an new sub index but does not add it to the active persistent index
+   * list.
    */
   private static class CreateIndex extends Action {
 
@@ -1548,8 +1574,8 @@ public class MultiIndex {
      * Creates a new CreateIndex action.
      * 
      * @param transactionId the id of the transaction that executes this action.
-     * @param indexName the name of the index to add, or <code>null</code> if an index with a new
-     *          name should be created.
+     * @param indexName the name of the index to add, or <code>null</code> if an
+     *          index with a new name should be created.
      */
     CreateIndex(long transactionId, String indexName) {
       super(transactionId, Action.TYPE_CREATE_INDEX);
@@ -1604,8 +1630,8 @@ public class MultiIndex {
     }
 
     /**
-     * Returns the index name that has been created. If this method is called before
-     * {@link #execute(MultiIndex)} it will return <code>null</code>.
+     * Returns the index name that has been created. If this method is called
+     * before {@link #execute(MultiIndex)} it will return <code>null</code>.
      * 
      * @return the name of the index that has been created.
      */
@@ -1712,7 +1738,8 @@ public class MultiIndex {
      * @param transactionId the id of the transaction that executes this action.
      * @param arguments the uuid of the node to delete.
      * @return the DeleteNode action.
-     * @throws IllegalArgumentException if the arguments are malformed. Not a UUID.
+     * @throws IllegalArgumentException if the arguments are malformed. Not a
+     *           UUID.
      */
     static DeleteNode fromString(long transactionId, String arguments) {
       // simple length check

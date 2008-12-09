@@ -32,11 +32,6 @@ import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.nodetype.PropertyDefinition;
 
-import org.jibx.runtime.BindingDirectory;
-import org.jibx.runtime.IBindingFactory;
-import org.jibx.runtime.IUnmarshallingContext;
-import org.jibx.runtime.JiBXException;
-
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
@@ -44,7 +39,6 @@ import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
-import org.exoplatform.services.jcr.core.nodetype.NodeTypeValuesList;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -314,6 +308,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * {@inheritDoc}
    */
   public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
+    throw new UnsupportedOperationException();
 
     // if (nodeType == null) {
     // throw new RepositoryException("NodeType object " + nodeType +
@@ -373,6 +368,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   public void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
                                                                                                 InstantiationException {
 
+    throw new UnsupportedOperationException();
     // registerNodeType((ExtendedNodeType) makeNtFromClass(nodeTypeType),
     // alreadyExistsBehaviour);
   }
@@ -407,27 +403,32 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    */
   public void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
 
-    try {
-      IBindingFactory factory = BindingDirectory.getFactory(NodeTypeValuesList.class);
-      IUnmarshallingContext uctx = factory.createUnmarshallingContext();
-      NodeTypeValuesList nodeTypeValuesList = (NodeTypeValuesList) uctx.unmarshalDocument(xml, null);
-      ArrayList ntvList = nodeTypeValuesList.getNodeTypeValuesList();
-
-      long start = System.currentTimeMillis();
-      for (int i = 0; i < ntvList.size(); i++) {
-        if (ntvList.get(i) != null) {
-          NodeTypeValue nodeTypeValue = (NodeTypeValue) ntvList.get(i);
-          registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
-        } else {
-          // Hm! Smth is wrong in xml document
-          LOG.error("Empty nodeTypeValue in xml document, index: " + i + ", skiping...");
-        }
-      }
-      LOG.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
-          + (System.currentTimeMillis() - start) + " ms.");
-    } catch (JiBXException e) {
-      throw new RepositoryException("Error in config initialization " + e, e);
-    }
+    typesManager.registerNodeTypes(xml, alreadyExistsBehaviour);
+    // try {
+    // IBindingFactory factory =
+    // BindingDirectory.getFactory(NodeTypeValuesList.class);
+    // IUnmarshallingContext uctx = factory.createUnmarshallingContext();
+    // NodeTypeValuesList nodeTypeValuesList = (NodeTypeValuesList)
+    // uctx.unmarshalDocument(xml, null);
+    // ArrayList ntvList = nodeTypeValuesList.getNodeTypeValuesList();
+    //
+    // long start = System.currentTimeMillis();
+    // for (int i = 0; i < ntvList.size(); i++) {
+    // if (ntvList.get(i) != null) {
+    // NodeTypeValue nodeTypeValue = (NodeTypeValue) ntvList.get(i);
+    // registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
+    // } else {
+    // // Hm! Smth is wrong in xml document
+    // LOG.error("Empty nodeTypeValue in xml document, index: " + i +
+    // ", skiping...");
+    // }
+    // }
+    // LOG.info("Nodetypes registered from xml definitions (count: " +
+    // ntvList.size() + "). "
+    // + (System.currentTimeMillis() - start) + " ms.");
+    // } catch (JiBXException e) {
+    // throw new RepositoryException("Error in config initialization " + e, e);
+    // }
   }
 
   private NodeType makeNtFromClass(Class<ExtendedNodeType> nodeTypeType) throws InstantiationException {
@@ -443,51 +444,55 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     }
   }
 
-  private void initDefault() throws RepositoryException {
-    long start = System.currentTimeMillis();
-    try {
-      InputStream xml = NodeTypeManagerImpl.class.getResourceAsStream(NODETYPES_FILE);
-      if (xml != null) {
-        registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-      } else {
-        String msg = "Resource file '" + NODETYPES_FILE
-            + "' with NodeTypes configuration does not found. Can not create node type manager";
-        LOG.error(msg);
-        throw new RepositoryException(msg);
-      }
-    } catch (Exception e) {
-      String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
-          + NODETYPES_FILE + "'. " + e;
-      LOG.error(msg);
-      throw new RepositoryException(msg, e);
-    } finally {
-      LOG.info("Initialization of default nodetypes done. " + (System.currentTimeMillis() - start)
-          + " ms.");
-    }
-  }
+  // private void initDefault() throws RepositoryException {
+  // long start = System.currentTimeMillis();
+  // try {
+  // InputStream xml =
+  // NodeTypeManagerImpl.class.getResourceAsStream(NODETYPES_FILE);
+  // if (xml != null) {
+  // registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+  // } else {
+  // String msg = "Resource file '" + NODETYPES_FILE
+  // +
+  // "' with NodeTypes configuration does not found. Can not create node type manager"
+  // ;
+  // LOG.error(msg);
+  // throw new RepositoryException(msg);
+  // }
+  // } catch (Exception e) {
+  // String msg =
+  // "Error of initialization default types. Resource file with NodeTypes configuration '"
+  // + NODETYPES_FILE + "'. " + e;
+  // LOG.error(msg);
+  // throw new RepositoryException(msg, e);
+  // } finally {
+  // LOG.info("Initialization of default nodetypes done. " +
+  // (System.currentTimeMillis() - start)
+  // + " ms.");
+  // }
+  // }
 
-  public void loadFromStorage() throws RepositoryException {
-
-    // long start = System.currentTimeMillis();
-    //
-    // try {
-    // List<NodeType> rNodeTypes = new ArrayList<NodeType>();
-    // rNodeTypes.addAll(nodeTypes.values());
-    // List<NodeType> loadedNt = persister.loadNodetypes(rNodeTypes, this);
-    // for (NodeType nodeType : loadedNt) {
-    // nodeTypes.put(((ExtendedNodeType) nodeType).getQName(),
-    // (ExtendedNodeType) nodeType);
-    // }
-    // if (loadedNt.size() > 0)
-    // LOG.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
-    // + (System.currentTimeMillis() - start) + " ms");
-    // } catch (PathNotFoundException e) {
-    // LOG.warn(
-    // "NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible"
-    // );
-    // return;
-    // }
-  }
+  // public void loadFromStorage() throws RepositoryException {
+  // long start = System.currentTimeMillis();
+  //
+  // try {
+  // List<NodeType> rNodeTypes = new ArrayList<NodeType>();
+  // rNodeTypes.addAll(nodeTypes.values());
+  // List<NodeType> loadedNt = persister.loadNodetypes(rNodeTypes, this);
+  // for (NodeType nodeType : loadedNt) {
+  // nodeTypes.put(((ExtendedNodeType) nodeType).getQName(), (ExtendedNodeType)
+  // nodeType);
+  // }
+  // if (loadedNt.size() > 0)
+  // LOG.info("NodeTypes (count: " + loadedNt.size() + ") loaded. "
+  // + (System.currentTimeMillis() - start) + " ms");
+  // } catch (PathNotFoundException e) {
+  // LOG.warn(
+  // "NodeTypes storage (/jcr:system/jcr:nodetypes) is not initialized. Only default nodetypes is accessible"
+  // );
+  // return;
+  // }
+  // }
 
   public boolean isNodeType(InternalQName testTypeName, InternalQName[] typeNames) {
 

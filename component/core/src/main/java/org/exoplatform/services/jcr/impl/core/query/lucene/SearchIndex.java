@@ -65,7 +65,8 @@ import org.exoplatform.services.jcr.impl.core.query.QueryHandlerContext;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Implements a {@link org.apache.jackrabbit.core.query.QueryHandler} using Lucene.
+ * Implements a {@link org.apache.jackrabbit.core.query.QueryHandler} using
+ * Lucene.
  */
 public class SearchIndex implements QueryHandler {
 
@@ -85,7 +86,8 @@ public class SearchIndex implements QueryHandler {
   private static final String                  ERROR_LOG                  = "error.log";
 
   /**
-   * Indicates if this <code>SearchIndex</code> is closed and cannot be used anymore.
+   * Indicates if this <code>SearchIndex</code> is closed and cannot be used
+   * anymore.
    */
   private boolean                              closed                     = false;
 
@@ -102,11 +104,12 @@ public class SearchIndex implements QueryHandler {
   private MultiIndex                           index;
 
   /**
-   * Indicates the index format version which is relevant to a <b>query</b>. This value may be
-   * different from what {@link MultiIndex#getIndexFormatVersion()} returns because queries may be
-   * executed on two physical indexes with different formats. Index format versions are considered
-   * backward compatible. That is, the lower version of the two physical indexes is used for
-   * querying.
+   * Indicates the index format version which is relevant to a <b>query</b>.
+   * This value may be different from what
+   * {@link MultiIndex#getIndexFormatVersion()} returns because queries may be
+   * executed on two physical indexes with different formats. Index format
+   * versions are considered backward compatible. That is, the lower version of
+   * the two physical indexes is used for querying.
    */
   private IndexFormatVersion                   indexFormatVersion;
 
@@ -128,7 +131,8 @@ public class SearchIndex implements QueryHandler {
   private final QueryHandlerEntry              queryHandlerConfig;
 
   /**
-   * The spell checker for this query handler or <code>null</code> if none is configured.
+   * The spell checker for this query handler or <code>null</code> if none is
+   * configured.
    */
   private SpellChecker                         spellChecker;
 
@@ -140,8 +144,8 @@ public class SearchIndex implements QueryHandler {
   private File                                 indexDirectory;
 
   /**
-   * The ErrorLog of this <code>MultiIndex</code>. All changes that must be in index but interrupted
-   * by IOException are here.
+   * The ErrorLog of this <code>MultiIndex</code>. All changes that must be in
+   * index but interrupted by IOException are here.
    */
   private ErrorLog                             errorLog;
 
@@ -177,17 +181,20 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Creates a new query by specifying the query statement itself and the language in which the
-   * query is stated. If the query statement is syntactically invalid, given the language specified,
-   * an InvalidQueryException is thrown. <code>language</code> must specify a query language string
-   * from among those returned by QueryManager.getSupportedQueryLanguages(); if it is not then an
+   * Creates a new query by specifying the query statement itself and the
+   * language in which the query is stated. If the query statement is
+   * syntactically invalid, given the language specified, an
+   * InvalidQueryException is thrown. <code>language</code> must specify a query
+   * language string from among those returned by
+   * QueryManager.getSupportedQueryLanguages(); if it is not then an
    * <code>InvalidQueryException</code> is thrown.
    * 
    * @param session the session of the current user creating the query object.
    * @param itemMgr the item manager of the current user.
    * @param statement the query statement.
    * @param language the syntax of the query statement.
-   * @throws InvalidQueryException if statement is invalid or language is unsupported.
+   * @throws InvalidQueryException if statement is invalid or language is
+   *           unsupported.
    * @return A <code>Query</code> object.
    */
   public ExecutableQuery createExecutableQuery(SessionImpl session,
@@ -223,7 +230,8 @@ public class SearchIndex implements QueryHandler {
    * Removes the node with <code>uuid</code> from the search index.
    * 
    * @param id the id of the node to remove from the index.
-   * @throws IOException if an error occurs while removing the node from the index.
+   * @throws IOException if an error occurs while removing the node from the
+   *           index.
    */
   public void deleteNode(String id) throws IOException {
     throw new UnsupportedOperationException("deleteNode");
@@ -250,15 +258,16 @@ public class SearchIndex implements QueryHandler {
   /**
    * Returns the context for this query handler.
    * 
-   * @return the <code>QueryHandlerContext</code> instance for this <code>QueryHandler</code>.
+   * @return the <code>QueryHandlerContext</code> instance for this
+   *         <code>QueryHandler</code>.
    */
   public QueryHandlerContext getContext() {
     return context;
   }
 
   /**
-   * Returns the index format version that this search index is able to support when a query is
-   * executed on this index.
+   * Returns the index format version that this search index is able to support
+   * when a query is executed on this index.
    * 
    * @return the index format version for this search index.
    */
@@ -287,8 +296,8 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Returns an index reader for this search index. The caller of this method is responsible for
-   * closing the index reader when he is finished using it.
+   * Returns an index reader for this search index. The caller of this method is
+   * responsible for closing the index reader when he is finished using it.
    * 
    * @return an index reader for this search index.
    * @throws IOException the index reader cannot be obtained.
@@ -300,12 +309,12 @@ public class SearchIndex implements QueryHandler {
   // --------------------------< properties >----------------------------------
 
   /**
-   * Returns an index reader for this search index. The caller of this method is responsible for
-   * closing the index reader when he is finished using it.
+   * Returns an index reader for this search index. The caller of this method is
+   * responsible for closing the index reader when he is finished using it.
    * 
-   * @param includeSystemIndex if <code>true</code> the index reader will cover the complete
-   *          workspace. If <code>false</code> the returned index reader will not contains any nodes
-   *          under /jcr:system.
+   * @param includeSystemIndex if <code>true</code> the index reader will cover
+   *          the complete workspace. If <code>false</code> the returned index
+   *          reader will not contains any nodes under /jcr:system.
    * @return an index reader for this search index.
    * @throws IOException the index reader cannot be obtained.
    */
@@ -335,16 +344,17 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * @return the spell checker of this search index. If none is configured this method returns
-   *         <code>null</code>.
+   * @return the spell checker of this search index. If none is configured this
+   *         method returns <code>null</code>.
    */
   public SpellChecker getSpellChecker() {
     return spellChecker;
   }
 
   /**
-   * @return the synonym provider of this search index. If none is set for this search index the
-   *         synonym provider of the parent handler is returned if there is any.
+   * @return the synonym provider of this search index. If none is set for this
+   *         search index the synonym provider of the parent handler is returned
+   *         if there is any.
    */
   public SynonymProvider getSynonymProvider() {
     if (synProvider != null) {
@@ -367,8 +377,8 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Initializes this query handler by setting all properties in this class with appropriate
-   * parameter values.
+   * Initializes this query handler by setting all properties in this class with
+   * appropriate parameter values.
    * 
    * @param context the context for this query handler.
    */
@@ -377,9 +387,9 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Initializes this <code>QueryHandler</code>. This implementation requires that a path parameter
-   * is set in the configuration. If this condition is not met, a <code>IOException</code> is
-   * thrown.
+   * Initializes this <code>QueryHandler</code>. This implementation requires
+   * that a path parameter is set in the configuration. If this condition is not
+   * met, a <code>IOException</code> is thrown.
    * 
    * @throws IOException if an error occurs while initializing this handler.
    */
@@ -529,7 +539,8 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Closes this <code>QueryHandler</code> and frees resources attached to this handler.
+   * Closes this <code>QueryHandler</code> and frees resources attached to this
+   * handler.
    */
   public void close() {
     if (spellChecker != null) {
@@ -544,12 +555,13 @@ public class SearchIndex implements QueryHandler {
 
   /**
    * This implementation forwards the call to
-   * {@link MultiIndex#update(java.util.Iterator, java.util.Iterator)} and transforms the two
-   * iterators to the required types.
+   * {@link MultiIndex#update(java.util.Iterator, java.util.Iterator)} and
+   * transforms the two iterators to the required types.
    * 
    * @param remove uuids of nodes to remove.
-   * @param add NodeStates to add. Calls to <code>next()</code> on this iterator may return
-   *          <code>null</code>, to indicate that a node could not be indexed successfully.
+   * @param add NodeStates to add. Calls to <code>next()</code> on this iterator
+   *          may return <code>null</code>, to indicate that a node could not be
+   *          indexed successfully.
    * @throws RepositoryException if an error occurs while indexing a node.
    * @throws IOException if an error occurs while updating the index.
    */
@@ -582,7 +594,8 @@ public class SearchIndex implements QueryHandler {
           retrieveAggregateRoot(state, aggregateRoots);
         } catch (RepositoryException e) {
           log.warn("Exception while creating document for node: " + state.getIdentifier() + ": "
-              + e.toString());
+              + e.toString(), e);
+
         }
         return doc;
       }
@@ -618,15 +631,17 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Creates a lucene <code>Document</code> for a node state using the namespace mappings
-   * <code>nsMappings</code>.
+   * Creates a lucene <code>Document</code> for a node state using the namespace
+   * mappings <code>nsMappings</code>.
    * 
    * @param node the node state to index.
    * @param nsMappings the namespace mappings of the search index.
-   * @param indexFormatVersion the index format version that should be used to index the passed node
-   *          state.
-   * @return a lucene <code>Document</code> that contains all properties of <code>node</code>.
-   * @throws RepositoryException if an error occurs while indexing the <code>node</code>.
+   * @param indexFormatVersion the index format version that should be used to
+   *          index the passed node state.
+   * @return a lucene <code>Document</code> that contains all properties of
+   *         <code>node</code>.
+   * @throws RepositoryException if an error occurs while indexing the
+   *           <code>node</code>.
    */
   protected Document createDocument(NodeData node,
                                     NamespaceMappings nsMappings,
@@ -685,15 +700,16 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * This method returns the QueryNodeFactory used to parse Queries. This method may be overridden
-   * to provide a customized QueryNodeFactory
+   * This method returns the QueryNodeFactory used to parse Queries. This method
+   * may be overridden to provide a customized QueryNodeFactory
    */
   protected DefaultQueryNodeFactory getQueryNodeFactory() {
     return DEFAULT_QUERY_NODE_FACTORY;
   }
 
   /**
-   * Merges the fulltext indexed fields of the aggregated node states into <code>doc</code>.
+   * Merges the fulltext indexed fields of the aggregated node states into
+   * <code>doc</code>.
    * 
    * @param state the node state on which <code>doc</code> was created.
    * @param doc the lucene document with index fields from <code>state</code>.
@@ -738,11 +754,13 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Retrieves the root of the indexing aggregate for <code>state</code> and puts it into
-   * <code>map</code>.
+   * Retrieves the root of the indexing aggregate for <code>state</code> and
+   * puts it into <code>map</code>.
    * 
-   * @param state the node state for which we want to retrieve the aggregate root.
-   * @param map aggregate roots are collected in this map. Key=NodeId, value=NodeState.
+   * @param state the node state for which we want to retrieve the aggregate
+   *          root.
+   * @param map aggregate roots are collected in this map. Key=NodeId,
+   *          value=NodeState.
    */
   protected void retrieveAggregateRoot(NodeData state, Map<String, NodeData> map) {
     if (indexingConfig != null) {
@@ -765,11 +783,12 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Retrieves the root of the indexing aggregate for <code>removedNodeIds</code> and puts it into
-   * <code>map</code>.
+   * Retrieves the root of the indexing aggregate for
+   * <code>removedNodeIds</code> and puts it into <code>map</code>.
    * 
    * @param removedNodeIds the ids of removed nodes.
-   * @param map aggregate roots are collected in this map. Key=NodeId, value=NodeState.
+   * @param map aggregate roots are collected in this map. Key=NodeId,
+   *          value=NodeState.
    */
   protected void retrieveAggregateRoot(Set<String> removedNodeIds, Map<String, NodeData> map) {
     if (indexingConfig != null) {
@@ -818,7 +837,8 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Checks if this <code>SearchIndex</code> is open, otherwise throws an <code>IOException</code>.
+   * Checks if this <code>SearchIndex</code> is open, otherwise throws an
+   * <code>IOException</code>.
    * 
    * @throws IOException if this <code>SearchIndex</code> had been closed.
    */
@@ -829,8 +849,8 @@ public class SearchIndex implements QueryHandler {
   }
 
   /**
-   * Combines multiple {@link CachingMultiIndexReader} into a <code>MultiReader</code> with
-   * {@link HierarchyResolver} support.
+   * Combines multiple {@link CachingMultiIndexReader} into a
+   * <code>MultiReader</code> with {@link HierarchyResolver} support.
    */
   protected static final class CombinedIndexReader extends MultiReader implements
       HierarchyResolver, MultiIndexReader {
@@ -926,8 +946,8 @@ public class SearchIndex implements QueryHandler {
     }
 
     /**
-     * Returns the reader index for document <code>n</code>. Implementation copied from lucene
-     * MultiReader class.
+     * Returns the reader index for document <code>n</code>. Implementation
+     * copied from lucene MultiReader class.
      * 
      * @param n document number.
      * @return the reader index.

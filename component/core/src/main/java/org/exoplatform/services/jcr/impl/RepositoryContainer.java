@@ -467,11 +467,17 @@ public class RepositoryContainer extends ExoContainer {
    */
   private void load() throws RepositoryException {
     NamespaceRegistryImpl nsRegistry = (NamespaceRegistryImpl) getNamespaceRegistry();
-    NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) getNodeTypeManager();
+    // NodeTypeDataPersister ntManager = (NodeTypeDataPersister)
+    // getComponentInstanceOfType(NodeTypeDataPersister.class);
+    //
+    // NodeTypeDataManager nodeTypeDataManager = (NodeTypeDataManager)
+    // getComponentInstanceOfType(NodeTypeDataManager.class);
+
+    NodeTypeDataPersister nodeTypeDataPersister = (NodeTypeDataPersister) getComponentInstanceOfType(NodeTypeDataPersister.class);
 
     // Load from persistence
     nsRegistry.loadFromStorage();
-    ntManager.loadFromStorage();
+    nodeTypeDataPersister.loadFromStorage();
   }
 
   /**
