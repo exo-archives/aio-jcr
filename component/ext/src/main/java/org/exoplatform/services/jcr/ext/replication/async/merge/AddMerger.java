@@ -80,6 +80,7 @@ public class AddMerger implements ChangesMerger {
             }
             break;
           case ItemState.RENAMED:
+            // TODO is same node
             resultState.add(localState);
             itemChangeProcessed = true;
             break;
