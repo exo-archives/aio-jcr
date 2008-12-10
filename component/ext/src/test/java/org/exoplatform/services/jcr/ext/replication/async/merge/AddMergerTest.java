@@ -19,6 +19,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
@@ -32,6 +34,7 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SAS.
@@ -53,6 +56,10 @@ public class AddMergerTest extends TestCase {
 
   protected ItemData            data3;
 
+  protected ItemData            data11;
+
+  protected ItemData            data12;
+
   /**
    * {@inheritDoc}
    */
@@ -60,39 +67,59 @@ public class AddMergerTest extends TestCase {
     super.setUp();
 
     // create itemData
-    QPath path1 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null, "testItem1"));
-    QPath path2 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null, "testItem2"));
-    QPath path3 = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null, "testItem3"));
+    data1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                      new InternalQName(null, "testItem1")),
+                                  IdGenerator.generate(),
+                                  0,
+                                  new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                  new InternalQName[0],
+                                  0,
+                                  Constants.ROOT_UUID,
+                                  new AccessControlList());
+    data11 = new TransientNodeData(QPath.makeChildPath(data1.getQPath(),
+                                                       new InternalQName(null, "item11")),
+                                   IdGenerator.generate(),
+                                   0,
+                                   new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                   new InternalQName[0],
+                                   0,
+                                   data1.getIdentifier(),
+                                   new AccessControlList());
+    data12 = new TransientNodeData(QPath.makeChildPath(data1.getQPath(),
+                                                       new InternalQName(null, "item12")),
+                                   IdGenerator.generate(),
+                                   0,
+                                   new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                   new InternalQName[0],
+                                   1,
+                                   data1.getIdentifier(),
+                                   new AccessControlList());
 
-    ItemData data1 = new TransientNodeData(path1,
-                                           "1",
-                                           0,
-                                           new InternalQName(Constants.NS_NT_URI, "unstructured"),
-                                           new InternalQName[0],
-                                           0,
-                                           Constants.ROOT_UUID,
-                                           new AccessControlList());
-    ItemData data2 = new TransientNodeData(path2,
-                                           "2",
-                                           0,
-                                           new InternalQName(Constants.NS_NT_URI, "unstructured"),
-                                           new InternalQName[0],
-                                           0,
-                                           Constants.ROOT_UUID,
-                                           new AccessControlList());
-    ItemData data3 = new TransientNodeData(path3,
-                                           "2",
-                                           0,
-                                           new InternalQName(Constants.NS_NT_URI, "unstructured"),
-                                           new InternalQName[0],
-                                           0,
-                                           Constants.ROOT_UUID,
-                                           new AccessControlList());
+    final String conflictName = "testItem2";
+    data2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                      new InternalQName(null, conflictName)),
+                                  IdGenerator.generate(),
+                                  0,
+                                  new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                  new InternalQName[0],
+                                  1,
+                                  Constants.ROOT_UUID,
+                                  new AccessControlList());
+
+    data3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                      new InternalQName(null, "testItem3")),
+                                  IdGenerator.generate(),
+                                  0,
+                                  new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                  new InternalQName[0],
+                                  2,
+                                  Constants.ROOT_UUID,
+                                  new AccessControlList());
 
     // create itemState
-    QPath path = QPath.makeChildPath(Constants.ROOT_PATH, new InternalQName(null, "testItem1"));
-    ItemData data = new TransientNodeData(path,
-                                          "1",
+    ItemData data = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                              new InternalQName(null, conflictName)),
+                                          IdGenerator.generate(),
                                           0,
                                           new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                           new InternalQName[0],
@@ -111,6 +138,46 @@ public class AddMergerTest extends TestCase {
    */
   protected void tearDown() throws Exception {
     super.tearDown();
+  }
+
+  private ItemState findSate(List<ItemState> changes, QPath path) {
+    for (ItemState st : changes) {
+      if (st.getData().getQPath().equals(path))
+        return st;
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Add remote Node add without local changes. Add node should be returned by the merger.
+   * 
+   */
+  public void testAddNodeNoLocalChanges() {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    // ADD NODE
+    localLog.add(new ItemState(data1, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data11, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data12, ItemState.ADDED, false, null));
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    remoteLog.add(new ItemState(data2, ItemState.ADDED, false, null));
+
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true);
+    List<ItemState> result = addMerger.merge(itemChange, income, local);
+    
+    ItemState add = findSate(result, itemChange.getData().getQPath());
+    assertNotNull("Add state expected " + itemChange.getData().getQPath().getAsString(), add);
+    
+    assertNotNull("Add state expected " + data1.getQPath().getAsString(), data1.getQPath());
+    
+    assertNotNull("Add state expected " + data11.getQPath().getAsString(), data11.getQPath());
+    
+    assertNotNull("Add state expected " + data12.getQPath().getAsString(), data12.getQPath());
   }
 
   /**
