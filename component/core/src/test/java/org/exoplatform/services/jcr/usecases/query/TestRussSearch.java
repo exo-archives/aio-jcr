@@ -18,6 +18,8 @@
 package org.exoplatform.services.jcr.usecases.query;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
 
@@ -42,8 +44,11 @@ public class TestRussSearch extends BaseUsecasesTest {
     
   public void testQuery() throws Exception {
     
-    InputStream is = TestI18NSQLQuery.class.getResourceAsStream("russ.txt");
-    
+    File file = new File("src/test/resources/russ.txt");
+    assertTrue("/test/resources/ArabicUTF8.txt not found", file.exists());
+
+    FileInputStream is = new FileInputStream(file);
+
     //Create nodes
     Session session = repository.getSystemSession(repository.getSystemWorkspaceName());
     
