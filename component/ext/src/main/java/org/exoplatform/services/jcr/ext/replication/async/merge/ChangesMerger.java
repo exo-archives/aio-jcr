@@ -32,6 +32,13 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 public interface ChangesMerger {
 
   /**
+   * Tell if local changes has high priority.
+   *
+   * @return boolean
+   */
+  boolean isLocalPriority();
+  
+  /**
    * 
    * Merge income changes with local and return result log.
    * 

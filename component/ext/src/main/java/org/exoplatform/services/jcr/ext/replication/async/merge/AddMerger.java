@@ -34,6 +34,19 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  */
 public class AddMerger implements ChangesMerger {
 
+  protected final boolean localPriority;
+  
+  public AddMerger(boolean localPriority) {
+    this.localPriority = localPriority;
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public boolean isLocalPriority() {
+    return localPriority;
+  }
+
   /**
    * {@inheritDoc}
    */
