@@ -14,9 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.merge;
+package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 
 /**
  * Created by The eXo Platform SAS.
@@ -26,16 +27,16 @@ import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface ChangesMerger {
+public class MergeDataManager {
 
-  /**
-   * 
-   * Merge income changes with local and return result log.
-   *
-   * @param income CompositeChangesLog with income changes
-   * @param local CompositeChangesLog with local changes
-   * @return CompositeChangesLog with resulting changes
-   */
-  CompositeChangesLog merge(CompositeChangesLog income, CompositeChangesLog local); 
+  protected final DataManager dataManager;
+  
+  public MergeDataManager(DataManager dataManager) {
+    this.dataManager = dataManager;
+  }
+  
+  public void onSynchronization(CompositeChangesLog income) {
+    
+  }
   
 }

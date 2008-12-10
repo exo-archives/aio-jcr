@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -14,9 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.merge;
-
-import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
+package org.exoplatform.services.jcr.ext.replication.async;
 
 /**
  * Created by The eXo Platform SAS.
@@ -26,16 +27,6 @@ import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface ChangesMerger {
+public class AsyncReplication {
 
-  /**
-   * 
-   * Merge income changes with local and return result log.
-   *
-   * @param income CompositeChangesLog with income changes
-   * @param local CompositeChangesLog with local changes
-   * @return CompositeChangesLog with resulting changes
-   */
-  CompositeChangesLog merge(CompositeChangesLog income, CompositeChangesLog local); 
-  
 }
