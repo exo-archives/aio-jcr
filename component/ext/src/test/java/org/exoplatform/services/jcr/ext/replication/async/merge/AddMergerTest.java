@@ -207,8 +207,8 @@ public class AddMergerTest extends TestCase {
     AddMerger addMerger = new AddMerger(true);
     List<ItemState> result = addMerger.merge(itemChange, income, local);
 
-    assertNotNull("Add state expected " + remoteItem2.getQPath().getAsString(),
-                  findState(result, remoteItem2.getQPath()));
+    assertTrue("Add state expected " + remoteItem2.getQPath().getAsString(),
+                  findState(result, remoteItem2.getQPath()) == itemChange);
 
     assertNotNull("Add state expected " + localItem1.getQPath().getAsString(),
                   findState(result, localItem1.getQPath()));
