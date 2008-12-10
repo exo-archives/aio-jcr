@@ -56,67 +56,44 @@ public class AddMerger implements ChangesMerger {
   public List<ItemState> merge(ItemState itemChange,
                                CompositeChangesLog income,
                                CompositeChangesLog local) {
+
     // TODO Auto-generated method stub
 
     List<ItemState> resultState = new ArrayList<ItemState>();
-    boolean itemProcessed = false;
+    boolean itemChangeProcessed = false;
 
     // iterate all logs
     for (ChangesLogIterator localLogIterator = local.getLogIterator(); localLogIterator.hasNextLog();) {
       PlainChangesLog localLog = localLogIterator.nextLog();
       for (ItemState localState : localLog.getAllStates()) {
 
-        // is same parent?
-        if (itemChange.getAncestorToSave().equals(localState.getAncestorToSave())) {
-          // TODO where is property?
-          if (itemProcessed) {
-            if (isLocalPriority()) {
-              switch (localState.getState()) {
-              case ItemState.ADDED:
-                resultState.add(itemChange);
-                break;
-              case ItemState.DELETED:
-                if (localState.getData().isNode()) {
-                  resultState.add(localState);
-                } else {
-                  resultState.add(itemChange);
-                }
-                break;
-              case ItemState.UPDATED:
-                break;
-              case ItemState.RENAMED:
-                break;
-              case ItemState.MIXIN_CHANGED:
-                break;
-              default:
-                // TODO Exception or ignore?
-              }
-            } else {
-              switch (localState.getState()) {
-              case ItemState.ADDED:
-                break;
-              case ItemState.DELETED:
-                break;
-              case ItemState.UPDATED:
-                break;
-              case ItemState.RENAMED:
-                break;
-              case ItemState.MIXIN_CHANGED:
-                break;
-              default:
-                // TODO Exception or ignore?
-              }
-              itemProcessed = true;
-            }
-          } else {
+        if (isLocalPriority()) {
+          switch (localState.getState()) {
+          case ItemState.ADDED:
             resultState.add(localState);
+            if (itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
+              itemChangeProcessed = true;
+            }
+            break;
+          }
+
+        } else { // remote priority
+          switch (localState.getState()) {
+          case ItemState.ADDED:
+            if (!itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
+              resultState.add(localState);
+            } else {
+              resultState.add(itemChange);
+              itemChangeProcessed = true;
+            }
+            break;
           }
         }
       }
     }
 
-    // add item if not added
-    if (!itemProcessed) {
+    // add item if can and not added
+    if (!itemChangeProcessed) {
       resultState.add(itemChange);
     }
 
