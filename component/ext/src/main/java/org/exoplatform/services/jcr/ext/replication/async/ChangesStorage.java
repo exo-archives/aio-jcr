@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -17,10 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.merge;
+package org.exoplatform.services.jcr.ext.replication.async;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
-import org.exoplatform.services.jcr.dataflow.ItemState;
 
 /**
  * Created by The eXo Platform SAS.
@@ -30,14 +30,36 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class AddMerger implements ChangesMerger {
+public abstract class ChangesStorage<T extends CompositeChangesLog> implements Iterable<T> {
+
+  private final List<T> storage;
+  
+  protected ChangesStorage() {
+    this.storage = new ArrayList<T>();
+  }
+  
+  /**
+   * Add changes to a storage.
+   *
+   * @param changes CompositeChangesLog
+   */
+  public void add(T changes) {
+    this.storage.add(changes);
+  }
 
   /**
    * {@inheritDoc}
    */
-  public CompositeChangesLog merge(ItemState itemChange, CompositeChangesLog income, CompositeChangesLog local) {
-    // TODO Auto-generated method stub
-    return null;
+  public Iterator<T> iterator() {
+    return this.storage.iterator();
   }
-
+    
+  /**
+   * Clear storage.
+   *
+   */
+  public void clear() {
+    this.storage.clear();
+  }
+  
 }

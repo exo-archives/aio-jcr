@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 
 /**
  * Created by The eXo Platform SAS.
@@ -31,11 +32,12 @@ public interface ChangesMerger {
   /**
    * 
    * Merge income changes with local and return result log.
-   *
+   * @param itemChange TODO
    * @param income CompositeChangesLog with income changes
    * @param local CompositeChangesLog with local changes
+   *
    * @return CompositeChangesLog with resulting changes
    */
-  CompositeChangesLog merge(CompositeChangesLog income, CompositeChangesLog local); 
+  CompositeChangesLog merge(ItemState itemChange, CompositeChangesLog income, CompositeChangesLog local); 
   
 }
