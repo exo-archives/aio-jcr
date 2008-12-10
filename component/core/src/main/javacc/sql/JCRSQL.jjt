@@ -73,7 +73,7 @@ public class JCRSQLParser {
   }
 //  void setNamespaceResolver(NamespaceResolver resolver) {
 //        this.resolver = resolver;
-//  }
+//  } 
 
 }
 
@@ -206,7 +206,7 @@ TOKEN:
 | < REGULAR_IDENTIFIER: <IDENTIFIER_BODY> >
 | < #IDENTIFIER_BODY: <IDENTIFIER_START> (<UNDERSCORE> | <COLON> | <IDENTIFIER_PART>)* >
 | < #IDENTIFIER_START: <LETTER> > // syntax rules 5.2
-| < #IDENTIFIER_PART: <IDENTIFIER_START> | <DIGIT> >
+| < #IDENTIFIER_PART: <IDENTIFIER_START> | <DIGIT> | <MINUS_SIGN> >
 
 | < DELIMITED_IDENTIFIER: <DOUBLE_QUOTE> <DELIMITED_IDENTIFIER_BODY> <DOUBLE_QUOTE> >
 | < #DELIMITED_IDENTIFIER_BODY: (<DELIMITED_IDENTIFIER_PART>)+ >
