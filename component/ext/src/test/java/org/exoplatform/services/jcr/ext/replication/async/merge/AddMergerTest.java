@@ -145,10 +145,10 @@ public class AddMergerTest extends TestCase {
       if (st.getData().getQPath().equals(path))
         return st;
     }
-    
+
     return null;
   }
-  
+
   /**
    * Add remote Node add without local changes. Add node should be returned by the merger.
    * 
@@ -169,14 +169,18 @@ public class AddMergerTest extends TestCase {
 
     AddMerger addMerger = new AddMerger(true);
     List<ItemState> result = addMerger.merge(itemChange, income, local);
-    
-    assertNotNull("Add state expected " + itemChange.getData().getQPath().getAsString(), findSate(result, itemChange.getData().getQPath()));
-    
-    assertNotNull("Add state expected " + data1.getQPath().getAsString(), findSate(result, data1.getQPath()));
-    
-    assertNotNull("Add state expected " + data11.getQPath().getAsString(), findSate(result, data11.getQPath()));
-    
-    assertNotNull("Add state expected " + data12.getQPath().getAsString(), findSate(result, data12.getQPath()));
+
+    assertNotNull("Add state expected " + itemChange.getData().getQPath().getAsString(),
+                  findSate(result, itemChange.getData().getQPath()));
+
+    assertNotNull("Add state expected " + data1.getQPath().getAsString(),
+                  findSate(result, data1.getQPath()));
+
+    assertNotNull("Add state expected " + data11.getQPath().getAsString(),
+                  findSate(result, data11.getQPath()));
+
+    assertNotNull("Add state expected " + data12.getQPath().getAsString(),
+                  findSate(result, data12.getQPath()));
   }
 
   /**
@@ -206,8 +210,6 @@ public class AddMergerTest extends TestCase {
    * .
    */
   public void testMergeAddNodeRemotePriority() {
-
-    
 
     AddMerger addMerger = new AddMerger(false);
     addMerger.merge(itemChange, income, local);
