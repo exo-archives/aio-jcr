@@ -46,6 +46,7 @@ import org.xml.sax.SAXException;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.container.component.ComponentPlugin;
+import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.services.jcr.RepositoryService;
@@ -56,8 +57,7 @@ import org.exoplatform.services.jcr.ext.registry.RegistryService;
 import org.exoplatform.services.jcr.ext.resource.UnifiedNodeReference;
 import org.exoplatform.services.jcr.ext.resource.jcr.Handler;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.impl.ResourceBinder;
-//import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.rest.impl.ResourceBinder; //import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.script.groovy.GroovyScriptInstantiator;
 
 /**
@@ -109,6 +109,11 @@ public class GroovyScript2RestLoader implements Startable {
   private RepositoryService                repositoryService;
 
   /**
+   * See {@link ConfigurationManager}.
+   */
+  private ConfigurationManager             configurationManager;
+
+  /**
    * See {@link RegistryService}.
    */
   private RegistryService                  registryService;
@@ -132,14 +137,22 @@ public class GroovyScript2RestLoader implements Startable {
                                  GroovyScriptInstantiator groovyScriptInstantiator,
                                  Handler handler,
                                  RepositoryService repositoryService,
+                                 ConfigurationManager configurationManager,
                                  InitParams params) {
-    this(binder, groovyScriptInstantiator, handler, repositoryService, null, params);
+    this(binder,
+         groovyScriptInstantiator,
+         handler,
+         repositoryService,
+         configurationManager,
+         null,
+         params);
   }
 
   public GroovyScript2RestLoader(ResourceBinder binder,
                                  GroovyScriptInstantiator groovyScriptInstantiator,
                                  Handler handler,
                                  RepositoryService repositoryService,
+                                 ConfigurationManager configurationManager,
                                  RegistryService registryService,
                                  InitParams params) {
 
@@ -147,6 +160,7 @@ public class GroovyScript2RestLoader implements Startable {
     this.groovyScriptInstantiator = groovyScriptInstantiator;
     this.repositoryService = repositoryService;
     this.handler = handler;
+    this.configurationManager = configurationManager;
 
     this.registryService = registryService;
     this.initParams = params;
@@ -207,12 +221,10 @@ public class GroovyScript2RestLoader implements Startable {
    * @throws IOException it script can't be loaded.
    */
   public void loadScript(URL url) throws IOException {
-
-//    ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(url);
     Object resource = groovyScriptInstantiator.instantiateScript(url);
-    if (binder.bind(/*resourceContainer*/resource)) {
+    if (binder.bind(resource)) {
       // add mapping script URL to name of class.
-      scriptsURL2ClassMap.put(url.toString(), /*resourceContainer*/resource.getClass());
+      scriptsURL2ClassMap.put(url.toString(), resource.getClass());
       LOG.info("Add new groovy scripts, URL: " + url);
     } else {
       LOG.warn("Groovy script was not binded, URL: " + url);
@@ -231,11 +243,10 @@ public class GroovyScript2RestLoader implements Startable {
    * @see ResourceBinder#bind(ResourceContainer)
    */
   public void loadScript(String key, InputStream stream) throws IOException {
-//    ResourceContainer resourceContainer = (ResourceContainer) groovyScriptInstantiator.instantiateScript(stream);
     Object resource = groovyScriptInstantiator.instantiateScript(stream);
-    if (binder.bind(/*resourceContainer*/resource)) {
+    if (binder.bind(resource)) {
       // add mapping script URL to name of class.
-      scriptsURL2ClassMap.put(key, /*resourceContainer*/resource.getClass());
+      scriptsURL2ClassMap.put(key, resource.getClass());
       LOG.info("Add new groovy scripts, script key: " + key);
     } else {
       LOG.warn("Groovy script was not binded, key: " + key);
@@ -389,7 +400,7 @@ public class GroovyScript2RestLoader implements Startable {
         script.setProperty("exo:load", false);
         script.setProperty("jcr:mimeType", "script/groovy");
         script.setProperty("jcr:lastModified", Calendar.getInstance());
-        script.setProperty("jcr:data", xg.getPath().openStream());
+        script.setProperty("jcr:data", configurationManager.getInputStream(xg.getPath()));
       }
       session.save();
     } catch (Exception e) {

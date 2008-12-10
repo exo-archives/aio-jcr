@@ -63,30 +63,15 @@ public class GroovyScriptService implements ResourceContainer {
    */
   private final RepositoryService                 repositoryService;
 
-  // /**
-  // * Repository name.
-  // */
-  // private final String repository;
-  //
-  // /**
-  // * Workspace name.
-  // */
-  // private final String workspace;
-  //
   /**
    * @param sessionProviderService See {@link ThreadLocalSessionProviderService}
    * @param repositoryService See {@link RepositoryService}
    * @param params See {@link InitParams}
    */
   public GroovyScriptService(ThreadLocalSessionProviderService sessionProviderService,
-                             RepositoryService repositoryService,
-                             InitParams params) {
+                             RepositoryService repositoryService) {
     this.sessionProviderService = sessionProviderService;
     this.repositoryService = repositoryService;
-    // repository =
-    // params.getPropertiesParam("workspace.config").getProperty("repository");
-    // workspace =
-    // params.getPropertiesParam("workspace.config").getProperty("workspace");
   }
 
   /**
@@ -115,7 +100,7 @@ public class GroovyScriptService implements ResourceContainer {
                                   .getSession(workspace,
                                               repositoryService.getRepository(repository));
       Node node = (Node) ses.getItem(getPath(path));
-      createScript(node, getName(path), stream);
+      createScript(node, getName(path), false, false, stream);
       ses.save();
       URI location = uriInfo.getBaseUriBuilder().path(getClass(), "getScript").build(repository,
                                                                                      workspace,
@@ -197,7 +182,21 @@ public class GroovyScriptService implements ResourceContainer {
                                   .getSession(workspace,
                                               repositoryService.getRepository(repository));
       Node node = (Node) ses.getItem(getPath(path));
-      createScript(node, getName(path), items.next().getInputStream());
+      InputStream stream = null;
+      boolean autoload = false;
+      boolean load = false;
+      while (items.hasNext()) {
+        FileItem fitem = items.next();
+        if (fitem.isFormField() && fitem.getFieldName() != null) {
+          if (fitem.getFieldName().equalsIgnoreCase("autoload"))
+            autoload = Boolean.valueOf(fitem.getString());
+          else if (fitem.getFieldName().equalsIgnoreCase("load"))
+            load = Boolean.valueOf(fitem.getString());
+        } else
+          stream = fitem.getInputStream();
+      }
+
+      createScript(node, getName(path), autoload, load, stream);
       ses.save();
       URI location = uriInfo.getBaseUriBuilder().path(getClass(), "getScript").build(repository,
                                                                                      workspace,
@@ -445,11 +444,15 @@ public class GroovyScriptService implements ResourceContainer {
    * @return newly created node
    * @throws Exception if any errors occurs
    */
-  private static Node createScript(Node node, String name, InputStream stream) throws Exception {
+  private static Node createScript(Node node,
+                                   String name,
+                                   boolean autoload,
+                                   boolean load,
+                                   InputStream stream) throws Exception {
     Node scriptFile = node.addNode(name, "nt:file");
     Node script = scriptFile.addNode("jcr:content", GroovyScript2RestLoader.DEFAULT_NODETYPE);
-    script.setProperty("exo:autoload", false);
-    script.setProperty("exo:load", false);
+    script.setProperty("exo:autoload", autoload);
+    script.setProperty("exo:load", load);
     script.setProperty("jcr:mimeType", "script/groovy");
     script.setProperty("jcr:lastModified", Calendar.getInstance());
     script.setProperty("jcr:data", stream);
