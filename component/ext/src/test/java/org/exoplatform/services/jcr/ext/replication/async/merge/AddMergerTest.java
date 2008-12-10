@@ -140,7 +140,7 @@ public class AddMergerTest extends TestCase {
     super.tearDown();
   }
 
-  private ItemState findSate(List<ItemState> changes, QPath path) {
+  private ItemState findState(List<ItemState> changes, QPath path) {
     for (ItemState st : changes) {
       if (st.getData().getQPath().equals(path))
         return st;
@@ -171,16 +171,16 @@ public class AddMergerTest extends TestCase {
     List<ItemState> result = addMerger.merge(itemChange, income, local);
 
     assertNotNull("Add state expected " + itemChange.getData().getQPath().getAsString(),
-                  findSate(result, itemChange.getData().getQPath()));
+                  findState(result, itemChange.getData().getQPath()));
 
     assertNotNull("Add state expected " + data1.getQPath().getAsString(),
-                  findSate(result, data1.getQPath()));
+                  findState(result, data1.getQPath()));
 
     assertNotNull("Add state expected " + data11.getQPath().getAsString(),
-                  findSate(result, data11.getQPath()));
+                  findState(result, data11.getQPath()));
 
     assertNotNull("Add state expected " + data12.getQPath().getAsString(),
-                  findSate(result, data12.getQPath()));
+                  findState(result, data12.getQPath()));
   }
 
   /**
