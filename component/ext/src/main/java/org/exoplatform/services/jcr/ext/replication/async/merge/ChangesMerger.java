@@ -33,14 +33,14 @@ public interface ChangesMerger {
 
   /**
    * Tell if local changes has high priority.
-   *
+   * 
    * @return boolean
    */
   boolean isLocalPriority();
-  
+
   /**
    * 
-   * Merge income changes with local and return result log.
+   * Merge income changes with local and return result list of item states.
    * 
    * @param itemChange
    *          TODO
@@ -49,7 +49,7 @@ public interface ChangesMerger {
    * @param local
    *          CompositeChangesLog with local changes
    * 
-   * @return CompositeChangesLog with resulting changes
+   * @return List of item states with resulting changes
    */
   List<ItemState> merge(ItemState itemChange, CompositeChangesLog income, CompositeChangesLog local);
 

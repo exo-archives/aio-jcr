@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -67,13 +64,24 @@ public class AddMerger implements ChangesMerger {
       PlainChangesLog localLog = localLogIterator.nextLog();
       for (ItemState localState : localLog.getAllStates()) {
 
-        if (isLocalPriority()) {
+        // TODO check isNode
+        if (isLocalPriority()) { // localPriority
           switch (localState.getState()) {
           case ItemState.ADDED:
             resultState.add(localState);
             if (itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
               itemChangeProcessed = true;
             }
+            break;
+          case ItemState.UPDATED:
+            resultState.add(localState);
+            if (itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
+              itemChangeProcessed = true;
+            }
+            break;
+          case ItemState.RENAMED:
+            resultState.add(localState);
+            itemChangeProcessed = true;
             break;
           }
 
@@ -87,6 +95,17 @@ public class AddMerger implements ChangesMerger {
               itemChangeProcessed = true;
             }
             break;
+          case ItemState.UPDATED:
+            if (!itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
+              resultState.add(localState);
+            } else {
+              resultState.add(itemChange);
+              itemChangeProcessed = true;
+            }
+            break;
+          case ItemState.RENAMED:
+            break;
+          // TODO
           }
         }
       }

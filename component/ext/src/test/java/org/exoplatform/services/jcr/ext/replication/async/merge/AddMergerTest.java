@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -245,10 +242,10 @@ public class AddMergerTest extends TestCase {
     AddMerger addMerger = new AddMerger(true);
     List<ItemState> result = addMerger.merge(itemChange, income, local);
 
-    assertNull(findState(result, remoteItem2.getQPath()));
-
     assertNotNull("Add state expected " + localItem2.getQPath().getAsString(),
                   findState(result, localItem2.getQPath()));
+
+    assertTrue(findState(result, localItem2.getQPath()) == localItem2);
 
     assertNotNull("Add state expected " + localItem1.getQPath().getAsString(),
                   findState(result, localItem1.getQPath()));
