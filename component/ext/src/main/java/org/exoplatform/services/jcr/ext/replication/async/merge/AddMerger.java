@@ -59,50 +59,65 @@ public class AddMerger implements ChangesMerger {
     // TODO Auto-generated method stub
 
     List<ItemState> resultState = new ArrayList<ItemState>();
+    boolean itemProcessed = false;
 
     // iterate all logs
     for (ChangesLogIterator localLogIterator = local.getLogIterator(); localLogIterator.hasNextLog();) {
       PlainChangesLog localLog = localLogIterator.nextLog();
       for (ItemState localState : localLog.getAllStates()) {
 
-        // is same item?
-        if (localState.getData().getQPath().equals(itemChange.getData().getQPath())) {
-          if (isLocalPriority()) {
-            switch (localState.getState()) {
-            case ItemState.ADDED:
-              break;
-            case ItemState.DELETED:
-              break;
-            case ItemState.UPDATED:
-              break;
-            case ItemState.RENAMED:
-              break;
-            case ItemState.MIXIN_CHANGED:
-              break;
-            default:
-              // TODO Exception or ignore?
+        // is same parent?
+        if (itemChange.getAncestorToSave().equals(localState.getAncestorToSave())) {
+          // TODO where is property?
+          if (itemProcessed) {
+            if (isLocalPriority()) {
+              switch (localState.getState()) {
+              case ItemState.ADDED:
+                resultState.add(itemChange);
+                break;
+              case ItemState.DELETED:
+                if (localState.getData().isNode()) {
+                  resultState.add(localState);
+                } else {
+                  resultState.add(itemChange);
+                }
+                break;
+              case ItemState.UPDATED:
+                break;
+              case ItemState.RENAMED:
+                break;
+              case ItemState.MIXIN_CHANGED:
+                break;
+              default:
+                // TODO Exception or ignore?
+              }
+            } else {
+              switch (localState.getState()) {
+              case ItemState.ADDED:
+                break;
+              case ItemState.DELETED:
+                break;
+              case ItemState.UPDATED:
+                break;
+              case ItemState.RENAMED:
+                break;
+              case ItemState.MIXIN_CHANGED:
+                break;
+              default:
+                // TODO Exception or ignore?
+              }
+              itemProcessed = true;
             }
           } else {
-            switch (localState.getState()) {
-            case ItemState.ADDED:
-              break;
-            case ItemState.DELETED:
-              break;
-            case ItemState.UPDATED:
-              break;
-            case ItemState.RENAMED:
-              break;
-            case ItemState.MIXIN_CHANGED:
-              break;
-            default:
-              // TODO Exception or ignore?
-            }
+            resultState.add(localState);
           }
-        } else {
-          resultState.add(localState);
         }
       }
+    }
 
+    // add item if not added
+    if (!itemProcessed) {
+      resultState.add(itemChange);
     }
 
     return resultState;

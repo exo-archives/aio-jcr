@@ -99,7 +99,7 @@ public class AddMergerTest extends TestCase {
                                           0,
                                           Constants.ROOT_UUID,
                                           new AccessControlList());
-    itemChange = new ItemState(data, ItemState.ADDED, false, null);
+    itemChange = new ItemState(data, ItemState.ADDED, false, Constants.ROOT_PATH);
 
     // logs
     local = new TransactionChangesLog();
