@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -17,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 
@@ -27,16 +24,18 @@ import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
  * <br/>Date: 10.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id$
+ * @version $Id: ChangesMerger.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class AddMerger implements ChangesMerger {
+public interface ChangesMerger {
 
   /**
-   * {@inheritDoc}
+   * 
+   * Merge income changes with local and return result log.
+   *
+   * @param income CompositeChangesLog with income changes
+   * @param local CompositeChangesLog with local changes
+   * @return CompositeChangesLog with resulting changes
    */
-  public CompositeChangesLog merge(CompositeChangesLog income, CompositeChangesLog local) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
+  CompositeChangesLog merge(CompositeChangesLog income, CompositeChangesLog local); 
+  
 }
