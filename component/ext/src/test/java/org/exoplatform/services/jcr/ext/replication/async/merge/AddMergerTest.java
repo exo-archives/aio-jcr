@@ -294,16 +294,6 @@ public class AddMergerTest extends TestCase {
                   findState(result, localItem12.getQPath()));
   }
 
-  /**
-   * Create changes log with item data1 of special state
-   */
-  private PlainChangesLog createTestLog(int state) {
-    PlainChangesLog cLog = new PlainChangesLogImpl();
-
-    cLog.add(new ItemState(localItem2, ItemState.ADDED, false, null));
-    cLog.add(new ItemState(localItem1, state, false, null));
-    cLog.add(new ItemState(localItem3, ItemState.RENAMED, false, null));
-
-    return cLog;
-  }
+  
+  
 }
