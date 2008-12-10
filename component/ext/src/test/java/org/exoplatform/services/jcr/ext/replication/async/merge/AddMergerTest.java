@@ -204,8 +204,8 @@ public class AddMergerTest extends TestCase {
     AddMerger addMerger = new AddMerger(true);
     List<ItemState> result = addMerger.merge(itemChange, income, local);
 
-    assertTrue("Add state expected " + remoteItem2.getQPath().getAsString(),
-                  findState(result, remoteItem2.getQPath()) == itemChange);
+    assertNotNull("Add state expected " + remoteItem2.getQPath().getAsString(),
+                  findState(result, remoteItem2.getQPath()));
 
     assertNotNull("Add state expected " + localItem1.getQPath().getAsString(),
                   findState(result, localItem1.getQPath()));
@@ -245,7 +245,7 @@ public class AddMergerTest extends TestCase {
     assertNotNull("Add state expected " + localItem2.getQPath().getAsString(),
                   findState(result, localItem2.getQPath()));
 
-    assertTrue(findState(result, localItem2.getQPath()) == localItem2);
+    assertTrue("Local Add state expected ", findState(result, localItem2.getQPath()) == localItem2);
 
     assertNotNull("Add state expected " + localItem1.getQPath().getAsString(),
                   findState(result, localItem1.getQPath()));
@@ -280,6 +280,9 @@ public class AddMergerTest extends TestCase {
 
     assertNotNull("Add state expected " + remoteItem2.getQPath().getAsString(),
                   findState(result, remoteItem2.getQPath()));
+
+    assertTrue("Remote Add state expected " + remoteItem2.getQPath().getAsString(),
+               findState(result, remoteItem2.getQPath()) == itemChange);
 
     assertNotNull("Add state expected " + localItem1.getQPath().getAsString(),
                   findState(result, localItem1.getQPath()));
