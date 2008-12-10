@@ -170,14 +170,13 @@ public class AddMergerTest extends TestCase {
     AddMerger addMerger = new AddMerger(true);
     List<ItemState> result = addMerger.merge(itemChange, income, local);
     
-    ItemState add = findSate(result, itemChange.getData().getQPath());
-    assertNotNull("Add state expected " + itemChange.getData().getQPath().getAsString(), add);
+    assertNotNull("Add state expected " + itemChange.getData().getQPath().getAsString(), findSate(result, itemChange.getData().getQPath()));
     
-    assertNotNull("Add state expected " + data1.getQPath().getAsString(), data1.getQPath());
+    assertNotNull("Add state expected " + data1.getQPath().getAsString(), findSate(result, data1.getQPath()));
     
-    assertNotNull("Add state expected " + data11.getQPath().getAsString(), data11.getQPath());
+    assertNotNull("Add state expected " + data11.getQPath().getAsString(), findSate(result, data11.getQPath()));
     
-    assertNotNull("Add state expected " + data12.getQPath().getAsString(), data12.getQPath());
+    assertNotNull("Add state expected " + data12.getQPath().getAsString(), findSate(result, data12.getQPath()));
   }
 
   /**
@@ -208,7 +207,7 @@ public class AddMergerTest extends TestCase {
    */
   public void testMergeAddNodeRemotePriority() {
 
-    // local.addLog(cLog);
+    
 
     AddMerger addMerger = new AddMerger(false);
     addMerger.merge(itemChange, income, local);
