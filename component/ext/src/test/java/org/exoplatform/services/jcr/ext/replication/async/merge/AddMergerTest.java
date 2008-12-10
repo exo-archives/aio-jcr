@@ -156,7 +156,6 @@ public class AddMergerTest extends TestCase {
   public void testAddNodeNoLocalChanges() {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
-    // ADD NODE
     localLog.add(new ItemState(data1, ItemState.ADDED, false, null));
     localLog.add(new ItemState(data11, ItemState.ADDED, false, null));
     localLog.add(new ItemState(data12, ItemState.ADDED, false, null));
@@ -188,18 +187,23 @@ public class AddMergerTest extends TestCase {
    * {@link org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger#merge(org.exoplatform.services.jcr.dataflow.ItemState, org.exoplatform.services.jcr.dataflow.CompositeChangesLog, org.exoplatform.services.jcr.dataflow.CompositeChangesLog)}
    * .
    */
-  public void testMergeAddNodeLocalPriority() {
+  public void testAddNodeLocalPriority() {
 
-    PlainChangesLog cLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl();
 
-    // ADD NODE
-    cLog.add(new ItemState(data2, ItemState.ADDED, false, null));
-    cLog.add(new ItemState(data1, ItemState.ADDED, false, null));
-    cLog.add(new ItemState(data3, ItemState.RENAMED, false, null));
-    local.addLog(cLog);
+    localLog.add(new ItemState(data1, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data11, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data12, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data2, ItemState.ADDED, false, null));
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    remoteLog.add(new ItemState(data2, ItemState.ADDED, false, null));
+
+    income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true);
-    addMerger.merge(itemChange, income, local);
+    List<ItemState> result = addMerger.merge(itemChange, income, local);
 
     fail("Not yet implemented");
   }
@@ -209,12 +213,35 @@ public class AddMergerTest extends TestCase {
    * {@link org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger#merge(org.exoplatform.services.jcr.dataflow.ItemState, org.exoplatform.services.jcr.dataflow.CompositeChangesLog, org.exoplatform.services.jcr.dataflow.CompositeChangesLog)}
    * .
    */
-  public void testMergeAddNodeRemotePriority() {
+  public void testAddNodeRemotePriority() {
 
-    AddMerger addMerger = new AddMerger(false);
-    addMerger.merge(itemChange, income, local);
+    PlainChangesLog localLog = new PlainChangesLogImpl();
 
-    fail("Not yet implemented");
+    localLog.add(new ItemState(data1, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data11, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data12, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(data2, ItemState.ADDED, false, null));
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    remoteLog.add(new ItemState(data2, ItemState.ADDED, false, null));
+
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true);
+    List<ItemState> result = addMerger.merge(itemChange, income, local);
+
+    assertNotNull("Add state expected " + itemChange.getData().getQPath().getAsString(),
+                  findState(result, itemChange.getData().getQPath()));
+
+    assertNotNull("Add state expected " + data1.getQPath().getAsString(),
+                  findState(result, data1.getQPath()));
+
+    assertNotNull("Add state expected " + data11.getQPath().getAsString(),
+                  findState(result, data11.getQPath()));
+
+    assertNotNull("Add state expected " + data12.getQPath().getAsString(),
+                  findState(result, data12.getQPath()));
   }
 
   /**
