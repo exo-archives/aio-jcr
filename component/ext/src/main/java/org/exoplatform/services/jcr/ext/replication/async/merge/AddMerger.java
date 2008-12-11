@@ -96,17 +96,12 @@ public class AddMerger implements ChangesMerger {
           switch (localState.getState()) {
           case ItemState.ADDED:
             if (itemData.getQPath().equals(localData.getQPath())) {
-              // 2
-
-              // TODO remove from local log all child itemstate
-              // TODO remove from income log all child itemstate
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
                                             false,
                                             localData.getQPath()));
+              resultState.add(itemChange);
               return resultState;
-              // TODO exportSystemView
-              // TODO importView
             }
             break;
           case ItemState.UPDATED:
