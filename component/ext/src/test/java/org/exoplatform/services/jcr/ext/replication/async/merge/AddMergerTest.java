@@ -417,5 +417,54 @@ public class AddMergerTest extends TestCase {
     assertFalse("Remote Add state found ", hasState(result, remoteItem12Change, true));
     assertFalse("Remote Add state found ", hasState(result, remoteItem121Change, true));
   }
+  
+  /**
+   * Test if locally added subtree (low priority) will be rejected by the merger. Remotely added
+   * subtree will be accepted.
+   */
+  public void testAddSubtreeRemotePriority() {
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localItem1, ItemState.ADDED, false, null);
+    localLog.add(localItem1Change);
+    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
+    localLog.add(localItem12Change);
+    final ItemState localItem2Change = new ItemState(localItem2, ItemState.ADDED, false, null);
+    localLog.add(localItem2Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem1Change);
+    final ItemState remoteItem11Change = new ItemState(remoteItem11, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem11Change);
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem12Change);
+    final ItemState remoteItem121Change = new ItemState(remoteItem121, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem121Change);
+    final ItemState remoteItem3Change = new ItemState(remoteItem3, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem3Change);
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(false);
+    List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 6);
+
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem11Change, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem121Change, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem3Change, true));
+    
+    assertTrue("Local Add state expected ", hasState(result, localItem2Change, true));
+    
+    assertFalse("Local Add state found ", hasState(result, localItem1Change, true));
+    assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
+    assertFalse("Local Add state found ", hasState(result, localItem12Change, true));    
+  }
 
 }
