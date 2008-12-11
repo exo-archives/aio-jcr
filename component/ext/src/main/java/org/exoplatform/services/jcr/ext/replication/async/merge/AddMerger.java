@@ -56,90 +56,81 @@ public class AddMerger implements ChangesMerger {
                                CompositeChangesLog local) {
 
     List<ItemState> resultState = new ArrayList<ItemState>();
-    boolean ignoreItemChange = false;
 
     // iterate all logs
     for (ChangesLogIterator localLogIterator = local.getLogIterator(); localLogIterator.hasNextLog();) {
       PlainChangesLog localLog = localLogIterator.nextLog();
       for (ItemState localState : localLog.getAllStates()) {
 
-        // if item not still ignored try to resolve merge
-        if (!ignoreItemChange) {
-          ItemData localData = localState.getData();
-          ItemData itemData = itemChange.getData();
+        ItemData localData = localState.getData();
+        ItemData itemData = itemChange.getData();
 
-          if (isLocalPriority()) { // localPriority
-            switch (localState.getState()) {
-            case ItemState.ADDED:
-              resultState.add(localState);
-              if (itemData.getQPath().equals(localData.getQPath())) {
-                ignoreItemChange = true;
-              }
-              break;
-            case ItemState.UPDATED:
-              resultState.add(localState);
-              break;
-            case ItemState.DELETED:
-              resultState.add(localState);
-              if (localData.isNode() && itemData.getQPath().isDescendantOf(localData.getQPath())) {
-                ignoreItemChange = true;
-              }
-              break;
-            case ItemState.RENAMED:
-              resultState.add(localState);
-              if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
-                ignoreItemChange = true;
-              }
-              break;
-            case ItemState.MIXIN_CHANGED:
-              resultState.add(localState);
-              break;
+        if (isLocalPriority()) { // localPriority
+          switch (localState.getState()) {
+          case ItemState.ADDED:
+            if (itemData.getQPath().equals(localData.getQPath())) {
+              return resultState;
             }
+            break;
+          case ItemState.UPDATED:
+            break;
+          case ItemState.DELETED:
+            if (localData.isNode() && itemData.getQPath().isDescendantOf(localData.getQPath())) {
+              return resultState;
+            }
+            break;
+          case ItemState.RENAMED:
+            if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+              return resultState;
+            }
+            break;
+          case ItemState.MIXIN_CHANGED:
+            break;
+          }
 
-          } else { // remote priority
-            switch (localState.getState()) {
-            case ItemState.ADDED:
-              if (itemData.getQPath().equals(localData.getQPath())) {
-                // 2
-                // TODO remove local node
-                // TODO remove from changes log and child records
-                // TODO exportSystemView
-                // TODO importView
-              } else {
-                resultState.add(localState);
-              }
-              break;
-            case ItemState.UPDATED:
-              resultState.add(localState);
-              break;
-            case ItemState.DELETED:
-              if (localData.isNode()) {
-
-              } else {
-                resultState.add(localState);
-              }
-              // TODO
-              break;
-            case ItemState.RENAMED:
+        } else { // remote priority
+          switch (localState.getState()) {
+          case ItemState.ADDED:
+            if (itemData.getQPath().equals(localData.getQPath())) {
               // 2
               // TODO remove local node
               // TODO remove from changes log and child records
               // TODO exportSystemView
               // TODO importView
-              break;
-            case ItemState.MIXIN_CHANGED:
+            } else {
               resultState.add(localState);
-              break;
             }
+            break;
+          case ItemState.UPDATED:
+            resultState.add(localState);
+            break;
+          case ItemState.DELETED:
+            if (localData.isNode()) {
+              // 6
+              // TODO remove from changes log and child records
+              // TODO exportSystemView
+              // TODO importView
+            } else {
+              resultState.add(localState);
+            }
+
+            break;
+          case ItemState.RENAMED:
+            // 2
+            // TODO remove local node
+            // TODO remove from changes log and child records
+            // TODO exportSystemView
+            // TODO importView
+            break;
+          case ItemState.MIXIN_CHANGED:
+            resultState.add(localState);
+            break;
           }
         }
       }
     }
 
-    // add item if can and not added
-    if (!ignoreItemChange) {
-      resultState.add(itemChange);
-    }
+    resultState.add(itemChange);
 
     return resultState;
   }
