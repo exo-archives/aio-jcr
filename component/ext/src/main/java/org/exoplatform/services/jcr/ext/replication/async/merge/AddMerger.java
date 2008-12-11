@@ -19,10 +19,8 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
-import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 
 /**
@@ -52,87 +50,79 @@ public class AddMerger implements ChangesMerger {
    * {@inheritDoc}
    */
   public List<ItemState> merge(ItemState itemChange,
-                               CompositeChangesLog income,
-                               CompositeChangesLog local) {
+                               TransactionChangesLog income,
+                               TransactionChangesLog local) {
 
     List<ItemState> resultState = new ArrayList<ItemState>();
 
     // iterate all logs
-    for (ChangesLogIterator localLogIterator = local.getLogIterator(); localLogIterator.hasNextLog();) {
-      PlainChangesLog localLog = localLogIterator.nextLog();
-      for (ItemState localState : localLog.getAllStates()) {
+    for (ItemState localState : local.getAllStates()) {
 
-        ItemData localData = localState.getData();
-        ItemData itemData = itemChange.getData();
+      ItemData localData = localState.getData();
+      ItemData itemData = itemChange.getData();
 
-        if (isLocalPriority()) { // localPriority
-          switch (localState.getState()) {
-          case ItemState.ADDED:
-            if (itemData.getQPath().isDescendantOf(localData.getQPath())
-                || itemData.getQPath().equals(localData.getQPath())) {
-              return resultState;
-            }
-            break;
-          case ItemState.UPDATED:
-            break;
-          case ItemState.DELETED:
-            if (localData.isNode()
-                && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
-                                                                                        .equals(localData.getQPath()))) {
-              return resultState;
-            }
-            break;
-          case ItemState.RENAMED:
-            if (itemData.getQPath().isDescendantOf(localData.getQPath())
-                || itemData.getQPath().equals(localData.getQPath())) {
-              return resultState;
-            }
-            break;
-          case ItemState.MIXIN_CHANGED:
-            break;
+      if (isLocalPriority()) { // localPriority
+        switch (localState.getState()) {
+        case ItemState.ADDED:
+          if (itemData.getQPath().isDescendantOf(localData.getQPath())
+              || itemData.getQPath().equals(localData.getQPath())) {
+            return resultState;
           }
-
-        } else { // remote priority
-          switch (localState.getState()) {
-          case ItemState.ADDED:
-            if (itemData.getQPath().equals(localData.getQPath())) {
-              resultState.add(new ItemState(localData,
-                                            ItemState.DELETED,
-                                            false,
-                                            localData.getQPath()));
-              resultState.add(itemChange);
-              return resultState;
-            }
-            break;
-          case ItemState.UPDATED:
-            break;
-          case ItemState.DELETED:
-            if (localData.isNode()) {
-              // 6
-              // TODO remove from local log all child itemstate
-              // TODO exportSystemView
-              // TODO importView
-            }
-            break;
-          case ItemState.RENAMED:
-            if (itemData.getQPath().isDescendantOf(localData.getQPath())
-                || itemData.getQPath().equals(localData.getQPath())) {
-              // 2
-              resultState.add(new ItemState(localData,
-                                            ItemState.DELETED,
-                                            false,
-                                            localData.getQPath()));
-              return resultState;
-              // TODO remove from local log all child itemstate
-              // TODO remove from income log all childs itemstate
-
-              // TODO exportSystemView (from localdata)
-              // TODO importView
-            }
-            break;
-          case ItemState.MIXIN_CHANGED:
-            break;
+          break;
+        case ItemState.UPDATED:
+          break;
+        case ItemState.DELETED:
+          if (localData.isNode()
+              && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
+                                                                                      .equals(localData.getQPath()))) {
+            return resultState;
           }
+          break;
+        case ItemState.RENAMED:
+          if (itemData.getQPath().isDescendantOf(localData.getQPath())
+              || itemData.getQPath().equals(localData.getQPath())) {
+            return resultState;
+          }
+          break;
+        case ItemState.MIXIN_CHANGED:
+          break;
+        }
+
+      } else { // remote priority
+        switch (localState.getState()) {
+        case ItemState.ADDED:
+          if (itemData.getQPath().equals(localData.getQPath())) {
+            resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
+            resultState.add(itemChange);
+            // get subtree from log
+            return resultState;
+          }
+          break;
+        case ItemState.UPDATED:
+          break;
+        case ItemState.DELETED:
+          if (localData.isNode()) {
+            // 6
+            // TODO remove from local log all child itemstate
+            // TODO exportSystemView
+            // TODO importView
+          }
+          break;
+        case ItemState.RENAMED:
+          if (itemData.getQPath().isDescendantOf(localData.getQPath())
+              || itemData.getQPath().equals(localData.getQPath())) {
+            // 2
+            resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
+            return resultState;
+            // TODO remove from local log all child itemstate
+            // TODO remove from income log all childs itemstate
+
+            // TODO exportSystemView (from localdata)
+            // TODO importView
+          }
+          break;
+        case ItemState.MIXIN_CHANGED:
+          break;
         }
       }
     }

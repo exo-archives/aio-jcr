@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 import java.util.List;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
-import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -40,31 +39,31 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 public class AddMergerTest extends BaseStandaloneTest {
 
-  protected CompositeChangesLog local;
+  protected TransactionChangesLog local;
 
-  protected CompositeChangesLog income;
+  protected TransactionChangesLog income;
 
-  protected ItemData            remoteItem1;
+  protected ItemData              remoteItem1;
 
-  protected ItemData            remoteItem11;
+  protected ItemData              remoteItem11;
 
-  protected ItemData            remoteItem12;
+  protected ItemData              remoteItem12;
 
-  protected ItemData            remoteItem121;
+  protected ItemData              remoteItem121;
 
-  protected ItemData            remoteItem2;
+  protected ItemData              remoteItem2;
 
-  protected ItemData            remoteItem3;
+  protected ItemData              remoteItem3;
 
-  protected ItemData            localItem1;
+  protected ItemData              localItem1;
 
-  protected ItemData            localItem2;
+  protected ItemData              localItem2;
 
-  protected ItemData            localItem3;
+  protected ItemData              localItem3;
 
-  protected ItemData            localItem11;
+  protected ItemData              localItem11;
 
-  protected ItemData            localItem12;
+  protected ItemData              localItem12;
 
   /**
    * {@inheritDoc}
