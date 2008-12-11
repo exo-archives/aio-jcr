@@ -16,10 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -27,6 +29,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -35,7 +38,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
- * @version $Id: AddMergerTest.java 111 2008-11-11 11:11:11Z $
+ * @version $Id$
  */
 public class AddMergerTest extends BaseStandaloneTest {
 
@@ -64,7 +67,7 @@ public class AddMergerTest extends BaseStandaloneTest {
   protected ItemData              localItem11;
 
   protected ItemData              localItem12;
-
+  
   /**
    * {@inheritDoc}
    */
