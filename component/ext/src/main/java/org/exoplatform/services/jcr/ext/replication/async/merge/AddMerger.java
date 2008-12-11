@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -54,66 +55,80 @@ public class AddMerger implements ChangesMerger {
                                CompositeChangesLog income,
                                CompositeChangesLog local) {
 
-    // TODO Auto-generated method stub
-
     List<ItemState> resultState = new ArrayList<ItemState>();
-    boolean itemChangeProcessed = false;
+    boolean ignoreItemChange = false;
 
     // iterate all logs
     for (ChangesLogIterator localLogIterator = local.getLogIterator(); localLogIterator.hasNextLog();) {
       PlainChangesLog localLog = localLogIterator.nextLog();
       for (ItemState localState : localLog.getAllStates()) {
 
-        // TODO check isNode
-        if (isLocalPriority()) { // localPriority
-          switch (localState.getState()) {
-          case ItemState.ADDED:
-            resultState.add(localState);
-            if (itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
-              itemChangeProcessed = true;
-            }
-            break;
-          case ItemState.UPDATED:
-            resultState.add(localState);
-            if (itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
-              itemChangeProcessed = true;
-            }
-            break;
-          case ItemState.RENAMED:
-            // TODO is same node
-            resultState.add(localState);
-            itemChangeProcessed = true;
-            break;
-          }
+        // if item not still ignored try to resolve merge
+        if (!ignoreItemChange) {
+          ItemData localData = localState.getData();
+          ItemData itemData = itemChange.getData();
 
-        } else { // remote priority
-          switch (localState.getState()) {
-          case ItemState.ADDED:
-            if (!itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
+          if (isLocalPriority()) { // localPriority
+            switch (localState.getState()) {
+            case ItemState.ADDED:
               resultState.add(localState);
-            } else {
-              resultState.add(itemChange);
-              itemChangeProcessed = true;
-            }
-            break;
-          case ItemState.UPDATED:
-            if (!itemChange.getData().getQPath().equals(localState.getData().getQPath())) {
+              if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+                ignoreItemChange = true;
+              }
+              break;
+            case ItemState.UPDATED:
               resultState.add(localState);
-            } else {
-              resultState.add(itemChange);
-              itemChangeProcessed = true;
+              if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+                ignoreItemChange = true;
+              }
+              break;
+            case ItemState.DELETED:
+              resultState.add(localState);
+              if (localData.isNode() && itemData.getQPath().isDescendantOf(localData.getQPath())) {
+                ignoreItemChange = true;
+              }
+              break;
+            case ItemState.RENAMED:
+              resultState.add(localState);
+              if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+                ignoreItemChange = true;
+              }
+              break;
+            case ItemState.MIXIN_CHANGED:
+              resultState.add(localState);
+              // TODO
+              break;
             }
-            break;
-          case ItemState.RENAMED:
-            break;
-          // TODO
+
+          } else { // remote priority
+            switch (localState.getState()) {
+            case ItemState.ADDED:
+              if (!itemData.getQPath().isDescendantOf(localData.getQPath())) {
+                resultState.add(localState);
+              }
+              break;
+            case ItemState.UPDATED:
+              if (!itemData.getQPath().isDescendantOf(localData.getQPath())) {
+                resultState.add(localState);
+              }
+              break;
+            case ItemState.DELETED:
+              // TODO
+              break;
+            case ItemState.RENAMED:
+              break;
+            // TODO
+            case ItemState.MIXIN_CHANGED:
+              // TODO
+              break;
+            }
           }
         }
       }
     }
 
     // add item if can and not added
-    if (!itemChangeProcessed) {
+    if (!ignoreItemChange) {
       resultState.add(itemChange);
     }
 
