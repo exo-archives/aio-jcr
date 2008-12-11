@@ -349,65 +349,70 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * See {@link GroovyScript2RestLoaderPlugin}.
    */
-  private GroovyScript2RestLoaderPlugin loadPlugin;
+  private List<GroovyScript2RestLoaderPlugin> loadPlugins;
 
   /**
    * @param cp See {@link ComponentPlugin}
    */
   public void addPlugin(ComponentPlugin cp) {
-    if (cp instanceof GroovyScript2RestLoaderPlugin)
-      loadPlugin = (GroovyScript2RestLoaderPlugin) cp;
+    if (cp instanceof GroovyScript2RestLoaderPlugin) {
+      if (loadPlugins == null)
+        loadPlugins = new ArrayList<GroovyScript2RestLoaderPlugin>();
+      loadPlugins.add((GroovyScript2RestLoaderPlugin) cp);
+    }
   }
 
   /**
    * Add scripts that specified in configuration.
    */
   private void addScripts() {
-    if (loadPlugin == null || loadPlugin.getXMLConfigs().size() == 0)
+    if (loadPlugins == null || loadPlugins.size() == 0)
       return;
-    Session session = null;
-    try {
-      ManageableRepository repository = repositoryService.getRepository(loadPlugin.getRepository());
-      String workspace = loadPlugin.getWorkspace();
-      session = repository.getSystemSession(workspace);
-      String nodeName = loadPlugin.getNode();
-      Node node = null;
+    for (GroovyScript2RestLoaderPlugin loadPlugin : loadPlugins) {
+      Session session = null;
       try {
-        node = (Node) session.getItem(nodeName);
-      } catch (PathNotFoundException e) {
-        StringTokenizer tokens = new StringTokenizer(nodeName, "/");
-        node = session.getRootNode();
-        while (tokens.hasMoreTokens()) {
-          String t = tokens.nextToken();
-          if (node.hasNode(t))
-            node = node.getNode(t);
-          else
-            node = node.addNode(t);
+        ManageableRepository repository = repositoryService.getRepository(loadPlugin.getRepository());
+        String workspace = loadPlugin.getWorkspace();
+        session = repository.getSystemSession(workspace);
+        String nodeName = loadPlugin.getNode();
+        Node node = null;
+        try {
+          node = (Node) session.getItem(nodeName);
+        } catch (PathNotFoundException e) {
+          StringTokenizer tokens = new StringTokenizer(nodeName, "/");
+          node = session.getRootNode();
+          while (tokens.hasMoreTokens()) {
+            String t = tokens.nextToken();
+            if (node.hasNode(t))
+              node = node.getNode(t);
+            else
+              node = node.addNode(t);
+          }
         }
-      }
 
-      for (XMLGroovyScript2Rest xg : loadPlugin.getXMLConfigs()) {
-        String scriptName = xg.getName();
-        if (node.hasNode(scriptName)) {
-          LOG.warn("Node '" + node.getPath() + "/" + scriptName + "' already exists. ");
-          continue;
+        for (XMLGroovyScript2Rest xg : loadPlugin.getXMLConfigs()) {
+          String scriptName = xg.getName();
+          if (node.hasNode(scriptName)) {
+            LOG.warn("Node '" + node.getPath() + "/" + scriptName + "' already exists. ");
+            continue;
+          }
+          Node scriptFile = node.addNode(scriptName, "nt:file");
+          // TODO use the same node-type here and in observation listener
+          // configuration. Temporary use 'GroovyScript2RestLoader.DEFAULT_NODETYPE'
+          Node script = scriptFile.addNode("jcr:content", GroovyScript2RestLoader.DEFAULT_NODETYPE);
+          script.setProperty("exo:autoload", xg.isAutoload());
+          script.setProperty("exo:load", false);
+          script.setProperty("jcr:mimeType", "script/groovy");
+          script.setProperty("jcr:lastModified", Calendar.getInstance());
+          script.setProperty("jcr:data", configurationManager.getInputStream(xg.getPath()));
         }
-        Node scriptFile = node.addNode(scriptName, "nt:file");
-        // TODO use the same node-type here and in observation listener
-        // configuration. Temporary use 'GroovyScript2RestLoader.DEFAULT_NODETYPE'
-        Node script = scriptFile.addNode("jcr:content", GroovyScript2RestLoader.DEFAULT_NODETYPE);
-        script.setProperty("exo:autoload", xg.isAutoload());
-        script.setProperty("exo:load", false);
-        script.setProperty("jcr:mimeType", "script/groovy");
-        script.setProperty("jcr:lastModified", Calendar.getInstance());
-        script.setProperty("jcr:data", configurationManager.getInputStream(xg.getPath()));
+        session.save();
+      } catch (Exception e) {
+        LOG.error("Failed add scripts. ", e);
+      } finally {
+        if (session != null)
+          session.logout();
       }
-      session.save();
-    } catch (Exception e) {
-      LOG.error("Failed add scripts. ", e);
-    } finally {
-      if (session != null)
-        session.logout();
     }
   }
 
