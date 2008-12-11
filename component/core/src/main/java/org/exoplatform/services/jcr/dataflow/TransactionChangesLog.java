@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -260,11 +261,10 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 
     if (in.readInt() == 1) {
-      String DEFAULT_ENCODING = "UTF-8";
       byte[] buf = new byte[in.readInt()];
       in.read(buf);
 
-      systemId = new String(buf, DEFAULT_ENCODING);
+      systemId = new String(buf, Constants.DEFAULT_ENCODING);
     }
 
     int listSize = in.readInt();
