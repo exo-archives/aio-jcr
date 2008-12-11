@@ -22,6 +22,7 @@ import java.util.List;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
  * Created by The eXo Platform SAS.
@@ -34,9 +35,12 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 public class AddMerger implements ChangesMerger {
 
   protected final boolean localPriority;
+  
+  protected final RemoteExporter exporter;
 
-  public AddMerger(boolean localPriority) {
+  public AddMerger(boolean localPriority, RemoteExporter exporter) {
     this.localPriority = localPriority;
+    this.exporter = exporter;
   }
 
   /**

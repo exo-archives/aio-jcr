@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 import java.io.IOException;
 
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
@@ -34,8 +35,20 @@ public class TesterRemoteExporter implements RemoteExporter {
 
   private final ItemStateChangesLog changes;
   
+  /**
+   * Wrapped RemoteExporter.
+   *
+   */
   TesterRemoteExporter(ItemStateChangesLog changes) {
     this.changes = changes;
+  }
+  
+  /**
+   * Empty RemoteExporter.
+   *
+   */
+  TesterRemoteExporter() {
+    this.changes = new PlainChangesLogImpl();
   }
   
   /**
