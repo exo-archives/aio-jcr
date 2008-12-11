@@ -463,4 +463,15 @@ public class AddMergerTest extends BaseStandaloneTest {
     assertFalse("Remote Add state found ", hasState(result, remoteItem3Change, true));
   }
 
+  
+  // complex usecases required a remote export
+  
+  /**
+   * Test the case when local parent removed on low priority node.
+   *
+   */
+  public void testLocalParentRemoved() {
+    
+  }
+  
 }
