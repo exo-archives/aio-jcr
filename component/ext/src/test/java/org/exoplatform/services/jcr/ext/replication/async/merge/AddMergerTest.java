@@ -45,6 +45,14 @@ public class AddMergerTest extends TestCase {
 
   protected CompositeChangesLog income;
 
+  protected ItemData            remoteItem1;
+  
+  protected ItemData            remoteItem11;
+  
+  protected ItemData            remoteItem12;
+  
+  protected ItemData            remoteItem121;
+  
   protected ItemData            remoteItem2;
 
   protected ItemData            localItem1;
@@ -63,9 +71,10 @@ public class AddMergerTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
 
-    // create itemData
+    final String testItem1 = "testItem1";
+    // create /testItem1    
     localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
-                                                           new InternalQName(null, "testItem1")),
+                                                           new InternalQName(null, testItem1)),
                                        IdGenerator.generate(),
                                        0,
                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
@@ -73,6 +82,7 @@ public class AddMergerTest extends TestCase {
                                        0,
                                        Constants.ROOT_UUID,
                                        new AccessControlList());
+    // create /testItem1/item11    
     localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                             new InternalQName(null, "item11")),
                                         IdGenerator.generate(),
@@ -82,6 +92,7 @@ public class AddMergerTest extends TestCase {
                                         0,
                                         localItem1.getIdentifier(),
                                         new AccessControlList());
+    // create /testItem1/item12    
     localItem12 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                             new InternalQName(null, "item12")),
                                         IdGenerator.generate(),
@@ -92,9 +103,10 @@ public class AddMergerTest extends TestCase {
                                         localItem1.getIdentifier(),
                                         new AccessControlList());
 
-    final String conflictName = "testItem2";
+    // create /testItem2    
+    final String testItem2 = "testItem2";
     localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
-                                                           new InternalQName(null, conflictName)),
+                                                           new InternalQName(null, testItem2)),
                                        IdGenerator.generate(),
                                        0,
                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
@@ -103,6 +115,7 @@ public class AddMergerTest extends TestCase {
                                        Constants.ROOT_UUID,
                                        new AccessControlList());
 
+    // create /testItem3    
     localItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                            new InternalQName(null, "testItem3")),
                                        IdGenerator.generate(),
@@ -113,9 +126,50 @@ public class AddMergerTest extends TestCase {
                                        Constants.ROOT_UUID,
                                        new AccessControlList());
 
-    // create itemState
+    // create /testItem1
+    remoteItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                            new InternalQName(null, testItem1)),
+                                        IdGenerator.generate(),
+                                        0,
+                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        new InternalQName[0],
+                                        0,
+                                        Constants.ROOT_UUID,
+                                        new AccessControlList());
+    // create /testItem1/item11
+    remoteItem11 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                            new InternalQName(null, "item11")),
+                                        IdGenerator.generate(),
+                                        0,
+                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        new InternalQName[0],
+                                        0,
+                                        remoteItem1.getIdentifier(),
+                                        new AccessControlList());
+    // create /testItem1/item12    
+    remoteItem12 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                            new InternalQName(null, "item12")),
+                                        IdGenerator.generate(),
+                                        0,
+                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        new InternalQName[0],
+                                        1,
+                                        remoteItem1.getIdentifier(),
+                                        new AccessControlList());
+    // create /testItem1/item12/item121    
+    remoteItem121 = new TransientNodeData(QPath.makeChildPath(remoteItem12.getQPath(),
+                                                             new InternalQName(null, "item121")),
+                                         IdGenerator.generate(),
+                                         0,
+                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         new InternalQName[0],
+                                         0,
+                                         remoteItem12.getIdentifier(),
+                                         new AccessControlList());
+    
+    // create /testItem2    
     remoteItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
-                                                            new InternalQName(null, conflictName)),
+                                                            new InternalQName(null, testItem2)),
                                         IdGenerator.generate(),
                                         0,
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
@@ -223,6 +277,45 @@ public class AddMergerTest extends TestCase {
    * .
    */
   public void testAddNodeLocalPriority() {
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    localLog.add(new ItemState(localItem1, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(localItem11, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(localItem12, ItemState.ADDED, false, null));
+    localLog.add(new ItemState(localItem2, ItemState.ADDED, false, null));
+    local.addLog(localLog);
+
+    ItemState itemChange = new ItemState(remoteItem2, ItemState.ADDED, false, null);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    remoteLog.add(itemChange);
+
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true);
+    List<ItemState> result = addMerger.merge(itemChange, income, local);
+
+    assertNotNull("Add state expected " + localItem2.getQPath().getAsString(),
+                  findState(result, localItem2.getQPath()));
+
+    assertTrue("Local Add state expected ", findState(result, localItem2.getQPath()) == localItem2);
+
+    assertNotNull("Add state expected " + localItem1.getQPath().getAsString(),
+                  findState(result, localItem1.getQPath()));
+
+    assertNotNull("Add state expected " + localItem11.getQPath().getAsString(),
+                  findState(result, localItem11.getQPath()));
+
+    assertNotNull("Add state expected " + localItem12.getQPath().getAsString(),
+                  findState(result, localItem12.getQPath()));
+  }
+  
+  /**
+   * Test if locally added subtree (high priority) will be accepted by the merger.
+   * Remotely added Node will be rejected. 
+   */
+  public void testAddSubtreeLocalPriority() {
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
