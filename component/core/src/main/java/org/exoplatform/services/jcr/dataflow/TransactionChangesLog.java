@@ -148,6 +148,25 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  /**
+   * Get descendants changes of special state.
+   * 
+   * @param rootPath
+   *          The root path
+   * @param state
+   *          The item state
+   * @return List of item state
+   */
+  public List<ItemState> getDescendantsChanges(QPath rootPath, int state) {
+    List<ItemState> list = new ArrayList<ItemState>();
+    for (ItemState itemState : getAllStates()) {
+      if (itemState.getState() == state && itemState.getData().getQPath().isDescendantOf(rootPath)) {
+        list.add(itemState);
+      }
+    }
+    return list;
+  }
+
   public List<ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
     List<ItemState> list = new ArrayList<ItemState>();
     for (ItemState state : getAllStates()) {
