@@ -79,7 +79,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1
     localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                            new InternalQName(null, testItem1)),
-                                                           SIDGenerator.generate(),
+                                       SIDGenerator.generate(),
                                        0,
                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                        new InternalQName[0],
@@ -89,7 +89,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1/item11
     localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                             new InternalQName(null, "item11")),
-                                                            SIDGenerator.generate(),
+                                        SIDGenerator.generate(),
                                         0,
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                         new InternalQName[0],
@@ -402,21 +402,6 @@ public class AddMergerTest extends TestCase {
     AddMerger addMerger = new AddMerger(true);
     List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
-
-    result = addMerger.merge(remoteItem3Change, income, local);
-    assertEquals("Wrong changes count ", result.size(), 1);
-
-    assertFalse("Local Add state found ", hasState(result, localItem1Change, true));
-    assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
-    assertFalse("Local Add state found ", hasState(result, localItem12Change, true));
-    assertFalse("Local Add state found ", hasState(result, localItem2Change, true));
-
-    assertTrue("Remote Add state expected ", hasState(result, remoteItem3Change, true));
-
-    assertFalse("Remote Add state found ", hasState(result, remoteItem1Change, true));
-    assertFalse("Remote Add state found ", hasState(result, remoteItem11Change, true));
-    assertFalse("Remote Add state found ", hasState(result, remoteItem12Change, true));
-    assertFalse("Remote Add state found ", hasState(result, remoteItem121Change, true));
   }
 
   /**
@@ -453,7 +438,7 @@ public class AddMergerTest extends TestCase {
     AddMerger addMerger = new AddMerger(false);
     List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 8);
+    assertEquals("Wrong changes count ", result.size(), 7);
 
     assertFalse("Local Add state found ", hasState(result, localItem1Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
@@ -473,16 +458,12 @@ public class AddMergerTest extends TestCase {
                                                                               false,
                                                                               null), true));
 
-    assertFalse("Local Remove state found ", hasState(result, new ItemState(localItem2,
-                                                                            ItemState.DELETED,
-                                                                            false,
-                                                                            null), true));
-
     assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem11Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem121Change, true));
-    assertTrue("Remote Add state expected ", hasState(result, remoteItem3Change, true));
+    
+    assertFalse("Remote Add state found ", hasState(result, remoteItem3Change, true));
   }
 
 }
