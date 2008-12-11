@@ -72,15 +72,12 @@ public class AddMerger implements ChangesMerger {
             switch (localState.getState()) {
             case ItemState.ADDED:
               resultState.add(localState);
-              if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+              if (itemData.getQPath().equals(localData.getQPath())) {
                 ignoreItemChange = true;
               }
               break;
             case ItemState.UPDATED:
               resultState.add(localState);
-              if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
-                ignoreItemChange = true;
-              }
               break;
             case ItemState.DELETED:
               resultState.add(localState);
@@ -96,30 +93,42 @@ public class AddMerger implements ChangesMerger {
               break;
             case ItemState.MIXIN_CHANGED:
               resultState.add(localState);
-              // TODO
               break;
             }
 
           } else { // remote priority
             switch (localState.getState()) {
             case ItemState.ADDED:
-              if (!itemData.getQPath().isDescendantOf(localData.getQPath())) {
+              if (itemData.getQPath().equals(localData.getQPath())) {
+                // 2
+                // TODO remove local node
+                // TODO remove from changes log and child records
+                // TODO exportSystemView
+                // TODO importView
+              } else {
                 resultState.add(localState);
               }
               break;
             case ItemState.UPDATED:
-              if (!itemData.getQPath().isDescendantOf(localData.getQPath())) {
-                resultState.add(localState);
-              }
+              resultState.add(localState);
               break;
             case ItemState.DELETED:
+              if (localData.isNode()) {
+
+              } else {
+                resultState.add(localState);
+              }
               // TODO
               break;
             case ItemState.RENAMED:
+              // 2
+              // TODO remove local node
+              // TODO remove from changes log and child records
+              // TODO exportSystemView
+              // TODO importView
               break;
-            // TODO
             case ItemState.MIXIN_CHANGED:
-              // TODO
+              resultState.add(localState);
               break;
             }
           }
