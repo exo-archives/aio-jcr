@@ -68,19 +68,23 @@ public class AddMerger implements ChangesMerger {
         if (isLocalPriority()) { // localPriority
           switch (localState.getState()) {
           case ItemState.ADDED:
-            if (itemData.getQPath().equals(localData.getQPath())) {
+            if (itemData.getQPath().isDescendantOf(localData.getQPath())
+                || itemData.getQPath().equals(localData.getQPath())) {
               return resultState;
             }
             break;
           case ItemState.UPDATED:
             break;
           case ItemState.DELETED:
-            if (localData.isNode() && itemData.getQPath().isDescendantOf(localData.getQPath())) {
+            if (localData.isNode()
+                && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
+                                                                                        .equals(localData.getQPath()))) {
               return resultState;
             }
             break;
           case ItemState.RENAMED:
-            if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+            if (itemData.getQPath().isDescendantOf(localData.getQPath())
+                || itemData.getQPath().equals(localData.getQPath())) {
               return resultState;
             }
             break;
@@ -93,37 +97,45 @@ public class AddMerger implements ChangesMerger {
           case ItemState.ADDED:
             if (itemData.getQPath().equals(localData.getQPath())) {
               // 2
-              // TODO remove local node
-              // TODO remove from changes log and child records
+
+              // TODO remove from local log all child itemstate
+              // TODO remove from income log all child itemstate
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            false,
+                                            localData.getQPath()));
+              return resultState;
               // TODO exportSystemView
               // TODO importView
-            } else {
-              resultState.add(localState);
             }
             break;
           case ItemState.UPDATED:
-            resultState.add(localState);
             break;
           case ItemState.DELETED:
             if (localData.isNode()) {
               // 6
-              // TODO remove from changes log and child records
+              // TODO remove from local log all child itemstate
               // TODO exportSystemView
               // TODO importView
-            } else {
-              resultState.add(localState);
             }
-
             break;
           case ItemState.RENAMED:
-            // 2
-            // TODO remove local node
-            // TODO remove from changes log and child records
-            // TODO exportSystemView
-            // TODO importView
+            if (itemData.getQPath().isDescendantOf(localData.getQPath())
+                || itemData.getQPath().equals(localData.getQPath())) {
+              // 2
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            false,
+                                            localData.getQPath()));
+              return resultState;
+              // TODO remove from local log all child itemstate
+              // TODO remove from income log all childs itemstate
+
+              // TODO exportSystemView (from localdata)
+              // TODO importView
+            }
             break;
           case ItemState.MIXIN_CHANGED:
-            resultState.add(localState);
             break;
           }
         }

@@ -20,6 +20,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.exoplatform.services.idgenerator.impl.IDGeneratorServiceImpl;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -73,11 +74,13 @@ public class AddMergerTest extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
 
+    final IdGenerator idGenerator = new IdGenerator(new IDGeneratorServiceImpl());
+
     final String testItem1 = "testItem1";
     // create /testItem1
     localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                            new InternalQName(null, testItem1)),
-                                       IdGenerator.generate(),
+                                       idGenerator.generate(),
                                        0,
                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                        new InternalQName[0],
@@ -87,7 +90,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1/item11
     localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                             new InternalQName(null, "item11")),
-                                        IdGenerator.generate(),
+                                        idGenerator.generate(),
                                         0,
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                         new InternalQName[0],
@@ -97,7 +100,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1/item12
     localItem12 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                             new InternalQName(null, "item12")),
-                                        IdGenerator.generate(),
+                                        idGenerator.generate(),
                                         0,
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                         new InternalQName[0],
@@ -109,7 +112,7 @@ public class AddMergerTest extends TestCase {
     final String testItem2 = "testItem2";
     localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                            new InternalQName(null, testItem2)),
-                                       IdGenerator.generate(),
+                                       idGenerator.generate(),
                                        0,
                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                        new InternalQName[0],
@@ -121,7 +124,7 @@ public class AddMergerTest extends TestCase {
     final String testItem3 = "testItem3";
     localItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                            new InternalQName(null, testItem3)),
-                                       IdGenerator.generate(),
+                                       idGenerator.generate(),
                                        0,
                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                        new InternalQName[0],
@@ -132,7 +135,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1
     remoteItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                             new InternalQName(null, testItem1)),
-                                        IdGenerator.generate(),
+                                        idGenerator.generate(),
                                         0,
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                         new InternalQName[0],
@@ -142,7 +145,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1/item11
     remoteItem11 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
                                                              new InternalQName(null, "item11")),
-                                         IdGenerator.generate(),
+                                         idGenerator.generate(),
                                          0,
                                          new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                          new InternalQName[0],
@@ -152,7 +155,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1/item12
     remoteItem12 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
                                                              new InternalQName(null, "item12")),
-                                         IdGenerator.generate(),
+                                         idGenerator.generate(),
                                          0,
                                          new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                          new InternalQName[0],
@@ -162,7 +165,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem1/item12/item121
     remoteItem121 = new TransientNodeData(QPath.makeChildPath(remoteItem12.getQPath(),
                                                               new InternalQName(null, "item121")),
-                                          IdGenerator.generate(),
+                                          idGenerator.generate(),
                                           0,
                                           new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                           new InternalQName[0],
@@ -173,7 +176,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem2
     remoteItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                             new InternalQName(null, testItem2)),
-                                        IdGenerator.generate(),
+                                        idGenerator.generate(),
                                         0,
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                         new InternalQName[0],
@@ -184,7 +187,7 @@ public class AddMergerTest extends TestCase {
     // create /testItem3
     remoteItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                             new InternalQName(null, testItem3)),
-                                        IdGenerator.generate(),
+                                        idGenerator.generate(),
                                         0,
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                         new InternalQName[0],
@@ -399,7 +402,9 @@ public class AddMergerTest extends TestCase {
 
     AddMerger addMerger = new AddMerger(true);
     List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    assertEquals("Wrong changes count ", result.size(), 0);
 
+    result = addMerger.merge(remoteItem3Change, income, local);
     assertEquals("Wrong changes count ", result.size(), 1);
 
     assertFalse("Local Add state found ", hasState(result, localItem1Change, true));
@@ -468,13 +473,12 @@ public class AddMergerTest extends TestCase {
                                                                               ItemState.DELETED,
                                                                               false,
                                                                               null), true));
-    
-    assertFalse("Local Remove state found ", hasState(result, new ItemState(localItem2,
-                                                                              ItemState.DELETED,
-                                                                              false,
-                                                                              null), true));
 
-    
+    assertFalse("Local Remove state found ", hasState(result, new ItemState(localItem2,
+                                                                            ItemState.DELETED,
+                                                                            false,
+                                                                            null), true));
+
     assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem11Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
