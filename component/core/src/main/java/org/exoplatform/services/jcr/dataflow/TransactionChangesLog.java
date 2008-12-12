@@ -170,12 +170,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     for (ItemState itemState : getAllStates()) {
       ItemData item = itemState.getData();
       if ((!onlyNodes || item.isNode()) && itemState.getData().getQPath().isDescendantOf(rootPath)) {
-        if (unique) {
-          if (index.get(item.getQPath()) != null) {
-            continue;
-          }
-          index.put(item.getQPath(), itemState);
-        } else {
+        if (!unique || index.get(item.getQPath()) != null) {
           index.put(item.getQPath(), itemState);
         }
       }
