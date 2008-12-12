@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +35,8 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
  */
 public class AddMerger implements ChangesMerger {
 
-  protected final boolean localPriority;
-  
+  protected final boolean        localPriority;
+
   protected final RemoteExporter exporter;
 
   public AddMerger(boolean localPriority, RemoteExporter exporter) {
@@ -52,10 +53,12 @@ public class AddMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws IOException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) {
+                               TransactionChangesLog local) throws IOException {
 
     List<ItemState> resultState = new ArrayList<ItemState>();
 
@@ -96,20 +99,32 @@ public class AddMerger implements ChangesMerger {
         switch (localState.getState()) {
         case ItemState.ADDED:
           if (itemData.getQPath().equals(localData.getQPath())) {
+
+            // add DELETE state for subtree of local changes
+            List<ItemState> items = local.getDescendantsChanges(localData.getQPath(), true, true);
+            for (int i = items.size() - 1; i >= 0; i--) {
+              resultState.add(new ItemState(items.get(i).getData(),
+                                            ItemState.DELETED,
+                                            false,
+                                            items.get(i).getData().getQPath()));
+            }
+            // add DELETE state for root of local changes
             resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
+
+            // add all state from income changes
             resultState.add(itemChange);
-            // get subtree from log
+            resultState.addAll(income.getDescendantsChanges(itemData.getQPath(), false, false));
+
             return resultState;
           }
           break;
         case ItemState.UPDATED:
           break;
         case ItemState.DELETED:
-          if (localData.isNode()) {
-            // 6
-            // TODO remove from local log all child itemstate
-            // TODO exportSystemView
-            // TODO importView
+          if (localData.isNode()
+              && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
+                                                                                      .equals(localData.getQPath()))) {
+            exporter.exportItem(localData.getQPath());
           }
           break;
         case ItemState.RENAMED:

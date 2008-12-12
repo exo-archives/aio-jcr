@@ -16,12 +16,10 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -29,7 +27,6 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -67,9 +64,9 @@ public class AddMergerTest extends BaseStandaloneTest {
   protected ItemData              localItem11;
 
   protected ItemData              localItem12;
-  
+
   protected ItemData              localItem122;
-    
+
   /**
    * {@inheritDoc}
    */
@@ -109,14 +106,14 @@ public class AddMergerTest extends BaseStandaloneTest {
                                         new AccessControlList());
     // create /testItem1/item12/item122
     localItem122 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
-                                                            new InternalQName(null, "item122")),
-                                        IdGenerator.generate(),
-                                        0,
-                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
-                                        new InternalQName[0],
-                                        0,
-                                        localItem1.getIdentifier(),
-                                        new AccessControlList());
+                                                             new InternalQName(null, "item122")),
+                                         IdGenerator.generate(),
+                                         0,
+                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         new InternalQName[0],
+                                         0,
+                                         localItem1.getIdentifier(),
+                                         new AccessControlList());
 
     // create /testItem2
     final String testItem2 = "testItem2";
@@ -244,7 +241,7 @@ public class AddMergerTest extends BaseStandaloneTest {
    * priority of the merger.
    * 
    */
-  public void testAddNodeNoLocalChangesLocalPriority() {
+  public void testAddNodeNoLocalChangesLocalPriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem1Change = new ItemState(localItem1, ItemState.ADDED, false, null);
@@ -278,7 +275,7 @@ public class AddMergerTest extends BaseStandaloneTest {
    * priority of the merger.
    * 
    */
-  public void testAddNodeNoLocalChangesRemotePriority() {
+  public void testAddNodeNoLocalChangesRemotePriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem1Change = new ItemState(localItem1, ItemState.ADDED, false, null);
@@ -312,7 +309,7 @@ public class AddMergerTest extends BaseStandaloneTest {
    * {@link org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger#merge(org.exoplatform.services.jcr.dataflow.ItemState, org.exoplatform.services.jcr.dataflow.CompositeChangesLog, org.exoplatform.services.jcr.dataflow.CompositeChangesLog)}
    * .
    */
-  public void testAddNodeLocalPriority() {
+  public void testAddNodeLocalPriority() throws Exception {
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
@@ -341,7 +338,7 @@ public class AddMergerTest extends BaseStandaloneTest {
   /**
    * Test add of remote Node with higher priorty. The merger should .
    */
-  public void testAddNodeRemotePriority() {
+  public void testAddNodeRemotePriority() throws Exception {
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
@@ -383,7 +380,7 @@ public class AddMergerTest extends BaseStandaloneTest {
    * Test if locally added subtree (high priority) will be accepted by the merger. Remotely added
    * Node will be rejected.
    */
-  public void testAddSubtreeLocalPriority() {
+  public void testAddSubtreeLocalPriority() throws Exception {
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
@@ -419,7 +416,7 @@ public class AddMergerTest extends BaseStandaloneTest {
    * Test if locally added subtree (low priority) will be rejected by the merger. Remotely added
    * subtree will be accepted.
    */
-  public void testAddSubtreeRemotePriority() {
+  public void testAddSubtreeRemotePriority() throws Exception {
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
@@ -484,14 +481,13 @@ public class AddMergerTest extends BaseStandaloneTest {
     assertFalse("Remote Add state found ", hasState(result, remoteItem3Change, true));
   }
 
-  
   // complex usecases require remote export
-  
+
   /**
    * Test the case when local parent removed on high priority node.
-   *
+   * 
    */
-  public void testLocalParentRemovedLocalPriority() {
+  public void testLocalParentRemovedLocalPriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
@@ -511,15 +507,15 @@ public class AddMergerTest extends BaseStandaloneTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
-    
-    assertEquals("Wrong changes count ", result.size(), 0);    
+
+    assertEquals("Wrong changes count ", result.size(), 0);
   }
-  
+
   /**
    * Test the case when local parent removed on low priority node.
-   *
+   * 
    */
-  public void testLocalParentRemovedRemotePriority() {
+  public void testLocalParentRemovedRemotePriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
@@ -539,20 +535,20 @@ public class AddMergerTest extends BaseStandaloneTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
-    
+
     // should restore parent /localItem1/item12
     // and add /localItem1/item12/item121
     assertEquals("Wrong changes count ", result.size(), 2);
-    
+
     assertTrue("Local parent restore expected ", hasState(result, new ItemState(localItem12,
                                                                                 ItemState.ADDED,
                                                                                 false,
                                                                                 null), true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem121Change, true));
-    
+
     assertFalse("Local Add state found ", hasState(result, localItem122Change, true));
     assertFalse("Remote Add state found ", hasState(result, remoteItem2Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
   }
-  
+
 }

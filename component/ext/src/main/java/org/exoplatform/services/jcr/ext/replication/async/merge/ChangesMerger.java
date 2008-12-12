@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -50,9 +51,10 @@ public interface ChangesMerger {
    *          CompositeChangesLog with local changes
    * 
    * @return List of item states with resulting changes
+   * @throws IOException
    */
   List<ItemState> merge(ItemState itemChange,
                         TransactionChangesLog income,
-                        TransactionChangesLog local);
+                        TransactionChangesLog local) throws IOException;
 
 }
