@@ -67,6 +67,8 @@ public class AddMergerTest extends BaseStandaloneTest {
   protected ItemData              localItem11;
 
   protected ItemData              localItem12;
+  
+  protected ItemData              localItem122;
     
   /**
    * {@inheritDoc}
@@ -103,6 +105,16 @@ public class AddMergerTest extends BaseStandaloneTest {
                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
                                         new InternalQName[0],
                                         1,
+                                        localItem1.getIdentifier(),
+                                        new AccessControlList());
+    // create /testItem1/item12/item122
+    localItem122 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                            new InternalQName(null, "item122")),
+                                        IdGenerator.generate(),
+                                        0,
+                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        new InternalQName[0],
+                                        0,
                                         localItem1.getIdentifier(),
                                         new AccessControlList());
 
@@ -417,6 +429,8 @@ public class AddMergerTest extends BaseStandaloneTest {
     localLog.add(localItem11Change);
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
     localLog.add(localItem12Change);
+    final ItemState localItem122Change = new ItemState(localItem122, ItemState.ADDED, false, null);
+    localLog.add(localItem122Change);
     final ItemState localItem2Change = new ItemState(localItem2, ItemState.ADDED, false, null);
     localLog.add(localItem2Change);
     local.addLog(localLog);
@@ -437,11 +451,12 @@ public class AddMergerTest extends BaseStandaloneTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 7);
+    assertEquals("Wrong changes count ", result.size(), 8);
 
     assertFalse("Local Add state found ", hasState(result, localItem1Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem12Change, true));
+    assertFalse("Local Add state found ", hasState(result, localItem122Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem2Change, true));
 
     assertTrue("Local Remove state expected ", hasState(result, new ItemState(localItem1,
@@ -453,6 +468,10 @@ public class AddMergerTest extends BaseStandaloneTest {
                                                                               false,
                                                                               null), true));
     assertTrue("Local Remove state expected ", hasState(result, new ItemState(localItem12,
+                                                                              ItemState.DELETED,
+                                                                              false,
+                                                                              null), true));
+    assertTrue("Local Remove state expected ", hasState(result, new ItemState(localItem122,
                                                                               ItemState.DELETED,
                                                                               false,
                                                                               null), true));
@@ -477,6 +496,8 @@ public class AddMergerTest extends BaseStandaloneTest {
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
     localLog.add(localItem12Change);
+    final ItemState localItem122Change = new ItemState(localItem122, ItemState.DELETED, false, null);
+    localLog.add(localItem122Change);
     final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
     localLog.add(localItem11Change);
     local.addLog(localLog);
@@ -503,6 +524,8 @@ public class AddMergerTest extends BaseStandaloneTest {
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
     localLog.add(localItem12Change);
+    final ItemState localItem122Change = new ItemState(localItem122, ItemState.DELETED, false, null);
+    localLog.add(localItem122Change);
     final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
     localLog.add(localItem11Change);
     local.addLog(localLog);
@@ -517,8 +540,8 @@ public class AddMergerTest extends BaseStandaloneTest {
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
     
-    // should restore parent /localItem1/localItem12
-    // and add /localItem1/localItem12/localItem121
+    // should restore parent /localItem1/item12
+    // and add /localItem1/item12/item121
     assertEquals("Wrong changes count ", result.size(), 2);
     
     assertTrue("Local parent restore expected ", hasState(result, new ItemState(localItem12,
@@ -527,6 +550,7 @@ public class AddMergerTest extends BaseStandaloneTest {
                                                                                 null), true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem121Change, true));
     
+    assertFalse("Local Add state found ", hasState(result, localItem122Change, true));
     assertFalse("Remote Add state found ", hasState(result, remoteItem2Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
   }
