@@ -118,13 +118,6 @@ public class GroovyScript2RestLoader implements Startable {
   private GroovyScriptInstantiator          groovyScriptInstantiator;
 
   /**
-   * See {@link Handler}. Not used in this class but should be in constructor
-   * parameters for correct order of start components.
-   */
-  @SuppressWarnings("unused")
-  private Handler                           handler;
-
-  /**
    * See {@link RepositoryService}.
    */
   private RepositoryService                 repositoryService;
@@ -411,6 +404,13 @@ public class GroovyScript2RestLoader implements Startable {
       loadPlugins.add((GroovyScript2RestLoaderPlugin) cp);
     }
   }
+
+  /**
+   * See {@link Handler}. Not used in this class but should be in constructor
+   * parameters for correct order of start components.
+   */
+  @SuppressWarnings("unused")
+  private Handler                           handler;
 
   /**
    * Add scripts that specified in configuration.
