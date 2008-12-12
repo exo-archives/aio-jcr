@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -66,7 +65,6 @@ import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
-import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -436,7 +434,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     for (NodeTypeData ntData : nodeTypes) {
       if (ntData.getPrimaryItemName() != null) {
         Item primaryItem = dataManager.getItem(nodeData(),
-                                               new QPathEntry(ntData.getName(), 0),
+                                               new QPathEntry(ntData.getPrimaryItemName(), 0),
                                                true);
         if (primaryItem != null)
           return primaryItem;
@@ -2654,24 +2652,27 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     return mtNames;
   }
 
-  public void validateMandatoryChildren() throws ConstraintViolationException,
-                                         AccessDeniedException,
-                                         RepositoryException {
-
-    Collection<ItemDefinitionData> mandatoryItemDefs = session.getWorkspace()
-                                                              .getNodeTypesHolder()
-                                                              .getManadatoryItemDefs(nodeData().getPrimaryTypeName(),
-                                                                                     nodeData().getMixinTypeNames());
-    for (ItemDefinitionData itemDefinitionData : mandatoryItemDefs) {
-
-      if (getSession().getTransientNodesManager()
-                      .getItemData(nodeData(), new QPathEntry(itemDefinitionData.getName(), 0)) == null)
-        throw new ConstraintViolationException("Mandatory item " + itemDefinitionData.getName()
-            + " not found. Node [" + getPath() + " primary type: "
-            + this.getPrimaryNodeType().getName() + "]");
-
-    }
-  }
+  // public void validateMandatoryChildren() throws
+  // ConstraintViolationException,
+  // AccessDeniedException,
+  // RepositoryException {
+  //
+  // Collection<ItemDefinitionData> mandatoryItemDefs = session.getWorkspace()
+  // .getNodeTypesHolder()
+  // .getManadatoryItemDefs(nodeData().getPrimaryTypeName(),
+  // nodeData().getMixinTypeNames());
+  // for (ItemDefinitionData itemDefinitionData : mandatoryItemDefs) {
+  //
+  // if (getSession().getTransientNodesManager()
+  // .getItemData(nodeData(), new QPathEntry(itemDefinitionData.getName(), 0))
+  // == null)
+  // throw new ConstraintViolationException("Mandatory item " +
+  // itemDefinitionData.getName()
+  // + " not found. Node [" + getPath() + " primary type: "
+  // + this.getPrimaryNodeType().getName() + "]");
+  //
+  // }
+  // }
 
   // ----------------------------- ExtendedNode -----------------------------
 

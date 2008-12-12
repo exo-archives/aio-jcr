@@ -95,8 +95,8 @@ public class NodeTypeImpl implements ExtendedNodeType {
     try {
       InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
 
-      NodeDefinitionData cdef = typesHolder.findChildNodeDefinition(cname, data.getName());
-      return cdef != null;
+      NodeDefinitionData childNodeDef = typesHolder.findChildNodeDefinition(cname, data.getName());
+      return !(childNodeDef == null || childNodeDef.isProtected() || childNodeDef.getDefaultPrimaryType() == null);
     } catch (RepositoryException e) {
       LOG.error("canAddChildNode " + e, e);
       return false;
@@ -111,8 +111,11 @@ public class NodeTypeImpl implements ExtendedNodeType {
       InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
       InternalQName ntname = locationFactory.parseJCRName(nodeTypeName).getInternalName();
 
-      NodeDefinitionData cdef = typesHolder.getChildNodeDefinition(cname, ntname, data.getName());
-      return cdef != null;
+      NodeDefinitionData childNodeDef = typesHolder.getChildNodeDefinition(cname,
+                                                                           ntname,
+                                                                           data.getName());
+      return !(childNodeDef == null || childNodeDef.isProtected())
+          && isChildNodePrimaryTypeAllowed(nodeTypeName);
     } catch (RepositoryException e) {
       if (LOG.isDebugEnabled())
         LOG.debug("canAddChildNode " + e, e);

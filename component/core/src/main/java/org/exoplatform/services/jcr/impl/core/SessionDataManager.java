@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
+import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -1175,10 +1176,11 @@ public class SessionDataManager implements ItemDataConsumer {
           // TODO do not use JCR API NodeImpl, we just need Nodes/Properties
           // definition of all NTs
           // here
-          NodeImpl node = itemFactory.createNode(nData);
+          // NodeImpl node = itemFactory.createNode(nData);
           // TODO move code from validateMandatoryChildren() to
           // SessionDataManager.validateMandatoryChildren(NodeData, ChangesLog)
-          node.validateMandatoryChildren();
+          // node.validateMandatoryChildren();
+          validateMandatoryChildren(nData);
         } catch (ConstraintViolationException e) {
           throw e;
         } catch (AccessDeniedException e) {
@@ -1188,6 +1190,24 @@ public class SessionDataManager implements ItemDataConsumer {
               + e.getLocalizedMessage());
         }
       }
+    }
+  }
+
+  public void validateMandatoryChildren(NodeData nData) throws ConstraintViolationException,
+                                                       AccessDeniedException,
+                                                       RepositoryException {
+
+    Collection<ItemDefinitionData> mandatoryItemDefs = session.getWorkspace()
+                                                              .getNodeTypesHolder()
+                                                              .getManadatoryItemDefs(nData.getPrimaryTypeName(),
+                                                                                     nData.getMixinTypeNames());
+    for (ItemDefinitionData itemDefinitionData : mandatoryItemDefs) {
+
+      if (getItemData(nData, new QPathEntry(itemDefinitionData.getName(), 0)) == null)
+        throw new ConstraintViolationException("Mandatory item " + itemDefinitionData.getName()
+            + " not found. Node [" + nData.getQPath().getAsString() + " primary type: "
+            + nData.getPrimaryTypeName().getAsString() + "]");
+
     }
   }
 
