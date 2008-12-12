@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -152,6 +151,22 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  public Collection<ItemState> getDescendantsChanges(QPath rootPath,
+                                                     boolean onlyNodes,
+                                                     boolean unique) {
+    HashMap<Object, ItemState> index = new HashMap<Object, ItemState>();
+
+    for (ItemState itemState : getAllStates()) {
+      ItemData item = itemState.getData();
+      if ((!onlyNodes || item.isNode()) && itemState.getData().getQPath().isDescendantOf(rootPath)) {
+        if (!unique || index.get(item.getQPath()) == null) {
+          index.put(item.getQPath(), itemState);
+        }
+      }
+    }
+    return index.values();
+  }
+
   public List<ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
     List<ItemState> list = new ArrayList<ItemState>();
     for (ItemState state : getAllStates()) {
@@ -160,22 +175,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
         list.add(state);
     }
     return list;
-  }
-
-  public Collection<ItemState> getDescendantsChanges(QPath rootPath,
-                                                     boolean onlyNodes,
-                                                     boolean unique) {
-    Map<Object, ItemState> index = new HashMap<Object, ItemState>();
-
-    for (ItemState itemState : getAllStates()) {
-      ItemData item = itemState.getData();
-      if ((!onlyNodes || item.isNode()) && itemState.getData().getQPath().isDescendantOf(rootPath)) {
-        if (!unique || index.get(item.getQPath()) != null) {
-          index.put(item.getQPath(), itemState);
-        }
-      }
-    }
-    return index.values();
   }
 
   /**
