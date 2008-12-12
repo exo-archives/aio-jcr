@@ -16,8 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
 
 /**
@@ -36,20 +36,24 @@ public class MergeDataManager {
   
   protected final AddMerger addMerger;
   
-  MergeDataManager(WorkspaceSynchronizer synchronizer) {
+  MergeDataManager(WorkspaceSynchronizer synchronizer, AsyncTransmitter transmitter) {
     this.synchronizer = synchronizer;
     
-    this.exporter = new RemoteExporterImpl();
+    this.exporter = new RemoteExporterImpl(transmitter);
     
     this.addMerger = new AddMerger(synchronizer.getLocalPriority(), exporter);
   }
   
-  public void onSynchronization(CompositeChangesLog incomeChanges) {
+  /**
+   * Start merge process.
+   *
+   * @param incomeChanges TransactionChangesLog
+   */
+  public void merge(TransactionChangesLog incomeChanges) {
   
     for (ItemState change : incomeChanges.getAllStates()) {
       
-    }
-    
+    }  
   }
   
   
