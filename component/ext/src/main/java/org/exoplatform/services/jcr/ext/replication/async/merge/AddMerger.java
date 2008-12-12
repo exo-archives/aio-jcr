@@ -132,8 +132,7 @@ public class AddMerger implements ChangesMerger {
           if (localData.isNode()
               && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
                                                                                       .equals(localData.getQPath()))) {
-            resultState.addAll(exporter.exportItem(localData.getParentIdentifier())
-                                       .getAllStates());
+            resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
             return resultState;
 
           }
@@ -164,8 +163,7 @@ public class AddMerger implements ChangesMerger {
                                             localData.getQPath()));
             }
 
-            resultState.addAll(exporter.exportItem(localData.getParentIdentifier())
-                                       .getAllStates());
+            resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
             return resultState;
           }
           break;

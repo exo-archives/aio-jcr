@@ -512,6 +512,55 @@ public class AddMergerTest extends BaseStandaloneTest {
   }
 
   /**
+   * Test the case when local parent added and then removed on high priority node.
+   * 
+   */
+  public void testLocalParentRemovedLocalPriority2() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
+    localLog.add(localItem12Change);
+    localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem12Change);
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Test the case when local parent added and then removed on low priority node.
+   * 
+   */
+  public void testLocalParentRemovedRemotePriority2() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
+    localLog.add(localItem12Change);
+    localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem12Change);
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
+  }
+
+  /**
    * Test the case when local parent removed on low priority node.
    * 
    */
