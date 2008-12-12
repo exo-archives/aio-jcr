@@ -441,7 +441,7 @@ public class GroovyScript2RestLoader implements Startable {
             if (node.hasNode(t))
               node = node.getNode(t);
             else
-              node = node.addNode(t);
+              node = node.addNode(t, "nt:folder");
           }
         }
 
