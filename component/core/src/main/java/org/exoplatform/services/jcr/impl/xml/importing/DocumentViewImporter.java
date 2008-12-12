@@ -382,19 +382,25 @@ public class DocumentViewImporter extends BaseXmlImporter {
     ImportNodeData nodeData = new ImportNodeData(getParent(), jcrName, getNodeIndex(getParent(),
                                                                                     jcrName,
                                                                                     null));
-
+    InternalQName[] allNodeTypes = new InternalQName[nodeTypes.size() + mixinNodeTypes.size()];
+    for (int i = 0; i < nodeTypes.size(); i++) {
+      allNodeTypes[i] = nodeTypes.get(i).getName();
+    }
+    for (int i = 0; i < mixinNodeTypes.size(); i++) {
+      allNodeTypes[nodeTypes.size() + i] = mixinNodeTypes.get(i);
+    }
     nodeData.setPrimaryTypeName(locationFactory.parseJCRName(propertiesMap.get(Constants.JCR_PRIMARYTYPE))
                                                .getInternalName());
 
     nodeData.setOrderNumber(getNextChildOrderNum(getParent()));
     nodeData.setMixinTypeNames(mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size()]));
     nodeData.setMixReferenceable(nodeTypeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                                                                nodeTypes.toArray(new InternalQName[nodeTypes.size()])));
+                                                                allNodeTypes));
     nodeData.setIdentifier(IdGenerator.generate());
 
     if (nodeData.isMixReferenceable()) {
       nodeData.setMixVersionable(nodeTypeDataManager.isNodeType(Constants.MIX_VERSIONABLE,
-                                                                nodeTypes.toArray(new InternalQName[nodeTypes.size()])));
+                                                                allNodeTypes));
       checkReferenceable(nodeData, propertiesMap.get(Constants.JCR_UUID));
     }
     return nodeData;
@@ -531,12 +537,20 @@ public class DocumentViewImporter extends BaseXmlImporter {
       NodeDefinitionData nodeNt = nodeTypeDataManager.findChildNodeDefinition(nodeName,
                                                                               parent.getPrimaryTypeName(),
                                                                               parent.getMixinTypeNames());
-      if (nodeNt == null)
+      NodeTypeData nodeType;
+      if (nodeNt.getName().equals(Constants.JCR_ANY_NAME)) {
+        nodeType = nodeTypeDataManager.findNodeType(nodeNt.getDefaultPrimaryType());
+      } else {
+        nodeType = nodeTypeDataManager.findNodeType(nodeNt.getName());
+      }
+
+      if (nodeType == null)
         throw new ConstraintViolationException("Can not define node-type for node "
             + nodeName.getAsString() + ", parent node type "
             + parent.getPrimaryTypeName().getAsString());
-      nodeTypes.add(nodeTypeDataManager.findNodeType(nodeNt.getName()));
-      props.put(Constants.JCR_PRIMARYTYPE, locationFactory.createJCRName(nodeNt.getName())
+
+      nodeTypes.add(nodeType);
+      props.put(Constants.JCR_PRIMARYTYPE, locationFactory.createJCRName(nodeType.getName())
                                                           .getAsString());
     }
 
@@ -554,7 +568,10 @@ public class DocumentViewImporter extends BaseXmlImporter {
         if (Constants.JCR_PRIMARYTYPE.equals(propInternalQName)) {
           String primaryNodeType = StringConverter.denormalizeString(attValue);
           InternalQName ntName = locationFactory.parseJCRName(primaryNodeType).getInternalName();
-          nodeTypes.add(nodeTypeDataManager.findNodeType(ntName));
+          NodeTypeData nodeType = nodeTypeDataManager.findNodeType(ntName);
+          if (nodeType == null)
+            throw new ConstraintViolationException("Can not find node type " + primaryNodeType);
+          nodeTypes.add(nodeType);
           props.put(propInternalQName, primaryNodeType);
         } else if (Constants.JCR_MIXINTYPES.equals(propInternalQName)) {
           String[] amTypes = attValue.split(" ");
@@ -562,7 +579,11 @@ public class DocumentViewImporter extends BaseXmlImporter {
             amTypes[mi] = StringConverter.denormalizeString(amTypes[mi]);
             InternalQName name = locationFactory.parseJCRName(amTypes[mi]).getInternalName();
             mixinNodeTypes.add(name);
-            nodeTypes.add(nodeTypeDataManager.findNodeType(name));
+            NodeTypeData nodeType = nodeTypeDataManager.findNodeType(name);
+            if (nodeType == null)
+              throw new ConstraintViolationException("Can not find node type " + amTypes[mi]);
+
+            nodeTypes.add(nodeType);
           }
           // value will not be used anywhere; for key only
           props.put(propInternalQName, null);

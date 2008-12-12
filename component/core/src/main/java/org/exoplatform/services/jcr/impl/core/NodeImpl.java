@@ -647,7 +647,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     // Check if nodeType exists and not mixin
     String ptStr = sysLocFactory.createJCRName(primaryTypeName).getAsString();
     NodeTypeDataManager nodeTypeDataManager = session.getWorkspace().getNodeTypesHolder();
-    if (nodeTypeDataManager.findNodeType(primaryTypeName).isMixin())
+    NodeTypeData nodeType = nodeTypeDataManager.findNodeType(primaryTypeName);
+    if (nodeType == null)
+      throw new NoSuchNodeTypeException("Nodetype not found " + primaryTypeName.getAsString());
+
+    if (nodeType.isMixin())
       throw new ConstraintViolationException("Add Node failed: Node Type <" + ptStr
           + "> is MIXIN type!");
 

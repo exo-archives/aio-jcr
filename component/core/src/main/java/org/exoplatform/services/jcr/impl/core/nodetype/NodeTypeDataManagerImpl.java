@@ -522,8 +522,25 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
                                                         InternalQName... nodeTypeNames) {
 
-    // TODO residual
-    return defsHolder.getPropertyDefinitions(propertyName, nodeTypeNames);
+    PropertyDefinitionDatas propertyDefinitions = defsHolder.getPropertyDefinitions(propertyName,
+                                                                                    nodeTypeNames);
+    // Try super
+    if (propertyDefinitions.getAnyDefinition() == null) {
+      for (int i = 0; i < nodeTypeNames.length && propertyDefinitions.getAnyDefinition() == null; i++) {
+        InternalQName[] supers = hierarchy.getNodeType(nodeTypeNames[i])
+                                          .getDeclaredSupertypeNames();
+        propertyDefinitions = getPropertyDefinitions(propertyName, supers);
+
+      }
+    }
+
+    // try residual def
+    if (propertyDefinitions.getAnyDefinition() == null
+        && !propertyName.equals(Constants.JCR_ANY_NAME)) {
+      propertyDefinitions = getPropertyDefinitions(Constants.JCR_ANY_NAME, nodeTypeNames);
+    }
+
+    return propertyDefinitions;
   }
 
   /**
@@ -561,8 +578,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         nts[i + 1] = mixinTypes[i];
       }
       return getPropertyDefinitions(propertyName, nts);
-    } else
-      return getPropertyDefinitions(propertyName, primaryNodeType);
+    }
+
+    return getPropertyDefinitions(propertyName, primaryNodeType);
   }
 
   /**

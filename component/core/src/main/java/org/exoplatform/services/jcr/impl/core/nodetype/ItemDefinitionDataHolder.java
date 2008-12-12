@@ -141,7 +141,7 @@ public class ItemDefinitionDataHolder {
   public PropertyDefinitionDatas getPropertyDefinitions(final InternalQName propertyName,
                                                         final InternalQName... nodeTypes) {
 
-    final PropertyDefinitionDatas pdefs = new PropertyDefinitionDatas();
+    PropertyDefinitionDatas pdefs = new PropertyDefinitionDatas();
 
     for (InternalQName nt : nodeTypes) {
       // single-valued
@@ -156,12 +156,8 @@ public class ItemDefinitionDataHolder {
       if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
         pdefs.setDefinition(def); // set if same is not exists
 
-      // TODO try residual
+      // try residual
 
-      if (pdefs.getAnyDefinition() == null && !propertyName.equals(Constants.JCR_ANY_NAME)) {
-        // try residual def
-        return getPropertyDefinitions(Constants.JCR_ANY_NAME, nodeTypes);
-      }
     }
 
     return pdefs;

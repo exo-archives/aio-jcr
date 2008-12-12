@@ -49,9 +49,10 @@ public class NodeDefinitionImpl extends ItemDefinitionImpl implements NodeDefini
     this.requiredNodeTypes = requiredNodeTypes;
     this.defaultNodeType = defaultNodeType;
     this.multiple = multiple;
-    
-    int hk = 31 * this.hashCode + requiredNodeTypes.hashCode(); 
-    hk = 31 * hk + defaultNodeType.hashCode();
+
+    int hk = 31 * this.hashCode + requiredNodeTypes.hashCode();
+    if (defaultNodeType != null)
+      hk = 31 * hk + defaultNodeType.hashCode();
     this.hashCode = 31 * hk + (multiple ? 0 : 1);
   }
 

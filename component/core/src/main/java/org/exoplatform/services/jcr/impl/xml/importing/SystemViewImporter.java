@@ -414,15 +414,13 @@ public class SystemViewImporter extends BaseXmlImporter {
     ImportNodeData currentNodeInfo = (ImportNodeData) tree.pop();
 
     currentNodeInfo.setMixReferenceable(nodeTypeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                                                                       currentNodeInfo.getNodeTypes()
-                                                                                      .toArray(new InternalQName[currentNodeInfo.getNodeTypes()
-                                                                                                                                .size()])));
+                                                                       currentNodeInfo.getPrimaryTypeName(),
+                                                                       currentNodeInfo.getMixinTypeNames()));
 
     if (currentNodeInfo.isMixReferenceable()) {
       currentNodeInfo.setMixVersionable(nodeTypeDataManager.isNodeType(Constants.MIX_VERSIONABLE,
-                                                                       currentNodeInfo.getNodeTypes()
-                                                                                      .toArray(new InternalQName[currentNodeInfo.getNodeTypes()
-                                                                                                                                .size()])));
+                                                                       currentNodeInfo.getPrimaryTypeName(),
+                                                                       currentNodeInfo.getMixinTypeNames()));
       checkReferenceable(currentNodeInfo, propertyInfo.getValues().get(0).toString());
     }
 

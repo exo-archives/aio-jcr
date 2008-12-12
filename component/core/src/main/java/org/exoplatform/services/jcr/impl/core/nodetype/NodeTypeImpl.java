@@ -207,9 +207,21 @@ public class NodeTypeImpl implements ExtendedNodeType {
    * {@inheritDoc}
    */
   public NodeDefinition[] getChildNodeDefinitions() {
-
+    NodeDefinitionData[] nodeDefs = typesHolder.getAllChildNodeDefinitions(new InternalQName[] { data.getName() });
     // TODO declared and from super
-    return null;
+    NodeDefinition[] ndefs = new NodeDefinition[nodeDefs.length];
+    for (int i = 0; i < nodeDefs.length; i++) {
+      NodeDefinitionData cnd = nodeDefs[i];
+      try {
+        ndefs[i] = makeNodeDefinition(cnd);
+      } catch (NoSuchNodeTypeException e) {
+        LOG.error("Node type not found " + e, e);
+      } catch (RepositoryException e) {
+        LOG.error("Error of declared child node definition create " + e, e);
+      }
+    }
+
+    return ndefs;
   }
 
   public NodeDefinition[] getDeclaredChildNodeDefinitions() {
