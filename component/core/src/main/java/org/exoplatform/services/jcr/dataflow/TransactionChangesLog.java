@@ -152,25 +152,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
-  /**
-   * Get descendants changes of special state.
-   * 
-   * @param rootPath
-   *          The root path
-   * @param state
-   *          The item state
-   * @return List of item state
-   */
-  public List<ItemState> getDescendantsChanges(QPath rootPath, int state) {
-    List<ItemState> list = new ArrayList<ItemState>();
-    for (ItemState itemState : getAllStates()) {
-      if (itemState.getState() == state && itemState.getData().getQPath().isDescendantOf(rootPath)) {
-        list.add(itemState);
-      }
-    }
-    return list;
-  }
-
   public List<ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
     List<ItemState> list = new ArrayList<ItemState>();
     for (ItemState state : getAllStates()) {
@@ -181,15 +162,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return list;
   }
 
-  /**
-   * 
-   * getDescendantsChanges.
-   * 
-   * @param rootPath
-   * @param onlyNodes
-   * @param unique
-   * @return
-   */
   public Collection<ItemState> getDescendantsChanges(QPath rootPath,
                                                      boolean onlyNodes,
                                                      boolean unique) {
@@ -197,7 +169,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
     for (ItemState itemState : getAllStates()) {
       ItemData item = itemState.getData();
-      if (!onlyNodes || item.isNode()) {
+      if ((!onlyNodes || item.isNode()) && itemState.getData().getQPath().isDescendantOf(rootPath)) {
         if (unique) {
           if (index.get(item.getQPath()) != null) {
             continue;
