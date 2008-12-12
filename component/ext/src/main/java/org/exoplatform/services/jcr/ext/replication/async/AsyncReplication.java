@@ -19,6 +19,14 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.picocontainer.Startable;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -27,6 +35,45 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class AsyncReplication {
+public class AsyncReplication implements Startable {
 
+  protected final ManageableRepository repository;
+  
+  public AsyncReplication(RepositoryService repoService, InitParams params) throws RepositoryException, RepositoryConfigurationException {
+    this.repository = repoService.getDefaultRepository();
+    
+    // TODO params to a local var(s)
+    
+    // TODO restore previous state if it's restart
+    // handle local restoration or cleanups of unfinished or breaked work
+    
+    // Ready to begin...
+    // TODO Init 
+    init();
+  }
+  
+  /**
+   * Initializer.
+   *
+   */
+  private void init() {
+    // TODO add listeners to a Repository Workspaces
+    
+    // TODO Initialize schedulling for AsyncInitializer on high priority node.
+    
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void start() {
+    // TODO start after the JCR Repo started 
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void stop() {
+    // TODO stop after the JCR Repo stopped
+  }
 }

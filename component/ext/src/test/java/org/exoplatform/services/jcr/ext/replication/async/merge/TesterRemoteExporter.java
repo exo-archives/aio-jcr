@@ -21,41 +21,48 @@ import java.io.IOException;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteChangesEvent;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 11.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class TesterRemoteExporter implements RemoteExporter {
 
   private final ItemStateChangesLog changes;
-  
+
   /**
    * Wrapped RemoteExporter.
-   *
+   * 
    */
   TesterRemoteExporter(ItemStateChangesLog changes) {
     this.changes = changes;
   }
-  
+
   /**
    * Empty RemoteExporter.
-   *
+   * 
    */
   TesterRemoteExporter() {
     this.changes = new PlainChangesLogImpl();
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public ItemStateChangesLog exportItem(QPath path) throws IOException {
-    return changes; 
+    return changes;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public void onRemoteChanges(RemoteChangesEvent event) {
+    // dummy
+  }
 }

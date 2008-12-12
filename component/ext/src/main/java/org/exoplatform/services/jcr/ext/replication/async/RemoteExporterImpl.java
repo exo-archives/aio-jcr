@@ -32,12 +32,32 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  */
 public class RemoteExporterImpl implements RemoteExporter {
 
+  protected final AsyncTransmitter transmitter;
+  
+  RemoteExporterImpl(AsyncTransmitter transmitter) {
+    this.transmitter = transmitter;
+  }
+  
   /**
    * {@inheritDoc}
    */
   public ItemStateChangesLog exportItem(QPath path) throws IOException {
     
-    return new PlainChangesLogImpl(); // TODO 
+    // send request
+    transmitter.sendGetExport(path);
+    
+    // TODO lock and wait for responce, error or timeout 
+    
+    return new PlainChangesLogImpl(); // TODO return responce changes 
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public void onRemoteChanges(RemoteChangesEvent event) {
+    // get responce - remote changes
+    if (event.getCommand().equals("REMOTE_EXPORT_BLAH-BLAH")) { // TODO 
+      // TODO cooperate with exportItem lock waiter
+    }
+  }  
 }

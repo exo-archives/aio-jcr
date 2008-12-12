@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -19,29 +16,39 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.IOException;
-
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * Handles remote item export requests. Returns item copy from a remote host.
- * Remote item will be returned as <code>ItemStateChangesLog</code>. 
+ * <br/>Date: 12.12.2008
  * 
- * <br/>Date: 11.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface RemoteExporter extends RemoteChangesListener {
+public class RemoteChangesEvent {
+
+  private final TransactionChangesLog changes;
+
+  private final String                command;
+
+  RemoteChangesEvent(String command, TransactionChangesLog changes) {
+    this.changes = changes;
+    this.command = command;
+  }
 
   /**
-   * Exports remote item and return chnages log with ADD states.
-   *
-   * @return ItemStateChangesLog
+   * @return the changes
    */
-  ItemStateChangesLog exportItem(QPath path) throws IOException;
-  
+  public TransactionChangesLog getChanges() {
+    return changes;
+  }
+
+  /**
+   * @return the command
+   */
+  public String getCommand() {
+    return command;
+  }
+
 }

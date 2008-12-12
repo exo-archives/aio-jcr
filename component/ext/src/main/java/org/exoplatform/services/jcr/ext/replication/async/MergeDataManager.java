@@ -17,7 +17,8 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
-import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -29,14 +30,28 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
  */
 public class MergeDataManager {
 
-  protected final DataManager dataManager;
+  protected final WorkspaceSynchronizer synchronizer;
   
-  public MergeDataManager(DataManager dataManager) {
-    this.dataManager = dataManager;
+  protected final RemoteExporter exporter;
+  
+  protected final AddMerger addMerger;
+  
+  MergeDataManager(WorkspaceSynchronizer synchronizer) {
+    this.synchronizer = synchronizer;
+    
+    this.exporter = new RemoteExporterImpl();
+    
+    this.addMerger = new AddMerger(synchronizer.getLoacalPriority(), exporter);
   }
   
-  public void onSynchronization(CompositeChangesLog income) {
+  public void onSynchronization(CompositeChangesLog incomeChanges) {
+  
+    for (ItemState change : incomeChanges.getAllStates()) {
+      
+    }
     
   }
+  
+  
   
 }
