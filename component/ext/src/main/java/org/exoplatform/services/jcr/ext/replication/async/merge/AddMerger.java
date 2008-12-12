@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -101,12 +102,16 @@ public class AddMerger implements ChangesMerger {
           if (itemData.getQPath().equals(localData.getQPath())) {
 
             // add DELETE state for subtree of local changes
-            List<ItemState> items = local.getDescendantsChanges(localData.getQPath(), true, true);
-            for (int i = items.size() - 1; i >= 0; i--) {
-              resultState.add(new ItemState(items.get(i).getData(),
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
+                                                                                true,
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              resultState.add(new ItemState(itemsArray[i].getData(),
                                             ItemState.DELETED,
                                             false,
-                                            items.get(i).getData().getQPath()));
+                                            itemsArray[i].getData().getQPath()));
             }
             // add DELETE state for root of local changes
             resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
@@ -124,7 +129,8 @@ public class AddMerger implements ChangesMerger {
           if (localData.isNode()
               && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
                                                                                       .equals(localData.getQPath()))) {
-            exporter.exportItem(localData.getQPath());
+            resultState.addAll(exporter.exportItem(localData.getQPath()).getAllStates());
+
           }
           break;
         case ItemState.RENAMED:
