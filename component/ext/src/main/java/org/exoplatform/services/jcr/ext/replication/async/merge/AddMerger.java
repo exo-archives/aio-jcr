@@ -54,8 +54,6 @@ public class AddMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
-   * 
-   * @throws IOException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
@@ -94,7 +92,6 @@ public class AddMerger implements ChangesMerger {
         case ItemState.MIXIN_CHANGED:
           break;
         }
-
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
@@ -138,7 +135,6 @@ public class AddMerger implements ChangesMerger {
               || itemData.getQPath().equals(localData.getQPath())) {
 
             // add DELETE state for subtree of local changes
-            // TODO is for all itemstate
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
                                                                                 true,
                                                                                 true);

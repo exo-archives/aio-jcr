@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class DeleteMerger implements ChangesMerger {
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) {
+                               TransactionChangesLog local) throws IOException {
     List<ItemState> resultState = new ArrayList<ItemState>();
     ItemData itemData = itemChange.getData();
 
@@ -81,7 +82,6 @@ public class DeleteMerger implements ChangesMerger {
           // TODO
           break;
         }
-
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
