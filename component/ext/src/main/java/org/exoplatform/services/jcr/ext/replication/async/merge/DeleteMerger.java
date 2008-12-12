@@ -16,10 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
@@ -54,7 +56,56 @@ public class DeleteMerger implements ChangesMerger {
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
                                TransactionChangesLog local) {
-    // TODO Auto-generated method stub
-    return null;
+    List<ItemState> resultState = new ArrayList<ItemState>();
+    ItemData itemData = itemChange.getData();
+
+    for (ItemState localState : local.getAllStates()) {
+
+      ItemData localData = localState.getData();
+
+      if (isLocalPriority()) { // localPriority
+        switch (localState.getState()) {
+        case ItemState.ADDED:
+          // TODO
+          break;
+        case ItemState.UPDATED:
+          // TODO
+          break;
+        case ItemState.DELETED:
+          // TODO
+          break;
+        case ItemState.RENAMED:
+          // TODO
+          break;
+        case ItemState.MIXIN_CHANGED:
+          // TODO
+          break;
+        }
+
+      } else { // remote priority
+        switch (localState.getState()) {
+        case ItemState.ADDED:
+          // TODO
+          break;
+        case ItemState.UPDATED:
+          // TODO
+          break;
+        case ItemState.DELETED:
+          // TODO
+          break;
+        case ItemState.RENAMED:
+          // TODO
+          break;
+        case ItemState.MIXIN_CHANGED:
+          // TODO
+          break;
+        }
+      }
+    }
+
+    // add item if not processed
+    resultState.add(itemChange);
+
+    return resultState;
   }
 }

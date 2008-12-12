@@ -105,7 +105,7 @@ public class AddMergerTest extends BaseStandaloneTest {
                                         localItem1.getIdentifier(),
                                         new AccessControlList());
     // create /testItem1/item12/item122
-    localItem122 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+    localItem122 = new TransientNodeData(QPath.makeChildPath(localItem12.getQPath(),
                                                              new InternalQName(null, "item122")),
                                          IdGenerator.generate(),
                                          0,
@@ -545,14 +545,90 @@ public class AddMergerTest extends BaseStandaloneTest {
     // and add /localItem1/item12/item121
     assertEquals("Wrong changes count ", result.size(), 2);
 
-    assertTrue("Local parent restore expected ", hasState(result, new ItemState(remoteItem12,
-                                                                                ItemState.ADDED,
-                                                                                false,
-                                                                                null), true));
+    assertTrue("Remote parent restore expected ", hasState(result, new ItemState(remoteItem12,
+                                                                                 ItemState.ADDED,
+                                                                                 false,
+                                                                                 null), true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem121Change, true));
 
     assertFalse("Local Add state found ", hasState(result, localItem122Change, true));
     assertFalse("Remote Add state found ", hasState(result, remoteItem2Change, true));
+    assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
+  }
+
+  /**
+   * Test the case when local parent renamed on high priority node.
+   * 
+   */
+  public void testLocalParentRenamedLocalPriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.RENAMED, false, null);
+    localLog.add(localItem12Change);
+    final ItemState localItem122Change = new ItemState(localItem122, ItemState.RENAMED, false, null);
+    localLog.add(localItem122Change);
+    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem12Change);
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Test the case when local parent removed on low priority node.
+   * 
+   */
+  public void testLocalParentRenamedRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.RENAMED, false, null);
+    localLog.add(localItem12Change);
+    final ItemState localItem122Change = new ItemState(localItem122, ItemState.RENAMED, false, null);
+    localLog.add(localItem122Change);
+    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.ADDED, false, null);
+    final ItemState remoteItem121Change = new ItemState(remoteItem121, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem121Change);
+    final ItemState remoteItem2Change = new ItemState(remoteItem2, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem2Change);
+    income.addLog(remoteLog);
+
+    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    exportLog.add(remoteItem12Change);
+    exportLog.add(remoteItem121Change);
+
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog));
+    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+
+    // should restore parent /localItem1/item12
+    // and add /localItem1/item12/item121
+    assertEquals("Wrong changes count ", result.size(), 4);
+
+    assertTrue("Remote parent restore expected ", hasState(result, new ItemState(remoteItem12,
+                                                                                 ItemState.ADDED,
+                                                                                 false,
+                                                                                 null), true));
+    assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
+    assertTrue("Local parent remove expected ", hasState(result, new ItemState(localItem122,
+                                                                               ItemState.DELETED,
+                                                                               false,
+                                                                               null), true));
+    assertTrue("Local child remove expected ", hasState(result, new ItemState(localItem12,
+                                                                              ItemState.DELETED,
+                                                                              false,
+                                                                              null), true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
   }
 }

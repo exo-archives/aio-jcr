@@ -64,7 +64,6 @@ public class AddMerger implements ChangesMerger {
     List<ItemState> resultState = new ArrayList<ItemState>();
     ItemData itemData = itemChange.getData();
 
-    // iterate all logs
     for (ItemState localState : local.getAllStates()) {
 
       ItemData localData = localState.getData();
@@ -164,6 +163,7 @@ public class AddMerger implements ChangesMerger {
       }
     }
 
+    // add item if not processed
     resultState.add(itemChange);
 
     return resultState;
