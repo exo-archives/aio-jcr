@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -43,6 +44,9 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest{
     d.accept(vis);
     List<ItemState> list = vis.getItemAddStates();
     assertEquals(4,list.size());
+    
+    ItemState st;
+    st = list.get(0);
   }
   
   public void testGetItemAddStatesSubNodes() throws Exception{
@@ -56,7 +60,41 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest{
     d.accept(vis);
     List<ItemState> list = vis.getItemAddStates();
     assertEquals(8,list.size());
+  }
+  
+  public void testGetItemVersion() throws Exception{
+    NodeImpl nr = (NodeImpl)root.addNode("test","nt:unstructured");
+    NodeImpl n = (NodeImpl)nr.addNode("versionName", "nt:unstructured");
+    n.addMixin("mix:versionable");
+    root.save();
     
+    n.setProperty("myprop", "propval");
+    root.save();
+    n.checkin();
+    
+    NodeData p = (NodeData)nr.getData();
+    NodeData d = (NodeData)n.getData();
+    ItemDataExportVisitor vis = new ItemDataExportVisitor(p, ((SessionImpl)session).getWorkspace().getNodeTypeManager(), ((SessionImpl)session).getTransientNodesManager());
+    
+    d.accept(vis);
+    List<ItemState> list = vis.getItemAddStates();
+    assertEquals(21,list.size());
+  }
+  
+  public void testGetItemRoot() throws Exception{
+    root.addNode("test","nt:unstructured");
+    root.save();
+    
+    NodeData p = (NodeData)((NodeImpl)root).getData();
+    
+    ItemDataExportVisitor vis = new ItemDataExportVisitor(p, ((SessionImpl)session).getWorkspace().getNodeTypeManager(), ((SessionImpl)session).getTransientNodesManager());
+    
+    p.accept(vis);
+    List<ItemState> list = vis.getItemAddStates();
+    ItemState elem = list.get(0);
+    
+    assertEquals(p.getQPath(),elem.getAncestorToSave());
+    assertEquals(p.getQPath(),elem.getData().getQPath());
   }
   
 }
