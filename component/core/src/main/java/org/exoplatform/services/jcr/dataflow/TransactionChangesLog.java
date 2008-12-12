@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -174,6 +176,37 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
       ItemData item = state.getData();
       if (item.getParentIdentifier().equals(rootIdentifier) && item.isNode() == forNodes)
         list.add(state);
+    }
+    return list;
+  }
+
+  /**
+   * 
+   * getDescendantsChanges.
+   * 
+   * @param rootPath
+   * @param onlyNodes
+   * @param unique
+   * @return
+   */
+  public List<ItemState> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique) {
+    Map<Object, ItemState> index = new HashMap<Object, ItemState>();
+    List<ItemState> list = new ArrayList<ItemState>();
+
+    for (ItemState itemState : getAllStates()) {
+      ItemData item = itemState.getData();
+      if (!onlyNodes || item.isNode()) {
+        if (unique) {
+          if (index.get(item.getQPath()) != null) {
+            continue;
+          }
+          index.put(item.getQPath(), itemState);
+        }
+
+        if (itemState.getData().getQPath().isDescendantOf(rootPath)) {
+          list.add(itemState);
+        }
+      }
     }
     return list;
   }
