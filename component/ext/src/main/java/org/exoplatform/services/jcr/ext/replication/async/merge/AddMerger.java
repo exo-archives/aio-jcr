@@ -104,13 +104,20 @@ public class AddMerger implements ChangesMerger {
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
             for (int i = itemsArray.length - 1; i >= 0; i--) {
-              resultState.add(new ItemState(itemsArray[i].getData(),
-                                            ItemState.DELETED,
-                                            false,
-                                            itemsArray[i].getData().getQPath()));
+              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              itemsArray[i].getData().getQPath()));
+              }
             }
             // add DELETE state for root of local changes
-            resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
+            if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            false,
+                                            localData.getQPath()));
+            }
 
             // add all state from income changes
             resultState.add(itemChange);
@@ -142,13 +149,20 @@ public class AddMerger implements ChangesMerger {
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
             for (int i = itemsArray.length - 1; i >= 0; i--) {
-              resultState.add(new ItemState(itemsArray[i].getData(),
-                                            ItemState.DELETED,
-                                            false,
-                                            itemsArray[i].getData().getQPath()));
+              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              itemsArray[i].getData().getQPath()));
+              }
             }
             // add DELETE state for root of local changes
-            resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
+            if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            false,
+                                            localData.getQPath()));
+            }
 
             resultState.addAll(exporter.exportItem(localData.getParentIdentifier())
                                        .getAllStates());

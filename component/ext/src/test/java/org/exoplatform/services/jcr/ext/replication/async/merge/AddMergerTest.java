@@ -752,4 +752,72 @@ public class AddMergerTest extends BaseStandaloneTest {
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
   }
 
+  /**
+   * Test the case when local parent mixed changes on high priority node.
+   * 
+   */
+  public void testLocalParentMixedChangesLocalPriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12,
+                                                      ItemState.MIXIN_CHANGED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem12Change);
+    final ItemState localItem122Change = new ItemState(localItem122,
+                                                       ItemState.MIXIN_CHANGED,
+                                                       false,
+                                                       null);
+    localLog.add(localItem122Change);
+    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem121Change = new ItemState(remoteItem121, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem121Change);
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+
+    // assertEquals("Wrong changes count ", result.size(), 1);
+    // assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
+    fail("no test");
+  }
+
+  /**
+   * Test the case when local parent mixed changes on low priority node.
+   * 
+   */
+  public void testLocalParentMixedChangesRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12,
+                                                      ItemState.MIXIN_CHANGED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem12Change);
+    final ItemState localItem122Change = new ItemState(localItem122,
+                                                       ItemState.MIXIN_CHANGED,
+                                                       false,
+                                                       null);
+    localLog.add(localItem122Change);
+    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem121Change = new ItemState(remoteItem121, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem121Change);
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+
+    // assertEquals("Wrong changes count ", result.size(), 1);
+    // assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
+    fail("no test");
+  }
+
 }
