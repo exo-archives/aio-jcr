@@ -373,7 +373,7 @@
     <init-params>
       <object-param>
         <name>observation.config</name>
-        <object type="org.exoplatform.services.jcr.ext.script.groovy.GroovyScript2RestLoader$ObservationListenerConfiguration">
+        <object type="org.exoplatform.services.jcr.ext.script.groovy.ObservationListenerConfiguration">
           <field name="repository">
             <string>db1</string>
           </field>

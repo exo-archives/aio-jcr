@@ -129,32 +129,10 @@
   </component>
   <component>
     <type>org.exoplatform.services.jcr.ext.script.groovy.GroovyScript2RestLoader</type>
-    <component-plugins>
-      <component-plugin>
-        <name>test</name>
-        <set-method>addPlugin</set-method>
-        <type>org.exoplatform.services.jcr.ext.script.groovy.GroovyScript2RestLoaderPlugin</type>
-        <init-params>
-          <value-param>
-            <name>repository</name>
-            <value>repository</value>
-          </value-param>
-          <value-param>
-            <name>workspace</name>
-            <value>production</value>
-<!--            <value>collaboration</value>-->
-          </value-param>
-          <value-param>
-            <name>node</name>
-            <value>/script/groovy</value>
-          </value-param>
-        </init-params>
-      </component-plugin>
-    </component-plugins>
     <init-params>
       <object-param>
         <name>observation.config</name>
-        <object type="org.exoplatform.services.jcr.ext.script.groovy.GroovyScript2RestLoader$ObservationListenerConfiguration">
+        <object type="org.exoplatform.services.jcr.ext.script.groovy.ObservationListenerConfiguration">
           <field name="repository">
             <string>repository</string>
           </field>
@@ -171,10 +149,6 @@
     </init-params>
   </component>
 
-  <component>
-    <type>org.exoplatform.services.jcr.ext.script.groovy.GroovyScriptService</type>
-  </component>
-  
 <!--
   <component>
     <type>org.exoplatform.services.jcr.ext.artifact.ArtifactManagingServiceImpl</type>

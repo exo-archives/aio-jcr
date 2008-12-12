@@ -34,7 +34,7 @@ import org.exoplatform.services.log.ExoLogger;
 public class GroovyScript2RestUpdateListener implements EventListener {
 
   /**
-   * Logger. 
+   * Logger.
    */
   private static final Log              LOG = ExoLogger.getLogger(GroovyScript2RestUpdateListener.class.getName());
 
@@ -49,7 +49,7 @@ public class GroovyScript2RestUpdateListener implements EventListener {
   private final String                  workspace;
 
   /**
-   * See {@link GroovyScript2RestUpdateListener}.
+   * See {@link GroovyScript2RestLoader}.
    */
   private final GroovyScript2RestLoader groovyScript2RestLoader;
 
@@ -58,6 +58,12 @@ public class GroovyScript2RestUpdateListener implements EventListener {
    */
   private final Session                 session;
 
+  /**
+   * @param repository repository name
+   * @param workspace workspace name
+   * @param groovyScript2RestLoader See {@link GroovyScript2RestLoader}
+   * @param session JCR session
+   */
   public GroovyScript2RestUpdateListener(String repository,
                                          String workspace,
                                          GroovyScript2RestLoader groovyScript2RestLoader,
@@ -79,38 +85,23 @@ public class GroovyScript2RestUpdateListener implements EventListener {
         Event event = eventIterator.nextEvent();
         String path = event.getPath();
 
-        // jcr:data is mandatory for node-type 'exo:groovyResourceContainer'
-        // remove with node only, so unbind resource
-        if (path.endsWith("/jcr:data") && event.getType() == Event.PROPERTY_REMOVED) {
-          unloadScript(path.substring(0, path.lastIndexOf('/')));
-        } else if (path.endsWith("/jcr:data") && event.getType() == Event.PROPERTY_CHANGED) {
-          Node node = session.getItem(path).getParent();
-          if (node.getProperty("exo:autoload").getBoolean()) {
-            unloadScript(node);
-            node.setProperty("exo:load", true);
-            session.save();
+        if (path.endsWith("/jcr:data")) {
+          // jcr:data removed 'exo:groovyResourceContainer' then unbind resource
+          if (event.getType() == Event.PROPERTY_REMOVED) {
+            unloadScript(path.substring(0, path.lastIndexOf('/')));
+          } else if (event.getType() == Event.PROPERTY_ADDED
+              || event.getType() == Event.PROPERTY_CHANGED) {
+            Node node = session.getItem(path).getParent();
+            if (node.getProperty("exo:autoload").getBoolean())
+              loadScript(node);
           }
-        } else if (path.endsWith("/jcr:data") && event.getType() == Event.PROPERTY_CHANGED) {
-          Node node = session.getItem(path).getParent();
-          if (node.getProperty("exo:autoload").getBoolean()) {
-            node.setProperty("exo:load", true);
-            session.save();
-          }
-        } else if (path.endsWith("/exo:load") && event.getType() == Event.PROPERTY_CHANGED) {
-          // property 'exo:load' changed, if it false script should be removed
-          // from ResourceBinder.
-          Node node = session.getItem(path).getParent();
-          if (node.getProperty("exo:load").getBoolean())
-            loadScript(node);
-          else
-            unloadScript(node);
         }
       }
     } catch (Exception e) {
       LOG.error("Process event failed. ", e);
     }
   }
-  
+
   /**
    * Load script form supplied node.
    * 
@@ -123,16 +114,6 @@ public class GroovyScript2RestUpdateListener implements EventListener {
     if (groovyScript2RestLoader.isLoaded(unifiedNodePath))
       groovyScript2RestLoader.unloadScript(unifiedNodePath);
     groovyScript2RestLoader.loadScript(unifiedNodePath, node.getProperty("jcr:data").getStream());
-  }
-
-  /**
-   * Unload script.
-   * 
-   * @param node JCR node
-   * @throws Exception if any error occurs
-   */
-  private void unloadScript(Node node) throws Exception {
-    unloadScript(node.getPath());
   }
 
   /**
