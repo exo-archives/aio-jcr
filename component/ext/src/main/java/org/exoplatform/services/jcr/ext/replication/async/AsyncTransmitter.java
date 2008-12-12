@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SAS.
@@ -29,7 +28,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
  */
 public interface AsyncTransmitter {
 
-  void sendGetExport(QPath path);
+  void sendGetExport(String nodeId);
   
   void sendChanges(TransactionChangesLog changes);
   

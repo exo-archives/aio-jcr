@@ -22,7 +22,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.IOException;
 
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,9 +38,10 @@ public interface RemoteExporter extends RemoteChangesListener {
 
   /**
    * Exports remote item and return chnages log with ADD states.
+   * @param nodetId TODO
    *
    * @return ItemStateChangesLog
    */
-  ItemStateChangesLog exportItem(QPath path) throws IOException;
+  ItemStateChangesLog exportItem(String nodetId) throws IOException;
   
 }

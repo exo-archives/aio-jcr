@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteChangesEvent;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
@@ -55,7 +54,7 @@ public class TesterRemoteExporter implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public ItemStateChangesLog exportItem(QPath path) throws IOException {
+  public ItemStateChangesLog exportItem(String nodetId) throws IOException {
     return changes;
   }
 

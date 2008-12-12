@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.datamodel.QPath;
 
 /**
  * Created by The eXo Platform SAS.
@@ -41,10 +40,10 @@ public class RemoteExporterImpl implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public ItemStateChangesLog exportItem(QPath path) throws IOException {
+  public ItemStateChangesLog exportItem(String nodetId) throws IOException {
     
     // send request
-    transmitter.sendGetExport(path);
+    transmitter.sendGetExport(nodetId);
     
     // TODO lock and wait for responce, error or timeout 
     

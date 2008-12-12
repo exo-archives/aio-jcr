@@ -26,10 +26,6 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
@@ -89,10 +85,10 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    * @param path Node QPath
    * @return TransactionChangesLog
    */
-  public TransactionChangesLog getExportChanges(QPath path) throws RepositoryException {
-    NodeData parentNode = (NodeData) ((SessionDataManager) dataManager).getItemData(path);
-    ItemDataExportVisitor exporter = new ItemDataExportVisitor(parentNode, ntManager, dataManager);
-    parentNode.accept(exporter);
+  public TransactionChangesLog getExportChanges(String nodeId) throws RepositoryException {
+    NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
+    ItemDataExportVisitor exporter = new ItemDataExportVisitor(exportedNode, ntManager, dataManager);
+    exportedNode.accept(exporter);
     return new TransactionChangesLog(exporter.getPlainChangesLog());
   }
 
