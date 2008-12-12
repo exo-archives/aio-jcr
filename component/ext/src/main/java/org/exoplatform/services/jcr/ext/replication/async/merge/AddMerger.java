@@ -62,12 +62,12 @@ public class AddMerger implements ChangesMerger {
                                TransactionChangesLog local) throws IOException {
 
     List<ItemState> resultState = new ArrayList<ItemState>();
+    ItemData itemData = itemChange.getData();
 
     // iterate all logs
     for (ItemState localState : local.getAllStates()) {
 
       ItemData localData = localState.getData();
-      ItemData itemData = itemChange.getData();
 
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
@@ -130,20 +130,32 @@ public class AddMerger implements ChangesMerger {
               && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
                                                                                       .equals(localData.getQPath()))) {
             resultState.addAll(exporter.exportItem(localData.getQPath()).getAllStates());
+            return resultState;
 
           }
           break;
         case ItemState.RENAMED:
           if (itemData.getQPath().isDescendantOf(localData.getQPath())
               || itemData.getQPath().equals(localData.getQPath())) {
-            // 2
-            resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
-            return resultState;
-            // TODO remove from local log all child itemstate
-            // TODO remove from income log all childs itemstate
 
-            // TODO exportSystemView (from localdata)
-            // TODO importView
+            // add DELETE state for subtree of local changes
+            // TODO is for all itemstate
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
+                                                                                true,
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              resultState.add(new ItemState(itemsArray[i].getData(),
+                                            ItemState.DELETED,
+                                            false,
+                                            itemsArray[i].getData().getQPath()));
+            }
+            // add DELETE state for root of local changes
+            resultState.add(new ItemState(localData, ItemState.DELETED, false, localData.getQPath()));
+
+            resultState.addAll(exporter.exportItem(localData.getQPath()).getAllStates());
+            return resultState;
           }
           break;
         case ItemState.MIXIN_CHANGED:

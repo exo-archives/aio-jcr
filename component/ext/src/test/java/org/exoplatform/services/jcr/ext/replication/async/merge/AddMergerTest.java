@@ -527,20 +527,25 @@ public class AddMergerTest extends BaseStandaloneTest {
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.ADDED, false, null);
     final ItemState remoteItem121Change = new ItemState(remoteItem121, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem121Change);
     final ItemState remoteItem2Change = new ItemState(remoteItem2, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem2Change);
     income.addLog(remoteLog);
 
-    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    exportLog.add(remoteItem12Change);
+    exportLog.add(remoteItem121Change);
+
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog));
     List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
 
     // should restore parent /localItem1/item12
     // and add /localItem1/item12/item121
     assertEquals("Wrong changes count ", result.size(), 2);
 
-    assertTrue("Local parent restore expected ", hasState(result, new ItemState(localItem12,
+    assertTrue("Local parent restore expected ", hasState(result, new ItemState(remoteItem12,
                                                                                 ItemState.ADDED,
                                                                                 false,
                                                                                 null), true));
@@ -550,5 +555,4 @@ public class AddMergerTest extends BaseStandaloneTest {
     assertFalse("Remote Add state found ", hasState(result, remoteItem2Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
   }
-
 }
