@@ -19,33 +19,41 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.impl.core.SessionDataManager;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 12.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @version $Id: WorkspaceSynchronizer.java 24986 2008-12-12 12:35:59Z
+ *          pnedonosko $
  */
 public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGetListener {
 
-  protected final AsyncInitializer asyncManager;
+  protected final AsyncInitializer    asyncManager;
 
-  protected final DataManager      dataManager;
+  protected final DataManager         dataManager;
 
-  protected final boolean          localPriority;
+  protected final NodeTypeManagerImpl ntManager;
+
+  protected final boolean             localPriority;
 
   public WorkspaceSynchronizer(AsyncInitializer asyncManager,
                                DataManager dataManager,
+                               NodeTypeManagerImpl ntManager,
                                boolean localPriority) {
     this.asyncManager = asyncManager;
     this.dataManager = dataManager;
+    this.ntManager = ntManager;
 
     this.localPriority = localPriority;
   }
@@ -55,21 +63,17 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
   }
 
   /**
-   * Synchronize workspace content.
+   * Synchronize workspace content. Aplly synchronized changes to a local
+   * workspace.
    * 
-   * Aplly synchronized changes to a local workspace.
-   * 
-   * @param synchronizedChanges
-   *          TransactionChangesLog synchronized changes
+   * @param synchronizedChanges TransactionChangesLog synchronized changes
    */
   public void synchronize(TransactionChangesLog synchronizedChanges) {
     // TODO
   }
 
   /**
-   * Return local changes.<br/>
-   * 
-   * 1. to a merger<br/> 2. to a receiver
+   * Return local changes.<br/> 1. to a merger<br/> 2. to a receiver
    * 
    * @return TransactionChangesLog
    */
@@ -78,16 +82,17 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
   }
 
   /**
-   * Return Node traversed changes log for a given path.<br/>
+   * Return Node traversed changes log for a given path.<br/> Used by receiver.
    * 
-   * Used by receiver.
-   * 
-   * @param path
-   *          Node QPath
+   * @param path Node QPath
    * @return TransactionChangesLog
    */
-  public TransactionChangesLog getExportChanges(QPath path) {
-    return new TransactionChangesLog(); // TODO
+  public TransactionChangesLog getExportChanges(QPath path) throws RepositoryException {
+    
+    NodeData parentNode = (NodeData) ((SessionDataManager) dataManager).getItemData(path);
+    ItemDataExportVisitor exporter = new ItemDataExportVisitor(parentNode, ntManager, dataManager);
+    parentNode.accept(exporter);
+    return new TransactionChangesLog(exporter.getPlainChangesLog());
   }
 
   /**

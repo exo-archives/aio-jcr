@@ -22,8 +22,10 @@ import java.util.Stack;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -31,7 +33,6 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -46,7 +47,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
   public ItemDataExportVisitor(NodeData parent,
                                NodeTypeManagerImpl nodeTypeManager,
-                               SessionDataManager dataManager) {
+                               ItemDataConsumer dataManager) {
     super(dataManager);
     
     this.ntManager = nodeTypeManager;
@@ -90,7 +91,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
         // need create a new VH
         PlainChangesLogImpl changes = new PlainChangesLogImpl();
         VersionHistoryDataHelper vh = new VersionHistoryDataHelper(curParent(),
-                                                                   changes,
+                                                                    changes,
                                                                    dataManager,
                                                                    ntManager);
         
@@ -209,6 +210,12 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
    */
   public List<ItemState> getItemAddStates() {
     return itemAddStates;
+  }
+  
+  public PlainChangesLog getPlainChangesLog() {
+    PlainChangesLog log = new PlainChangesLogImpl();
+    log.addAll(itemAddStates);
+    return log;
   }
   
 }
