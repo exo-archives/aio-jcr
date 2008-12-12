@@ -41,7 +41,7 @@ public class MergeDataManager {
     
     this.exporter = new RemoteExporterImpl();
     
-    this.addMerger = new AddMerger(synchronizer.getLoacalPriority(), exporter);
+    this.addMerger = new AddMerger(synchronizer.getLocalPriority(), exporter);
   }
   
   public void onSynchronization(CompositeChangesLog incomeChanges) {
