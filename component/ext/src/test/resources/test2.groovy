@@ -4,11 +4,8 @@ import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.PathParam
 
-import org.exoplatform.services.rest.resource.ResourceContainer
-
-
 @Path("groovy-test")
-public class Test2 implements ResourceContainer {
+public class Test2 {
   
   
   public Test2() {
