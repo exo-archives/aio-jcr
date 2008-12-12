@@ -196,7 +196,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                                            .toArray(new String[v.getValueConstraints()
                                                                                                 .size()])
                                                                        : new String[0],
-                                        v.getDefaultValueStrings() == null ? null
+                                        v.getDefaultValueStrings() == null ? new String[0]
                                                                           : v.getDefaultValueStrings()
                                                                              .toArray(new String[v.getDefaultValueStrings()
                                                                                                   .size()]),
@@ -258,12 +258,12 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * {@inheritDoc}
    */
-  public Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntvalues,
-                                                    int alreadyExistsBehaviour) throws RepositoryException {
+  public List<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntvalues,
+                                              int alreadyExistsBehaviour) throws RepositoryException {
     // 1. validate collection and self/new referencing, TODO
 
     // 2. traverse and reg
-    Collection<NodeTypeData> nts = new ArrayList<NodeTypeData>();
+    List<NodeTypeData> nts = new ArrayList<NodeTypeData>();
     for (NodeTypeValue v : ntvalues) {
       nts.add(registerNodeType(v, alreadyExistsBehaviour));
     }
@@ -274,7 +274,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * {@inheritDoc}
    */
-  public Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
+  public List<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
 
     try {
       IBindingFactory factory = BindingDirectory.getFactory(NodeTypeValuesList.class);
@@ -283,7 +283,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       ArrayList ntvList = nodeTypeValuesList.getNodeTypeValuesList();
 
       long start = System.currentTimeMillis();
-      Collection<NodeTypeData> nts = new ArrayList<NodeTypeData>();
+      List<NodeTypeData> nts = new ArrayList<NodeTypeData>();
       for (int i = 0; i < ntvList.size(); i++) {
         if (ntvList.get(i) != null) {
           NodeTypeValue nodeTypeValue = (NodeTypeValue) ntvList.get(i);
@@ -568,7 +568,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * {@inheritDoc}
    */
-  public Collection<NodeTypeData> getAllNodeTypes() {
+  public List<NodeTypeData> getAllNodeTypes() {
     return hierarchy.getAllNodeTypes();
   }
 
@@ -630,18 +630,28 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
                                                InternalQName parentNodeType,
                                                InternalQName[] parentMixinNames) {
-
-    for (NodeDefinitionData cnd : getAllChildNodeDefinitions(parentNodeType)) {
+    // NodeTypeData childDef = findNodeType(childNodeTypeName);
+    Set<InternalQName> testSuperTypesNames = hierarchy.getSupertypes(childNodeTypeName);
+    NodeDefinitionData[] allChildNodeDefinitions = getAllChildNodeDefinitions(parentNodeType);
+    for (NodeDefinitionData cnd : allChildNodeDefinitions) {
       for (InternalQName req : cnd.getRequiredPrimaryTypes()) {
         if (childNodeTypeName.equals(req))
           return true;
+        for (InternalQName superName : testSuperTypesNames) {
+          if (superName.equals(req))
+            return true;
+        }
       }
     }
-
-    for (NodeDefinitionData cnd : getAllChildNodeDefinitions(parentMixinNames)) {
+    allChildNodeDefinitions = getAllChildNodeDefinitions(parentMixinNames);
+    for (NodeDefinitionData cnd : allChildNodeDefinitions) {
       for (InternalQName req : cnd.getRequiredPrimaryTypes()) {
         if (childNodeTypeName.equals(req))
           return true;
+        for (InternalQName superName : testSuperTypesNames) {
+          if (superName.equals(req))
+            return true;
+        }
       }
     }
 
@@ -720,8 +730,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  public Collection<ItemDefinitionData> getManadatoryItemDefs(InternalQName primaryNodeType,
-                                                              InternalQName[] mixinTypes) {
+  public List<ItemDefinitionData> getManadatoryItemDefs(InternalQName primaryNodeType,
+                                                        InternalQName[] mixinTypes) {
     Collection<ItemDefinitionData> mandatoryDefs = new HashSet<ItemDefinitionData>();
     // primary type properties
     ItemDefinitionData[] itemDefs = getAllPropertyDefinitions(new InternalQName[] { primaryNodeType });
@@ -747,7 +757,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       if (itemDefs[i].isMandatory())
         mandatoryDefs.add(itemDefs[i]);
     }
-    return mandatoryDefs;
+    return new ArrayList<ItemDefinitionData>(mandatoryDefs);
   }
 
   // TODO make me private

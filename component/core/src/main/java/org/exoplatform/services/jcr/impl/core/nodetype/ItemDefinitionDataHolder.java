@@ -17,10 +17,10 @@
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
@@ -30,11 +30,11 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>
- * 
- * Per-repository component holding all Child Nodes and Properties Definitions as flat Map For ex
- * definition for jcr:primaryType will be repeated as many times as many primary nodetypes is
- * registered (as each primary nodetype extends nt:base directly or indirectly) and so on.
+ * Created by The eXo Platform SAS. <br/> Per-repository component holding all
+ * Child Nodes and Properties Definitions as flat Map For ex definition for
+ * jcr:primaryType will be repeated as many times as many primary nodetypes is
+ * registered (as each primary nodetype extends nt:base directly or indirectly)
+ * and so on.
  * 
  * @author Gennady Azarenkov
  * @version $Id: ItemDefinitionDataHolder.java 11907 2008-03-13 15:36:21Z ksm $
@@ -57,12 +57,9 @@ public class ItemDefinitionDataHolder {
   }
 
   /**
-   * @param parentNodeType
-   *          - name of parent node type
-   * @param childName
-   *          name of child node
-   * @param childNodeType
-   *          name of child node type
+   * @param parentNodeType - name of parent node type
+   * @param childName name of child node
+   * @param childNodeType name of child node type
    * @return Child NodeDefinition or null if not found
    */
   public NodeDefinitionData getChildNodeDefinition(InternalQName parentNodeType,
@@ -81,10 +78,11 @@ public class ItemDefinitionDataHolder {
 
     return def;
   }
-  
-//  public NodeDefinitionData[] getAllChildNodeDefinitions(InternalQName... nodeTypes) {
-//
-//  }
+
+  // public NodeDefinitionData[] getAllChildNodeDefinitions(InternalQName...
+  // nodeTypes) {
+  //
+  // }
 
   private NodeDefinitionData getNodeDefinitionFromThisOrSupertypes(InternalQName parentNodeType,
                                                                    InternalQName childName,
@@ -97,20 +95,20 @@ public class ItemDefinitionDataHolder {
       return def;
 
     // asks supers in DATA manager
-//    for (InternalQName su : nodeTypesHierarchy.getSupertypes(parentNodeType)) {
-//      def = nodeDefinitions.get(new ChildNodeDefKey(su, childName, childNodeType));
-//      if (def != null)
-//        break;
-//    }
+    // for (InternalQName su : nodeTypesHierarchy.getSupertypes(parentNodeType))
+    // {
+    // def = nodeDefinitions.get(new ChildNodeDefKey(su, childName,
+    // childNodeType));
+    // if (def != null)
+    // break;
+    // }
 
     return def;
   }
 
   /**
-   * @param pr
-   *          name of parent node types
-   * @param childName
-   *          name of child node
+   * @param pr name of parent node types
+   * @param childName name of child node
    * @return default ChildNodeDefinition or null if not found
    */
   public NodeDefinitionData getDefaultChildNodeDefinition(InternalQName childName,
@@ -135,10 +133,8 @@ public class ItemDefinitionDataHolder {
   }
 
   /**
-   * @param parentNodeType
-   *          name of parent node type
-   * @param propertyName
-   *          name of child property
+   * @param parentNodeType name of parent node type
+   * @param propertyName name of child property
    * @param multiValued
    * @return Child PropertyDefinition or null if not found
    */
@@ -159,27 +155,21 @@ public class ItemDefinitionDataHolder {
       def = propertyDefinitions.get(new PropertyDefKey(nt, propertyName, true));
       if (def != null && pdefs.getDefinition(def.isMultiple()) == null)
         pdefs.setDefinition(def); // set if same is not exists
+
+      // TODO try residual
+
+      if (pdefs.getAnyDefinition() == null && !propertyName.equals(Constants.JCR_ANY_NAME)) {
+        // try residual def
+        return getPropertyDefinitions(Constants.JCR_ANY_NAME, nodeTypes);
+      }
     }
-
-    // TODO try residual
-
-    // if (pdefs.getAnyDefinition() == null) {
-    // // try residual def
-    // if (def == null) {
-    // key = new PropertyDefKey(parentNodeType, RESIDUAL_NAME, multiValued);
-    // return propertyDefinitions.get(key);
-    // } else
-    // return def;
-    // }
 
     return pdefs;
   }
 
   /**
-   * @param parentNodeType
-   *          name of parent node type
-   * @param childName
-   *          name of child property
+   * @param parentNodeType name of parent node type
+   * @param childName name of child property
    * @param multiValued
    * @return Child PropertyDefinition or null if not found
    */
@@ -195,8 +185,8 @@ public class ItemDefinitionDataHolder {
       return propertyDefinitions.get(new PropertyDefKey(parentNodeType,
                                                         Constants.JCR_ANY_NAME,
                                                         multiValued));
-    } 
-    
+    }
+
     return def;
   }
 
@@ -207,13 +197,13 @@ public class ItemDefinitionDataHolder {
   }
 
   /**
-   * adds Child Node/Property Definitions for incoming NodeType (should be called by NodeTypeManager
-   * in register method)
+   * adds Child Node/Property Definitions for incoming NodeType (should be
+   * called by NodeTypeManager in register method)
    * 
    * @param nodeType
    */
   void putDefinitions(NodeTypeData nodeType) {
-    //nodeTypesHierarchy.addNodeType(nodeType);
+    // nodeTypesHierarchy.addNodeType(nodeType);
 
     // put child node defs
     NodeDefinitionData[] nodeDefs = nodeType.getDeclaredChildNodeDefinitions();
@@ -264,7 +254,8 @@ public class ItemDefinitionDataHolder {
   }
 
   /**
-   * @see about hash code generation: http://www.geocities.com/technofundo/tech/java/equalhash.html
+   * @see about hash code generation:
+   *      http://www.geocities.com/technofundo/tech/java/equalhash.html
    */
   private abstract class ItemDefKey {
     protected int hashCode;

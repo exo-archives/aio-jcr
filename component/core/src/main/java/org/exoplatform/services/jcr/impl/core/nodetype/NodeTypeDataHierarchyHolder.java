@@ -78,7 +78,7 @@ public class NodeTypeDataHierarchyHolder {
     return nt != null ? nt.superTypes : null;
   }
 
-  public Collection<NodeTypeData> getAllNodeTypes() {
+  public List<NodeTypeData> getAllNodeTypes() {
     Collection<NodeTypeHolder> hs = nodeTypes.values();
     List<NodeTypeData> nts = new ArrayList<NodeTypeData>(hs.size());
     for (NodeTypeHolder nt : hs) {

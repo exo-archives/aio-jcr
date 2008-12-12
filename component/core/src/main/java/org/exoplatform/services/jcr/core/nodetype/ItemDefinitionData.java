@@ -20,32 +20,31 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
  * 
- * <br/>Date: 25.11.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id$
  */
 public class ItemDefinitionData {
 
-  protected final InternalQName      name;
+  protected final InternalQName name;
 
-  protected final InternalQName    declaringNodeType;
+  protected final InternalQName declaringNodeType;
 
-  protected final boolean    autoCreated;
+  protected final boolean       autoCreated;
 
-  protected final boolean    mandatory;
+  protected final boolean       mandatory;
 
-  protected final int        onParentVersion;
+  protected final int           onParentVersion;
 
-  protected final boolean    protectedItem;
+  protected final boolean       protectedItem;
 
   public ItemDefinitionData(InternalQName name,
                             InternalQName declaringNodeType,
                             boolean autoCreated,
                             boolean mandatory,
-                            int        onParentVersion,
+                            int onParentVersion,
                             boolean protectedItem) {
     this.name = name;
     this.declaringNodeType = declaringNodeType;

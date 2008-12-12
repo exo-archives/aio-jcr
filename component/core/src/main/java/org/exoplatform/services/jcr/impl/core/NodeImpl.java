@@ -556,19 +556,19 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     InternalQName name = itemPath.getName().getInternalName();
 
     // find node type
-    NodeDefinitionData def = session.getWorkspace()
-                                    .getNodeTypesHolder()
-                                    .findChildNodeDefinition(name,
-                                                             nodeData().getPrimaryTypeName(),
-                                                             nodeData().getMixinTypeNames());
-    if (def == null)
+    NodeDefinitionData nodeDef = session.getWorkspace()
+                                        .getNodeTypesHolder()
+                                        .findChildNodeDefinition(name,
+                                                                 nodeData().getPrimaryTypeName(),
+                                                                 nodeData().getMixinTypeNames());
+
+    if (nodeDef == null)
       throw new ConstraintViolationException("Can not define node type for " + name.getAsString());
-
-    // JCRName nodeTypeName =
-    // parent.findNodeType(itemPath.getName().getAsString());
-
+    InternalQName primaryTypeName = nodeDef.getName();
+    if (primaryTypeName.equals(Constants.JCR_ANY_NAME))
+      primaryTypeName = nodeDef.getDefaultPrimaryType();
     // try to make new node
-    return doAddNode(parent, name, def.getName());
+    return doAddNode(parent, name, primaryTypeName);
 
   }
 
@@ -1152,12 +1152,14 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     if (nodeDefinition == null) {
 
+      NodeTypeDataManager nodeTypesHolder = session.getWorkspace().getNodeTypesHolder();
+      ExtendedNodeTypeManager nodeTypeManager = (ExtendedNodeTypeManager) session.getWorkspace()
+                                                                                 .getNodeTypeManager();
+
       if (this.isRoot()) { // root - no parent
         if (nodeDefinition == null) {
-          NodeType required = session.getWorkspace()
-                                     .getNodeTypeManager()
-                                     .getNodeType(locationFactory.createJCRName(Constants.NT_BASE)
-                                                                 .getAsString());
+          NodeType required = nodeTypeManager.getNodeType(locationFactory.createJCRName(Constants.NT_BASE)
+                                                                         .getAsString());
           this.nodeDefinition = new NodeDefinitionImpl(null,
                                                        null,
                                                        new NodeType[] { required },
@@ -1172,14 +1174,34 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
         NodeData parent = (NodeData) dataManager.getItemData(getParentIdentifier());
 
-        this.definition = session.getWorkspace()
-                                 .getNodeTypesHolder()
-                                 .findChildNodeDefinition(getInternalName(),
-                                                          parent.getPrimaryTypeName(),
-                                                          parent.getMixinTypeNames());
+        this.definition = nodeTypesHolder.findChildNodeDefinition(getInternalName(),
+                                                                  parent.getPrimaryTypeName(),
+                                                                  parent.getMixinTypeNames());
 
         if (definition == null)
           throw new ConstraintViolationException("Node definition not found for " + getPath());
+        // TODO same functionality in NodeTypeImpl
+        InternalQName[] rnames = definition.getRequiredPrimaryTypes();
+        NodeType[] rnts = new NodeType[rnames.length];
+        for (int j = 0; j < rnames.length; j++) {
+          rnts[j] = nodeTypeManager.findNodeType(rnames[j]);
+        }
+
+        String name = locationFactory.createJCRName(definition.getName() != null ? definition.getName()
+                                                                                : Constants.JCR_ANY_NAME)
+                                     .getAsString();
+        NodeType defType = definition.getDefaultPrimaryType() != null ? nodeTypeManager.findNodeType(definition.getDefaultPrimaryType())
+                                                                     : null;
+        NodeType declaringNodeType = nodeTypeManager.findNodeType(definition.getDeclaringNodeType());
+        nodeDefinition = new NodeDefinitionImpl(name,
+                                                declaringNodeType,
+                                                rnts,
+                                                defType,
+                                                definition.isAutoCreated(),
+                                                definition.isMandatory(),
+                                                definition.getOnParentVersion(),
+                                                definition.isProtected(),
+                                                definition.isAllowsSameNameSiblings());
       }
     }
 

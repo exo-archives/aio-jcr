@@ -29,6 +29,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.jcr.ValueFactory;
+import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.ItemDefinition;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeDefinition;
@@ -36,6 +37,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
@@ -51,11 +53,10 @@ import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 02.12.2008
  * 
- * <br/>Date: 02.12.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id: NodeTypeImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
 public class NodeTypeImpl implements ExtendedNodeType {
@@ -178,7 +179,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
       InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
 
       PropertyDefinitionDatas pdefs = typesHolder.getPropertyDefinitions(pname, data.getName());
-      PropertyDefinitionData pd = pdefs.getDefinition(false);
+      PropertyDefinitionData pd = pdefs.getDefinition(true);
       if (pd != null) {
         if (pd.isProtected())
           // can set (edit)
@@ -236,12 +237,11 @@ public class NodeTypeImpl implements ExtendedNodeType {
       rnts[j] = typesManager.findNodeType(rnames[j]);
     }
 
-    String name = locationFactory.createJCRName(data.getName() != null
-        ? data.getName()
-        : Constants.JCR_ANY_NAME).getAsString();
-    NodeType defType = data.getDefaultPrimaryType() != null
-        ? typesManager.findNodeType(data.getDefaultPrimaryType())
-        : null;
+    String name = locationFactory.createJCRName(data.getName() != null ? data.getName()
+                                                                      : Constants.JCR_ANY_NAME)
+                                 .getAsString();
+    NodeType defType = data.getDefaultPrimaryType() != null ? typesManager.findNodeType(data.getDefaultPrimaryType())
+                                                           : null;
     return new NodeDefinitionImpl(name,
                                   this,
                                   rnts,
@@ -255,8 +255,51 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   public PropertyDefinition[] getDeclaredPropertyDefinitions() {
     PropertyDefinitionData[] pdefs = data.getDeclaredPropertyDefinitions();
-    // TODO
-    return null;
+    return getPropertyDefinition(pdefs);
+  }
+
+  private PropertyDefinition[] getPropertyDefinition(PropertyDefinitionData[] pdefs) {
+    PropertyDefinition[] propertyDefinitions = new PropertyDefinition[pdefs.length];
+    // TODO same in PropertyImpl
+    for (int i = 0; i < pdefs.length; i++) {
+
+      try {
+        PropertyDefinitionData propertyDef = pdefs[i];
+        String name = locationFactory.createJCRName(propertyDef.getName() != null ? propertyDef.getName()
+                                                                                 : Constants.JCR_ANY_NAME)
+                                     .getAsString();
+
+        Value[] defaultValues = new Value[propertyDef.getDefaultValues().length];
+        String[] propVal = propertyDef.getDefaultValues();
+        // there can be null in definition but should not be null value
+        if (propVal != null) {
+          for (int j = 0; j < propVal.length; j++) {
+            if (propertyDef.getRequiredType() == PropertyType.UNDEFINED)
+              defaultValues[j] = valueFactory.createValue(propVal[j]);
+            else
+              defaultValues[j] = valueFactory.createValue(propVal[j], propertyDef.getRequiredType());
+          }
+        }
+
+        propertyDefinitions[i] = new PropertyDefinitionImpl(name,
+                                                            typesManager.findNodeType(propertyDef.getDeclaringNodeType()),
+                                                            propertyDef.getRequiredType(),
+                                                            propertyDef.getValueConstraints(),
+                                                            defaultValues,
+                                                            propertyDef.isAutoCreated(),
+                                                            propertyDef.isMandatory(),
+                                                            propertyDef.getOnParentVersion(),
+                                                            propertyDef.isProtected(),
+                                                            propertyDef.isMultiple());
+      } catch (ValueFormatException e) {
+        e.printStackTrace();
+      } catch (NoSuchNodeTypeException e) {
+        e.printStackTrace();
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
+    }
+    return propertyDefinitions;
   }
 
   public NodeType[] getDeclaredSupertypes() {
@@ -298,14 +341,24 @@ public class NodeTypeImpl implements ExtendedNodeType {
 
   public PropertyDefinition[] getPropertyDefinitions() {
     // TODO Auto-generated method stub
-    return null;
+    PropertyDefinitionData[] propertyDefs = typesHolder.getAllPropertyDefinitions(data.getName());
+    return getPropertyDefinition(propertyDefs);
   }
 
   public NodeType[] getSupertypes() {
     InternalQName[] dsupers = data.getDeclaredSupertypeNames();
     // TODO traverse inherited supers
-
-    return null;
+    NodeType[] superTypes = new NodeType[dsupers.length];
+    for (int i = 0; i < dsupers.length; i++) {
+      try {
+        superTypes[i] = typesManager.findNodeType(dsupers[i]);
+      } catch (NoSuchNodeTypeException e) {
+        e.printStackTrace();
+      } catch (RepositoryException e) {
+        e.printStackTrace();
+      }
+    }
+    return superTypes;
   }
 
   public boolean hasOrderableChildNodes() {
@@ -372,9 +425,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
   // internal stuff ============================
 
   /**
-   * Ported from 1.10.
-   * 
-   * Check on empty value (property remove) removed.
+   * Ported from 1.10. Check on empty value (property remove) removed.
    */
   private boolean canSetPropertyForType(int requiredType, Value value, String[] constrains) {
 

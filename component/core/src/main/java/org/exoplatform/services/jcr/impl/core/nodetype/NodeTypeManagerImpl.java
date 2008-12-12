@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -41,6 +43,7 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitions;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
@@ -143,12 +146,15 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * @throws RepositoryException if an error occurs.
    */
   public NodeTypeIterator getMixinNodeTypes() throws RepositoryException {
+    List<NodeTypeData> allNodeTypes = typesManager.getAllNodeTypes();
+
+    Collections.sort(allNodeTypes, new NodeTypeDataComparator());
+
     EntityCollection ec = new EntityCollection();
-    NodeTypeIterator allTypes = getAllNodeTypes();
-    while (allTypes.hasNext()) {
-      NodeType type = allTypes.nextNodeType();
-      if (type.isMixin())
-        ec.add(type);
+    for (NodeTypeData nodeTypeData : allNodeTypes) {
+      if (nodeTypeData.isMixin())
+        ec.add(new NodeTypeImpl(nodeTypeData, typesManager, this, locationFactory, valueFactory));
+
     }
     return ec;
   }
@@ -677,6 +683,41 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                                  RepositoryException {
     // TODO Auto-generated method stub
 
+  }
+
+  private class NodeTypeDataComparator implements Comparator<NodeTypeData> {
+
+    private static final int NT    = 4;
+
+    private static final int MIX   = 3;
+
+    private static final int JCR   = 2;
+
+    private static final int EXO   = 1;
+
+    private static final int OTHER = 0;
+
+    /**
+     * @param o1
+     * @param o2
+     * @return
+     */
+    public int compare(NodeTypeData o1, NodeTypeData o2) {
+
+      return getIndex(o2.getName().getNamespace()) - getIndex(o1.getName().getNamespace());
+    }
+
+    private int getIndex(String nameSpace) {
+      if (Constants.NS_NT_URI.equals(nameSpace))
+        return NT;
+      else if (Constants.NS_MIX_URI.equals(nameSpace))
+        return MIX;
+      else if (Constants.NS_JCR_URI.equals(nameSpace))
+        return JCR;
+      else if (Constants.NS_EXO_URI.equals(nameSpace))
+        return EXO;
+      return OTHER;
+    }
   }
 
 }

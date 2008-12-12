@@ -16,15 +16,13 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
-import org.exoplatform.commons.utils.QName;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
  * 
- * <br/>Date: 25.11.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
  * @version $Id$
  */
 public class NodeDefinitionData extends ItemDefinitionData {
@@ -33,7 +31,7 @@ public class NodeDefinitionData extends ItemDefinitionData {
 
   protected final InternalQName   defaultPrimaryType;
 
-  protected final boolean allowsSameNameSiblings;
+  protected final boolean         allowsSameNameSiblings;
 
   public NodeDefinitionData(InternalQName name,
                             InternalQName declaringNodeType,
