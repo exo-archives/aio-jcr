@@ -22,16 +22,43 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 12.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface AsyncTransmitter {
-  
-  void sendGetExport(String nodeId);
-  
-  void sendChanges(TransactionChangesLog changes);
-  
-  void sendExport(TransactionChangesLog changes);
-  
+public class AsyncTransmitterImpl implements AsyncTransmitter {
+
+  protected final WorkspaceSynchronizer synchronizer;
+
+  protected final AsyncChannelManager   channel;
+
+  AsyncTransmitterImpl(AsyncChannelManager channel, WorkspaceSynchronizer synchronizer) {
+    this.channel = channel;
+    this.synchronizer = synchronizer;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void sendChanges(TransactionChangesLog changes) {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void sendGetExport(String nodeId) {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void sendExport(TransactionChangesLog changes) {
+    // TODO Auto-generated method stub
+
+  }
+
 }

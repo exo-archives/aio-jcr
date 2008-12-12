@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -16,7 +19,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.ext.replication.PacketListener;
+import org.exoplatform.services.jcr.ext.replication.Packet;
 
 /**
  * Created by The eXo Platform SAS.
@@ -26,25 +29,47 @@ import org.exoplatform.services.jcr.ext.replication.PacketListener;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface AsyncReceiver extends PacketListener {
+public class AsyncReceiverImpl implements AsyncReceiver {
 
-  /**
-   * Handle remote get export request.
-   *
-   */
-  void onGetExport(/*TODO JChannel packet*/);
-
+  protected final MergeDataManager mergeManager;
   
-  /**
-   * Handle remote get changes request.
-   *
-   */
-  void onGetChanges(/*TODO JChannel packet*/);
+  protected final WorkspaceSynchronizer synchronizer;
+
+  AsyncReceiverImpl(MergeDataManager mergeManager, WorkspaceSynchronizer synchronizer) {
+    this.mergeManager = mergeManager;
+    this.synchronizer = synchronizer;
+  }
 
   /**
-   * Handle remote changes receive.
-   *
+   * {@inheritDoc}
    */
-  void onChanges(/*TODO JChannel packet*/);
+  public void onChanges() {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onGetChanges() {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onGetExport() {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void receive(Packet packet) {
+    // TODO Auto-generated method stub
+
+  }
 
 }

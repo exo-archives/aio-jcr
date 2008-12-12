@@ -46,9 +46,9 @@ import org.jgroups.blocks.RequestHandler;
  * <br/>Date: 12.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
- * @version $Id: ChannelManager.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
-public class ChannelManager implements RequestHandler {
+public class AsyncChannelManager implements RequestHandler {
 
   /**
    * log. the apache logger.
@@ -103,7 +103,7 @@ public class ChannelManager implements RequestHandler {
    * @param channelName
    *          name of channel
    */
-  public ChannelManager(String channelConfig, String channelName) {
+  public AsyncChannelManager(String channelConfig, String channelName) {
     this.channelConfig = channelConfig;
     this.channelName = channelName;
     this.packetListeners = new ArrayList<PacketListener>();
