@@ -30,7 +30,6 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -151,6 +150,30 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  /**
+   * getLastState.
+   * 
+   * @param itemPath
+   * @return
+   */
+  public int getLastState(QPath itemPath) {
+    List<ItemState> allStates = getAllStates();
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState itemState = allStates.get(i);
+      if (itemState.getData().getQPath().equals(itemPath))
+        return itemState.getState();
+    }
+    return ItemState.UNCHANGED;
+  }
+
+  /**
+   * getDescendantsChanges.
+   * 
+   * @param rootPath
+   * @param onlyNodes
+   * @param unique
+   * @return
+   */
   public Collection<ItemState> getDescendantsChanges(QPath rootPath,
                                                      boolean onlyNodes,
                                                      boolean unique) {
@@ -260,10 +283,11 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 
     if (in.readInt() == 1) {
+      String DEFAULT_ENCODING = "UTF-8";
       byte[] buf = new byte[in.readInt()];
       in.read(buf);
 
-      systemId = new String(buf, Constants.DEFAULT_ENCODING);
+      systemId = new String(buf, DEFAULT_ENCODING);
     }
 
     int listSize = in.readInt();
