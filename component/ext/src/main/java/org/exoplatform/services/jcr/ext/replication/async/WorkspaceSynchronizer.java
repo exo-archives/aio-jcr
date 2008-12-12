@@ -26,6 +26,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
@@ -87,7 +88,15 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    */
   public TransactionChangesLog getExportChanges(String nodeId) throws RepositoryException {
     NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
-    ItemDataExportVisitor exporter = new ItemDataExportVisitor(exportedNode, ntManager, dataManager);
+    NodeData parentNode;
+    if(nodeId.equals(Constants.ROOT_UUID)){
+      parentNode = exportedNode;
+    }else{
+      parentNode = (NodeData) dataManager.getItemData(exportedNode.getParentIdentifier());
+    }
+    
+    exportedNode.getParentIdentifier();
+    ItemDataExportVisitor exporter = new ItemDataExportVisitor(parentNode, ntManager, dataManager);
     exportedNode.accept(exporter);
     return new TransactionChangesLog(exporter.getPlainChangesLog());
   }
