@@ -24,9 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.FixupStream;
-import org.exoplatform.services.jcr.ext.replication.Packet;
-import org.exoplatform.services.jcr.ext.replication.PacketListener;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Channel;
@@ -88,7 +85,7 @@ public class AsyncChannelManager implements RequestHandler {
   /**
    * packetListeners. The packet listeners.
    */
-  private List<PacketListener> packetListeners;
+  private List<AsyncPacketListener> packetListeners;
 
   /**
    * channelListener. The listener to JChannel when channel-state changed.
@@ -106,7 +103,7 @@ public class AsyncChannelManager implements RequestHandler {
   public AsyncChannelManager(String channelConfig, String channelName) {
     this.channelConfig = channelConfig;
     this.channelName = channelName;
-    this.packetListeners = new ArrayList<PacketListener>();
+    this.packetListeners = new ArrayList<AsyncPacketListener>();
   }
 
   /**
@@ -192,7 +189,7 @@ public class AsyncChannelManager implements RequestHandler {
    * @param packetListener
    *          add the PacketListener
    */
-  public void addPacketListener(PacketListener packetListener) {
+  public void addPacketListener(AsyncPacketListener packetListener) {
     this.packetListeners.add(packetListener);
   }
 
@@ -223,8 +220,8 @@ public class AsyncChannelManager implements RequestHandler {
    * @throws Exception
    *           will be generated Exception
    */
-  public void sendPacket(Packet packet) throws Exception {
-    byte[] buffer = Packet.getAsByteArray(packet);
+  public void sendPacket(AsyncPacket packet) throws Exception {
+    byte[] buffer = AsyncPacket.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
     dispatcher.castMessage(null, msg, GroupRequest.GET_NONE, 0);
@@ -249,39 +246,39 @@ public class AsyncChannelManager implements RequestHandler {
    * @throws Exception
    *           will be generated Exception
    */
-  public void sendBigPacket(byte[] data, Packet packet) throws Exception {
+  public void sendBigPacket(byte[] data, AsyncPacket packet) throws Exception {
     long offset = 0;
-    byte[] tempBuffer = new byte[Packet.MAX_PACKET_SIZE];
+    byte[] tempBuffer = new byte[AsyncPacket.MAX_PACKET_SIZE];
 
     cutData(data, offset, tempBuffer);
 
-    Packet firsPacket = new Packet(Packet.PacketType.BIG_PACKET_FIRST,
+    AsyncPacket firsPacket = new AsyncPacket(AsyncPacketTypes.BIG_PACKET_FIRST,
                                    data.length,
                                    tempBuffer,
                                    packet.getIdentifier());
-    firsPacket.setOwnName(packet.getOwnerName());
+    firsPacket.setOwnName(packet.getOwnName());
     firsPacket.setOffset(offset);
     sendPacket(firsPacket);
 
     if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + firsPacket.getByteArray().length);
+      log.debug("Send of damp --> " + firsPacket.getBuffer().length);
 
     offset += tempBuffer.length;
 
-    while ((data.length - offset) > Packet.MAX_PACKET_SIZE) {
+    while ((data.length - offset) > AsyncPacket.MAX_PACKET_SIZE) {
       cutData(data, offset, tempBuffer);
 
-      Packet middlePacket = new Packet(Packet.PacketType.BIG_PACKET_MIDDLE,
+      AsyncPacket middlePacket = new AsyncPacket(AsyncPacketTypes.BIG_PACKET_MIDDLE,
                                        data.length,
                                        tempBuffer,
                                        packet.getIdentifier());
-      middlePacket.setOwnName(packet.getOwnerName());
+      middlePacket.setOwnName(packet.getOwnName());
       middlePacket.setOffset(offset);
       Thread.sleep(1);
       sendPacket(middlePacket);
 
       if (log.isDebugEnabled())
-        log.debug("Send of damp --> " + middlePacket.getByteArray().length);
+        log.debug("Send of damp --> " + middlePacket.getBuffer().length);
 
       offset += tempBuffer.length;
     }
@@ -289,16 +286,16 @@ public class AsyncChannelManager implements RequestHandler {
     byte[] lastBuffer = new byte[data.length - (int) offset];
     cutData(data, offset, lastBuffer);
 
-    Packet lastPacket = new Packet(Packet.PacketType.BIG_PACKET_LAST,
+    AsyncPacket lastPacket = new AsyncPacket(AsyncPacketTypes.BIG_PACKET_LAST,
                                    data.length,
                                    lastBuffer,
                                    packet.getIdentifier());
-    lastPacket.setOwnName(packet.getOwnerName());
+    lastPacket.setOwnName(packet.getOwnName());
     lastPacket.setOffset(offset);
     sendPacket(lastPacket);
 
     if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + lastPacket.getByteArray().length);
+      log.debug("Send of damp --> " + lastPacket.getBuffer().length);
   }
 
   /**
@@ -351,7 +348,7 @@ public class AsyncChannelManager implements RequestHandler {
     File f = new File(filePath);
     InputStream in = new FileInputStream(f);
 
-    Packet packet = new Packet(firstPacketType, identifier, ownerName, f.getName());
+    AsyncPacket packet = new AsyncPacket(firstPacketType, identifier, ownerName, f.getName());
     packet.setSystemId(systemId);
     //
     packet.setSize(count);
@@ -359,15 +356,15 @@ public class AsyncChannelManager implements RequestHandler {
     //
     sendPacket(packet);
 
-    byte[] buf = new byte[Packet.MAX_PACKET_SIZE];
+    byte[] buf = new byte[AsyncPacket.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
 
-    while ((len = in.read(buf)) > 0 && len == Packet.MAX_PACKET_SIZE) {
-      packet = new Packet(middlePocketType, new FixupStream(), identifier, buf);
+    while ((len = in.read(buf)) > 0 && len == AsyncPacket.MAX_PACKET_SIZE) {
+      packet = new AsyncPacket(middlePocketType, identifier, ownerName);
 
       packet.setOffset(offset);
-      packet.setOwnName(ownerName);
+      packet.setBuffer(buf);
       packet.setFileName(f.getName());
       packet.setSize(count);
       count++;
@@ -381,7 +378,7 @@ public class AsyncChannelManager implements RequestHandler {
       Thread.sleep(1);
     }
 
-    if (len < Packet.MAX_PACKET_SIZE) {
+    if (len < AsyncPacket.MAX_PACKET_SIZE) {
       // check if empty stream
       len = (len == -1 ? 0 : len);
 
@@ -390,9 +387,9 @@ public class AsyncChannelManager implements RequestHandler {
       for (int i = 0; i < len; i++)
         buffer[i] = buf[i];
 
-      packet = new Packet(lastPocketType, new FixupStream(), identifier, buffer);
+      packet = new AsyncPacket(lastPocketType, identifier, ownerName);
       packet.setOffset(offset);
-      packet.setOwnName(ownerName);
+      packet.setBuffer(buffer);
       packet.setFileName(f.getName());
       packet.setSize(count);
       count++;
@@ -411,9 +408,9 @@ public class AsyncChannelManager implements RequestHandler {
    */
   public Object handle(Message message) {
     try {
-      Packet packet = Packet.getAsPacket(message.getBuffer());
+      AsyncPacket packet = AsyncPacket.getAsPacket(message.getBuffer());
 
-      for (PacketListener handler : packetListeners) {
+      for (AsyncPacketListener handler : packetListeners) {
         handler.receive(packet);
       }
 
