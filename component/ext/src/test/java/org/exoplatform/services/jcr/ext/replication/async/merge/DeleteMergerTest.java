@@ -58,7 +58,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
-    ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
     income.addLog(remoteLog);
 
@@ -69,7 +69,7 @@ public class DeleteMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Remove remote Node and Add node to parent. Income changes should be accepted.
+   * Remove remote Node and Add local node to parent. Income changes should be accepted.
    */
   public void testRemoveRemoteAddParentLocalLocalPriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -79,7 +79,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
-    ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
     income.addLog(remoteLog);
 
@@ -117,7 +117,8 @@ public class DeleteMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Remove remote Node and Add node to parent. Income changes should be accepted.
+   * Remove remote Node and Add local node to parent. Income changes should be accepted, local
+   * changes should be Deleted.
    */
   public void testRemoveRemoteAddParentLocalRemotePriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -127,7 +128,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
-    ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
     income.addLog(remoteLog);
 
@@ -138,4 +139,97 @@ public class DeleteMergerTest extends BaseMergerTest {
     assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
   }
 
+  /**
+   * Remove remote Node and Remove local.
+   */
+  public void testRemoveRemoteRemoveSameLocalLocalPriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Remove remote Node and Remove local.
+   */
+  public void testRemoveRemoteRemoveLocalLocalPriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem2Change = new ItemState(localItem2, ItemState.DELETED, false, null);
+    localLog.add(localItem2Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
+  }
+
+  /**
+   * Remove remote Node and Remove local.
+   */
+  public void testRemoveRemoteRemoveSameLocalRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter());
+    List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Remove remote Node and Remove local.
+   */
+  public void testRemoveRemoteRemoveLocalRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem2Change = new ItemState(localItem2, ItemState.DELETED, false, null);
+    localLog.add(localItem2Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter());
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
+  }
 }
