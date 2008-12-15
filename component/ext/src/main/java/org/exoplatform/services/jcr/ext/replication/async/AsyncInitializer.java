@@ -16,6 +16,14 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
+import java.util.Calendar;
+
+import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
+import org.exoplatform.services.jcr.ext.replication.ReplicationException;
+import org.exoplatform.services.jcr.util.IdGenerator;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -24,9 +32,21 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class AsyncInitializer {
+public class AsyncInitializer implements AsyncPacketListener {
+  
+  public static final int WAIT_SYNCHRONOZATION       = 0;
+  
+  public static final int SYNCHRONIZATION_IS_STARTED = 1;
+  
+  public static final int SYNCHRONIZATION_IS_DONE    = 2;
 
-  protected final int priority;
+  private final int         waitTimeout;
+  
+  private final String      ownName;
+  
+  private final int         ownPriority;
+
+  private AsyncChannelManager channelManager;
 
   /**
    * AsyncInitializer constructor.
@@ -34,12 +54,38 @@ public class AsyncInitializer {
    * @param priority
    *          TODO
    */
-  AsyncInitializer(/*ChannelManager channel,*/ int priority) {
-    this.priority = priority;
+  AsyncInitializer(AsyncChannelManager channelManager, String ownName,int priority, int waitTimeout) {
+    this.channelManager = channelManager;
+    this.ownName = ownName;
+    this.ownPriority = priority;
+    this.waitTimeout = waitTimeout;
+    this.channelManager.addPacketListener(this);
   }
 
-  public boolean isLocalPriority() {
-    return this.priority > 0; // TODO add real algo for the question
+  public void receive(AsyncPacket packet) {
+    switch (packet.getType()) {
+    case AsyncPacketTypes.GET_STATE_NODE:
+
+      break;
+
+    case AsyncPacketTypes.STATE_NODE:
+
+      break;
+
+    default:
+      break;
+    }
   }
 
+  private void initSynchronization()  throws Exception{
+    AsyncPacket packet = new AsyncPacket(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE, IdGenerator.generate(), ownName);
+    packet.setTimeStamp(Calendar.getInstance());
+    
+    channelManager.sendPacket(packet);
+  }
+  
+  private void initChannel() throws ReplicationException {
+    channelManager.init();
+    channelManager.connect();
+  }
 }

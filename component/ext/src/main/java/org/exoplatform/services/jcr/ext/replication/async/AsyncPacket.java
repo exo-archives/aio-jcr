@@ -344,4 +344,12 @@ public class AsyncPacket implements Externalizable {
       fileNameList.add(new String(buf));
     }
   }
+
+  public Calendar getTimeStamp() {
+    return timeStamp;
+  }
+
+  public void setTimeStamp(Calendar timeStamp) {
+    this.timeStamp = timeStamp;
+  }
 }
