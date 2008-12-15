@@ -9,13 +9,15 @@ import javax.jcr.nodetype.PropertyDefinition;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestPredefinedPrimaryNodeTypes.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id: TestPredefinedPrimaryNodeTypes.java 11907 2008-03-13 15:36:21Z
+ *          ksm $
  */
 
 public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
@@ -37,8 +39,8 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
 
     // assertEquals("prop!=jcr:primaryType", "jcr:primaryType",
     // type.getPropertyDefinitions()[1].getName());
-    assertEquals(ExtendedItemDefinition.RESIDUAL_SET, type.getPropertyDefinitions()[0].getName());
-    assertEquals(ExtendedItemDefinition.RESIDUAL_SET, type.getChildNodeDefinitions()[0].getName());
+    assertEquals(Constants.JCR_ANY_NAME.getName(), type.getPropertyDefinitions()[0].getName());
+    assertEquals(Constants.JCR_ANY_NAME.getName(), type.getChildNodeDefinitions()[0].getName());
 
   }
 
@@ -56,7 +58,8 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     // NodeDefs = null
     assertTrue("nodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
-    // Property names: [0]=jcr:created, [1]=jcr:lastModified, [2]=jcr:primaryType
+    // Property names: [0]=jcr:created, [1]=jcr:lastModified,
+    // [2]=jcr:primaryType
     assertEquals("prop2 name !=jcr:primaryType",
                  "jcr:primaryType",
                  type.getPropertyDefinitions()[1].getName());
@@ -66,7 +69,8 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
 
     node = root.getNode("node-hi");
     assertNotNull("Prop null ", node.getProperty("jcr:created").toString());
-    // assertNull("Prop modified SAVED not null ", node.getProperty("jcr:lastModified").getValue());
+    // assertNull("Prop modified SAVED not null ",
+    // node.getProperty("jcr:lastModified").getValue());
   }
 
   public void testFile() throws Exception {

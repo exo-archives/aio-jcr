@@ -112,8 +112,8 @@ public class NodeTypeImpl implements ExtendedNodeType {
       InternalQName ntname = locationFactory.parseJCRName(nodeTypeName).getInternalName();
 
       NodeDefinitionData childNodeDef = typesHolder.findChildNodeDefinition(cname,
-                                                                           ntname,
-                                                                           data.getName());
+                                                                            ntname,
+                                                                            data.getName());
       return !(childNodeDef == null || childNodeDef.isProtected())
           && isChildNodePrimaryTypeAllowed(nodeTypeName);
     } catch (RepositoryException e) {
@@ -131,10 +131,11 @@ public class NodeTypeImpl implements ExtendedNodeType {
       InternalQName iname = locationFactory.parseJCRName(itemName).getInternalName();
 
       PropertyDefinitionDatas pdefs = typesHolder.getPropertyDefinitions(iname, data.getName());
-      PropertyDefinitionData pd = pdefs.getAnyDefinition();
-      if (pd != null)
-        return !(pd.isMandatory() || pd.isProtected());
-
+      if (pdefs != null) {
+        PropertyDefinitionData pd = pdefs.getAnyDefinition();
+        if (pd != null)
+          return !(pd.isMandatory() || pd.isProtected());
+      }
       NodeDefinitionData cndef = typesHolder.findChildNodeDefinition(iname, data.getName());
       if (cndef != null)
         return !(cndef.isMandatory() || cndef.isProtected());
@@ -155,19 +156,21 @@ public class NodeTypeImpl implements ExtendedNodeType {
       InternalQName pname = locationFactory.parseJCRName(propertyName).getInternalName();
 
       PropertyDefinitionDatas pdefs = typesHolder.getPropertyDefinitions(pname, data.getName());
-      PropertyDefinitionData pd = pdefs.getDefinition(false);
-      if (pd != null) {
-        if (pd.isProtected())
-          // can set (edit)
-          return false;
-        else if (value != null)
-          // can set (add or edit)
-          return canSetPropertyForType(pd.getRequiredType(), value, pd.getValueConstraints());
-        else
-          // can remove
-          return !pd.isMandatory();
-      } else
-        return false;
+      if (pdefs != null) {
+        PropertyDefinitionData pd = pdefs.getDefinition(false);
+        if (pd != null) {
+          if (pd.isProtected())
+            // can set (edit)
+            return false;
+          else if (value != null)
+            // can set (add or edit)
+            return canSetPropertyForType(pd.getRequiredType(), value, pd.getValueConstraints());
+          else
+            // can remove
+            return !pd.isMandatory();
+        }
+      }
+      return false;
     } catch (RepositoryException e) {
       LOG.error("canSetProperty value " + e, e);
       return false;

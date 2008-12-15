@@ -45,6 +45,7 @@ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.value.ExtendedValue;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.Identifier;
@@ -353,10 +354,11 @@ public abstract class ItemImpl implements Item {
     ItemImpl oldItem = dataManager.getItem(parentNode.nodeData(),
                                            new QPathEntry(propertyName, 0),
                                            true);
-    PropertyDefinitionData def = null;
+    PropertyDefinitionDatas defs = null;
 
     NodeTypeDataManager ntm = session.getWorkspace().getNodeTypesHolder();
     NodeData parentData = (NodeData) parentNode.getData();
+    boolean isMultiValue = multiValue;
     if (oldItem == null || oldItem.isNode()) { // new prop
       identifier = IdGenerator.generate();
       version = -1;
@@ -367,22 +369,22 @@ public abstract class ItemImpl implements Item {
                                                                    version,
                                                                    PropertyType.UNDEFINED,
                                                                    parentNode.getInternalIdentifier(),
-                                                                   multiValue);
+                                                                   isMultiValue);
         PropertyImpl nullProperty = new PropertyImpl(nullData, session);
         nullProperty.invalidate();
         return nullProperty;
       }
-      def = ntm.findPropertyDefinitions(propertyName,
-                                        parentData.getPrimaryTypeName(),
-                                        parentData.getMixinTypeNames()).getDefinition(multiValue);
+      defs = ntm.findPropertyDefinitions(propertyName,
+                                         parentData.getPrimaryTypeName(),
+                                         parentData.getMixinTypeNames());
 
       state = ItemState.ADDED;
     } else {
       oldProp = (PropertyImpl) oldItem;
-      def = ntm.findPropertyDefinitions(propertyName,
-                                        parentData.getPrimaryTypeName(),
-                                        parentData.getMixinTypeNames())
-               .getDefinition(oldProp.isMultiValued());
+      isMultiValue = oldProp.isMultiValued();
+      defs = ntm.findPropertyDefinitions(propertyName,
+                                         parentData.getPrimaryTypeName(),
+                                         parentData.getMixinTypeNames());
 
       identifier = oldProp.getInternalIdentifier();
       version = oldProp.getData().getPersistedVersion();
@@ -392,6 +394,11 @@ public abstract class ItemImpl implements Item {
         state = ItemState.UPDATED;
       }
     }
+    if (defs == null || defs.getAnyDefinition() == null)
+      throw new RepositoryException("Property definition '" + propertyName.getAsString()
+          + "' is not found.");
+
+    PropertyDefinitionData def = defs.getDefinition(isMultiValue);
     if (def != null && def.isProtected())
       throw new ConstraintViolationException("Can not set protected property "
           + locationFactory.createJCRPath(qpath).getAsString(false));
