@@ -73,21 +73,20 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
-          // TODO
           break;
         case ItemState.DELETED:
           if (itemData.isNode() && !localData.isNode()) {
             break;
           } else if (itemData.getQPath().isDescendantOf(localData.getQPath())
               || itemData.getQPath().equals(localData.getQPath())) {
-
-          } else {
             return resultState;
           }
-
-          // TODO
+          break;
         case ItemState.RENAMED:
-          // TODO
+          if (itemData.getQPath().isDescendantOf(localData.getQPath())
+              || itemData.getQPath().equals(localData.getQPath())) {
+            return resultState;
+          }
           break;
         case ItemState.MIXIN_CHANGED:
           break;
@@ -95,6 +94,12 @@ public class DeleteMerger implements ChangesMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
+          if (itemData.isNode()
+              && localData.isNode()
+              && (localData.getQPath().isDescendantOf(itemData.getQPath()) || itemData.getQPath()
+                                                                                      .equals(localData.getQPath()))) {
+
+          }
           // TODO
           break;
         case ItemState.UPDATED:
