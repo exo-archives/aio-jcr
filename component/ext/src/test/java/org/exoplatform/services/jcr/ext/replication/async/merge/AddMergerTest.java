@@ -427,10 +427,25 @@ public class AddMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem3Change);
     income.addLog(remoteLog);
 
-    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
+
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem11Change, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem121Change, true));
+ 
+    assertFalse("Local Add state found ", hasState(result, localItem1Change, true));
+    assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
+    assertFalse("Local Add state found ", hasState(result, localItem12Change, true));
+
+    assertFalse("Local Add state found ", hasState(result, localItem2Change, true));
+
+    assertFalse("Local Remove state found ", hasState(result, localItem12Delete, true));
+    assertFalse("Local Remove state found ", hasState(result, localItem11Delete, true));
+    assertFalse("Local Remove state found ", hasState(result, localItem1Delete, true));
   }
 
   // complex usecases require remote export
