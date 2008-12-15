@@ -137,6 +137,7 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.RENAMED:
+          // TODO complex operation
           if (itemData.getQPath().isDescendantOf(localData.getQPath())
               || itemData.getQPath().equals(localData.getQPath())) {
 
@@ -171,7 +172,7 @@ public class AddMerger implements ChangesMerger {
       }
     }
 
-    // add item if not processed
+    // apply income changes
     resultState.add(itemChange);
 
     return resultState;

@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -67,8 +68,7 @@ public class DeleteMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (itemData.isNode() && localData.isNode()
-              && localData.getQPath().isDescendantOf(itemData.getQPath())) {
+          if (itemData.isNode() && localData.getQPath().isDescendantOf(itemData.getQPath())) {
             return resultState;
           }
           break;
@@ -94,31 +94,68 @@ public class DeleteMerger implements ChangesMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (itemData.isNode()
-              && localData.isNode()
-              && (localData.getQPath().isDescendantOf(itemData.getQPath()) || itemData.getQPath()
-                                                                                      .equals(localData.getQPath()))) {
+          if (itemData.isNode() && localData.isNode()
+              && (localData.getQPath().isDescendantOf(itemData.getQPath()))) {
 
+            // add Delete state
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(itemData.getQPath(),
+                                                                                true,
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              itemsArray[i].getData().getQPath()));
+              }
+            }
+
+            // apply income changes for all subtree
+            resultState.add(itemChange);
+            resultState.addAll(income.getDescendantsChanges(itemData.getQPath(), false, false));
+            return resultState;
           }
-          // TODO
           break;
         case ItemState.UPDATED:
-          // TODO
           break;
         case ItemState.DELETED:
-          // TODO
-          break;
+          if (itemData.isNode() == localData.isNode()) {
+            if (itemData.getQPath().isDescendantOf(localData.getQPath())
+                || itemData.getQPath().equals(localData.getQPath())) {
+              return resultState;
+            }
+            break;
+          } else if (itemData.isNode() && !localData.isNode()) {
+            break;
+          } else {
+            resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
+            resultState.add(itemChange);
+            return resultState;
+          }
         case ItemState.RENAMED:
-          // TODO
-          break;
+          // TODO complex operation
+          if (itemData.isNode()) {
+            // itemData.getIdentifier()
+            // TODO
+            break;
+          } else {
+            // TODO
+            // Delete node
+            // delete log
+            // export
+            // import
+            // delete prop
+            break;
+          }
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       }
     }
 
-    // add item if not processed
+    // apply income changes
     resultState.add(itemChange);
 
     return resultState;
