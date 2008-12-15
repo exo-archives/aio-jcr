@@ -67,19 +67,29 @@ public class DeleteMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          // TODO
+          if (itemData.isNode() && localData.isNode()
+              && localData.getQPath().isDescendantOf(itemData.getQPath())) {
+            return resultState;
+          }
           break;
         case ItemState.UPDATED:
           // TODO
           break;
         case ItemState.DELETED:
+          if (itemData.isNode() && !localData.isNode()) {
+            break;
+          } else if (itemData.getQPath().isDescendantOf(localData.getQPath())
+              || itemData.getQPath().equals(localData.getQPath())) {
+
+          } else {
+            return resultState;
+          }
+
           // TODO
-          break;
         case ItemState.RENAMED:
           // TODO
           break;
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       } else { // remote priority

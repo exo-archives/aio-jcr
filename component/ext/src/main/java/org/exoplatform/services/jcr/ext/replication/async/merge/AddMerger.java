@@ -97,7 +97,7 @@ public class AddMerger implements ChangesMerger {
         case ItemState.ADDED:
           if (itemData.getQPath().equals(localData.getQPath())) {
 
-            // add DELETE state for subtree of local changes
+            // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
                                                                                 true,
                                                                                 true);
@@ -111,7 +111,6 @@ public class AddMerger implements ChangesMerger {
                                               itemsArray[i].getData().getQPath()));
               }
             }
-            // add DELETE state for root of local changes
             if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
@@ -141,7 +140,7 @@ public class AddMerger implements ChangesMerger {
           if (itemData.getQPath().isDescendantOf(localData.getQPath())
               || itemData.getQPath().equals(localData.getQPath())) {
 
-            // add DELETE state for subtree of local changes
+            // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
                                                                                 true,
                                                                                 true);
@@ -155,7 +154,6 @@ public class AddMerger implements ChangesMerger {
                                               itemsArray[i].getData().getQPath()));
               }
             }
-            // add DELETE state for root of local changes
             if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
