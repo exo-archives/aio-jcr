@@ -64,6 +64,11 @@ public class WebDAVEJBConnectorBean implements SessionBean {
   private static final Log  LOG              = ExoLogger.getLogger(WebDAVEJBConnectorBean.class.getName());
 
   /**
+   * Portal container name.
+   */
+  private String            containerName;
+
+  /**
    * @param request wrapper for REST request that gives possibility transfer
    *          request via RMI
    * @return wrapper around REST response that gives possibility transfer
@@ -71,6 +76,13 @@ public class WebDAVEJBConnectorBean implements SessionBean {
    * @throws IOException if any i/o errors occurs
    */
   public final SerialResponse service(final SerialRequest request) throws IOException {
+
+    try {
+      InitialContext ctx = new InitialContext();
+      containerName = (String) ctx.lookup("java:comp/env/exo.container.name");
+    } catch (NamingException e1) {
+      LOG.error("Can't construct an initial context or get portal container name. ");
+    }
 
     ExoContainer container = getContainer();
 
@@ -148,8 +160,10 @@ public class WebDAVEJBConnectorBean implements SessionBean {
    */
   protected ExoContainer getContainer() {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-    if (container instanceof RootContainer)
-      return RootContainer.getInstance().getPortalContainer("portal");
+    if (container instanceof RootContainer) {
+      container = RootContainer.getInstance().getPortalContainer(containerName);
+      ExoContainerContext.setCurrentContainer(container);
+    }
 
     return container;
   }
