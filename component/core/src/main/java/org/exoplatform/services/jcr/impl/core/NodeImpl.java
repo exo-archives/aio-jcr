@@ -664,12 +664,15 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
 
     }
     // Check if node is not protected
-    if (session.getWorkspace()
-               .getNodeTypesHolder()
-               .findChildNodeDefinition(name,
-                                        nodeData().getPrimaryTypeName(),
-                                        nodeData().getMixinTypeNames())
-               .isProtected())
+    NodeDefinitionData childNodeDefinition = session.getWorkspace()
+                                                    .getNodeTypesHolder()
+                                                    .findChildNodeDefinition(name,
+                                                                             nodeData().getPrimaryTypeName(),
+                                                                             nodeData().getMixinTypeNames());
+    if (childNodeDefinition == null)
+      throw new ConstraintViolationException("Can't find child node definition for " + name
+          + " in " + nodeData().getQPath().getAsString());
+    if (childNodeDefinition.isProtected())
       throw new ConstraintViolationException("Can't add protected node " + name.getAsString()
           + " to " + getPath());
 
@@ -2626,7 +2629,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     } else {
       String[] propVal = def.getDefaultValues();
       // there can be null in definition but should not be null value
-      if (propVal != null) {
+      if (propVal != null && propVal.length != 0) {
         for (String v : propVal) {
           if (v != null)
             if (def.getRequiredType() == PropertyType.UNDEFINED)
