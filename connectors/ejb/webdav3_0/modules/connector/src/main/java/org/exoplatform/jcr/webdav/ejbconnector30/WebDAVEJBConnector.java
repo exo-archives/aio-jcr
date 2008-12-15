@@ -33,14 +33,14 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.common.transport.SerialRequest;
-import org.exoplatform.common.transport.SerialResponse;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.RootContainer;
 import org.exoplatform.services.jcr.ext.app.ThreadLocalSessionProviderService;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ext.transport.SerialRequest;
+import org.exoplatform.services.rest.ext.transport.SerialResponse;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -51,7 +51,7 @@ import org.exoplatform.ws.rest.ejbconnector30.RestEJBConnectorLocal;
  * @version $Id: $
  */
 @Stateless
-// (mappedName="WebDAVEJBConnector")
+//(mappedName="WebDAVEJBConnector")
 @DeclareRoles({ "admin", "users" })
 @TransactionManagement(TransactionManagementType.BEAN)
 public class WebDAVEJBConnector implements WebDAVEJBConnectorRemote, WebDAVEJBConnectorLocal {
@@ -75,9 +75,15 @@ public class WebDAVEJBConnector implements WebDAVEJBConnectorRemote, WebDAVEJBCo
   @Resource
   private SessionContext        context;
 
-  // Can be used instead lookup bean 'manually'.
+  // Inject required bean instead lookup bean 'manually'.
+  // does not work at easy-beans 1.0.1, why ???
 //  @EJB(beanInterface = RestEJBConnectorLocal.class)
 //  private RestEJBConnectorLocal bean; 
+
+  /**
+   * Portal container name.
+   */
+  private String                containerName;
 
   /**
    * @param request wrapper for REST request that gives possibility transfer
@@ -88,6 +94,13 @@ public class WebDAVEJBConnector implements WebDAVEJBConnectorRemote, WebDAVEJBCo
    */
   @RolesAllowed({ "admin", "users" })
   public final SerialResponse service(final SerialRequest request) throws RemoteException {
+    InitialContext ctx = null;
+    try {
+      ctx = new InitialContext();
+      containerName = (String) ctx.lookup("java:comp/env/exo.container.name");
+    } catch (NamingException e1) {
+      LOG.error("Can't construct an initial context or get portal container name. ");
+    }
 
     ExoContainer container = getContainer();
     
@@ -108,17 +121,19 @@ public class WebDAVEJBConnector implements WebDAVEJBConnectorRemote, WebDAVEJBCo
       ConversationState.setCurrent(state);
       sessionProviderService.setSessionProvider(null, provider);
 
-      InitialContext initialContext = new InitialContext();
-      RestEJBConnectorLocal bean = (RestEJBConnectorLocal) initialContext.lookup(JNDI_NAME);
-      return bean.service(request);
-    } catch (NamingException e) {
-      throw new EJBException("RestEJBConnectorLocal not found in jndi!", e);
+      if (ctx != null) {
+        RestEJBConnectorLocal bean = (RestEJBConnectorLocal) ctx.lookup(JNDI_NAME);
+        return bean.service(request);
+      } else {
+        throw new EJBException("Can't get local interface of RestEJBConnector, InitialContext is null. ");
+      }
     } catch (Exception e) {
       throw new EJBException(e);
     } finally {
       try {
         sessionProviderService.removeSessionProvider(null);
         ConversationState.setCurrent(null);
+        ExoContainerContext.setCurrentContainer(null);
       } catch (Exception e) {
         LOG.warn("Failed reset ThreadLocal variables", e);
       }
@@ -130,8 +145,10 @@ public class WebDAVEJBConnector implements WebDAVEJBConnectorRemote, WebDAVEJBCo
    */
   protected ExoContainer getContainer() {
     ExoContainer container = ExoContainerContext.getCurrentContainer();
-    if (container instanceof RootContainer)
-      return RootContainer.getInstance().getPortalContainer("portal");
+    if (container instanceof RootContainer) {
+      container = RootContainer.getInstance().getPortalContainer(containerName);
+      ExoContainerContext.setCurrentContainer(container);
+    }
 
     return container;
   }
