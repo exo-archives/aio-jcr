@@ -104,7 +104,7 @@ public class AsyncPacketTest extends TestCase {
     assertEquals(destPacket.getSize(), 120214245);
     
     assertEquals(destPacket.getBuffer().length, srcPacket.getBuffer().length);
-    assertEquals(destPacket.getBuffer(), AsyncPacket.MAX_PACKET_SIZE);
+    assertEquals(destPacket.getBuffer().length, AsyncPacket.MAX_PACKET_SIZE);
     
     for (int i = 0; i < srcPacket.getBuffer().length; i++) 
       assertEquals(destPacket.getBuffer()[i], srcPacket.getBuffer()[i]);

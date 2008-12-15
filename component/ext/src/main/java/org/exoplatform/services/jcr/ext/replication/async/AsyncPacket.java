@@ -291,6 +291,9 @@ public class AsyncPacket implements Externalizable {
 
     out.writeInt(identifier.getBytes().length);
     out.write(identifier.getBytes());
+    
+    out.writeInt(systemId.getBytes().length);
+    out.write(systemId.getBytes());
 
     out.writeInt(ownName.getBytes().length);
     out.write(ownName.getBytes());
@@ -324,6 +327,10 @@ public class AsyncPacket implements Externalizable {
     byte[] buf = new byte[in.readInt()];
     in.readFully(buf);
     identifier = new String(buf);
+    
+    buf = new byte[in.readInt()];
+    in.readFully(buf);
+    systemId = new String(buf);
 
     buf = new byte[in.readInt()];
     in.readFully(buf);
@@ -351,5 +358,13 @@ public class AsyncPacket implements Externalizable {
 
   public void setTimeStamp(Calendar timeStamp) {
     this.timeStamp = timeStamp;
+  }
+
+  public List<String> getFileNameList() {
+    return fileNameList;
+  }
+
+  public void setFileNameList(List<String> fileNameList) {
+    this.fileNameList = fileNameList;
   }
 }
