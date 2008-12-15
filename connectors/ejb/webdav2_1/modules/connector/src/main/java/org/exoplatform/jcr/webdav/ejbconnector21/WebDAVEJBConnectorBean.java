@@ -117,6 +117,7 @@ public class WebDAVEJBConnectorBean implements SessionBean {
       try {
         sessionProviderService.removeSessionProvider(null);
         ConversationState.setCurrent(null);
+        ExoContainerContext.setCurrentContainer(null);
       } catch (Exception e) {
         LOG.warn("Failed reset ThreadLocal variables", e);
       }
