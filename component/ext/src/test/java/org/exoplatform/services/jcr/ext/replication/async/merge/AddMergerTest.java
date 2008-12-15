@@ -18,32 +18,65 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.util.List;
 
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
+ * <p>
+ * NOTE for UPDATE Nodes: srcChildRelPath - will be deleted at firts in changes log
+ * </p>
+ * 
+ * Examples:
+ * 
+ * <pre>
+ * order up, was n1,n2,n3,n4 become n1,n2,n4,n3 
+ * testBase.orderBefore(n4, n3)
+ *  DELETED 3b7dca1cc0a8000300213b6efb8fb0ad  isPersisted=false isEventFire=true  []:1[]order_test:1[]n4:1
+ *  UPDATED 3b7dca1cc0a8000300213b6efb8fb0ad  isPersisted=true  isEventFire=true  []:1[]order_test:1[]n4:1
+ *  UPDATED 3b7dca0dc0a8000301ea4043c50ab699  isPersisted=true  isEventFire=false []:1[]order_test:1[]n3:1
+ * </pre>
+ * 
+ * <pre>
+ * order up on two, was n2,n3,n1,n4,n5 become n2,n4,n3,n1,n5 
+ * testBase.orderBefore(n4, n3)
+ *  DELETED  3b7f5e59c0a80003005821d0cda99c0a  isPersisted=false isEventFire=true  []:1[]order_test:1[]n4:1
+ *  UPDATED  3b7f5e59c0a80003005821d0cda99c0a  isPersisted=true  isEventFire=true  []:1[]order_test:1[]n4:1
+ *  UPDATED  3b7f5e49c0a80003009a111f4ae7d0c1  isPersisted=true  isEventFire=false []:1[]order_test:1[]n3:1
+ *  UPDATED  3b7f5e59c0a8000301a26520387ef01e  isPersisted=true  isEventFire=false []:1[]order_test:1[]n1:1
+ * </pre>
+ * 
+ * <pre>
+ * order to a begin, was n1,n2,n3,n4 become n3,n1,n2,n4
+ * testBase.orderBefore(n3, null);
+ *  DELETED  3b859f8bc0a80003000c85b3b20d5500  isPersisted=false isEventFire=true  []:1[]order_test:1[]n3:1
+ *  UPDATED  3b859f8bc0a80003000c85b3b20d5500  isPersisted=true  isEventFire=true  []:1[]order_test:1[]n3:1
+ *  UPDATED  3b859f7bc0a8000300c3d5abd19201e6  isPersisted=true  isEventFire=false []:1[]order_test:1[]n1:1
+ *  UPDATED  3b859f8bc0a800030199f6e4e3129a65  isPersisted=true  isEventFire=false []:1[]order_test:1[]n2:1
+ * </pre>
+ * 
+ * <pre>
+ * order up of same-name-sibling, was n1,n1[2],n1[3],n1[4],n2 become n1,n1[2],n2,n1[3],n1[4]
+ * testBase.orderBefore(n2, n1[3]);
+ *  DELETED  3b8accbdc0a8000301989e7c3170d6e1  isPersisted=false isEventFire=true  []:1[]order_test:1[]n2:1
+ *  UPDATED  3b8accbdc0a8000301989e7c3170d6e1  isPersisted=true  isEventFire=true  []:1[]order_test:1[]n2:1
+ *  UPDATED  3b8accadc0a8000301c3b22c242b511b  isPersisted=true  isEventFire=false []:1[]order_test:1[]n1:3
+ *  UPDATED  3b8accbdc0a800030103462c00031f35  isPersisted=true  isEventFire=false []:1[]order_test:1[]n1:4
+ * </pre>
  * 
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id$
  */
 public class AddMergerTest extends BaseMergerTest {
-
-  /**
-   * {@inheritDoc}
-   */
-  public void setUp() throws Exception {
-    super.setUp();
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  protected void tearDown() throws Exception {
-    super.tearDown();
-  }
 
   /**
    * Add remote Node add without local changes. All states should be returned by the merger. Local
@@ -436,7 +469,7 @@ public class AddMergerTest extends BaseMergerTest {
     assertTrue("Remote Add state expected ", hasState(result, remoteItem11Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem121Change, true));
- 
+
     assertFalse("Local Add state found ", hasState(result, localItem1Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem12Change, true));
@@ -528,6 +561,7 @@ public class AddMergerTest extends BaseMergerTest {
    * 
    */
   public void testLocalParentRenamedLocalPriority() throws Exception {
+
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.RENAMED, false, null);
@@ -672,55 +706,232 @@ public class AddMergerTest extends BaseMergerTest {
   /**
    * Test the case when local parent updated on high priority node.
    * 
+   * Test usecase: order of item12 before item11 (testItem1.orderBefore(item12, item11)) causes
+   * UPDATE of item11.
+   * 
+   * <p>
+   * Income changes contains ADD to /testItem1/item11 node
+   * 
+   * <pre>
+   *   was
+   *   /testItem1/item11
+   *   /testItem1/item12
+   *   
+   *   becomes
+   *   /testItem1/item12
+   *   /testItem1/item11
+   *   
+   *   local changes
+   *   DELETED  /testItem1/item12
+   *   UPDATED  /testItem1/item12
+   *   UPDATED  /testItem1/item11
+   * </pre>
+   * 
    */
   public void testLocalParentUpdatedLocalPriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
-    final ItemState localItem12Change = new ItemState(localItem12, ItemState.UPDATED, false, null);
-    localLog.add(localItem12Change);
-    final ItemState localItem122Change = new ItemState(localItem122, ItemState.ADDED, false, null);
+    final ItemState localItem12Remove = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Remove);
+    final ItemState localItem12Update = new ItemState(localItem12, ItemState.UPDATED, false, null);
+    localLog.add(localItem12Update);
+    final ItemState localItem122Change = new ItemState(localItem11, ItemState.UPDATED, false, null);
     localLog.add(localItem122Change);
-    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    final ItemState localItem11Change = new ItemState(localItem111, ItemState.ADDED, false, null);
     localLog.add(localItem11Change);
+    final ItemState localItem2Add = new ItemState(localItem2, ItemState.ADDED, false, null);
+    localLog.add(localItem2Add);
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
-    final ItemState remoteItem121Change = new ItemState(remoteItem121, ItemState.ADDED, false, null);
-    remoteLog.add(remoteItem121Change);
+    final ItemState remoteItem112Add = new ItemState(remoteItem112, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem112Add);
+    final ItemState remoteItem2Add = new ItemState(remoteItem2, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem2Add);
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
-    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    List<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
-    assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
+
+    assertTrue("Remote Add expected ", hasState(result, remoteItem112Add, true));
   }
 
   /**
    * Test the case when local parent updated on low priority node.
    * 
+   * Test usecase: order of item12 before item11 (testItem1.orderBefore(item12, item11)) causes
+   * UPDATE of item11.
+   * 
+   * <p>
+   * Income changes contains ADD to /testItem1/item11 node
+   * 
+   * <pre>
+   *   was
+   *   /testItem1/item11
+   *   /testItem1/item12
+   *   
+   *   becomes
+   *   /testItem1/item12
+   *   /testItem1/item11
+   *   
+   *   local changes
+   *   DELETED  /testItem1/item12
+   *   UPDATED  /testItem1/item12
+   *   UPDATED  /testItem1/item11
+   * </pre>
+   * 
    */
   public void testLocalParentUpdatedRemotePriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
-    final ItemState localItem12Change = new ItemState(localItem12, ItemState.UPDATED, false, null);
-    localLog.add(localItem12Change);
-    final ItemState localItem122Change = new ItemState(localItem122, ItemState.ADDED, false, null);
+    final ItemState localItem12Remove = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Remove);
+    final ItemState localItem12Update = new ItemState(localItem12, ItemState.UPDATED, false, null);
+    localLog.add(localItem12Update);
+    final ItemState localItem122Change = new ItemState(localItem11, ItemState.UPDATED, false, null);
     localLog.add(localItem122Change);
-    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    final ItemState localItem11Change = new ItemState(localItem111, ItemState.ADDED, false, null);
     localLog.add(localItem11Change);
+    final ItemState localItem2Add = new ItemState(localItem2, ItemState.ADDED, false, null);
+    localLog.add(localItem2Add);
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
-    final ItemState remoteItem121Change = new ItemState(remoteItem121, ItemState.ADDED, false, null);
-    remoteLog.add(remoteItem121Change);
+    final ItemState remoteItem112Add = new ItemState(remoteItem112, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem112Add);
+    final ItemState remoteItem2Add = new ItemState(remoteItem2, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem2Add);
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
-    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    List<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
-    assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
+
+    assertTrue("Remote Add expected ", hasState(result, remoteItem112Add, true));
+  }
+
+  /**
+   * Test the case when local parent with same-name-sibling name updated on high priority node.
+   * 
+   * Test usecase: order of item12 before item11 (testItem1.orderBefore(item11[2], item11)) causes
+   * UPDATE of item11[1].
+   * 
+   * <p>
+   * Income changes contains ADD to /testItem1/item11 node
+   * 
+   * <pre>
+   *   was
+   *   /testItem1/item11 - A
+   *   /testItem1/item11[2] - B
+   *      
+   *   becomes
+   *   /testItem1/item11 - B
+   *   /testItem1/item11[2] - A
+   *   
+   *   local changes
+   *   DELETED  /testItem1/item11[2] - B
+   *   UPDATED  /testItem1/item11[2] - A
+   *   UPDATED  /testItem1/item11[1] - B
+   * </pre>
+   * 
+   */
+  public void testLocalSNSParentUpdatedLocalPriority() throws Exception {
+
+    final NodeData localItem11x2B = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                              new InternalQName(null,
+                                                                                                "item11"),
+                                                                              2),
+                                                          IdGenerator.generate(),
+                                                          0,
+                                                          new InternalQName(Constants.NS_NT_URI,
+                                                                            "unstructured"),
+                                                          new InternalQName[0],
+                                                          1,
+                                                          localItem1.getIdentifier(),
+                                                          new AccessControlList());
+
+    final NodeData localItem11x1B = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                              new InternalQName(null,
+                                                                                                "item11"),
+                                                                              1),
+                                                          localItem11x2B.getIdentifier(),
+                                                          0,
+                                                          new InternalQName(Constants.NS_NT_URI,
+                                                                            "unstructured"),
+                                                          new InternalQName[0],
+                                                          0,
+                                                          localItem1.getIdentifier(),
+                                                          new AccessControlList());
+    final NodeData localItem11x1B1 = new TransientNodeData(QPath.makeChildPath(localItem11x1B.getQPath(),
+                                                                              new InternalQName(null,
+                                                                                                "item11x1-1"),
+                                                                              1),
+                                                          IdGenerator.generate(),
+                                                          0,
+                                                          new InternalQName(Constants.NS_NT_URI,
+                                                                            "unstructured"),
+                                                          new InternalQName[0],
+                                                          0,
+                                                          localItem11x1B.getIdentifier(),
+                                                          new AccessControlList());
+
+    final NodeData localItem11x2A = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                              new InternalQName(null,
+                                                                                                "item11"),
+                                                                              2),
+                                                          localItem11.getIdentifier(),
+                                                          0,
+                                                          new InternalQName(Constants.NS_NT_URI,
+                                                                            "unstructured"),
+                                                          new InternalQName[0],
+                                                          0,
+                                                          localItem1.getIdentifier(),
+                                                          new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem11x2Remove = new ItemState(localItem11x2B,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem11x2Remove);
+    final ItemState localItem11Update = new ItemState(localItem11x2A,
+                                                      ItemState.UPDATED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem11Update);
+    final ItemState localItem11x1Update = new ItemState(localItem11x1B,
+                                                        ItemState.UPDATED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem11x1Update);
+    
+    final ItemState localItem11x11Add = new ItemState(localItem11x1B1, ItemState.ADDED, false, null);
+    localLog.add(localItem11x11Add);
+    
+    final ItemState localItem2Add = new ItemState(localItem2, ItemState.ADDED, false, null);
+    localLog.add(localItem2Add);
+    local.addLog(localLog);
+
+    
+    // TODO
+    
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem112Add = new ItemState(remoteItem112, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem112Add);
+    final ItemState remoteItem2Add = new ItemState(remoteItem2, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem2Add);
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+
+    assertTrue("Remote Add expected ", hasState(result, remoteItem112Add, true));
   }
 
   /**
