@@ -366,9 +366,10 @@ public class SystemViewImporter extends BaseXmlImporter {
                                                                                  currentNodeInfo.getMixinTypeNames());
 
       if (defs == null) {
-        if (!((Boolean) context.get(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS)))
+        if (!((Boolean) context.get(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS))) {
           log.warn("Property definition not found for " + propertyInfo.getName());
-        else
+          return null;
+        } else
           throw new RepositoryException("Property definition not found for "
               + propertyInfo.getName());
 

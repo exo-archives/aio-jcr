@@ -335,7 +335,13 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     hierarchy.addNodeType(nodeType);
 
-    defsHolder.putDefinitions(nodeType);
+    defsHolder.putDefinitions(nodeType.getName(), nodeType);
+    // put supers
+    Set<InternalQName> supers = hierarchy.getSupertypes(nodeType.getName());
+
+    for (InternalQName superName : supers) {
+      defsHolder.putDefinitions(nodeType.getName(), hierarchy.getNodeType(superName));
+    }
 
     if (persister.isInitialized()) {
       try {
@@ -458,9 +464,13 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                                    InternalQName nodeTypeName,
                                                    InternalQName parentTypeName) {
-
-    // TODO residual
-    return defsHolder.getChildNodeDefinition(parentTypeName, nodeName, nodeTypeName);
+    NodeDefinitionData def = defsHolder.getChildNodeDefinition(parentTypeName,
+                                                               nodeName,
+                                                               nodeTypeName);
+    // residual
+    if (def == null)
+      def = defsHolder.getChildNodeDefinition(parentTypeName, Constants.JCR_ANY_NAME, nodeTypeName);
+    return def;
   }
 
   /**
@@ -489,8 +499,14 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName... nodeTypeNames) {
 
-    // TODO residual
-    return defsHolder.getDefaultChildNodeDefinition(nodeName, nodeTypeNames);
+    NodeDefinitionData ndResidual = defsHolder.getDefaultChildNodeDefinition(nodeName,
+                                                                             nodeTypeNames);
+
+    if (ndResidual == null && !Constants.JCR_ANY_NAME.equals(nodeName))
+      ndResidual = findChildNodeDefinition(Constants.JCR_ANY_NAME, nodeTypeNames);
+
+    return ndResidual;
+
   }
 
   /**
@@ -500,13 +516,28 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                     InternalQName primaryNodeType,
                                                     InternalQName[] mixinTypes) {
 
-    // TODO residual
+    // // TODO residual
+    //
+    // NodeDefinitionData cnd =
+    // defsHolder.getDefaultChildNodeDefinition(nodeName, primaryNodeType);
+    // // mixin
+    // if (cnd == null)
+    // cnd = defsHolder.getDefaultChildNodeDefinition(nodeName, mixinTypes);
+    //
+    //    
 
-    NodeDefinitionData cnd = defsHolder.getDefaultChildNodeDefinition(nodeName, primaryNodeType);
-    if (cnd != null)
-      return cnd;
+    // return cnd;
 
-    return defsHolder.getDefaultChildNodeDefinition(nodeName, mixinTypes);
+    if (mixinTypes != null) {
+      InternalQName[] nts = new InternalQName[mixinTypes.length + 1];
+      nts[0] = primaryNodeType;
+      for (int i = 0; i < mixinTypes.length; i++) {
+        nts[i + 1] = mixinTypes[i];
+      }
+      return findChildNodeDefinition(nodeName, nts);
+    }
+
+    return findChildNodeDefinition(nodeName, primaryNodeType);
   }
 
   /**
@@ -525,8 +556,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     PropertyDefinitionDatas propertyDefinitions = defsHolder.getPropertyDefinitions(propertyName,
                                                                                     nodeTypeNames);
     // Try super
-    if (propertyDefinitions.getAnyDefinition() == null) {
-      for (int i = 0; i < nodeTypeNames.length && propertyDefinitions.getAnyDefinition() == null; i++) {
+    if (propertyDefinitions == null) {
+      for (int i = 0; i < nodeTypeNames.length && propertyDefinitions == null; i++) {
         InternalQName[] supers = hierarchy.getNodeType(nodeTypeNames[i])
                                           .getDeclaredSupertypeNames();
         propertyDefinitions = getPropertyDefinitions(propertyName, supers);
@@ -535,8 +566,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
 
     // try residual def
-    if (propertyDefinitions.getAnyDefinition() == null
-        && !propertyName.equals(Constants.JCR_ANY_NAME)) {
+    if (propertyDefinitions == null && !propertyName.equals(Constants.JCR_ANY_NAME)) {
       propertyDefinitions = getPropertyDefinitions(Constants.JCR_ANY_NAME, nodeTypeNames);
     }
 

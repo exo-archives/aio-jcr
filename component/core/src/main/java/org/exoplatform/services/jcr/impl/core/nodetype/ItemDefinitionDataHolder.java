@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 
@@ -50,7 +49,10 @@ public class ItemDefinitionDataHolder {
 
   private final HashMap<DefaultNodeDefKey, NodeDefinitionData>  defNodeDefinitions;
 
+  private final NodeTypeDataHierarchyHolder                     nodeTypesHierarchy;
+
   public ItemDefinitionDataHolder(NodeTypeDataHierarchyHolder nodeTypesHierarchy) {
+    this.nodeTypesHierarchy = nodeTypesHierarchy;
     this.nodeDefinitions = new HashMap<ChildNodeDefKey, NodeDefinitionData>();
     this.propertyDefinitions = new HashMap<PropertyDefKey, PropertyDefinitionData>();
     this.defNodeDefinitions = new HashMap<DefaultNodeDefKey, NodeDefinitionData>();
@@ -70,11 +72,11 @@ public class ItemDefinitionDataHolder {
                                                                    childName,
                                                                    childNodeType);
 
-    // residual
-    if (def == null)
-      def = getNodeDefinitionFromThisOrSupertypes(parentNodeType,
-                                                  Constants.JCR_ANY_NAME,
-                                                  childNodeType);
+    // // residual
+    // if (def == null)
+    // def = getNodeDefinitionFromThisOrSupertypes(parentNodeType,
+    // Constants.JCR_ANY_NAME,
+    // childNodeType);
 
     return def;
   }
@@ -160,7 +162,7 @@ public class ItemDefinitionDataHolder {
 
     }
 
-    return pdefs;
+    return pdefs.getAnyDefinition() != null ? pdefs : null;
   }
 
   /**
@@ -186,11 +188,11 @@ public class ItemDefinitionDataHolder {
     return def;
   }
 
-  void putAllDefinitions(List<NodeTypeData> nodeTypes) {
-    for (NodeTypeData nodeType : nodeTypes) {
-      putDefinitions(nodeType);
-    }
-  }
+  // void putAllDefinitions(List<NodeTypeData> nodeTypes) {
+  // for (NodeTypeData nodeType : nodeTypes) {
+  // putDefinitions(nodeType);
+  // }
+  // }
 
   /**
    * adds Child Node/Property Definitions for incoming NodeType (should be
@@ -198,32 +200,30 @@ public class ItemDefinitionDataHolder {
    * 
    * @param nodeType
    */
-  void putDefinitions(NodeTypeData nodeType) {
-    // nodeTypesHierarchy.addNodeType(nodeType);
+  void putDefinitions(InternalQName name, NodeTypeData nodeType) {
 
     // put child node defs
     NodeDefinitionData[] nodeDefs = nodeType.getDeclaredChildNodeDefinitions();
     for (NodeDefinitionData nodeDef : nodeDefs) {
       // put required node type defs
-      // TODO put super's child node defs
       for (InternalQName rnt : nodeDef.getRequiredPrimaryTypes()) {
-        ChildNodeDefKey nodeDefKey = new ChildNodeDefKey(nodeType.getName(), nodeDef.getName(), rnt);
+        ChildNodeDefKey nodeDefKey = new ChildNodeDefKey(name, nodeDef.getName(), rnt);
         nodeDefinitions.put(nodeDefKey, nodeDef);
 
         if (LOG.isDebugEnabled()) {
-          LOG.debug("NodeDef added: parent NT: " + nodeType.getName().getAsString()
-              + " child nodeName: " + nodeDef.getName().getAsString() + " childNT: "
-              + rnt.getAsString() + " hash: " + nodeDefKey.hashCode());
+          LOG.debug("NodeDef added: parent NT: " + name.getAsString() + " child nodeName: "
+              + nodeDef.getName().getAsString() + " childNT: " + rnt.getAsString() + " hash: "
+              + nodeDefKey.hashCode());
         }
       }
 
       // put default node definition
-      DefaultNodeDefKey defNodeDefKey = new DefaultNodeDefKey(nodeType.getName(), nodeDef.getName());
+      DefaultNodeDefKey defNodeDefKey = new DefaultNodeDefKey(name, nodeDef.getName());
       defNodeDefinitions.put(defNodeDefKey, nodeDef);
 
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Default NodeDef added: parent NT: " + nodeType.getName().getAsString()
-            + " child nodeName: " + nodeDef.getName() + " hash: " + defNodeDefKey.hashCode());
+        LOG.debug("Default NodeDef added: parent NT: " + name.getAsString() + " child nodeName: "
+            + nodeDef.getName() + " hash: " + defNodeDefKey.hashCode());
       }
     }
 
@@ -231,22 +231,16 @@ public class ItemDefinitionDataHolder {
     // TODO put super's prop defs
     PropertyDefinitionData[] propDefs = nodeType.getDeclaredPropertyDefinitions();
     for (PropertyDefinitionData propDef : propDefs) {
-      PropertyDefKey propDefKey = new PropertyDefKey(nodeType.getName(),
-                                                     propDef.getName(),
-                                                     propDef.isMultiple());
+      PropertyDefKey propDefKey = new PropertyDefKey(name, propDef.getName(), propDef.isMultiple());
       propertyDefinitions.put(propDefKey, propDef);
 
       if (LOG.isDebugEnabled()) {
-        LOG.debug("PropDef added: parent NT: " + nodeType.getName().getAsString()
-            + " child propName: " + propDef.getName().getAsString() + " isMultiple: "
-            + propDef.isMultiple() + " hash: " + propDefKey.hashCode());
+        LOG.debug("PropDef added: parent NT: " + name.getAsString() + " child propName: "
+            + propDef.getName().getAsString() + " isMultiple: " + propDef.isMultiple() + " hash: "
+            + propDefKey.hashCode());
       }
     }
 
-    // TODO traverse supertypes for child nodes and props
-    // for (InternalQName su : nodeType.getDeclaredSupertypeNames()) {
-    // nodeTypesHierarchy.
-    // }
   }
 
   /**

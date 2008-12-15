@@ -111,7 +111,7 @@ public class NodeTypeImpl implements ExtendedNodeType {
       InternalQName cname = locationFactory.parseJCRName(childNodeName).getInternalName();
       InternalQName ntname = locationFactory.parseJCRName(nodeTypeName).getInternalName();
 
-      NodeDefinitionData childNodeDef = typesHolder.getChildNodeDefinition(cname,
+      NodeDefinitionData childNodeDef = typesHolder.findChildNodeDefinition(cname,
                                                                            ntname,
                                                                            data.getName());
       return !(childNodeDef == null || childNodeDef.isProtected())

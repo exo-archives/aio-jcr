@@ -23,11 +23,13 @@ import java.util.Stack;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFactory;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.OnParentVersionAction;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
@@ -210,11 +212,13 @@ public class FrozenNodeInitializer extends ItemDataTraversingVisitor {
     InternalQName qname = node.getQPath().getName();
 
     NodeData parent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
-    PropertyDefinitionData pdef = ntManager.findPropertyDefinitions(qname,
-                                                                    parent.getPrimaryTypeName(),
-                                                                    parent.getMixinTypeNames())
-                                           .getAnyDefinition();
-    int action = pdef.getOnParentVersion();
+    NodeDefinitionData ndef = ntManager.findChildNodeDefinition(qname,
+                                                                parent.getPrimaryTypeName(),
+                                                                parent.getMixinTypeNames());
+    if (ndef == null) {
+      throw new ConstraintViolationException("Definition not found for " + qname.getAsString());
+    }
+    int action = ndef.getOnParentVersion();
 
     if (log.isDebugEnabled())
       log.debug("Entering node " + node.getQPath().getAsString() + ", "

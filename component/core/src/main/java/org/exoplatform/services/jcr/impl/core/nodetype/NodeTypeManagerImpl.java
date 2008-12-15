@@ -116,7 +116,9 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    */
   public NodeTypeIterator getAllNodeTypes() {
     EntityCollection ec = new EntityCollection();
-    for (NodeTypeData ntdata : typesManager.getAllNodeTypes())
+    List<NodeTypeData> allNts = typesManager.getAllNodeTypes();
+
+    for (NodeTypeData ntdata : allNts)
       ec.add(new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory));
 
     return ec;

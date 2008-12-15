@@ -30,19 +30,19 @@ import org.exoplatform.services.jcr.impl.Constants;
 
 public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
 
-  protected final NodeType      declaringNodeType;
+  protected final NodeType declaringNodeType;
 
-  protected final String  name;
+  protected final String   name;
 
-  protected final boolean autoCreate;
+  protected final boolean  autoCreate;
 
-  protected final int     onVersion;
+  protected final int      onVersion;
 
-  protected final boolean readOnly;
+  protected final boolean  readOnly;
 
-  protected final boolean mandatory;
+  protected final boolean  mandatory;
 
-  protected int     hashCode;
+  protected int            hashCode;
 
   public ItemDefinitionImpl(String name,
                             NodeType declaringNodeType,
@@ -56,9 +56,9 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
     this.readOnly = readOnly;
     this.mandatory = mandatory;
     this.name = name;
-    
+
     int hk = 7;
-    hk = 31 * hk + name.hashCode();
+    hk = 31 * hk + (name != null ? name.hashCode() : 0);
     hk = 31 * hk + (autoCreate ? 0 : 1);
     hk = 31 * hk + (readOnly ? 0 : 1);
     hk = 31 * hk + (mandatory ? 0 : 1);

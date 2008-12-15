@@ -269,13 +269,14 @@ public class DocumentViewImporter extends BaseXmlImporter {
         PropertyDefinitionDatas defs;
         InternalQName[] nTypes = mixinNodeTypes.toArray(new InternalQName[mixinNodeTypes.size() + 1]);
         nTypes[nTypes.length - 1] = nodeData.getPrimaryTypeName();
-        defs = nodeTypeDataManager.findPropertyDefinitions(propName, null, nTypes);
-        if (defs == null) {
-          if (!((Boolean) context.get(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS)))
+        defs = nodeTypeDataManager.getPropertyDefinitions(propName, nTypes);
+        if (defs == null || defs.getAnyDefinition() == null) {
+          if (!((Boolean) context.get(ContentImporter.RESPECT_PROPERTY_DEFINITIONS_CONSTRAINTS))) {
             log.warn("Property definition not found for " + propName.getAsString());
-          else
-            throw new RepositoryException("Property definition not found for "
-                + propName.getAsString());
+            continue;
+          }
+          throw new RepositoryException("Property definition not found for "
+              + propName.getAsString());
 
         }
 
@@ -538,7 +539,7 @@ public class DocumentViewImporter extends BaseXmlImporter {
                                                                               parent.getPrimaryTypeName(),
                                                                               parent.getMixinTypeNames());
       NodeTypeData nodeType;
-      if (nodeNt.getName().equals(Constants.JCR_ANY_NAME)) {
+      if (nodeNt.getName().equals(Constants.JCR_ANY_NAME) && nodeNt.getDefaultPrimaryType() != null) {
         nodeType = nodeTypeDataManager.findNodeType(nodeNt.getDefaultPrimaryType());
       } else {
         nodeType = nodeTypeDataManager.findNodeType(nodeNt.getName());
