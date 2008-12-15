@@ -226,6 +226,9 @@
   </nodeType>  
   
   <nodeType name="exojcrtest:selfDependend" isMixin="false" hasOrderableChildNodes="false" primaryItemName="">
+    <supertypes>
+      <supertype>nt:base</supertype>
+    </supertypes>
     <childNodeDefinitions>
       <childNodeDefinition name="subNode" defaultPrimaryType="exojcrtest:selfDependend" autoCreated="false" mandatory="false"
         onParentVersion="COPY" protected="false" sameNameSiblings="false">

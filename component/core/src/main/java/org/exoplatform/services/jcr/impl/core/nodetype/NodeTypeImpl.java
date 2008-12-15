@@ -428,13 +428,17 @@ public class NodeTypeImpl implements ExtendedNodeType {
   }
 
   public boolean isChildNodePrimaryTypeAllowed(String typeName) {
-    // TODO Auto-generated method stub
-    return false;
+    try {
+      InternalQName iname = locationFactory.parseJCRName(typeName).getInternalName();
+
+      return typesHolder.isChildNodePrimaryTypeAllowed(iname, data.getName(), new InternalQName[0]);
+    } catch (RepositoryException e) {
+      return false;
+    }
   }
 
   public boolean isNodeType(InternalQName nodeTypeQName) {
-    // TODO Auto-generated method stub
-    return false;
+    return typesHolder.isNodeType(nodeTypeQName, data.getName(), new InternalQName[0]);
   }
 
   // internal stuff ============================
