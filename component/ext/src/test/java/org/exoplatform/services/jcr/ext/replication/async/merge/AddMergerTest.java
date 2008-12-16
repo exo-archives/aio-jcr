@@ -559,6 +559,33 @@ public class AddMergerTest extends BaseMergerTest {
   /**
    * Test the case when local parent renamed on high priority node.
    * 
+   * <pre>
+   * Move (on Session) /testnode/node1 to /testnode/node3
+   * DELETED  40765cb3c0a800030052a793608c12fa  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[]node2:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * DELETED  40765cb3c0a8000301815364e58957d6  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[]node2:1
+   * DELETED  40765cb3c0a80003004c47b5fcec0df8  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * DELETED  40765ca4c0a8000300dbd887514fc595  isPersisted=false isEventFire=true  []:1[]testroot:1[]node1:1
+   * RENAMED  40765ca4c0a8000300dbd887514fc595  isPersisted=true  isEventFire=true  []:1[]testroot:1[]node3:1
+   * RENAMED  40765cb3c0a80003004c47b5fcec0df8  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * RENAMED  40765cb3c0a8000301815364e58957d6  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[]node2:1
+   * RENAMED  40765cb3c0a800030052a793608c12fa  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[]node2:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * </pre>
+   * 
+   * <pre>
+   * Move of same siblings (on Session) /snsMoveTest/node1/node[2] to /snsMoveTest/node2/node[3].
+   * DELETED  40a82de0c0a8000300da7939a90754c0  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]mixinTypes:1
+   * DELETED  40a82de0c0a800030094a25cfb969f7b  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]uuid:1
+   * DELETED  40a82d82c0a80003013a7cd4065f0227  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]primaryType:1
+   * DELETED  40a82d82c0a8000300837986b3d89cd0  isPersisted=false isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:2
+   * RENAMED  40a82d82c0a8000300837986b3d89cd0  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:2[]node:3
+   * RENAMED  40a82d82c0a80003013a7cd4065f0227  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]primaryType:1
+   * RENAMED  40a82de0c0a800030094a25cfb969f7b  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]uuid:1
+   * RENAMED  40a82de0c0a8000300da7939a90754c0  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]mixinTypes:1
+   * DELETED  40a82e0fc0a80003010c6482b28037d2  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:3
+   * UPDATED  40a82e0fc0a80003010c6482b28037d2  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:2
+   * DELETED  40a82e0fc0a8000300a88c3205491824  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:4
+   * UPDATED  40a82e0fc0a8000300a88c3205491824  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:3
+   * </pre>
    */
   public void testLocalParentRenamedLocalPriority() throws Exception {
 
