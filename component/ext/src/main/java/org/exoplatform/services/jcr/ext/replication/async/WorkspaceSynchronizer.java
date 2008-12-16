@@ -21,6 +21,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -42,13 +43,13 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
 
   protected final DataManager         dataManager;
 
-  protected final NodeTypeManagerImpl ntManager;
+  protected final NodeTypeDataManager ntManager;
 
   protected final boolean             localPriority;
 
   public WorkspaceSynchronizer(AsyncInitializer asyncManager,
                                DataManager dataManager,
-                               NodeTypeManagerImpl ntManager,
+                               NodeTypeDataManager ntManager,
                                boolean localPriority) {
     this.asyncManager = asyncManager;
     this.dataManager = dataManager;

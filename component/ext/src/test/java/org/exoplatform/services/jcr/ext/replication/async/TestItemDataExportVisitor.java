@@ -41,7 +41,7 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
     NodeData d = (NodeData) n.getData();
     ItemDataExportVisitor vis = new ItemDataExportVisitor(d,
                                                           ((SessionImpl) session).getWorkspace()
-                                                                                 .getNodeTypeManager(),
+                                                                                 .getNodeTypesHolder(),
                                                           ((SessionImpl) session).getTransientNodesManager());
 
     d.accept(vis);
@@ -70,7 +70,7 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
     NodeData d = (NodeData) n.getData();
     ItemDataExportVisitor vis = new ItemDataExportVisitor(d,
                                                           ((SessionImpl) session).getWorkspace()
-                                                                                 .getNodeTypeManager(),
+                                                                                 .getNodeTypesHolder(),
                                                           ((SessionImpl) session).getTransientNodesManager());
 
     d.accept(vis);
@@ -92,7 +92,7 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
     NodeData d = (NodeData) n.getData();
     ItemDataExportVisitor vis = new ItemDataExportVisitor(p,
                                                           ((SessionImpl) session).getWorkspace()
-                                                                                 .getNodeTypeManager(),
+                                                                                 .getNodeTypesHolder(),
                                                           ((SessionImpl) session).getTransientNodesManager());
 
     d.accept(vis);
@@ -108,7 +108,7 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
 
     ItemDataExportVisitor vis = new ItemDataExportVisitor(p,
                                                           ((SessionImpl) session).getWorkspace()
-                                                                                 .getNodeTypeManager(),
+                                                                                 .getNodeTypesHolder(),
                                                           ((SessionImpl) session).getTransientNodesManager());
 
     p.accept(vis);

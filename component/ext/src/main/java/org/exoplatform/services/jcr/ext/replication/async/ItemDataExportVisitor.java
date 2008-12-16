@@ -22,6 +22,7 @@ import java.util.Stack;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -33,30 +34,18 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 
 /**
- * Created by The eXo Platform SAS Author : Karpenko Sergiy
- * karpenko.sergiy@gmail.com
+ * Created by The eXo Platform SAS Author : Karpenko Sergiy karpenko.sergiy@gmail.com
  */
 public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
-  public ItemDataExportVisitor(NodeData parent,
-                               NodeTypeManagerImpl nodeTypeManager,
-                               ItemDataConsumer dataManager) {
-    super(dataManager);
-    
-    this.ntManager = nodeTypeManager;
-    this.parents = new Stack<NodeData>();
-    this.parents.add(parent);
-  }
-
   /**
-   * The list of added item states
+   * The list of added item states.
    */
   protected List<ItemState>     itemAddStates = new ArrayList<ItemState>();
 
@@ -66,11 +55,19 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
   protected Stack<NodeData>     parents;
 
   /**
-   * The NodeTypeManager
+   * The NodeTypeManager.
    */
-  protected NodeTypeManagerImpl ntManager;
+  protected NodeTypeDataManager ntManager;
 
-  // protected QPath ancestorToSave = null;
+  public ItemDataExportVisitor(NodeData parent,
+                               NodeTypeDataManager nodeTypeManager,
+                               ItemDataConsumer dataManager) {
+    super(dataManager);
+
+    this.ntManager = nodeTypeManager;
+    this.parents = new Stack<NodeData>();
+    this.parents.add(parent);
+  }
 
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
@@ -91,10 +88,10 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
         // need create a new VH
         PlainChangesLogImpl changes = new PlainChangesLogImpl();
         VersionHistoryDataHelper vh = new VersionHistoryDataHelper(curParent(),
-                                                                    changes,
+                                                                   changes,
                                                                    dataManager,
                                                                    ntManager);
-        
+
         itemAddStates.addAll(changes.getAllStates());
       }
 
@@ -161,7 +158,7 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
     NodeData parent = curParent();
     QPath ancestorToSave = parent.getQPath();
-    
+
     TransientNodeData newNode = new TransientNodeData(node.getQPath(),
                                                       node.getIdentifier(),
                                                       -1,
@@ -211,11 +208,11 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
   public List<ItemState> getItemAddStates() {
     return itemAddStates;
   }
-  
+
   public PlainChangesLog getPlainChangesLog() {
     PlainChangesLog log = new PlainChangesLogImpl();
     log.addAll(itemAddStates);
     return log;
   }
-  
+
 }
