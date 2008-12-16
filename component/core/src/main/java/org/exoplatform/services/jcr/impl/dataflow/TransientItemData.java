@@ -114,6 +114,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
       return false;
 
     if (obj instanceof ItemData) {
+      // TODO use String.equals, but check performance!
       return getIdentifier().hashCode() == ((ItemData) obj).getIdentifier().hashCode();
     }
 
