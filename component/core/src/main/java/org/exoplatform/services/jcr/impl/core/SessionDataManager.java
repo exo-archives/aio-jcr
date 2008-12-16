@@ -928,7 +928,7 @@ public class SessionDataManager implements ItemDataConsumer {
                                                  null,
                                                  false,
                                                  false);
-      ItemState reindexedState = ItemState.createRenamedState(reindexed);
+      ItemState reindexedState = ItemState.createUpdatedState(reindexed);
       changes.add(nodeDeletedState);
       changes.add(reindexedState);
 
