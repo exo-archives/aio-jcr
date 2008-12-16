@@ -1345,7 +1345,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                           localItem1.getIdentifier(),
                                                           new AccessControlList());
 
-    // local
+    // local items
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem11x2Remove = new ItemState(localItem11x2B,
@@ -1420,21 +1420,45 @@ public class AddMergerTest extends BaseMergerTest {
 
     assertEquals("Wrong changes count ", result.size(), 3);
 
-//    // find by reordered path
-//    ItemState res = findStateByPath(result,
-//                                    QPath.makeChildPath(localItem11x1B.getQPath(),
-//                                                        remoteItem11x22.getQPath().getEntries()[remoteItem11x22.getQPath()
-//                                                                                                               .getEntries().length - 1]));
-//
-//    assertNotNull("Remote Add expected ", res);
-//
-//    assertEquals("Remote Added wrong ID ", remoteItem11x22.getIdentifier(), res.getData()
-//                                                                               .getIdentifier());
-//
-//    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
-//    assertEquals("Remote Added wrong parent ID ",
-//                 remoteItem11x22.getParentIdentifier(),
-//                 res.getData().getParentIdentifier());
+    // by path
+    assertFalse("Local Add found ", hasState(result, localItem11x11Add, false));
+    // by id
+    ItemState removed = findStateById(result, localItem11x11Add.getData().getIdentifier());
+    assertNotNull("Local item Remove expected ", removed);
+    // check if local subnode deleted
+    assertEquals("Local item Remove expected ", ItemState.DELETED, removed.getState());
+
+    // remote Added and conflicted item by reordered path
+    ItemState res1 = findStateByPath(result,
+                                     QPath.makeChildPath(localItem11x1B.getQPath(),
+                                                         remoteItem11x21.getQPath().getEntries()[remoteItem11x21.getQPath()
+                                                                                                                .getEntries().length - 1]));
+
+    assertNotNull("Remote Add expected ", res1);
+
+    assertEquals("Remote Added wrong ID ", remoteItem11x21.getIdentifier(), res1.getData()
+                                                                                .getIdentifier());
+
+    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
+    assertEquals("Remote Added wrong parent ID ",
+                 remoteItem11x21.getParentIdentifier(),
+                 res1.getData().getParentIdentifier());
+
+    // remote Added not conflicted item by reordered path
+    ItemState res2 = findStateByPath(result,
+                                     QPath.makeChildPath(localItem11x1B.getQPath(),
+                                                         remoteItem11x22.getQPath().getEntries()[remoteItem11x22.getQPath()
+                                                                                                                .getEntries().length - 1]));
+
+    assertNotNull("Remote Add expected ", res2);
+
+    assertEquals("Remote Added wrong ID ", remoteItem11x22.getIdentifier(), res2.getData()
+                                                                                .getIdentifier());
+
+    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
+    assertEquals("Remote Added wrong parent ID ",
+                 remoteItem11x22.getParentIdentifier(),
+                 res2.getData().getParentIdentifier());
   }
 
   /**

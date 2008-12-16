@@ -244,6 +244,15 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
     return null;
   }
+  
+  protected ItemState findStateById(List<ItemState> changes, String id) {
+    for (ItemState st : changes) {
+      if (st.getData().getIdentifier().equals(id))
+        return st;
+    }
+
+    return null;
+  }
 
   protected boolean hasState(List<ItemState> changes, ItemState expected, boolean respectId) {
     for (ItemState st : changes) {
