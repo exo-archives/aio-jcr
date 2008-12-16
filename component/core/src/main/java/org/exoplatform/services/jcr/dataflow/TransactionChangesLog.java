@@ -129,22 +129,12 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
-  public ItemState getItemState(NodeData parentData, QPathEntry name) throws IllegalPathException {
+  public ItemState getItemState(NodeData parentData, QPathEntry name) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState state = allStates.get(i);
       if (state.getData().getParentIdentifier().equals(parentData.getIdentifier())
           && state.getData().getQPath().getEntries()[state.getData().getQPath().getEntries().length - 1].isSame(name))
-        return state;
-    }
-    return null;
-  }
-
-  public ItemState getItemState(QPath itemPath) {
-    List<ItemState> allStates = getAllStates();
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState state = allStates.get(i);
-      if (state.getData().getQPath().equals(itemPath))
         return state;
     }
     return null;
@@ -294,6 +284,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    *         renaming is not detected.
    * @throws IllegalPathException
    */
+  @Deprecated
   public ItemState[] findRenamed(ItemData item) throws IllegalPathException {
     List<ItemState> allStates = getAllStates();
     // search from the end for DELETED state.
