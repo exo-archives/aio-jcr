@@ -33,22 +33,9 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * <br/>Date: 16.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @version $Id: ChangesStorage.java 25190 2008-12-16 23:03:33Z pnedonosko $
  */
 public interface ChangesStorage extends CompositeChangesLog {
-
-  /**
-   * Return descendants changes for a given path.
-   * 
-   * @param rootPath
-   *          - QPath
-   * @param onlyNodes
-   *          - boolean, true for only NodeData changes
-   * @param unique
-   *          - ???
-   * @return Collection of ItemState
-   */
-  Collection<ItemState> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique);
 
   /**
    * Get last ItemState by Item id.
@@ -97,6 +84,22 @@ public interface ChangesStorage extends CompositeChangesLog {
 
   // =========== custom ==============
 
+  /**
+   * TODO
+   * 
+   * Return descendants changes for a given path.
+   * 
+   * @param rootPath
+   *          - QPath
+   * @param onlyNodes
+   *          - boolean, true for only NodeData changes
+   * @param unique
+   *          - ???
+   * @return Collection of ItemState
+   */
+  Collection<ItemState> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique);
+
+  
   /**
    * TODO can we rely on sequence on log?
    * 
