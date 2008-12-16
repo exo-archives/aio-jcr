@@ -16,14 +16,11 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.Packet;
-import org.exoplatform.services.jcr.ext.replication.PendingChangesLog;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CannotInitilizeConnectionsException;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -55,13 +52,13 @@ public class AsyncInitializer implements AsyncPacketListener {
   private final int                         waitTimeout;
 
   private final String                      ownName;
+  
+  private final int                         ownPriority;
 
   /**
    * The list of names to other participants cluster.
    */
   protected final List<String>              otherParticipants;
-
-  private final int                         ownPriority;
 
   private AsyncChannelManager               channelManager;
 
@@ -74,8 +71,16 @@ public class AsyncInitializer implements AsyncPacketListener {
    * The HashMap of participants who are now online.
    */
   private HashMap<String, MemberDescriptor> currentParticipants;
+  
+  /**
+   * The HashMap of participants who are now online.
+   */
+  private HashMap<String, MemberDescriptor> synchronizationMambers;
+  
+  private ThreadWaiter                      threadWaiter;
 
   private class MemberDescriptor {
+
     private int memberPriority;
 
     private int memberSate;
@@ -83,6 +88,35 @@ public class AsyncInitializer implements AsyncPacketListener {
     public MemberDescriptor(int memberPriority, int memberSate) {
       this.memberPriority = memberPriority;
       this.memberSate = memberSate;
+    }
+  }
+
+  private class ThreadWaiter extends Thread {
+    long startTime;
+
+    public ThreadWaiter() {
+      startTime = System.currentTimeMillis();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void run() {
+      boolean isRun = true;
+      while (isRun) {
+        try {
+          long timeLeft = System.currentTimeMillis() -startTime;
+          if ((waitTimeout - timeLeft) > 0) {
+            Thread.sleep(1000*60);
+            getSates();
+          } else {
+            isRun = false;
+            fixupMembers();
+          }
+        } catch (Exception e) {
+          log.error("Cannot get members sates", e);
+        }
+      }
     }
   }
 
@@ -125,10 +159,10 @@ public class AsyncInitializer implements AsyncPacketListener {
 
         currentParticipants.put(packet.getOwnName(), memberDescriptor);
 
-        if (otherParticipants.size() == currentParticipants.size() && isWaitSynchronization())
-          initSynchronization();
+        if (otherParticipants.size() == currentParticipants.size() && isWaitSynchronization()) {
+          fixupMembers();
+        }
       }
-
       break;
 
     default:
@@ -136,25 +170,30 @@ public class AsyncInitializer implements AsyncPacketListener {
     }
   }
 
-  
   /**
-   *  TODO 
-   * isWaitSynchronization.
-   *
-   * @return
+   * TODO isWaitSynchronization.
+   * 
+   * @return boolean
+   *           return 'true' if all member have 'WAIT_SYNCHRONOZATION' sate.
    */
   private boolean isWaitSynchronization() {
     boolean result = true;
-    
+
     for (int i = 0; i < otherParticipants.size(); i++) {
       MemberDescriptor md = currentParticipants.get(otherParticipants.get(1));
       if (md.memberSate != WAIT_SYNCHRONOZATION)
-       result = false;
+        result = false;
     }
-    
+
     return result;
   }
 
+  /**
+   * Send GET_CHANGESLOG_UP_TO_DATE request to members.
+   *
+   * @throws ReplicationException
+   *           Will be generated the ReplicationException.
+   */
   private void initSynchronization() throws ReplicationException {
     AsyncPacket packet = new AsyncPacket(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE,
                                          IdGenerator.generate(),
@@ -168,6 +207,12 @@ public class AsyncInitializer implements AsyncPacketListener {
     }
   }
 
+  /**
+   *  Will be initialized connection to JChannel.
+   *
+   * @throws CannotInitilizeConnectionsException
+   *           Will be generated the CannotInitilizeConnectionsException.
+   */
   private void initChannel() throws CannotInitilizeConnectionsException {
     try {
       channelManager.init();
@@ -177,6 +222,12 @@ public class AsyncInitializer implements AsyncPacketListener {
     }
   }
 
+  /**
+   * Send GET_STATE_NODE request to members.
+   *
+   * @throws ReplicationException
+   *           Will be generated the ReplicationException. 
+   */
   private void getSates() throws ReplicationException {
     identifier = IdGenerator.generate();
     currentParticipants = new HashMap<String, MemberDescriptor>();
@@ -190,6 +241,37 @@ public class AsyncInitializer implements AsyncPacketListener {
       channelManager.sendPacket(getStatesPacket);
     } catch (Exception e) {
       throw new ReplicationException("Cannot send GET_STATE_NODE request");
+    }
+  }
+  
+  /**
+   * Will be fixed list of members fore synchronization.
+   * 
+   * @throws ReplicationException 
+   *           Will be generated the ReplicationException.
+   */
+  private void fixupMembers() throws ReplicationException {
+    synchronizationMambers = new HashMap<String, MemberDescriptor>();
+    
+    for (String key : currentParticipants.keySet()) 
+      synchronizationMambers.put(key, currentParticipants.get(key));
+    
+    //TODO check how many member in synchronizationMambers
+    initSynchronization();
+  }
+  
+  /**
+   * The scheduler will be called sheduleSynchronization(). 
+   *
+   */
+  public void scheduleSynchronization() {
+    try {
+      initChannel();
+       
+      threadWaiter = new ThreadWaiter();
+      threadWaiter.start();
+    } catch (CannotInitilizeConnectionsException e) {
+       log.error("Schedul synchronization error", e);
     }
   }
 }
