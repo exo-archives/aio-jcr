@@ -150,7 +150,24 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
-  public ItemState getItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
+  public ItemState getPreviousItemStateByQPath(ItemState startState, QPath path) {
+    List<ItemState> allStates = getAllStates();
+
+    for (int i = allStates.size() - 1; i <= 0; i--) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i - 1; j <= 0; j--) {
+          ItemState item = allStates.get(j);
+          if (item.getData().getQPath().equals(path)) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  public QPath getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
     List<ItemState> allStates = getAllStates();
 
     for (int i = 0; i < allStates.size(); i++) {
@@ -160,12 +177,11 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
           if (item.getState() != ItemState.UPDATED) {
             return null;
           } else if (item.getData().getIdentifier().equals(UUID)) {
-            return item;
+            return item.getData().getQPath();
           }
         }
       }
     }
-
     return null;
   }
 
