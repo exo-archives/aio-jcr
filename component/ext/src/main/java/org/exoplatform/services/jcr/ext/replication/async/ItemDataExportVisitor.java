@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -28,12 +29,15 @@ import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -71,86 +75,20 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
   @Override
   protected void entering(PropertyData property, int level) throws RepositoryException {
-
-    InternalQName qname = property.getQPath().getName();
-
-    List<ValueData> values;
-
-    if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
-                             curParent().getPrimaryTypeName(),
-                             curParent().getMixinTypeNames())) {
-
-      // before manipulate with version stuff we have create a one new VH right
-      // here!
-      QPath vhpPath = QPath.makeChildPath(curParent().getQPath(), Constants.JCR_VERSIONHISTORY);
-      ItemState vhpState = findLastItemState(vhpPath);
-      if (vhpState == null) {
-        // need create a new VH
-        PlainChangesLogImpl changes = new PlainChangesLogImpl();
-        VersionHistoryDataHelper vh = new VersionHistoryDataHelper(curParent(),
-                                                                   changes,
-                                                                   dataManager,
-                                                                   ntManager);
-
-        itemAddStates.addAll(changes.getAllStates());
-      }
-
-      values = new ArrayList<ValueData>(1);
-      if (qname.equals(Constants.JCR_LOCKISDEEP)) {
-        return;
-      } else if (qname.equals(Constants.JCR_LOCKOWNER)) {
-        return;
-      } else if (qname.equals(Constants.JCR_VERSIONHISTORY)) {
-        return; // added in VH create
-      } else if (qname.equals(Constants.JCR_PREDECESSORS)) {
-        return; // added in VH create
-      } else if (qname.equals(Constants.JCR_BASEVERSION)) {
-        return; // added in VH create
-      } else if (qname.equals(Constants.JCR_ISCHECKEDOUT)) {
-        values.add(new TransientValueData(true));
-      } else if (qname.equals(Constants.JCR_MERGEFAILED)) {
-        return; // skip it
-      } else if (qname.equals(Constants.JCR_UUID)) {
-        values.add(new TransientValueData(curParent().getIdentifier())); // uuid
-        // of
-        // the
-        // parent
-      } else {
-        values = property.getValues(); // copy the property
-      }
-    } else if (ntManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                                    curParent().getPrimaryTypeName(),
-                                    curParent().getMixinTypeNames())
-        && qname.equals(Constants.JCR_UUID)) {
-
-      values = new ArrayList<ValueData>(1);
-      values.add(new TransientValueData(curParent().getIdentifier()));
-    } else {
-      // http://jira.exoplatform.org/browse/JCR-294
-      if (qname.equals(Constants.JCR_LOCKISDEEP)) {
-        return;
-      } else if (qname.equals(Constants.JCR_LOCKOWNER)) {
-        return;
-      }
-      values = property.getValues();
-    }
-
-    TransientPropertyData newProperty = new TransientPropertyData(QPath.makeChildPath(curParent().getQPath(),
-                                                                                      qname),
+    TransientPropertyData newProperty = new TransientPropertyData(property.getQPath(),
                                                                   property.getIdentifier(),
                                                                   -1,
                                                                   property.getType(),
-                                                                  curParent().getIdentifier(),
+                                                                  property.getParentIdentifier(),
                                                                   property.isMultiValued());
 
-    newProperty.setValues(values);
+    newProperty.setValues(property.getValues());
 
     itemAddStates.add(new ItemState(newProperty,
                                     ItemState.ADDED,
-                                    true,
+                                    false,
                                     curParent().getQPath(),
                                     level != 0));
-
   }
 
   @Override
@@ -173,6 +111,39 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     // if level == 0 set internal createt as false for validating on save
     itemAddStates.add(new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0));
 
+    // check is versionable
+    if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
+                             node.getPrimaryTypeName(),
+                             node.getMixinTypeNames())) {
+      
+      //get reference to version history
+      PropertyData property = (PropertyData)dataManager.getItemData(node, new QPathEntry(Constants.JCR_VERSIONHISTORY,1));
+      String ref;
+      try{
+        ref = ((TransientValueData)property.getValues().get(0)).getString();
+      }catch (IOException e){
+        throw new RepositoryException(e);
+      }
+      
+      NodeData verStorage = (NodeData)dataManager.getItemData(Constants.VERSIONSTORAGE_UUID);
+      
+      QPathEntry nam;
+      try{
+        nam = QPathEntry.parse("[]" + ref + ":1");
+      }catch(IllegalNameException e){
+        throw new RepositoryException(e);
+      }
+      
+      NodeData verHistory = (NodeData)dataManager.getItemData(verStorage, nam );
+      
+      ItemDataExportVisitor vis = new ItemDataExportVisitor(verStorage,
+                                                            ntManager,
+                                                            dataManager);
+
+      verHistory.accept(vis);
+      
+      itemAddStates.addAll(vis.getItemAddStates());
+    }
   }
 
   @Override

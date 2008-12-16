@@ -16,24 +16,33 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.IllegalNameException;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
  * Created by The eXo Platform SAS Author : Karpenko Sergiy exo@exoplatform.com
  */
 public class TestItemDataExportVisitor extends BaseStandaloneTest {
-
+  
   public void testGetItemAddStates() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("test", "nt:unstructured");
     root.save();
@@ -64,7 +73,7 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
 
   public void testGetItemAddStatesSubNodes() throws Exception {
     NodeImpl n = (NodeImpl) root.addNode("test", "nt:unstructured");
-    n.addNode("secondName", "nt:base");
+    NodeImpl sn = (NodeImpl) n.addNode("secondName", "nt:base");
     root.save();
 
     NodeData d = (NodeData) n.getData();
@@ -75,8 +84,30 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
 
     d.accept(vis);
     List<ItemState> list = vis.getItemAddStates();
-    assertEquals(8, list.size());
-  }
+
+    SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    ItemState is1 = new ItemState(d, ItemState.ADDED, false, d.getQPath());
+    expl.add(is1);
+
+    for (PropertyData data : dataManager.getChildPropertiesData(d)) {
+      ItemState is = new ItemState(data, ItemState.ADDED, false, d.getQPath());
+      expl.add(is);
+    }
+
+    NodeData sd = (NodeData) sn.getData();
+    ItemState is2 = new ItemState(sd, ItemState.ADDED, false, d.getQPath());
+    expl.add(is2);
+
+    for (PropertyData data : dataManager.getChildPropertiesData(sd)) {
+      ItemState is = new ItemState(data, ItemState.ADDED, false, sd.getQPath());
+      expl.add(is);
+    }
+
+    checkList(list, expl);
+  } 
 
   public void testGetItemVersion() throws Exception {
     NodeImpl nr = (NodeImpl) root.addNode("test", "nt:unstructured");
@@ -86,7 +117,8 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
 
     n.setProperty("myprop", "propval");
     root.save();
-    n.checkin();
+
+    SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
 
     NodeData p = (NodeData) nr.getData();
     NodeData d = (NodeData) n.getData();
@@ -94,10 +126,61 @@ public class TestItemDataExportVisitor extends BaseStandaloneTest {
                                                           ((SessionImpl) session).getWorkspace()
                                                                                  .getNodeTypesHolder(),
                                                           ((SessionImpl) session).getTransientNodesManager());
-
     d.accept(vis);
+
     List<ItemState> list = vis.getItemAddStates();
     assertEquals(21, list.size());
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    ItemState is1 = new ItemState(d, ItemState.ADDED, false, p.getQPath());
+    expl.add(is1);
+
+    // get version history
+    PropertyData property = (PropertyData)dataManager.getItemData(d, new QPathEntry(Constants.JCR_VERSIONHISTORY,1));
+    String ref;
+    try{
+      ref = ((TransientValueData)property.getValues().get(0)).getString();
+    }catch (IOException e){
+      throw new RepositoryException(e);
+    }
+    
+    NodeData verStorage = (NodeData)dataManager.getItemData(Constants.VERSIONSTORAGE_UUID);
+    
+    QPathEntry nam;
+    try{
+      nam = QPathEntry.parse("[]" + ref + ":1");
+    }catch(IllegalNameException e){
+      throw new RepositoryException(e);
+    }
+    
+    NodeData verHistory = (NodeData)dataManager.getItemData(verStorage, nam );
+    
+    ItemState vh = new ItemState(verHistory, ItemState.ADDED, false, Constants.JCR_VERSION_STORAGE_PATH);
+    expl.add(vh);
+    
+    for (PropertyData data : dataManager.getChildPropertiesData(verHistory)) {
+      ItemState is = new ItemState(data, ItemState.ADDED, false, verHistory.getQPath());
+      expl.add(is);
+    }
+   
+    for(NodeData data  : dataManager.getChildNodesData(verHistory)){
+      ItemState cvh = new ItemState(data, ItemState.ADDED, false, verHistory.getQPath());
+      expl.add(cvh);
+      //add props
+      for (PropertyData props : dataManager.getChildPropertiesData(data)) {
+        ItemState is = new ItemState(props, ItemState.ADDED, false, data.getQPath());
+        expl.add(is);
+      }
+    }
+   
+    //add original props
+    for (PropertyData data : dataManager.getChildPropertiesData(d)) {
+      ItemState is = new ItemState(data, ItemState.ADDED, false, d.getQPath());
+      expl.add(is);
+    }
+    
+    checkList(list, expl);
   }
 
   public void testGetItemRoot() throws Exception {
