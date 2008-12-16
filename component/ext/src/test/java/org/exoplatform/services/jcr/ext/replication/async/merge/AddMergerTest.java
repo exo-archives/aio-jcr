@@ -463,7 +463,7 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 0);
+    assertEquals("Wrong changes count ", result.size(), 4);
 
     assertTrue("Remote Add state expected ", hasState(result, remoteItem1Change, true));
     assertTrue("Remote Add state expected ", hasState(result, remoteItem11Change, true));
