@@ -256,6 +256,7 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     return storageDataManager;
   }
 
+  @Deprecated // TODO remove it
   protected ItemData locate(final ItemData idata) throws RepositoryException {
     if (idata == null)
       return null;
@@ -276,6 +277,7 @@ public class TransactionableDataManager implements TransactionResource, DataMana
    * @return
    * @throws RepositoryException
    */
+  @Deprecated // TODO remove it
   protected ItemData relocate(final ItemState[] renamedStates, final ItemData idata) throws RepositoryException {
     NodeData dancestor = (NodeData) renamedStates[0].getData(); // deleted
     NodeData rancestor = (NodeData) renamedStates[1].getData(); // renamed
