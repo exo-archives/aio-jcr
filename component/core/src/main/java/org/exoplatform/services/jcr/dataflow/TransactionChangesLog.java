@@ -150,6 +150,25 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  public ItemState getItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
+    List<ItemState> allStates = getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() != ItemState.UPDATED) {
+            return null;
+          } else if (item.getData().getIdentifier().equals(UUID)) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   /**
    * 
    * getPreviousState.
@@ -161,6 +180,31 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     ItemState resultState = null;
 
     for (ItemState itemState : getAllStates()) {
+      if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
+        if (itemState.equals(item)) {
+          break;
+        }
+        resultState = itemState;
+      }
+    }
+
+    return resultState;
+  }
+
+  /**
+   * 
+   * getPreviousState.
+   * 
+   * @param item
+   * @return
+   */
+  public ItemState getNextItemState(ItemState item) {
+    ItemState resultState = null;
+
+    List<ItemState> allStates = getAllStates();
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState itemState = allStates.get(i);
+
       if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
         if (itemState.equals(item)) {
           break;
