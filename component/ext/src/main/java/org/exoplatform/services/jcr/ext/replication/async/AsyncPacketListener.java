@@ -35,5 +35,5 @@ public interface AsyncPacketListener {
    * @param packet
    *          the Packet object.
    */
-  void receive(AsyncPacket packet);
+  void receive(AsyncPacket packet) throws Exception;
 }

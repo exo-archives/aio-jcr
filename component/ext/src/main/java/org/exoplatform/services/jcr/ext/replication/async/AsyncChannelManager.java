@@ -414,11 +414,10 @@ public class AsyncChannelManager implements RequestHandler {
         handler.receive(packet);
       }
 
-    } catch (IOException e) {
-      log.error("An error in processing packet : ", e);
-    } catch (ClassNotFoundException e) {
+    } catch (Exception e) {
       log.error("An error in processing packet : ", e);
     }
+    
     return new String("Success !");
   }
 }
