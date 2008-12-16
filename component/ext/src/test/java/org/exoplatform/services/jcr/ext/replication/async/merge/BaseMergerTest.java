@@ -46,7 +46,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected ItemData              remoteItem11;
 
   protected ItemData              remoteItem112;
-  
+
+  protected ItemData              remoteItem1121;
+
   protected ItemData              remoteItem12;
 
   protected ItemData              remoteItem121;
@@ -62,7 +64,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected ItemData              localItem3;
 
   protected ItemData              localItem11;
-  
+
   protected ItemData              localItem111;
 
   protected ItemData              localItem12;
@@ -105,7 +107,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                          new InternalQName[0],
                                          0,
                                          localItem11.getIdentifier(),
-                                         new AccessControlList());    
+                                         new AccessControlList());
     // create /testItem1/item12
     localItem12 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                             new InternalQName(null, "item12")),
@@ -180,7 +182,19 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                           new InternalQName[0],
                                           0,
                                           remoteItem11.getIdentifier(),
-                                          new AccessControlList());    
+                                          new AccessControlList());
+
+    // create /testItem1/item12/item112/1121
+    remoteItem1121 = new TransientNodeData(QPath.makeChildPath(remoteItem112.getQPath(),
+                                                               new InternalQName(null, "item1121")),
+                                           IdGenerator.generate(),
+                                           0,
+                                           new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                           new InternalQName[0],
+                                           0,
+                                           remoteItem112.getIdentifier(),
+                                           new AccessControlList());
+
     // create /testItem1/item12
     remoteItem12 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
                                                              new InternalQName(null, "item12")),
@@ -244,7 +258,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
     return null;
   }
-  
+
   protected ItemState findStateById(List<ItemState> changes, String id) {
     for (ItemState st : changes) {
       if (st.getData().getIdentifier().equals(id))

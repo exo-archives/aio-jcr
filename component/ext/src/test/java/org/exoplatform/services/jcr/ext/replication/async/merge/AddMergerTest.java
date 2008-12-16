@@ -884,7 +884,7 @@ public class AddMergerTest extends BaseMergerTest {
     final NodeData localItem11x2A = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                                               new InternalQName(null,
                                                                                                 "item11"),
-                                                                              2),
+                                                                              1),
                                                           localItem11.getIdentifier(),
                                                           0,
                                                           new InternalQName(Constants.NS_NT_URI,
@@ -892,6 +892,30 @@ public class AddMergerTest extends BaseMergerTest {
                                                           new InternalQName[0],
                                                           0,
                                                           localItem1.getIdentifier(),
+                                                          new AccessControlList());
+
+    final NodeData remoteItem112 = new TransientNodeData(QPath.makeChildPath(remoteItem11.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item112")),
+                                                         IdGenerator.generate(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         0,
+                                                         localItem11x2A.getIdentifier(),
+                                                         new AccessControlList());
+
+    final NodeData remoteItem1121 = new TransientNodeData(QPath.makeChildPath(remoteItem112.getQPath(),
+                                                                              new InternalQName(null,
+                                                                                                "item112")),
+                                                          IdGenerator.generate(),
+                                                          0,
+                                                          new InternalQName(Constants.NS_NT_URI,
+                                                                            "unstructured"),
+                                                          new InternalQName[0],
+                                                          0,
+                                                          remoteItem112.getIdentifier(),
                                                           new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -922,6 +946,8 @@ public class AddMergerTest extends BaseMergerTest {
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
     final ItemState remoteItem112Add = new ItemState(remoteItem112, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem112Add);
+    final ItemState remoteItem1121Add = new ItemState(remoteItem1121, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem1121Add);
     final ItemState remoteItem2Add = new ItemState(remoteItem2, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem2Add);
     income.addLog(remoteLog);
@@ -1100,7 +1126,7 @@ public class AddMergerTest extends BaseMergerTest {
    * Income changes contains child Node ADD to /testItem1/item11[2] Node. But parent path was
    * changed /testItem1/item11[2] to /testItem1/item11[1].
    * 
-   * Only non-conflicted income change should be applied.
+   * Income change should be applied.
    * 
    * <pre>
    *   was
@@ -1115,12 +1141,6 @@ public class AddMergerTest extends BaseMergerTest {
    *   DELETED  /testItem1/item11[2] - B
    *   UPDATED  /testItem1/item11[2] - A
    *   UPDATED  /testItem1/item11[1] - B
-   *   
-   *   ADD /testItem1/item11[1]/item11x1-1 - child node of B
-   *   
-   *   income changes
-   *   ADD  /testItem1/item11[2]/item11x1-1 - will conflict with B child, will be ignored 
-   *   ADD  /testItem1/item11[2]/item11x1-2 - non conflicted node, will be added
    * </pre>
    * 
    */
@@ -1177,7 +1197,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                           localItem1.getIdentifier(),
                                                           new AccessControlList());
 
-    // local changes
+    // local
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem11x2Remove = new ItemState(localItem11x2B,
@@ -1203,7 +1223,7 @@ public class AddMergerTest extends BaseMergerTest {
     localLog.add(localItem2Add);
     local.addLog(localLog);
 
-    // income items
+    // remote items
     // new node, will conflict with localItem11x1B1 (path of parent reordered [2] -> [1], different
     // Node Id)
     final NodeData remoteItem11x21 = new TransientNodeData(QPath.makeChildPath(localItem11x2B.getQPath(),
@@ -1280,7 +1300,7 @@ public class AddMergerTest extends BaseMergerTest {
    * Income changes contains child Node ADD to /testItem1/item11[2] Node. But parent path was
    * changed /testItem1/item11[2] to /testItem1/item11[1].
    * 
-   * All income change should be applied. Local conflicted should be removed.
+   * Income change should be applied.
    * 
    * <pre>
    *   was
@@ -1295,12 +1315,6 @@ public class AddMergerTest extends BaseMergerTest {
    *   DELETED  /testItem1/item11[2] - B
    *   UPDATED  /testItem1/item11[2] - A
    *   UPDATED  /testItem1/item11[1] - B
-   *   
-   *   ADD /testItem1/item11[1]/item11x1-1 - child node of B, will be deleted
-   *   
-   *   income changes
-   *   ADD  /testItem1/item11[2]/item11x1-1 - will conflict with B child, will be added
-   *   ADD  /testItem1/item11[2]/item11x1-2 - non conflicted node, will be added
    * </pre>
    * 
    */
@@ -1357,7 +1371,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                           localItem1.getIdentifier(),
                                                           new AccessControlList());
 
-    // local items
+    // local
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem11x2Remove = new ItemState(localItem11x2B,
@@ -1383,7 +1397,7 @@ public class AddMergerTest extends BaseMergerTest {
     localLog.add(localItem2Add);
     local.addLog(localLog);
 
-    // income items
+    // remote items
     // new node, will conflict with localItem11x1B1 (path of parent reordered [2] -> [1], different
     // Node Id)
     final NodeData remoteItem11x21 = new TransientNodeData(QPath.makeChildPath(localItem11x2B.getQPath(),
@@ -1432,45 +1446,21 @@ public class AddMergerTest extends BaseMergerTest {
 
     assertEquals("Wrong changes count ", result.size(), 3);
 
-    // by path
-    assertFalse("Local Add found ", hasState(result, localItem11x11Add, false));
-    // by id
-    ItemState removed = findStateById(result, localItem11x11Add.getData().getIdentifier());
-    assertNotNull("Local item Remove expected ", removed);
-    // check if local subnode deleted
-    assertEquals("Local item Remove expected ", ItemState.DELETED, removed.getState());
-
-    // remote Added and conflicted item by reordered path
-    ItemState res1 = findStateByPath(result,
-                                     QPath.makeChildPath(localItem11x1B.getQPath(),
-                                                         remoteItem11x21.getQPath().getEntries()[remoteItem11x21.getQPath()
-                                                                                                                .getEntries().length - 1]));
-
-    assertNotNull("Remote Add expected ", res1);
-
-    assertEquals("Remote Added wrong ID ", remoteItem11x21.getIdentifier(), res1.getData()
-                                                                                .getIdentifier());
-
-    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
-    assertEquals("Remote Added wrong parent ID ",
-                 remoteItem11x21.getParentIdentifier(),
-                 res1.getData().getParentIdentifier());
-
-    // remote Added not conflicted item by reordered path
-    ItemState res2 = findStateByPath(result,
-                                     QPath.makeChildPath(localItem11x1B.getQPath(),
-                                                         remoteItem11x22.getQPath().getEntries()[remoteItem11x22.getQPath()
-                                                                                                                .getEntries().length - 1]));
-
-    assertNotNull("Remote Add expected ", res2);
-
-    assertEquals("Remote Added wrong ID ", remoteItem11x22.getIdentifier(), res2.getData()
-                                                                                .getIdentifier());
-
-    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
-    assertEquals("Remote Added wrong parent ID ",
-                 remoteItem11x22.getParentIdentifier(),
-                 res2.getData().getParentIdentifier());
+    // // find by reordered path
+    // ItemState res = findStateByPath(result,
+    // QPath.makeChildPath(localItem11x1B.getQPath(),
+    // remoteItem11x22.getQPath().getEntries()[remoteItem11x22.getQPath()
+    // .getEntries().length - 1]));
+    //
+    // assertNotNull("Remote Add expected ", res);
+    //
+    // assertEquals("Remote Added wrong ID ", remoteItem11x22.getIdentifier(), res.getData()
+    // .getIdentifier());
+    //
+    // // parent /testItem1/item11[2] updated to /testItem1/item11[1]
+    // assertEquals("Remote Added wrong parent ID ",
+    // remoteItem11x22.getParentIdentifier(),
+    // res.getData().getParentIdentifier());
   }
 
   /**

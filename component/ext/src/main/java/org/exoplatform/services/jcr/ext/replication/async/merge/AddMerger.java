@@ -83,6 +83,40 @@ public class AddMerger implements ChangesMerger {
         case ItemState.DELETED:
           ItemState nextState = local.getNextItemState(localState);
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
+            if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+
+              ItemState parentState = income.getPreviousItemStateByQPath(itemChange,
+                                                                         itemChange.getData()
+                                                                                   .getQPath()
+                                                                                   .makeAncestorPath(itemChange.getData()
+                                                                                                               .getQPath()
+                                                                                                               .getEntries().length
+                                                                                       - localData.getQPath()
+                                                                                                  .getEntries().length
+                                                                                       - 1));
+
+              QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                                      parentState != null
+                                                                          ? parentState.getData()
+                                                                                       .getParentIdentifier()
+                                                                          : itemData.getParentIdentifier());
+
+              QPathEntry names[] = new QPathEntry[itemData.getQPath().getEntries().length];
+              System.arraycopy(localData.getQPath().getEntries(),
+                               0,
+                               names,
+                               0,
+                               localData.getQPath().getEntries().length);
+              System.arraycopy(itemData.getQPath().getEntries(),
+                               localData.getQPath().getEntries().length,
+                               names,
+                               localData.getQPath().getEntries().length,
+                               itemData.getQPath().getEntries().length
+                                   - localData.getQPath().getEntries().length);
+
+              resultState.add(new ItemState(itemData, ItemState.ADDED, false, new QPath(names)));
+              return resultState;
+            }
             break;
           }
 
@@ -94,26 +128,9 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
-          ItemState prevState = local.getPreviousItemState(localState);
-          if (prevState != null
-              && itemData.getQPath().isDescendantOf(prevState.getData().getQPath())) {
 
-            QPathEntry names[] = new QPathEntry[itemData.getQPath().getEntries().length];
-            System.arraycopy(localData.getQPath().getEntries(),
-                             0,
-                             names,
-                             0,
-                             localData.getQPath().getEntries().length);
-            System.arraycopy(itemData.getQPath().getEntries(),
-                             localData.getQPath().getEntries().length,
-                             names,
-                             localData.getQPath().getEntries().length,
-                             itemData.getQPath().getEntries().length
-                                 - localData.getQPath().getEntries().length);
+          // TODO null
 
-            resultState.add(new ItemState(itemData, ItemState.ADDED, false, new QPath(names)));
-            return resultState;
-          }
           break;
         case ItemState.RENAMED:
           if (itemData.getQPath().isDescendantOf(localData.getQPath())
