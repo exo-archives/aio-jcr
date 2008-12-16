@@ -1,5 +1,8 @@
+/**
+ * 
+ */
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2007 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -16,50 +19,124 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Collection;
 
 import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 10.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * <br/>Date: 16.12.2008
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public abstract class ChangesStorage<T extends CompositeChangesLog> implements Iterable<T> {
-
-  private final List<T> storage;
-  
-  protected ChangesStorage() {
-    this.storage = new ArrayList<T>();
-  }
-  
-  /**
-   * Add changes to a storage.
-   *
-   * @param changes CompositeChangesLog
-   */
-  public void add(T changes) {
-    this.storage.add(changes);
-  }
+public interface ChangesStorage extends CompositeChangesLog {
 
   /**
-   * {@inheritDoc}
+   * Return descendants changes for a given path.
+   * 
+   * @param rootPath
+   *          - QPath
+   * @param onlyNodes
+   *          - boolean, true for only NodeData changes
+   * @param unique
+   *          - ???
+   * @return Collection of ItemState
    */
-  public Iterator<T> iterator() {
-    return this.storage.iterator();
-  }
-    
+  Collection<ItemState> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique);
+
   /**
-   * Clear storage.
-   *
+   * Get last ItemState by Item id.
+   * 
+   * @param itemIdentifier
+   *          String, Item id
+   * @return ItemState
    */
-  public void clear() {
-    this.storage.clear();
-  }
-  
+  ItemState getItemState(String itemIdentifier);
+
+  /**
+   * Get last ItemState by parent and Item name.
+   * 
+   * @param parentData
+   *          NodeData of the parent
+   * @param name
+   *          QPathEntry, Item name
+   * @return ItemState
+   */
+  ItemState getItemState(NodeData parentData, QPathEntry name);
+
+  /**
+   * Get last ItemState by Item path.
+   * 
+   * @param itemPath
+   *          QPath, path
+   * @return ItemState
+   */
+  ItemState getItemState(QPath itemPath);
+
+  /**
+   * Get sequence of all changes.
+   * 
+   * @return ChangesSequence
+   */
+  ChangesSequence<ItemState> getChanges();
+
+  /**
+   * Get sequence of the path descendant changes.
+   * 
+   * @param root
+   *          QPath, root path
+   * @return ChangesSequence
+   */
+  ChangesSequence<ItemState> getDescendantChanges(QPath root);
+
+  // =========== custom ==============
+
+  /**
+   * TODO can we rely on sequence on log?
+   * 
+   * getPreviousItemStateByQPath.
+   * 
+   * @param startState
+   * @param path
+   * @return
+   */
+  ItemState getPreviousItemStateByQPath(ItemState startState, QPath path);
+
+  /**
+   * TODO can we rely on sequence on log?
+   * 
+   * getNextItemStateByUUIDOnUpdate.
+   * 
+   * @param startState
+   * @param UUID
+   * @return
+   */
+  QPath getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID);
+
+  /**
+   * TODO can we rely on sequence on log?
+   * 
+   * getPreviousItemState.
+   * 
+   * @param item
+   * @return
+   */
+  ItemState getPreviousItemState(ItemState item);
+
+  /**
+   * TODO can we rely on sequence on log?
+   * 
+   * getNextItemState.
+   * 
+   * @param item
+   * @return
+   */
+  ItemState getNextItemState(ItemState item);
+
 }
