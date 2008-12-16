@@ -1100,7 +1100,7 @@ public class AddMergerTest extends BaseMergerTest {
    * Income changes contains child Node ADD to /testItem1/item11[2] Node. But parent path was
    * changed /testItem1/item11[2] to /testItem1/item11[1].
    * 
-   * Income change should be applied.
+   * Only non-conflicted income change should be applied.
    * 
    * <pre>
    *   was
@@ -1115,6 +1115,12 @@ public class AddMergerTest extends BaseMergerTest {
    *   DELETED  /testItem1/item11[2] - B
    *   UPDATED  /testItem1/item11[2] - A
    *   UPDATED  /testItem1/item11[1] - B
+   *   
+   *   ADD /testItem1/item11[1]/item11x1-1 - child node of B
+   *   
+   *   income changes
+   *   ADD  /testItem1/item11[2]/item11x1-1 - will conflict with B child, will be ignored 
+   *   ADD  /testItem1/item11[2]/item11x1-2 - non conflicted node, will be added
    * </pre>
    * 
    */
@@ -1171,7 +1177,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                           localItem1.getIdentifier(),
                                                           new AccessControlList());
 
-    // local
+    // local changes
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem11x2Remove = new ItemState(localItem11x2B,
@@ -1197,7 +1203,7 @@ public class AddMergerTest extends BaseMergerTest {
     localLog.add(localItem2Add);
     local.addLog(localLog);
 
-    // remote items
+    // income items
     // new node, will conflict with localItem11x1B1 (path of parent reordered [2] -> [1], different
     // Node Id)
     final NodeData remoteItem11x21 = new TransientNodeData(QPath.makeChildPath(localItem11x2B.getQPath(),
@@ -1274,7 +1280,7 @@ public class AddMergerTest extends BaseMergerTest {
    * Income changes contains child Node ADD to /testItem1/item11[2] Node. But parent path was
    * changed /testItem1/item11[2] to /testItem1/item11[1].
    * 
-   * Income change should be applied.
+   * All income change should be applied. Local conflicted should be removed.
    * 
    * <pre>
    *   was
@@ -1289,6 +1295,12 @@ public class AddMergerTest extends BaseMergerTest {
    *   DELETED  /testItem1/item11[2] - B
    *   UPDATED  /testItem1/item11[2] - A
    *   UPDATED  /testItem1/item11[1] - B
+   *   
+   *   ADD /testItem1/item11[1]/item11x1-1 - child node of B, will be deleted
+   *   
+   *   income changes
+   *   ADD  /testItem1/item11[2]/item11x1-1 - will conflict with B child, will be added
+   *   ADD  /testItem1/item11[2]/item11x1-2 - non conflicted node, will be added
    * </pre>
    * 
    */
@@ -1371,7 +1383,7 @@ public class AddMergerTest extends BaseMergerTest {
     localLog.add(localItem2Add);
     local.addLog(localLog);
 
-    // remote items
+    // income items
     // new node, will conflict with localItem11x1B1 (path of parent reordered [2] -> [1], different
     // Node Id)
     final NodeData remoteItem11x21 = new TransientNodeData(QPath.makeChildPath(localItem11x2B.getQPath(),
