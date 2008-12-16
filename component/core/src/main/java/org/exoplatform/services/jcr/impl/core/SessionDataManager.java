@@ -758,8 +758,10 @@ public class SessionDataManager implements ItemDataConsumer {
     // if node mix:versionable vs will be removed from Item.remove method.
     boolean checkRemoveChildVersionStorages = false;
     if (itemData.isNode()) {
-      checkRemoveChildVersionStorages = !ntManager.isNodeType(Constants.NT_VERSIONHISTORY,
-                                                              ((NodeData) itemData).getPrimaryTypeName());
+      checkRemoveChildVersionStorages = !session.getWorkspace()
+                                                .getNodeTypesHolder()
+                                                .isNodeType(Constants.NT_VERSIONHISTORY,
+                                                            ((NodeData) itemData).getPrimaryTypeName());
     }
 
     boolean rootAdded = false;

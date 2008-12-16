@@ -280,7 +280,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       IBindingFactory factory = BindingDirectory.getFactory(NodeTypeValuesList.class);
       IUnmarshallingContext uctx = factory.createUnmarshallingContext();
       NodeTypeValuesList nodeTypeValuesList = (NodeTypeValuesList) uctx.unmarshalDocument(xml, null);
-      ArrayList ntvList = nodeTypeValuesList.getNodeTypeValuesList();
+      List ntvList = nodeTypeValuesList.getNodeTypeValuesList();
 
       long start = System.currentTimeMillis();
       List<NodeTypeData> nts = new ArrayList<NodeTypeData>();
@@ -328,8 +328,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     if (findNodeType(qname) != null) {
       if (alreadyExistsBehaviour == ExtendedNodeTypeManager.FAIL_IF_EXISTS) {
         throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
-      } else
-        LOG.warn("NodeType " + nodeType.getName() + " is already registered");
+      }
+      LOG.warn("NodeType " + nodeType.getName() + " is already registered");
       return;
     }
 
@@ -515,18 +515,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   public NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                                     InternalQName primaryNodeType,
                                                     InternalQName[] mixinTypes) {
-
-    // // TODO residual
-    //
-    // NodeDefinitionData cnd =
-    // defsHolder.getDefaultChildNodeDefinition(nodeName, primaryNodeType);
-    // // mixin
-    // if (cnd == null)
-    // cnd = defsHolder.getDefaultChildNodeDefinition(nodeName, mixinTypes);
-    //
-    //    
-
-    // return cnd;
 
     if (mixinTypes != null) {
       InternalQName[] nts = new InternalQName[mixinTypes.length + 1];
