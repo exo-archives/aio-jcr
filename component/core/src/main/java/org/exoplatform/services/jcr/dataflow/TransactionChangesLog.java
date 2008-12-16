@@ -151,6 +151,28 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   }
 
   /**
+   * 
+   * getPreviousState.
+   * 
+   * @param item
+   * @return
+   */
+  public ItemState getPreviousItemState(ItemState item) {
+    ItemState resultState = null;
+
+    for (ItemState itemState : getAllStates()) {
+      if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
+        if (itemState.equals(item)) {
+          break;
+        }
+        resultState = itemState;
+      }
+    }
+
+    return resultState;
+  }
+
+  /**
    * getLastState.
    * 
    * @param itemPath
@@ -177,6 +199,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public Collection<ItemState> getDescendantsChanges(QPath rootPath,
                                                      boolean onlyNodes,
                                                      boolean unique) {
+    // List<ItemState> list = new ArrayList<ItemState>();
     HashMap<Object, ItemState> index = new HashMap<Object, ItemState>();
 
     for (ItemState itemState : getAllStates()) {
@@ -187,6 +210,8 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
         }
       }
     }
+
+    // TODO check order
     return index.values();
   }
 
