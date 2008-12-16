@@ -3,12 +3,12 @@ package org.exoplatform.services.jcr.api.nodetypes;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.ItemDefinition;
 import javax.jcr.nodetype.NodeDefinition;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.PropertyDefinition;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.util.EntityCollection;
 
@@ -33,15 +33,25 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
                                                              .getString());
 
     assertEquals("Type!= nt:unstructured", type.getName(), "nt:unstructured");
+    NodeDefinition[] childNodeDefs = type.getChildNodeDefinitions();
+    PropertyDefinition[] propertyDefinitions = type.getPropertyDefinitions();
 
-    assertTrue("typeNodeDefs != 1", type.getChildNodeDefinitions().length == 1);
-    assertTrue("typePropDefs != 4", type.getPropertyDefinitions().length == 4);
+    assertTrue("typeNodeDefs != 1", childNodeDefs.length == 1);
+    assertTrue("typePropDefs != 4", propertyDefinitions.length == 4);
 
     // assertEquals("prop!=jcr:primaryType", "jcr:primaryType",
     // type.getPropertyDefinitions()[1].getName());
-    assertEquals(Constants.JCR_ANY_NAME.getName(), type.getPropertyDefinitions()[0].getName());
-    assertEquals(Constants.JCR_ANY_NAME.getName(), type.getChildNodeDefinitions()[0].getName());
+    assertTrue(containsDefinition(Constants.JCR_ANY_NAME.getName(), propertyDefinitions));
+    assertTrue(containsDefinition(Constants.JCR_ANY_NAME.getName(), childNodeDefs));
 
+  }
+
+  private boolean containsDefinition(String name, ItemDefinition[] defs) {
+    for (int i = 0; i < defs.length; i++) {
+      if (name.equals(defs[i].getName()))
+        return true;
+    }
+    return false;
   }
 
   public void testHierarchyNode() throws Exception {
@@ -54,18 +64,16 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("prop num !=2 ==" + ((EntityCollection) node.getProperties()).size(),
                ((EntityCollection) node.getProperties()).size() == 2);
 
-    assertTrue("typePropDefs != 3", type.getPropertyDefinitions().length == 3);
+    PropertyDefinition[] propertyDefinitions = type.getPropertyDefinitions();
+    assertTrue("typePropDefs != 3", propertyDefinitions.length == 3);
     // NodeDefs = null
     assertTrue("nodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
     // Property names: [0]=jcr:created, [1]=jcr:lastModified,
     // [2]=jcr:primaryType
-    assertEquals("prop2 name !=jcr:primaryType",
-                 "jcr:primaryType",
-                 type.getPropertyDefinitions()[1].getName());
-    assertEquals("prop0 name != jcr:created",
-                 "jcr:created",
-                 type.getPropertyDefinitions()[0].getName());
+    assertTrue("prop2 name !=jcr:primaryType", containsDefinition("jcr:primaryType",
+                                                                  propertyDefinitions));
+    assertTrue("prop0 name != jcr:created", containsDefinition("jcr:created", propertyDefinitions));
 
     node = root.getNode("node-hi");
     assertNotNull("Prop null ", node.getProperty("jcr:created").toString());
@@ -111,7 +119,8 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     assertTrue("typePropDefs != 3", type.getPropertyDefinitions().length == 3);
     assertTrue("typeNodeDefs != 1", type.getChildNodeDefinitions().length == 1);
 
-    assertEquals(ExtendedItemDefinition.RESIDUAL_SET, type.getChildNodeDefinitions()[0].getName());
+    NodeDefinition[] childNodeDefs = type.getChildNodeDefinitions();
+    assertTrue(containsDefinition(Constants.JCR_ANY_NAME.getName(), childNodeDefs));
 
     try {
       node.setProperty("not-allowed", "val");
@@ -143,12 +152,11 @@ public class TestPredefinedPrimaryNodeTypes extends JcrAPIBaseTest {
     NodeType type = node.getPrimaryNodeType();
 
     assertEquals("nt:linkedFile", type.getName());
-    assertTrue("typePropDefs != 4", type.getPropertyDefinitions().length == 4);
+    PropertyDefinition[] propertyDefinitions = type.getPropertyDefinitions();
+    assertTrue("typePropDefs != 4", propertyDefinitions.length == 4);
     assertTrue("typeNodeDefs != 0", type.getChildNodeDefinitions().length == 0);
 
-    assertEquals("node0 name != jcr:content",
-                 "jcr:content",
-                 type.getPropertyDefinitions()[0].getName());
+    assertTrue("node0 name != jcr:content", containsDefinition("jcr:content", propertyDefinitions));
 
   }
 

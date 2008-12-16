@@ -12,7 +12,6 @@ import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
-import javax.jcr.nodetype.NodeTypeIterator;
 import javax.jcr.nodetype.NodeTypeManager;
 import javax.jcr.version.VersionException;
 
@@ -60,15 +59,15 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
     // substring(0,3));
   }
 
-  public void testNodeTypesOrder() throws Exception {
-    NodeTypeManager ntManager = session.getWorkspace().getNodeTypeManager();
-    NodeTypeIterator nts = ntManager.getPrimaryNodeTypes();
-    assertTrue(nts.getSize() > 0);
-    assertEquals("nt:base", nts.nextNodeType().getName());
-    // Prerequisites : the second entry in nodetypes.xml should be
-    // "nt:unstructured" !!!!!
-    assertEquals("nt:unstructured", nts.nextNodeType().getName());
-  }
+  // public void testNodeTypesOrder() throws Exception {
+  // NodeTypeManager ntManager = session.getWorkspace().getNodeTypeManager();
+  // NodeTypeIterator nts = ntManager.getPrimaryNodeTypes();
+  // assertTrue(nts.getSize() > 0);
+  // assertEquals("nt:base", nts.nextNodeType().getName());
+  // // Prerequisites : the second entry in nodetypes.xml should be
+  // // "nt:unstructured" !!!!!
+  // assertEquals("nt:unstructured", nts.nextNodeType().getName());
+  // }
 
   public void testNtQuery() throws Exception {
     NodeTypeDataManagerImpl ntManager = (NodeTypeDataManagerImpl) session.getWorkspace()
