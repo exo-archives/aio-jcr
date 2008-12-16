@@ -135,20 +135,44 @@ public class DeleteMerger implements ChangesMerger {
             return resultState;
           }
         case ItemState.RENAMED:
-          // TODO complex operation
+          ItemState prevState = local.getPreviousItemState(localState);
+          // TODO if prevState is null?
           if (itemData.isNode()) {
-            // itemData.getIdentifier()
-            // TODO
-            break;
-          } else {
-            // TODO
-            // Delete node
-            // delete log
-            // export
-            // import
-            // delete prop
-            break;
+            if (prevState != null && itemData.getQPath().equals(prevState.getData().getQPath())) {
+              // remove local node that was renamed
+              if (local.getLastState(prevState.getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(prevState.getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              prevState.getData().getQPath()));
+              }
+            }
+          } else if (prevState != null
+              && itemData.getQPath().isDescendantOf(prevState.getData().getQPath())) {
+
+            // add Delete state
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(prevState.getData()
+                                                                                         .getQPath(),
+                                                                                true,
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              itemsArray[i].getData().getQPath()));
+              }
+            }
+
+            // apply income changes for all subtree
+            resultState.add(itemChange);
+            resultState.addAll(exporter.exportItem(prevState.getData().getParentIdentifier())
+                                       .getAllStates());
+            return resultState;
           }
+          break;
         case ItemState.MIXIN_CHANGED:
           break;
         }
