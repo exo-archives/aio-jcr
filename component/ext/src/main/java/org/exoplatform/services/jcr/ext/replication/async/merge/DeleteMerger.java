@@ -68,11 +68,11 @@ public class DeleteMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (itemData.isNode() && localData.getQPath().isDescendantOf(itemData.getQPath())) {
+          if (itemData.isNode()
+              && (localData.getQPath().isDescendantOf(itemData.getQPath()) || localData.getQPath()
+                                                                                       .equals(itemData.getQPath()))) {
             return resultState;
           }
-          break;
-        case ItemState.UPDATED:
           break;
         case ItemState.DELETED:
           if (itemData.isNode() && !localData.isNode()) {
@@ -81,6 +81,8 @@ public class DeleteMerger implements ChangesMerger {
               || itemData.getQPath().equals(localData.getQPath())) {
             return resultState;
           }
+          break;
+        case ItemState.UPDATED:
           break;
         case ItemState.RENAMED:
           if (itemData.getQPath().isDescendantOf(localData.getQPath())

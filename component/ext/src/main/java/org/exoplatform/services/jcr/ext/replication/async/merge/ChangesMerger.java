@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -52,9 +53,10 @@ public interface ChangesMerger {
    * 
    * @return List of item states with resulting changes
    * @throws IOException
+   * @throws IllegalPathException
    */
   List<ItemState> merge(ItemState itemChange,
                         TransactionChangesLog income,
-                        TransactionChangesLog local) throws IOException;
+                        TransactionChangesLog local) throws IOException, IllegalPathException;
 
 }

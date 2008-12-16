@@ -23,7 +23,10 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
@@ -54,10 +57,13 @@ public class AddMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws IllegalPathException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) throws IOException {
+                               TransactionChangesLog local) throws IOException,
+                                                           IllegalPathException {
 
     List<ItemState> resultState = new ArrayList<ItemState>();
     ItemData itemData = itemChange.getData();
@@ -74,12 +80,38 @@ public class AddMerger implements ChangesMerger {
             return resultState;
           }
           break;
-        case ItemState.UPDATED:
-          break;
         case ItemState.DELETED:
-          if (localData.isNode()
-              && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
-                                                                                      .equals(localData.getQPath()))) {
+          ItemState nextState = local.getNextItemState(localState);
+          if (nextState != null && nextState.getState() == ItemState.UPDATED) {
+            break;
+          }
+
+          if (localData.isNode()) {
+            if ((itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
+                                                                                     .equals(localData.getQPath()))) {
+              return resultState;
+            }
+          }
+          break;
+        case ItemState.UPDATED:
+          ItemState prevState = local.getPreviousItemState(localState);
+          if (prevState != null
+              && itemData.getQPath().isDescendantOf(prevState.getData().getQPath())) {
+
+            QPathEntry names[] = new QPathEntry[itemData.getQPath().getEntries().length];
+            System.arraycopy(localData.getQPath().getEntries(),
+                             0,
+                             names,
+                             0,
+                             localData.getQPath().getEntries().length);
+            System.arraycopy(itemData.getQPath().getEntries(),
+                             localData.getQPath().getEntries().length,
+                             names,
+                             localData.getQPath().getEntries().length,
+                             itemData.getQPath().getEntries().length
+                                 - localData.getQPath().getEntries().length);
+
+            resultState.add(new ItemState(itemData, ItemState.ADDED, false, new QPath(names)));
             return resultState;
           }
           break;
