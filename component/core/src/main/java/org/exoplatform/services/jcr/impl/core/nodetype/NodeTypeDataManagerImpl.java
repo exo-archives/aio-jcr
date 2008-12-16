@@ -325,11 +325,17 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
           + nodeType.getClass().getName() + " is not supported in this method");
     }
 
-    if (findNodeType(qname) != null) {
-      if (alreadyExistsBehaviour == ExtendedNodeTypeManager.FAIL_IF_EXISTS) {
+    NodeTypeData registeredNodeType = findNodeType(qname);
+    if (registeredNodeType != null) {
+      switch (alreadyExistsBehaviour) {
+      case ExtendedNodeTypeManager.FAIL_IF_EXISTS:
         throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
+      case ExtendedNodeTypeManager.IGNORE_IF_EXISTS:
+        LOG.warn("Skipped " + nodeType.getName() + " as already registered");
+        break;
+      case ExtendedNodeTypeManager.REPLACE_IF_EXISTS:
+        break;
       }
-      LOG.warn("NodeType " + nodeType.getName() + " is already registered");
       return;
     }
 
@@ -362,6 +368,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
             + " registered but not initialized (storage is not initialized). "
             + (System.currentTimeMillis() - start) + " ms");
     }
+  }
+
+  private void reregisterNodeType(NodeTypeData oldNodeTypeData, NodeTypeData newNodeTypeData) {
+
   }
 
   /**
