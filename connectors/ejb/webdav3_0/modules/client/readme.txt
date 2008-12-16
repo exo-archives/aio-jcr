@@ -14,7 +14,7 @@ To run example:
     jonas admin -j
     
 5. go back in current folder.
-6. extract file easybeans-rar_for_jonas-openjpa-1.0.1.rar (or whar version you have) in folder target/rar
+6. extract file easybeans-rar_for_jonas-openjpa-1.0.1.rar (or what version you have) in folder target/rar
 7. run example
 
     for linux:
