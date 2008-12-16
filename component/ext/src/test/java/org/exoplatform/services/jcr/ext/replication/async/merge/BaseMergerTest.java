@@ -236,7 +236,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
     super.tearDown();
   }
 
-  protected ItemState findState(List<ItemState> changes, QPath path) {
+  protected ItemState findStateByPath(List<ItemState> changes, QPath path) {
     for (ItemState st : changes) {
       if (st.getData().getQPath().equals(path))
         return st;
