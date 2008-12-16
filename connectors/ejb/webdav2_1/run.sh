@@ -11,6 +11,5 @@ $JAVA_HOME/bin/java -Djava.security.manager=default  \
 $JONAS_ROOT/lib/apps/exo.ws.rest.core-2.0-SNAPSHOT.jar:\
 $JONAS_ROOT/lib/apps/exo.ws.rest.ext-2.0-SNAPSHOT.jar:\
 $JONAS_ROOT/lib/apps/jsr311-api-1.0.jar:\
-$JONAS_ROOT/lib/apps/jsr250-api-1.0.jar:\
 $JONAS_ROOT/lib/client.jar \
 org.objectweb.jonas.client.ClientContainer webdav-ejb-connector-2_1.ear
