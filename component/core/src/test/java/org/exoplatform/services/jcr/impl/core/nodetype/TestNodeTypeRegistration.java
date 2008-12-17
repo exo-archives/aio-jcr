@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 
@@ -64,13 +65,35 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     nodeTypeManager = (NodeTypeManagerImpl) session.getWorkspace().getNodeTypeManager();
   }
 
-  public void testRemoveNT() throws Exception {
+  public void testRemoveNodeTypeUnexisted() {
+    try {
+      nodeTypeManager.unregisterNodeType("blah-blah");
+      fail();
+    } catch (RepositoryException e) {
+      // ok
+    }
+  }
+
+  public void testRemoveBuildInNodeType() {
+    try {
+      nodeTypeManager.unregisterNodeType("nt:base");
+      fail();
+    } catch (RepositoryException e) {
+      // ok
+    }
+  }
+
+  public void testRemoveNodeTypeExistedNode() throws Exception {
     nodeTypeManager.registerNodeType(testNodeTypeValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
     Node testNode = root.addNode("test", testNodeTypeValue.getName());
     assertTrue(testNode.isNodeType(testNodeTypeValue.getName()));
     session.save();
-    nodeTypeManager.unregisterNodeType(testNodeTypeValue.getName());
-    Node systemRoot = repository.getSystemSession().getRootNode();
-    assertTrue(systemRoot.getNode("test").isNodeType("nt:unstructured"));
+    try {
+      nodeTypeManager.unregisterNodeType(testNodeTypeValue.getName());
+      fail("");
+    } catch (RepositoryException e) {
+      // ok
+    }
+
   }
 }

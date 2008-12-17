@@ -140,12 +140,12 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         for (NodeTypeData nodeTypeData : defaultNts) {
           buildInNodeTypesNames.add(nodeTypeData.getName());
         }
+      } else {
+        String msg = "Resource file '" + NODETYPES_FILE
+            + "' with NodeTypes configuration does not found. Can not create node type manager";
+        LOG.error(msg);
+        throw new RepositoryException(msg);
       }
-      String msg = "Resource file '" + NODETYPES_FILE
-          + "' with NodeTypes configuration does not found. Can not create node type manager";
-      LOG.error(msg);
-      throw new RepositoryException(msg);
-
     } catch (Exception e) {
       String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
           + NODETYPES_FILE + "'. " + e;
@@ -992,7 +992,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       Set<String> nodes = getNodes(nodeTypeName);
       if (nodes.size() > 0) {
         String message = "Can not remove " + nodeTypeName.getAsString()
-            + "nodetype, because the following node types is used in nodes with uuid: ";
+            + " nodetype, because the following node types is used in nodes with uuid: ";
         for (String uuids : nodes) {
           message += uuids + " ";
         }
