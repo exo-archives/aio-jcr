@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.util.Iterator;
 
@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * <br/>Date: 17.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id$
+ * @version $Id: ChangesSequence.java 25190 2008-12-16 23:03:33Z pnedonosko $
  */
 public interface ChangesSequence<T extends ItemState> extends ChangesStorage, Iterator<T> {
 

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.util.Collection;
 
@@ -25,6 +25,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncPacket;
 
 /**
  * Created by The eXo Platform SAS.

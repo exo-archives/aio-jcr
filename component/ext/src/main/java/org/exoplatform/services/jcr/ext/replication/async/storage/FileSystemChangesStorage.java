@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -23,6 +23,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncPacket;
 
 /**
  * Created by The eXo Platform SAS.
@@ -30,7 +31,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * <br/>Date: 10.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id$
+ * @version $Id: FileSystemChangesStorage.java 25275 2008-12-17 14:40:05Z pnedonosko $
  */
 public class FileSystemChangesStorage implements ChangesStorage {
 
