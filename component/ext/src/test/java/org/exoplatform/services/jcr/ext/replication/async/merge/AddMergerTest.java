@@ -1653,13 +1653,14 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem11x21Add, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 3);
+    // 
+    assertEquals("Wrong changes count ", result.size(), 2);
 
-    // // find by reordered path
-    // ItemState res = findStateByPath(result,
-    // QPath.makeChildPath(localItem11x1B.getQPath(),
-    // remoteItem11x22.getQPath().getEntries()[remoteItem11x22.getQPath()
-    // .getEntries().length - 1]));
+    // find by reordered path
+    ItemState res = findStateByPath(result,
+                                    QPath.makeChildPath(localItem11x1B.getQPath(),
+                                                        remoteItem11x21.getQPath().getEntries()[remoteItem11x21.getQPath()
+                                                                                                               .getEntries().length - 1]));
     //
     // assertNotNull("Remote Add expected ", res);
     //

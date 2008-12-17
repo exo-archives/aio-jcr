@@ -21,7 +21,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.Collection;
 
-import org.exoplatform.services.jcr.dataflow.CompositeChangesLog;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -35,7 +34,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ChangesStorage.java 25190 2008-12-16 23:03:33Z pnedonosko $
  */
-public interface ChangesStorage extends CompositeChangesLog {
+public interface ChangesStorage {
 
   /**
    * Get last ItemState by Item id.
