@@ -32,7 +32,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class SuperTypesNamesComparator implements DefinitionComparator<InternalQName[]> {
+public class SuperTypesNamesComparator extends
+                                      AbstractDefinitionComparator<InternalQName, InternalQName[]> {
   /**
    * Class logger.
    */
@@ -41,24 +42,13 @@ public class SuperTypesNamesComparator implements DefinitionComparator<InternalQ
   public List<ComparationResult<InternalQName[]>> compare(InternalQName[] ancestorDefinition,
                                                           InternalQName[] recipientDefinition) throws RepositoryException {
     List<ComparationResult<InternalQName[]>> result = new ArrayList<ComparationResult<InternalQName[]>>();
-    // // same super type names
+
     List<InternalQName> sameNames = new ArrayList<InternalQName>();
     List<InternalQName> newNames = new ArrayList<InternalQName>();
+    List<InternalQName> removedNames = new ArrayList<InternalQName>();
 
-    for (int i = 0; i < recipientDefinition.length; i++) {
-      boolean isSame = false;
-      boolean isNew = true;
-      for (int j = 0; j < ancestorDefinition.length && !isSame; j++) {
-        if (ancestorDefinition[j].equals(recipientDefinition[i])) {
-          sameNames.add(recipientDefinition[i]);
-          isNew = false;
-          isSame = true;
-        }
-      }
-      if (isNew) {
-        newNames.add(recipientDefinition[i]);
-      }
-    }
+    findDifferences(ancestorDefinition, recipientDefinition, sameNames, newNames, removedNames);
+
     result.add(new SuperTypesNamesComparationResult(ModificationType.UNCHANGED,
                                                     sameNames,
                                                     ancestorDefinition,
@@ -68,17 +58,6 @@ public class SuperTypesNamesComparator implements DefinitionComparator<InternalQ
                                                     ancestorDefinition,
                                                     recipientDefinition));
 
-    List<InternalQName> removedNames = new ArrayList<InternalQName>();
-    for (int i = 0; i < ancestorDefinition.length; i++) {
-      boolean isRemoved = true;
-      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-        if (ancestorDefinition[j].equals(recipientDefinition[i])) {
-          isRemoved = false;
-        }
-      }
-      if (isRemoved)
-        removedNames.add(ancestorDefinition[i]);
-    }
     result.add(new SuperTypesNamesComparationResult(ModificationType.REMOVED,
                                                     removedNames,
                                                     ancestorDefinition,

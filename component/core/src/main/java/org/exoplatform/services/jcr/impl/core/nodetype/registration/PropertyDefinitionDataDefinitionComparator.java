@@ -18,8 +18,11 @@ package org.exoplatform.services.jcr.impl.core.nodetype.registration;
 
 import java.util.List;
 
+import javax.jcr.RepositoryException;
+
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -29,14 +32,16 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class PropertyDefinitionDataDefinitionComparator implements
-    DefinitionComparator<PropertyDefinitionDataDefinitionComparator> {
+    DefinitionComparator<PropertyDefinitionData[]> {
   /**
    * Class logger.
    */
   private static final Log LOG = ExoLogger.getLogger(PropertyDefinitionDataDefinitionComparator.class);
 
-  public List<ComparationResult<PropertyDefinitionDataDefinitionComparator>> compare(PropertyDefinitionDataDefinitionComparator ancestorDefinition,
-                                                                                     PropertyDefinitionDataDefinitionComparator recipientDefinition) {
+  public List<ComparationResult<PropertyDefinitionData[]>> compare(PropertyDefinitionData[] ancestorDefinition,
+                                                                   PropertyDefinitionData[] recipientDefinition) throws RepositoryException {
+
     return null;
   }
+
 }

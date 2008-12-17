@@ -20,7 +20,10 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -33,26 +36,25 @@ public class NodeTypeDataDefinitionComparationResult extends ComparationResult<N
   /**
    * Class logger.
    */
-  private static final Log                                       LOG = ExoLogger.getLogger(NodeTypeDataDefinitionComparationResult.class);
+  private static final Log                                        LOG = ExoLogger.getLogger(NodeTypeDataDefinitionComparationResult.class);
 
-  private final List<NodeDefinitionDataComparationResult>        declaredChildNodeDefinitionsChanges;
+  private final List<ComparationResult<PropertyDefinitionData[]>> declaredChildNodeDefinitionsChanges;
 
-  private final List<PropertyDefinitionDataDefinitionComparator> declaredPropertyDefinitionsChanges;
+  private final List<ComparationResult<NodeDefinitionData[]>>     declaredPropertyDefinitionsChanges;
 
-  private final List<SuperTypesNamesComparationResult>           declaredSupertypeNamesChanges;
+  private final List<ComparationResult<InternalQName[]>>          declaredSupertypeNamesChanges;
 
   public NodeTypeDataDefinitionComparationResult(ModificationType modificationType,
                                                  NodeTypeData ancestorDefinition,
                                                  NodeTypeData recipientDefinition,
-                                                 List<SuperTypesNamesComparationResult> declaredSupertypeNamesChanges,
-                                                 List<NodeDefinitionDataComparationResult> declaredChildNodeDefinitionsChanges,
-                                                 List<PropertyDefinitionDataDefinitionComparator> declaredPropertyDefinitionsChanges
-
-  ) {
+                                                 List<ComparationResult<InternalQName[]>> declaredSupertypeNamesChanges,
+                                                 List<ComparationResult<PropertyDefinitionData[]>> declaredChildNodeDefinitionsChanges,
+                                                 List<ComparationResult<NodeDefinitionData[]>> declaredPropertyDefinitionsChanges) {
     super(modificationType, ancestorDefinition, recipientDefinition);
     this.declaredSupertypeNamesChanges = declaredSupertypeNamesChanges;
     this.declaredChildNodeDefinitionsChanges = declaredChildNodeDefinitionsChanges;
     this.declaredPropertyDefinitionsChanges = declaredPropertyDefinitionsChanges;
+
   }
 
   public boolean isNameChanged() {

@@ -32,6 +32,7 @@ public abstract class ComparationResult<T> {
   /**
    * @param modificationType
    */
+  // TODO possible remove ancestorDefinition ,recipientDefinition
   public ComparationResult(ModificationType modificationType,
                            T ancestorDefinition,
                            T recipientDefinition) {

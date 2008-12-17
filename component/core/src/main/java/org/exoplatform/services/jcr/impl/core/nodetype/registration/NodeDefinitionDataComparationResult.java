@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype.registration;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
@@ -28,10 +30,21 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: $
  */
 public class NodeDefinitionDataComparationResult extends ComparationResult<NodeDefinitionData> {
+  private final List<NodeDefinitionData> differentDefinitions;
+
+  // TODO possible remove ancestorDefinition ,recipientDefinition
   public NodeDefinitionDataComparationResult(ModificationType modificationType,
+                                             List<NodeDefinitionData> differentDefinitions,
                                              NodeDefinitionData ancestorDefinition,
                                              NodeDefinitionData recipientDefinition) {
     super(modificationType, ancestorDefinition, recipientDefinition);
+    this.differentDefinitions = differentDefinitions;
+  }
+
+  public NodeDefinitionDataComparationResult(ModificationType unchanged,
+                                             List<NodeDefinitionData> sameNames,
+                                             NodeDefinitionData[] ancestorDefinition,
+                                             NodeDefinitionData[] recipientDefinition) {
   }
 
   /**

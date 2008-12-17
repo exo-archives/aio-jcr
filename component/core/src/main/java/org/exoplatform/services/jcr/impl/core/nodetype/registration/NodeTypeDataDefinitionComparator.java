@@ -16,11 +16,15 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype.registration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
  * Created by The eXo Platform SAS.
@@ -34,21 +38,35 @@ public class NodeTypeDataDefinitionComparator implements DefinitionComparator<No
 
   private final NodeDefinitionDataDefinitionComparator     nodeDefinitionDataDefinitionComparator;
 
+  private final SuperTypesNamesComparator                  superTypesNamesComparator;
+
   /**
    * 
    */
   public NodeTypeDataDefinitionComparator() {
     propertyDefinitionDataDefinitionComparator = new PropertyDefinitionDataDefinitionComparator();
     nodeDefinitionDataDefinitionComparator = new NodeDefinitionDataDefinitionComparator();
+    superTypesNamesComparator = new SuperTypesNamesComparator();
   }
 
   public List<ComparationResult<NodeTypeData>> compare(NodeTypeData ancestorDefinition,
                                                        NodeTypeData recipientDefinition) throws RepositoryException {
-    // if (!ancestorDefinition.getName().equals(recipientDefinition.getName()))
-    // throw new
-    // RepositoryException("Unsuported changes. Names can't be different");
 
-    return null;
+    List<ComparationResult<InternalQName[]>> declaredSupertypeNamesChanges = superTypesNamesComparator.compare(ancestorDefinition.getDeclaredSupertypeNames(),
+                                                                                                               recipientDefinition.getDeclaredSupertypeNames());
+    List<ComparationResult<PropertyDefinitionData[]>> declaredPropertyDefinitionsChanges = propertyDefinitionDataDefinitionComparator.compare(ancestorDefinition.getDeclaredPropertyDefinitions(),
+                                                                                                                                              recipientDefinition.getDeclaredPropertyDefinitions());
+    List<ComparationResult<NodeDefinitionData[]>> declaredChildNodeDefinitionsChanges = nodeDefinitionDataDefinitionComparator.compare(ancestorDefinition.getDeclaredChildNodeDefinitions(),
+                                                                                                                                       recipientDefinition.getDeclaredChildNodeDefinitions());
+    List<ComparationResult<NodeTypeData>> result = new ArrayList<ComparationResult<NodeTypeData>>();
+
+    result.add(new NodeTypeDataDefinitionComparationResult(ModificationType.CHANGED,
+                                                           ancestorDefinition,
+                                                           recipientDefinition,
+                                                           declaredSupertypeNamesChanges,
+                                                           declaredPropertyDefinitionsChanges,
+                                                           declaredChildNodeDefinitionsChanges));
+    return result;
 
   }
 }
