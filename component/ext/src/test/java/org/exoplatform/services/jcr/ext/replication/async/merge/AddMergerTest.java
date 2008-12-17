@@ -647,6 +647,16 @@ public class AddMergerTest extends BaseMergerTest {
   public void testLocalParentRenamedRemotePriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
+    final ItemState localItem122ChangeDeleted = new ItemState(localItem122,
+                                                              ItemState.DELETED,
+                                                              false,
+                                                              null);
+    localLog.add(localItem122ChangeDeleted);
+    final ItemState localItem12ChangeDeleted = new ItemState(localItem12,
+                                                             ItemState.DELETED,
+                                                             false,
+                                                             null);
+    localLog.add(localItem12ChangeDeleted);
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.RENAMED, false, null);
     localLog.add(localItem12Change);
     final ItemState localItem122Change = new ItemState(localItem122, ItemState.RENAMED, false, null);
@@ -697,16 +707,16 @@ public class AddMergerTest extends BaseMergerTest {
   public void testLocalParentRenamedRemotePriority2() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
-    final ItemState localItem11ChangeRenamed = new ItemState(localItem11,
-                                                             ItemState.RENAMED,
-                                                             false,
-                                                             null);
-    localLog.add(localItem11ChangeRenamed);
     final ItemState localItem11ChangeDeleted = new ItemState(localItem11,
                                                              ItemState.DELETED,
                                                              false,
                                                              null);
     localLog.add(localItem11ChangeDeleted);
+    final ItemState localItem11ChangeRenamed = new ItemState(localItem11,
+                                                             ItemState.RENAMED,
+                                                             false,
+                                                             null);
+    localLog.add(localItem11ChangeRenamed);
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
@@ -722,12 +732,12 @@ public class AddMergerTest extends BaseMergerTest {
 
     // should restore parent /localItem1/item12
     // and add /localItem1/item12/item121
-    assertEquals("Wrong changes count ", result.size(), 1);
-
-    assertTrue("Remote parent restore expected ", hasState(result, new ItemState(remoteItem11,
-                                                                                 ItemState.ADDED,
+    assertEquals("Wrong changes count ", result.size(), 2);
+    assertTrue("Remote parent restore expected ", hasState(result, new ItemState(localItem11,
+                                                                                 ItemState.DELETED,
                                                                                  false,
                                                                                  null), true));
+    assertTrue("Remote parent restore expected ", hasState(result, remoteItem11Change, true));
   }
 
   /**
@@ -1661,16 +1671,16 @@ public class AddMergerTest extends BaseMergerTest {
                                     QPath.makeChildPath(localItem11x1B.getQPath(),
                                                         remoteItem11x21.getQPath().getEntries()[remoteItem11x21.getQPath()
                                                                                                                .getEntries().length - 1]));
-    //
-    // assertNotNull("Remote Add expected ", res);
-    //
-    // assertEquals("Remote Added wrong ID ", remoteItem11x22.getIdentifier(), res.getData()
-    // .getIdentifier());
-    //
-    // // parent /testItem1/item11[2] updated to /testItem1/item11[1]
-    // assertEquals("Remote Added wrong parent ID ",
-    // remoteItem11x22.getParentIdentifier(),
-    // res.getData().getParentIdentifier());
+
+    assertNotNull("Remote Add expected ", res);
+
+    assertEquals("Remote Added wrong ID ", remoteItem11x21.getIdentifier(), res.getData()
+                                                                               .getIdentifier());
+
+    // parent /testItem1/item11[2] updated to /testItem1/item11[1]
+    assertEquals("Remote Added wrong parent ID ",
+                 remoteItem11x21.getParentIdentifier(),
+                 res.getData().getParentIdentifier());
   }
 
   /**

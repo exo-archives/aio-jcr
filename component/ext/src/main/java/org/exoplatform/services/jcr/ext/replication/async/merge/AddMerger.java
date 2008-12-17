@@ -69,19 +69,22 @@ public class AddMerger implements ChangesMerger {
                                TransactionChangesLog income,
                                TransactionChangesLog local) throws IOException, RepositoryException {
 
+    boolean itemChangeProcessed = false;
+
+    ItemState incomeState = itemChange;
+    List<ItemState> resultEmptyState = new ArrayList<ItemState>();
     List<ItemState> resultState = new ArrayList<ItemState>();
-    ItemData itemData = itemChange.getData();
 
     for (ItemState localState : local.getAllStates()) {
-
+      ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
 
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (itemData.getQPath().isDescendantOf(localData.getQPath())
-              || itemData.getQPath().equals(localData.getQPath())) {
-            return resultState;
+          if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+              || incomeData.getQPath().equals(localData.getQPath())) {
+            return resultEmptyState;
           }
           break;
         case ItemState.DELETED:
@@ -91,37 +94,37 @@ public class AddMerger implements ChangesMerger {
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
 
             // if item added to updated item
-            if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
-              ItemState parentState = income.getPreviousItemStateByQPath(itemChange,
-                                                                         itemChange.getData()
-                                                                                   .getQPath()
-                                                                                   .makeAncestorPath(itemChange.getData()
-                                                                                                               .getQPath()
-                                                                                                               .getEntries().length
-                                                                                       - localData.getQPath()
-                                                                                                  .getEntries().length
-                                                                                       - 1));
+              ItemState parentState = income.getPreviousItemStateByQPath(incomeState,
+                                                                         incomeState.getData()
+                                                                                    .getQPath()
+                                                                                    .makeAncestorPath(incomeState.getData()
+                                                                                                                 .getQPath()
+                                                                                                                 .getEntries().length
+                                                                                        - localData.getQPath()
+                                                                                                   .getEntries().length
+                                                                                        - 1));
 
               QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       parentState != null
                                                                           ? parentState.getData()
                                                                                        .getParentIdentifier()
-                                                                          : itemData.getParentIdentifier());
+                                                                          : incomeData.getParentIdentifier());
 
               // set new QPath
-              QPathEntry names[] = new QPathEntry[itemData.getQPath().getEntries().length];
+              QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
               System.arraycopy(parentPath.getEntries(), 0, names, 0, parentPath.getEntries().length);
-              System.arraycopy(itemData.getQPath().getEntries(),
+              System.arraycopy(incomeData.getQPath().getEntries(),
                                localData.getQPath().getEntries().length,
                                names,
                                localData.getQPath().getEntries().length,
-                               itemData.getQPath().getEntries().length
+                               incomeData.getQPath().getEntries().length
                                    - localData.getQPath().getEntries().length);
 
               // set new ItemData
-              if (itemData.isNode()) {
-                NodeData node = (NodeData) itemData;
+              if (incomeData.isNode()) {
+                NodeData node = (NodeData) incomeData;
                 PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
                                                                new QPath(names),
                                                                node.getParentIdentifier(),
@@ -130,9 +133,10 @@ public class AddMerger implements ChangesMerger {
                                                                node.getPrimaryTypeName(),
                                                                node.getMixinTypeNames(),
                                                                node.getACL());
-                resultState.add(new ItemState(item, ItemState.ADDED, false, new QPath(names)));
+                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                resultState.add(incomeState);
               } else {
-                PropertyData prop = (PropertyData) itemData;
+                PropertyData prop = (PropertyData) incomeData;
                 PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
                                                                        new QPath(names),
                                                                        prop.getParentIdentifier(),
@@ -140,32 +144,35 @@ public class AddMerger implements ChangesMerger {
                                                                        prop.getType(),
                                                                        prop.isMultiValued());
                 item.setValues(prop.getValues());
-                resultState.add(new ItemState(item, ItemState.ADDED, false, new QPath(names)));
+
+                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                resultState.add(incomeState);
               }
-              return resultState;
+              itemChangeProcessed = true;
             }
             break;
           }
 
           // RENAME sequences
           if (nextState != null && nextState.getState() == ItemState.RENAMED) {
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                || incomeData.getQPath().equals(localData.getQPath())) {
+              return resultEmptyState;
+            }
+            break;
           }
 
           // Simple DELETE
           if (localData.isNode()) {
-            if ((itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
+            if ((incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
                                                                                      .equals(localData.getQPath()))) {
-              return resultState;
+              return resultEmptyState;
             }
           }
           break;
         case ItemState.UPDATED:
           break;
         case ItemState.RENAMED:
-          if (itemData.getQPath().isDescendantOf(localData.getQPath())
-              || itemData.getQPath().equals(localData.getQPath())) {
-            return resultState;
-          }
           break;
         case ItemState.MIXIN_CHANGED:
           break;
@@ -173,7 +180,7 @@ public class AddMerger implements ChangesMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (itemData.getQPath().equals(localData.getQPath())) {
+          if (incomeData.getQPath().equals(localData.getQPath())) {
 
             // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
@@ -197,10 +204,12 @@ public class AddMerger implements ChangesMerger {
             }
 
             // add all state from income changes
-            resultState.add(itemChange);
-            resultState.addAll(income.getDescendantsChanges(itemData.getQPath(), false, false));
+            if (!itemChangeProcessed) {
+              resultState.add(incomeState);
+            }
+            resultState.addAll(income.getDescendantsChanges(incomeData.getQPath(), false, false));
 
-            return resultState;
+            itemChangeProcessed = true;
           }
           break;
         case ItemState.UPDATED:
@@ -211,36 +220,36 @@ public class AddMerger implements ChangesMerger {
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
             // if item added to updated item
-            if (itemData.getQPath().isDescendantOf(localData.getQPath())) {
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
-              ItemState parentState = income.getPreviousItemStateByQPath(itemChange,
-                                                                         itemChange.getData()
-                                                                                   .getQPath()
-                                                                                   .makeAncestorPath(itemChange.getData()
-                                                                                                               .getQPath()
-                                                                                                               .getEntries().length
-                                                                                       - localData.getQPath()
-                                                                                                  .getEntries().length
-                                                                                       - 1));
+              ItemState parentState = income.getPreviousItemStateByQPath(incomeState,
+                                                                         incomeState.getData()
+                                                                                    .getQPath()
+                                                                                    .makeAncestorPath(incomeState.getData()
+                                                                                                                 .getQPath()
+                                                                                                                 .getEntries().length
+                                                                                        - localData.getQPath()
+                                                                                                   .getEntries().length
+                                                                                        - 1));
 
               QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       parentState != null
                                                                           ? parentState.getData()
                                                                                        .getParentIdentifier()
-                                                                          : itemData.getParentIdentifier());
+                                                                          : incomeData.getParentIdentifier());
 
-              QPathEntry names[] = new QPathEntry[itemData.getQPath().getEntries().length];
+              QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
               System.arraycopy(parentPath.getEntries(), 0, names, 0, parentPath.getEntries().length);
-              System.arraycopy(itemData.getQPath().getEntries(),
+              System.arraycopy(incomeData.getQPath().getEntries(),
                                localData.getQPath().getEntries().length,
                                names,
                                localData.getQPath().getEntries().length,
-                               itemData.getQPath().getEntries().length
+                               incomeData.getQPath().getEntries().length
                                    - localData.getQPath().getEntries().length);
 
               // set new ItemData
-              if (itemData.isNode()) {
-                NodeData node = (NodeData) itemData;
+              if (incomeData.isNode()) {
+                NodeData node = (NodeData) incomeData;
                 PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
                                                                new QPath(names),
                                                                node.getParentIdentifier(),
@@ -249,9 +258,10 @@ public class AddMerger implements ChangesMerger {
                                                                node.getPrimaryTypeName(),
                                                                node.getMixinTypeNames(),
                                                                node.getACL());
-                resultState.add(new ItemState(item, ItemState.ADDED, false, new QPath(names)));
+                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                resultState.add(incomeState);
               } else {
-                PropertyData prop = (PropertyData) itemData;
+                PropertyData prop = (PropertyData) incomeData;
                 PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
                                                                        new QPath(names),
                                                                        prop.getParentIdentifier(),
@@ -259,56 +269,58 @@ public class AddMerger implements ChangesMerger {
                                                                        prop.getType(),
                                                                        prop.isMultiValued());
                 item.setValues(prop.getValues());
-                resultState.add(new ItemState(item, ItemState.ADDED, false, new QPath(names)));
+
+                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                resultState.add(incomeState);
               }
-              return resultState;
+              itemChangeProcessed = true;
             }
             break;
           }
 
           // RENAMED sequences
           if (nextState != null && nextState.getState() == ItemState.RENAMED) {
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                || incomeData.getQPath().equals(localData.getQPath())) {
 
+              // add DELETE state
+              Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
+                                                                                  true,
+                                                                                  true);
+              ItemState itemsArray[];
+              itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+              for (int i = itemsArray.length - 1; i >= 0; i--) {
+                if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                  resultState.add(new ItemState(itemsArray[i].getData(),
+                                                ItemState.DELETED,
+                                                false,
+                                                itemsArray[i].getData().getQPath()));
+                }
+              }
+              if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(localData,
+                                              ItemState.DELETED,
+                                              false,
+                                              localData.getQPath()));
+              }
+
+              resultState.addAll(exporter.exportItem(localData.getParentIdentifier())
+                                         .getAllStates());
+              itemChangeProcessed = true;
+            }
+            break;
           }
 
           // Simple DELETE
           if (localData.isNode()
-              && (itemData.getQPath().isDescendantOf(localData.getQPath()) || itemData.getQPath()
+              && (incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
                                                                                       .equals(localData.getQPath()))) {
             resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
-            return resultState;
-
+            itemChangeProcessed = true;
+            break;
           }
           break;
         case ItemState.RENAMED:
-          // TODO complex operation
-          if (itemData.getQPath().isDescendantOf(localData.getQPath())
-              || itemData.getQPath().equals(localData.getQPath())) {
-
-            // add DELETE state
-            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
-                                                                                true,
-                                                                                true);
-            ItemState itemsArray[];
-            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
-            for (int i = itemsArray.length - 1; i >= 0; i--) {
-              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
-                resultState.add(new ItemState(itemsArray[i].getData(),
-                                              ItemState.DELETED,
-                                              false,
-                                              itemsArray[i].getData().getQPath()));
-              }
-            }
-            if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
-              resultState.add(new ItemState(localData,
-                                            ItemState.DELETED,
-                                            false,
-                                            localData.getQPath()));
-            }
-
-            resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
-            return resultState;
-          }
           break;
         case ItemState.MIXIN_CHANGED:
           break;
@@ -316,8 +328,10 @@ public class AddMerger implements ChangesMerger {
       }
     }
 
-    // apply income changes
-    resultState.add(itemChange);
+    // apply income changes if not processed
+    if (!itemChangeProcessed) {
+      resultState.add(incomeState);
+    }
 
     return resultState;
   }
