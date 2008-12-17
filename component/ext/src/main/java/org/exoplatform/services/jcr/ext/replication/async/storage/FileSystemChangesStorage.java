@@ -16,8 +16,11 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.TreeMap;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -29,19 +32,19 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 10.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: FileSystemChangesStorage.java 25275 2008-12-17 14:40:05Z pnedonosko $
  */
 public class FileSystemChangesStorage implements ChangesStorage {
 
   class ItemKey {
     private final String key;
-    
+
     ItemKey(String itemId) {
       this.key = itemId;
     }
-    
+
     ItemKey(QPath path) {
       this.key = path.getAsString();
     }
@@ -62,35 +65,46 @@ public class FileSystemChangesStorage implements ChangesStorage {
       return key.hashCode();
     }
   }
-  
+
   class StateLocator {
     private final String logPath;
-    
-    private final QPath path; 
-    private final String itemId; 
-    private final int state;
-    
+
+    private final QPath  path;
+
+    private final String itemId;
+
+    private final int    state;
+
     StateLocator(String logPath, QPath path, String itemId, int state) {
       this.logPath = logPath;
-      
+
       // path, id, state used in traversing
       this.path = path;
       this.itemId = itemId;
       this.state = state;
     }
-    
+
     /**
      * Read file and deserialize the state.
-     *
+     * 
      * @return ItemState
      */
     ItemState getChange() {
       return null; // TODO
     }
-    
+
   }
+
+  protected final LinkedHashMap<ItemKey, StateLocator> index = new LinkedHashMap<ItemKey, StateLocator>();
   
-  private final LinkedHashMap<ItemKey, StateLocator> index = new LinkedHashMap<ItemKey, StateLocator>();
+  protected final TreeMap<ItemKey, StateLocator> storage = new TreeMap<ItemKey, StateLocator>(); // TODO key Comparable
+
+  protected final File                                 storagePath;
+
+  public FileSystemChangesStorage(File storagePath) {
+    this.storagePath = storagePath;
+    this.storagePath.mkdirs();
+  }
 
   /**
    * {@inheritDoc}
@@ -187,8 +201,9 @@ public class FileSystemChangesStorage implements ChangesStorage {
    * {@inheritDoc}
    */
   public void addPacket(AsyncPacket packet) {
-    // TODO Auto-generated method stub
-    
+    // TODO
+    // Add each new packet till
+
   }
 
 }
