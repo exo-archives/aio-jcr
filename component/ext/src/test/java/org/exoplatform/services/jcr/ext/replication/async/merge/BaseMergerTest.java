@@ -61,6 +61,8 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
   protected ItemData              localItem2;
 
+  protected ItemData              remoteItem21;
+
   protected ItemData              localItem3;
 
   protected ItemData              localItem11;
@@ -226,6 +228,17 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                         0,
                                         Constants.ROOT_UUID,
                                         new AccessControlList());
+
+    // create /testItem2/item21
+    remoteItem21 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                             new InternalQName(null, "item21")),
+                                         IdGenerator.generate(),
+                                         0,
+                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         new InternalQName[0],
+                                         1,
+                                         remoteItem2.getIdentifier(),
+                                         new AccessControlList());
 
     // create /testItem3
     remoteItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
