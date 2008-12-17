@@ -37,6 +37,16 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 public interface ChangesStorage {
 
   /**
+   * Add packet.
+   * 
+   * The storage implementation will decide how to store the packet content.
+   *
+   * @param buff - bytes, data to be stored
+   * @param offset - offset in result file from which the data will be stored
+   */
+  void addPacket(AsyncPacket packet);
+  
+  /**
    * Get last ItemState by Item id.
    * 
    * @param itemIdentifier

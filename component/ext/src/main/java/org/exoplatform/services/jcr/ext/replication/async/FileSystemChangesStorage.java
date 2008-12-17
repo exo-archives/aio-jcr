@@ -182,6 +182,12 @@ public class FileSystemChangesStorage implements ChangesStorage {
     return super.equals(obj);
   }
 
-  
-  
+  /**
+   * {@inheritDoc}
+   */
+  public void addPacket(AsyncPacket packet) {
+    // TODO Auto-generated method stub
+    
+  }
+
 }
