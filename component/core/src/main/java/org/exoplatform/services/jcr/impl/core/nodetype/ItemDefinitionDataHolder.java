@@ -72,19 +72,8 @@ public class ItemDefinitionDataHolder {
                                                                    childName,
                                                                    childNodeType);
 
-    // // residual
-    // if (def == null)
-    // def = getNodeDefinitionFromThisOrSupertypes(parentNodeType,
-    // Constants.JCR_ANY_NAME,
-    // childNodeType);
-
     return def;
   }
-
-  // public NodeDefinitionData[] getAllChildNodeDefinitions(InternalQName...
-  // nodeTypes) {
-  //
-  // }
 
   private NodeDefinitionData getNodeDefinitionFromThisOrSupertypes(InternalQName parentNodeType,
                                                                    InternalQName childName,
@@ -95,15 +84,6 @@ public class ItemDefinitionDataHolder {
                                                                      childNodeType));
     if (def != null)
       return def;
-
-    // asks supers in DATA manager
-    // for (InternalQName su : nodeTypesHierarchy.getSupertypes(parentNodeType))
-    // {
-    // def = nodeDefinitions.get(new ChildNodeDefKey(su, childName,
-    // childNodeType));
-    // if (def != null)
-    // break;
-    // }
 
     return def;
   }
@@ -188,12 +168,6 @@ public class ItemDefinitionDataHolder {
     return def;
   }
 
-  // void putAllDefinitions(List<NodeTypeData> nodeTypes) {
-  // for (NodeTypeData nodeType : nodeTypes) {
-  // putDefinitions(nodeType);
-  // }
-  // }
-
   /**
    * adds Child Node/Property Definitions for incoming NodeType (should be
    * called by NodeTypeManager in register method)
@@ -228,7 +202,6 @@ public class ItemDefinitionDataHolder {
     }
 
     // put prop defs
-    // TODO put super's prop defs
     PropertyDefinitionData[] propDefs = nodeType.getDeclaredPropertyDefinitions();
     for (PropertyDefinitionData propDef : propDefs) {
       PropertyDefKey propDefKey = new PropertyDefKey(name, propDef.getName(), propDef.isMultiple());
@@ -241,6 +214,46 @@ public class ItemDefinitionDataHolder {
       }
     }
 
+  }
+
+  void removeDefinitions(InternalQName name, NodeTypeData nodeType) {
+    // remove child node defs
+    NodeDefinitionData[] nodeDefs = nodeType.getDeclaredChildNodeDefinitions();
+    for (NodeDefinitionData nodeDef : nodeDefs) {
+      // remove required node type defs
+      for (InternalQName rnt : nodeDef.getRequiredPrimaryTypes()) {
+        ChildNodeDefKey nodeDefKey = new ChildNodeDefKey(name, nodeDef.getName(), rnt);
+        nodeDefinitions.remove(nodeDefKey);
+
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("NodeDef removed: parent NT: " + name.getAsString() + " child nodeName: "
+              + nodeDef.getName().getAsString() + " childNT: " + rnt.getAsString() + " hash: "
+              + nodeDefKey.hashCode());
+        }
+      }
+
+      // remove default node definition
+      DefaultNodeDefKey defNodeDefKey = new DefaultNodeDefKey(name, nodeDef.getName());
+      defNodeDefinitions.remove(defNodeDefKey);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Default NodeDef removed: parent NT: " + name.getAsString() + " child nodeName: "
+            + nodeDef.getName() + " hash: " + defNodeDefKey.hashCode());
+      }
+    }
+
+    // remove defs
+    PropertyDefinitionData[] propDefs = nodeType.getDeclaredPropertyDefinitions();
+    for (PropertyDefinitionData propDef : propDefs) {
+      PropertyDefKey propDefKey = new PropertyDefKey(name, propDef.getName(), propDef.isMultiple());
+      propertyDefinitions.remove(propDefKey);
+
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("PropDef remode: parent NT: " + name.getAsString() + " child propName: "
+            + propDef.getName().getAsString() + " isMultiple: " + propDef.isMultiple() + " hash: "
+            + propDefKey.hashCode());
+      }
+    }
   }
 
   /**

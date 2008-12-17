@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
@@ -84,7 +83,7 @@ public interface NodeTypeDataManager {
 
   NodeTypeData registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException;
 
-  public void unregisterNodeType(InternalQName nodeTypeName) throws ConstraintViolationException;
+  public void unregisterNodeType(InternalQName nodeTypeName) throws RepositoryException;
 
   List<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues,
                                        int alreadyExistsBehaviour) throws RepositoryException;

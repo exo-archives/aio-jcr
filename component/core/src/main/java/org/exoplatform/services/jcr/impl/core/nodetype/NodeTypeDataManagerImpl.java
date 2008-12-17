@@ -31,7 +31,6 @@ import java.util.WeakHashMap;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.jibx.runtime.BindingDirectory;
@@ -59,23 +58,12 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeValuesList;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
-import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
-import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -104,6 +92,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   protected final ItemDefinitionDataHolder                            defsHolder;
 
+  private final Set<InternalQName>                                    buildInNodeTypesNames;
+
   /**
    * Listeners (soft references)
    */
@@ -128,6 +118,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     this.defsHolder = new ItemDefinitionDataHolder(this.hierarchy);
     this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
+    this.buildInNodeTypesNames = new HashSet<InternalQName>();
     initDefault();
     this.queryHandlers = new HashSet<QueryHandler>();
   }
@@ -144,13 +135,17 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     try {
       InputStream xml = NodeTypeManagerImpl.class.getResourceAsStream(NODETYPES_FILE);
       if (xml != null) {
-        registerNodeTypes(xml, ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
-      } else {
-        String msg = "Resource file '" + NODETYPES_FILE
-            + "' with NodeTypes configuration does not found. Can not create node type manager";
-        LOG.error(msg);
-        throw new RepositoryException(msg);
+        List<NodeTypeData> defaultNts = registerNodeTypes(xml,
+                                                          ExtendedNodeTypeManager.IGNORE_IF_EXISTS);
+        for (NodeTypeData nodeTypeData : defaultNts) {
+          buildInNodeTypesNames.add(nodeTypeData.getName());
+        }
       }
+      String msg = "Resource file '" + NODETYPES_FILE
+          + "' with NodeTypes configuration does not found. Can not create node type manager";
+      LOG.error(msg);
+      throw new RepositoryException(msg);
+
     } catch (Exception e) {
       String msg = "Error of initialization default types. Resource file with NodeTypes configuration '"
           + NODETYPES_FILE + "'. " + e;
@@ -956,61 +951,67 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  public void unregisterNodeType(InternalQName nodeTypeName) throws ConstraintViolationException {
-    try {
-      NodeTypeData nodeType = hierarchy.getNodeType(nodeTypeName);
-      if (nodeType == null)
-        throw new NoSuchNodeTypeException(nodeTypeName.getAsString());
-      if (!nodeType.isMixin()) {
-        Set<String> nodes = getNodes(nodeTypeName);
-        PlainChangesLog changesLog = new PlainChangesLogImpl();
-        DataManager dm = persister.getDataManager();
-        for (String uuid : nodes) {
-          NodeData nodeData = (NodeData) dm.getItemData(uuid);
-          PropertyData primaryType = (PropertyData) dm.getItemData(nodeData,
-                                                                   new QPathEntry(Constants.JCR_PRIMARYTYPE,
-                                                                                  0));
+  /**
+   * Unregisters the specified node type. In order for a node type to be
+   * successfully unregistered it must meet the following conditions:
+   * <ol>
+   * <li>the node type must obviously be registered.</li>
+   * <li>a built-in node type can not be unregistered.</li>
+   * <li>the node type must not have dependents, i.e. other node types that are
+   * referencing it.</li>
+   * <li>the node type must not be currently used by any workspace.</li>
+   * </ol>
+   * 
+   * @param ntName name of the node type to be unregistered
+   * @throws NoSuchNodeTypeException if <code>ntName</code> does not denote a
+   *           registered node type.
+   * @throws RepositoryException
+   * @throws RepositoryException if another error occurs.
+   * @see #unregisterNodeTypes(Collection)
+   */
+  public void unregisterNodeType(InternalQName nodeTypeName) throws RepositoryException {
 
-          NodeData newData = new TransientNodeData(nodeData.getQPath(),
-                                                   nodeData.getIdentifier(),
-                                                   nodeData.getPersistedVersion(),
-                                                   Constants.NT_UNSTRUCTURED,
-                                                   nodeData.getMixinTypeNames(),
-                                                   nodeData.getOrderNumber(),
-                                                   nodeData.getParentIdentifier(),
-                                                   nodeData.getACL());
-
-          List<ValueData> vals = new ArrayList<ValueData>();
-          vals.add(new TransientValueData(Constants.NT_UNSTRUCTURED));
-
-          // deleted state
-          changesLog.add(new ItemState(primaryType, ItemState.DELETED, false, nodeData.getQPath()));
-          // update nodeData information
-          changesLog.add(new ItemState(newData,
-                                       ItemState.UPDATED,
-                                       false,
-                                       nodeData.getQPath(),
-                                       true,
-                                       false));
-          // added state
-          changesLog.add(new ItemState(TransientPropertyData.createPropertyData(nodeData,
-                                                                                Constants.JCR_PRIMARYTYPE,
-                                                                                primaryType.getType(),
-                                                                                primaryType.isMultiValued(),
-                                                                                vals),
-                                       ItemState.ADDED,
-                                       false,
-                                       nodeData.getQPath()));
-        }
-        persister.saveChanges(changesLog);
-      } else {
-        // TODO implement
-        throw new UnsupportedOperationException();
+    NodeTypeData nodeType = hierarchy.getNodeType(nodeTypeName);
+    if (nodeType == null)
+      throw new NoSuchNodeTypeException(nodeTypeName.getAsString());
+    // check build in
+    if (buildInNodeTypesNames.contains(nodeTypeName))
+      throw new RepositoryException(nodeTypeName.toString()
+          + ": can't unregister built-in node type.");
+    // check dependencies
+    Set<InternalQName> descendantNt = hierarchy.getDescendantNodeTypes(nodeTypeName);
+    if (descendantNt.size() > 0) {
+      String message = "Can not remove " + nodeTypeName.getAsString()
+          + "nodetype, because the following node types depend on it: ";
+      for (InternalQName internalQName : descendantNt) {
+        message += internalQName.getAsString() + " ";
       }
-    } catch (RepositoryException e) {
-      throw new ConstraintViolationException(e.getLocalizedMessage(), e);
-    } catch (IOException e) {
-      throw new ConstraintViolationException(e.getLocalizedMessage(), e);
+      throw new RepositoryException(message);
     }
+    try {
+      Set<String> nodes = getNodes(nodeTypeName);
+      if (nodes.size() > 0) {
+        String message = "Can not remove " + nodeTypeName.getAsString()
+            + "nodetype, because the following node types is used in nodes with uuid: ";
+        for (String uuids : nodes) {
+          message += uuids + " ";
+        }
+        throw new RepositoryException(message);
+
+      }
+    } catch (IOException e) {
+      throw new RepositoryException(e.getLocalizedMessage(), e);
+    }
+    // remove from internal lists
+    hierarchy.removeNodeType(nodeTypeName);
+    // put supers
+    Set<InternalQName> supers = hierarchy.getSupertypes(nodeTypeName);
+
+    // remove supers
+    for (InternalQName superName : supers) {
+      defsHolder.removeDefinitions(nodeTypeName, hierarchy.getNodeType(superName));
+    }
+    // remove it self
+    defsHolder.removeDefinitions(nodeTypeName, nodeType);
   }
 }

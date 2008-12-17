@@ -107,6 +107,10 @@ public class NodeTypeDataHierarchyHolder {
     nodeTypes.put(nodeType.getName(), new NodeTypeHolder(nodeType, supers));
   }
 
+  void removeNodeType(final InternalQName nodeTypeName) {
+    nodeTypes.remove(nodeTypeName);
+  }
+
   private void fillSupertypes(final Collection<InternalQName> list, final InternalQName[] supers) {
     if (supers != null) {
       for (InternalQName su : supers) {
