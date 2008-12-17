@@ -51,19 +51,22 @@ public class NodeDefinitionDataDefinitionComparator
 
     findDifferences(ancestorDefinition, recipientDefinition, sameNames, newNames, removedNames);
 
-    result.add(new NodeDefinitionDataComparationResult(ModificationType.UNCHANGED,
-                                                       sameNames,
-                                                       ancestorDefinition,
-                                                       recipientDefinition));
-    result.add(new NodeDefinitionDataComparationResult(ModificationType.ADDED,
-                                                       newNames,
-                                                       ancestorDefinition,
-                                                       recipientDefinition));
-
-    result.add(new NodeDefinitionDataComparationResult(ModificationType.REMOVED,
-                                                       removedNames,
-                                                       ancestorDefinition,
-                                                       recipientDefinition));
+    // result.add(new
+    // NodeDefinitionDataComparationResult(ModificationType.UNCHANGED,
+    // sameNames,
+    // ancestorDefinition,
+    // recipientDefinition));
+    // result.add(new
+    // NodeDefinitionDataComparationResult(ModificationType.ADDED,
+    // newNames,
+    // ancestorDefinition,
+    // recipientDefinition));
+    //
+    // result.add(new
+    // NodeDefinitionDataComparationResult(ModificationType.REMOVED,
+    // removedNames,
+    // ancestorDefinition,
+    // recipientDefinition));
     return null;
   }
 

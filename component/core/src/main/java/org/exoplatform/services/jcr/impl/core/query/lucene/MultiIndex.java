@@ -994,7 +994,7 @@ public class MultiIndex {
    */
   private void createIndex(NodeData node, ItemDataConsumer stateMgr) throws IOException,
                                                                     RepositoryException {
-    log.info("Create index for " + node.getQPath().getAsString());
+
     String id = node.getIdentifier();
 
     executeAndLog(new AddNode(getTransactionId(), id));

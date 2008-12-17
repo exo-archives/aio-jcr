@@ -41,11 +41,11 @@ public class NodeDefinitionDataComparationResult extends ComparationResult<NodeD
     this.differentDefinitions = differentDefinitions;
   }
 
-  public NodeDefinitionDataComparationResult(ModificationType unchanged,
-                                             List<NodeDefinitionData> sameNames,
-                                             NodeDefinitionData[] ancestorDefinition,
-                                             NodeDefinitionData[] recipientDefinition) {
-  }
+  // public NodeDefinitionDataComparationResult(ModificationType unchanged,
+  // List<NodeDefinitionData> sameNames,
+  // NodeDefinitionData[] ancestorDefinition,
+  // NodeDefinitionData[] recipientDefinition) {
+  // }
 
   /**
    * Class logger.

@@ -119,6 +119,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.queryHandlers = new HashSet<QueryHandler>();
   }
 
+  ItemDefinitionDataHolder getDefsHolder() {
+    return defsHolder;
+  }
+
   /**
    * @return the accessControlPolicy
    */
