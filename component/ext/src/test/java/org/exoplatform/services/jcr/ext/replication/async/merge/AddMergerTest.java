@@ -911,7 +911,7 @@ public class AddMergerTest extends BaseMergerTest {
     final NodeData localItem11x2A = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                                               new InternalQName(null,
                                                                                                 "item11"),
-                                                                              1),
+                                                                              2),
                                                           localItem11.getIdentifier(),
                                                           0,
                                                           new InternalQName(Constants.NS_NT_URI,
@@ -1075,7 +1075,7 @@ public class AddMergerTest extends BaseMergerTest {
     final NodeData localItem11x2A = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                                               new InternalQName(null,
                                                                                                 "item11"),
-                                                                              1),
+                                                                              2),
                                                           localItem11.getIdentifier(),
                                                           0,
                                                           new InternalQName(Constants.NS_NT_URI,
@@ -1250,6 +1250,18 @@ public class AddMergerTest extends BaseMergerTest {
                                                           0,
                                                           localItem1.getIdentifier(),
                                                           new AccessControlList());
+
+    final NodeData remoteItem112 = new TransientNodeData(QPath.makeChildPath(remoteItem11.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item112")),
+                                                         IdGenerator.generate(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         0,
+                                                         localItem11x2A.getIdentifier(),
+                                                         new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
@@ -1463,6 +1475,10 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
     List<ItemState> result = addMerger.merge(remoteItem11x21Add, income, local);
 
+    assertEquals("Wrong changes count ", result.size(), 0);
+
+    // check not conflicted node
+    result = addMerger.merge(remoteItem11x22Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 1);
 
     // find by reordered path
