@@ -256,7 +256,7 @@ public class AsyncChannelManager implements RequestHandler {
                                    data.length,
                                    tempBuffer,
                                    packet.getIdentifier());
-    firsPacket.setOwnName(packet.getOwnName());
+    firsPacket.setReceiverName(packet.getTransmitterName());
     firsPacket.setOffset(offset);
     sendPacket(firsPacket);
 
@@ -272,7 +272,7 @@ public class AsyncChannelManager implements RequestHandler {
                                        data.length,
                                        tempBuffer,
                                        packet.getIdentifier());
-      middlePacket.setOwnName(packet.getOwnName());
+      middlePacket.setReceiverName(packet.getTransmitterName());
       middlePacket.setOffset(offset);
       Thread.sleep(1);
       sendPacket(middlePacket);
@@ -290,7 +290,7 @@ public class AsyncChannelManager implements RequestHandler {
                                    data.length,
                                    lastBuffer,
                                    packet.getIdentifier());
-    lastPacket.setOwnName(packet.getOwnName());
+    lastPacket.setReceiverName(packet.getTransmitterName());
     lastPacket.setOffset(offset);
     sendPacket(lastPacket);
 
@@ -318,7 +318,7 @@ public class AsyncChannelManager implements RequestHandler {
    * 
    * @param filePath
    *          full path to file
-   * @param ownerName
+   * @param transmitterName
    *          owner name
    * @param identifier
    *          the identifier String
@@ -334,9 +334,9 @@ public class AsyncChannelManager implements RequestHandler {
    *           will be generated the Exception
    */
   public void sendBinaryFile(String filePath,
-                             String ownerName,
+                             String receiverName,
+                             String transmitterName,
                              String identifier,
-                             String systemId,
                              int firstPacketType,
                              int middlePocketType,
                              int lastPocketType) throws Exception {
@@ -348,12 +348,12 @@ public class AsyncChannelManager implements RequestHandler {
     File f = new File(filePath);
     InputStream in = new FileInputStream(f);
 
-    AsyncPacket packet = new AsyncPacket(firstPacketType, identifier, ownerName, f.getName());
-    packet.setSystemId(systemId);
-    //
+    AsyncPacket packet = new AsyncPacket(firstPacketType, identifier, transmitterName, f.getName());
+    packet.setReceiverName(receiverName);
     packet.setSize(count);
+
     count++;
-    //
+    
     sendPacket(packet);
 
     byte[] buf = new byte[AsyncPacket.MAX_PACKET_SIZE];
@@ -361,8 +361,8 @@ public class AsyncChannelManager implements RequestHandler {
     long offset = 0;
 
     while ((len = in.read(buf)) > 0 && len == AsyncPacket.MAX_PACKET_SIZE) {
-      packet = new AsyncPacket(middlePocketType, identifier, ownerName);
-
+      packet = new AsyncPacket(middlePocketType, identifier, transmitterName);
+      packet.setReceiverName(receiverName);   
       packet.setOffset(offset);
       packet.setBuffer(buf);
       packet.setFileName(f.getName());
@@ -387,7 +387,8 @@ public class AsyncChannelManager implements RequestHandler {
       for (int i = 0; i < len; i++)
         buffer[i] = buf[i];
 
-      packet = new AsyncPacket(lastPocketType, identifier, ownerName);
+      packet = new AsyncPacket(lastPocketType, identifier, transmitterName);
+      packet.setReceiverName(receiverName);
       packet.setOffset(offset);
       packet.setBuffer(buffer);
       packet.setFileName(f.getName());

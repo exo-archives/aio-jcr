@@ -24,9 +24,7 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 /**
  * Created by The eXo Platform SAS.
@@ -74,9 +72,15 @@ public class AsyncPacket implements Externalizable {
   private long            offset;
   
   /**
-   * Owner name.
+   * Transmitter name.
    */
-  private String          ownName = "";
+  private String          transmitterName = "";
+  
+  /**
+   * Receiver name.
+   */
+  private String          receiverName = "";
+  
   
   /**
    * Name of file.
@@ -84,28 +88,10 @@ public class AsyncPacket implements Externalizable {
   private String          fileName = " ";
   
   /**
-   * The system identifier.
-   */
-  private String          systemId = " ";
-  
-  /**
    * Time stamp.
    */
   private Calendar        timeStamp = Calendar.getInstance();
   
-  /**
-   * The names of files .
-   */
-  private List<String>    fileNameList = new ArrayList<String>();
-  
-  public String getSystemId() {
-    return systemId;
-  }
-
-  public void setSystemId(String systemId) {
-    this.systemId = systemId;
-  }
-
   /**
    * Packet  constructor.
    * The empty constructor need for Externalizable 
@@ -142,14 +128,14 @@ public class AsyncPacket implements Externalizable {
    *          packet type
    * @param identifier
    *          packet identifier
-   * @param ownName
+   * @param transmitterName
    *          owner name
    */
-  public AsyncPacket(int type, String identifier, String ownName) {
+  public AsyncPacket(int type, String identifier, String transmitterName) {
     this.type = type;
     this.identifier = identifier;
     buffer = new byte[1];
-    this.ownName = ownName;
+    this.transmitterName = transmitterName;
   }
   
   /**
@@ -159,13 +145,13 @@ public class AsyncPacket implements Externalizable {
    *          packet type
    * @param identifier
    *          packet identifier
-   * @param ownName
+   * @param transmitterName
    *          owner name
    * @param fileName
    *          file name
    */
-  public AsyncPacket(int type, String identifier, String ownName, String fileName) {
-    this(type, identifier, ownName);
+  public AsyncPacket(int type, String identifier, String transmitterName, String fileName) {
+    this(type, identifier, transmitterName);
     this.fileName = fileName;
   }
   
@@ -220,13 +206,13 @@ public class AsyncPacket implements Externalizable {
   }
 
 
-  public String getOwnName() {
-    return ownName;
+  public String getTransmitterName() {
+    return transmitterName;
   }
 
 
-  public void setOwnName(String ownName) {
-    this.ownName = ownName;
+  public void setTransmitterName(String transmitterName) {
+    this.transmitterName = transmitterName;
   }
 
   public String getFileName() {
@@ -289,24 +275,17 @@ public class AsyncPacket implements Externalizable {
     out.writeInt(identifier.getBytes().length);
     out.write(identifier.getBytes());
     
-    out.writeInt(systemId.getBytes().length);
-    out.write(systemId.getBytes());
-
-    out.writeInt(ownName.getBytes().length);
-    out.write(ownName.getBytes());
+    out.writeInt(transmitterName.getBytes().length);
+    out.write(transmitterName.getBytes());
+    
+    out.writeInt(receiverName.getBytes().length);
+    out.write(receiverName.getBytes());
 
     // write timeStamp
     out.writeLong(timeStamp.getTimeInMillis());
 
     out.writeInt(fileName.getBytes().length);
     out.write(fileName.getBytes());
-
-    // write list
-    out.writeInt(fileNameList.size());
-    for (String fName : fileNameList) {
-      out.writeInt(fName.getBytes().length);
-      out.write(fName.getBytes());
-    }
   }
 
   /**
@@ -327,11 +306,11 @@ public class AsyncPacket implements Externalizable {
     
     buf = new byte[in.readInt()];
     in.readFully(buf);
-    systemId = new String(buf);
-
+    transmitterName = new String(buf);
+    
     buf = new byte[in.readInt()];
     in.readFully(buf);
-    ownName = new String(buf);
+    receiverName = new String(buf);
 
     // set timeStamp
     timeStamp.setTimeInMillis(in.readLong());
@@ -339,14 +318,6 @@ public class AsyncPacket implements Externalizable {
     buf = new byte[in.readInt()];
     in.readFully(buf);
     fileName = new String(buf);
-
-    // read list
-    int listSize = in.readInt();
-    for (int i = 0; i < listSize; i++) {
-      buf = new byte[in.readInt()];
-      in.readFully(buf);
-      fileNameList.add(new String(buf));
-    }
   }
 
   public Calendar getTimeStamp() {
@@ -357,11 +328,11 @@ public class AsyncPacket implements Externalizable {
     this.timeStamp = timeStamp;
   }
 
-  public List<String> getFileNameList() {
-    return fileNameList;
+  public String getReceiverName() {
+    return receiverName;
   }
 
-  public void setFileNameList(List<String> fileNameList) {
-    this.fileNameList = fileNameList;
+  public void setReceiverName(String receiverName) {
+    this.receiverName = receiverName;
   }
 }

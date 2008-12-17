@@ -161,7 +161,7 @@ public class AsyncInitializer implements AsyncPacketListener {
         MemberDescriptor memberDescriptor = new MemberDescriptor((int) (packet.getSize()),
                                                                  (int) (packet.getOffset()));
 
-        currentParticipants.put(packet.getOwnName(), memberDescriptor);
+        currentParticipants.put(packet.getTransmitterName(), memberDescriptor);
 
         if (otherParticipants.size() == currentParticipants.size() && isWaitSynchronization()) {
           fixupMembers();
