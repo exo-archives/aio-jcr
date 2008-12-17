@@ -23,9 +23,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -39,7 +37,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 
 /**
- * Created by The eXo Platform SAS Author : Karpenko Sergiy exo@exoplatform.com
+ * Created by The eXo Platform SAS Author : Karpenko Sergiy 
+ *  karpenko.sergiy@gmail.com.
  */
 public class TestItemDataExportVisitor extends BaseStandaloneTest {
   
