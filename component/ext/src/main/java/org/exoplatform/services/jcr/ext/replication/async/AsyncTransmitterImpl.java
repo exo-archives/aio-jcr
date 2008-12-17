@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 
 /**
  * Created by The eXo Platform SAS.

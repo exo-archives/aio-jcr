@@ -20,6 +20,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 
 /**
  * Created by The eXo Platform SAS.
@@ -67,7 +68,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void receive(Packet packet) {
+  public void receive(AsyncPacket packet) {
     // TODO Auto-generated method stub
 
   }
