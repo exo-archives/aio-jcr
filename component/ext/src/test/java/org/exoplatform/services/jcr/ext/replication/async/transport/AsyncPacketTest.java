@@ -21,14 +21,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 import junit.framework.TestCase;
-
-import org.exoplatform.services.jcr.ext.replication.async.AsyncPacket;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncPacketTypes;
 
 /**
  * Created by The eXo Platform SAS.
@@ -51,16 +46,10 @@ public class AsyncPacketTest extends TestCase {
     srcPacket.setBuffer(buf);
     srcPacket.setFileName("exo.jcr.component.ext_1.11-SNAPSHOT");
     
-    List<String> fileNameList = new ArrayList<String>();
-    for (int i = 0; i < 6750; i++) 
-      fileNameList.add("/home/rainf0x/java/exo-dependencies/repository/org/exoplatform/jcr/exo.jcr.component.ext/1.11-SNAPSHOT/exo.jcr.component.ext-1.11-SNAPSHOT-sources.jar");
-    
-    srcPacket.setFileNameList(fileNameList);
-    srcPacket.setIdentifier("8bec9d407f00010101bb60adbcdef058");
     srcPacket.setOffset(245852);
-    srcPacket.setOwnName("node_name_1");
+    srcPacket.setTransmitterName("node_name_1");
+    srcPacket.setReceiverName("node_name_2");
     srcPacket.setSize(120214245);
-    srcPacket.setSystemId("8bf2ef6a7f0001010014a616966a30a4");
     srcPacket.setTimeStamp(Calendar.getInstance());
     srcPacket.setType(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE);
     
@@ -112,22 +101,14 @@ public class AsyncPacketTest extends TestCase {
     assertEquals(destPacket.getFileName(), srcPacket.getFileName());
     assertEquals(destPacket.getFileName(), "exo.jcr.component.ext_1.11-SNAPSHOT");
     
-    assertEquals(destPacket.getFileNameList().size(), srcPacket.getFileNameList().size());
-    assertEquals(destPacket.getFileNameList().size(), 6750);
-    
-    for (int i = 0; i < srcPacket.getFileNameList().size(); i++) { 
-      assertEquals(destPacket.getFileNameList().get(i), srcPacket.getFileNameList().get(i));
-      assertEquals(destPacket.getFileNameList().get(i), "/home/rainf0x/java/exo-dependencies/repository/org/exoplatform/jcr/exo.jcr.component.ext/1.11-SNAPSHOT/exo.jcr.component.ext-1.11-SNAPSHOT-sources.jar");
-    }
-    
     assertEquals(destPacket.getIdentifier(), srcPacket.getIdentifier());
     assertEquals(destPacket.getIdentifier(), "8bec9d407f00010101bb60adbcdef058");
     
-    assertEquals(destPacket.getOwnName(), srcPacket.getOwnName());
-    assertEquals(destPacket.getOwnName(), "node_name_1");
+    assertEquals(destPacket.getTransmitterName(), srcPacket.getTransmitterName());
+    assertEquals(destPacket.getTransmitterName(), "node_name_1");
     
-    assertEquals(destPacket.getSystemId(), srcPacket.getSystemId());
-    assertEquals(destPacket.getSystemId(), "8bf2ef6a7f0001010014a616966a30a4");
+    assertEquals(destPacket.getReceiverName(), srcPacket.getReceiverName());
+    assertEquals(destPacket.getReceiverName(), "node_name_2");
     
     assertEquals(destPacket.getTimeStamp().getTimeInMillis(), srcPacket.getTimeStamp().getTimeInMillis());
     
