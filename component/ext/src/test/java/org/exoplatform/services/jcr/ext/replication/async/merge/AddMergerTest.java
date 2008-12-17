@@ -590,13 +590,15 @@ public class AddMergerTest extends BaseMergerTest {
    * UPDATED  40a82e0fc0a8000300a88c3205491824  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:3
    * </pre>
    * 
-   * local: REN N11 -> N12
+   * local: REN N11 -> N21
    * 
-   * remote: DEL N11, ADD N11 (ignore)
+   * 1. remote: DEL N11, ADD N11 (ignore)
    * 
-   * remote: ADD N12 (ignore)
+   * 2. remote: ADD N21 (ignore)
    * 
-   * remote: ADD N3 (accepted)
+   * 3. remote ADD N111 (ignore)
+   * 
+   * 4. remote: ADD N3 (accepted)
    */
   public void testLocalRenamedLocalPriority() throws Exception {
 
@@ -622,78 +624,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                          "unstructured"),
                                                        new InternalQName[0],
                                                        1,
-                                                       localItem1.getIdentifier(),
-                                                       new AccessControlList());
-
-    PlainChangesLog localLog = new PlainChangesLogImpl();
-
-    final ItemState localItem11Deleted = new ItemState(localItem11, ItemState.DELETED, false, null);
-    localLog.add(localItem11Deleted);
-    final ItemState localItem21Renamed = new ItemState(localItem21, ItemState.RENAMED, false, null);
-    localLog.add(localItem21Renamed);
-    local.addLog(localLog);
-
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
-
-    final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
-                                                        ItemState.DELETED,
-                                                        false,
-                                                        null);
-    remoteLog.add(remoteItem11Deleted);
-    final ItemState remoteItem11Add = new ItemState(remoteItem11, ItemState.ADDED, false, null);
-    remoteLog.add(remoteItem11Add);
-    final ItemState remoteItem21Add = new ItemState(remoteItem21, ItemState.ADDED, false, null);
-    remoteLog.add(remoteItem21Add);
-    final ItemState remoteItem3Add = new ItemState(remoteItem3, ItemState.ADDED, false, null);
-    remoteLog.add(remoteItem3Add);
-    income.addLog(remoteLog);
-
-    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
-    List<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
-
-    assertEquals("Wrong changes count ", result.size(), 0);
-
-    result = addMerger.merge(remoteItem21Add, income, local);
-
-    assertEquals("Wrong changes count ", result.size(), 0);
-
-    result = addMerger.merge(remoteItem3Add, income, local);
-
-    assertEquals("Wrong changes count ", result.size(), 1);
-
-    assertTrue("Remote parent restore expected ", hasState(result, remoteItem3Add, true));
-  }
-
-  /**
-   * local: REN N11 -> N12
-   * 
-   * remote: ADD N111 (accepted), will be added to node with new name
-   */
-  public void testLocalParentRenamedLocalPriority2() throws Exception {
-
-    final NodeData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
-                                                                           new InternalQName(null,
-                                                                                             "item11"),
-                                                                           1),
-                                                       IdGenerator.generate(),
-                                                       0,
-                                                       new InternalQName(Constants.NS_NT_URI,
-                                                                         "unstructured"),
-                                                       new InternalQName[0],
-                                                       1,
-                                                       localItem1.getIdentifier(),
-                                                       new AccessControlList());
-    final NodeData localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
-                                                                           new InternalQName(null,
-                                                                                             "item21"),
-                                                                           1),
-                                                       localItem11.getIdentifier(),
-                                                       0,
-                                                       new InternalQName(Constants.NS_NT_URI,
-                                                                         "unstructured"),
-                                                       new InternalQName[0],
-                                                       1,
-                                                       localItem1.getIdentifier(),
+                                                       localItem2.getIdentifier(),
                                                        new AccessControlList());
     final NodeData remoteItem111 = new TransientNodeData(QPath.makeChildPath(localItem11.getQPath(),
                                                                              new InternalQName(null,
@@ -717,16 +648,40 @@ public class AddMergerTest extends BaseMergerTest {
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    remoteLog.add(remoteItem11Deleted);
+    final ItemState remoteItem11Add = new ItemState(remoteItem11, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem11Add);
     final ItemState remoteItem111Add = new ItemState(remoteItem111, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem111Add);
+    final ItemState remoteItem21Add = new ItemState(remoteItem21, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem21Add);
+    final ItemState remoteItem3Add = new ItemState(remoteItem3, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem3Add);
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
-    List<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
 
+    // 1. usecase test
+    List<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
+    assertEquals("Wrong changes count ", result.size(), 0);
+
+    // 2. usecase test
+    result = addMerger.merge(remoteItem21Add, income, local);
+    assertEquals("Wrong changes count ", result.size(), 0);
+
+    // 3. usecase test
+    result = addMerger.merge(remoteItem111Add, income, local);
+    assertEquals("Wrong changes count ", result.size(), 0);
+
+    // 4. usecase test
+    result = addMerger.merge(remoteItem3Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 1);
-
-    assertTrue("Remote parent restore expected ", hasState(result, remoteItem111Add, true));
+    assertTrue("Remote parent restore expected ", hasState(result, remoteItem3Add, true));
   }
 
   /**

@@ -156,7 +156,9 @@ public class AddMerger implements ChangesMerger {
           // RENAME sequences
           if (nextState != null && nextState.getState() == ItemState.RENAMED) {
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                || incomeData.getQPath().equals(localData.getQPath())) {
+                || incomeData.getQPath().equals(localData.getQPath())
+                || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
+                || incomeData.getQPath().equals(nextState.getData().getQPath())) {
               return resultEmptyState;
             }
             break;
@@ -165,7 +167,7 @@ public class AddMerger implements ChangesMerger {
           // Simple DELETE
           if (localData.isNode()) {
             if ((incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
-                                                                                     .equals(localData.getQPath()))) {
+                                                                                         .equals(localData.getQPath()))) {
               return resultEmptyState;
             }
           }
@@ -314,7 +316,7 @@ public class AddMerger implements ChangesMerger {
           // Simple DELETE
           if (localData.isNode()
               && (incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
-                                                                                      .equals(localData.getQPath()))) {
+                                                                                          .equals(localData.getQPath()))) {
             resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
             itemChangeProcessed = true;
             break;

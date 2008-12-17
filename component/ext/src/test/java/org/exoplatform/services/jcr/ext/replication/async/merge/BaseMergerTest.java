@@ -263,7 +263,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                         new AccessControlList());
 
     // create /testItem2/item21
-    remoteItem21 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+    remoteItem21 = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
                                                              new InternalQName(null, "item21")),
                                          IdGenerator.generate(),
                                          0,
