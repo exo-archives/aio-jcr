@@ -26,6 +26,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
@@ -35,6 +36,8 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
+import com.sun.corba.se.impl.orbutil.closure.Constant;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -43,47 +46,73 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 public class BaseMergerTest extends BaseStandaloneTest {
 
-  protected TransactionChangesLog local;
+  /**
+   * Test nodetype. UNSTRUCTURED but child nodes SNS disallowed.
+   */
+  public static final InternalQName EXO_TEST_UNSTRUCTURED_NOSNS = new InternalQName(Constants.NS_EXO_URI,
+                                                                                    "testUnstructuredNoSNS");
 
-  protected TransactionChangesLog income;
+  protected TransactionChangesLog   local;
 
-  protected ItemData              remoteItem1;
+  protected TransactionChangesLog   income;
 
-  protected ItemData              remoteItem11;
+  // remote
 
-  protected ItemData              remoteItem112;
+  protected NodeData                remoteItem1;
 
-  protected ItemData              remoteItem1121;
+  protected NodeData                remoteItem11;
 
-  protected ItemData              remoteItem12;
+  protected NodeData                remoteItem112;
 
-  protected ItemData              remoteItem121;
+  protected NodeData                remoteItem1121;
 
-  protected ItemData              remoteItem2;
+  protected NodeData                remoteItem12;
 
-  protected ItemData              remoteItem3;
+  protected NodeData                remoteItem121;
 
-  protected ItemData              localItem1;
+  protected NodeData                remoteItem2;
 
-  protected ItemData              localItem2;
+  protected NodeData                remoteItem21;
 
-  protected ItemData              remoteItem21;
+  protected NodeData                remoteItem3;
 
-  protected ItemData              localItem3;
+  protected NodeData                remoteItem21x21;
 
-  protected ItemData              localItem11;
+  protected NodeData                remoteItem21x22;
+  
+  protected NodeData                remoteItem212;
+  
+  protected NodeData                remoteItem2121;
 
-  protected ItemData              localItem111;
+  // local
 
-  protected ItemData              localItem12;
+  protected NodeData                localItem1;
 
-  protected ItemData              localItem122;
+  protected NodeData                localItem2;
 
-  protected PropertyData          localProperty1;
+  protected NodeData                localItem21x2B;
 
-  protected PropertyData          localProperty2;
+  protected NodeData                localItem21x2A;
 
-  protected PropertyData          remoteProperty1;
+  protected NodeData                localItem21x1B1;
+
+  protected NodeData                localItem21x1B;
+
+  protected NodeData                localItem3;
+
+  protected NodeData                localItem11;
+
+  protected NodeData                localItem111;
+
+  protected NodeData                localItem12;
+
+  protected NodeData                localItem122;
+
+  protected PropertyData            localProperty1;
+
+  protected PropertyData            localProperty2;
+
+  protected PropertyData            remoteProperty1;
 
   /**
    * {@inheritDoc}
@@ -97,7 +126,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                            new InternalQName(null, testItem1)),
                                        IdGenerator.generate(),
                                        0,
-                                       new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                       EXO_TEST_UNSTRUCTURED_NOSNS,
                                        new InternalQName[0],
                                        0,
                                        Constants.ROOT_UUID,
@@ -107,7 +136,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                             new InternalQName(null, "item11")),
                                         IdGenerator.generate(),
                                         0,
-                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        EXO_TEST_UNSTRUCTURED_NOSNS,
                                         new InternalQName[0],
                                         0,
                                         localItem1.getIdentifier(),
@@ -117,7 +146,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                              new InternalQName(null, "item111")),
                                          IdGenerator.generate(),
                                          0,
-                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         EXO_TEST_UNSTRUCTURED_NOSNS,
                                          new InternalQName[0],
                                          0,
                                          localItem11.getIdentifier(),
@@ -127,7 +156,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                             new InternalQName(null, "item12")),
                                         IdGenerator.generate(),
                                         0,
-                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        EXO_TEST_UNSTRUCTURED_NOSNS,
                                         new InternalQName[0],
                                         1,
                                         localItem1.getIdentifier(),
@@ -137,7 +166,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                              new InternalQName(null, "item122")),
                                          IdGenerator.generate(),
                                          0,
-                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         EXO_TEST_UNSTRUCTURED_NOSNS,
                                          new InternalQName[0],
                                          0,
                                          localItem12.getIdentifier(),
@@ -149,7 +178,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                            new InternalQName(null, testItem2)),
                                        IdGenerator.generate(),
                                        0,
-                                       new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                       Constants.NT_UNSTRUCTURED,
                                        new InternalQName[0],
                                        1,
                                        Constants.ROOT_UUID,
@@ -161,7 +190,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                            new InternalQName(null, testItem3)),
                                        IdGenerator.generate(),
                                        0,
-                                       new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                       Constants.NT_UNSTRUCTURED,
                                        new InternalQName[0],
                                        2,
                                        Constants.ROOT_UUID,
@@ -193,7 +222,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                             new InternalQName(null, testItem1)),
                                         IdGenerator.generate(),
                                         0,
-                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        EXO_TEST_UNSTRUCTURED_NOSNS,
                                         new InternalQName[0],
                                         0,
                                         Constants.ROOT_UUID,
@@ -203,7 +232,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                              new InternalQName(null, "item11")),
                                          IdGenerator.generate(),
                                          0,
-                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         EXO_TEST_UNSTRUCTURED_NOSNS,
                                          new InternalQName[0],
                                          0,
                                          remoteItem1.getIdentifier(),
@@ -213,7 +242,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                               new InternalQName(null, "item112")),
                                           IdGenerator.generate(),
                                           0,
-                                          new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                          EXO_TEST_UNSTRUCTURED_NOSNS,
                                           new InternalQName[0],
                                           0,
                                           remoteItem11.getIdentifier(),
@@ -224,7 +253,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                                new InternalQName(null, "item1121")),
                                            IdGenerator.generate(),
                                            0,
-                                           new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                           EXO_TEST_UNSTRUCTURED_NOSNS,
                                            new InternalQName[0],
                                            0,
                                            remoteItem112.getIdentifier(),
@@ -235,7 +264,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                              new InternalQName(null, "item12")),
                                          IdGenerator.generate(),
                                          0,
-                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         EXO_TEST_UNSTRUCTURED_NOSNS,
                                          new InternalQName[0],
                                          1,
                                          remoteItem1.getIdentifier(),
@@ -245,7 +274,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                               new InternalQName(null, "item121")),
                                           IdGenerator.generate(),
                                           0,
-                                          new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                          EXO_TEST_UNSTRUCTURED_NOSNS,
                                           new InternalQName[0],
                                           0,
                                           remoteItem12.getIdentifier(),
@@ -256,7 +285,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                             new InternalQName(null, testItem2)),
                                         IdGenerator.generate(),
                                         0,
-                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        EXO_TEST_UNSTRUCTURED_NOSNS,
                                         new InternalQName[0],
                                         0,
                                         Constants.ROOT_UUID,
@@ -267,7 +296,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                              new InternalQName(null, "item21")),
                                          IdGenerator.generate(),
                                          0,
-                                         new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                         EXO_TEST_UNSTRUCTURED_NOSNS,
                                          new InternalQName[0],
                                          1,
                                          remoteItem2.getIdentifier(),
@@ -278,7 +307,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                             new InternalQName(null, testItem3)),
                                         IdGenerator.generate(),
                                         0,
-                                        new InternalQName(Constants.NS_NT_URI, "unstructured"),
+                                        EXO_TEST_UNSTRUCTURED_NOSNS,
                                         new InternalQName[0],
                                         2,
                                         Constants.ROOT_UUID,
@@ -286,16 +315,108 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
     // remote property (as prop of local item 1)
     remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
-                                                                   new InternalQName(null,
-                                                                                     "testProperty1")),
-                                               IdGenerator.generate(),
-                                               0,
-                                               PropertyType.LONG,
-                                               localItem1.getIdentifier(),
-                                               false);
+                                                                    new InternalQName(null,
+                                                                                      "testProperty1")),
+                                                IdGenerator.generate(),
+                                                0,
+                                                PropertyType.LONG,
+                                                localItem1.getIdentifier(),
+                                                false);
     ((TransientPropertyData) remoteProperty1).setValue(new TransientValueData(123l));
 
+    // SNS items
+    localItem21x2B = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                               new InternalQName(null, "item21"),
+                                                               2),
+                                           IdGenerator.generate(),
+                                           0,
+                                           Constants.NT_UNSTRUCTURED,
+                                           new InternalQName[0],
+                                           1,
+                                           localItem1.getIdentifier(),
+                                           new AccessControlList());
+
+    localItem21x1B = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                               new InternalQName(null, "item21"),
+                                                               1),
+                                           localItem21x2B.getIdentifier(),
+                                           0,
+                                           Constants.NT_UNSTRUCTURED,
+                                           new InternalQName[0],
+                                           0,
+                                           localItem1.getIdentifier(),
+                                           new AccessControlList());
+    localItem21x1B1 = new TransientNodeData(QPath.makeChildPath(localItem21x1B.getQPath(),
+                                                                new InternalQName(null,
+                                                                                  "item21x1-1"),
+                                                                1),
+                                            IdGenerator.generate(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem21x1B.getIdentifier(),
+                                            new AccessControlList());
+
+    localItem21x2A = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                               new InternalQName(null, "item21"),
+                                                               2),
+                                           localItem11.getIdentifier(),
+                                           0,
+                                           Constants.NT_UNSTRUCTURED,
+                                           new InternalQName[0],
+                                           0,
+                                           localItem1.getIdentifier(),
+                                           new AccessControlList());
+
+    // remote, will conflict with localItem21x1B1 (path of parent reordered [2] -> [1], different
+    // Node Id)
+    remoteItem21x21 = new TransientNodeData(QPath.makeChildPath(localItem21x2B.getQPath(),
+                                                                localItem21x1B1.getQPath()
+                                                                               .getEntries()[localItem21x1B1.getQPath()
+                                                                                                            .getEntries().length - 1]),
+                                            IdGenerator.generate(), // new id
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem21x2B.getIdentifier(),
+                                            new AccessControlList());
+    // new node, not conflicted
+    remoteItem21x22 = new TransientNodeData(QPath.makeChildPath(localItem21x2B.getQPath(),
+                                                                new InternalQName(null,
+                                                                                  "item11x1-2"),
+                                                                1),
+                                            IdGenerator.generate(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem21x2B.getIdentifier(),
+                                            new AccessControlList());
     
+    remoteItem212 = new TransientNodeData(QPath.makeChildPath(remoteItem21.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item212")),
+                                                         IdGenerator.generate(),
+                                                         0,
+                                                         Constants.NT_UNSTRUCTURED,
+                                                         new InternalQName[0],
+                                                         0,
+                                                         localItem21x2A.getIdentifier(),
+                                                         new AccessControlList());
+
+    remoteItem2121 = new TransientNodeData(QPath.makeChildPath(remoteItem212.getQPath(),
+                                                                              new InternalQName(null,
+                                                                                                "item2121")),
+                                                          IdGenerator.generate(),
+                                                          0,
+                                                          Constants.NT_UNSTRUCTURED,
+                                                          new InternalQName[0],
+                                                          0,
+                                                          remoteItem212.getIdentifier(),
+                                                          new AccessControlList());
+
     // logs
     local = new TransactionChangesLog();
     income = new TransactionChangesLog();
