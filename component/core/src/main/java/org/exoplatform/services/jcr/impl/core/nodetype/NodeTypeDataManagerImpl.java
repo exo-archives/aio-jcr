@@ -370,8 +370,16 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  private void reregisterNodeType(NodeTypeData oldNodeTypeData, NodeTypeData newNodeTypeData) {
-
+  void reregisterNodeType(NodeTypeData oldNodeTypeData, NodeTypeData newNodeTypeData) throws RepositoryException {
+    if (!oldNodeTypeData.getName().equals(newNodeTypeData.getName())) {
+      throw new RepositoryException("Unsupported Operation");
+    }
+    // TODO super names
+    // TODO primaryItemName
+    // TODO child nodes
+    // TODO properties defs
+    // TODO hasOrderableChildNodes
+    // TODO mixinom
   }
 
   /**

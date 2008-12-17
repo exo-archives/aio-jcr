@@ -66,7 +66,43 @@ public class NodeTypeDataDefinitionComparator implements DefinitionComparator<No
                                                            declaredSupertypeNamesChanges,
                                                            declaredPropertyDefinitionsChanges,
                                                            declaredChildNodeDefinitionsChanges));
+
     return result;
 
+  }
+
+  private class DefinitionComparator<X> {
+    void findDifferences(X[] ancestorDefinition,
+                         X[] recipientDefinition,
+                         List<X> newDefinitions,
+                         List<X> sameDefinitions,
+                         List<X> removedDfinitions) {
+      // same and new
+      for (int i = 0; i < recipientDefinition.length; i++) {
+        boolean isSame = false;
+        boolean isNew = true;
+        for (int j = 0; j < ancestorDefinition.length && !isSame; j++) {
+          if (ancestorDefinition[j].equals(recipientDefinition[i])) {
+            sameDefinitions.add(recipientDefinition[i]);
+            isNew = false;
+            isSame = true;
+          }
+        }
+        if (isNew) {
+          newDefinitions.add(recipientDefinition[i]);
+        }
+      }
+      // removed
+      for (int i = 0; i < ancestorDefinition.length; i++) {
+        boolean isRemoved = true;
+        for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
+          if (ancestorDefinition[j].equals(recipientDefinition[i])) {
+            isRemoved = false;
+          }
+        }
+        if (isRemoved)
+          removedDfinitions.add(ancestorDefinition[i]);
+      }
+    };
   }
 }

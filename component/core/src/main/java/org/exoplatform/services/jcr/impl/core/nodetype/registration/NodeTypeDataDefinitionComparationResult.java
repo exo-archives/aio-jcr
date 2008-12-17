@@ -87,4 +87,5 @@ public class NodeTypeDataDefinitionComparationResult extends ComparationResult<N
   public boolean isMixinChanged() {
     return getAncestorDefinition().isMixin() != getRecipientDefinition().isMixin();
   };
+
 }
