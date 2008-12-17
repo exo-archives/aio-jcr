@@ -16,17 +16,23 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
+
+import javax.jcr.PropertyType;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -72,6 +78,12 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected ItemData              localItem12;
 
   protected ItemData              localItem122;
+
+  protected PropertyData          localProperty1;
+
+  protected PropertyData          localProperty2;
+
+  protected PropertyData          remoteProperty1;
 
   /**
    * {@inheritDoc}
@@ -154,6 +166,27 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                        2,
                                        Constants.ROOT_UUID,
                                        new AccessControlList());
+
+    // local Properties
+    localProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                   new InternalQName(null,
+                                                                                     "testProperty1")),
+                                               IdGenerator.generate(),
+                                               0,
+                                               PropertyType.STRING,
+                                               localItem1.getIdentifier(),
+                                               false);
+    ((TransientPropertyData) localProperty1).setValue(new TransientValueData("test string"));
+
+    localProperty2 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                   new InternalQName(null,
+                                                                                     "testProperty2")),
+                                               IdGenerator.generate(),
+                                               0,
+                                               PropertyType.BINARY,
+                                               localItem1.getIdentifier(),
+                                               false);
+    ((TransientPropertyData) localProperty2).setValue(new TransientValueData(new ByteArrayInputStream("test binary".getBytes())));
 
     // create /testItem1
     remoteItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
@@ -251,6 +284,18 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                         Constants.ROOT_UUID,
                                         new AccessControlList());
 
+    // remote property (as prop of local item 1)
+    remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                   new InternalQName(null,
+                                                                                     "testProperty1")),
+                                               IdGenerator.generate(),
+                                               0,
+                                               PropertyType.LONG,
+                                               localItem1.getIdentifier(),
+                                               false);
+    ((TransientPropertyData) remoteProperty1).setValue(new TransientValueData(123l));
+
+    
     // logs
     local = new TransactionChangesLog();
     income = new TransactionChangesLog();

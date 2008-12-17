@@ -18,12 +18,15 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.util.List;
 
+import javax.jcr.PropertyType;
+
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
@@ -1834,4 +1837,67 @@ public class AddMergerTest extends BaseMergerTest {
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
   }
+
+  // ================== Property add ===================
+
+  /**
+   * Test of Add Property with Local Priority.
+   * 
+   * @throws Exception
+   */
+  public void testAddPropertyLocalPriority() throws Exception {
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
+    localLog.add(localItem1Change);
+    final ItemState localItem11Change = new ItemState(localProperty2, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    ItemState remoteItem2Change = new ItemState(remoteProperty1, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem2Change);
+
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Test of Add Property with Local Priority.
+   * 
+   * @throws Exception
+   */
+  public void testAddPropertyRemotePriority() throws Exception {
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
+    localLog.add(localItem1Change);
+    final ItemState localItem11Change = new ItemState(localProperty2, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    ItemState remoteItem2Change = new ItemState(remoteProperty1, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem2Change);
+
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem2Change, true));
+
+    assertEquals("Remote Add wrong Property type ",
+                 PropertyType.LONG,
+                 ((PropertyData) remoteItem2Change.getData()).getType());
+  }
+
 }
