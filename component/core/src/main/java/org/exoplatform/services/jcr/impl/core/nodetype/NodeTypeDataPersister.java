@@ -86,6 +86,10 @@ public class NodeTypeDataPersister {
     }
   }
 
+  DataManager getDataManager() {
+    return dataManager;
+  }
+
   boolean isInitialized() {
     return ntRoot != null;
   }
@@ -93,6 +97,11 @@ public class NodeTypeDataPersister {
   void saveChanges() throws RepositoryException, InvalidItemStateException {
     dataManager.save(new TransactionChangesLog(changesLog));
     changesLog.clear();
+  }
+
+  void saveChanges(PlainChangesLog changesLog) throws RepositoryException,
+                                              InvalidItemStateException {
+    dataManager.save(changesLog);
   }
 
   public synchronized void initNodetypesRoot(NodeData nsSystem, boolean addACL) {

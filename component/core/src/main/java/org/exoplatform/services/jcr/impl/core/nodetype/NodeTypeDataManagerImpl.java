@@ -31,6 +31,8 @@ import java.util.WeakHashMap;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
@@ -57,12 +59,23 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeValuesList;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
+import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -117,10 +130,6 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.listeners = Collections.synchronizedMap(new WeakHashMap<NodeTypeManagerListener, NodeTypeManagerListener>());
     initDefault();
     this.queryHandlers = new HashSet<QueryHandler>();
-  }
-
-  ItemDefinitionDataHolder getDefsHolder() {
-    return defsHolder;
   }
 
   /**
@@ -944,6 +953,64 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         b.add(new TermQuery(term), Occur.SHOULD);
       }
       return b;
+    }
+  }
+
+  public void unregisterNodeType(InternalQName nodeTypeName) throws ConstraintViolationException {
+    try {
+      NodeTypeData nodeType = hierarchy.getNodeType(nodeTypeName);
+      if (nodeType == null)
+        throw new NoSuchNodeTypeException(nodeTypeName.getAsString());
+      if (!nodeType.isMixin()) {
+        Set<String> nodes = getNodes(nodeTypeName);
+        PlainChangesLog changesLog = new PlainChangesLogImpl();
+        DataManager dm = persister.getDataManager();
+        for (String uuid : nodes) {
+          NodeData nodeData = (NodeData) dm.getItemData(uuid);
+          PropertyData primaryType = (PropertyData) dm.getItemData(nodeData,
+                                                                   new QPathEntry(Constants.JCR_PRIMARYTYPE,
+                                                                                  0));
+
+          NodeData newData = new TransientNodeData(nodeData.getQPath(),
+                                                   nodeData.getIdentifier(),
+                                                   nodeData.getPersistedVersion(),
+                                                   Constants.NT_UNSTRUCTURED,
+                                                   nodeData.getMixinTypeNames(),
+                                                   nodeData.getOrderNumber(),
+                                                   nodeData.getParentIdentifier(),
+                                                   nodeData.getACL());
+
+          List<ValueData> vals = new ArrayList<ValueData>();
+          vals.add(new TransientValueData(Constants.NT_UNSTRUCTURED));
+
+          // deleted state
+          changesLog.add(new ItemState(primaryType, ItemState.DELETED, false, nodeData.getQPath()));
+          // update nodeData information
+          changesLog.add(new ItemState(newData,
+                                       ItemState.UPDATED,
+                                       false,
+                                       nodeData.getQPath(),
+                                       true,
+                                       false));
+          // added state
+          changesLog.add(new ItemState(TransientPropertyData.createPropertyData(nodeData,
+                                                                                Constants.JCR_PRIMARYTYPE,
+                                                                                primaryType.getType(),
+                                                                                primaryType.isMultiValued(),
+                                                                                vals),
+                                       ItemState.ADDED,
+                                       false,
+                                       nodeData.getQPath()));
+        }
+        persister.saveChanges(changesLog);
+      } else {
+        // TODO implement
+        throw new UnsupportedOperationException();
+      }
+    } catch (RepositoryException e) {
+      throw new ConstraintViolationException(e.getLocalizedMessage(), e);
+    } catch (IOException e) {
+      throw new ConstraintViolationException(e.getLocalizedMessage(), e);
     }
   }
 }

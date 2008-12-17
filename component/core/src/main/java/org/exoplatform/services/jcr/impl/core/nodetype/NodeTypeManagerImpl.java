@@ -203,20 +203,35 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return types;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void unregisterNodeType(String name) throws UnsupportedRepositoryOperationException,
                                              NoSuchNodeTypeException,
                                              RepositoryException {
-    // TODO Auto-generated method stub
-
+    InternalQName nodeTypeName = locationFactory.parseJCRName(name).getInternalName();
+    if (typesManager.findNodeType(nodeTypeName) == null)
+      throw new NoSuchNodeTypeException(name);
+    typesManager.unregisterNodeType(nodeTypeName);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void unregisterNodeTypes(String[] names) throws UnsupportedRepositoryOperationException,
                                                  NoSuchNodeTypeException,
                                                  RepositoryException {
-    // TODO Auto-generated method stub
+    for (int i = 0; i < names.length; i++) {
+      unregisterNodeType(names[i]);
+    }
 
   }
 
+  /**
+   * Comparator
+   * 
+   * @author sj
+   */
   private class NodeTypeDataComparator implements Comparator<NodeTypeData> {
 
     private static final int NT    = 4;
