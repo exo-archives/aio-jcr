@@ -1008,9 +1008,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     Set<InternalQName> supers = hierarchy.getSupertypes(nodeTypeName);
 
     // remove supers
-    for (InternalQName superName : supers) {
-      defsHolder.removeDefinitions(nodeTypeName, hierarchy.getNodeType(superName));
-    }
+    if (supers != null)
+      for (InternalQName superName : supers) {
+        defsHolder.removeDefinitions(nodeTypeName, hierarchy.getNodeType(superName));
+      }
     // remove it self
     defsHolder.removeDefinitions(nodeTypeName, nodeType);
   }

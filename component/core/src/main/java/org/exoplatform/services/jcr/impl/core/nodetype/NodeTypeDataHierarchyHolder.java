@@ -24,8 +24,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -34,6 +37,10 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
  * @version $Id: NodeTypesHierarchyHolder.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class NodeTypeDataHierarchyHolder {
+  /**
+   * Class logger.
+   */
+  private static final Log                         LOG = ExoLogger.getLogger(NodeTypeDataHierarchyHolder.class);
 
   private final Map<InternalQName, NodeTypeHolder> nodeTypes;
 
@@ -61,6 +68,7 @@ public class NodeTypeDataHierarchyHolder {
     // TODO Speed up this method
     Set<InternalQName> resultSet = new HashSet<InternalQName>();
     for (InternalQName ntName : nodeTypes.keySet()) {
+      LOG.info(ntName.getAsString());
       if (getSupertypes(ntName).contains(nodeTypeName)) {
         resultSet.add(ntName);
       }
