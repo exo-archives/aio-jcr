@@ -45,7 +45,7 @@ public class AsyncPacketTest extends TestCase {
     
     srcPacket.setBuffer(buf);
     srcPacket.setFileName("exo.jcr.component.ext_1.11-SNAPSHOT");
-    
+    srcPacket.setIdentifier("8bec9d407f00010101bb60adbcdef058");
     srcPacket.setOffset(245852);
     srcPacket.setTransmitterName("node_name_1");
     srcPacket.setReceiverName("node_name_2");

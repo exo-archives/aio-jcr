@@ -47,11 +47,6 @@ public class AsyncPacket implements Externalizable {
   public static final int MAX_PACKET_SIZE = 1024 * 16;
 
   /**
-   * The packet identifier.
-   */
-  private String          identifier;
-  
-  /**
    * Array of byte to binary data.
    */
   private byte[]          buffer;
@@ -70,6 +65,11 @@ public class AsyncPacket implements Externalizable {
    * Offset to large file.
    */
   private long            offset;
+  
+  /**
+   * The packet identifier.
+   */
+  private String          identifier = " ";
   
   /**
    * Transmitter name.
