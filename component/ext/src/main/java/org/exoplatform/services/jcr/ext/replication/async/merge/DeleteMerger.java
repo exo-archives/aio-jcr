@@ -18,8 +18,9 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+
+import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -32,7 +33,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
  * <br/>Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: AddMerger.java 24880 2008-12-11 11:49:03Z tolusha $
+ * @version $Id: AddMerger.java 25356 2008-12-18 09:54:16Z tolusha $
  */
 public class DeleteMerger implements ChangesMerger {
 
@@ -54,41 +55,37 @@ public class DeleteMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws RepositoryException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) throws IOException {
+                               TransactionChangesLog local) throws IOException, RepositoryException {
+
+    boolean itemChangeProcessed = false;
+
+    ItemState incomeState = itemChange;
+    List<ItemState> resultEmptyState = new ArrayList<ItemState>();
     List<ItemState> resultState = new ArrayList<ItemState>();
-    ItemData itemData = itemChange.getData();
 
     for (ItemState localState : local.getAllStates()) {
-
+      ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
 
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (itemData.isNode()
-              && (localData.getQPath().isDescendantOf(itemData.getQPath()) || localData.getQPath()
-                                                                                       .equals(itemData.getQPath()))) {
-            return resultState;
+          if (incomeData.isNode()
+              && (localData.getQPath().isDescendantOf(incomeData.getQPath()) || localData.getQPath()
+                                                                                         .equals(incomeData.getQPath()))) {
+            return resultEmptyState;
           }
           break;
         case ItemState.DELETED:
-          if (itemData.isNode() && !localData.isNode()) {
-            break;
-          } else if (itemData.getQPath().isDescendantOf(localData.getQPath())
-              || itemData.getQPath().equals(localData.getQPath())) {
-            return resultState;
-          }
           break;
         case ItemState.UPDATED:
           break;
         case ItemState.RENAMED:
-          if (itemData.getQPath().isDescendantOf(localData.getQPath())
-              || itemData.getQPath().equals(localData.getQPath())) {
-            return resultState;
-          }
           break;
         case ItemState.MIXIN_CHANGED:
           break;
@@ -96,84 +93,12 @@ public class DeleteMerger implements ChangesMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (itemData.isNode() && localData.isNode()
-              && (localData.getQPath().isDescendantOf(itemData.getQPath()))) {
-
-            // add Delete state
-            Collection<ItemState> itemsCollection = local.getDescendantsChanges(itemData.getQPath(),
-                                                                                true,
-                                                                                true);
-            ItemState itemsArray[];
-            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
-            for (int i = itemsArray.length - 1; i >= 0; i--) {
-              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
-                resultState.add(new ItemState(itemsArray[i].getData(),
-                                              ItemState.DELETED,
-                                              false,
-                                              itemsArray[i].getData().getQPath()));
-              }
-            }
-
-            // apply income changes for all subtree
-            resultState.add(itemChange);
-            resultState.addAll(income.getDescendantsChanges(itemData.getQPath(), false, false));
-            return resultState;
-          }
           break;
         case ItemState.UPDATED:
           break;
         case ItemState.DELETED:
-          if (itemData.isNode() == localData.isNode()) {
-            if (itemData.getQPath().isDescendantOf(localData.getQPath())
-                || itemData.getQPath().equals(localData.getQPath())) {
-              return resultState;
-            }
-            break;
-          } else if (itemData.isNode() && !localData.isNode()) {
-            break;
-          } else {
-            resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
-            resultState.add(itemChange);
-            return resultState;
-          }
+          break;
         case ItemState.RENAMED:
-          ItemState prevState = local.getPreviousItemState(localState);
-          // TODO if prevState is null?
-          if (itemData.isNode()) {
-            if (prevState != null && itemData.getQPath().equals(prevState.getData().getQPath())) {
-              // remove local node that was renamed
-              if (local.getLastState(prevState.getData().getQPath()) != ItemState.DELETED) {
-                resultState.add(new ItemState(prevState.getData(),
-                                              ItemState.DELETED,
-                                              false,
-                                              prevState.getData().getQPath()));
-              }
-            }
-          } else if (prevState != null
-              && itemData.getQPath().isDescendantOf(prevState.getData().getQPath())) {
-
-            // add Delete state
-            Collection<ItemState> itemsCollection = local.getDescendantsChanges(prevState.getData()
-                                                                                         .getQPath(),
-                                                                                true,
-                                                                                true);
-            ItemState itemsArray[];
-            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
-            for (int i = itemsArray.length - 1; i >= 0; i--) {
-              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
-                resultState.add(new ItemState(itemsArray[i].getData(),
-                                              ItemState.DELETED,
-                                              false,
-                                              itemsArray[i].getData().getQPath()));
-              }
-            }
-
-            // apply income changes for all subtree
-            resultState.add(itemChange);
-            resultState.addAll(exporter.exportItem(prevState.getData().getParentIdentifier())
-                                       .getAllStates());
-            return resultState;
-          }
           break;
         case ItemState.MIXIN_CHANGED:
           break;
@@ -181,8 +106,10 @@ public class DeleteMerger implements ChangesMerger {
       }
     }
 
-    // apply income changes
-    resultState.add(itemChange);
+    // apply income changes if not processed
+    if (!itemChangeProcessed) {
+      resultState.add(incomeState);
+    }
 
     return resultState;
   }

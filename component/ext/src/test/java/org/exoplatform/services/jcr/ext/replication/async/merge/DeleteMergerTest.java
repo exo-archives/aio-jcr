@@ -118,6 +118,37 @@ public class DeleteMergerTest extends BaseMergerTest {
    * 
    * Local: (high priority). Add N1/N1
    * 
+   * Remote: Del N1/p1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testRemovePropertyRemoteAddLocalLocalPriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteProperty1Change = new ItemState(remoteProperty1,
+                                                          ItemState.DELETED,
+                                                          false,
+                                                          null);
+    remoteLog.add(remoteProperty1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = deleteMerger.merge(remoteProperty1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Add state expected ", hasState(result, remoteProperty1Change, true));
+  }
+
+  /**
+   * Remove remote, Add local.
+   * 
+   * Local: (high priority). Add N1/N1
+   * 
    * Remote: Del N1/N2
    * 
    * Expect: income changes will be accepted.
@@ -248,7 +279,10 @@ public class DeleteMergerTest extends BaseMergerTest {
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
-    final ItemState remoteItem112Delete = new ItemState(remoteItem112, ItemState.DELETED, false, null);
+    final ItemState remoteItem112Delete = new ItemState(remoteItem112,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
     remoteLog.add(remoteItem112Delete);
     final ItemState remoteItem2Add = new ItemState(remoteItem2, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem2Add);
@@ -262,10 +296,10 @@ public class DeleteMergerTest extends BaseMergerTest {
     ItemState res = findStateByPath(result,
                                     QPath.makeChildPath(localItem11x2A.getQPath(),
                                                         remoteItem112Delete.getData()
-                                                                        .getQPath()
-                                                                        .getEntries()[remoteItem112Delete.getData()
-                                                                                                      .getQPath()
-                                                                                                      .getEntries().length - 1]));
+                                                                           .getQPath()
+                                                                           .getEntries()[remoteItem112Delete.getData()
+                                                                                                            .getQPath()
+                                                                                                            .getEntries().length - 1]));
 
     assertNotNull("Remote Add expected ", res);
 
