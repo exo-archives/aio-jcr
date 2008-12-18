@@ -342,6 +342,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         LOG.warn("Skipped " + nodeType.getName() + " as already registered");
         break;
       case ExtendedNodeTypeManager.REPLACE_IF_EXISTS:
+        reregisterNodeType(registeredNodeType, nodeType);
         break;
       }
       return;
@@ -382,6 +383,11 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     if (!oldNodeTypeData.getName().equals(newNodeTypeData.getName())) {
       throw new RepositoryException("Unsupported Operation");
     }
+    if (buildInNodeTypesNames.contains(newNodeTypeData.getName())) {
+      throw new RepositoryException(newNodeTypeData.getName()
+          + ": can't reregister built-in node type.");
+    }
+
     // TODO super names
     // TODO primaryItemName
     // TODO child nodes

@@ -39,9 +39,13 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
   /**
    * Class logger.
    */
-  private static final Log    LOG               = ExoLogger.getLogger(TestNodeTypeRegistration.class);
+  private static final Log    LOG                     = ExoLogger.getLogger(TestNodeTypeRegistration.class);
 
-  private NodeTypeValue       testNodeTypeValue = null;
+  private NodeTypeValue       testNodeTypeValue       = null;
+
+  private NodeTypeValue       testNodeTypeValue2      = null;
+
+  private NodeTypeValue       testNtFileNodeTypeValue = null;
 
   private NodeTypeManagerImpl nodeTypeManager;
 
@@ -57,6 +61,22 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNodeTypeValue.setName("exo:testRegistrationNodeType");
     testNodeTypeValue.setPrimaryItemName("");
     testNodeTypeValue.setDeclaredSupertypeNames(superType);
+
+    testNodeTypeValue2 = new NodeTypeValue();
+    List<String> superType2 = new ArrayList<String>();
+    superType2.add("nt:base");
+    superType2.add(testNodeTypeValue.getName());
+    testNodeTypeValue2.setName("exo:testRegistrationNodeType2");
+    testNodeTypeValue2.setPrimaryItemName("");
+    testNodeTypeValue2.setDeclaredSupertypeNames(superType2);
+
+    testNtFileNodeTypeValue = new NodeTypeValue();
+    List<String> superType3 = new ArrayList<String>();
+    superType3.add("nt:base");
+    testNtFileNodeTypeValue.setName("nt:file");
+    testNtFileNodeTypeValue.setPrimaryItemName("");
+    testNtFileNodeTypeValue.setDeclaredSupertypeNames(superType3);
+
   }
 
   @Override
@@ -83,6 +103,25 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     }
   }
 
+  public void testRemoveSuperNodeType() throws RepositoryException {
+    nodeTypeManager.registerNodeType(testNodeTypeValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    nodeTypeManager.registerNodeType(testNodeTypeValue2, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    try {
+      nodeTypeManager.unregisterNodeType(testNodeTypeValue.getName());
+      fail();
+    } catch (RepositoryException e) {
+      // ok
+    }
+    nodeTypeManager.unregisterNodeType(testNodeTypeValue2.getName());
+    nodeTypeManager.unregisterNodeType(testNodeTypeValue.getName());
+  }
+
+  @Override
+  protected void tearDown() throws Exception {
+    super.tearDown();
+
+  }
+
   public void testRemoveNodeTypeExistedNode() throws Exception {
     nodeTypeManager.registerNodeType(testNodeTypeValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
     Node testNode = root.addNode("test", testNodeTypeValue.getName());
@@ -94,6 +133,19 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     } catch (RepositoryException e) {
       // ok
     }
-
+    testNode.remove();
+    session.save();
+    nodeTypeManager.unregisterNodeType(testNodeTypeValue.getName());
   }
+
+  public void testReregisterBuildInNodeType() throws Exception {
+    try {
+      nodeTypeManager.registerNodeType(testNtFileNodeTypeValue,
+                                       ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+      // ok
+    }
+  }
+
 }
