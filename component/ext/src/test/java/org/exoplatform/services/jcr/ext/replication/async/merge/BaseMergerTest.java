@@ -25,7 +25,6 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -35,8 +34,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
-
-import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 /**
  * Created by The eXo Platform SAS.
@@ -79,9 +76,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected NodeData                remoteItem21x21;
 
   protected NodeData                remoteItem21x22;
-  
+
   protected NodeData                remoteItem212;
-  
+
   protected NodeData                remoteItem2121;
 
   // local
@@ -89,6 +86,8 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected NodeData                localItem1;
 
   protected NodeData                localItem2;
+
+  protected NodeData                localItem21;
 
   protected NodeData                localItem21x2B;
 
@@ -183,6 +182,17 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                        1,
                                        Constants.ROOT_UUID,
                                        new AccessControlList());
+
+    // create /testItem2/item21
+    localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                            new InternalQName(null, "item21")),
+                                        IdGenerator.generate(),
+                                        0,
+                                        EXO_TEST_UNSTRUCTURED_NOSNS,
+                                        new InternalQName[0],
+                                        1,
+                                        localItem2.getIdentifier(),
+                                        new AccessControlList());
 
     // create /testItem3
     final String testItem3 = "testItem3";
@@ -394,28 +404,26 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                             0,
                                             localItem21x2B.getIdentifier(),
                                             new AccessControlList());
-    
+
     remoteItem212 = new TransientNodeData(QPath.makeChildPath(remoteItem21.getQPath(),
-                                                                             new InternalQName(null,
-                                                                                               "item212")),
-                                                         IdGenerator.generate(),
-                                                         0,
-                                                         Constants.NT_UNSTRUCTURED,
-                                                         new InternalQName[0],
-                                                         0,
-                                                         localItem21x2A.getIdentifier(),
-                                                         new AccessControlList());
+                                                              new InternalQName(null, "item212")),
+                                          IdGenerator.generate(),
+                                          0,
+                                          Constants.NT_UNSTRUCTURED,
+                                          new InternalQName[0],
+                                          0,
+                                          localItem21x2A.getIdentifier(),
+                                          new AccessControlList());
 
     remoteItem2121 = new TransientNodeData(QPath.makeChildPath(remoteItem212.getQPath(),
-                                                                              new InternalQName(null,
-                                                                                                "item2121")),
-                                                          IdGenerator.generate(),
-                                                          0,
-                                                          Constants.NT_UNSTRUCTURED,
-                                                          new InternalQName[0],
-                                                          0,
-                                                          remoteItem212.getIdentifier(),
-                                                          new AccessControlList());
+                                                               new InternalQName(null, "item2121")),
+                                           IdGenerator.generate(),
+                                           0,
+                                           Constants.NT_UNSTRUCTURED,
+                                           new InternalQName[0],
+                                           0,
+                                           remoteItem212.getIdentifier(),
+                                           new AccessControlList());
 
     // logs
     local = new TransactionChangesLog();

@@ -164,7 +164,7 @@ public class AddMerger implements ChangesMerger {
             break;
           }
 
-          // Simple DELETE
+          // DELETE
           if (localData.isNode()) {
             if ((incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
                                                                                          .equals(localData.getQPath()))) {

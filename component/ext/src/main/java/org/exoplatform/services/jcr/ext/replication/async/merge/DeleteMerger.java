@@ -82,25 +82,59 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
+          ItemState nextState = local.getNextItemState(localState);
+
+          // UPDATE sequences
+          if (nextState != null && nextState.getState() == ItemState.UPDATED) {
+            // TODO
+            break;
+          }
+
+          // RENAMED sequences
+          if (nextState != null && nextState.getState() == ItemState.RENAMED) {
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                || incomeData.getQPath().equals(localData.getQPath())
+                || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
+                || incomeData.getQPath().equals(nextState.getData().getQPath())) {
+              return resultEmptyState;
+            }
+            break;
+          }
+
+          // DELETE
+          if (incomeData.isNode() && !localData.isNode()) {
+            break;
+          } else if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+              || incomeData.getQPath().equals(localData.getQPath())) {
+            return resultEmptyState;
+          }
           break;
         case ItemState.UPDATED:
+          // TODO
           break;
         case ItemState.RENAMED:
+          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
+          // TODO
           break;
         }
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
+          // TODO
           break;
         case ItemState.UPDATED:
+          // TODO
           break;
         case ItemState.DELETED:
+          // TODO
           break;
         case ItemState.RENAMED:
+          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
+          // TODO
           break;
         }
       }
