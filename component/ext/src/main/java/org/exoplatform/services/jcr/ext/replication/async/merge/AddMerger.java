@@ -283,10 +283,13 @@ public class AddMerger implements ChangesMerger {
           // RENAMED sequences
           if (nextState != null && nextState.getState() == ItemState.RENAMED) {
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                || incomeData.getQPath().equals(localData.getQPath())) {
+                || incomeData.getQPath().equals(localData.getQPath())
+                || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
+                || incomeData.getQPath().equals(nextState.getData().getQPath())) {
 
               // add DELETE state
-              Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
+              Collection<ItemState> itemsCollection = local.getDescendantsChanges(nextState.getData()
+                                                                                           .getQPath(),
                                                                                   true,
                                                                                   true);
               ItemState itemsArray[];
@@ -299,15 +302,15 @@ public class AddMerger implements ChangesMerger {
                                                 itemsArray[i].getData().getQPath()));
                 }
               }
-              if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
-                resultState.add(new ItemState(localData,
+              if (local.getLastState(nextState.getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(nextState.getData(),
                                               ItemState.DELETED,
                                               false,
                                               localData.getQPath()));
               }
 
-              resultState.addAll(exporter.exportItem(localData.getParentIdentifier())
-                                         .getAllStates());
+              resultState.add(incomeState);
+              resultState.addAll(income.getDescendantsChanges(incomeData.getQPath(), false, false));
               itemChangeProcessed = true;
             }
             break;
