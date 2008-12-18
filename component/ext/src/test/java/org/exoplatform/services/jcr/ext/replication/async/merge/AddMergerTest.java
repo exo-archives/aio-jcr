@@ -25,11 +25,13 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -1818,8 +1820,6 @@ public class AddMergerTest extends BaseMergerTest {
 
     final ItemState localItem1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
     localLog.add(localItem1Change);
-    final ItemState localItem11Change = new ItemState(localProperty2, ItemState.ADDED, false, null);
-    localLog.add(localItem11Change);
     local.addLog(localLog);
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();
@@ -1846,4 +1846,91 @@ public class AddMergerTest extends BaseMergerTest {
 
   // ================= Add Property when Node with same name exists ==================
 
+  public void testAddPropertySameNodeLocalPriority() throws Exception {
+
+    ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                     new InternalQName(null,
+                                                                                       "testProperty1")),
+                                                 IdGenerator.generate(),
+                                                 0,
+                                                 EXO_TEST_UNSTRUCTURED_NOSNS,
+                                                 new InternalQName[0],
+                                                 0,
+                                                 localItem1.getIdentifier(),
+                                                 new AccessControlList());
+
+    // remote property (as prop of local item 1)
+    ItemData remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "testProperty1")),
+                                                         IdGenerator.generate(),
+                                                         0,
+                                                         PropertyType.LONG,
+                                                         localItem1.getIdentifier(),
+                                                         false);
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem1Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    ItemState remoteProperty1Change = new ItemState(remoteProperty1, ItemState.ADDED, false, null);
+    remoteLog.add(remoteProperty1Change);
+
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  public void testAddPropertySameNodeRemotePriority() throws Exception {
+
+    ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                     new InternalQName(null,
+                                                                                       "testProperty1")),
+                                                 IdGenerator.generate(),
+                                                 0,
+                                                 EXO_TEST_UNSTRUCTURED_NOSNS,
+                                                 new InternalQName[0],
+                                                 0,
+                                                 localItem1.getIdentifier(),
+                                                 new AccessControlList());
+
+    // remote property (as prop of local item 1)
+    ItemData remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "testProperty1")),
+                                                         IdGenerator.generate(),
+                                                         0,
+                                                         PropertyType.LONG,
+                                                         localItem1.getIdentifier(),
+                                                         false);
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem1Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    ItemState remoteProperty1Change = new ItemState(remoteProperty1, ItemState.ADDED, false, null);
+    remoteLog.add(remoteProperty1Change);
+
+    income.addLog(remoteLog);
+
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter());
+    List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 2);
+
+    assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem11,
+                                                                              ItemState.DELETED,
+                                                                              false,
+                                                                              null), true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteProperty1Change, true));
+  }
 }
