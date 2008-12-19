@@ -24,7 +24,13 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
+import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
@@ -86,7 +92,66 @@ public class DeleteMerger implements ChangesMerger {
 
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
-            // TODO
+
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                || incomeData.getQPath().equals(localData.getQPath())) {
+
+              int relativeDegree = incomeState.getData().getQPath().getEntries().length
+                  - localData.getQPath().getEntries().length - 1;
+
+              // find state with parent node that is child of UPDATED node
+              ItemState parentState = relativeDegree > 0
+                  ? income.getPreviousItemStateByQPath(incomeState,
+                                                       incomeState.getData()
+                                                                  .getQPath()
+                                                                  .makeAncestorPath(relativeDegree))
+                  : null;
+
+              // find new path of UPDATED node
+              QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                                      parentState != null
+                                                                          ? parentState.getData()
+                                                                                       .getParentIdentifier()
+                                                                          : incomeData.getParentIdentifier());
+
+              // set new QPath
+              QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
+              System.arraycopy(parentPath.getEntries(), 0, names, 0, parentPath.getEntries().length);
+              System.arraycopy(incomeData.getQPath().getEntries(),
+                               localData.getQPath().getEntries().length,
+                               names,
+                               localData.getQPath().getEntries().length,
+                               incomeData.getQPath().getEntries().length
+                                   - localData.getQPath().getEntries().length);
+
+              // set new ItemData
+              if (incomeData.isNode()) {
+                NodeData node = (NodeData) incomeData;
+                PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
+                                                               new QPath(names),
+                                                               node.getParentIdentifier(),
+                                                               node.getPersistedVersion(),
+                                                               node.getOrderNumber(),
+                                                               node.getPrimaryTypeName(),
+                                                               node.getMixinTypeNames(),
+                                                               node.getACL());
+                incomeState = new ItemState(item, ItemState.DELETED, false, new QPath(names));
+                resultState.add(incomeState);
+              } else {
+                PropertyData prop = (PropertyData) incomeData;
+                PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
+                                                                       new QPath(names),
+                                                                       prop.getParentIdentifier(),
+                                                                       prop.getPersistedVersion(),
+                                                                       prop.getType(),
+                                                                       prop.isMultiValued());
+                item.setValues(prop.getValues());
+
+                incomeState = new ItemState(item, ItemState.DELETED, false, new QPath(names));
+                resultState.add(incomeState);
+              }
+              itemChangeProcessed = true;
+            }
             break;
           }
 
@@ -110,13 +175,10 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
-          // TODO
           break;
         case ItemState.RENAMED:
-          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       } else { // remote priority

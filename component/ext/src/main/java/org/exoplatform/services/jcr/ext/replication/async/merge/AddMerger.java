@@ -109,16 +109,18 @@ public class AddMerger implements ChangesMerger {
             // if item added to updated item
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
-              ItemState parentState = income.getPreviousItemStateByQPath(incomeState,
-                                                                         incomeState.getData()
-                                                                                    .getQPath()
-                                                                                    .makeAncestorPath(incomeState.getData()
-                                                                                                                 .getQPath()
-                                                                                                                 .getEntries().length
-                                                                                        - localData.getQPath()
-                                                                                                   .getEntries().length
-                                                                                        - 1));
+              int relativeDegree = incomeState.getData().getQPath().getEntries().length
+                  - localData.getQPath().getEntries().length - 1;
 
+              // find state with parent node that is child of UPDATED node
+              ItemState parentState = relativeDegree > 0
+                  ? income.getPreviousItemStateByQPath(incomeState,
+                                                       incomeState.getData()
+                                                                  .getQPath()
+                                                                  .makeAncestorPath(relativeDegree))
+                  : null;
+
+              // find new path of UPDATED node
               QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       parentState != null
                                                                           ? parentState.getData()

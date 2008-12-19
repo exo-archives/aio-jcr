@@ -467,4 +467,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
     return false;
   }
+
+  public void test() {
+  }
 }
