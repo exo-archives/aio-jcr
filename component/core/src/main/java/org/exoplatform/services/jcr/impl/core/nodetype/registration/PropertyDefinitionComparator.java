@@ -85,17 +85,16 @@ public class PropertyDefinitionComparator {
          newDefinitionData,
          removedDefinitionData);
 
-    List<PropertyDefinitionData> toAddList = new ArrayList<PropertyDefinitionData>();
-    List<PropertyDefinitionData> toRemoveList = new ArrayList<PropertyDefinitionData>();
-
     // create changes log
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
     // DataManager dm = persister.getDataManager();
     // removing properties
-    validateRemoved(registeredNodeType, toRemoveList);
+    validateRemoved(registeredNodeType, removedDefinitionData);
 
     // new property definition
+    List<PropertyDefinitionData> toAddList = new ArrayList<PropertyDefinitionData>();
+
     validateAdded(newDefinitionData, removedDefinitionData, toAddList);
 
     Set<String> nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
@@ -202,9 +201,7 @@ public class PropertyDefinitionComparator {
         }
       }
       // ValueConstraints
-
       // multiple change
-
     }
   }
 
@@ -274,8 +271,8 @@ public class PropertyDefinitionComparator {
    * @throws RepositoryException
    */
   private void validateRemoved(NodeTypeData registeredNodeType,
-                               List<PropertyDefinitionData> toRemoveList) throws RepositoryException {
-    for (PropertyDefinitionData removePropertyDefinitionData : toRemoveList) {
+                               List<PropertyDefinitionData> removedDefinitionData) throws RepositoryException {
+    for (PropertyDefinitionData removePropertyDefinitionData : removedDefinitionData) {
       Set<String> nodes;
       if (removePropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
         nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
@@ -283,10 +280,15 @@ public class PropertyDefinitionComparator {
           NodeData nodeData = (NodeData) persister.getItemData(uuid);
           List<PropertyData> childs = persister.getChildPropertiesData(nodeData);
           // more then mixin and primary type
-          if (childs.size() > 2) {
-            throw new RepositoryException("Can't remove residual property definition for "
-                + registeredNodeType.getName().getAsString() + " node type, because node "
-                + nodeData.getQPath().getAsString() + " contains more then 2 properties");
+          // TODO it could be possible, check add definitions
+          for (PropertyData propertyData : childs) {
+            if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
+                && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
+              throw new RepositoryException("Can't remove residual property definition for "
+                  + registeredNodeType.getName().getAsString() + " node type, because node "
+                  + nodeData.getQPath().getAsString() + " contains property "
+                  + propertyData.getQPath().getName().getAsString());
+            }
           }
         }
       } else

@@ -25,6 +25,8 @@ import javax.jcr.ReferentialIntegrityException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -35,16 +37,18 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
 
 /**
  * Created by The eXo Platform SAS 15.12.2006
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ItemDataRemoveVisitor.java 14100 2008-05-12 10:53:47Z gazarenkov $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: ItemDataRemoveVisitor.java 14100 2008-05-12 10:53:47Z
+ *          gazarenkov $
  */
 public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
 
@@ -209,10 +213,14 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     if (validate) {
       validate(property);
     }
-
-    ItemState state = new ItemState(property, ItemState.DELETED, true, ancestorToSave != null
-        ? ancestorToSave
-        : removedRoot.getQPath());
+    if (!(property instanceof TransientItemData)) {
+      property = (PropertyData) copyItemData(property);
+    }
+    ItemState state = new ItemState(property,
+                                    ItemState.DELETED,
+                                    true,
+                                    ancestorToSave != null ? ancestorToSave
+                                                          : removedRoot.getQPath());
 
     if (!itemRemovedStates.contains(state))
       itemRemovedStates.add(state);
@@ -234,10 +242,14 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
     if (validate) {
       validate(node);
     }
-
-    ItemState state = new ItemState(node, ItemState.DELETED, true, ancestorToSave != null
-        ? ancestorToSave
-        : removedRoot.getQPath());
+    if (!(node instanceof TransientItemData)) {
+      node = (NodeData) copyItemData(node);
+    }
+    ItemState state = new ItemState(node,
+                                    ItemState.DELETED,
+                                    true,
+                                    ancestorToSave != null ? ancestorToSave
+                                                          : removedRoot.getQPath());
     itemRemovedStates.add(state);
   }
 
@@ -255,5 +267,53 @@ public class ItemDataRemoveVisitor extends ItemDataTraversingVisitor {
       reversedItemRemovedStates = itemRemovedStates;
     }
     return reversedItemRemovedStates;
+  }
+
+  private TransientItemData copyItemData(final ItemData item) throws RepositoryException {
+
+    if (item == null)
+      return null;
+
+    // make a copy
+    if (item.isNode()) {
+
+      final NodeData node = (NodeData) item;
+
+      // the node ACL can't be are null as ACL manager does care about this
+      final AccessControlList acl = node.getACL();
+      if (acl == null) {
+        throw new RepositoryException("Node ACL is null. " + node.getQPath().getAsString() + " "
+            + node.getIdentifier());
+      }
+      return new TransientNodeData(node.getQPath(),
+                                   node.getIdentifier(),
+                                   node.getPersistedVersion(),
+                                   node.getPrimaryTypeName(),
+                                   node.getMixinTypeNames(),
+                                   node.getOrderNumber(),
+                                   node.getParentIdentifier(),
+                                   acl);
+    }
+
+    // else - property
+    final PropertyData prop = (PropertyData) item;
+    // make a copy
+    TransientPropertyData newData = new TransientPropertyData(prop.getQPath(),
+                                                              prop.getIdentifier(),
+                                                              prop.getPersistedVersion(),
+                                                              prop.getType(),
+                                                              prop.getParentIdentifier(),
+                                                              prop.isMultiValued());
+
+    List<ValueData> values = null;
+    // null is possible for deleting items
+    if (prop.getValues() != null) {
+      values = new ArrayList<ValueData>();
+      for (ValueData val : prop.getValues()) {
+        values.add(((AbstractValueData) val).createTransientCopy());
+      }
+    }
+    newData.setValues(values);
+    return newData;
   }
 }

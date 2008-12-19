@@ -19,7 +19,8 @@ package org.exoplatform.services.jcr.core.nodetype;
 /**
  * Created by The eXo Platform SAS.<br/> ItemDefinition value object.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id: ItemDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
@@ -39,6 +40,26 @@ public abstract class ItemDefinitionValue {
   }
 
   /**
+   * @param autoCreate
+   * @param mandatory
+   * @param name
+   * @param onVersion
+   * @param readOnly
+   */
+  public ItemDefinitionValue(String name,
+                             boolean autoCreate,
+                             boolean mandatory,
+                             int onVersion,
+                             boolean readOnly) {
+    super();
+    this.autoCreate = autoCreate;
+    this.mandatory = mandatory;
+    this.name = name;
+    this.onVersion = onVersion;
+    this.readOnly = readOnly;
+  }
+
+  /**
    * @return Returns the autoCreate.
    */
   public boolean isAutoCreate() {
@@ -46,8 +67,7 @@ public abstract class ItemDefinitionValue {
   }
 
   /**
-   * @param autoCreate
-   *          The autoCreate to set.
+   * @param autoCreate The autoCreate to set.
    */
   public void setAutoCreate(boolean autoCreate) {
     this.autoCreate = autoCreate;
@@ -61,8 +81,7 @@ public abstract class ItemDefinitionValue {
   }
 
   /**
-   * @param mandatory
-   *          The mandatory to set.
+   * @param mandatory The mandatory to set.
    */
   public void setMandatory(boolean mandatory) {
     this.mandatory = mandatory;
@@ -76,8 +95,7 @@ public abstract class ItemDefinitionValue {
   }
 
   /**
-   * @param name
-   *          The name to set.
+   * @param name The name to set.
    */
   public void setName(String name) {
     this.name = name;
@@ -91,8 +109,7 @@ public abstract class ItemDefinitionValue {
   }
 
   /**
-   * @param onVersion
-   *          The onVersion to set.
+   * @param onVersion The onVersion to set.
    */
   public void setOnVersion(int onVersion) {
     this.onVersion = onVersion;
@@ -106,8 +123,7 @@ public abstract class ItemDefinitionValue {
   }
 
   /**
-   * @param readOnly
-   *          The readOnly to set.
+   * @param readOnly The readOnly to set.
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;

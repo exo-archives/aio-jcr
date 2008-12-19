@@ -68,7 +68,6 @@ public class NodeTypeDataHierarchyHolder {
     // TODO Speed up this method
     Set<InternalQName> resultSet = new HashSet<InternalQName>();
     for (InternalQName ntName : nodeTypes.keySet()) {
-      LOG.info(ntName.getAsString());
       if (getSupertypes(ntName).contains(nodeTypeName)) {
         resultSet.add(ntName);
       }

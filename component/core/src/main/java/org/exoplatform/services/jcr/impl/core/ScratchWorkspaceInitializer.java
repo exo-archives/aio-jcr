@@ -368,9 +368,11 @@ public class ScratchWorkspaceInitializer implements WorkspaceInitializer {
     dataManager.save(new TransactionChangesLog(changesLog));
 
     nsPersister.initStorage(jcrSystem, addACL, NamespaceRegistryImpl.DEF_NAMESPACES);
-
-    ntPersister.initNodetypesRoot(jcrSystem, addACL);
-    ntPersister.initStorage(nodeTypeDataManager.getAllNodeTypes());
+    // nodeTypes save
+    changesLog = new PlainChangesLogImpl();
+    changesLog.addAll(ntPersister.initNodetypesRoot(jcrSystem, addACL).getAllStates());
+    changesLog.addAll(ntPersister.initStorage(nodeTypeDataManager.getAllNodeTypes()).getAllStates());
+    ntPersister.saveChanges(changesLog);
 
     return jcrSystem;
   }

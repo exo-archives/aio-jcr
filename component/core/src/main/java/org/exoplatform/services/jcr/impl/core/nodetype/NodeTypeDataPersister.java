@@ -41,13 +41,13 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.ItemDataRemoveVisitor;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -69,13 +69,13 @@ public class NodeTypeDataPersister {
 
   private DataManager     dataManager;
 
-  private PlainChangesLog changesLog;
+  // private PlainChangesLog changesLog;
 
   private NodeData        ntRoot;
 
   public NodeTypeDataPersister(DataManager dataManager) {
     this.dataManager = dataManager;
-    this.changesLog = new PlainChangesLogImpl();
+    // this.changesLog = new PlainChangesLogImpl();
     try {
       NodeData jcrSystem = (NodeData) dataManager.getItemData(Constants.SYSTEM_UUID);
       if (jcrSystem != null)
@@ -86,137 +86,10 @@ public class NodeTypeDataPersister {
     }
   }
 
-  DataManager getDataManager() {
-    return dataManager;
-  }
-
-  boolean isInitialized() {
-    return ntRoot != null;
-  }
-
-  void saveChanges() throws RepositoryException, InvalidItemStateException {
-    dataManager.save(new TransactionChangesLog(changesLog));
-    changesLog.clear();
-  }
-
-  void saveChanges(PlainChangesLog changesLog) throws RepositoryException,
-                                              InvalidItemStateException {
-    dataManager.save(changesLog);
-  }
-
-  public synchronized void initNodetypesRoot(NodeData nsSystem, boolean addACL) {
-
-    if (ntRoot == null) {
-      long start = System.currentTimeMillis();
-
-      TransientNodeData jcrNodetypes = TransientNodeData.createNodeData(nsSystem,
-                                                                        Constants.JCR_NODETYPES,
-                                                                        Constants.NT_UNSTRUCTURED,
-                                                                        Constants.NODETYPESROOT_UUID);
-
-      TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrNodetypes,
-                                                                                   Constants.JCR_PRIMARYTYPE,
-                                                                                   PropertyType.NAME,
-                                                                                   false);
-      primaryType.setValue(new TransientValueData(jcrNodetypes.getPrimaryTypeName()));
-
-      changesLog.add(ItemState.createAddedState(jcrNodetypes))
-                .add(ItemState.createAddedState(primaryType));
-
-      if (addACL) {
-        AccessControlList acl = new AccessControlList();
-        InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE,
-            Constants.EXO_PRIVILEGEABLE };
-        jcrNodetypes.setMixinTypeNames(mixins);
-
-        // jcr:mixinTypes
-        List<ValueData> mixValues = new ArrayList<ValueData>();
-        for (InternalQName mixin : mixins) {
-          mixValues.add(new TransientValueData(mixin));
-        }
-        TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(jcrNodetypes,
-                                                                                       Constants.JCR_MIXINTYPES,
-                                                                                       PropertyType.NAME,
-                                                                                       true,
-                                                                                       mixValues);
-
-        TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(jcrNodetypes,
-                                                                                  Constants.EXO_OWNER,
-                                                                                  PropertyType.STRING,
-                                                                                  false,
-                                                                                  new TransientValueData(acl.getOwner()));
-
-        List<ValueData> permsValues = new ArrayList<ValueData>();
-        for (int i = 0; i < acl.getPermissionEntries().size(); i++) {
-          AccessControlEntry entry = acl.getPermissionEntries().get(i);
-          permsValues.add(new TransientValueData(entry));
-        }
-        TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(jcrNodetypes,
-                                                                                  Constants.EXO_PERMISSIONS,
-                                                                                  ExtendedPropertyType.PERMISSION,
-                                                                                  true,
-                                                                                  permsValues);
-
-        changesLog.add(ItemState.createAddedState(exoMixinTypes))
-                  .add(ItemState.createAddedState(exoOwner))
-                  .add(ItemState.createAddedState(exoPerms));
-        changesLog.add(new ItemState(jcrNodetypes, ItemState.MIXIN_CHANGED, false, null));
-      }
-
-      ntRoot = jcrNodetypes;
-      if (LOG.isDebugEnabled())
-        LOG.debug("/jcr:system/jcr:nodetypes is created, creation time: "
-            + (System.currentTimeMillis() - start) + " ms");
-    } else {
-      LOG.warn("/jcr:system/jcr:nodetypes already exists");
-    }
-  }
-
-  public synchronized void initStorage(Collection<NodeTypeData> nodetypes) throws PathNotFoundException,
-                                                                          RepositoryException {
-
-    if (!isInitialized()) {
-      LOG.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not exists. Possible is not initialized (call initNodetypesRoot() before)");
-      return;
-    }
-    long ntStart = System.currentTimeMillis();
-    for (NodeTypeData nt : nodetypes) {
-      try {
-        addNodeType(nt);
-        if (LOG.isDebugEnabled())
-          LOG.debug("Node type " + nt.getName() + " is initialized. ");
-      } catch (ItemExistsException e) {
-        LOG.warn("Node exists " + nt.getName() + ". Error: " + e.getMessage());
-      }
-    }
-    saveChanges();
-    LOG.info("Node types initialized. Time: " + (System.currentTimeMillis() - ntStart) + " ms");
-
-  }
-
-  public boolean hasNodeTypeData(InternalQName nodeTypeName) throws RepositoryException {
-    try {
-      return getNodeTypesData(nodeTypeName).size() > 0;
-    } catch (PathNotFoundException e) {
-      return false;
-    }
-  }
-
-  private List<NodeDataReader2> getNodeTypesData(InternalQName nodeTypeName) throws RepositoryException {
-
-    NodeDataReader2 ntReader = new NodeDataReader2(ntRoot, dataManager);
-    ntReader.forNode(nodeTypeName);
-    ntReader.read();
-
-    ntReader.getNodes(nodeTypeName);
-
-    return ntReader.getNodes(nodeTypeName);
-  }
-
-  public NodeData addNodeType(NodeTypeData nodeType) throws PathNotFoundException,
-                                                    RepositoryException,
-                                                    ValueFormatException {
-
+  public PlainChangesLog addNodeType(NodeTypeData nodeType) throws PathNotFoundException,
+                                                           RepositoryException,
+                                                           ValueFormatException {
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
     if (!isInitialized()) {
       LOG.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not initialized.");
       return null;
@@ -322,170 +195,112 @@ public class NodeTypeDataPersister {
       }
     }
 
-    return ntNode;
+    return changesLog;
   }
 
-  private void initPropertyDefProps(NodeData parent, PropertyDefinitionData def) throws ValueFormatException,
-                                                                                RepositoryException {
-
-    if (def.getName() != null) {
-      TransientPropertyData name = TransientPropertyData.createPropertyData(parent,
-                                                                            Constants.JCR_NAME,
-                                                                            PropertyType.NAME,
-                                                                            false);
-      name.setValue(new TransientValueData(def.getName()));
-      changesLog.add(ItemState.createAddedState(name));
+  public boolean hasNodeTypeData(InternalQName nodeTypeName) throws RepositoryException {
+    try {
+      return getNodeTypesData(nodeTypeName).size() > 0;
+    } catch (PathNotFoundException e) {
+      return false;
     }
+  }
 
-    TransientPropertyData autoCreated = TransientPropertyData.createPropertyData(parent,
-                                                                                 Constants.JCR_AUTOCREATED,
-                                                                                 PropertyType.BOOLEAN,
-                                                                                 false);
-    autoCreated.setValue(new TransientValueData(def.isAutoCreated()));
+  // void saveChanges() throws RepositoryException, InvalidItemStateException {
+  // dataManager.save(new TransactionChangesLog(changesLog));
+  // changesLog.clear();
+  // }
 
-    TransientPropertyData isMandatory = TransientPropertyData.createPropertyData(parent,
-                                                                                 Constants.JCR_MANDATORY,
-                                                                                 PropertyType.BOOLEAN,
-                                                                                 false);
-    isMandatory.setValue(new TransientValueData(def.isMandatory()));
+  public synchronized PlainChangesLog initNodetypesRoot(NodeData nsSystem, boolean addACL) {
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    if (ntRoot == null) {
 
-    TransientPropertyData onParentVersion = TransientPropertyData.createPropertyData(parent,
-                                                                                     Constants.JCR_ONPARENTVERSION,
-                                                                                     PropertyType.STRING,
-                                                                                     false);
-    onParentVersion.setValue(new TransientValueData(OnParentVersionAction.nameFromValue(def.getOnParentVersion())));
+      long start = System.currentTimeMillis();
 
-    TransientPropertyData isProtected = TransientPropertyData.createPropertyData(parent,
-                                                                                 Constants.JCR_PROTECTED,
-                                                                                 PropertyType.BOOLEAN,
-                                                                                 false);
-    isProtected.setValue(new TransientValueData(def.isProtected()));
+      TransientNodeData jcrNodetypes = TransientNodeData.createNodeData(nsSystem,
+                                                                        Constants.JCR_NODETYPES,
+                                                                        Constants.NT_UNSTRUCTURED,
+                                                                        Constants.NODETYPESROOT_UUID);
 
-    TransientPropertyData requiredType = TransientPropertyData.createPropertyData(parent,
-                                                                                  Constants.JCR_REQUIREDTYPE,
+      TransientPropertyData primaryType = TransientPropertyData.createPropertyData(jcrNodetypes,
+                                                                                   Constants.JCR_PRIMARYTYPE,
+                                                                                   PropertyType.NAME,
+                                                                                   false);
+      primaryType.setValue(new TransientValueData(jcrNodetypes.getPrimaryTypeName()));
+
+      changesLog.add(ItemState.createAddedState(jcrNodetypes))
+                .add(ItemState.createAddedState(primaryType));
+
+      if (addACL) {
+        AccessControlList acl = new AccessControlList();
+        InternalQName[] mixins = new InternalQName[] { Constants.EXO_OWNEABLE,
+            Constants.EXO_PRIVILEGEABLE };
+        jcrNodetypes.setMixinTypeNames(mixins);
+
+        // jcr:mixinTypes
+        List<ValueData> mixValues = new ArrayList<ValueData>();
+        for (InternalQName mixin : mixins) {
+          mixValues.add(new TransientValueData(mixin));
+        }
+        TransientPropertyData exoMixinTypes = TransientPropertyData.createPropertyData(jcrNodetypes,
+                                                                                       Constants.JCR_MIXINTYPES,
+                                                                                       PropertyType.NAME,
+                                                                                       true,
+                                                                                       mixValues);
+
+        TransientPropertyData exoOwner = TransientPropertyData.createPropertyData(jcrNodetypes,
+                                                                                  Constants.EXO_OWNER,
                                                                                   PropertyType.STRING,
-                                                                                  false);
-    requiredType.setValue(new TransientValueData(ExtendedPropertyType.nameFromValue(def.getRequiredType())));
+                                                                                  false,
+                                                                                  new TransientValueData(acl.getOwner()));
 
-    TransientPropertyData isMultiple = TransientPropertyData.createPropertyData(parent,
-                                                                                Constants.JCR_MULTIPLE,
-                                                                                PropertyType.BOOLEAN,
-                                                                                false);
-    isMultiple.setValue(new TransientValueData(def.isMultiple()));
+        List<ValueData> permsValues = new ArrayList<ValueData>();
+        for (int i = 0; i < acl.getPermissionEntries().size(); i++) {
+          AccessControlEntry entry = acl.getPermissionEntries().get(i);
+          permsValues.add(new TransientValueData(entry));
+        }
+        TransientPropertyData exoPerms = TransientPropertyData.createPropertyData(jcrNodetypes,
+                                                                                  Constants.EXO_PERMISSIONS,
+                                                                                  ExtendedPropertyType.PERMISSION,
+                                                                                  true,
+                                                                                  permsValues);
 
-    changesLog.add(ItemState.createAddedState(autoCreated))
-              .add(ItemState.createAddedState(isMandatory))
-              .add(ItemState.createAddedState(onParentVersion))
-              .add(ItemState.createAddedState(isProtected))
-              .add(ItemState.createAddedState(requiredType))
-              .add(ItemState.createAddedState(isMultiple));
-
-    if (def.getValueConstraints() != null && def.getValueConstraints().length != 0) {
-      List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
-      for (String vc : def.getValueConstraints())
-        valueConstraintsValues.add(new TransientValueData(vc));
-
-      TransientPropertyData valueConstraints = TransientPropertyData.createPropertyData(parent,
-                                                                                        Constants.JCR_VALUECONSTRAINTS,
-                                                                                        PropertyType.STRING,
-                                                                                        true);
-      valueConstraints.setValues(valueConstraintsValues);
-      changesLog.add(ItemState.createAddedState(valueConstraints));
-    }
-
-    if (def.getDefaultValues() != null && def.getDefaultValues().length != 0) {
-      List<ValueData> defaultValuesValues = new ArrayList<ValueData>();
-      for (String dv : def.getDefaultValues()) {
-        if (dv != null) // TODO dv can be null?
-          defaultValuesValues.add(new TransientValueData(dv));
+        changesLog.add(ItemState.createAddedState(exoMixinTypes))
+                  .add(ItemState.createAddedState(exoOwner))
+                  .add(ItemState.createAddedState(exoPerms));
+        changesLog.add(new ItemState(jcrNodetypes, ItemState.MIXIN_CHANGED, false, null));
       }
-      TransientPropertyData defaultValues = TransientPropertyData.createPropertyData(parent,
-                                                                                     Constants.JCR_DEFAULTVALUES,
-                                                                                     PropertyType.STRING,
-                                                                                     true);
-      defaultValues.setValues(defaultValuesValues);
-      changesLog.add(ItemState.createAddedState(defaultValues));
+
+      ntRoot = jcrNodetypes;
+      if (LOG.isDebugEnabled())
+        LOG.debug("/jcr:system/jcr:nodetypes is created, creation time: "
+            + (System.currentTimeMillis() - start) + " ms");
+    } else {
+      LOG.warn("/jcr:system/jcr:nodetypes already exists");
     }
+    return changesLog;
   }
 
-  private void initNodeDefProps(NodeData parent, NodeDefinitionData def) throws ValueFormatException,
-                                                                        RepositoryException {
-
-    if (def.getName() != null) { // Mandatory false
-      TransientPropertyData name = TransientPropertyData.createPropertyData(parent,
-                                                                            Constants.JCR_NAME,
-                                                                            PropertyType.NAME,
-                                                                            false);
-      name.setValue(new TransientValueData(def.getName()));
-      changesLog.add(ItemState.createAddedState(name));
+  public synchronized PlainChangesLog initStorage(Collection<NodeTypeData> nodetypes) throws PathNotFoundException,
+                                                                                     RepositoryException {
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    if (!isInitialized()) {
+      LOG.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not exists. Possible is not initialized (call initNodetypesRoot() before)");
+      return changesLog;
     }
-
-    TransientPropertyData autoCreated = TransientPropertyData.createPropertyData(parent,
-                                                                                 Constants.JCR_AUTOCREATED,
-                                                                                 PropertyType.BOOLEAN,
-                                                                                 false);
-    autoCreated.setValue(new TransientValueData(def.isAutoCreated()));
-
-    TransientPropertyData isMandatory = TransientPropertyData.createPropertyData(parent,
-                                                                                 Constants.JCR_MANDATORY,
-                                                                                 PropertyType.BOOLEAN,
-                                                                                 false);
-    isMandatory.setValue(new TransientValueData(def.isMandatory()));
-
-    TransientPropertyData onParentVersion = TransientPropertyData.createPropertyData(parent,
-                                                                                     Constants.JCR_ONPARENTVERSION,
-                                                                                     PropertyType.STRING,
-                                                                                     false);
-    onParentVersion.setValue(new TransientValueData(OnParentVersionAction.nameFromValue(def.getOnParentVersion())));
-
-    TransientPropertyData isProtected = TransientPropertyData.createPropertyData(parent,
-                                                                                 Constants.JCR_PROTECTED,
-                                                                                 PropertyType.BOOLEAN,
-                                                                                 false);
-    isProtected.setValue(new TransientValueData(def.isProtected()));
-
-    TransientPropertyData sameNameSiblings = TransientPropertyData.createPropertyData(parent,
-                                                                                      Constants.JCR_SAMENAMESIBLINGS,
-                                                                                      PropertyType.BOOLEAN,
-                                                                                      false);
-    sameNameSiblings.setValue(new TransientValueData(def.isAllowsSameNameSiblings()));
-
-    if (def.getDefaultPrimaryType() != null) { // Mandatory false
-      TransientPropertyData defaultPrimaryType = TransientPropertyData.createPropertyData(parent,
-                                                                                          Constants.JCR_DEFAULTPRIMNARYTYPE,
-                                                                                          PropertyType.NAME,
-                                                                                          false);
-      defaultPrimaryType.setValue(new TransientValueData(def.getDefaultPrimaryType()));
-      changesLog.add(ItemState.createAddedState(defaultPrimaryType));
-    }
-
-    changesLog.add(ItemState.createAddedState(autoCreated))
-              .add(ItemState.createAddedState(isMandatory))
-              .add(ItemState.createAddedState(onParentVersion))
-              .add(ItemState.createAddedState(isProtected))
-              .add(ItemState.createAddedState(sameNameSiblings));
-
-    if (def.getRequiredPrimaryTypes() != null && def.getRequiredPrimaryTypes().length != 0) {
-      List<ValueData> requiredPrimaryTypesValues = new ArrayList<ValueData>();
-      for (InternalQName rpt : def.getRequiredPrimaryTypes())
-        requiredPrimaryTypesValues.add(new TransientValueData(rpt));
-
-      TransientPropertyData requiredPrimaryTypes = TransientPropertyData.createPropertyData(parent,
-                                                                                            Constants.JCR_REQUIREDPRIMARYTYPES,
-                                                                                            PropertyType.NAME,
-                                                                                            true);
-      requiredPrimaryTypes.setValues(requiredPrimaryTypesValues);
-      changesLog.add(ItemState.createAddedState(requiredPrimaryTypes));
-    }
-  }
-
-  private NodeTypeData findType(InternalQName nodeTypeName, List<NodeTypeData> ntList) {
-    for (NodeTypeData regNt : ntList) {
-      if (regNt.getName().equals(nodeTypeName)) {
-        return regNt;
+    long ntStart = System.currentTimeMillis();
+    for (NodeTypeData nt : nodetypes) {
+      try {
+        changesLog.addAll(addNodeType(nt).getAllStates());
+        if (LOG.isDebugEnabled())
+          LOG.debug("Node type " + nt.getName() + " is initialized. ");
+      } catch (ItemExistsException e) {
+        LOG.warn("Node exists " + nt.getName() + ". Error: " + e.getMessage());
       }
     }
-    return null;
+    // saveChanges();
+    LOG.info("Node types initialized. Time: " + (System.currentTimeMillis() - ntStart) + " ms");
+    return changesLog;
   }
 
   public List<NodeTypeData> loadFromStorage() throws PathNotFoundException, RepositoryException {
@@ -779,6 +594,198 @@ public class NodeTypeDataPersister {
       LOG.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not initialized. No nodetypes loaded.");
       return new ArrayList<NodeTypeData>();
     }
+  }
+
+  public List<ItemState> removeNodeType(NodeTypeData nodeType) throws RepositoryException {
+    if (!isInitialized()) {
+      LOG.warn("Nodetypes storage (/jcr:system/jcr:nodetypes node) is not initialized.");
+      return new ArrayList<ItemState>();
+    }
+    NodeData nodeTypeData = (NodeData) dataManager.getItemData(ntRoot,
+                                                               new QPathEntry(nodeType.getName(), 0));
+    ItemDataRemoveVisitor removeVisitor = new ItemDataRemoveVisitor(dataManager, ntRoot.getQPath());
+    nodeTypeData.accept(removeVisitor);
+    return removeVisitor.getRemovedStates();
+  }
+
+  public void saveChanges(PlainChangesLog changesLog) throws RepositoryException,
+                                                     InvalidItemStateException {
+    dataManager.save(changesLog);
+  }
+
+  DataManager getDataManager() {
+    return dataManager;
+  }
+
+  boolean isInitialized() {
+    return ntRoot != null;
+  }
+
+  private List<NodeDataReader2> getNodeTypesData(InternalQName nodeTypeName) throws RepositoryException {
+
+    NodeDataReader2 ntReader = new NodeDataReader2(ntRoot, dataManager);
+    ntReader.forNode(nodeTypeName);
+    ntReader.read();
+
+    ntReader.getNodes(nodeTypeName);
+
+    return ntReader.getNodes(nodeTypeName);
+  }
+
+  private PlainChangesLog initNodeDefProps(NodeData parent, NodeDefinitionData def) throws ValueFormatException,
+                                                                                   RepositoryException {
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    if (def.getName() != null) { // Mandatory false
+      TransientPropertyData name = TransientPropertyData.createPropertyData(parent,
+                                                                            Constants.JCR_NAME,
+                                                                            PropertyType.NAME,
+                                                                            false);
+      name.setValue(new TransientValueData(def.getName()));
+      changesLog.add(ItemState.createAddedState(name));
+    }
+
+    TransientPropertyData autoCreated = TransientPropertyData.createPropertyData(parent,
+                                                                                 Constants.JCR_AUTOCREATED,
+                                                                                 PropertyType.BOOLEAN,
+                                                                                 false);
+    autoCreated.setValue(new TransientValueData(def.isAutoCreated()));
+
+    TransientPropertyData isMandatory = TransientPropertyData.createPropertyData(parent,
+                                                                                 Constants.JCR_MANDATORY,
+                                                                                 PropertyType.BOOLEAN,
+                                                                                 false);
+    isMandatory.setValue(new TransientValueData(def.isMandatory()));
+
+    TransientPropertyData onParentVersion = TransientPropertyData.createPropertyData(parent,
+                                                                                     Constants.JCR_ONPARENTVERSION,
+                                                                                     PropertyType.STRING,
+                                                                                     false);
+    onParentVersion.setValue(new TransientValueData(OnParentVersionAction.nameFromValue(def.getOnParentVersion())));
+
+    TransientPropertyData isProtected = TransientPropertyData.createPropertyData(parent,
+                                                                                 Constants.JCR_PROTECTED,
+                                                                                 PropertyType.BOOLEAN,
+                                                                                 false);
+    isProtected.setValue(new TransientValueData(def.isProtected()));
+
+    TransientPropertyData sameNameSiblings = TransientPropertyData.createPropertyData(parent,
+                                                                                      Constants.JCR_SAMENAMESIBLINGS,
+                                                                                      PropertyType.BOOLEAN,
+                                                                                      false);
+    sameNameSiblings.setValue(new TransientValueData(def.isAllowsSameNameSiblings()));
+
+    if (def.getDefaultPrimaryType() != null) { // Mandatory false
+      TransientPropertyData defaultPrimaryType = TransientPropertyData.createPropertyData(parent,
+                                                                                          Constants.JCR_DEFAULTPRIMNARYTYPE,
+                                                                                          PropertyType.NAME,
+                                                                                          false);
+      defaultPrimaryType.setValue(new TransientValueData(def.getDefaultPrimaryType()));
+      changesLog.add(ItemState.createAddedState(defaultPrimaryType));
+    }
+
+    changesLog.add(ItemState.createAddedState(autoCreated))
+              .add(ItemState.createAddedState(isMandatory))
+              .add(ItemState.createAddedState(onParentVersion))
+              .add(ItemState.createAddedState(isProtected))
+              .add(ItemState.createAddedState(sameNameSiblings));
+
+    if (def.getRequiredPrimaryTypes() != null && def.getRequiredPrimaryTypes().length != 0) {
+      List<ValueData> requiredPrimaryTypesValues = new ArrayList<ValueData>();
+      for (InternalQName rpt : def.getRequiredPrimaryTypes())
+        requiredPrimaryTypesValues.add(new TransientValueData(rpt));
+
+      TransientPropertyData requiredPrimaryTypes = TransientPropertyData.createPropertyData(parent,
+                                                                                            Constants.JCR_REQUIREDPRIMARYTYPES,
+                                                                                            PropertyType.NAME,
+                                                                                            true);
+      requiredPrimaryTypes.setValues(requiredPrimaryTypesValues);
+      changesLog.add(ItemState.createAddedState(requiredPrimaryTypes));
+    }
+    return changesLog;
+  }
+
+  private PlainChangesLog initPropertyDefProps(NodeData parent, PropertyDefinitionData def) throws ValueFormatException,
+                                                                                           RepositoryException {
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    if (def.getName() != null) {
+      TransientPropertyData name = TransientPropertyData.createPropertyData(parent,
+                                                                            Constants.JCR_NAME,
+                                                                            PropertyType.NAME,
+                                                                            false);
+      name.setValue(new TransientValueData(def.getName()));
+      changesLog.add(ItemState.createAddedState(name));
+    }
+
+    TransientPropertyData autoCreated = TransientPropertyData.createPropertyData(parent,
+                                                                                 Constants.JCR_AUTOCREATED,
+                                                                                 PropertyType.BOOLEAN,
+                                                                                 false);
+    autoCreated.setValue(new TransientValueData(def.isAutoCreated()));
+
+    TransientPropertyData isMandatory = TransientPropertyData.createPropertyData(parent,
+                                                                                 Constants.JCR_MANDATORY,
+                                                                                 PropertyType.BOOLEAN,
+                                                                                 false);
+    isMandatory.setValue(new TransientValueData(def.isMandatory()));
+
+    TransientPropertyData onParentVersion = TransientPropertyData.createPropertyData(parent,
+                                                                                     Constants.JCR_ONPARENTVERSION,
+                                                                                     PropertyType.STRING,
+                                                                                     false);
+    onParentVersion.setValue(new TransientValueData(OnParentVersionAction.nameFromValue(def.getOnParentVersion())));
+
+    TransientPropertyData isProtected = TransientPropertyData.createPropertyData(parent,
+                                                                                 Constants.JCR_PROTECTED,
+                                                                                 PropertyType.BOOLEAN,
+                                                                                 false);
+    isProtected.setValue(new TransientValueData(def.isProtected()));
+
+    TransientPropertyData requiredType = TransientPropertyData.createPropertyData(parent,
+                                                                                  Constants.JCR_REQUIREDTYPE,
+                                                                                  PropertyType.STRING,
+                                                                                  false);
+    requiredType.setValue(new TransientValueData(ExtendedPropertyType.nameFromValue(def.getRequiredType())));
+
+    TransientPropertyData isMultiple = TransientPropertyData.createPropertyData(parent,
+                                                                                Constants.JCR_MULTIPLE,
+                                                                                PropertyType.BOOLEAN,
+                                                                                false);
+    isMultiple.setValue(new TransientValueData(def.isMultiple()));
+
+    changesLog.add(ItemState.createAddedState(autoCreated))
+              .add(ItemState.createAddedState(isMandatory))
+              .add(ItemState.createAddedState(onParentVersion))
+              .add(ItemState.createAddedState(isProtected))
+              .add(ItemState.createAddedState(requiredType))
+              .add(ItemState.createAddedState(isMultiple));
+
+    if (def.getValueConstraints() != null && def.getValueConstraints().length != 0) {
+      List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
+      for (String vc : def.getValueConstraints())
+        valueConstraintsValues.add(new TransientValueData(vc));
+
+      TransientPropertyData valueConstraints = TransientPropertyData.createPropertyData(parent,
+                                                                                        Constants.JCR_VALUECONSTRAINTS,
+                                                                                        PropertyType.STRING,
+                                                                                        true);
+      valueConstraints.setValues(valueConstraintsValues);
+      changesLog.add(ItemState.createAddedState(valueConstraints));
+    }
+
+    if (def.getDefaultValues() != null && def.getDefaultValues().length != 0) {
+      List<ValueData> defaultValuesValues = new ArrayList<ValueData>();
+      for (String dv : def.getDefaultValues()) {
+        if (dv != null) // TODO dv can be null?
+          defaultValuesValues.add(new TransientValueData(dv));
+      }
+      TransientPropertyData defaultValues = TransientPropertyData.createPropertyData(parent,
+                                                                                     Constants.JCR_DEFAULTVALUES,
+                                                                                     PropertyType.STRING,
+                                                                                     true);
+      defaultValues.setValues(defaultValuesValues);
+      changesLog.add(ItemState.createAddedState(defaultValues));
+    }
+    return changesLog;
   }
 
 }

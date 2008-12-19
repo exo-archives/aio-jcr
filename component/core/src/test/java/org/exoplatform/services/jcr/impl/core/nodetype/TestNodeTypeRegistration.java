@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -27,6 +28,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -148,4 +150,46 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     }
   }
 
+  public void testRemoveResidual() throws Exception {
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testRemoveResidual");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    List<PropertyDefinitionValue> props = new ArrayList<PropertyDefinitionValue>();
+    props.add(new PropertyDefinitionValue("*",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          0,
+                                          new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    assertTrue(nodeTypeManager.getNodeType(testNValue.getName()).getDeclaredPropertyDefinitions().length == 1);
+
+    Node tNode = root.addNode("test", "exo:testRemoveResidual");
+    Property prop = tNode.setProperty("tt", "tt");
+    session.save();
+
+    testNValue.setDeclaredPropertyDefinitionValues(new ArrayList<PropertyDefinitionValue>());
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+      // ok
+    }
+
+    prop.remove();
+    session.save();
+    assertTrue(nodeTypeManager.getNodeType(testNValue.getName()).getDeclaredPropertyDefinitions().length == 1);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+    assertTrue(nodeTypeManager.getNodeType(testNValue.getName()).getDeclaredPropertyDefinitions().length == 0);
+    nodeTypeManager.unregisterNodeType(testNValue.getName());
+  }
 }
