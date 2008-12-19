@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
@@ -23,38 +25,52 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
 /**
  * Created by The eXo Platform SAS.
  * 
+ * <br/>
+ * Merge manager per Workspace.
+ * 
  * <br/>Date: 10.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class MergeDataManager {
 
   protected final WorkspaceSynchronizer synchronizer;
-  
-  protected final RemoteExporter exporter;
-  
-  protected final AddMerger addMerger;
-  
-  MergeDataManager(WorkspaceSynchronizer synchronizer, AsyncTransmitter transmitter) {
+
+  protected final RemoteExporter        exporter;
+
+  protected final AddMerger             addMerger;
+
+  protected final DataManager           dataManager;
+
+  protected final NodeTypeDataManager   ntManager;
+
+  MergeDataManager(WorkspaceSynchronizer synchronizer,
+                   AsyncTransmitter transmitter,
+                   DataManager dataManager,
+                   NodeTypeDataManager ntManager) {
     this.synchronizer = synchronizer;
-    
+
     this.exporter = new RemoteExporterImpl(transmitter);
+
+    this.dataManager = dataManager;
     
-    this.addMerger = new AddMerger(synchronizer.getLocalPriority(), exporter);
+    this.ntManager = ntManager;
+
+    this.addMerger = new AddMerger(synchronizer.getLocalPriority(), exporter, dataManager, ntManager);
   }
-  
+
   /**
    * Start merge process.
-   *
-   * @param incomeChanges TransactionChangesLog
+   * 
+   * @param incomeChanges
+   *          TransactionChangesLog
    */
   public void merge(TransactionChangesLog incomeChanges) {
-  
+
     for (ItemState change : incomeChanges.getAllStates()) {
-      
-    }  
+
+    }
   }
-  
-  
+
 }

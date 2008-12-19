@@ -23,10 +23,14 @@ import java.util.List;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -44,13 +48,22 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
  */
 public class AddMerger implements ChangesMerger {
 
-  protected final boolean        localPriority;
+  protected final boolean             localPriority;
 
-  protected final RemoteExporter exporter;
+  protected final RemoteExporter      exporter;
 
-  public AddMerger(boolean localPriority, RemoteExporter exporter) {
+  protected final DataManager         dataManager;
+
+  protected final NodeTypeDataManager ntManager;
+
+  public AddMerger(boolean localPriority,
+                   RemoteExporter exporter,
+                   DataManager dataManager,
+                   NodeTypeDataManager ntManager) {
     this.localPriority = localPriority;
     this.exporter = exporter;
+    this.dataManager = dataManager;
+    this.ntManager = ntManager;
   }
 
   /**
@@ -340,4 +353,14 @@ public class AddMerger implements ChangesMerger {
 
     return resultState;
   }
+
+  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+
+    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                     parent.getPrimaryTypeName(),
+                                                                     parent.getMixinTypeNames());
+
+    return pdef != null;
+  }
+
 }
