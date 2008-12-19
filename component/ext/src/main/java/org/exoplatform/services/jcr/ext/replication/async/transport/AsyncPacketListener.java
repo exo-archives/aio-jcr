@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
-import org.exoplatform.services.jcr.ext.replication.Packet;
+import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -35,5 +35,5 @@ public interface AsyncPacketListener {
    * @param packet
    *          the Packet object.
    */
-  void receive(AsyncPacket packet) throws Exception;
+  void receive(AsyncPacket packet, Address sourceAddress) throws Exception;
 }

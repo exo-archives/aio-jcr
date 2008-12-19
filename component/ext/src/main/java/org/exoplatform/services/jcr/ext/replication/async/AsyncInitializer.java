@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketT
 import org.exoplatform.services.jcr.ext.replication.async.transport.CannotInitilizeConnectionsException;
 import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
+import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -143,20 +144,20 @@ public class AsyncInitializer implements AsyncPacketListener {
     this.channelManager.addPacketListener(this);
   }
 
-  public void receive(AsyncPacket packet) throws Exception {
+  public void receive(AsyncPacket packet, Address srcAddress) throws Exception {
     switch (packet.getType()) {
     case AsyncPacketTypes.GET_STATE_NODE:
-      AsyncPacket stateNodePacket = new AsyncPacket(AsyncPacketTypes.STATE_NODE,
+      /*AsyncPacket stateNodePacket = new AsyncPacket(AsyncPacketTypes.STATE_NODE,
                                                     packet.getIdentifier(),
                                                     ownName);
       stateNodePacket.setSize((long) ownPriority);
       stateNodePacket.setOffset((long) state);
 
-      channelManager.sendPacket(stateNodePacket);
+      channelManager.sendPacket(stateNodePacket);*/
       break;
 
     case AsyncPacketTypes.STATE_NODE:
-      if (identifier.equals(packet.getIdentifier())) {
+      /*if (identifier.equals(packet.getIdentifier())) {
 
         MemberDescriptor memberDescriptor = new MemberDescriptor((int) (packet.getSize()),
                                                                  (int) (packet.getOffset()));
@@ -166,7 +167,7 @@ public class AsyncInitializer implements AsyncPacketListener {
         if (otherParticipants.size() == currentParticipants.size() && isWaitSynchronization()) {
           fixupMembers();
         }
-      }
+      }*/
       break;
 
     default:
@@ -199,7 +200,7 @@ public class AsyncInitializer implements AsyncPacketListener {
    *           Will be generated the ReplicationException.
    */
   private void initSynchronization() throws ReplicationException {
-    AsyncPacket packet = new AsyncPacket(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE,
+    /*AsyncPacket packet = new AsyncPacket(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE,
                                          IdGenerator.generate(),
                                          ownName);
     packet.setTimeStamp(Calendar.getInstance());
@@ -208,7 +209,7 @@ public class AsyncInitializer implements AsyncPacketListener {
       channelManager.sendPacket(packet);
     } catch (Exception e) {
       throw new ReplicationException("Cannot send GET_CHANGESLOG_UP_TO_DATE request");
-    }
+    }*/
   }
 
   /**
@@ -233,7 +234,7 @@ public class AsyncInitializer implements AsyncPacketListener {
    *           Will be generated the ReplicationException. 
    */
   private void getSates() throws ReplicationException {
-    identifier = IdGenerator.generate();
+    /*dentifier = IdGenerator.generate();
     currentParticipants = new HashMap<String, MemberDescriptor>();
 
     AsyncPacket getStatesPacket = new AsyncPacket(AsyncPacketTypes.GET_STATE_NODE,
@@ -245,7 +246,7 @@ public class AsyncInitializer implements AsyncPacketListener {
       channelManager.sendPacket(getStatesPacket);
     } catch (Exception e) {
       throw new ReplicationException("Cannot send GET_STATE_NODE request");
-    }
+    }*/
   }
   
   /**

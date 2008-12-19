@@ -16,16 +16,19 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
 import org.exoplatform.services.log.ExoLogger;
+import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.ChannelException;
 import org.jgroups.ChannelListener;
@@ -217,14 +220,31 @@ public class AsyncChannelManager implements RequestHandler {
    * 
    * @param packet
    *          the Packet with content
+   * @param destinationAddresses
+   *          the destination addresses
+   * @throws Exception
+   *           will be generated Exception
+   */
+  public void sendPacket(AsyncPacket packet, List<Address> destinationAddresses) throws Exception {
+    byte[] buffer = AsyncPacket.getAsByteArray(packet);
+
+    Message msg = new Message(null, null, buffer);
+    
+    Vector<Address> destAddresses = (destinationAddresses == null ? null : new Vector<Address>(destinationAddresses));
+
+    dispatcher.castMessage(destAddresses, msg, GroupRequest.GET_NONE, 0);
+  }
+  
+  /**
+   * sendPacket.
+   *
+   * @param packet
+   *          the Packet with contents
    * @throws Exception
    *           will be generated Exception
    */
   public void sendPacket(AsyncPacket packet) throws Exception {
-    byte[] buffer = AsyncPacket.getAsByteArray(packet);
-
-    Message msg = new Message(null, null, buffer);
-    dispatcher.castMessage(null, msg, GroupRequest.GET_NONE, 0);
+    sendPacket(packet, null);
   }
 
   /**
@@ -246,84 +266,37 @@ public class AsyncChannelManager implements RequestHandler {
    * @throws Exception
    *           will be generated Exception
    */
-  public void sendBigPacket(byte[] data, AsyncPacket packet) throws Exception {
-    long offset = 0;
-    byte[] tempBuffer = new byte[AsyncPacket.MAX_PACKET_SIZE];
-
-    cutData(data, offset, tempBuffer);
-
-    AsyncPacket firsPacket = new AsyncPacket(AsyncPacketTypes.BIG_PACKET_FIRST,
-                                   data.length,
-                                   tempBuffer,
-                                   packet.getIdentifier());
-    firsPacket.setReceiverName(packet.getTransmitterName());
-    firsPacket.setOffset(offset);
-    sendPacket(firsPacket);
-
-    if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + firsPacket.getBuffer().length);
-
-    offset += tempBuffer.length;
-
-    while ((data.length - offset) > AsyncPacket.MAX_PACKET_SIZE) {
-      cutData(data, offset, tempBuffer);
-
-      AsyncPacket middlePacket = new AsyncPacket(AsyncPacketTypes.BIG_PACKET_MIDDLE,
-                                       data.length,
-                                       tempBuffer,
-                                       packet.getIdentifier());
-      middlePacket.setReceiverName(packet.getTransmitterName());
-      middlePacket.setOffset(offset);
-      Thread.sleep(1);
-      sendPacket(middlePacket);
-
-      if (log.isDebugEnabled())
-        log.debug("Send of damp --> " + middlePacket.getBuffer().length);
-
-      offset += tempBuffer.length;
-    }
-
-    byte[] lastBuffer = new byte[data.length - (int) offset];
-    cutData(data, offset, lastBuffer);
-
-    AsyncPacket lastPacket = new AsyncPacket(AsyncPacketTypes.BIG_PACKET_LAST,
-                                   data.length,
-                                   lastBuffer,
-                                   packet.getIdentifier());
-    lastPacket.setReceiverName(packet.getTransmitterName());
-    lastPacket.setOffset(offset);
-    sendPacket(lastPacket);
-
-    if (log.isDebugEnabled())
-      log.debug("Send of damp --> " + lastPacket.getBuffer().length);
-  }
-
-  /**
-   * cutData.
-   * 
-   * @param sourceData
-   *          the binary data
-   * @param startPos
-   *          the start position in 'sourceData'
-   * @param destination
-   *          destination datas
-   */
-  private void cutData(byte[] sourceData, long startPos, byte[] destination) {
-    for (int i = 0; i < destination.length; i++)
-      destination[i] = sourceData[i + (int) startPos];
+  public void sendBigPacket(byte[] data, AsyncPacket packet, Address destinationAddress) throws Exception {
+    InputStream in = new ByteArrayInputStream(data);
+    
+    List<Address> destLost = new ArrayList<Address>();
+    destLost.add(destinationAddress);
+    
+    sendInputStream(destLost, 
+                    in, 
+                    packet.getCRC(), 
+                    packet.getTimeStamp(), 
+                    packet.getTransmitterPriority(), 
+                    data.length, 
+                    AsyncPacketTypes.BIG_PACKET_FIRST, 
+                    AsyncPacketTypes.BIG_PACKET_MIDDLE, 
+                    AsyncPacketTypes.BIG_PACKET_LAST);
+ 
+    in.close();
   }
 
   /**
    * sendBinaryFile.
    * 
-   * @param filePath
-   *          full path to file
-   * @param transmitterName
+   * @param destinstionAddress
+   *          the destination address.
+   * @param clFile
+   *          the ChangesLogFile
    *          owner name
-   * @param identifier
-   *          the identifier String
-   * @param systemId
-   *          system identifications ID
+   * @param transmitterPriority
+   *          the value of transmitter priority
+   * @param totalFiles
+   *          the how many the ChangesLogFiles will be sent  
    * @param firstPacketType
    *          the packet type for first packet
    * @param middlePocketType
@@ -333,49 +306,134 @@ public class AsyncChannelManager implements RequestHandler {
    * @throws Exception
    *           will be generated the Exception
    */
-  public void sendBinaryFile(String filePath,
-                             String receiverName,
-                             String transmitterName,
-                             String identifier,
+  public void sendBinaryFile(Address destinationAddress,
+                             ChangesLogFile clFile,
+                             int transmitterPriority,
+                             int totalFiles,
                              int firstPacketType,
                              int middlePocketType,
                              int lastPocketType) throws Exception {
-    long count = 0;
-
-    if (log.isDebugEnabled())
-      log.debug("Begin send : " + filePath);
-
-    File f = new File(filePath);
-    InputStream in = new FileInputStream(f);
-
-    AsyncPacket packet = new AsyncPacket(firstPacketType, identifier, transmitterName, f.getName());
-    packet.setReceiverName(receiverName);
-    packet.setSize(count);
-
-    count++;
+    List<Address> destinationAddresses = new ArrayList<Address>();
+    destinationAddresses.add(destinationAddress);
     
-    sendPacket(packet);
+    sendBinaryFile(destinationAddresses, 
+                   clFile, 
+                   transmitterPriority, 
+                   totalFiles, 
+                   firstPacketType, 
+                   middlePocketType, 
+                   lastPocketType);
+  }
+  
+  /**
+   * sendBinaryFile.
+   * 
+   * @param destinstionAddresses
+   *          the list of destination addresses.
+   * @param clFile
+   *          the ChangesLogFile
+   *          owner name
+   * @param transmitterPriority
+   *          the value of transmitter priority
+   * @param totalFiles
+   *          the how many the ChangesLogFiles will be sent
+   * @param firstPacketType
+   *          the packet type for first packet
+   * @param middlePocketType
+   *          the packet type for middle packets
+   * @param lastPocketType
+   *          the packet type for last packet
+   * @throws Exception
+   *           will be generated the Exception
+   */
+  public void sendBinaryFile(List<Address> destinationAddresses,
+                             ChangesLogFile clFile,
+                             int transmitterPriority,
+                             int totalFiles,
+                             int firstPacketType,
+                             int middlePocketType,
+                             int lastPocketType) throws Exception {
+    if (log.isDebugEnabled())
+      log.debug("Begin send : " + clFile.getFilePath());
+
+    File f = new File(clFile.getFilePath());
+    InputStream in = new FileInputStream(f);
+    
+    sendInputStream(destinationAddresses, 
+                    in, 
+                    clFile.getCRC(), 
+                    clFile.getTimeStamp(), 
+                    transmitterPriority, 
+                    totalFiles, 
+                    firstPacketType, 
+                    middlePocketType, 
+                    lastPocketType);
+ 
+    in.close();
+    
+    if (log.isDebugEnabled())
+      log.debug("End send : " + clFile.getFilePath());
+  }
+  
+  /**
+   * sendInputStream.
+   *
+   * @param destinationAddresses
+   *          the list of destination addresses.
+   * @param in
+   *          the InputStream with data
+   * @param crc
+   *          the check sum
+   * @param timeStamp
+   *          the time stamp
+   * @param transmitterPriority
+   *          the value of transmitter priority
+   * @param totalFiles
+   *          the how many the ChangesLogFiles will be sent
+   * @param firstPacketType
+   *          the packet type for first packet
+   * @param middlePocketType
+   *          the packet type for middle packets
+   * @param lastPocketType
+   *          the packet type for last packet
+   * @throws Exception
+   *           will be generated the Exception
+   */
+  private void sendInputStream (List<Address> destinationAddresses,
+                                InputStream in,
+                                String crc,
+                                long timeStamp,
+                                int transmitterPriority,
+                                int totalSize,
+                                int firstPacketType,
+                                int middlePocketType,
+                                int lastPocketType) throws Exception{
+    AsyncPacket packet = new AsyncPacket(firstPacketType, 
+                                         totalSize, 
+                                         crc, 
+                                         timeStamp, 
+                                         transmitterPriority);    
+    
+    sendPacket(packet, destinationAddresses);
 
     byte[] buf = new byte[AsyncPacket.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
 
     while ((len = in.read(buf)) > 0 && len == AsyncPacket.MAX_PACKET_SIZE) {
-      packet = new AsyncPacket(middlePocketType, identifier, transmitterName);
-      packet.setReceiverName(receiverName);   
-      packet.setOffset(offset);
-      packet.setBuffer(buf);
-      packet.setFileName(f.getName());
-      packet.setSize(count);
-      count++;
-
-      sendPacket(packet);
+      packet = new AsyncPacket(firstPacketType, 
+                        totalSize, 
+                        crc, 
+                        timeStamp, 
+                        transmitterPriority,
+                        buf,
+                        offset);    
+       
+      sendPacket(packet, destinationAddresses);
 
       offset += len;
       if (log.isDebugEnabled())
         log.debug("Send  --> " + offset);
-
-      Thread.sleep(1);
     }
 
     if (len < AsyncPacket.MAX_PACKET_SIZE) {
@@ -384,24 +442,18 @@ public class AsyncChannelManager implements RequestHandler {
 
       byte[] buffer = new byte[len];
 
-      for (int i = 0; i < len; i++)
-        buffer[i] = buf[i];
+      System.arraycopy(buf, 0, buffer, 0, len);
 
-      packet = new AsyncPacket(lastPocketType, identifier, transmitterName);
-      packet.setReceiverName(receiverName);
-      packet.setOffset(offset);
-      packet.setBuffer(buffer);
-      packet.setFileName(f.getName());
-      packet.setSize(count);
-      count++;
+      packet = new AsyncPacket(firstPacketType, 
+                               totalSize, 
+                               crc, 
+                               timeStamp, 
+                               transmitterPriority,
+                               buf,
+                               offset);
 
-      sendPacket(packet);
+      sendPacket(packet, destinationAddresses);
     }
-
-    if (log.isDebugEnabled())
-      log.debug("End send : " + filePath);
-
-    in.close();
   }
 
   /**
@@ -412,7 +464,7 @@ public class AsyncChannelManager implements RequestHandler {
       AsyncPacket packet = AsyncPacket.getAsPacket(message.getBuffer());
 
       for (AsyncPacketListener handler : packetListeners) {
-        handler.receive(packet);
+        handler.receive(packet, message.getSrc());
       }
 
     } catch (Exception e) {

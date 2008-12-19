@@ -24,7 +24,6 @@ import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.util.Calendar;
 
 /**
  * Created by The eXo Platform SAS.
@@ -35,6 +34,16 @@ import java.util.Calendar;
  * @version $Id: AsyncPacket.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class AsyncPacket implements Externalizable {
+  
+  /**
+   * Constant will be used for serialization 'null' value.
+   */
+  private static final int NULL_VALUE = -1;
+  
+  /**
+   * Constant will be used for serialization not 'null' value.
+   */
+  private static final int NOT_NULL_VALUE = 1;
 
   /**
    * serialVersionUID.
@@ -67,30 +76,19 @@ public class AsyncPacket implements Externalizable {
   private long            offset;
   
   /**
-   * The packet identifier.
+   * CRC check sum.
    */
-  private String          identifier = " ";
-  
-  /**
-   * Transmitter name.
-   */
-  private String          transmitterName = "";
-  
-  /**
-   * Receiver name.
-   */
-  private String          receiverName = "";
-  
-  
-  /**
-   * Name of file.
-   */
-  private String          fileName = " ";
+  private String          crc;
   
   /**
    * Time stamp.
    */
-  private Calendar        timeStamp = Calendar.getInstance();
+  private long            timeStamp;
+  
+  /**
+   * The priority of transmitter. 
+   */
+  private int             transmitterPriority;
   
   /**
    * Packet  constructor.
@@ -106,121 +104,57 @@ public class AsyncPacket implements Externalizable {
    *          packet type
    * @param size 
    *          size value 
-   * @param buf 
+   * @param crc
+   *          check sum value
+   * @param timeStamp
+   *          the timeStampValue
+   * @param transmitterPriority
+   *          the priority value of transmitters         
+   */
+  public AsyncPacket(int type, 
+                     long size, 
+                     String crc, 
+                     long timeStamp, 
+                     int transmitterPriority) {
+    this.type = type;
+    this.size = size;
+    this.crc = crc;
+    this.timeStamp = timeStamp;
+    this.transmitterPriority = transmitterPriority;
+  }
+  
+  /**
+   * Packet  constructor.
+   *
+   * @param type 
+   *          packet type
+   * @param size 
+   *          size value 
+   * @param crc
+   *          check sum value
+   * @param timeStamp
+   *          the timeStampValue
+   * @param transmitterPriority
+   *          the priority value of transmitters   
+   * @param buf
    *          binary data
-   * @param identifier 
-   *          packet identifier
+   * @param offset
+   *          offset value
    */
-  public AsyncPacket(int type, long size, byte[] buf, String identifier) {
-    this.identifier = identifier;
-    this.type = type;
-    this.size = size;
+  public AsyncPacket(int type, 
+                     long size, 
+                     String crc, 
+                     long timeStamp, 
+                     int transmitterPriority,
+                     byte[] buf,
+                     long offset) {
+    this(type, size, crc, timeStamp, transmitterPriority);
+    
     buffer = new byte[buf.length];
 
-    for (int i = 0; i < buf.length; i++)
-      buffer[i] = buf[i];
-  }
-  
-  /**
-   * Packet  constructor.
-   *
-   * @param type
-   *          packet type
-   * @param identifier
-   *          packet identifier
-   * @param transmitterName
-   *          owner name
-   */
-  public AsyncPacket(int type, String identifier, String transmitterName) {
-    this.type = type;
-    this.identifier = identifier;
-    buffer = new byte[1];
-    this.transmitterName = transmitterName;
-  }
-  
-  /**
-   * Packet  constructor.
-   *
-   * @param type
-   *          packet type
-   * @param identifier
-   *          packet identifier
-   * @param transmitterName
-   *          owner name
-   * @param fileName
-   *          file name
-   */
-  public AsyncPacket(int type, String identifier, String transmitterName, String fileName) {
-    this(type, identifier, transmitterName);
-    this.fileName = fileName;
-  }
-  
-
-  public String getIdentifier() {
-    return identifier;
-  }
-
-  public void setIdentifier(String identifier) {
-    this.identifier = identifier;
-  }
-
-  public byte[] getBuffer() {
-    return buffer;
-  }
-
-
-  public void setBuffer(byte[] buf) {
-    buffer = new byte[buf.length];
-    for (int i = 0; i < buf.length; i++)
-      buffer[i] = buf[i];
-  }
-
-
-  public long getSize() {
-    return size;
-  }
-
-
-  public void setSize(long size) {
-    this.size = size;
-  }
-
-
-  public int getType() {
-    return type;
-  }
-
-
-  public void setType(int type) {
-    this.type = type;
-  }
-
-
-  public long getOffset() {
-    return offset;
-  }
-
-
-  public void setOffset(long offset) {
+    System.arraycopy(buf, 0, buffer, 0, buf.length);
+    
     this.offset = offset;
-  }
-
-
-  public String getTransmitterName() {
-    return transmitterName;
-  }
-
-
-  public void setTransmitterName(String transmitterName) {
-    this.transmitterName = transmitterName;
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
   }
   
   /**
@@ -266,73 +200,78 @@ public class AsyncPacket implements Externalizable {
    * {@inheritDoc}
    */
   public void writeExternal(ObjectOutput out) throws IOException {
-    out.writeInt(buffer.length);
-    out.write(buffer);
+    if (buffer != null) {
+      out.writeInt(NOT_NULL_VALUE);
+      out.writeInt(buffer.length);
+      out.write(buffer);
+    } else 
+      out.writeInt(NULL_VALUE);
+    
     out.writeLong(size);
     out.writeInt(type);
     out.writeLong(offset);
-
-    out.writeInt(identifier.getBytes().length);
-    out.write(identifier.getBytes());
+    out.writeLong(timeStamp);
+    out.writeInt(transmitterPriority);
     
-    out.writeInt(transmitterName.getBytes().length);
-    out.write(transmitterName.getBytes());
-    
-    out.writeInt(receiverName.getBytes().length);
-    out.write(receiverName.getBytes());
-
-    // write timeStamp
-    out.writeLong(timeStamp.getTimeInMillis());
-
-    out.writeInt(fileName.getBytes().length);
-    out.write(fileName.getBytes());
+    if (crc != null) {
+      out.writeInt(NOT_NULL_VALUE); 
+      out.writeInt(crc.length());
+      out.write(crc.getBytes());
+    } else 
+      out.writeInt(NULL_VALUE);
   }
 
   /**
    * {@inheritDoc}
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    int bufSize = in.readInt();
-    buffer = new byte[bufSize];
-    in.readFully(buffer);
+    if (in.readInt() == NOT_NULL_VALUE) {
+      int bufSize = in.readInt();
+      buffer = new byte[bufSize];
+      in.readFully(buffer);
+    } else
+      buffer = null;
 
     size = in.readLong();
     type = in.readInt();
     offset = in.readLong();
+    timeStamp = in.readLong();
+    transmitterPriority = in.readInt();
 
-    byte[] buf = new byte[in.readInt()];
-    in.readFully(buf);
-    identifier = new String(buf);
+    if (in.readInt() == NOT_NULL_VALUE) {
+      byte[] buf = new byte[in.readInt()];
+      in.readFully(buf);
+      crc = new String(buf);
+    } else
+      crc = null;
     
-    buf = new byte[in.readInt()];
-    in.readFully(buf);
-    transmitterName = new String(buf);
-    
-    buf = new byte[in.readInt()];
-    in.readFully(buf);
-    receiverName = new String(buf);
-
-    // set timeStamp
-    timeStamp.setTimeInMillis(in.readLong());
-
-    buf = new byte[in.readInt()];
-    in.readFully(buf);
-    fileName = new String(buf);
   }
 
-  public Calendar getTimeStamp() {
+  public byte[] getBuffer() {
+    return buffer;
+  }
+
+  public long getSize() {
+    return size;
+  }
+
+  public int getType() {
+    return type;
+  }
+
+  public long getOffset() {
+    return offset;
+  }
+
+  public String getCRC() {
+    return crc;
+  }
+
+  public int getTransmitterPriority() {
+    return transmitterPriority;
+  }
+
+  public long getTimeStamp() {
     return timeStamp;
-  }
-
-  public void setTimeStamp(Calendar timeStamp) {
-    this.timeStamp = timeStamp;
-  }
-
-  public String getReceiverName() {
-    return receiverName;
-  }
-
-  public void setReceiverName(String receiverName) {
-    this.receiverName = receiverName;
   }
 }

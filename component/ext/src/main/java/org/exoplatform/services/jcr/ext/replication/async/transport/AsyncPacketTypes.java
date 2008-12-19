@@ -120,4 +120,16 @@ public final class AsyncPacketTypes {
    *   (using for recovery)
    */
   public static final int BIG_PACKET_LAST                      = 16;
+  
+  /**
+   * SYNCHRONIZATION_CANCEL.
+   *   the pocket type to cancel synchronization
+   */
+  public static final int SYNCHRONIZATION_CANCEL               = 17;
+  
+  /**
+   * SYNCHRONIZATION_DONE.
+   *   the pocket type to done synchronization
+   */
+  public static final int SYNCHRONIZATION_DONE                 = 18;
 }

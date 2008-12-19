@@ -37,22 +37,19 @@ public class AsyncPacketTest extends TestCase {
 
   public void testAsyncPacket() throws Exception {
     //create content
-    AsyncPacket srcPacket = new AsyncPacket();
+    
     
     byte[] buf = new byte[AsyncPacket.MAX_PACKET_SIZE];
     for (int i = 0; i < buf.length; i++) 
       buf[i] = (byte)(Math.random()*255);
     
-    srcPacket.setBuffer(buf);
-    srcPacket.setFileName("exo.jcr.component.ext_1.11-SNAPSHOT");
-    srcPacket.setIdentifier("8bec9d407f00010101bb60adbcdef058");
-    srcPacket.setOffset(245852);
-    srcPacket.setTransmitterName("node_name_1");
-    srcPacket.setReceiverName("node_name_2");
-    srcPacket.setSize(120214245);
-    srcPacket.setTimeStamp(Calendar.getInstance());
-    srcPacket.setType(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE);
-    
+    AsyncPacket srcPacket = new AsyncPacket(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE,
+                                            120214245,
+                                            "8bec9d407f00010101bb60adbcdef058",
+                                            Calendar.getInstance().getTimeInMillis(),
+                                            100,
+                                            buf,
+                                            245852);
     //1.
     //serialize srcPacket
     byte[] serializabelSrcPacket = AsyncPacket.getAsByteArray(srcPacket);
@@ -98,19 +95,10 @@ public class AsyncPacketTest extends TestCase {
     for (int i = 0; i < srcPacket.getBuffer().length; i++) 
       assertEquals(destPacket.getBuffer()[i], srcPacket.getBuffer()[i]);
     
-    assertEquals(destPacket.getFileName(), srcPacket.getFileName());
-    assertEquals(destPacket.getFileName(), "exo.jcr.component.ext_1.11-SNAPSHOT");
+    assertEquals(destPacket.getCRC(), srcPacket.getCRC());
+    assertEquals(destPacket.getCRC(), "8bec9d407f00010101bb60adbcdef058");
     
-    assertEquals(destPacket.getIdentifier(), srcPacket.getIdentifier());
-    assertEquals(destPacket.getIdentifier(), "8bec9d407f00010101bb60adbcdef058");
-    
-    assertEquals(destPacket.getTransmitterName(), srcPacket.getTransmitterName());
-    assertEquals(destPacket.getTransmitterName(), "node_name_1");
-    
-    assertEquals(destPacket.getReceiverName(), srcPacket.getReceiverName());
-    assertEquals(destPacket.getReceiverName(), "node_name_2");
-    
-    assertEquals(destPacket.getTimeStamp().getTimeInMillis(), srcPacket.getTimeStamp().getTimeInMillis());
+    assertEquals(destPacket.getTimeStamp(), srcPacket.getTimeStamp());
     
     assertEquals(destPacket.getType(), srcPacket.getType());
     assertEquals(destPacket.getType(), AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE);
