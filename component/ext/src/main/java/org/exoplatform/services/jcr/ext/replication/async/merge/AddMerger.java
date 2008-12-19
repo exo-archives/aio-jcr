@@ -95,9 +95,13 @@ public class AddMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-              || incomeData.getQPath().equals(localData.getQPath())) {
+          if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
             return resultEmptyState;
+          } else if ((incomeData.getQPath().equals(localData.getQPath()))) {
+            if (incomeData.isNode() == localData.isNode()) {
+              // incomeData.getQPath().getName();
+              return resultEmptyState;
+            }
           }
           break;
         case ItemState.DELETED:
@@ -356,6 +360,13 @@ public class AddMerger implements ChangesMerger {
     return resultState;
   }
 
+  /**
+   * isPropertyAllowed.
+   * 
+   * @param propertyName
+   * @param parent
+   * @return
+   */
   protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
 
     PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,

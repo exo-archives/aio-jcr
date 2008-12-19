@@ -1881,10 +1881,14 @@ public class AddMergerTest extends BaseMergerTest {
 
     income.addLog(remoteLog);
 
-    AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
+    AddMerger addMerger = new AddMerger(true,
+                                        new TesterRemoteExporter(),
+                                        null,
+                                        new TesterntManager());
     List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 0);
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote ADD state expected ", hasState(result, remoteProperty1Change, true));
   }
 
   public void testAddPropertySameNodeRemotePriority() throws Exception {
@@ -1922,15 +1926,13 @@ public class AddMergerTest extends BaseMergerTest {
 
     income.addLog(remoteLog);
 
-    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
+    AddMerger addMerger = new AddMerger(false,
+                                        new TesterRemoteExporter(),
+                                        null,
+                                        new TesterntManager());
     List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 2);
-
-    assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem11,
-                                                                              ItemState.DELETED,
-                                                                              false,
-                                                                              null), true));
+    assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote Add state expected ", hasState(result, remoteProperty1Change, true));
   }
 }

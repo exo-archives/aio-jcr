@@ -103,6 +103,8 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
   protected NodeData                localItem111;
 
+  protected NodeData                localItem112;
+
   protected NodeData                localItem12;
 
   protected NodeData                localItem122;
@@ -112,6 +114,8 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected PropertyData            localProperty2;
 
   protected PropertyData            remoteProperty1;
+
+  protected PropertyData            remoteProperty2;
 
   /**
    * {@inheritDoc}
@@ -150,6 +154,18 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                          0,
                                          localItem11.getIdentifier(),
                                          new AccessControlList());
+
+    // create /testItem1/item11/item111
+    localItem112 = new TransientNodeData(QPath.makeChildPath(localItem11.getQPath(),
+                                                             new InternalQName(null, "item112")),
+                                         IdGenerator.generate(),
+                                         0,
+                                         EXO_TEST_UNSTRUCTURED_NOSNS,
+                                         new InternalQName[0],
+                                         0,
+                                         localItem11.getIdentifier(),
+                                         new AccessControlList());
+
     // create /testItem1/item12
     localItem12 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                             new InternalQName(null, "item12")),
@@ -333,6 +349,17 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                 localItem1.getIdentifier(),
                                                 false);
     ((TransientPropertyData) remoteProperty1).setValue(new TransientValueData(123l));
+
+    // remote property (as prop of local item 1)
+    remoteProperty2 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                    new InternalQName(null,
+                                                                                      "testProperty2")),
+                                                IdGenerator.generate(),
+                                                0,
+                                                PropertyType.LONG,
+                                                localItem1.getIdentifier(),
+                                                false);
+    ((TransientPropertyData) remoteProperty1).setValue(new TransientValueData(1111));
 
     // SNS items
     localItem21x2B = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),

@@ -18,14 +18,19 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
+import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -43,13 +48,22 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
  */
 public class DeleteMerger implements ChangesMerger {
 
-  protected final boolean        localPriority;
+  protected final boolean             localPriority;
 
-  protected final RemoteExporter exporter;
+  protected final RemoteExporter      exporter;
 
-  public DeleteMerger(boolean localPriority, RemoteExporter exporter) {
+  protected final DataManager         dataManager;
+
+  protected final NodeTypeDataManager ntManager;
+
+  public DeleteMerger(boolean localPriority,
+                      RemoteExporter exporter,
+                      DataManager dataManager,
+                      NodeTypeDataManager ntManager) {
     this.localPriority = localPriority;
     this.exporter = exporter;
+    this.dataManager = dataManager;
+    this.ntManager = ntManager;
   }
 
   /**
@@ -184,19 +198,41 @@ public class DeleteMerger implements ChangesMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          // TODO
-          break;
-        case ItemState.UPDATED:
+          if (incomeData.isNode()
+              && localData.isNode()
+              && (localData.getQPath().isDescendantOf(incomeData.getQPath()) || localData.getQPath()
+                                                                                         .equals(incomeData.getQPath()))) {
+
+            // add Delete state
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(incomeData.getQPath(),
+                                                                                true,
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              itemsArray[i].getData().getQPath()));
+              }
+            }
+
+            // apply income changes for all subtree
+            resultState.add(itemChange);
+            resultState.addAll(income.getDescendantsChanges(incomeData.getQPath(), false, false));
+            return resultState;
+          }
           // TODO
           break;
         case ItemState.DELETED:
           // TODO
           break;
+        case ItemState.UPDATED:
+          break;
         case ItemState.RENAMED:
-          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       }
@@ -208,5 +244,21 @@ public class DeleteMerger implements ChangesMerger {
     }
 
     return resultState;
+  }
+
+  /**
+   * isPropertyAllowed.
+   * 
+   * @param propertyName
+   * @param parent
+   * @return
+   */
+  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+
+    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                     parent.getPrimaryTypeName(),
+                                                                     parent.getMixinTypeNames());
+
+    return pdef != null;
   }
 }

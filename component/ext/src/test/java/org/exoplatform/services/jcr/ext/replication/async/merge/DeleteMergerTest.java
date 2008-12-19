@@ -77,7 +77,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem12Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -104,7 +104,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem12Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -134,7 +134,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteProperty1Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteProperty1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -162,7 +162,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem12Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -193,7 +193,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -221,7 +221,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem12Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -250,7 +250,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -282,7 +282,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -325,7 +325,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -369,7 +369,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem2Deleted);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem2Deleted, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -427,7 +427,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem11Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem11Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
@@ -469,7 +469,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem3Change);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem3Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -544,7 +544,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Delete);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem21x1Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -637,7 +637,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem212Delete);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem212Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -745,7 +745,7 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem2121Delete);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem2121Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -821,13 +821,208 @@ public class DeleteMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem3Delete);
     income.addLog(remoteLog);
 
-    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter());
+    DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     List<ItemState> result = deleteMerger.merge(remoteItem3Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
     assertNotNull("Remote Add expected ", hasState(result, remoteItem3Delete, true));
 
+  }
+
+  /**
+   * ADD and DELETE two different nodes locally and remotely respectively.
+   * 
+   * Local: Add N1/N2
+   * 
+   * Remote: (high priority) Del N1/N1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testAddNodeRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem11Change = new ItemState(remoteItem11, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem11Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem11Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Delete state expected ", hasState(result, remoteItem11Change, true));
+  }
+
+  /**
+   * DELETE property remotely and ADD node to parent locally.
+   * 
+   * Local: Add N1/N2
+   * 
+   * Remote: (high priority) Del N1/P1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testAddNodeRemotePriority2() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem1Change = new ItemState(remoteProperty1,
+                                                      ItemState.DELETED,
+                                                      false,
+                                                      null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
+  }
+
+  /**
+   * Add node locally and Delete parent node remotely.
+   * 
+   * Local: (high priority). Add N1/N1
+   * 
+   * Remote: Del N1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testAddNodeRemotePriority3() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
+    localLog.add(localItem11Change);
+    final ItemState localItem111Add = new ItemState(localItem111, ItemState.ADDED, false, null);
+    localLog.add(localItem111Add);
+    final ItemState localItem111Delete = new ItemState(localItem111, ItemState.DELETED, false, null);
+    localLog.add(localItem111Delete);
+    final ItemState localItem112Change = new ItemState(localItem112, ItemState.ADDED, false, null);
+    localLog.add(localItem112Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    final ItemState remoteItem11Change = new ItemState(remoteItem11, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem11Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 4);
+    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
+
+    assertTrue("Remote DELETE state expected ", hasState(result, remoteItem1Change, true));
+    assertTrue("Remote ADD state expected ", hasState(result, remoteItem11Change, true));
+    assertTrue("Local DELETE state expected ", hasState(result, new ItemState(localItem112,
+                                                                              ItemState.DELETED,
+                                                                              false,
+                                                                              null), true));
+    assertTrue("Local DELETE state expected ", hasState(result, new ItemState(localItem11,
+                                                                              ItemState.DELETED,
+                                                                              false,
+                                                                              null), true));
+  }
+
+  /**
+   * DELETE property remotely and ADD node with same path to parent locally.
+   * 
+   * Local: Add N1/N2
+   * 
+   * Remote: (high priority) Del N1/P1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testAddNodeRemotePriority4() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem1Change = new ItemState(remoteProperty1,
+                                                      ItemState.DELETED,
+                                                      false,
+                                                      null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    fail("no test");
+
+  }
+
+  /**
+   * ADD property locally and DELETE parent node remotely.
+   * 
+   * Local: Add N1/P1
+   * 
+   * Remote: (high priority) Del N1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testAddPropertyRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1P1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
+    localLog.add(localItem1P1Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
+  }
+
+  /**
+   * ADD and DELETE two different properties locally and remotely respectively.
+   * 
+   * Local: Add N1/P1
+   * 
+   * Remote: (high priority) Del N1/P2
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testAddPropertyRemotePriority2() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1P1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
+    localLog.add(localItem1P1Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem1Change = new ItemState(remoteProperty2,
+                                                      ItemState.DELETED,
+                                                      false,
+                                                      null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
   }
 
 }
