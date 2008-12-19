@@ -348,12 +348,12 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     if (excludeProperties.length > 0) {
       BooleanQuery tmp = new BooleanQuery();
-      for (int i = 0; i < includeProperties.length; i++) {
+      for (int i = 0; i < excludeProperties.length; i++) {
 
-        String field = locationFactory.createJCRName(includeProperties[i]).getAsString();
+        String field = locationFactory.createJCRName(excludeProperties[i]).getAsString();
         tmp.add(new TermQuery(new Term(FieldNames.PROPERTIES_SET, field)), Occur.MUST_NOT);
       }
-      tmp.add(query, Occur.MUST_NOT);
+      tmp.add(query, Occur.MUST);
       query = tmp;
     }
 

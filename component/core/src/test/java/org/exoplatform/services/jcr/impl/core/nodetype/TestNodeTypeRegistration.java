@@ -96,6 +96,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     }
   }
 
+  /**
+   * Test remove of build in node type
+   */
   public void testRemoveBuildInNodeType() {
     try {
       nodeTypeManager.unregisterNodeType("nt:base");
@@ -105,6 +108,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     }
   }
 
+  /**
+   * @throws RepositoryException
+   */
   public void testRemoveSuperNodeType() throws RepositoryException {
     nodeTypeManager.registerNodeType(testNodeTypeValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
     nodeTypeManager.registerNodeType(testNodeTypeValue2, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
@@ -124,6 +130,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
 
   }
 
+  /**
+   * @throws Exception
+   */
   public void testRemoveNodeTypeExistedNode() throws Exception {
     nodeTypeManager.registerNodeType(testNodeTypeValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
     Node testNode = root.addNode("test", testNodeTypeValue.getName());
@@ -150,6 +159,11 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     }
   }
 
+  /**
+   * Remove residual property definition
+   * 
+   * @throws Exception
+   */
   public void testRemoveResidual() throws Exception {
     NodeTypeValue testNValue = new NodeTypeValue();
 
@@ -178,6 +192,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     session.save();
 
     testNValue.setDeclaredPropertyDefinitionValues(new ArrayList<PropertyDefinitionValue>());
+
     try {
       nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
       fail();
@@ -191,5 +206,68 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
     assertTrue(nodeTypeManager.getNodeType(testNValue.getName()).getDeclaredPropertyDefinitions().length == 0);
     nodeTypeManager.unregisterNodeType(testNValue.getName());
+  }
+
+  public void testChangeProtected() throws Exception {
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testChangeProtected");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    List<PropertyDefinitionValue> props = new ArrayList<PropertyDefinitionValue>();
+
+    List<String> def = new ArrayList<String>();
+    def.add("tt");
+    props.add(new PropertyDefinitionValue("tt",
+                                          true,
+                                          false,
+                                          1,
+                                          false,
+                                          def,
+                                          false,
+                                          1,
+                                          new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node tNode = root.addNode("test", "exo:testChangeProtected");
+    session.save();
+    Property property = tNode.getProperty("tt");
+    assertEquals("tt", property.getString());
+
+    property.remove();
+    session.save();
+
+    tNode.addMixin("mix:versionable");
+
+    // try {
+    // property.remove();
+    // fail();
+    // } catch (RepositoryException e1) {
+    // // e1.printStackTrace();
+    // // ok
+    // }
+
+    // chenge mandatory
+    List<PropertyDefinitionValue> props2 = new ArrayList<PropertyDefinitionValue>();
+    props2.add(new PropertyDefinitionValue("tt",
+                                           true,
+                                           true,
+                                           1,
+                                           true,
+                                           def,
+                                           false,
+                                           1,
+                                           new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props2);
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+      // ok;
+    }
+
   }
 }

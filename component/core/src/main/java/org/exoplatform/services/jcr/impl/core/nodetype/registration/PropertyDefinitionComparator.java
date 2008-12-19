@@ -333,7 +333,7 @@ public class PropertyDefinitionComparator {
 
             list.add(ancestorDefinition[j]);
             list.add(recipientDefinition[i]);
-            changedDefinitionData.add(new ArrayList<PropertyDefinitionData>());
+            changedDefinitionData.add(list);
           }
         }
       }
@@ -341,12 +341,15 @@ public class PropertyDefinitionComparator {
         newDefinitionData.add(recipientDefinition[i]);
     }
     for (int i = 0; i < ancestorDefinition.length; i++) {
-      for (int j = 0; j < recipientDefinition.length; j++) {
+      boolean isRemoved = true;
+      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
         if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+          isRemoved = false;
           break;
         }
       }
-      removedDefinitionData.add(ancestorDefinition[i]);
+      if (isRemoved)
+        removedDefinitionData.add(ancestorDefinition[i]);
     }
   }
 }

@@ -242,8 +242,9 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
         removedNodes.add(nodeId);
       } else if (event.isDeleted()) {
         // property removed event is only generated when node still exists
-        addedNodes.remove(nodeId);
-        removedNodes.add(nodeId);
+        if (removedNodes.add(nodeId)) {
+          addedNodes.add(nodeId);
+        }
       }
     }
 
