@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.PropertyType;
@@ -31,7 +32,6 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
@@ -1859,16 +1859,6 @@ public class AddMergerTest extends BaseMergerTest {
                                                  localItem1.getIdentifier(),
                                                  new AccessControlList());
 
-    // remote property (as prop of local item 1)
-    ItemData remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
-                                                                             new InternalQName(null,
-                                                                                               "testProperty1")),
-                                                         IdGenerator.generate(),
-                                                         0,
-                                                         PropertyType.LONG,
-                                                         localItem1.getIdentifier(),
-                                                         false);
-
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem1Change = new ItemState(localItem11, ItemState.ADDED, false, null);
@@ -1881,10 +1871,13 @@ public class AddMergerTest extends BaseMergerTest {
 
     income.addLog(remoteLog);
 
+    List<ItemData> items = new ArrayList<ItemData>();
+    items.add(remoteItem1);
+
     AddMerger addMerger = new AddMerger(true,
                                         new TesterRemoteExporter(),
-                                        null,
-                                        new TesterntManager());
+                                        new TesterDataManager(items),
+                                        nodeTypeDataManager);
     List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
@@ -1904,16 +1897,6 @@ public class AddMergerTest extends BaseMergerTest {
                                                  localItem1.getIdentifier(),
                                                  new AccessControlList());
 
-    // remote property (as prop of local item 1)
-    ItemData remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
-                                                                             new InternalQName(null,
-                                                                                               "testProperty1")),
-                                                         IdGenerator.generate(),
-                                                         0,
-                                                         PropertyType.LONG,
-                                                         localItem1.getIdentifier(),
-                                                         false);
-
     PlainChangesLog localLog = new PlainChangesLogImpl();
 
     final ItemState localItem1Change = new ItemState(localItem11, ItemState.ADDED, false, null);
@@ -1926,10 +1909,13 @@ public class AddMergerTest extends BaseMergerTest {
 
     income.addLog(remoteLog);
 
+    List<ItemData> items = new ArrayList<ItemData>();
+    items.add(remoteItem1);
+
     AddMerger addMerger = new AddMerger(false,
                                         new TesterRemoteExporter(),
-                                        null,
-                                        new TesterntManager());
+                                        new TesterDataManager(items),
+                                        nodeTypeDataManager);
     List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);

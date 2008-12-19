@@ -22,6 +22,7 @@ import java.util.List;
 import javax.jcr.PropertyType;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -42,6 +43,8 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @version $Id: AddMergerTest.java 25005 2008-12-12 16:33:15Z tolusha $
  */
 public class BaseMergerTest extends BaseStandaloneTest {
+
+  protected NodeTypeDataManager     nodeTypeDataManager;
 
   /**
    * Test nodetype. UNSTRUCTURED but child nodes SNS disallowed.
@@ -122,6 +125,10 @@ public class BaseMergerTest extends BaseStandaloneTest {
    */
   public void setUp() throws Exception {
     super.setUp();
+
+    nodeTypeDataManager = session.getWorkspace().getNodeTypesHolder();
+
+    assertNotNull(nodeTypeDataManager);
 
     final String testItem1 = "testItem1";
     // create /testItem1
@@ -340,13 +347,13 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                         new AccessControlList());
 
     // remote property (as prop of local item 1)
-    remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+    remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(remoteItem1.getQPath(),
                                                                     new InternalQName(null,
                                                                                       "testProperty1")),
                                                 IdGenerator.generate(),
                                                 0,
                                                 PropertyType.LONG,
-                                                localItem1.getIdentifier(),
+                                                remoteItem1.getIdentifier(),
                                                 false);
     ((TransientPropertyData) remoteProperty1).setValue(new TransientValueData(123l));
 
@@ -359,7 +366,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                 PropertyType.LONG,
                                                 localItem1.getIdentifier(),
                                                 false);
-    ((TransientPropertyData) remoteProperty1).setValue(new TransientValueData(1111));
+    ((TransientPropertyData) remoteProperty2).setValue(new TransientValueData(1111));
 
     // SNS items
     localItem21x2B = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),

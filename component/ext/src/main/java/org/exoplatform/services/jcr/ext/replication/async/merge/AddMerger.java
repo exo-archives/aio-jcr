@@ -99,7 +99,18 @@ public class AddMerger implements ChangesMerger {
             return resultEmptyState;
           } else if ((incomeData.getQPath().equals(localData.getQPath()))) {
             if (incomeData.isNode() == localData.isNode()) {
-              // incomeData.getQPath().getName();
+              return resultEmptyState;
+            }
+
+            // try to add property and node with same name
+            InternalQName propertyName = !incomeData.isNode()
+                ? incomeData.getQPath().getName()
+                : localData.getQPath().getName();
+            String parentIdentifier = !incomeData.isNode()
+                ? incomeData.getParentIdentifier()
+                : localData.getParentIdentifier();
+
+            if (!isPropertyAllowed(propertyName, parentIdentifier)) {
               return resultEmptyState;
             }
           }
@@ -202,6 +213,20 @@ public class AddMerger implements ChangesMerger {
         switch (localState.getState()) {
         case ItemState.ADDED:
           if (incomeData.getQPath().equals(localData.getQPath())) {
+
+            // try to add property and node with same name
+            if (incomeData.isNode() != localData.isNode()) {
+              InternalQName propertyName = !incomeData.isNode()
+                  ? incomeData.getQPath().getName()
+                  : localData.getQPath().getName();
+              String parentIdentifier = !incomeData.isNode()
+                  ? incomeData.getParentIdentifier()
+                  : localData.getParentIdentifier();
+
+              if (isPropertyAllowed(propertyName, parentIdentifier)) {
+                break;
+              }
+            }
 
             // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
@@ -367,13 +392,16 @@ public class AddMerger implements ChangesMerger {
    * @param parent
    * @return
    */
-  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+  protected boolean isPropertyAllowed(InternalQName propertyName, String parentIdentifier) throws RepositoryException {
 
-    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
-                                                                     parent.getPrimaryTypeName(),
-                                                                     parent.getMixinTypeNames());
-
-    return pdef != null;
+    ItemData parentItem = dataManager.getItemData(parentIdentifier);
+    if (parentItem != null && parentItem.isNode()) {
+      NodeData parent = (NodeData) parentItem;
+      PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                       parent.getPrimaryTypeName(),
+                                                                       parent.getMixinTypeNames());
+      return pdef != null;
+    }
+    throw new RepositoryException("Can not found Node with indentifier " + parentIdentifier);
   }
-
 }

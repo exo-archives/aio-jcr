@@ -252,13 +252,19 @@ public class DeleteMerger implements ChangesMerger {
    * @param propertyName
    * @param parent
    * @return
+   * @throws RepositoryException
    */
-  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+  protected boolean isPropertyAllowed(InternalQName propertyName, String parentIdentifier) throws RepositoryException {
 
-    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
-                                                                     parent.getPrimaryTypeName(),
-                                                                     parent.getMixinTypeNames());
+    ItemData parentItem = dataManager.getItemData(parentIdentifier);
+    if (parentItem != null && parentItem.isNode()) {
+      NodeData parent = (NodeData) parentItem;
+      PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                       parent.getPrimaryTypeName(),
+                                                                       parent.getMixinTypeNames());
 
-    return pdef != null;
+      return pdef != null;
+    }
+    throw new RepositoryException("Can not found Node with indentifier " + parentIdentifier);
   }
 }
