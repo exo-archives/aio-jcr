@@ -28,7 +28,6 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
