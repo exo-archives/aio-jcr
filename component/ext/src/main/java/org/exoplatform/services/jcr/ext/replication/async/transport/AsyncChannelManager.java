@@ -19,7 +19,9 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -225,11 +227,10 @@ public class AsyncChannelManager implements RequestHandler {
    * @throws Exception
    *           will be generated Exception
    */
-  public void sendPacket(AsyncPacket packet, List<Address> destinationAddresses) throws Exception {
+  public void sendPacket(AsyncPacket packet, List<Address> destinationAddresses) throws IOException {
     byte[] buffer = AsyncPacket.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    
     Vector<Address> destAddresses = (destinationAddresses == null ? null : new Vector<Address>(destinationAddresses));
 
     dispatcher.castMessage(destAddresses, msg, GroupRequest.GET_NONE, 0);
@@ -243,7 +244,7 @@ public class AsyncChannelManager implements RequestHandler {
    * @throws Exception
    *           will be generated Exception
    */
-  public void sendPacket(AsyncPacket packet) throws Exception {
+  public void sendPacket(AsyncPacket packet) throws IOException {
     sendPacket(packet, null);
   }
 

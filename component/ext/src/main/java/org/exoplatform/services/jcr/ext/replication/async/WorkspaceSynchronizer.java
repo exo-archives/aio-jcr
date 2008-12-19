@@ -40,6 +40,8 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGetListener {
 
   protected final AsyncInitializer    asyncManager;
+  
+  protected final AsyncTransmitter transmitter;
 
   protected final DataManager         dataManager;
 
@@ -48,10 +50,12 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
   protected final boolean             localPriority;
 
   public WorkspaceSynchronizer(AsyncInitializer asyncManager,
+                               AsyncTransmitter transmitter,
                                DataManager dataManager,
                                NodeTypeDataManager ntManager,
                                boolean localPriority) {
     this.asyncManager = asyncManager;
+    this.transmitter = transmitter;
     this.dataManager = dataManager;
     this.ntManager = ntManager;
 
@@ -114,7 +118,14 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    */
   public void onRemoteGet(RemoteGetEvent event) {
     // TODO
-
+    try {
+      TransactionChangesLog chl = getExportChanges("nodeId");
+      transmitter.sendExport(chl);
+    } catch (RepositoryException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      transmitter.sendError("error " + e);
+    }
   }
 
   /**

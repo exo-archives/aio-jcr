@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 
 /**
  * Created by The eXo Platform SAS.
@@ -59,7 +60,14 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    */
   public void sendExport(TransactionChangesLog changes) {
     // TODO Auto-generated method stub
-
+    channel.sendPacket(new AsyncPacket()); // TODO
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public void sendError(String error) {
+    // TODO
+  }
+  
 }

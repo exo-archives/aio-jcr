@@ -19,7 +19,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.ext.replication.Packet;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 import org.jgroups.Address;
 
@@ -45,7 +44,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void onChanges() {
+  public void onChanges(AsyncPacket packet) {
     // TODO Auto-generated method stub
 
   }
@@ -53,17 +52,9 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void onGetChanges() {
+  public void onGetExport(AsyncPacket packet) {
     // TODO Auto-generated method stub
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onGetExport() {
-    // TODO Auto-generated method stub
-
+    synchronizer.onRemoteGet(new RemoteGetEvent("TODO"));
   }
 
   /**

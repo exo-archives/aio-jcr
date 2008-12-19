@@ -34,4 +34,6 @@ public interface AsyncTransmitter {
   
   void sendExport(TransactionChangesLog changes);
   
+  void sendError(String error);
+  
 }
