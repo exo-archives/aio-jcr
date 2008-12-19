@@ -55,8 +55,20 @@ public class ItemDefinitionData {
   }
 
   public boolean isResidualSet() {
-    // TODO
     return this.getName().equals(Constants.JCR_ANY_NAME);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if ((obj == null) || (obj.getClass() != this.getClass()))
+      return false;
+    // object must be Test at this point
+    ItemDefinitionData test = (ItemDefinitionData) obj;
+    return name == test.name && declaringNodeType == test.declaringNodeType
+        && autoCreated == test.autoCreated && mandatory == test.mandatory
+        && onParentVersion == test.onParentVersion && protectedItem == test.protectedItem;
   }
 
   public InternalQName getName() {

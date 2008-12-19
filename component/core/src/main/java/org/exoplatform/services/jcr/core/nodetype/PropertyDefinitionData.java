@@ -16,15 +16,17 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import java.util.Arrays;
+
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 25.11.2008
  * 
- * <br/>Date: 25.11.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: PropertyDefinitionData.java 23992 2008-11-27 16:58:34Z
+ *          pnedonosko $
  */
 public class PropertyDefinitionData extends ItemDefinitionData {
 
@@ -69,4 +71,15 @@ public class PropertyDefinitionData extends ItemDefinitionData {
     return multiple;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if ((obj == null) || (obj.getClass() != this.getClass()))
+      return false;
+    PropertyDefinitionData test = (PropertyDefinitionData) obj;
+    return requiredType == test.requiredType && multiple == test.multiple && super.equals(test)
+        && Arrays.equals(this.valueConstraints, test.valueConstraints)
+        && Arrays.equals(this.defaultValues, test.defaultValues);
+  }
 }

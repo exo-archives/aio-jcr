@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.core.nodetype;
 
+import java.util.Arrays;
+
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 
 /**
@@ -60,4 +62,16 @@ public class NodeDefinitionData extends ItemDefinitionData {
     return allowsSameNameSiblings;
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if ((obj == null) || (obj.getClass() != this.getClass()))
+      return false;
+    // object must be Test at this point
+    NodeDefinitionData test = (NodeDefinitionData) obj;
+    return defaultPrimaryType == test.defaultPrimaryType
+        && allowsSameNameSiblings == test.allowsSameNameSiblings && super.equals(test)
+        && Arrays.equals(this.requiredPrimaryTypes, test.requiredPrimaryTypes);
+  }
 }

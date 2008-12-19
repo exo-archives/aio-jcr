@@ -30,6 +30,7 @@ import java.util.WeakHashMap;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
@@ -47,6 +48,7 @@ import org.apache.lucene.search.BooleanClause.Occur;
 
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
+import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
@@ -58,12 +60,23 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeValuesList;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
+import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -101,6 +114,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
   private HashSet<QueryHandler>                                       queryHandlers;
 
+  private final ValueFactoryImpl                                      valueFactory;
+
   public NodeTypeDataManagerImpl(RepositoryEntry config,
                                  LocationFactory locationFactory,
                                  NamespaceRegistry namespaceRegistry,
@@ -111,7 +126,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     this.persister = persister;
 
     this.locationFactory = locationFactory;
-
+    this.valueFactory = new ValueFactoryImpl(locationFactory);
     this.accessControlPolicy = config.getAccessControl();
 
     this.hierarchy = new NodeTypeDataHierarchyHolder();
@@ -379,21 +394,234 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  void reregisterNodeType(NodeTypeData oldNodeTypeData, NodeTypeData newNodeTypeData) throws RepositoryException {
-    if (!oldNodeTypeData.getName().equals(newNodeTypeData.getName())) {
+  void reregisterNodeType(NodeTypeData ancestorDefinition, NodeTypeData recipientDefinition) throws RepositoryException {
+    if (!ancestorDefinition.getName().equals(recipientDefinition.getName())) {
       throw new RepositoryException("Unsupported Operation");
     }
-    if (buildInNodeTypesNames.contains(newNodeTypeData.getName())) {
-      throw new RepositoryException(newNodeTypeData.getName()
+    if (buildInNodeTypesNames.contains(recipientDefinition.getName())) {
+      throw new RepositoryException(recipientDefinition.getName()
           + ": can't reregister built-in node type.");
     }
-
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    changesLog.addAll(processPropertyDefinitionChanges(recipientDefinition,
+                                                       ancestorDefinition.getDeclaredPropertyDefinitions(),
+                                                       recipientDefinition.getDeclaredPropertyDefinitions()).getAllStates());
     // TODO super names
     // TODO primaryItemName
     // TODO child nodes
     // TODO properties defs
+
     // TODO hasOrderableChildNodes
     // TODO mixinom
+    persister.saveChanges(changesLog);
+  }
+
+  private PlainChangesLog processPropertyDefinitionChanges(NodeTypeData registeredNodeType,
+                                                           PropertyDefinitionData[] ancestorDefinition,
+                                                           PropertyDefinitionData[] recipientDefinition) throws RepositoryException {
+
+    List<PropertyDefinitionData> sameDefinitionData = new ArrayList<PropertyDefinitionData>();
+    List<List<PropertyDefinitionData>> changedDefinitionData = new ArrayList<List<PropertyDefinitionData>>();
+    List<PropertyDefinitionData> newDefinitionData = new ArrayList<PropertyDefinitionData>();
+    List<PropertyDefinitionData> removedDefinitionData = new ArrayList<PropertyDefinitionData>();
+    for (int i = 0; i < recipientDefinition.length; i++) {
+      boolean isNew = true;
+      for (int j = 0; j < ancestorDefinition.length; j++) {
+        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+          isNew = false;
+          if (recipientDefinition[i].equals(ancestorDefinition[j]))
+            sameDefinitionData.add(recipientDefinition[i]);
+          else {
+            List<PropertyDefinitionData> list = new ArrayList<PropertyDefinitionData>();
+
+            list.add(ancestorDefinition[j]);
+            list.add(recipientDefinition[i]);
+            changedDefinitionData.add(new ArrayList<PropertyDefinitionData>());
+          }
+        }
+      }
+      if (isNew)
+        newDefinitionData.add(recipientDefinition[i]);
+    }
+    for (int i = 0; i < ancestorDefinition.length; i++) {
+      for (int j = 0; j < recipientDefinition.length; j++) {
+        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+          break;
+        }
+      }
+      removedDefinitionData.add(ancestorDefinition[i]);
+    }
+
+    List<PropertyDefinitionData> toAddList = new ArrayList<PropertyDefinitionData>();
+    List<PropertyDefinitionData> toRemoveList = new ArrayList<PropertyDefinitionData>();
+
+    // create changes log
+    PlainChangesLog changesLog = new PlainChangesLogImpl();
+
+    DataManager dm = persister.getDataManager();
+    // removing properties
+    for (PropertyDefinitionData removePropertyDefinitionData : toRemoveList) {
+      Set<String> nodes;
+      if (removePropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
+        nodes = getNodes(registeredNodeType.getName());
+        for (String uuid : nodes) {
+          NodeData nodeData = (NodeData) dm.getItemData(uuid);
+          List<PropertyData> childs = dm.getChildPropertiesData(nodeData);
+          // more then mixin and primary type
+          if (childs.size() > 2) {
+            throw new RepositoryException("Can't remove residual property definition for "
+                + registeredNodeType.getName().getAsString() + " node type, because node "
+                + nodeData.getQPath().getAsString() + " contains more then 2 properties");
+          }
+        }
+      } else
+        nodes = getNodes(registeredNodeType.getName(),
+                         new InternalQName[] { removePropertyDefinitionData.getName() },
+                         new InternalQName[] {});
+      if (nodes.size() > 0) {
+        String message = "Can not remove " + removePropertyDefinitionData.getName().getAsString()
+            + " PropertyDefinitionData, because the following nodes have these properties: ";
+        for (String uuids : nodes) {
+          message += uuids + " ";
+        }
+        throw new RepositoryException(message);
+
+      }
+    }
+
+    // new property definition
+    if (newDefinitionData.size() > 0) {
+
+      for (PropertyDefinitionData propertyDefinitionData : removedDefinitionData) {
+        // skipping residual
+        if (propertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
+          continue;
+        // try to add mandatory or auto-created properties for
+        // for already addded nodes.
+        if (propertyDefinitionData.isMandatory() || propertyDefinitionData.isAutoCreated()) {
+          if (propertyDefinitionData.getValueConstraints().length == 0)
+            throw new RepositoryException("No default values defined for "
+                + propertyDefinitionData.getName());
+          toAddList.add(propertyDefinitionData);
+
+        }
+      }
+    }
+    Set<String> nodes = getNodes(registeredNodeType.getName());
+    for (String uuid : nodes) {
+      NodeData nodeData = (NodeData) dm.getItemData(uuid);
+
+      // added properties
+      for (PropertyDefinitionData newPropertyDefinitionData : toAddList) {
+        List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
+        for (String vc : newPropertyDefinitionData.getValueConstraints())
+          valueConstraintsValues.add(new TransientValueData(vc));
+
+        // added state
+        int type = newPropertyDefinitionData.getRequiredType();
+        changesLog.add(new ItemState(TransientPropertyData.createPropertyData(nodeData,
+                                                                              Constants.JCR_PRIMARYTYPE,
+                                                                              type,
+                                                                              newPropertyDefinitionData.isMultiple(),
+                                                                              valueConstraintsValues),
+                                     ItemState.ADDED,
+                                     false,
+                                     nodeData.getQPath()));
+      }
+    }
+    // changed
+    for (List<PropertyDefinitionData> list : changedDefinitionData) {
+      PropertyDefinitionData ancestorDefinitionData = list.get(0);
+      PropertyDefinitionData recipientDefinitionData = list.get(1);
+      // change from mandatory=false to mandatory = true
+      // TODO residual
+      if (!ancestorDefinitionData.isMandatory() && recipientDefinitionData.isMandatory()) {
+        Set<String> nodes2 = getNodes(registeredNodeType.getName(),
+                                      new InternalQName[] {},
+                                      new InternalQName[] { recipientDefinitionData.getName() });
+        if (nodes2.size() > 0) {
+          String message = "Can not change " + recipientDefinitionData.getName().getAsString()
+              + " property definition from mandatory=false to mandatory = true , because "
+              + " the following nodes ";
+          for (String uuids : nodes) {
+            message += uuids + " ";
+          }
+          message += "  doesn't have these properties ";
+
+          throw new RepositoryException(message);
+        }
+
+      }
+      // change from Protected=false to Protected = true
+      if (!ancestorDefinitionData.isProtected() && recipientDefinitionData.isProtected()) {
+        // TODO residual
+        Set<String> nodes2 = getNodes(registeredNodeType.getName(),
+                                      new InternalQName[] {},
+                                      new InternalQName[] { recipientDefinitionData.getName() });
+        if (nodes2.size() > 0) {
+          String message = "Can not change " + recipientDefinitionData.getName().getAsString()
+              + " property definition from Protected=false to Protected = true , because "
+              + " the following nodes ";
+          for (String uuids : nodes) {
+            message += uuids + " ";
+          }
+          message += "  doesn't have these properties ";
+
+          throw new RepositoryException(message);
+        }
+      }
+      // Required type change
+      if (ancestorDefinitionData.getRequiredType() != recipientDefinitionData.getRequiredType()
+          && recipientDefinitionData.getRequiredType() != PropertyType.UNDEFINED) {
+        Set<String> nodes2;
+        if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+          nodes2 = getNodes(registeredNodeType.getName());
+        } else {
+          nodes2 = getNodes(registeredNodeType.getName(),
+                            new InternalQName[] { recipientDefinitionData.getName() },
+                            new InternalQName[] {});
+        }
+        for (String uuid : nodes2) {
+          NodeData nodeData = (NodeData) dm.getItemData(uuid);
+          if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+            List<PropertyData> propertyDatas = dm.getChildPropertiesData(nodeData);
+            for (PropertyData propertyData : propertyDatas) {
+              // skip mixin and primary type
+              if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
+                  && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
+                if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
+                  throw new RepositoryException("Can not change  requiredType to "
+                      + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
+                      + " in " + recipientDefinitionData.getName().getAsString() + "  because "
+                      + propertyData.getQPath().getAsString() + " have "
+                      + ExtendedPropertyType.nameFromValue(propertyData.getType()));
+
+                }
+              }
+            }
+
+          } else {
+            PropertyData propertyData = (PropertyData) dm.getItemData(nodeData,
+                                                                      new QPathEntry(recipientDefinitionData.getName(),
+                                                                                     0));
+            if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
+              throw new RepositoryException("Can not change  requiredType to "
+                  + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
+                  + " in " + recipientDefinitionData.getName().getAsString() + "  because "
+                  + propertyData.getQPath().getAsString() + " have "
+                  + ExtendedPropertyType.nameFromValue(propertyData.getType()));
+            }
+          }
+
+        }
+      }
+      // ValueConstraints
+
+      // multiple change
+
+    }
+    return changesLog;
+
   }
 
   /**
@@ -845,7 +1073,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @throws RepositoryException
    * @throws IOException
    */
-  public Set<String> getNodes(InternalQName nodeType) throws RepositoryException, IOException {
+  public Set<String> getNodes(InternalQName nodeType) throws RepositoryException {
     return getNodes(nodeType, new InternalQName[0], new InternalQName[0]);
   }
 
@@ -859,8 +1087,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    */
   public Set<String> getNodes(InternalQName nodeType,
                               InternalQName[] includeProperties,
-                              InternalQName[] excludeProperties) throws RepositoryException,
-                                                                IOException {
+                              InternalQName[] excludeProperties) throws RepositoryException {
     Query query = getQuery(nodeType);
     if (includeProperties.length > 0) {
       BooleanQuery tmp = new BooleanQuery();
@@ -887,13 +1114,19 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     Iterator<QueryHandler> it = queryHandlers.iterator();
     Set<String> result = new HashSet<String>();
 
-    while (it.hasNext()) {
-      QueryHandler queryHandler = it.next();
-      QueryHits hits = queryHandler.executeQuery(query, true, new InternalQName[0], new boolean[0]);
-      for (int i = 0; i < hits.length(); i++) {
-        result.add(hits.getFieldContent(i, FieldNames.UUID));
+    try {
+      while (it.hasNext()) {
+        QueryHandler queryHandler = it.next();
+        QueryHits hits = queryHandler.executeQuery(query,
+                                                   true,
+                                                   new InternalQName[0],
+                                                   new boolean[0]);
+        for (int i = 0; i < hits.length(); i++) {
+          result.add(hits.getFieldContent(i, FieldNames.UUID));
+        }
       }
-
+    } catch (IOException e) {
+      throw new RepositoryException(e.getLocalizedMessage(), e);
     }
     return result;
   }
@@ -994,19 +1227,15 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       }
       throw new RepositoryException(message);
     }
-    try {
-      Set<String> nodes = getNodes(nodeTypeName);
-      if (nodes.size() > 0) {
-        String message = "Can not remove " + nodeTypeName.getAsString()
-            + " nodetype, because the following node types is used in nodes with uuid: ";
-        for (String uuids : nodes) {
-          message += uuids + " ";
-        }
-        throw new RepositoryException(message);
-
+    Set<String> nodes = getNodes(nodeTypeName);
+    if (nodes.size() > 0) {
+      String message = "Can not remove " + nodeTypeName.getAsString()
+          + " nodetype, because the following node types is used in nodes with uuid: ";
+      for (String uuids : nodes) {
+        message += uuids + " ";
       }
-    } catch (IOException e) {
-      throw new RepositoryException(e.getLocalizedMessage(), e);
+      throw new RepositoryException(message);
+
     }
     // remove from internal lists
     hierarchy.removeNodeType(nodeTypeName);

@@ -14,13 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.impl.core.nodetype.registration;
+package org.exoplatform.services.jcr.impl.util;
 
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-
-import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -28,42 +24,42 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public abstract class AbstractDefinitionComparator<X, Y> implements DefinitionComparator<Y> {
+public class ArraysComparator<T> {
   /**
    * Class logger.
    */
-  private static final Log LOG = ExoLogger.getLogger(AbstractDefinitionComparator.class);
 
-  void findDifferences(X[] ancestorDefinition,
-                       X[] recipientDefinition,
-                       List<X> newDefinitions,
-                       List<X> sameDefinitions,
-                       List<X> removedDfinitions) {
+  public void findDifferences(T[] firstArray,
+                              T[] secondArray,
+                              List<T> secondArrayItems,
+                              List<T> sameItems,
+                              List<T> firstArrayItems) {
     // same and new
-    for (int i = 0; i < recipientDefinition.length; i++) {
+    for (int i = 0; i < secondArray.length; i++) {
       boolean isSame = false;
       boolean isNew = true;
-      for (int j = 0; j < ancestorDefinition.length && !isSame; j++) {
-        if (ancestorDefinition[j].equals(recipientDefinition[i])) {
-          sameDefinitions.add(recipientDefinition[i]);
+      for (int j = 0; j < firstArray.length && !isSame; j++) {
+        if (firstArray[j].equals(secondArray[i])) {
+          sameItems.add(secondArray[i]);
           isNew = false;
           isSame = true;
         }
       }
       if (isNew) {
-        newDefinitions.add(recipientDefinition[i]);
+        secondArrayItems.add(secondArray[i]);
       }
     }
     // removed
-    for (int i = 0; i < ancestorDefinition.length; i++) {
+    for (int i = 0; i < firstArray.length; i++) {
       boolean isRemoved = true;
-      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-        if (ancestorDefinition[j].equals(recipientDefinition[i])) {
+      for (int j = 0; j < secondArray.length && isRemoved; j++) {
+        if (firstArray[j].equals(secondArray[i])) {
           isRemoved = false;
         }
       }
       if (isRemoved)
-        removedDfinitions.add(ancestorDefinition[i]);
+        firstArrayItems.add(firstArray[i]);
     }
   };
+
 }
