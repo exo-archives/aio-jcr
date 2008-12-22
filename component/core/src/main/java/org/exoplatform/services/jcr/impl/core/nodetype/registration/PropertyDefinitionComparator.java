@@ -93,13 +93,11 @@ public class PropertyDefinitionComparator {
     validateRemoved(registeredNodeType, removedDefinitionData);
 
     // new property definition
-    List<PropertyDefinitionData> toAddList = new ArrayList<PropertyDefinitionData>();
-
-    validateAdded(newDefinitionData, removedDefinitionData, toAddList);
+    validateAdded(newDefinitionData);
 
     Set<String> nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
     //
-    doAdd(toAddList, changesLog, nodes);
+    doAdd(newDefinitionData, changesLog, nodes);
     // changed
     doChanged(registeredNodeType, changedDefinitionData, nodes);
     return changesLog;
@@ -219,14 +217,17 @@ public class PropertyDefinitionComparator {
 
       // added properties
       for (PropertyDefinitionData newPropertyDefinitionData : toAddList) {
+        if (newPropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
+          continue;
+
         List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
-        for (String vc : newPropertyDefinitionData.getValueConstraints())
+        for (String vc : newPropertyDefinitionData.getDefaultValues())
           valueConstraintsValues.add(new TransientValueData(vc));
 
         // added state
         int type = newPropertyDefinitionData.getRequiredType();
         changesLog.add(new ItemState(TransientPropertyData.createPropertyData(nodeData,
-                                                                              Constants.JCR_PRIMARYTYPE,
+                                                                              newPropertyDefinitionData.getName(),
                                                                               type,
                                                                               newPropertyDefinitionData.isMultiple(),
                                                                               valueConstraintsValues),
@@ -243,22 +244,19 @@ public class PropertyDefinitionComparator {
    * @param toAddList
    * @throws RepositoryException
    */
-  private void validateAdded(List<PropertyDefinitionData> newDefinitionData,
-                             List<PropertyDefinitionData> removedDefinitionData,
-                             List<PropertyDefinitionData> toAddList) throws RepositoryException {
+  private void validateAdded(List<PropertyDefinitionData> newDefinitionData) throws RepositoryException {
     if (newDefinitionData.size() > 0) {
 
-      for (PropertyDefinitionData propertyDefinitionData : removedDefinitionData) {
+      for (PropertyDefinitionData propertyDefinitionData : newDefinitionData) {
         // skipping residual
         if (propertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
           continue;
         // try to add mandatory or auto-created properties for
         // for already addded nodes.
         if (propertyDefinitionData.isMandatory() || propertyDefinitionData.isAutoCreated()) {
-          if (propertyDefinitionData.getValueConstraints().length == 0)
+          if (propertyDefinitionData.getDefaultValues().length == 0)
             throw new RepositoryException("No default values defined for "
                 + propertyDefinitionData.getName());
-          toAddList.add(propertyDefinitionData);
 
         }
       }
@@ -330,8 +328,8 @@ public class PropertyDefinitionComparator {
           if (recipientDefinition[i].equals(ancestorDefinition[j]))
             sameDefinitionData.add(recipientDefinition[i]);
           else {
+            // TODO make better structure
             List<PropertyDefinitionData> list = new ArrayList<PropertyDefinitionData>();
-
             list.add(ancestorDefinition[j]);
             list.add(recipientDefinition[i]);
             changedDefinitionData.add(list);
