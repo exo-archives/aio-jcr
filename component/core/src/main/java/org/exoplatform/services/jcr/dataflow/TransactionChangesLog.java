@@ -143,9 +143,9 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public ItemState getPreviousItemStateByQPath(ItemState startState, QPath path) {
     List<ItemState> allStates = getAllStates();
 
-    for (int i = allStates.size() - 1; i <= 0; i--) {
+    for (int i = allStates.size() - 1; i >= 0; i--) {
       if (allStates.get(i).equals(startState)) {
-        for (int j = i - 1; j <= 0; j--) {
+        for (int j = i - 1; j >= 0; j--) {
           ItemState item = allStates.get(j);
           if (item.getData().getQPath().equals(path)) {
             return item;
