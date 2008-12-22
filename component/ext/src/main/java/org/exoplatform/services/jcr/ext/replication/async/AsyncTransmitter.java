@@ -16,7 +16,10 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import java.util.List;
+
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
+import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -30,9 +33,9 @@ public interface AsyncTransmitter {
   
   void sendGetExport(String nodeId);
   
-  void sendChanges(TransactionChangesLog changes);
+  void sendChanges(List<ChangesLogFile> changes);
   
-  void sendExport(TransactionChangesLog changes);
+  void sendExport(ChangesLogFile changes, Address address);
   
   void sendError(String error);
   

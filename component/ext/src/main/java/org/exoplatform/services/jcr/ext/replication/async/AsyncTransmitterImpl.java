@@ -19,12 +19,12 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
@@ -50,16 +50,19 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   protected final WorkspaceSynchronizer synchronizer;
 
   protected final AsyncChannelManager   channel;
+  
+  protected final int                   priority;
 
-  AsyncTransmitterImpl(AsyncChannelManager channel, WorkspaceSynchronizer synchronizer) {
+  AsyncTransmitterImpl(AsyncChannelManager channel, WorkspaceSynchronizer synchronizer, int priority) {
     this.channel = channel;
     this.synchronizer = synchronizer;
+    this.priority = priority;
   }
 
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(TransactionChangesLog changes) {
+  public void sendChanges(List<ChangesLogFile> changes) {
     // TODO Auto-generated method stub
 
   }
@@ -74,10 +77,23 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
   /**
    * {@inheritDoc}
+   * @throws IOException 
    */
-  public void sendExport(TransactionChangesLog changes) {
-    // TODO Auto-generated method stub
-//    channel.sendPacket(new AsyncPacket()); TODO
+  public void sendExport(ChangesLogFile changes, Address destAddress){
+    
+    try {
+      sendBinaryFile(destAddress, 
+                     changes, 
+                     priority, 
+                     1, 
+                     AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
+                     AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
+                     AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
   }
 
   /**
@@ -143,7 +159,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              int totalFiles,
                              int firstPacketType,
                              int middlePocketType,
-                             int lastPocketType) throws Exception {
+                             int lastPocketType) throws IOException {
     List<Address> destinationAddresses = new ArrayList<Address>();
     destinationAddresses.add(destinationAddress);
     
@@ -183,7 +199,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              int totalFiles,
                              int firstPacketType,
                              int middlePocketType,
-                             int lastPocketType) throws Exception {
+                             int lastPocketType) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + clFile.getFilePath());
 
@@ -238,7 +254,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                 int totalSize,
                                 int firstPacketType,
                                 int middlePocketType,
-                                int lastPocketType) throws Exception{
+                                int lastPocketType) throws IOException{
     AsyncPacket packet = new AsyncPacket(firstPacketType, 
                                          totalSize, 
                                          crc, 
