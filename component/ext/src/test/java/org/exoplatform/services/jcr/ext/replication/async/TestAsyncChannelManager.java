@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,11 +110,11 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     
     byte[] bigData = createBLOBTempData(256);
     AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, null,100);
-    trans.sendBigPacket(bigData, new AsyncPacket(0, 
+    trans.sendBigPacket(adr, bigData, new AsyncPacket(0, 
                                                     0, 
                                                     "checksum", 
                                                     System.currentTimeMillis(), 
-                                                    100),adr);
+                                                    100));
     Thread.sleep(1000);
 
     assertEquals(true, listener.isTested());
@@ -203,7 +204,8 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     tchannel.closeChannel();
   }
 
-/*  public void testBinaryFile() throws Exception {
+  /*
+  public void testBinaryFile() throws Exception {
     final String packetId = "Id";
     final String receiverName = "receiver";
     final String transmitterName = "transmitter";
@@ -246,7 +248,11 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     File file  =this.createBLOBTempFile("mytest", 600);
 
-    tchannel.s.se.sendBinaryFile(file.getPath(), receiverName, transmitterName, packetId, first_packet_type, mid_packet_type, last_packet_type);
+    Address adr = new IpAddress("127.0.0.1",7800);
+    
+    AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, null,100);
+    
+    trans.sendBinaryFile(adr, file, 100, 4 , first_packet_type, mid_packet_type, last_packet_type);
     Thread.sleep(1000);
 
     assertEquals(true, listener.isTested());
