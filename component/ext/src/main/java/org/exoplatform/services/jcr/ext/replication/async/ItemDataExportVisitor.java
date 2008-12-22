@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -30,28 +31,32 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
-
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
 
 /**
- * Created by The eXo Platform SAS Author : Karpenko Sergiy karpenko.sergiy@gmail.com
+ * 
+ * This visitor takes node and extracts its ItemStates in next order:
+ *  <p> - nodes ItemState;  
+ *  <p> - nodes version history ItemStates(if exists);
+ *  <p> - node properties ItemStares;
+ *  <p> - node sub-nodes ItemStates. <p>
+ *  
+ * Created by The eXo Platform SAS Author : Karpenko Sergiy
+ * karpenko.sergiy@gmail.com
  */
 public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
   /**
-   * The list of added item states.
+   * Output where extracted ItemStates will be written.
    */
-  protected List<ItemState>     itemAddStates = new ArrayList<ItemState>();
+  protected ObjectOutputStream  out;
 
   /**
    * The stack. In the top it contains a parent node.
@@ -63,11 +68,13 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
    */
   protected NodeTypeDataManager ntManager;
 
-  public ItemDataExportVisitor(NodeData parent,
+  public ItemDataExportVisitor(ObjectOutputStream out,
+                               NodeData parent,
                                NodeTypeDataManager nodeTypeManager,
                                ItemDataConsumer dataManager) {
     super(dataManager);
 
+    this.out = out;
     this.ntManager = nodeTypeManager;
     this.parents = new Stack<NodeData>();
     this.parents.add(parent);
@@ -84,11 +91,15 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
 
     newProperty.setValues(property.getValues());
 
-    itemAddStates.add(new ItemState(newProperty,
+    try {
+      out.writeObject(new ItemState(newProperty,
                                     ItemState.ADDED,
                                     false,
                                     curParent().getQPath(),
                                     level != 0));
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
   }
 
   @Override
@@ -108,48 +119,51 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     parents.push(newNode);
 
     // ancestorToSave is a parent node
-    // if level == 0 set internal createt as false for validating on save
-    itemAddStates.add(new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0));
+    // if level == 0 set internal created as false for validating on save
+    
+    try {
+      out.writeObject(new ItemState(newNode, ItemState.ADDED, true, ancestorToSave, level != 0));
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
 
     // check is versionable
     if (ntManager.isNodeType(Constants.MIX_VERSIONABLE,
                              node.getPrimaryTypeName(),
                              node.getMixinTypeNames())) {
-      
-      //get reference to version history
-      PropertyData property = (PropertyData)dataManager.getItemData(node, new QPathEntry(Constants.JCR_VERSIONHISTORY,1));
+
+      // get reference to version history
+      PropertyData property = (PropertyData) dataManager.getItemData(node,
+                                                                     new QPathEntry(Constants.JCR_VERSIONHISTORY,
+                                                                                    1));
       String ref;
-      try{
-        ref = ((TransientValueData)property.getValues().get(0)).getString();
-      }catch (IOException e){
+      try {
+        ref = ((TransientValueData) property.getValues().get(0)).getString();
+      } catch (IOException e) {
         throw new RepositoryException(e);
       }
-      
-      NodeData verStorage = (NodeData)dataManager.getItemData(Constants.VERSIONSTORAGE_UUID);
-      
+
+      NodeData verStorage = (NodeData) dataManager.getItemData(Constants.VERSIONSTORAGE_UUID);
+
       QPathEntry nam;
-      try{
+      try {
         nam = QPathEntry.parse("[]" + ref + ":1");
-      }catch(IllegalNameException e){
+      } catch (IllegalNameException e) {
         throw new RepositoryException(e);
       }
-      
-      NodeData verHistory = (NodeData)dataManager.getItemData(verStorage, nam );
-      
-      ItemDataExportVisitor vis = new ItemDataExportVisitor(verStorage,
-                                                            ntManager,
-                                                            dataManager);
+
+      NodeData verHistory = (NodeData) dataManager.getItemData(verStorage, nam);
+
+      // extract full version history
+      ItemDataExportVisitor vis = new ItemDataExportVisitor(out, verStorage, ntManager, dataManager);
 
       verHistory.accept(vis);
-      
-      itemAddStates.addAll(vis.getItemAddStates());
     }
   }
 
   @Override
   protected void leaving(PropertyData property, int level) throws RepositoryException {
     // Do nothing
-
   }
 
   @Override
@@ -162,28 +176,6 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
    */
   protected NodeData curParent() {
     return parents.peek();
-  }
-
-  protected ItemState findLastItemState(QPath itemPath) {
-    for (int i = itemAddStates.size() - 1; i >= 0; i--) {
-      ItemState istate = itemAddStates.get(i);
-      if (istate.getData().getQPath().equals(itemPath))
-        return istate;
-    }
-    return null;
-  }
-
-  /**
-   * Returns the list of item add states
-   */
-  public List<ItemState> getItemAddStates() {
-    return itemAddStates;
-  }
-
-  public PlainChangesLog getPlainChangesLog() {
-    PlainChangesLog log = new PlainChangesLogImpl();
-    log.addAll(itemAddStates);
-    return log;
   }
 
 }

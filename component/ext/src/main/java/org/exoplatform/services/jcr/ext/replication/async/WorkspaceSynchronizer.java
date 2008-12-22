@@ -19,6 +19,11 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -81,18 +86,17 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    * 
    * @return TransactionChangesLog
    */
-  public TransactionChangesLog getLocalChanges() {
-    return new TransactionChangesLog(); // TODO
+  public ChangesLogFile  getLocalChanges() {
+    return null; // TODO
   }
 
   /**
    * Return Node traversed changes log for a given path.<br/> Used by receiver.
    * 
-   * @param path Node QPath
-   * @return TransactionChangesLog
+   * @param nodeId Node QPath
+   * @return ChangesLogFile
    */
   public ChangesLogFile getExportChanges(String nodeId) throws RepositoryException {
-    //TODO 
     
     NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
     NodeData parentNode;
@@ -102,12 +106,23 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
       parentNode = (NodeData) dataManager.getItemData(exportedNode.getParentIdentifier());
     }
     
-    exportedNode.getParentIdentifier();
-    ItemDataExportVisitor exporter = new ItemDataExportVisitor(parentNode, ntManager, dataManager);
-    exportedNode.accept(exporter);
-    //return new TransactionChangesLog(exporter.getPlainChangesLog());
+    File chLogFile;
     
-    return new ChangesLogFile("TODO", "TODO", System.currentTimeMillis());
+    try{
+      chLogFile = File.createTempFile("chLog", "suf");
+      ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+    
+      // extract ItemStates
+      ItemDataExportVisitor exporter = new ItemDataExportVisitor(out, parentNode, ntManager, dataManager);
+      exportedNode.accept(exporter);
+      out.close();
+      
+    }catch(IOException e){
+      throw new RepositoryException(e);
+    }  
+    
+    // TODO make correct ChangesLogFile creation
+    return new ChangesLogFile(chLogFile.getPath(), "TODO", System.currentTimeMillis());
   }
 
   /**
@@ -125,7 +140,6 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
       ChangesLogFile chl = getExportChanges(event.getNodeId());
       transmitter.sendExport(chl, event.getAddress());
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
       transmitter.sendError("error " + e);
     }
