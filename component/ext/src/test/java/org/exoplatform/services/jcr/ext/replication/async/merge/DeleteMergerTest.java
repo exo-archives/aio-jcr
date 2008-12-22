@@ -1025,4 +1025,744 @@ public class DeleteMergerTest extends BaseMergerTest {
     assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
   }
 
+  /**
+   * Delete node locally and node with same path was deleted remotely.
+   * 
+   * Local: Del N1/N2
+   * 
+   * Remote: (high priority) Del N1/N2
+   * 
+   * Expect: income changes will be ignored.
+   */
+  public void testRemoveRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem12Change);
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Delete node locally and parent node with was deleted remotely.
+   * 
+   * Local: Del N1/N2
+   * 
+   * Remote: (high priority) Del N1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testRemoveRemotePriority2() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
+    localLog.add(localItem12Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem12Change);
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote DELETE state expected ", hasState(result, remoteItem1Change, true));
+  }
+
+  /**
+   * Delete property locally and parent node with was deleted remotely.
+   * 
+   * Local: Del N1/P1
+   * 
+   * Remote: (high priority) Del N1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testRemoveRemotePriority3() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localProperty1, ItemState.DELETED, false, null);
+    localLog.add(localItem1Change);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem12Change);
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote DELETE state expected ", hasState(result, remoteItem1Change, true));
+  }
+
+  /**
+   * Delete property remotely and parent node was deleted locally.
+   * 
+   * Local: DEL N1
+   * 
+   * Remote: (high priority) Del N1/P1
+   * 
+   * Expect: income changes will be ignored.
+   */
+  public void testRemoveRemotePriority4() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localItem1, ItemState.DELETED, false, null);
+    localLog.add(localItem1Change);
+
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem1Change = new ItemState(remoteProperty1,
+                                                      ItemState.DELETED,
+                                                      false,
+                                                      null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes counts ", result.size(), 0);
+  }
+
+  /**
+   * Delete property remotely and same property was deleted locally.
+   * 
+   * Local: DEL N1/P1
+   * 
+   * Remote: (high priority) Del N1/P1
+   * 
+   * Expect: income changes will be ignored.
+   */
+  public void testRemoveRemotePriority5() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem1Change = new ItemState(localProperty1, ItemState.DELETED, false, null);
+    localLog.add(localItem1Change);
+
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem111Change = new ItemState(remoteProperty1,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    remoteLog.add(remoteItem111Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem111Change, income, local);
+
+    assertEquals("Wrong changes counts ", result.size(), 0);
+  }
+
+  /**
+   * Test the case when local parent with same-name-sibling name updated on low priority node.
+   * 
+   * Test usecase: order of item21[2] before item21 (testItem1.orderBefore(item21[2], item21))
+   * causes UPDATE of item21[1].
+   * 
+   * <p>
+   * Income changes contains DELETE /testItem2/item21[1] Node. But parent path was changed
+   * /testItem2/item21[1] to /testItem1/item21[2].
+   * 
+   * Income change should be applied.
+   * 
+   * <pre>
+   *   was
+   *   /testItem2/item21 - A
+   *   /testItem2/item21[2] - B
+   *      
+   *   becomes on orderBefore
+   *   /testItem2/item21 - B
+   *   /testItem2/item21[2] - A
+   *   
+   *   local changes
+   *   DELETED  /testItem2/item21[2] - B
+   *   UPDATED  /testItem2/item21[2] - A
+   *   UPDATED  /testItem2/item21[1] - B
+   * </pre>
+   * 
+   */
+  public void testUpdatedRemotePriority() throws Exception {
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+    final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem21x2A,
+                                                      ItemState.UPDATED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem21Update);
+    final ItemState localItem21x1Update = new ItemState(localItem21x1B,
+                                                        ItemState.UPDATED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x1Update);
+    local.addLog(localLog);
+
+    ItemData remoteItem21x1 = new TransientNodeData(QPath.makeChildPath(localItem21x1B.getQPath(),
+                                                                        new InternalQName(null,
+                                                                                          "item21")),
+                                                    IdGenerator.generate(),
+                                                    2,
+                                                    EXO_TEST_UNSTRUCTURED_NOSNS,
+                                                    new InternalQName[0],
+                                                    0,
+                                                    localItem21x2A.getIdentifier(),
+                                                    new AccessControlList());
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem21x1Delete = new ItemState(remoteItem21x1,
+                                                         ItemState.DELETED,
+                                                         false,
+                                                         null);
+    remoteLog.add(remoteItem21x1Delete);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem21x1Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+
+    ItemState res = findStateByPath(result,
+                                    QPath.makeChildPath(localItem21x2A.getQPath(),
+                                                        remoteItem21x1Delete.getData()
+                                                                            .getQPath()
+                                                                            .getEntries()[remoteItem21x1Delete.getData()
+                                                                                                              .getQPath()
+                                                                                                              .getEntries().length - 1]));
+
+    assertNotNull("Remote Add expected ", res);
+
+    assertEquals("Remote Added wrong ID ",
+                 remoteItem21x1Delete.getData().getIdentifier(),
+                 res.getData().getIdentifier());
+
+    // parent /testItem2/item11[1] updated to /testItem2/item11[2]
+    assertEquals("Remote Added wrong parent ID ",
+                 remoteItem21x1Delete.getData().getParentIdentifier(),
+                 res.getData().getParentIdentifier());
+  }
+
+  /**
+   * Test the case when local parent with same-name-sibling name updated on low priority node.
+   * 
+   * Test usecase: order of item21[2] before item21 (testItem1.orderBefore(item21[2], item21))
+   * causes UPDATE of item21[1].
+   * 
+   * <p>
+   * Income changes contains DELETE /testItem2 Node.
+   * 
+   * Income change should be applied.
+   * 
+   * <pre>
+   *   was
+   *   /testItem2/item21 - A
+   *   /testItem2/item21[2] - B
+   *      
+   *   becomes on orderBefore
+   *   /testItem2/item21 - B
+   *   /testItem2/item21[2] - A
+   *   
+   *   local changes
+   *   DELETED  /testItem2/item21[2] - B
+   *   UPDATED  /testItem2/item21[2] - A
+   *   UPDATED  /testItem2/item21[1] - B
+   * </pre>
+   * 
+   */
+  public void testUpdatedRemotePriority2() throws Exception {
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+    final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem21x2A,
+                                                      ItemState.UPDATED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem21Update);
+    final ItemState localItem21x1Update = new ItemState(localItem21x1B,
+                                                        ItemState.UPDATED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x1Update);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteItem2Delete = new ItemState(remoteItem2, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem2Delete);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem2Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+
+    assertTrue("Remote DELETE state expected ", hasState(result, remoteItem2Delete, true));
+  }
+
+  /**
+   * Test the case when local parent with same-name-sibling name updated on low priority node.
+   * 
+   * Test usecase: order of item21[2] before item21 (testItem1.orderBefore(item21[2], item21))
+   * causes UPDATE of item21[1].
+   * 
+   * <p>
+   * Income changes contains DELETE /testItem2/item21[1]/P1 Property. But parent path was changed
+   * /testItem2/item21[1] to /testItem1/item21[2].
+   * 
+   * Income change should be applied.
+   * 
+   * <pre>
+   *   was
+   *   /testItem2/item21 - A
+   *   /testItem2/item21[2] - B
+   *      
+   *   becomes on orderBefore
+   *   /testItem2/item21 - B
+   *   /testItem2/item21[2] - A
+   *   
+   *   local changes
+   *   DELETED  /testItem2/item21[2] - B
+   *   UPDATED  /testItem2/item21[2] - A
+   *   UPDATED  /testItem2/item21[1] - B
+   * </pre>
+   * 
+   */
+  public void testUpdatedRemotePriority3() throws Exception {
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+    final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem21x2A,
+                                                      ItemState.UPDATED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem21Update);
+    final ItemState localItem21x1Update = new ItemState(localItem21x1B,
+                                                        ItemState.UPDATED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x1Update);
+    local.addLog(localLog);
+
+    ItemData remoteItem21x1 = new TransientNodeData(QPath.makeChildPath(localItem21x1B.getQPath(),
+                                                                        new InternalQName(null,
+                                                                                          "item21")),
+                                                    IdGenerator.generate(),
+                                                    2,
+                                                    EXO_TEST_UNSTRUCTURED_NOSNS,
+                                                    new InternalQName[0],
+                                                    0,
+                                                    localItem21x2A.getIdentifier(),
+                                                    new AccessControlList());
+
+    ItemData remoteProperty21x1_1 = new TransientNodeData(QPath.makeChildPath(remoteItem21x1.getQPath(),
+                                                                              new InternalQName(null,
+                                                                                                "item21x1_1")),
+                                                          IdGenerator.generate(),
+                                                          1,
+                                                          EXO_TEST_UNSTRUCTURED_NOSNS,
+                                                          new InternalQName[0],
+                                                          0,
+                                                          remoteItem21x1.getIdentifier(),
+                                                          new AccessControlList());
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    final ItemState remoteProperty21x1_1Delete = new ItemState(remoteProperty21x1_1,
+                                                               ItemState.DELETED,
+                                                               false,
+                                                               null);
+    remoteLog.add(remoteProperty21x1_1Delete);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteProperty21x1_1Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+
+    QPath qPath1 = QPath.makeChildPath(localItem21x2A.getQPath(),
+                                       remoteItem21x1.getQPath().getEntries()[remoteItem21x1.getQPath()
+                                                                                            .getEntries().length - 1]);
+    QPath qPath2 = QPath.makeChildPath(qPath1,
+                                       remoteProperty21x1_1.getQPath().getEntries()[remoteProperty21x1_1.getQPath()
+                                                                                                        .getEntries().length - 1]);
+
+    ItemState res = findStateByPath(result, qPath2);
+
+    assertNotNull("Remote Add expected ", res);
+
+    assertEquals("Remote Added wrong ID ",
+                 remoteProperty21x1_1Delete.getData().getIdentifier(),
+                 res.getData().getIdentifier());
+
+    // parent /testItem2/item11[1] updated to /testItem2/item11[2]
+    assertEquals("Remote Added wrong parent ID ",
+                 remoteProperty21x1_1Delete.getData().getParentIdentifier(),
+                 res.getData().getParentIdentifier());
+  }
+
+  /**
+   * Rename node and parent node deleted remotely.
+   * 
+   * Local: Ren N11 -> N12
+   * 
+   * Remote: (high priority) Del N1
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testRenameRemotePriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item11")),
+                                                 IdGenerator.generate(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem1.getIdentifier(),
+                                                 new AccessControlList());
+
+    ItemData localItem21 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item21")),
+                                                 localItem11.getIdentifier(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem2.getIdentifier(),
+                                                 new AccessControlList());
+
+    final ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Delete = new ItemState(remoteItem11, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem11Delete);
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
+  }
+
+  /**
+   * Rename node and node with same path was deleted remotely.
+   * 
+   * Local: Ren N11 -> N12
+   * 
+   * Remote: (high priority) Del N11
+   * 
+   * Expect: income changes will be accepted.
+   */
+  public void testRenameRemotePriority2() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item11")),
+                                                 IdGenerator.generate(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem1.getIdentifier(),
+                                                 new AccessControlList());
+
+    ItemData localItem21 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item21")),
+                                                 localItem11.getIdentifier(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem2.getIdentifier(),
+                                                 new AccessControlList());
+
+    ItemData remoteItem11 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                      new InternalQName(null,
+                                                                                        "item11")),
+                                                  localItem11.getIdentifier(),
+                                                  0,
+                                                  Constants.NT_UNSTRUCTURED,
+                                                  new InternalQName[0],
+                                                  1,
+                                                  localItem1.getIdentifier(),
+                                                  new AccessControlList());
+
+    final ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Delete = new ItemState(remoteItem11, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem11Delete);
+    final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem1Change);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem11Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 1);
+    QPath qPath = QPath.makeChildPath(localItem1.getQPath(),
+                                      localItem21.getQPath().getEntries()[localItem21.getQPath()
+                                                                                     .getEntries().length - 1]);
+
+    ItemState res = findStateByPath(result, qPath);
+
+    assertNotNull("Remote Add expected ", res);
+
+    assertEquals("Remote Added wrong ID ", remoteItem11.getIdentifier(), res.getData()
+                                                                            .getIdentifier());
+
+    assertEquals("Remote Added wrong parent ID ",
+                 remoteItem11.getParentIdentifier(),
+                 res.getData().getParentIdentifier());
+  }
+
+  /**
+   * Rename node and node with same path was deleted remotely.
+   * 
+   * Local: Ren N11 -> N12
+   * 
+   * Remote: (high priority) ADD N111 Del N111
+   * 
+   * Expect: income changes will be ignored (addMerger must process changes).
+   */
+  public void testRenameSameRemotePriority3() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item11")),
+                                                 IdGenerator.generate(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem1.getIdentifier(),
+                                                 new AccessControlList());
+
+    ItemData localItem21 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item21")),
+                                                 localItem11.getIdentifier(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem2.getIdentifier(),
+                                                 new AccessControlList());
+
+    ItemData remoteItem11 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                      new InternalQName(null,
+                                                                                        "item11")),
+                                                  localItem11.getIdentifier(),
+                                                  0,
+                                                  Constants.NT_UNSTRUCTURED,
+                                                  new InternalQName[0],
+                                                  1,
+                                                  localItem1.getIdentifier(),
+                                                  new AccessControlList());
+
+    final ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem111Add = new ItemState(remoteItem111, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem111Add);
+    final ItemState remoteItem111Delete = new ItemState(remoteItem111,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    remoteLog.add(remoteItem111Delete);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem111Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Rename node and node with same path was deleted remotely.
+   * 
+   * Local: Ren N11 -> N12
+   * 
+   * Remote: (high priority) ADD N12 DEL N12
+   * 
+   * Expect: income changes will be ignored (addMerger must process changes).
+   */
+  public void testRenameSameRemotePriority4() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item11")),
+                                                 IdGenerator.generate(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem1.getIdentifier(),
+                                                 new AccessControlList());
+
+    ItemData localItem21 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                     new InternalQName(null,
+                                                                                       "item21")),
+                                                 localItem11.getIdentifier(),
+                                                 0,
+                                                 Constants.NT_UNSTRUCTURED,
+                                                 new InternalQName[0],
+                                                 1,
+                                                 localItem2.getIdentifier(),
+                                                 new AccessControlList());
+
+    ItemData remoteItem11 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                      new InternalQName(null,
+                                                                                        "item11")),
+                                                  localItem11.getIdentifier(),
+                                                  0,
+                                                  Constants.NT_UNSTRUCTURED,
+                                                  new InternalQName[0],
+                                                  1,
+                                                  localItem1.getIdentifier(),
+                                                  new AccessControlList());
+
+    final ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem12Add = new ItemState(remoteItem12, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem12Add);
+    final ItemState remoteItem12Delete = new ItemState(remoteItem12, ItemState.DELETED, false, null);
+    remoteLog.add(remoteItem12Delete);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem12Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Rename parent node locally and property was deleted remotely.
+   * 
+   * Local: Ren N1 -> N2
+   * 
+   * Remote: (high priority) N1/P1
+   * 
+   * Expect: income changes will be ignored (renamed node will be restored).
+   */
+  public void testRenameSameRemotePriority5() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemData localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                    new InternalQName(null, "item1")),
+                                                IdGenerator.generate(),
+                                                0,
+                                                Constants.NT_UNSTRUCTURED,
+                                                new InternalQName[0],
+                                                1,
+                                                Constants.ROOT_UUID,
+                                                new AccessControlList());
+
+    ItemData localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                    new InternalQName(null, "item2")),
+                                                localItem1.getIdentifier(),
+                                                0,
+                                                Constants.NT_UNSTRUCTURED,
+                                                new InternalQName[0],
+                                                1,
+                                                Constants.ROOT_UUID,
+                                                new AccessControlList());
+
+    final ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem1Delete = new ItemState(remoteProperty1,
+                                                      ItemState.DELETED,
+                                                      false,
+                                                      null);
+    remoteLog.add(remoteItem1Delete);
+    income.addLog(remoteLog);
+
+    DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
+    List<ItemState> result = deleteMerger.merge(remoteItem1Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 3);
+    assertTrue("Remote Delete state expected ", hasState(result, new ItemState(localItem21,
+                                                                               ItemState.DELETED,
+                                                                               false,
+                                                                               null), true));
+    assertTrue("Remote Add state expected ", hasState(result, new ItemState(localItem11,
+                                                                            ItemState.ADDED,
+                                                                            false,
+                                                                            null), true));
+    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Delete, true));
+  }
 }

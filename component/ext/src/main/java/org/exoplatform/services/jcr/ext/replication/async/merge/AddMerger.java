@@ -110,7 +110,8 @@ public class AddMerger implements ChangesMerger {
                 ? incomeData.getParentIdentifier()
                 : localData.getParentIdentifier();
 
-            if (!isPropertyAllowed(propertyName, parentIdentifier)) {
+            if (!isPropertyAllowed(propertyName,
+                                   (NodeData) dataManager.getItemData(parentIdentifier))) {
               return resultEmptyState;
             }
           }
@@ -223,7 +224,8 @@ public class AddMerger implements ChangesMerger {
                   ? incomeData.getParentIdentifier()
                   : localData.getParentIdentifier();
 
-              if (isPropertyAllowed(propertyName, parentIdentifier)) {
+              if (isPropertyAllowed(propertyName,
+                                    (NodeData) dataManager.getItemData(parentIdentifier))) {
                 break;
               }
             }
@@ -353,8 +355,9 @@ public class AddMerger implements ChangesMerger {
                                               localData.getQPath()));
               }
 
-              resultState.add(incomeState);
-              resultState.addAll(income.getDescendantsChanges(incomeData.getQPath(), false, false));
+              // TODO resultState.add(incomeState);
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()).getAllStates());
+
               itemChangeProcessed = true;
             }
             break;
@@ -392,16 +395,10 @@ public class AddMerger implements ChangesMerger {
    * @param parent
    * @return
    */
-  protected boolean isPropertyAllowed(InternalQName propertyName, String parentIdentifier) throws RepositoryException {
-
-    ItemData parentItem = dataManager.getItemData(parentIdentifier);
-    if (parentItem != null && parentItem.isNode()) {
-      NodeData parent = (NodeData) parentItem;
-      PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
-                                                                       parent.getPrimaryTypeName(),
-                                                                       parent.getMixinTypeNames());
-      return pdef != null;
-    }
-    throw new RepositoryException("Can not found Node with indentifier " + parentIdentifier);
+  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                     parent.getPrimaryTypeName(),
+                                                                     parent.getMixinTypeNames());
+    return pdef != null;
   }
 }

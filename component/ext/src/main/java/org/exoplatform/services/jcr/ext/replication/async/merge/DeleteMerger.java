@@ -223,10 +223,111 @@ public class DeleteMerger implements ChangesMerger {
             resultState.addAll(income.getDescendantsChanges(incomeData.getQPath(), false, false));
             return resultState;
           }
-          // TODO
           break;
         case ItemState.DELETED:
-          // TODO
+          ItemState nextState = local.getNextItemState(localState);
+
+          // UPDATE sequences
+          if (nextState != null && nextState.getState() == ItemState.UPDATED) {
+
+            // if item was deleted of updated item of its child
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                || incomeData.getQPath().equals(localData.getQPath())) {
+
+              int relativeDegree = incomeState.getData().getQPath().getEntries().length
+                  - localData.getQPath().getEntries().length - 1;
+
+              // find state with parent node that is child of UPDATED node
+              ItemState parentState = relativeDegree > 0
+                  ? income.getPreviousItemStateByQPath(incomeState,
+                                                       incomeState.getData()
+                                                                  .getQPath()
+                                                                  .makeAncestorPath(relativeDegree))
+                  : null;
+
+              // find new path of UPDATED node
+              QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                                      parentState != null
+                                                                          ? parentState.getData()
+                                                                                       .getParentIdentifier()
+                                                                          : incomeData.getParentIdentifier());
+
+              // set new QPath
+              QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
+              System.arraycopy(parentPath.getEntries(), 0, names, 0, parentPath.getEntries().length);
+              System.arraycopy(incomeData.getQPath().getEntries(),
+                               localData.getQPath().getEntries().length,
+                               names,
+                               localData.getQPath().getEntries().length,
+                               incomeData.getQPath().getEntries().length
+                                   - localData.getQPath().getEntries().length);
+
+              // set new ItemData
+              if (incomeData.isNode()) {
+                NodeData node = (NodeData) incomeData;
+                PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
+                                                               new QPath(names),
+                                                               node.getParentIdentifier(),
+                                                               node.getPersistedVersion(),
+                                                               node.getOrderNumber(),
+                                                               node.getPrimaryTypeName(),
+                                                               node.getMixinTypeNames(),
+                                                               node.getACL());
+                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                resultState.add(incomeState);
+              } else {
+                PropertyData prop = (PropertyData) incomeData;
+                PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
+                                                                       new QPath(names),
+                                                                       prop.getParentIdentifier(),
+                                                                       prop.getPersistedVersion(),
+                                                                       prop.getType(),
+                                                                       prop.isMultiValued());
+                item.setValues(prop.getValues());
+
+                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                resultState.add(incomeState);
+              }
+              itemChangeProcessed = true;
+            }
+            break;
+          }
+
+          // RENAMED sequences
+          if (nextState != null && nextState.getState() == ItemState.RENAMED) {
+            if (incomeData.isNode() && incomeData.getQPath().equals(localData.getQPath())) {
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            false,
+                                            localData.getQPath()));
+              itemChangeProcessed = true;
+              break;
+            } else if (!incomeData.isNode()
+                && localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            false,
+                                            localData.getQPath()));
+              resultState.addAll(exporter.exportItem(incomeData.getParentIdentifier())
+                                         .getAllStates());
+              itemChangeProcessed = true;
+              break;
+            }
+            break;
+          }
+
+          // Simple DELETE
+          if (incomeData.isNode() == localData.isNode()) {
+            if (incomeData.getQPath().equals(localData.getQPath())) {
+              return resultEmptyState;
+            }
+            break;
+          } else if (incomeData.isNode() && !localData.isNode()) {
+            break;
+          } else if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+              || incomeData.getQPath().equals(localData.getQPath())) {
+            return resultEmptyState;
+          }
           break;
         case ItemState.UPDATED:
           break;
@@ -252,19 +353,11 @@ public class DeleteMerger implements ChangesMerger {
    * @param propertyName
    * @param parent
    * @return
-   * @throws RepositoryException
    */
-  protected boolean isPropertyAllowed(InternalQName propertyName, String parentIdentifier) throws RepositoryException {
-
-    ItemData parentItem = dataManager.getItemData(parentIdentifier);
-    if (parentItem != null && parentItem.isNode()) {
-      NodeData parent = (NodeData) parentItem;
-      PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
-                                                                       parent.getPrimaryTypeName(),
-                                                                       parent.getMixinTypeNames());
-
-      return pdef != null;
-    }
-    throw new RepositoryException("Can not found Node with indentifier " + parentIdentifier);
+  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                     parent.getPrimaryTypeName(),
+                                                                     parent.getMixinTypeNames());
+    return pdef != null;
   }
 }

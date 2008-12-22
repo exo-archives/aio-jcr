@@ -899,10 +899,6 @@ public class AddMergerTest extends BaseMergerTest {
    * local: REN N11 -> N21
    * 
    * 1. remote: DEL N11, ADD N11 (local delete, remote add subtree)
-   * 
-   * 2. remote: ADD N21 (local delete, remote add subtree)
-   * 
-   * 3. remote: ADD N3 (accepted)
    */
   public void testLocalRenamedRemotePriority4() throws Exception {
 
@@ -987,6 +983,91 @@ public class AddMergerTest extends BaseMergerTest {
   /**
    * local: REN N11 -> N21
    * 
+   * 1. remote: ADD N111 (local delete, remote add subtree)
+   */
+  public void testLocalParentRenamedRemotePriority() throws Exception {
+
+    final NodeData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item11"),
+                                                                           1),
+                                                       IdGenerator.generate(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem1.getIdentifier(),
+                                                       new AccessControlList());
+    final NodeData localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item21"),
+                                                                           1),
+                                                       localItem11.getIdentifier(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem2.getIdentifier(),
+                                                       new AccessControlList());
+    final NodeData remoteItem111 = new TransientNodeData(QPath.makeChildPath(localItem11.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item111"),
+                                                                             1),
+                                                         localItem11.getIdentifier(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         1,
+                                                         localItem1.getIdentifier(),
+                                                         new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem11Deleted = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Deleted);
+    final ItemState localItem21Renamed = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Renamed);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    remoteLog.add(remoteItem11Deleted);
+    final ItemState remoteItem11Add = new ItemState(remoteItem11, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem11Add);
+    final ItemState remoteItem111Add = new ItemState(remoteItem111, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem111Add);
+    final ItemState remoteItem21Add = new ItemState(remoteItem21, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem21Add);
+    final ItemState remoteItem3Add = new ItemState(remoteItem3, ItemState.ADDED, false, null);
+    remoteLog.add(remoteItem3Add);
+    income.addLog(remoteLog);
+
+    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    exportLog.add(remoteItem11Add);
+    exportLog.add(remoteItem111Add);
+    AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
+
+    // 1. usecase test
+    List<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
+    assertEquals("Wrong changes count ", result.size(), 3);
+    assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem21,
+                                                                              ItemState.DELETED,
+                                                                              false,
+                                                                              null), true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem11Add, true));
+    assertTrue("Remote Add state expected ", hasState(result, remoteItem111Add, true));
+  }
+
+  /**
+   * local: REN N11 -> N21
+   * 
    * 2. remote: ADD N21 (local delete, remote add subtree)
    */
   public void testLocalRenamedRemotePriority2() throws Exception {
@@ -1054,8 +1135,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     PlainChangesLog exportLog = new PlainChangesLogImpl();
-    exportLog.add(remoteItem11Add);
-    exportLog.add(remoteItem111Add);
+    exportLog.add(remoteItem21Add);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
     List<ItemState> result = addMerger.merge(remoteItem21Add, income, local);
