@@ -205,6 +205,8 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     assertTrue(nodeTypeManager.getNodeType(testNValue.getName()).getDeclaredPropertyDefinitions().length == 1);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
     assertTrue(nodeTypeManager.getNodeType(testNValue.getName()).getDeclaredPropertyDefinitions().length == 0);
+    tNode.remove();
+    session.save();
     nodeTypeManager.unregisterNodeType(testNValue.getName());
   }
 

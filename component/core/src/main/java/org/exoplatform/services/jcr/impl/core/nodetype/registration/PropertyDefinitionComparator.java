@@ -291,18 +291,19 @@ public class PropertyDefinitionComparator {
             }
           }
         }
-      } else
+      } else {
         nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
                                              new InternalQName[] { removePropertyDefinitionData.getName() },
                                              new InternalQName[] {});
-      if (nodes.size() > 0) {
-        String message = "Can not remove " + removePropertyDefinitionData.getName().getAsString()
-            + " PropertyDefinitionData, because the following nodes have these properties: ";
-        for (String uuids : nodes) {
-          message += uuids + " ";
-        }
-        throw new RepositoryException(message);
+        if (nodes.size() > 0) {
+          String message = "Can not remove " + removePropertyDefinitionData.getName().getAsString()
+              + " PropertyDefinitionData, because the following nodes have these properties: ";
+          for (String uuids : nodes) {
+            message += uuids + " ";
+          }
+          throw new RepositoryException(message);
 
+        }
       }
     }
   }
