@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -27,7 +26,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CannotInitilizeConnectionsException;
-import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 

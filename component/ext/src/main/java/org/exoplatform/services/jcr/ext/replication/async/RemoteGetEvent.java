@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import org.jgroups.Address;
+
 
 /**
  * Created by The eXo Platform SAS.
@@ -27,17 +29,27 @@ package org.exoplatform.services.jcr.ext.replication.async;
  */
 public class RemoteGetEvent {
 
-  private final String command;
+  private final Address address;
   
-  RemoteGetEvent(String command) {
-    this.command = command;
+  private final String nodeId;
+  
+  RemoteGetEvent(String nodeId, Address address) {
+    this.address = address;
+    this.nodeId = nodeId;
   }
 
   /**
-   * @return the command
+   * @return the source address.
    */
-  public String getCommand() {
-    return command;
+  public Address getAddress() {
+    return address;
+  }
+
+  /**
+   * @return the node identifier.
+   */
+  public String getNodeId() {
+    return nodeId;
   }
   
 }

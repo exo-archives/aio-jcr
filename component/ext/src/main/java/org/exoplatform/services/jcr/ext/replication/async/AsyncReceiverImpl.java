@@ -19,6 +19,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 import org.jgroups.Address;
 
@@ -32,13 +33,16 @@ import org.jgroups.Address;
  */
 public class AsyncReceiverImpl implements AsyncReceiver {
 
-  protected final MergeDataManager mergeManager;
+  protected final MergeDataManager      mergeManager;
   
   protected final WorkspaceSynchronizer synchronizer;
+  
+  protected final AsyncChannelManager   channel;
 
-  AsyncReceiverImpl(MergeDataManager mergeManager, WorkspaceSynchronizer synchronizer) {
+  AsyncReceiverImpl(MergeDataManager mergeManager, WorkspaceSynchronizer synchronizer, AsyncChannelManager channel) {
     this.mergeManager = mergeManager;
     this.synchronizer = synchronizer;
+    this.channel = channel;
   }
 
   /**
@@ -52,9 +56,11 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void onGetExport(AsyncPacket packet) {
-    // TODO Auto-generated method stub
-    synchronizer.onRemoteGet(new RemoteGetEvent("TODO"));
+  public void onGetExport(AsyncPacket packet, Address srcAddress)  {
+    String nodeId = new String(packet.getBuffer());
+    RemoteGetEvent remoteGetEvent = new RemoteGetEvent(nodeId, srcAddress);
+    
+    synchronizer.onRemoteGet(remoteGetEvent);
   }
 
   /**

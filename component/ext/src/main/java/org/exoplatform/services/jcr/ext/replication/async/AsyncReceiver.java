@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
+import org.jgroups.Address;
 
 
 /**
@@ -34,7 +35,7 @@ public interface AsyncReceiver extends AsyncPacketListener {
    * Handle remote get export request.
    *
    */
-  void onGetExport(AsyncPacket packet);
+  void onGetExport(AsyncPacket packet, Address srcAddress);
 
   
   /**

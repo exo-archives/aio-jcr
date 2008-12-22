@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -40,7 +41,7 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
 
   protected final AsyncInitializer    asyncManager;
   
-  protected final AsyncTransmitter transmitter;
+  protected final AsyncTransmitter    transmitter;
 
   protected final DataManager         dataManager;
 
@@ -90,7 +91,9 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    * @param path Node QPath
    * @return TransactionChangesLog
    */
-  public TransactionChangesLog getExportChanges(String nodeId) throws RepositoryException {
+  public ChangesLogFile getExportChanges(String nodeId) throws RepositoryException {
+    //TODO 
+    
     NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
     NodeData parentNode;
     if(nodeId.equals(Constants.ROOT_UUID)){
@@ -102,7 +105,9 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
     exportedNode.getParentIdentifier();
     ItemDataExportVisitor exporter = new ItemDataExportVisitor(parentNode, ntManager, dataManager);
     exportedNode.accept(exporter);
-    return new TransactionChangesLog(exporter.getPlainChangesLog());
+    //return new TransactionChangesLog(exporter.getPlainChangesLog());
+    
+    return new ChangesLogFile("TODO", "TODO", System.currentTimeMillis());
   }
 
   /**
@@ -116,10 +121,9 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    * {@inheritDoc}
    */
   public void onRemoteGet(RemoteGetEvent event) {
-    // TODO
     try {
-      TransactionChangesLog chl = getExportChanges("nodeId");
-      transmitter.sendExport(chl);
+      ChangesLogFile chl = getExportChanges(event.getNodeId());
+      transmitter.sendExport(chl, event.getAddress());
     } catch (RepositoryException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

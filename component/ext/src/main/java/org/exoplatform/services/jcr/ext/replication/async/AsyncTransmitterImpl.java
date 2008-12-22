@@ -78,8 +78,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * 
    * @throws IOException
    */
-  public void sendExport(ChangesLogFile changes, Address destAddress) {
 
+  public void sendExport(ChangesLogFile changes, Address destAddress) {
     try {
       sendBinaryFile(destAddress,
                      changes,
@@ -89,10 +89,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                      AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
                      AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      //TODO need send error message to destAddress
+      log.error("Cannot send export data", e);
     }
-
   }
 
   /**
