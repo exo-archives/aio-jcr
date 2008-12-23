@@ -39,7 +39,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: PropertyDataReader.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class PropertyDataReader2 extends ItemDataReader2 {
+public class PropertyDataReader extends ItemDataReader {
 
   private HashMap<InternalQName, PropertyInfo> propeties = new HashMap<InternalQName, PropertyInfo>();
 
@@ -114,11 +114,11 @@ public class PropertyDataReader2 extends ItemDataReader2 {
     }
   }
 
-  public PropertyDataReader2(NodeData parent, DataManager dataManager) {
+  public PropertyDataReader(NodeData parent, DataManager dataManager) {
     super(parent, dataManager);
   }
 
-  public PropertyDataReader2 forProperty(InternalQName name, int type) {
+  public PropertyDataReader forProperty(InternalQName name, int type) {
     propeties.put(name, new PropertyInfo(name, type));
     return this;
   }

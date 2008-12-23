@@ -37,13 +37,13 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
  *         Nedonosko</a>
  * @version $Id: NodeDataReader.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class NodeDataReader2 extends ItemDataReader2 {
+public class NodeDataReader extends ItemDataReader {
 
   private final HashMap<InternalQName, NodeInfo> nodes              = new HashMap<InternalQName, NodeInfo>();
 
   private final HashMap<InternalQName, NodeInfo> nodesByType        = new HashMap<InternalQName, NodeInfo>();
 
-  private PropertyDataReader2                    nodePropertyReader = null;
+  private PropertyDataReader                    nodePropertyReader = null;
 
   private final List<NodeData>                   skiped             = new ArrayList<NodeData>();
 
@@ -52,9 +52,9 @@ public class NodeDataReader2 extends ItemDataReader2 {
   private class NodeInfo {
     private final InternalQName         nodeName;
 
-    private final List<NodeDataReader2> childNodesReaders;
+    private final List<NodeDataReader> childNodesReaders;
 
-    NodeInfo(InternalQName nodeName, List<NodeDataReader2> childNodesReaders) {
+    NodeInfo(InternalQName nodeName, List<NodeDataReader> childNodesReaders) {
       this.nodeName = nodeName;
       this.childNodesReaders = childNodesReaders;
     }
@@ -63,35 +63,35 @@ public class NodeDataReader2 extends ItemDataReader2 {
       return nodeName;
     }
 
-    public List<NodeDataReader2> getChildNodesReaders() {
+    public List<NodeDataReader> getChildNodesReaders() {
       return childNodesReaders;
     }
   }
 
-  public NodeDataReader2(NodeData node, DataManager dataManager) {
+  public NodeDataReader(NodeData node, DataManager dataManager) {
     super(node, dataManager);
   }
 
-  public NodeDataReader2 forNodesByType(InternalQName name) {
-    nodesByType.put(name, new NodeInfo(name, new ArrayList<NodeDataReader2>()));
+  public NodeDataReader forNodesByType(InternalQName name) {
+    nodesByType.put(name, new NodeInfo(name, new ArrayList<NodeDataReader>()));
     return this;
   }
 
-  public NodeDataReader2 forNode(InternalQName name) {
-    nodes.put(name, new NodeInfo(name, new ArrayList<NodeDataReader2>()));
+  public NodeDataReader forNode(InternalQName name) {
+    nodes.put(name, new NodeInfo(name, new ArrayList<NodeDataReader>()));
     return this;
   }
 
-  public List<NodeDataReader2> getNodes(InternalQName name) throws PathNotFoundException {
-    List<NodeDataReader2> nr = nodes.get(name).getChildNodesReaders();
+  public List<NodeDataReader> getNodes(InternalQName name) throws PathNotFoundException {
+    List<NodeDataReader> nr = nodes.get(name).getChildNodesReaders();
     if (nr.size() > 0)
       return nr;
     throw new PathNotFoundException("Node with name " + parent.getQPath().getAsString()
         + name.getAsString() + " not found");
   }
 
-  public List<NodeDataReader2> getNodesByType(InternalQName typeName) throws PathNotFoundException {
-    List<NodeDataReader2> nr = nodesByType.get(typeName).getChildNodesReaders();
+  public List<NodeDataReader> getNodesByType(InternalQName typeName) throws PathNotFoundException {
+    List<NodeDataReader> nr = nodesByType.get(typeName).getChildNodesReaders();
     if (nr.size() > 0)
       return nr;
     throw new PathNotFoundException("Nodes with type " + typeName.getAsString()
@@ -118,9 +118,9 @@ public class NodeDataReader2 extends ItemDataReader2 {
    * @param multiValued
    * @return
    */
-  public PropertyDataReader2 forProperty(InternalQName name, int type) {
+  public PropertyDataReader forProperty(InternalQName name, int type) {
     if (nodePropertyReader == null) {
-      nodePropertyReader = new PropertyDataReader2(parent, dataManager);
+      nodePropertyReader = new PropertyDataReader(parent, dataManager);
     }
     return nodePropertyReader.forProperty(name, type);
   }
@@ -140,7 +140,7 @@ public class NodeDataReader2 extends ItemDataReader2 {
 
         boolean isSkiped = true;
 
-        NodeDataReader2 cnReader = new NodeDataReader2(node, dataManager);
+        NodeDataReader cnReader = new NodeDataReader(node, dataManager);
 
         NodeInfo nodeInfo = nodes.get(node.getQPath().getName());
         if (nodeInfo != null) {

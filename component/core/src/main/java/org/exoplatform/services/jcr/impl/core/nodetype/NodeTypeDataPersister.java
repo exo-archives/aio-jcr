@@ -52,7 +52,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
-import org.exoplatform.services.jcr.impl.util.NodeDataReader2;
+import org.exoplatform.services.jcr.impl.util.NodeDataReader;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -322,11 +322,11 @@ public class NodeTypeDataPersister {
       if (LOG.isDebugEnabled())
         LOG.debug(">>> Node types registration cycle started");
 
-      NodeDataReader2 ntReader = new NodeDataReader2(ntRoot, dataManager);
+      NodeDataReader ntReader = new NodeDataReader(ntRoot, dataManager);
       ntReader.forNodesByType(Constants.NT_NODETYPE); // for nt:nodeType
       ntReader.read();
 
-      nextNodeType: for (NodeDataReader2 ntr : ntReader.getNodesByType(Constants.NT_NODETYPE)) {
+      nextNodeType: for (NodeDataReader ntr : ntReader.getNodesByType(Constants.NT_NODETYPE)) {
 
         long ntStart = System.currentTimeMillis();
 
@@ -393,10 +393,10 @@ public class NodeTypeDataPersister {
 
           PropertyDefinitionData[] declaredProperties;
           try {
-            List<NodeDataReader2> pdNodes = ntr.getNodesByType(Constants.NT_PROPERTYDEFINITION);
+            List<NodeDataReader> pdNodes = ntr.getNodesByType(Constants.NT_PROPERTYDEFINITION);
             PropertyDefinitionData[] declaredPropertyDefs = new PropertyDefinitionData[pdNodes.size()];
             for (int pdi = 0; pdi < pdNodes.size(); pdi++) {
-              NodeDataReader2 pdr = pdNodes.get(pdi);
+              NodeDataReader pdr = pdNodes.get(pdi);
 
               pdr.forProperty(Constants.JCR_NAME, PropertyType.NAME) // jcr:name
                  .forProperty(Constants.JCR_AUTOCREATED, PropertyType.BOOLEAN)
@@ -482,10 +482,10 @@ public class NodeTypeDataPersister {
 
           NodeDefinitionData[] declaredChildNodes;
           try {
-            List<NodeDataReader2> cdNodes = ntr.getNodesByType(Constants.NT_CHILDNODEDEFINITION);
+            List<NodeDataReader> cdNodes = ntr.getNodesByType(Constants.NT_CHILDNODEDEFINITION);
             NodeDefinitionData[] declaredChildNodesDefs = new NodeDefinitionData[cdNodes.size()];
             for (int cdi = 0; cdi < cdNodes.size(); cdi++) {
-              NodeDataReader2 cdr = cdNodes.get(cdi);
+              NodeDataReader cdr = cdNodes.get(cdi);
 
               cdr.forProperty(Constants.JCR_NAME, PropertyType.NAME) // jcr:name
                  .forProperty(Constants.JCR_REQUIREDPRIMARYTYPES, PropertyType.NAME)
@@ -621,9 +621,9 @@ public class NodeTypeDataPersister {
     return ntRoot != null;
   }
 
-  private List<NodeDataReader2> getNodeTypesData(InternalQName nodeTypeName) throws RepositoryException {
+  private List<NodeDataReader> getNodeTypesData(InternalQName nodeTypeName) throws RepositoryException {
 
-    NodeDataReader2 ntReader = new NodeDataReader2(ntRoot, dataManager);
+    NodeDataReader ntReader = new NodeDataReader(ntRoot, dataManager);
     ntReader.forNode(nodeTypeName);
     ntReader.read();
 

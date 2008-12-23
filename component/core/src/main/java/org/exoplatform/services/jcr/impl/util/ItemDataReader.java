@@ -27,13 +27,13 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ItemDataReader.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public abstract class ItemDataReader2 {
+public abstract class ItemDataReader {
 
   protected DataManager      dataManager;
 
   protected NodeData         parent;
 
-  public ItemDataReader2(NodeData parent, DataManager dataManager) {
+  public ItemDataReader(NodeData parent, DataManager dataManager) {
     this.dataManager = dataManager;
     this.parent = parent;
   }

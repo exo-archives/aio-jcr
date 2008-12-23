@@ -16,19 +16,17 @@
  */
 package org.exoplatform.services.jcr.impl.core;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.jcr.InvalidItemStateException;
-import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
@@ -46,6 +44,8 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.ValueDataConvertor;
+import org.exoplatform.services.jcr.impl.util.NodeDataReaderOld;
 import org.exoplatform.services.jcr.impl.util.NodeDataReader;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -229,7 +229,7 @@ public class NamespaceDataPersister {
     }
 
     if (isInialized()) {
-      NodeDataReader nsReader = new NodeDataReader(nsRoot, dataManager, null);
+      NodeDataReader nsReader = new NodeDataReader(nsRoot, dataManager);
       nsReader.setRememberSkiped(true);
       nsReader.forNodesByType(Constants.EXO_NAMESPACE);
       nsReader.read();
@@ -240,12 +240,17 @@ public class NamespaceDataPersister {
            .forProperty(Constants.EXO_PREFIX, PropertyType.STRING);
         nsr.read();
 
-        String exoUri = nsr.getPropertyValue(Constants.EXO_URI_NAME).getString();
-        String exoPrefix = nsr.getPropertyValue(Constants.EXO_PREFIX).getString();
-        namespacesMap.put(exoPrefix, exoUri);
-        urisMap.put(exoUri, exoPrefix);
-        if(log.isDebugEnabled())
-          log.debug("Namespace " + exoPrefix + " is loaded");
+        try {
+          String exoUri = ValueDataConvertor.readString(nsr.getPropertyValue(Constants.EXO_URI_NAME));
+          String exoPrefix = ValueDataConvertor.readString(nsr.getPropertyValue(Constants.EXO_PREFIX));
+          namespacesMap.put(exoPrefix, exoUri);
+          urisMap.put(exoUri, exoPrefix);
+          
+          if(log.isDebugEnabled())
+            log.debug("Namespace " + exoPrefix + " is loaded");
+        } catch(IOException e) {
+          throw new RepositoryException("Namespace load error " + e, e);
+        }
       }
 
       for (NodeData skipedNs : nsReader.getSkiped()) {
