@@ -143,19 +143,19 @@ public class AsyncInitializer implements AsyncPacketListener {
   }
 
   public void receive(AsyncPacket packet, Address srcAddress) throws Exception {
-    switch (packet.getType()) {
+    /*switch (packet.getType()) {
     case AsyncPacketTypes.GET_STATE_NODE:
-      /*AsyncPacket stateNodePacket = new AsyncPacket(AsyncPacketTypes.STATE_NODE,
+      AsyncPacket stateNodePacket = new AsyncPacket(AsyncPacketTypes.STATE_NODE,
                                                     packet.getIdentifier(),
                                                     ownName);
       stateNodePacket.setSize((long) ownPriority);
       stateNodePacket.setOffset((long) state);
 
-      channelManager.sendPacket(stateNodePacket);*/
+      channelManager.sendPacket(stateNodePacket);
       break;
 
     case AsyncPacketTypes.STATE_NODE:
-      /*if (identifier.equals(packet.getIdentifier())) {
+      if (identifier.equals(packet.getIdentifier())) {
 
         MemberDescriptor memberDescriptor = new MemberDescriptor((int) (packet.getSize()),
                                                                  (int) (packet.getOffset()));
@@ -165,12 +165,12 @@ public class AsyncInitializer implements AsyncPacketListener {
         if (otherParticipants.size() == currentParticipants.size() && isWaitSynchronization()) {
           fixupMembers();
         }
-      }*/
+      }
       break;
 
     default:
       break;
-    }
+    }*/
   }
 
   /**
