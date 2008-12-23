@@ -66,6 +66,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
+import org.exoplatform.services.jcr.impl.core.nodetype.registration.NodeDefinitionComparator;
 import org.exoplatform.services.jcr.impl.core.nodetype.registration.PropertyDefinitionComparator;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
@@ -783,6 +784,15 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                                                     ancestorDefinition.getDeclaredPropertyDefinitions(),
                                                                                     recipientDefinition.getDeclaredPropertyDefinitions())
                                                   .getAllStates());
+
+    NodeDefinitionComparator nodeDefinitionComparator = new NodeDefinitionComparator(this,
+                                                                                     locationFactory,
+                                                                                     persister.getDataManager());
+    changesLog.addAll(nodeDefinitionComparator.processNodeDefinitionChanges(recipientDefinition,
+                                                                            ancestorDefinition.getDeclaredChildNodeDefinitions(),
+                                                                            recipientDefinition.getDeclaredChildNodeDefinitions())
+                                              .getAllStates());
+
     // TODO super names
     // TODO primaryItemName
     // TODO child nodes

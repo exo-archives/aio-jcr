@@ -59,11 +59,15 @@ public class PropertyDefinitionComparator {
   /**
    * Class logger.
    */
-  private static final Log       LOG = ExoLogger.getLogger(PropertyDefinitionComparator.class);
+  private static final Log              LOG = ExoLogger.getLogger(PropertyDefinitionComparator.class);
 
-  private final ValueFactoryImpl valueFactory;
+  private final ValueFactoryImpl        valueFactory;
 
-  private final LocationFactory  locationFactory;
+  private final LocationFactory         locationFactory;
+
+  protected final DataManager           persister;
+
+  private final NodeTypeDataManagerImpl nodeTypeDataManager;
 
   /**
    * @param nodeTypeDataManager
@@ -80,10 +84,6 @@ public class PropertyDefinitionComparator {
     this.persister = persister;
     this.valueFactory = valueFactory;
   }
-
-  protected final DataManager           persister;
-
-  private final NodeTypeDataManagerImpl nodeTypeDataManager;
 
   public PlainChangesLog processPropertyDefinitionChanges(NodeTypeData registeredNodeType,
                                                           PropertyDefinitionData[] ancestorDefinition,
@@ -117,6 +117,69 @@ public class PropertyDefinitionComparator {
     doChanged(registeredNodeType, changedDefinitionData, nodes);
     return changesLog;
 
+  }
+
+  private void checkValueConstraints(PropertyDefinitionData def, PropertyData propertyData) throws ConstraintViolationException,
+                                                                                           RepositoryException {
+
+    ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(),
+                                                                      locationFactory,
+                                                                      persister,
+                                                                      nodeTypeDataManager);
+
+    for (ValueData value : propertyData.getValues()) {
+      if (!constraints.match(((AbstractValueData) value).createTransientCopy(),
+                             propertyData.getType())) {
+        String strVal = null;
+        try {
+          if (propertyData.getType() != PropertyType.BINARY) {
+            // may have large size
+            strVal = new String(value.getAsByteArray());
+          } else {
+            strVal = "PropertyType.BINARY";
+          }
+        } catch (Throwable e) {
+          LOG.error("Error of value read: " + e.getMessage(), e);
+        }
+        throw new ConstraintViolationException("Value " + strVal + " for property "
+            + propertyData.getQPath().getAsString() + " doesn't match new constraint ");
+      }
+    }
+  }
+
+  /**
+   * @param toAddList
+   * @param changesLog
+   * @param nodes
+   * @throws RepositoryException
+   */
+  private void doAdd(List<PropertyDefinitionData> toAddList,
+                     PlainChangesLog changesLog,
+                     Set<String> nodes) throws RepositoryException {
+    for (String uuid : nodes) {
+      NodeData nodeData = (NodeData) persister.getItemData(uuid);
+
+      // added properties
+      for (PropertyDefinitionData newPropertyDefinitionData : toAddList) {
+        if (newPropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
+          continue;
+
+        List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
+        for (String vc : newPropertyDefinitionData.getDefaultValues())
+          valueConstraintsValues.add(new TransientValueData(vc));
+
+        // added state
+        int type = newPropertyDefinitionData.getRequiredType();
+        changesLog.add(new ItemState(TransientPropertyData.createPropertyData(nodeData,
+                                                                              newPropertyDefinitionData.getName(),
+                                                                              type,
+                                                                              newPropertyDefinitionData.isMultiple(),
+                                                                              valueConstraintsValues),
+                                     ItemState.ADDED,
+                                     false,
+                                     nodeData.getQPath()));
+      }
+    }
   }
 
   /**
@@ -288,37 +351,48 @@ public class PropertyDefinitionComparator {
   }
 
   /**
-   * @param toAddList
-   * @param changesLog
-   * @param nodes
-   * @throws RepositoryException
+   * @param ancestorDefinition
+   * @param recipientDefinition
+   * @param sameDefinitionData
+   * @param changedDefinitionData
+   * @param newDefinitionData
+   * @param removedDefinitionData
    */
-  private void doAdd(List<PropertyDefinitionData> toAddList,
-                     PlainChangesLog changesLog,
-                     Set<String> nodes) throws RepositoryException {
-    for (String uuid : nodes) {
-      NodeData nodeData = (NodeData) persister.getItemData(uuid);
-
-      // added properties
-      for (PropertyDefinitionData newPropertyDefinitionData : toAddList) {
-        if (newPropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
-          continue;
-
-        List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
-        for (String vc : newPropertyDefinitionData.getDefaultValues())
-          valueConstraintsValues.add(new TransientValueData(vc));
-
-        // added state
-        int type = newPropertyDefinitionData.getRequiredType();
-        changesLog.add(new ItemState(TransientPropertyData.createPropertyData(nodeData,
-                                                                              newPropertyDefinitionData.getName(),
-                                                                              type,
-                                                                              newPropertyDefinitionData.isMultiple(),
-                                                                              valueConstraintsValues),
-                                     ItemState.ADDED,
-                                     false,
-                                     nodeData.getQPath()));
+  private void init(PropertyDefinitionData[] ancestorDefinition,
+                    PropertyDefinitionData[] recipientDefinition,
+                    List<PropertyDefinitionData> sameDefinitionData,
+                    List<List<PropertyDefinitionData>> changedDefinitionData,
+                    List<PropertyDefinitionData> newDefinitionData,
+                    List<PropertyDefinitionData> removedDefinitionData) {
+    for (int i = 0; i < recipientDefinition.length; i++) {
+      boolean isNew = true;
+      for (int j = 0; j < ancestorDefinition.length; j++) {
+        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+          isNew = false;
+          if (recipientDefinition[i].equals(ancestorDefinition[j]))
+            sameDefinitionData.add(recipientDefinition[i]);
+          else {
+            // TODO make better structure
+            List<PropertyDefinitionData> list = new ArrayList<PropertyDefinitionData>();
+            list.add(ancestorDefinition[j]);
+            list.add(recipientDefinition[i]);
+            changedDefinitionData.add(list);
+          }
+        }
       }
+      if (isNew)
+        newDefinitionData.add(recipientDefinition[i]);
+    }
+    for (int i = 0; i < ancestorDefinition.length; i++) {
+      boolean isRemoved = true;
+      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
+        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+          isRemoved = false;
+          break;
+        }
+      }
+      if (isRemoved)
+        removedDefinitionData.add(ancestorDefinition[i]);
     }
   }
 
@@ -374,6 +448,7 @@ public class PropertyDefinitionComparator {
           }
         }
       } else {
+        // TODO more complex exception
         nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
                                              new InternalQName[] { removePropertyDefinitionData.getName() },
                                              new InternalQName[] {});
@@ -386,80 +461,6 @@ public class PropertyDefinitionComparator {
           throw new RepositoryException(message);
 
         }
-      }
-    }
-  }
-
-  /**
-   * @param ancestorDefinition
-   * @param recipientDefinition
-   * @param sameDefinitionData
-   * @param changedDefinitionData
-   * @param newDefinitionData
-   * @param removedDefinitionData
-   */
-  private void init(PropertyDefinitionData[] ancestorDefinition,
-                    PropertyDefinitionData[] recipientDefinition,
-                    List<PropertyDefinitionData> sameDefinitionData,
-                    List<List<PropertyDefinitionData>> changedDefinitionData,
-                    List<PropertyDefinitionData> newDefinitionData,
-                    List<PropertyDefinitionData> removedDefinitionData) {
-    for (int i = 0; i < recipientDefinition.length; i++) {
-      boolean isNew = true;
-      for (int j = 0; j < ancestorDefinition.length; j++) {
-        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
-          isNew = false;
-          if (recipientDefinition[i].equals(ancestorDefinition[j]))
-            sameDefinitionData.add(recipientDefinition[i]);
-          else {
-            // TODO make better structure
-            List<PropertyDefinitionData> list = new ArrayList<PropertyDefinitionData>();
-            list.add(ancestorDefinition[j]);
-            list.add(recipientDefinition[i]);
-            changedDefinitionData.add(list);
-          }
-        }
-      }
-      if (isNew)
-        newDefinitionData.add(recipientDefinition[i]);
-    }
-    for (int i = 0; i < ancestorDefinition.length; i++) {
-      boolean isRemoved = true;
-      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
-          isRemoved = false;
-          break;
-        }
-      }
-      if (isRemoved)
-        removedDefinitionData.add(ancestorDefinition[i]);
-    }
-  }
-
-  private void checkValueConstraints(PropertyDefinitionData def, PropertyData propertyData) throws ConstraintViolationException,
-                                                                                           RepositoryException {
-
-    ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(),
-                                                                      locationFactory,
-                                                                      persister,
-                                                                      nodeTypeDataManager);
-
-    for (ValueData value : propertyData.getValues()) {
-      if (!constraints.match(((AbstractValueData) value).createTransientCopy(),
-                             propertyData.getType())) {
-        String strVal = null;
-        try {
-          if (propertyData.getType() != PropertyType.BINARY) {
-            // may have large size
-            strVal = new String(value.getAsByteArray());
-          } else {
-            strVal = "PropertyType.BINARY";
-          }
-        } catch (Throwable e) {
-          LOG.error("Error of value read: " + e.getMessage(), e);
-        }
-        throw new ConstraintViolationException("Value " + strVal + " for property "
-            + propertyData.getQPath().getAsString() + " doesn't match new constraint ");
       }
     }
   }
