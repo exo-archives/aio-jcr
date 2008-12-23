@@ -59,8 +59,7 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: NodeTypeDataPersister.java 13962 2008-05-07 16:00:48Z
- *          pnedonosko $
+ * @version $Id: NodeTypeDataPersister.java 13962 2008-05-07 16:00:48Z pnedonosko $
  */
 
 public class NodeTypeDataPersister {
@@ -156,43 +155,41 @@ public class NodeTypeDataPersister {
       changesLog.add(ItemState.createAddedState(supertypes));
     }
 
-    if (nodeType.getDeclaredPropertyDefinitions().length > 0) {
-      for (int i = 0; i < nodeType.getDeclaredPropertyDefinitions().length; i++) {
-        NodeData childProps = TransientNodeData.createNodeData(ntNode,
-                                                               Constants.JCR_PROPERTYDEFINITION,
-                                                               Constants.NT_PROPERTYDEFINITION,
-                                                               i + 1);
+    for (int i = 0; i < nodeType.getDeclaredPropertyDefinitions().length; i++) {
+      NodeData childProps = TransientNodeData.createNodeData(ntNode,
+                                                             Constants.JCR_PROPERTYDEFINITION,
+                                                             Constants.NT_PROPERTYDEFINITION,
+                                                             i + 1);
 
-        TransientPropertyData cpPrimaryType = TransientPropertyData.createPropertyData(childProps,
-                                                                                       Constants.JCR_PRIMARYTYPE,
-                                                                                       PropertyType.NAME,
-                                                                                       false);
-        cpPrimaryType.setValue(new TransientValueData(childProps.getPrimaryTypeName()));
+      TransientPropertyData cpPrimaryType = TransientPropertyData.createPropertyData(childProps,
+                                                                                     Constants.JCR_PRIMARYTYPE,
+                                                                                     PropertyType.NAME,
+                                                                                     false);
+      cpPrimaryType.setValue(new TransientValueData(childProps.getPrimaryTypeName()));
 
-        changesLog.add(ItemState.createAddedState(childProps))
-                  .add(ItemState.createAddedState(cpPrimaryType));
+      changesLog.add(ItemState.createAddedState(childProps))
+                .add(ItemState.createAddedState(cpPrimaryType));
 
-        initPropertyDefProps(childProps, nodeType.getDeclaredPropertyDefinitions()[i]);
-      }
+      changesLog.addAll(initPropertyDefProps(childProps,
+                                             nodeType.getDeclaredPropertyDefinitions()[i]));
     }
 
-    if (nodeType.getDeclaredChildNodeDefinitions().length > 0) {
-      for (int i = 0; i < nodeType.getDeclaredChildNodeDefinitions().length; i++) {
-        NodeData childNodes = TransientNodeData.createNodeData(ntNode,
-                                                               Constants.JCR_CHILDNODEDEFINITION,
-                                                               Constants.NT_CHILDNODEDEFINITION,
-                                                               i + 1);
+    for (int i = 0; i < nodeType.getDeclaredChildNodeDefinitions().length; i++) {
+      NodeData childNodes = TransientNodeData.createNodeData(ntNode,
+                                                             Constants.JCR_CHILDNODEDEFINITION,
+                                                             Constants.NT_CHILDNODEDEFINITION,
+                                                             i + 1);
 
-        TransientPropertyData cnPrimaryType = TransientPropertyData.createPropertyData(childNodes,
-                                                                                       Constants.JCR_PRIMARYTYPE,
-                                                                                       PropertyType.NAME,
-                                                                                       false);
-        cnPrimaryType.setValue(new TransientValueData(childNodes.getPrimaryTypeName()));
+      TransientPropertyData cnPrimaryType = TransientPropertyData.createPropertyData(childNodes,
+                                                                                     Constants.JCR_PRIMARYTYPE,
+                                                                                     PropertyType.NAME,
+                                                                                     false);
+      cnPrimaryType.setValue(new TransientValueData(childNodes.getPrimaryTypeName()));
 
-        changesLog.add(ItemState.createAddedState(childNodes))
-                  .add(ItemState.createAddedState(cnPrimaryType));
-        initNodeDefProps(childNodes, nodeType.getDeclaredChildNodeDefinitions()[i]);
-      }
+      changesLog.add(ItemState.createAddedState(childNodes))
+                .add(ItemState.createAddedState(cnPrimaryType));
+
+      changesLog.addAll(initNodeDefProps(childNodes, nodeType.getDeclaredChildNodeDefinitions()[i]));
     }
 
     return changesLog;
@@ -205,11 +202,6 @@ public class NodeTypeDataPersister {
       return false;
     }
   }
-
-  // void saveChanges() throws RepositoryException, InvalidItemStateException {
-  // dataManager.save(new TransactionChangesLog(changesLog));
-  // changesLog.clear();
-  // }
 
   public synchronized PlainChangesLog initNodetypesRoot(NodeData nsSystem, boolean addACL) {
     PlainChangesLog changesLog = new PlainChangesLogImpl();
@@ -413,9 +405,8 @@ public class NodeTypeDataPersister {
                  // jcr:requiredType
                  .forProperty(Constants.JCR_VALUECONSTRAINTS, PropertyType.STRING)
                  // jcr:valueConstraints
-                 .forProperty(Constants.JCR_DEFAULTVALUES, PropertyType.STRING); // jcr
-              // :
-              // defaultValues
+                 .forProperty(Constants.JCR_DEFAULTVALUES, PropertyType.STRING);
+              // jcr:defaultValues
               pdr.read();
 
               InternalQName pname;
@@ -453,7 +444,6 @@ public class NodeTypeDataPersister {
                                                                        ntName,
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_AUTOCREATED)),
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_MANDATORY)),
-
                                                                        OnParentVersionAction.valueFromName(ValueDataConvertor.readString(pdr.getPropertyValue(Constants.JCR_ONPARENTVERSION))),
                                                                        ValueDataConvertor.readBoolean(pdr.getPropertyValue(Constants.JCR_PROTECTED)),
                                                                        ExtendedPropertyType.valueFromName(ValueDataConvertor.readString(pdr.getPropertyValue(Constants.JCR_REQUIREDTYPE))),
@@ -470,9 +460,10 @@ public class NodeTypeDataPersister {
 
             declaredProperties = declaredPropertyDefs;
           } catch (PathNotFoundException e) {
-            LOG.error("Property definitions is not valid. " + e + ". NodeType "
-                + ntName.getAsString() + " skipped.");
-            continue nextNodeType;
+            if (LOG.isDebugEnabled())
+              LOG.debug("Property definitions is not found. " + e + ". NodeType "
+                  + ntName.getAsString());
+            declaredProperties = new PropertyDefinitionData[] {};
           }
 
           // --------- Child nodes definitions ----------
@@ -560,9 +551,11 @@ public class NodeTypeDataPersister {
 
             declaredChildNodes = declaredChildNodesDefs;
           } catch (PathNotFoundException e) {
-            LOG.error("Child nodes definitions is not valid. " + e + ". NodeType "
-                + ntName.getAsString() + " skipped.");
-            continue nextNodeType;
+            if (LOG.isDebugEnabled())
+              LOG.debug("Child nodes definitions not found. " + e + ". NodeType "
+                  + ntName.getAsString());
+
+            declaredChildNodes = new NodeDefinitionData[] {};
           }
 
           // -------- NodeType done --------
@@ -632,16 +625,16 @@ public class NodeTypeDataPersister {
     return ntReader.getNodes(nodeTypeName);
   }
 
-  private PlainChangesLog initNodeDefProps(NodeData parent, NodeDefinitionData def) throws ValueFormatException,
+  private List<ItemState> initNodeDefProps(NodeData parent, NodeDefinitionData def) throws ValueFormatException,
                                                                                    RepositoryException {
-    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    List<ItemState> changes = new ArrayList<ItemState>();
     if (def.getName() != null) { // Mandatory false
       TransientPropertyData name = TransientPropertyData.createPropertyData(parent,
                                                                             Constants.JCR_NAME,
                                                                             PropertyType.NAME,
                                                                             false);
       name.setValue(new TransientValueData(def.getName()));
-      changesLog.add(ItemState.createAddedState(name));
+      changes.add(ItemState.createAddedState(name));
     }
 
     TransientPropertyData autoCreated = TransientPropertyData.createPropertyData(parent,
@@ -680,14 +673,14 @@ public class NodeTypeDataPersister {
                                                                                           PropertyType.NAME,
                                                                                           false);
       defaultPrimaryType.setValue(new TransientValueData(def.getDefaultPrimaryType()));
-      changesLog.add(ItemState.createAddedState(defaultPrimaryType));
+      changes.add(ItemState.createAddedState(defaultPrimaryType));
     }
 
-    changesLog.add(ItemState.createAddedState(autoCreated))
-              .add(ItemState.createAddedState(isMandatory))
-              .add(ItemState.createAddedState(onParentVersion))
-              .add(ItemState.createAddedState(isProtected))
-              .add(ItemState.createAddedState(sameNameSiblings));
+    changes.add(ItemState.createAddedState(autoCreated));
+    changes.add(ItemState.createAddedState(isMandatory));
+    changes.add(ItemState.createAddedState(onParentVersion));
+    changes.add(ItemState.createAddedState(isProtected));
+    changes.add(ItemState.createAddedState(sameNameSiblings));
 
     if (def.getRequiredPrimaryTypes() != null && def.getRequiredPrimaryTypes().length != 0) {
       List<ValueData> requiredPrimaryTypesValues = new ArrayList<ValueData>();
@@ -699,21 +692,21 @@ public class NodeTypeDataPersister {
                                                                                             PropertyType.NAME,
                                                                                             true);
       requiredPrimaryTypes.setValues(requiredPrimaryTypesValues);
-      changesLog.add(ItemState.createAddedState(requiredPrimaryTypes));
+      changes.add(ItemState.createAddedState(requiredPrimaryTypes));
     }
-    return changesLog;
+    return changes;
   }
 
-  private PlainChangesLog initPropertyDefProps(NodeData parent, PropertyDefinitionData def) throws ValueFormatException,
+  private List<ItemState> initPropertyDefProps(NodeData parent, PropertyDefinitionData def) throws ValueFormatException,
                                                                                            RepositoryException {
-    PlainChangesLog changesLog = new PlainChangesLogImpl();
+    List<ItemState> changes = new ArrayList<ItemState>();
     if (def.getName() != null) {
       TransientPropertyData name = TransientPropertyData.createPropertyData(parent,
                                                                             Constants.JCR_NAME,
                                                                             PropertyType.NAME,
                                                                             false);
       name.setValue(new TransientValueData(def.getName()));
-      changesLog.add(ItemState.createAddedState(name));
+      changes.add(ItemState.createAddedState(name));
     }
 
     TransientPropertyData autoCreated = TransientPropertyData.createPropertyData(parent,
@@ -752,12 +745,12 @@ public class NodeTypeDataPersister {
                                                                                 false);
     isMultiple.setValue(new TransientValueData(def.isMultiple()));
 
-    changesLog.add(ItemState.createAddedState(autoCreated))
-              .add(ItemState.createAddedState(isMandatory))
-              .add(ItemState.createAddedState(onParentVersion))
-              .add(ItemState.createAddedState(isProtected))
-              .add(ItemState.createAddedState(requiredType))
-              .add(ItemState.createAddedState(isMultiple));
+    changes.add(ItemState.createAddedState(autoCreated));
+    changes.add(ItemState.createAddedState(isMandatory));
+    changes.add(ItemState.createAddedState(onParentVersion));
+    changes.add(ItemState.createAddedState(isProtected));
+    changes.add(ItemState.createAddedState(requiredType));
+    changes.add(ItemState.createAddedState(isMultiple));
 
     if (def.getValueConstraints() != null && def.getValueConstraints().length != 0) {
       List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
@@ -769,7 +762,7 @@ public class NodeTypeDataPersister {
                                                                                         PropertyType.STRING,
                                                                                         true);
       valueConstraints.setValues(valueConstraintsValues);
-      changesLog.add(ItemState.createAddedState(valueConstraints));
+      changes.add(ItemState.createAddedState(valueConstraints));
     }
 
     if (def.getDefaultValues() != null && def.getDefaultValues().length != 0) {
@@ -783,9 +776,10 @@ public class NodeTypeDataPersister {
                                                                                      PropertyType.STRING,
                                                                                      true);
       defaultValues.setValues(defaultValuesValues);
-      changesLog.add(ItemState.createAddedState(defaultValues));
+      changes.add(ItemState.createAddedState(defaultValues));
     }
-    return changesLog;
+
+    return changes;
   }
 
 }

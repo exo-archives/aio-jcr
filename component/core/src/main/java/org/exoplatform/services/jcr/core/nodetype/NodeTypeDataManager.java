@@ -85,10 +85,10 @@ public interface NodeTypeDataManager {
 
   public void unregisterNodeType(InternalQName nodeTypeName) throws RepositoryException;
 
-  List<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues,
+  Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues,
                                        int alreadyExistsBehaviour) throws RepositoryException;
 
-  List<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
+  Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
 
   // Proposed methods
 
