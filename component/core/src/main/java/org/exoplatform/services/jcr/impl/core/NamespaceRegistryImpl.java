@@ -90,7 +90,7 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
   private Map<String, String>             prefixes;
 
   /**
-   * for tests
+   * for tests.
    */
   public NamespaceRegistryImpl() {
     this.namespaces = DEF_NAMESPACES;
@@ -104,35 +104,29 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     this.persister = persister;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.NamespaceAccessor#getAllNamespacePrefixes()
+  /**
+   * {@inheritDoc}
    */
   public String[] getAllNamespacePrefixes() {
     return getPrefixes();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespacePrefixByURI(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getNamespacePrefixByURI(String uri) throws NamespaceException, RepositoryException {
     return getPrefix(uri);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.core.NamespaceAccessor#getNamespaceURIByPrefix(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getNamespaceURIByPrefix(String prefix) throws NamespaceException {
     return getURI(prefix);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getPrefix(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getPrefix(String uri) throws NamespaceException {
     String prefix = prefixes.get(uri);
@@ -142,17 +136,15 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     throw new NamespaceException("Prefix for " + uri + " not found");
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getPrefixes()
+  /**
+   * {@inheritDoc}
    */
   public String[] getPrefixes() {
     return namespaces.keySet().toArray(new String[namespaces.keySet().size()]);
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getURI(java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public String getURI(String prefix) throws NamespaceException {
     String uri = namespaces.get(prefix);
@@ -162,9 +154,8 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
     return uri;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#getURIs()
+  /**
+   * {@inheritDoc}
    */
   public String[] getURIs() {
     return namespaces.values().toArray(new String[namespaces.size()]);
@@ -189,7 +180,6 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
   public void loadFromStorage() throws RepositoryException {
 
     try {
-      // namespaces.putAll(persister.loadNamespaces());
       persister.loadNamespaces(namespaces, prefixes);
     } catch (PathNotFoundException e) {
       log.info("Namespaces storage (/jcr:system/exo:namespaces) is not accessible."
@@ -200,9 +190,8 @@ public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccess
 
   // //////////////////// NamespaceAccessor
 
-  /*
-   * (non-Javadoc)
-   * @see javax.jcr.NamespaceRegistry#registerNamespace(java.lang.String, java.lang.String)
+  /**
+   * {@inheritDoc}
    */
   public synchronized void registerNamespace(String prefix, String uri) throws NamespaceException,
                                                                        RepositoryException {
