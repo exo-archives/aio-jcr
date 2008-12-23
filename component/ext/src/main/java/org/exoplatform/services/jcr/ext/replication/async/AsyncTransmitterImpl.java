@@ -25,10 +25,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
@@ -183,10 +184,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param lastPocketType the packet type for last packet
    * @throws Exception will be generated the Exception
    */
-  protected void sendChangesLogFile(List<Address> destinationAddresses,
+  protected void sendExportChangesLogFile(List<Address> destinationAddresses,
                              ChangesLogFile clFile,
-                             int transmitterPriority,
-                             String nodeId,
                              int totalFiles,
                              int firstPacketType,
                              int middlePacketType,
@@ -211,12 +210,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       buf = b;
     }
 
-    packet = new ChangesPacket(firstPacketType,
-                                  transmitterPriority,
-                                  
+    packet = new ExportChangesPacket(firstPacketType,
                              clFile.getCRC(),
                              clFile.getTimeStamp(),
-                             null,
                              totalFiles,
                              offset,
                              buf);
@@ -234,12 +230,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
         buf = b;
       }
 
-      packet = new ChangesPacket(middlePacketType,
-                                    transmitterPriority,
-                                    
+      packet = new ExportChangesPacket(middlePacketType,
                                clFile.getCRC(),
                                clFile.getTimeStamp(),
-                               null,
                                totalFiles,
                                offset,
                                buf);
@@ -252,12 +245,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     }
 
     // Send last packet
-    packet = new ChangesPacket(lastPacketType,
-                                  transmitterPriority,
-                                  
+    packet = new ExportChangesPacket(lastPacketType,
                              clFile.getCRC(),
                              clFile.getTimeStamp(),
-                             null,
                              totalFiles,
                              offset,
                              new byte[0]);
