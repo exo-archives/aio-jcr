@@ -76,8 +76,10 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS. <br/>Date: 26.11.2008
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter
+ *         Nedonosko</a>
+ * @version $Id: NodeTypeDataManagerImpl.java 111 2008-11-11 11:11:11Z
+ *          pnedonosko $
  */
 public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
@@ -133,8 +135,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * Add a <code>NodeTypeRegistryListener</code>
    * 
-   * @param listener
-   *          the new listener to be informed on (un)registration of node types
+   * @param listener the new listener to be informed on (un)registration of node
+   *          types
    */
   public void addListener(NodeTypeManagerListener listener) {
     if (!listeners.containsKey(listener)) {
@@ -589,14 +591,14 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                       v.getOnVersion(),
                                       v.isReadOnly(),
                                       v.getRequiredType(),
-                                      v.getValueConstraints() != null
-                                          ? v.getValueConstraints()
-                                             .toArray(new String[v.getValueConstraints().size()])
-                                          : new String[0],
-                                      v.getDefaultValueStrings() == null
-                                          ? new String[0]
-                                          : v.getDefaultValueStrings()
-                                             .toArray(new String[v.getDefaultValueStrings().size()]),
+                                      v.getValueConstraints() != null ? v.getValueConstraints()
+                                                                         .toArray(new String[v.getValueConstraints()
+                                                                                              .size()])
+                                                                     : new String[0],
+                                      v.getDefaultValueStrings() == null ? new String[0]
+                                                                        : v.getDefaultValueStrings()
+                                                                           .toArray(new String[v.getDefaultValueStrings()
+                                                                                                .size()]),
                                       v.isMultiple());
 
       props[i] = pd;
@@ -708,30 +710,28 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   /**
    * Remove a <code>NodeTypeRegistryListener</code>.
    * 
-   * @param listener
-   *          an existing listener
+   * @param listener an existing listener
    */
   public void removeListener(NodeTypeManagerListener listener) {
     listeners.remove(listener);
   }
 
   /**
-   * Unregisters the specified node type. In order for a node type to be successfully unregistered
-   * it must meet the following conditions:
+   * Unregisters the specified node type. In order for a node type to be
+   * successfully unregistered it must meet the following conditions:
    * <ol>
    * <li>the node type must obviously be registered.</li>
    * <li>a built-in node type can not be unregistered.</li>
-   * <li>the node type must not have dependents, i.e. other node types that are referencing it.</li>
+   * <li>the node type must not have dependents, i.e. other node types that are
+   * referencing it.</li>
    * <li>the node type must not be currently used by any workspace.</li>
    * </ol>
    * 
-   * @param ntName
-   *          name of the node type to be unregistered
-   * @throws NoSuchNodeTypeException
-   *           if <code>ntName</code> does not denote a registered node type.
+   * @param ntName name of the node type to be unregistered
+   * @throws NoSuchNodeTypeException if <code>ntName</code> does not denote a
+   *           registered node type.
    * @throws RepositoryException
-   * @throws RepositoryException
-   *           if another error occurs.
+   * @throws RepositoryException if another error occurs.
    * @see #unregisterNodeTypes(Collection)
    */
   public void unregisterNodeType(InternalQName nodeTypeName) throws RepositoryException {
@@ -791,17 +791,17 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     // TODO hasOrderableChildNodes
     // TODO mixinom
 
-    changesLog.addAll(internalUnregister(recipientDefinition.getName(), recipientDefinition));
+    changesLog.addAll(internalUnregister(ancestorDefinition.getName(), ancestorDefinition));
     changesLog.addAll(internalRegister(recipientDefinition, false).getAllStates());
     persister.saveChanges(changesLog);
   }
 
   /**
-   * Validate NodeTypeData and return new instance or throw an exception. The new instance will be a
-   * guarany of valid NodeType. Check according the JSR-170/JSR-283 spec.
+   * Validate NodeTypeData and return new instance or throw an exception. The
+   * new instance will be a guarany of valid NodeType. Check according the
+   * JSR-170/JSR-283 spec.
    * 
-   * @param nodeType
-   *          NodeTypeData to be checked
+   * @param nodeType NodeTypeData to be checked
    * @return valid NodeTypeData
    * @throws RepositoryException
    */
@@ -1011,10 +1011,11 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @throws RepositoryException
    */
   private List<ItemState> internalUnregister(InternalQName nodeTypeName, NodeTypeData nodeType) throws RepositoryException {
-    // remove from internal lists
-    hierarchy.removeNodeType(nodeTypeName);
     // put supers
     Set<InternalQName> supers = hierarchy.getSupertypes(nodeTypeName);
+
+    // remove from internal lists
+    hierarchy.removeNodeType(nodeTypeName);
 
     // remove supers
     if (supers != null)
@@ -1027,10 +1028,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been registered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * registered.
    * 
-   * @param ntName
-   *          NT name.
+   * @param ntName NT name.
    */
   private void notifyRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -1044,10 +1045,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been re-registered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * re-registered.
    * 
-   * @param ntName
-   *          NT name.
+   * @param ntName NT name.
    */
   private void notifyReRegistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException
@@ -1061,10 +1062,10 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been unregistered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * unregistered.
    * 
-   * @param ntName
-   *          NT name.
+   * @param ntName NT name.
    */
   private void notifyUnregistered(InternalQName ntName) {
     // copy listeners to array to avoid ConcurrentModificationException

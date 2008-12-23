@@ -244,6 +244,45 @@ public class PropertyDefinitionComparator {
         }
       }
       // multiple change
+      if (ancestorDefinitionData.isMultiple() && !recipientDefinitionData.isMultiple()) {
+        Set<String> nodes2;
+        if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+        } else {
+          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
+                                                new InternalQName[] { recipientDefinitionData.getName() },
+                                                new InternalQName[] {});
+        }
+        for (String uuid : nodes2) {
+          NodeData nodeData = (NodeData) persister.getItemData(uuid);
+          if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+            List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
+            for (PropertyData propertyData : propertyDatas) {
+              // skip mixin and primary type
+              if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
+                  && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
+                if (propertyData.getValues().size() > 1) {
+                  throw new ConstraintViolationException("Can't change property definition "
+                      + recipientDefinitionData.getName().getAsString()
+                      + " to isMultiple = false because property "
+                      + propertyData.getQPath().getAsString() + " contains more then one value");
+                }
+              }
+            }
+          } else {
+            PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
+                                                                             new QPathEntry(recipientDefinitionData.getName(),
+                                                                                            0));
+            if (propertyData.getValues().size() > 1) {
+              throw new ConstraintViolationException("Can't change property definition "
+                  + recipientDefinitionData.getName().getAsString()
+                  + " to isMultiple = false because property "
+                  + propertyData.getQPath().getAsString() + " contains more then one value");
+            }
+
+          }
+        }
+      }
 
     }
   }
