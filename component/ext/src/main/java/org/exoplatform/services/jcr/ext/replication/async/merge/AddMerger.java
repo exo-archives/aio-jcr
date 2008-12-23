@@ -141,7 +141,9 @@ public class AddMerger implements ChangesMerger {
                                                                       parentState != null
                                                                           ? parentState.getData()
                                                                                        .getParentIdentifier()
-                                                                          : incomeData.getParentIdentifier());
+                                                                          : incomeData.getParentIdentifier())
+                                      .getData()
+                                      .getQPath();
 
               // set new QPath
               QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
@@ -284,7 +286,9 @@ public class AddMerger implements ChangesMerger {
                                                                       parentState != null
                                                                           ? parentState.getData()
                                                                                        .getParentIdentifier()
-                                                                          : incomeData.getParentIdentifier());
+                                                                          : incomeData.getParentIdentifier())
+                                      .getData()
+                                      .getQPath();
 
               QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
               System.arraycopy(parentPath.getEntries(), 0, names, 0, parentPath.getEntries().length);

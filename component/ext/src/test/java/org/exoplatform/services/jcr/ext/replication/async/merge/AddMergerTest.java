@@ -598,7 +598,7 @@ public class AddMergerTest extends BaseMergerTest {
    * 
    * 1. remote: DEL N11, ADD N11 (ignore)
    */
-  public void testLocalRenamedLocalPriority() throws Exception {
+  public void testLocalParentRenamedLocalPriority() throws Exception {
 
     final NodeData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                                            new InternalQName(null,
@@ -634,7 +634,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -709,7 +709,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -784,7 +784,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -860,7 +860,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -936,7 +936,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -1021,7 +1021,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -1106,7 +1106,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -1189,7 +1189,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            "unstructured"),
                                                          new InternalQName[0],
                                                          1,
-                                                         localItem1.getIdentifier(),
+                                                         localItem11.getIdentifier(),
                                                          new AccessControlList());
 
     PlainChangesLog localLog = new PlainChangesLogImpl();
