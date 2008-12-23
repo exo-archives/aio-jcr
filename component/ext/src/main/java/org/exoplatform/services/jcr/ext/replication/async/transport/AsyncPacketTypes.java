@@ -54,23 +54,23 @@ public final class AsyncPacketTypes {
    * GET_CHANGESLOG_UP_TO_DATE. 
    *   the pocket type for initialize synchronization mechanism
    */
-  public static final int GET_CHANGESLOG_UP_TO_DATE            = 4;
+//  public static final int GET_CHANGESLOG_UP_TO_DATE            = 4;
 
   /**
    * NEED_TRANSFER_COUNTER. 
    *   the pocket type for information of how much ChangesLogs will be transfered
    */
-  public static final int NEED_TRANSFER_COUNTER                = 5;
+//  public static final int NEED_TRANSFER_COUNTER                = 5;
 
   /**
    * INIT_TRANSFER_CHANGES.
    */
-  public static final int INIT_TRANSFER_CHANGES                = 7;
+//  public static final int INIT_TRANSFER_CHANGES                = 7;
 
   /**
    * DONE_TRANSFER_CHANGES.
    */
-  public static final int DONE_TRANSFER_CHANGES                = 8;
+//  public static final int DONE_TRANSFER_CHANGES                = 8;
 
   /**
    * BINARY_CHANGESLOG_FIRST_PACKET. 
@@ -93,12 +93,12 @@ public final class AsyncPacketTypes {
   /**
    * GET_STATE_NODE.
    */
-  public static final int GET_STATE_NODE                       = 12;
+//  public static final int GET_STATE_NODE                       = 12;
 
   /**
    * STATE_NODE.
    */
-  public static final int STATE_NODE                           = 13;
+//  public static final int STATE_NODE                           = 13;
   
   /**
    * BIG_PACKET_FIRST.
