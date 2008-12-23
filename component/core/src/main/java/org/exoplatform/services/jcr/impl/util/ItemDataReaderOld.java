@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ItemDataReader.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public abstract class ItemDataReader {
+public abstract class ItemDataReaderOld {
 
   protected DataManager      dataManager;
 
@@ -36,7 +36,7 @@ public abstract class ItemDataReader {
 
   protected NodeData         parent;
 
-  public ItemDataReader(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
+  public ItemDataReaderOld(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
     this.dataManager = dataManager;
     this.parent = parent;
     this.valueFactory = valueFactory;

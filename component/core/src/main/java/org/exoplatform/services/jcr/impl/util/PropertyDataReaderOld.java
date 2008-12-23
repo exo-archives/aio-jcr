@@ -47,7 +47,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: PropertyDataReader.java 11907 2008-03-13 15:36:21Z ksm $
  */
-public class PropertyDataReader extends ItemDataReader {
+public class PropertyDataReaderOld extends ItemDataReaderOld {
 
   private HashMap<InternalQName, PropertyInfo> propeties = new HashMap<InternalQName, PropertyInfo>();
 
@@ -145,11 +145,11 @@ public class PropertyDataReader extends ItemDataReader {
     }
   }
 
-  public PropertyDataReader(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
+  public PropertyDataReaderOld(NodeData parent, DataManager dataManager, ValueFactoryImpl valueFactory) {
     super(parent, dataManager, valueFactory);
   }
 
-  public PropertyDataReader forProperty(InternalQName name, int type) {
+  public PropertyDataReaderOld forProperty(InternalQName name, int type) {
     propeties.put(name, new PropertyInfo(name, type));
     return this;
   }
