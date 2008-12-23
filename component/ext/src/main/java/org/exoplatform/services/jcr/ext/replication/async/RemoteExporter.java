@@ -20,14 +20,17 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
+import java.util.Iterator;
 
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+
+
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * Handles remote item export requests. Returns item copy from a remote host.
- * Remote item will be returned as <code>ItemStateChangesLog</code>. 
+ * Remote item will be returned as list of <code>ItemState</code>. 
  * 
  * <br/>Date: 11.12.2008
  *
@@ -50,6 +53,6 @@ public interface RemoteExporter extends RemoteChangesListener {
    *
    * @return ItemStateChangesLog
    */
-  ItemStateChangesLog exportItem(String nodetId) throws IOException;
+  Iterator<ItemState> exportItem(String nodetId) throws IOException;
   
 }

@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -192,8 +193,9 @@ public class RenameMerger implements ChangesMerger {
               break;
             } else if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
               // restore deleted node
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()).getAllStates());
-
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) 
+                resultState.add(exp.next());
+              
               if (!itemChangeProcessed) {
                 resultState.add(incomeState);
                 resultState.add(nextIncomeState);
@@ -202,7 +204,9 @@ public class RenameMerger implements ChangesMerger {
               break;
             } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
               // restore deleted node and all subtree with renamed node
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()).getAllStates());
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) 
+                resultState.add(exp.next());
+              
               itemChangeProcessed = true;
             }
           } else {

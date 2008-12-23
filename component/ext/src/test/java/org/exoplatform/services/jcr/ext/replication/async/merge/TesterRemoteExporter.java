@@ -17,7 +17,9 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
+import java.util.Iterator;
 
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteChangesEvent;
@@ -56,15 +58,14 @@ public class TesterRemoteExporter implements RemoteExporter {
    * {@inheritDoc}
    */
   public void setPriority(int remotePriority) {
-    // TODO Auto-generated method stub
-    
+    // dummy
   }
 
   /**
    * {@inheritDoc}
    */
-  public ItemStateChangesLog exportItem(String nodetId) throws IOException {
-    return changes;
+  public Iterator<ItemState> exportItem(String nodetId) throws IOException {
+    return changes.getAllStates().iterator();
   }
 
   /**

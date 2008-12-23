@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -360,7 +361,8 @@ public class AddMerger implements ChangesMerger {
               }
 
               // TODO resultState.add(incomeState);
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()).getAllStates());
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) 
+                resultState.add(exp.next());
 
               itemChangeProcessed = true;
             }
@@ -371,7 +373,10 @@ public class AddMerger implements ChangesMerger {
           if (localData.isNode()
               && (incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
                                                                                           .equals(localData.getQPath()))) {
-            resultState.addAll(exporter.exportItem(localData.getParentIdentifier()).getAllStates());
+            
+            for (Iterator<ItemState> exp = exporter.exportItem(localData.getParentIdentifier()); exp.hasNext();) 
+              resultState.add(exp.next());
+            
             itemChangeProcessed = true;
             break;
           }

@@ -17,8 +17,9 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
+import java.util.Iterator;
 
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 
 /**
@@ -54,14 +55,14 @@ public class RemoteExporterImpl implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public ItemStateChangesLog exportItem(String nodetId) throws IOException {
+  public Iterator<ItemState> exportItem(String nodetId) throws IOException {
     
     // send request
     transmitter.sendGetExport(nodetId, remotePriority);
     
     // TODO lock and wait for responce, error or timeout 
     
-    return new PlainChangesLogImpl(); // TODO return responce changes 
+    return new PlainChangesLogImpl().getAllStates().iterator(); // TODO return responce changes 
   }
 
   /**

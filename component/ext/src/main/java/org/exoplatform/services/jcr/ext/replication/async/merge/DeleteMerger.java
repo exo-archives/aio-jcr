@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -271,8 +272,10 @@ public class DeleteMerger implements ChangesMerger {
                                             ItemState.DELETED,
                                             false,
                                             nextState.getData().getQPath()));
-              resultState.addAll(exporter.exportItem(incomeData.getParentIdentifier())
-                                         .getAllStates());
+              
+              for (Iterator<ItemState> exp = exporter.exportItem(incomeData.getParentIdentifier()); exp.hasNext();) 
+                resultState.add(exp.next());
+              
               itemChangeProcessed = true;
               break;
             }
