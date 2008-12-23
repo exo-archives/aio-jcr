@@ -462,10 +462,919 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(new ItemState(remoteItem2,
-                                                              ItemState.DELETED,
-                                                              false,
-                                                              null), income, local);
+    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Update node locally remove node remotely.
+   * 
+   * local (priority): UPD N2/N21[1] -> N2/N21[2]
+   * 
+   * Remote : REN N2/N21[1] -> N3
+   * 
+   * Expect: remote changes will be ignored
+   */
+  public void testUpdateLocalPriority() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem21x2A,
+                                                      ItemState.UPDATED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem21Update);
+    final ItemState localItem21x1Update = new ItemState(localItem21x1B,
+                                                        ItemState.UPDATED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x1Update);
+    local.addLog(localLog);
+
+    final NodeData remoteItem21 = new TransientNodeData(localItem21x2B.getQPath(),
+                                                        localItem21x2A.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem21x2A.getParentIdentifier(),
+                                                        new AccessControlList());
+
+    final NodeData remoteItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                           new InternalQName(null,
+                                                                                             "item3"),
+                                                                           1),
+                                                       remoteItem21.getIdentifier(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       Constants.ROOT_UUID,
+                                                       new AccessControlList());
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem21Deleted = new ItemState(remoteItem21,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem21Deleted);
+    final ItemState remoteItem3Renamed = new ItemState(remoteItem3, ItemState.RENAMED, false, null);
+    incomeLog.add(remoteItem3Renamed);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(true, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem21Deleted, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Update node locally remove node remotely.
+   * 
+   * local (priority): UPD N2/N21[1] -> N2/N21[2]
+   * 
+   * Remote : REN N2/N21[1]/N1 -> N3
+   * 
+   * Expect: remote changes will be accepted
+   */
+  public void testUpdateLocalPriority2() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem21x2A,
+                                                      ItemState.UPDATED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem21Update);
+    final ItemState localItem21x1Update = new ItemState(localItem21x1B,
+                                                        ItemState.UPDATED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x1Update);
+    local.addLog(localLog);
+
+    final NodeData remoteItem21 = new TransientNodeData(localItem21x2B.getQPath(),
+                                                        localItem21x2A.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem21x2A.getParentIdentifier(),
+                                                        new AccessControlList());
+
+    final NodeData remoteItem211 = new TransientNodeData(QPath.makeChildPath(remoteItem21.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item211"),
+                                                                             1),
+                                                         IdGenerator.generate(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         1,
+                                                         remoteItem21.getIdentifier(),
+                                                         new AccessControlList());
+
+    final NodeData remoteItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                           new InternalQName(null,
+                                                                                             "item3"),
+                                                                           1),
+                                                       remoteItem211.getIdentifier(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       Constants.ROOT_UUID,
+                                                       new AccessControlList());
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem211Deleted = new ItemState(remoteItem211,
+                                                         ItemState.DELETED,
+                                                         false,
+                                                         null);
+    incomeLog.add(remoteItem211Deleted);
+    final ItemState remoteItem3Renamed = new ItemState(remoteItem3, ItemState.RENAMED, false, null);
+    incomeLog.add(remoteItem3Renamed);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(true, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem211Deleted, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 2);
+    assertTrue("Remote Delete state expected: ", hasState(result, remoteItem211Deleted, true));
+    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem3Renamed, true));
+  }
+
+  /**
+   * Update node locally remove node remotely.
+   * 
+   * local (priority): UPD N2/N21[1] -> N2/N21[2]
+   * 
+   * Remote : REN N3 -> N2/N21[1]
+   * 
+   * Expect: remote changes will be ignored
+   */
+  public void testUpdateLocalPriority3() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem21x2A,
+                                                      ItemState.UPDATED,
+                                                      false,
+                                                      null);
+    localLog.add(localItem21Update);
+    final ItemState localItem21x1Update = new ItemState(localItem21x1B,
+                                                        ItemState.UPDATED,
+                                                        false,
+                                                        null);
+    localLog.add(localItem21x1Update);
+    local.addLog(localLog);
+
+    final NodeData remoteItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                           new InternalQName(null,
+                                                                                             "item3"),
+                                                                           1),
+                                                       IdGenerator.generate(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       Constants.ROOT_UUID,
+                                                       new AccessControlList());
+
+    final NodeData remoteItem211 = new TransientNodeData(localItem21x2B.getQPath(),
+                                                         remoteItem3.getIdentifier(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         1,
+                                                         localItem21x2A.getIdentifier(),
+                                                         new AccessControlList());
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem3Delete = new ItemState(remoteItem3, ItemState.DELETED, false, null);
+    incomeLog.add(remoteItem3Delete);
+    final ItemState remoteItem211Rename = new ItemState(remoteItem211,
+                                                        ItemState.RENAMED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem211Rename);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(true, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem3Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Remove node locally and remove node remotely.
+   * 
+   * local (priority): REN N11 -> N21
+   * 
+   * Remote : REN N11 -> N31
+   * 
+   * Expect: remote changes will be ignored
+   */
+  public void testRenameLocalPriority() throws Exception {
+    final NodeData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item11"),
+                                                                           1),
+                                                       IdGenerator.generate(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem1.getIdentifier(),
+                                                       new AccessControlList());
+    final NodeData localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item21"),
+                                                                           1),
+                                                       localItem11.getIdentifier(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem2.getIdentifier(),
+                                                       new AccessControlList());
+
+    final NodeData remoteItem11 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item11"),
+                                                                            1),
+                                                        localItem11.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem1.getIdentifier(),
+                                                        new AccessControlList());
+    final NodeData remoteItem31 = new TransientNodeData(QPath.makeChildPath(remoteItem3.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item31"),
+                                                                            1),
+                                                        localItem11.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem3.getIdentifier(),
+                                                        new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    ItemState localItem21Rename = new ItemState(localItem11, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    ItemState remoteItem11Delete = new ItemState(remoteItem11, ItemState.DELETED, false, null);
+    localLog.add(remoteItem11Delete);
+    ItemState remoteItem31Rename = new ItemState(remoteItem31, ItemState.RENAMED, false, null);
+    localLog.add(remoteItem31Rename);
+
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(true, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Remove node locally and remove node remotely.
+   * 
+   * local (priority): REN N11 -> N21
+   * 
+   * Remote : REN N31 -> N111
+   * 
+   * Expect: remote changes will be ignored
+   */
+  public void testRenameLocalPriority2() throws Exception {
+    final NodeData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item11"),
+                                                                           1),
+                                                       IdGenerator.generate(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem1.getIdentifier(),
+                                                       new AccessControlList());
+    final NodeData localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item21"),
+                                                                           1),
+                                                       localItem11.getIdentifier(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem2.getIdentifier(),
+                                                       new AccessControlList());
+
+    final NodeData remoteItem31 = new TransientNodeData(QPath.makeChildPath(remoteItem3.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item31"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem3.getIdentifier(),
+                                                        new AccessControlList());
+
+    final NodeData remoteItem111 = new TransientNodeData(QPath.makeChildPath(localItem11.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item111"),
+                                                                             1),
+                                                         remoteItem31.getIdentifier(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         1,
+                                                         localItem11.getIdentifier(),
+                                                         new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
+    incomeLog.add(remoteItem31Delete);
+    ItemState remoteItem111Rename = new ItemState(remoteItem111, ItemState.RENAMED, false, null);
+    incomeLog.add(remoteItem111Rename);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(true, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Remove node locally and remove node remotely.
+   * 
+   * local (priority): REN N11 -> N21
+   * 
+   * Remote : REN N31 -> N21
+   * 
+   * Expect: remote changes will be ignored
+   */
+  public void testRenameLocalPriority3() throws Exception {
+    final NodeData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item11"),
+                                                                           1),
+                                                       IdGenerator.generate(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem1.getIdentifier(),
+                                                       new AccessControlList());
+    final NodeData localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item21"),
+                                                                           1),
+                                                       localItem11.getIdentifier(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem2.getIdentifier(),
+                                                       new AccessControlList());
+
+    final NodeData remoteItem31 = new TransientNodeData(QPath.makeChildPath(remoteItem3.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item31"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem3.getIdentifier(),
+                                                        new AccessControlList());
+
+    final NodeData remoteItem21 = new TransientNodeData(localItem21.getQPath(),
+                                                        remoteItem31.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem1.getIdentifier(),
+                                                        new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
+    localLog.add(localItem11Delete);
+    ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
+    localLog.add(localItem21Rename);
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
+    incomeLog.add(remoteItem31Delete);
+    ItemState remoteItem21Rename = new ItemState(remoteItem21, ItemState.RENAMED, false, null);
+    incomeLog.add(remoteItem21Rename);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(true, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 0);
+  }
+
+  /**
+   * Remove node locally and remove node remotely.
+   * 
+   * local (priority):
+   * 
+   * Remote : REN N31 -> N21
+   * 
+   * Expect: remote changes will be accepted
+   */
+  public void testRenameLocalPriority4() throws Exception {
+    final NodeData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item11"),
+                                                                           1),
+                                                       IdGenerator.generate(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem1.getIdentifier(),
+                                                       new AccessControlList());
+    final NodeData localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item21"),
+                                                                           1),
+                                                       localItem11.getIdentifier(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       localItem2.getIdentifier(),
+                                                       new AccessControlList());
+
+    final NodeData remoteItem31 = new TransientNodeData(QPath.makeChildPath(remoteItem3.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item31"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem3.getIdentifier(),
+                                                        new AccessControlList());
+
+    final NodeData remoteItem21 = new TransientNodeData(localItem21.getQPath(),
+                                                        remoteItem31.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        localItem1.getIdentifier(),
+                                                        new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
+    incomeLog.add(remoteItem31Delete);
+    ItemState remoteItem21Rename = new ItemState(remoteItem21, ItemState.RENAMED, false, null);
+    incomeLog.add(remoteItem21Rename);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(true, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 2);
+    assertTrue("Remote Delete state expected: ", hasState(result, remoteItem31Delete, true));
+    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem21Rename, true));
+  }
+
+  /**
+   * Add node locally to parent node that was renamed remotely.
+   * 
+   * local ADD N1/N1/N1
+   * 
+   * Remote : (priority): REN N1/N1 -> N2/N1
+   * 
+   * Expect: income changes will be accepted, new added node will be deleted
+   */
+  public void testAddRemotePriority() throws Exception {
+    final NodeData remoteItem11 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item11"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem1.getIdentifier(),
+                                                        new AccessControlList());
+    final NodeData remoteItem21 = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item21"),
+                                                                            1),
+                                                        remoteItem11.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem2.getIdentifier(),
+                                                        new AccessControlList());
+    final NodeData localItem111 = new TransientNodeData(QPath.makeChildPath(localItem11.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item111"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem11.getIdentifier(),
+                                                        new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem111Add = new ItemState(localItem111, ItemState.ADDED, false, null);
+    localLog.add(localItem111Add);
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem11Deleted);
+    final ItemState remoteItem21Renamed = new ItemState(remoteItem21,
+                                                        ItemState.RENAMED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem21Renamed);
+    final ItemState remoteItem211Add = new ItemState(remoteItem211, ItemState.ADDED, false, null);
+    incomeLog.add(remoteItem211Add);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(false, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    assertEquals("Wrong changes count ", result.size(), 4);
+    assertTrue("Local Delete state expected: ", hasState(result, new ItemState(localItem111,
+                                                                               ItemState.DELETED,
+                                                                               false,
+                                                                               null), true));
+    assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
+    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem21Renamed, true));
+    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem211Add, true));
+
+  }
+
+  /**
+   * Add node locally to new place of renamed node.
+   * 
+   * local: ADD N2/N1
+   * 
+   * Remote (priority): REN N1/N1 -> N2/N1
+   * 
+   * Expect: income changes will be accepted, new added node will be deleted
+   */
+  public void testAddRemotePriority2() throws Exception {
+    final NodeData remoteItem11 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item11"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem1.getIdentifier(),
+                                                        new AccessControlList());
+    final NodeData remoteItem21 = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item21"),
+                                                                            1),
+                                                        remoteItem11.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem2.getIdentifier(),
+                                                        new AccessControlList());
+    final NodeData localItem21 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+                                                                           new InternalQName(null,
+                                                                                             "item21"),
+                                                                           1),
+                                                       IdGenerator.generate(),
+                                                       0,
+                                                       new InternalQName(Constants.NS_NT_URI,
+                                                                         "unstructured"),
+                                                       new InternalQName[0],
+                                                       1,
+                                                       remoteItem2.getIdentifier(),
+                                                       new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem21Add = new ItemState(localItem21, ItemState.ADDED, false, null);
+    localLog.add(localItem21Add);
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem11Deleted);
+    final ItemState remoteItem21Renamed = new ItemState(remoteItem21,
+                                                        ItemState.RENAMED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem21Renamed);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(false, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 3);
+    assertTrue("Local Delete state expected: ", hasState(result, new ItemState(localItem21,
+                                                                               ItemState.DELETED,
+                                                                               false,
+                                                                               null), true));
+    assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
+    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem21Renamed, true));
+  }
+
+  /**
+   * Add node locally and Rename node remotely without conflicts.
+   * 
+   * local : ADD N3
+   * 
+   * Remote (priority) : REN N1/N1 -> N2/N1
+   * 
+   * Expect: income changes will be accepted
+   */
+  public void testAddRemotePriority3() throws Exception {
+    final NodeData remoteItem11 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item11"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem1.getIdentifier(),
+                                                        new AccessControlList());
+    final NodeData remoteItem21 = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item21"),
+                                                                            1),
+                                                        remoteItem11.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem2.getIdentifier(),
+                                                        new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem3Add = new ItemState(localItem3, ItemState.ADDED, false, null);
+    localLog.add(localItem3Add);
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem11Deleted);
+    final ItemState remoteItem21Renamed = new ItemState(remoteItem21,
+                                                        ItemState.RENAMED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem21Renamed);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(false, null, null, null);
+    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+
+    assertEquals("Wrong changes count ", result.size(), 2);
+    assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
+    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem21Renamed, true));
+  }
+
+  /**
+   * Delete node locally and rename node remotely.
+   * 
+   * local : DEL N1/N1/N1
+   * 
+   * Remote (priority): REN N1/N1/N1 -> N2/N1/N1
+   * 
+   * Expect: income changes will be accepted
+   */
+  public void testDeleteRemotePriority() throws Exception {
+    final NodeData remoteItem111 = new TransientNodeData(QPath.makeChildPath(remoteItem11.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item111"),
+                                                                             1),
+                                                         IdGenerator.generate(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         1,
+                                                         remoteItem11.getIdentifier(),
+                                                         new AccessControlList());
+
+    final NodeData remoteItem211 = new TransientNodeData(QPath.makeChildPath(remoteItem21.getQPath(),
+                                                                             new InternalQName(null,
+                                                                                               "item211"),
+                                                                             1),
+                                                         remoteItem111.getIdentifier(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         1,
+                                                         remoteItem21.getIdentifier(),
+                                                         new AccessControlList());
+
+    final NodeData localItem111 = new TransientNodeData(QPath.makeChildPath(remoteItem11.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item111"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem111.getIdentifier(),
+                                                        new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem111Delete = new ItemState(localItem111, ItemState.DELETED, false, null);
+    localLog.add(localItem111Delete);
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem111Deleted = new ItemState(remoteItem111,
+                                                         ItemState.DELETED,
+                                                         false,
+                                                         null);
+    incomeLog.add(remoteItem111Deleted);
+    final ItemState remoteItem211Renamed = new ItemState(remoteItem211,
+                                                         ItemState.RENAMED,
+                                                         false,
+                                                         null);
+    incomeLog.add(remoteItem211Renamed);
+    income.addLog(incomeLog);
+
+    RenameMerger renameMerger = new RenameMerger(false, null, null, null);
+
+    List<ItemState> result = renameMerger.merge(remoteItem111Deleted, income, local);
+    assertEquals("Wrong changes count ", result.size(), 2);
+    assertTrue("Remote Delete state expected: ", hasState(result, remoteItem111Deleted, true));
+    assertTrue("Remote Rename state expected: ", hasState(result, remoteItem211Renamed, true));
+  }
+
+  /**
+   * Delete node locally and rename node remotely.
+   * 
+   * local (priority): DEL N2
+   * 
+   * Remote : REN N1/N1 -> N2/N1
+   * 
+   * Expect: remote changes will be ignored
+   */
+  public void testDeleteRemotePriority2() throws Exception {
+    final NodeData remoteItem11 = new TransientNodeData(QPath.makeChildPath(remoteItem1.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item11"),
+                                                                            1),
+                                                        IdGenerator.generate(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem1.getIdentifier(),
+                                                        new AccessControlList());
+
+    final NodeData remoteItem21 = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                            new InternalQName(null,
+                                                                                              "item21"),
+                                                                            1),
+                                                        remoteItem11.getIdentifier(),
+                                                        0,
+                                                        new InternalQName(Constants.NS_NT_URI,
+                                                                          "unstructured"),
+                                                        new InternalQName[0],
+                                                        1,
+                                                        remoteItem2.getIdentifier(),
+                                                        new AccessControlList());
+
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    final ItemState localItem2Delete = new ItemState(localItem2, ItemState.DELETED, false, null);
+    localLog.add(localItem2Delete);
+    local.addLog(localLog);
+
+    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
+                                                        ItemState.DELETED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem11Deleted);
+    final ItemState remoteItem21Renamed = new ItemState(remoteItem21,
+                                                        ItemState.RENAMED,
+                                                        false,
+                                                        null);
+    incomeLog.add(remoteItem21Renamed);
+    income.addLog(incomeLog);
+
+    PlainChangesLog exportLog = new PlainChangesLogImpl();
+
+    RenameMerger renameMerger = new RenameMerger(false,
+                                                 new TesterRemoteExporter(exportLog),
+                                                 null,
+                                                 null);
+    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 

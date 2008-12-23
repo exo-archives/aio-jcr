@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -95,9 +96,39 @@ public class RenameMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
-          // TODO
           break;
         case ItemState.DELETED:
+          ItemState nextLocalState = local.getNextItemState(localState);
+
+          // Update sequences
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            if (localData.getQPath().isDescendantOf(incomeData.getQPath())
+                || (localData.getParentIdentifier().equals(incomeData.getParentIdentifier()) && localData.getQPath()
+                                                                                                         .getName()
+                                                                                                         .equals(incomeData.getQPath()
+                                                                                                                           .getName()))
+                || (local.getNextItemStateByUUIDOnUpdate(localState,
+                                                         nextIncomeState.getData()
+                                                                        .getParentIdentifier()) != null)) {
+              return resultEmptyState;
+            }
+            break;
+          }
+
+          // Rename sequences
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
+            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                || incomeData.getQPath().equals(localData.getQPath())
+                || nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())
+                || nextIncomeState.getData().getQPath().equals(localData.getQPath())
+                || nextIncomeState.getData().getQPath().isDescendantOf(nextLocalState.getData()
+                                                                                     .getQPath())
+                || nextIncomeState.getData().getQPath().equals(nextLocalState.getData().getQPath())) {
+              return resultEmptyState;
+            }
+            break;
+          }
+
           // simple DELETE
           if (incomeData.getQPath().equals(localData.getQPath())
               || nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())
@@ -106,28 +137,82 @@ public class RenameMerger implements ChangesMerger {
           }
           break;
         case ItemState.RENAMED:
-          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          // TODO
+          if (localData.getQPath().isDescendantOf(incomeData.getQPath())
+              || localData.getQPath().equals(incomeData.getQPath())
+              || localData.getQPath().isDescendantOf(nextIncomeState.getData().getQPath())
+              || localData.getQPath().equals(nextIncomeState.getData().getQPath())) {
+
+            // add DELETE state
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
+                                                                                true,
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              itemsArray[i].getData().getQPath()));
+              }
+            }
+            if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            false,
+                                            localData.getQPath()));
+            }
+
+            // add all state from income changes
+            if (!itemChangeProcessed) {
+              resultState.add(incomeState);
+              resultState.add(nextIncomeState);
+            }
+            resultState.addAll(income.getDescendantsChanges(nextIncomeState.getData().getQPath(),
+                                                            false,
+                                                            false));
+            itemChangeProcessed = true;
+          }
           break;
         case ItemState.UPDATED:
           // TODO
           break;
         case ItemState.DELETED:
-          // TODO
+          // DELETE
+          if (localData.isNode()) {
+            if (localData.getQPath().isDescendantOf(incomeData.getQPath())
+                || localData.getQPath().equals(incomeData.getQPath())) {
+              break;
+            } else if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+              // restore deleted node
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()).getAllStates());
+
+              if (!itemChangeProcessed) {
+                resultState.add(incomeState);
+                resultState.add(nextIncomeState);
+              }
+              itemChangeProcessed = true;
+              break;
+            } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
+              // restore deleted node and all subtree with renamed node
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()).getAllStates());
+              itemChangeProcessed = true;
+            }
+          } else {
+            break;
+          }
           break;
         case ItemState.RENAMED:
           // TODO
           break;
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       }

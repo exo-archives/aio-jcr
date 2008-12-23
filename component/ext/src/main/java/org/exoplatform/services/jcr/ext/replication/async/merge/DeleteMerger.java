@@ -231,22 +231,11 @@ public class DeleteMerger implements ChangesMerger {
 
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
+            ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                                      localData.getIdentifier());
 
             // if item was deleted of updated item of its child
-            if (incomeData.isNode() && incomeData.getQPath().equals(localData.getQPath())) {
-              ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
-                                                                        localData.getIdentifier());
-
-              resultState.add(new ItemState(nextItem.getData(),
-                                            ItemState.DELETED,
-                                            nextItem.isEventFire(),
-                                            nextItem.getData().getQPath()));
-              itemChangeProcessed = true;
-              break;
-            } else if (!incomeData.isNode()
-                && incomeData.getParentIdentifier().equals(localData.getIdentifier())) {
-              ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
-                                                                        localData.getIdentifier());
+            if (incomeData.getParentIdentifier().equals(nextItem.getData().getIdentifier())) {
               QPath name = QPath.makeChildPath(nextItem.getData().getQPath(),
                                                incomeData.getQPath().getEntries()[incomeData.getQPath()
                                                                                             .getEntries().length - 1]);
