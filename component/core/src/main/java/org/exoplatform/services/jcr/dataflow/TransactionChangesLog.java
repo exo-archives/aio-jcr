@@ -157,7 +157,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
-  public QPath getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
+  public ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
     List<ItemState> allStates = getAllStates();
 
     for (int i = 0; i < allStates.size(); i++) {
@@ -167,7 +167,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
           if (item.getState() != ItemState.UPDATED) {
             return null;
           } else if (item.getData().getIdentifier().equals(UUID)) {
-            return item.getData().getQPath();
+            return item;
           }
         }
       }
