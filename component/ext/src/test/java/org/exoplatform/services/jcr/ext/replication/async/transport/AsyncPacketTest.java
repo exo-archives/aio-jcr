@@ -43,7 +43,7 @@ public class AsyncPacketTest extends TestCase {
     for (int i = 0; i < buf.length; i++) 
       buf[i] = (byte)(Math.random()*255);
     
-    AsyncPacket srcPacket = new AsyncPacket(AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE,
+    AsyncPacket srcPacket = new AsyncPacket(AsyncPacketTypes.GET_EXPORT_CHAHGESLOG,
                                             120214245,
                                             "8bec9d407f00010101bb60adbcdef058",
                                             Calendar.getInstance().getTimeInMillis(),
@@ -101,6 +101,6 @@ public class AsyncPacketTest extends TestCase {
     assertEquals(destPacket.getTimeStamp(), srcPacket.getTimeStamp());
     
     assertEquals(destPacket.getType(), srcPacket.getType());
-    assertEquals(destPacket.getType(), AsyncPacketTypes.GET_CHANGESLOG_UP_TO_DATE);
+    assertEquals(destPacket.getType(), AsyncPacketTypes.GET_EXPORT_CHAHGESLOG);
   }
 }
