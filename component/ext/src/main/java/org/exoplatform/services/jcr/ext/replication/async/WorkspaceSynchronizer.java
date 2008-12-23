@@ -141,7 +141,7 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
       transmitter.sendExport(chl, event.getAddress());
     } catch (RepositoryException e) {
       e.printStackTrace();
-      transmitter.sendError("error " + e);
+      transmitter.sendError("error " + e, event.getAddress());
     }
   }
 

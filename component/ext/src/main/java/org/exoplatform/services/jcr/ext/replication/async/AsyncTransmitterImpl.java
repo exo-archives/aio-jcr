@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,6 +28,8 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 
@@ -69,7 +70,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * {@inheritDoc}
    */
   public void sendGetExport(String nodeId, int remotePriority) {
-    AsyncPacket packet = new AsyncPacket(AsyncPacketTypes.GET_EXPORT_CHAHGESLOG, nodeId.getBytes(), priority);
+    AsyncPacket packet = new GetExportPacket(nodeId, priority);
     
     try {
       channel.sendPacket(packet);
@@ -87,42 +88,45 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
   public void sendExport(ChangesLogFile changes, Address destAddress) {
     try {
-      sendBinaryFile(destAddress,
+      sendChangesLogFile(destAddress,
                      changes,
                      priority,
+                     "",
                      1,
                      AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
                      AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
                      AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET);
     } catch (IOException e) {
-      //TODO need send error message to destAddress
       log.error("Cannot send export data", e);
+      sendError("Cannot send export data. Internal error ossurs.", destAddress);
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public void sendError(String error) {
+  public void sendError(String error, Address destaddress) {
     // TODO
   }
 
   /**
-   * sendBigPacket.
+   * Send big data.
    * 
    * @param data the binary data
    * @param packet the Packet
    * @throws Exception will be generated Exception
    */
-  protected void sendBigPacket(Address destinationAddress, byte[] data, AsyncPacket packet) throws Exception {
+ /* protected void sendBigPacket(Address destinationAddress, byte[] data, AsyncPacket packet) throws Exception {
     InputStream in = new ByteArrayInputStream(data);
 
     List<Address> destLost = new ArrayList<Address>();
     destLost.add(destinationAddress);
 
+    // TODO make crc from data;
+    String crc = "";
     sendInputStream(destLost,
                     in,
-                    packet.getCRC(),
+                    crc,
                     packet.getTimeStamp(),
                     packet.getTransmitterPriority(),
                     data.length,
@@ -131,7 +135,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                     AsyncPacketTypes.BIG_PACKET_LAST);
 
     in.close();
-  }
+  }*/
 
   /**
    * sendBinaryFile.
@@ -145,9 +149,10 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param lastPocketType the packet type for last packet
    * @throws Exception will be generated the Exception
    */
-  protected void sendBinaryFile(Address destinationAddress,
+  protected void sendChangesLogFile(Address destinationAddress,
                              ChangesLogFile clFile,
                              int transmitterPriority,
+                             String nodeId,
                              int totalFiles,
                              int firstPacketType,
                              int middlePocketType,
@@ -155,9 +160,10 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     List<Address> destinationAddresses = new ArrayList<Address>();
     destinationAddresses.add(destinationAddress);
 
-    sendBinaryFile(destinationAddresses,
+    sendChangesLogFile(destinationAddresses,
                    clFile,
                    transmitterPriority,
+                   nodeId, 
                    totalFiles,
                    firstPacketType,
                    middlePocketType,
@@ -176,28 +182,86 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param lastPocketType the packet type for last packet
    * @throws Exception will be generated the Exception
    */
-  protected void sendBinaryFile(List<Address> destinationAddresses,
+  protected void sendChangesLogFile(List<Address> destinationAddresses,
                              ChangesLogFile clFile,
                              int transmitterPriority,
+                             String nodeId,
                              int totalFiles,
                              int firstPacketType,
-                             int middlePocketType,
-                             int lastPocketType) throws IOException {
+                             int middlePacketType,
+                             int lastPacketType) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + clFile.getFilePath());
 
     File f = new File(clFile.getFilePath());
     InputStream in = new FileInputStream(f);
 
-    sendInputStream(destinationAddresses,
-                    in,
-                    clFile.getCRC(),
-                    clFile.getTimeStamp(),
-                    transmitterPriority,
-                    totalFiles,
-                    firstPacketType,
-                    middlePocketType,
-                    lastPocketType);
+    byte[] buf = new byte[AsyncPacket.MAX_PACKET_SIZE];
+    int len;
+    long offset = 0;
+    AsyncPacket packet;
+
+    // Send first packet in all cases. If InputStream is empty too.
+    len = in.read(buf);
+    if (len < AsyncPacket.MAX_PACKET_SIZE) {
+      // cut buffer to original size;
+      byte[] b = new byte[len];
+      System.arraycopy(buf, 0, b, 0, len);
+      buf = b;
+    }
+
+    packet = new ChangesPacket(firstPacketType,
+                                  transmitterPriority,
+                                  
+                             clFile.getCRC(),
+                             clFile.getTimeStamp(),
+                             null,
+                             totalFiles,
+                             offset,
+                             buf);
+    channel.sendPacket(packet, destinationAddresses);
+    offset += len;
+    if (log.isDebugEnabled())
+      log.debug("Send PacType[" + firstPacketType + "] --> " + offset);
+
+    while ((len = in.read(buf)) > 0) {
+
+      if (len < AsyncPacket.MAX_PACKET_SIZE) {
+        byte[] b = new byte[len];
+        // cut buffer to original size;
+        System.arraycopy(buf, 0, b, 0, len);
+        buf = b;
+      }
+
+      packet = new ChangesPacket(middlePacketType,
+                                    transmitterPriority,
+                                    
+                               clFile.getCRC(),
+                               clFile.getTimeStamp(),
+                               null,
+                               totalFiles,
+                               offset,
+                               buf);
+
+      channel.sendPacket(packet, destinationAddresses);
+
+      offset += len;
+      if (log.isDebugEnabled())
+        log.debug("Send PacType[" + middlePacketType + "] --> " + offset);
+    }
+
+    // Send last packet
+    packet = new ChangesPacket(lastPacketType,
+                                  transmitterPriority,
+                                  
+                             clFile.getCRC(),
+                             clFile.getTimeStamp(),
+                             null,
+                             totalFiles,
+                             offset,
+                             new byte[0]);
+
+    channel.sendPacket(packet, destinationAddresses);
 
     in.close();
 
@@ -219,12 +283,12 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param lastPocketType the packet type for last packet
    * @throws Exception will be generated the Exception
    */
-  private void sendInputStream(List<Address> destinationAddresses,
+  /*private void sendInputStream(List<Address> destinationAddresses,
                                InputStream in,
                                String crc,
                                long timeStamp,
                                int transmitterPriority,
-                               int totalSize,
+                               int tota0lSize,
                                int firstPacketType,
                                int middlePocketType,
                                int lastPocketType) throws IOException {
@@ -243,13 +307,15 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       buf = b;
     }
 
-    packet = new AsyncPacket(firstPacketType,
-                             totalSize,
+    packet = new ChangesLogPacket(firstPacketType,
+                                  transmitterPriority,
+                                  
                              crc,
                              timeStamp,
-                             transmitterPriority,
-                             buf,
-                             offset);
+                             nodeId,
+                             fileCount
+                             offset,
+                             buf);
     channel.sendPacket(packet, destinationAddresses);
     offset += len;
     if (log.isDebugEnabled())
@@ -289,5 +355,5 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              offset);
 
     channel.sendPacket(packet, destinationAddresses);
-  }
+  }*/
 }

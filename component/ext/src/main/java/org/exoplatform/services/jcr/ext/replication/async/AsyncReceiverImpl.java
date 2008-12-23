@@ -22,6 +22,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.jgroups.Address;
 
 /**
@@ -55,7 +56,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * {@inheritDoc}
    */
   public void onGetExport(AsyncPacket packet, Address srcAddress)  {
-    String nodeId = new String(packet.getBuffer());
+    String nodeId = ((GetExportPacket)packet).getNodeId();
     RemoteGetEvent remoteGetEvent = new RemoteGetEvent(nodeId, srcAddress);
     
     synchronizer.onRemoteGet(remoteGetEvent);

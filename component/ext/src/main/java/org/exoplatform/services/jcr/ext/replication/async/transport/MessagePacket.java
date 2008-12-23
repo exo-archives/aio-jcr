@@ -14,29 +14,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
-
-import java.util.List;
-
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
-import org.jgroups.Address;
+package org.exoplatform.services.jcr.ext.replication.async.transport;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 12.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id$
+ * Created by The eXo Platform SAS
+ * Author : Karpenko Sergiy
+ *          karpenko.sergiy@gmail.com
+ * 23 Ãðó 2008  
  */
-public interface AsyncTransmitter {
-  
-  void sendGetExport(String nodeId, int remotePriority);
-  
-  void sendChanges(List<ChangesLogFile> changes);
-  
-  void sendExport(ChangesLogFile changes, Address address);
-  
-  void sendError(String error, Address address);
+public class MessagePacket extends AsyncPacket {
+
+  public MessagePacket(int type, int transmitterPriority){
+    super(type, transmitterPriority);
+  }
   
 }
