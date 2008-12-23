@@ -44,6 +44,7 @@ import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
+import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
@@ -243,6 +244,7 @@ public class PropertyDefinitionComparator {
         }
       }
       // multiple change
+
     }
   }
 
@@ -404,12 +406,13 @@ public class PropertyDefinitionComparator {
                                                                       nodeTypeDataManager);
 
     for (ValueData value : propertyData.getValues()) {
-      if (!constraints.match(value, propertyData.getType())) {
+      if (!constraints.match(((AbstractValueData) value).createTransientCopy(),
+                             propertyData.getType())) {
         String strVal = null;
         try {
           if (propertyData.getType() != PropertyType.BINARY) {
             // may have large size
-            strVal = ((TransientValueData) value).getString();
+            strVal = new String(value.getAsByteArray());
           } else {
             strVal = "PropertyType.BINARY";
           }

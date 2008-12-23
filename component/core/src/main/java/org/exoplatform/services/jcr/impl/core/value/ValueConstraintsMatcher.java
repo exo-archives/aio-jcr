@@ -63,6 +63,7 @@ public class ValueConstraintsMatcher {
 
   private final NodeTypeDataManager nodeTypeDataManager;
 
+
   public ValueConstraintsMatcher(String[] constraints,
                                  LocationFactory locator,
                                  ItemDataConsumer itemDataConsumer,

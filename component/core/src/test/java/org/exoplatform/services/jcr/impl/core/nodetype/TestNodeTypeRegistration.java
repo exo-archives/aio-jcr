@@ -531,7 +531,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
 
     Node tNode = root.addNode("test", "exo:testReregisterValueConstraintChangeResidualProperty");
     tNode.setProperty("tt", 100);
-    tNode.setProperty("t1", 150);
+    Property prop = tNode.setProperty("t1", 150);
     tNode.setProperty("t2", 1);
     tNode.setProperty("t3", 200);
     session.save();
@@ -555,6 +555,65 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     } catch (ConstraintViolationException e) {
       // ok;
     }
+    prop.remove();
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+  }
+
+  public void testReregisterValueConstraintChangeProperty() throws Exception {
+
+    // part1 any to string
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterValueConstraintChangeProperty");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    List<PropertyDefinitionValue> props = new ArrayList<PropertyDefinitionValue>();
+
+    props.add(new PropertyDefinitionValue("t1",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.LONG,
+                                          new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node tNode = root.addNode("test", "exo:testReregisterValueConstraintChangeProperty");
+
+    Property prop = tNode.setProperty("t1", 150);
+    session.save();
+    List<String> valueConstraint = new ArrayList<String>();
+    valueConstraint.add("(,100]");
+    valueConstraint.add("[200,)");
+    props = new ArrayList<PropertyDefinitionValue>();
+    props.add(new PropertyDefinitionValue("t1",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.LONG,
+                                          valueConstraint));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (ConstraintViolationException e) {
+      // ok;
+    }
+
+    tNode.setProperty("t1", 100);
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
   }
 
 }
