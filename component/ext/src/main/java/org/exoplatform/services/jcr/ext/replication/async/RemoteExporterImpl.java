@@ -33,17 +33,18 @@ public class RemoteExporterImpl implements RemoteExporter {
 
   protected final AsyncTransmitter transmitter;
   
-  protected final int remotePriority;
+  protected final AsyncReceiver receiver;
   
-  RemoteExporterImpl(AsyncTransmitter transmitter, int remotePriority) {
+  RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
     this.transmitter = transmitter;
-    this.remotePriority = remotePriority;
+    this.receiver = receiver;
+    // this.receiver setListener
   }
   
   /**
    * {@inheritDoc}
    */
-  public ItemStateChangesLog exportItem(String nodetId) throws IOException {
+  public ItemStateChangesLog exportItem(String nodetId, int remotePriority) throws IOException {
     
     // send request
     transmitter.sendGetExport(nodetId, remotePriority);
@@ -56,7 +57,7 @@ public class RemoteExporterImpl implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public void onRemoteChanges(RemoteChangesEvent event) {
+  public void onRemoteExport(RemoteChangesEvent event) {
     // get responce - remote changes
     if (event.getCommand().equals("REMOTE_EXPORT_BLAH-BLAH")) { // TODO 
       // TODO cooperate with exportItem lock waiter

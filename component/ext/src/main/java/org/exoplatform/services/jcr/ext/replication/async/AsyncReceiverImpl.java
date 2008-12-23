@@ -37,13 +37,10 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   protected final MergeDataManager      mergeManager;
   
   protected final WorkspaceSynchronizer synchronizer;
-  
-  protected final AsyncChannelManager   channel;
 
   AsyncReceiverImpl(MergeDataManager mergeManager, WorkspaceSynchronizer synchronizer, AsyncChannelManager channel) {
     this.mergeManager = mergeManager;
     this.synchronizer = synchronizer;
-    this.channel = channel;
   }
 
   /**

@@ -61,7 +61,7 @@ public class TesterRemoteExporter implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public void onRemoteChanges(RemoteChangesEvent event) {
+  public void onRemoteExport(RemoteChangesEvent event) {
     // dummy
   }
 }

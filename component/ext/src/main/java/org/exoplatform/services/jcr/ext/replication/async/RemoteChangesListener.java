@@ -27,6 +27,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
  */
 public interface RemoteChangesListener {
 
-  void onRemoteChanges(RemoteChangesEvent event);
+  void onRemoteExport(RemoteChangesEvent event);
   
 }

@@ -46,12 +46,13 @@ public class MergeDataManager {
   protected final NodeTypeDataManager   ntManager;
 
   MergeDataManager(WorkspaceSynchronizer synchronizer,
-                   AsyncTransmitter transmitter,
+                   RemoteExporter exporter,
+                   AsyncReceiver receiver,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager) {
     this.synchronizer = synchronizer;
 
-    this.exporter = new RemoteExporterImpl(transmitter, /*TODO*/ 100);
+    this.exporter = exporter;
 
     this.dataManager = dataManager;
     
@@ -60,6 +61,14 @@ public class MergeDataManager {
     this.addMerger = new AddMerger(synchronizer.getLocalPriority(), exporter, dataManager, ntManager);
   }
 
+  public void onChanges(RemoteChangesEvent event) {
+    //storage.onChanges(event);
+  }
+  
+  public void onRemoteExport(RemoteChangesEvent event) {
+    exporter.onRemoteExport(event);
+  }
+  
   /**
    * Start merge process.
    * 
