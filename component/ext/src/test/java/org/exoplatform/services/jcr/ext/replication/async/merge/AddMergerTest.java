@@ -84,8 +84,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
 public class AddMergerTest extends BaseMergerTest {
 
   /**
-   * Add remote Node add without local changes. All states should be returned by the merger. Local
-   * priority of the merger.
+   * Test 1:<br/> add Item, no local changes<br/> Result:<br/> apply income changes
    * 
    */
   public void testAddNodeNoLocalChangesLocalPriority() throws Exception {
@@ -118,8 +117,7 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Add remote Node add without local changes. All states should be returned by the merger. Remote
-   * priority of the merger.
+   * Test 1:<br/> add Item, no local changes<br/> Result:<br/> apply income changes
    * 
    */
   public void testAddNodeNoLocalChangesRemotePriority() throws Exception {
@@ -152,9 +150,8 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test method for
-   * {@link org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger#merge(org.exoplatform.services.jcr.dataflow.ItemState, org.exoplatform.services.jcr.dataflow.CompositeChangesLog, org.exoplatform.services.jcr.dataflow.CompositeChangesLog)}
-   * .
+   * Test 2:<br/> add Item already added locally (same path, conflict)<br/> Result:<br/> ignore
+   * income changes
    */
   public void testAddNodeLocalPriority() throws Exception {
 
@@ -183,7 +180,8 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test add of remote Node with higher priorty. The merger should .
+   * Test 2:<br/> add Item already added locally (same path, conflict)<br/> Result:<br/> remove
+   * local Item and apply income changes
    */
   public void testAddNodeRemotePriority() throws Exception {
 
@@ -224,8 +222,9 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test if locally added subtree (high priority) will be accepted by the merger. Remotely added
-   * Node will be rejected.
+   * Test 2:<br/> add Item already added locally (same path, conflict)<br/> Result:<br/> ignore
+   * income changes<br/> Note:<br/> Item added as part of subtree
+   * 
    */
   public void testAddSubtreeLocalPriority() throws Exception {
 
@@ -260,8 +259,8 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test if locally added subtree (low priority) will be rejected by the merger. Remotely added
-   * subtree will be accepted.
+   * Test 2:<br/> add Item already added locally (same path, conflict)<br/> Result:<br/> remove
+   * local Item and apply income changes Note:<br/> Item added as part of subtree
    */
   public void testAddSubtreeRemotePriority() throws Exception {
 
@@ -329,8 +328,8 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test the case when local Node added and then removed on high priority node.
-   * 
+   * Test 3:<br/> add Item already added and deleted locally (same path, conflict)<br/> Result:<br/>
+   * ignore income changes<br/>
    */
   public void testAddNodeAddedRemovedLocalPriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -356,8 +355,8 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test the case when local Node added and then removed on low priority node.
-   * 
+   * Test 3:<br/> add Item already added and deleted locally (same path, conflict)<br/> Result:<br/>
+   * apply income changes<br/>
    */
   public void testAddNodeAddedRemovedRemotePriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -384,8 +383,8 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test the case when local subtree added and then removed on high priority node.
-   * 
+   * Test 3:<br/> add Item already added and deleted locally (same path, conflict)<br/> Result:<br/>
+   * ignore income changes<br/> Note:<br/> Item added as part of subtree
    */
   public void testAddSubtreeAddedRemovedLocalPriority() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl();
@@ -428,7 +427,8 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Test the case when local Node added and then removed on low priority node.
+   * Test 3:<br/> add Item already added and deleted locally (same path, conflict)<br/> Result:<br/>
+   * apply income changes<br/> Note:<br/> Item added as part of subtree
    * 
    */
   public void testAddSubtreeAddedRemovedRemotePriority() throws Exception {
@@ -486,7 +486,7 @@ public class AddMergerTest extends BaseMergerTest {
     assertFalse("Local Remove state found ", hasState(result, localItem1Delete, true));
   }
 
-  // complex usecases require remote export
+  // complex usecases, may require remote export
 
   /**
    * Test the case when local parent removed on high priority node.
@@ -560,38 +560,6 @@ public class AddMergerTest extends BaseMergerTest {
     assertFalse("Remote Add state found ", hasState(result, remoteItem2Change, true));
     assertFalse("Local Add state found ", hasState(result, localItem11Change, true));
   }
-
-  /**
-   * Test the case when local parent renamed on high priority node.
-   * 
-   * <pre>
-   * Move (on Session) /testnode/node1 to /testnode/node3
-   * DELETED  40765cb3c0a800030052a793608c12fa  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[]node2:1[http://www.jcp.org/jcr/1.0]primaryType:1
-   * DELETED  40765cb3c0a8000301815364e58957d6  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[]node2:1
-   * DELETED  40765cb3c0a80003004c47b5fcec0df8  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[http://www.jcp.org/jcr/1.0]primaryType:1
-   * DELETED  40765ca4c0a8000300dbd887514fc595  isPersisted=false isEventFire=true  []:1[]testroot:1[]node1:1
-   * RENAMED  40765ca4c0a8000300dbd887514fc595  isPersisted=true  isEventFire=true  []:1[]testroot:1[]node3:1
-   * RENAMED  40765cb3c0a80003004c47b5fcec0df8  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[http://www.jcp.org/jcr/1.0]primaryType:1
-   * RENAMED  40765cb3c0a8000301815364e58957d6  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[]node2:1
-   * RENAMED  40765cb3c0a800030052a793608c12fa  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[]node2:1[http://www.jcp.org/jcr/1.0]primaryType:1
-   * </pre>
-   * 
-   * <pre>
-   * Move of same siblings (on Session) /snsMoveTest/node1/node[2] to /snsMoveTest/node2/node[3].
-   * DELETED  40a82de0c0a8000300da7939a90754c0  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]mixinTypes:1
-   * DELETED  40a82de0c0a800030094a25cfb969f7b  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]uuid:1
-   * DELETED  40a82d82c0a80003013a7cd4065f0227  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]primaryType:1
-   * DELETED  40a82d82c0a8000300837986b3d89cd0  isPersisted=false isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:2
-   * RENAMED  40a82d82c0a8000300837986b3d89cd0  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:2[]node:3
-   * RENAMED  40a82d82c0a80003013a7cd4065f0227  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]primaryType:1
-   * RENAMED  40a82de0c0a800030094a25cfb969f7b  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]uuid:1
-   * RENAMED  40a82de0c0a8000300da7939a90754c0  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]mixinTypes:1
-   * DELETED  40a82e0fc0a80003010c6482b28037d2  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:3
-   * UPDATED  40a82e0fc0a80003010c6482b28037d2  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:2
-   * DELETED  40a82e0fc0a8000300a88c3205491824  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:4
-   * UPDATED  40a82e0fc0a8000300a88c3205491824  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:3
-   * </pre>
-   */
 
   /**
    * local: REN N11 -> N21
@@ -981,6 +949,36 @@ public class AddMergerTest extends BaseMergerTest {
   }
 
   /**
+   * Test the case when local parent renamed on high priority node.
+   * 
+   * <pre>
+   * Move (on Session) /testnode/node1 to /testnode/node3
+   * DELETED  40765cb3c0a800030052a793608c12fa  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[]node2:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * DELETED  40765cb3c0a8000301815364e58957d6  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[]node2:1
+   * DELETED  40765cb3c0a80003004c47b5fcec0df8  isPersisted=false isEventFire=false []:1[]testroot:1[]node1:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * DELETED  40765ca4c0a8000300dbd887514fc595  isPersisted=false isEventFire=true  []:1[]testroot:1[]node1:1
+   * RENAMED  40765ca4c0a8000300dbd887514fc595  isPersisted=true  isEventFire=true  []:1[]testroot:1[]node3:1
+   * RENAMED  40765cb3c0a80003004c47b5fcec0df8  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * RENAMED  40765cb3c0a8000301815364e58957d6  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[]node2:1
+   * RENAMED  40765cb3c0a800030052a793608c12fa  isPersisted=false isEventFire=false []:1[]testroot:1[]node3:1[]node2:1[http://www.jcp.org/jcr/1.0]primaryType:1
+   * </pre>
+   * 
+   * <pre>
+   * Move of same siblings (on Session) /snsMoveTest/node1/node[2] to /snsMoveTest/node2/node[3].
+   * DELETED  40a82de0c0a8000300da7939a90754c0  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]mixinTypes:1
+   * DELETED  40a82de0c0a800030094a25cfb969f7b  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]uuid:1
+   * DELETED  40a82d82c0a80003013a7cd4065f0227  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:2[http://www.jcp.org/jcr/1.0]primaryType:1
+   * DELETED  40a82d82c0a8000300837986b3d89cd0  isPersisted=false isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:2
+   * RENAMED  40a82d82c0a8000300837986b3d89cd0  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:2[]node:3
+   * RENAMED  40a82d82c0a80003013a7cd4065f0227  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]primaryType:1
+   * RENAMED  40a82de0c0a800030094a25cfb969f7b  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]uuid:1
+   * RENAMED  40a82de0c0a8000300da7939a90754c0  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:2[]node:3[http://www.jcp.org/jcr/1.0]mixinTypes:1
+   * DELETED  40a82e0fc0a80003010c6482b28037d2  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:3
+   * UPDATED  40a82e0fc0a80003010c6482b28037d2  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:2
+   * DELETED  40a82e0fc0a8000300a88c3205491824  isPersisted=false isEventFire=false []:1[]snsMoveTest:1[]node1:1[]node:4
+   * UPDATED  40a82e0fc0a8000300a88c3205491824  isPersisted=true  isEventFire=true  []:1[]snsMoveTest:1[]node1:1[]node:3
+   * </pre>
+   * 
    * local: REN N11 -> N21
    * 
    * 1. remote: ADD N111 (local delete, remote add subtree)
@@ -993,8 +991,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            1),
                                                        IdGenerator.generate(),
                                                        0,
-                                                       new InternalQName(Constants.NS_NT_URI,
-                                                                         "unstructured"),
+                                                       Constants.NT_UNSTRUCTURED,
                                                        new InternalQName[0],
                                                        1,
                                                        localItem1.getIdentifier(),
@@ -1005,8 +1002,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                            1),
                                                        localItem11.getIdentifier(),
                                                        0,
-                                                       new InternalQName(Constants.NS_NT_URI,
-                                                                         "unstructured"),
+                                                       Constants.NT_UNSTRUCTURED,
                                                        new InternalQName[0],
                                                        1,
                                                        localItem2.getIdentifier(),
@@ -1017,8 +1013,7 @@ public class AddMergerTest extends BaseMergerTest {
                                                                              1),
                                                          localItem11.getIdentifier(),
                                                          0,
-                                                         new InternalQName(Constants.NS_NT_URI,
-                                                                           "unstructured"),
+                                                         Constants.NT_UNSTRUCTURED,
                                                          new InternalQName[0],
                                                          1,
                                                          localItem11.getIdentifier(),
