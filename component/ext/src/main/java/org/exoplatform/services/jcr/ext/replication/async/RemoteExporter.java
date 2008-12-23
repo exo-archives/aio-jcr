@@ -37,12 +37,19 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 public interface RemoteExporter extends RemoteChangesListener {
 
   /**
+   * Set exporter side priority.
+   *
+   * @param remotePriority int
+   */
+  void setPriority(int remotePriority);
+  
+  /**
    * Exports remote item and return chnages log with ADD states.
    * @param nodetId String
    * @param remotePriority int
    *
    * @return ItemStateChangesLog
    */
-  ItemStateChangesLog exportItem(String nodetId, int remotePriority) throws IOException;
+  ItemStateChangesLog exportItem(String nodetId) throws IOException;
   
 }

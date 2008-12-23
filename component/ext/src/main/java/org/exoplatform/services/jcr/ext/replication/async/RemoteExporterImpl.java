@@ -35,16 +35,26 @@ public class RemoteExporterImpl implements RemoteExporter {
   
   protected final AsyncReceiver receiver;
   
+  /**
+   * Remote priority.
+   * Mutable value. Will be changed by Merge manager on each memebers pair merge.
+   */
+  protected int remotePriority;
+  
   RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
     this.transmitter = transmitter;
     this.receiver = receiver;
     // this.receiver setListener
   }
   
+  public void setPriority(int remotePriority) {
+    this.remotePriority = remotePriority;  
+  }
+  
   /**
    * {@inheritDoc}
    */
-  public ItemStateChangesLog exportItem(String nodetId, int remotePriority) throws IOException {
+  public ItemStateChangesLog exportItem(String nodetId) throws IOException {
     
     // send request
     transmitter.sendGetExport(nodetId, remotePriority);

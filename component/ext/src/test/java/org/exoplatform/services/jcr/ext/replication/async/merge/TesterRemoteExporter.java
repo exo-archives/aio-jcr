@@ -51,6 +51,15 @@ public class TesterRemoteExporter implements RemoteExporter {
     this.changes = new PlainChangesLogImpl();
   }
 
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void setPriority(int remotePriority) {
+    // TODO Auto-generated method stub
+    
+  }
+
   /**
    * {@inheritDoc}
    */
