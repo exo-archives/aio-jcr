@@ -41,7 +41,7 @@ public class PacketTransformer {
    * @throws IOException
    *           generate the IOExaption
    */
-  public static byte[] getAsByteArray(AsyncPacket packet) throws IOException {
+  public static byte[] getAsByteArray(AbstractPacket packet) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(os);
     oos.writeObject(packet);
@@ -62,10 +62,10 @@ public class PacketTransformer {
    * @throws ClassNotFoundException
    *           generate the ClassNotFoundException 
    */
-  public static AsyncPacket getAsPacket(byte[] byteArray) throws IOException, ClassNotFoundException {
+  public static AbstractPacket getAsPacket(byte[] byteArray) throws IOException, ClassNotFoundException {
     ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
     ObjectInputStream ois = new ObjectInputStream(is);
-    AsyncPacket objRead = (AsyncPacket) ois.readObject();
+    AbstractPacket objRead = (AbstractPacket) ois.readObject();
 
     return objRead;
   }

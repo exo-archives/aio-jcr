@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 
 /**
  * Created by The eXo Platform SAS.
@@ -200,7 +200,7 @@ public class FileSystemChangesStorage implements ChangesStorage {
   /**
    * {@inheritDoc}
    */
-  public void addPacket(AsyncPacket packet) {
+  public void addPacket(AbstractPacket packet) {
     // TODO
     // Add each new packet till
 

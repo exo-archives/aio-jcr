@@ -20,12 +20,21 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
  * Created by The eXo Platform SAS
  * Author : Karpenko Sergiy
  *          karpenko.sergiy@gmail.com
- * 23 Ãðó 2008  
  */
-public class MessagePacket extends AbstractPacket {
+public class ExportChangesPacket extends ChangesPacket{
 
-  public MessagePacket(int type){
-    super(type);
+  public ExportChangesPacket(int type,
+                             String crc,
+                             long timeStamp,
+                             int fileCount,
+                             long offset,
+                             byte[] buffer) {
+    super(type, 0, crc, timeStamp, fileCount, offset, buffer);
+  }
+  
+  public int getTransmitterPriority() throws RuntimeException{
+    // TODO Priority!!
+    throw new RuntimeException("Transmitter priority is unsupported for ExportChangesLog");
   }
   
 }

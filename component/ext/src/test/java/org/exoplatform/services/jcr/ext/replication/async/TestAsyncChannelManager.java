@@ -24,7 +24,7 @@ import java.util.Random;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.jgroups.Address;
@@ -39,7 +39,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
   protected abstract class TestPacketListener implements AsyncPacketListener {
     abstract boolean isTested();
 
-    abstract List<AsyncPacket> getResievedPacketList();
+    abstract List<AbstractPacket> getResievedPacketList();
 
   }
 
@@ -77,7 +77,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
       private boolean           isTested = false;
 
-      private List<AsyncPacket> list     = new ArrayList<AsyncPacket>();
+      private List<AbstractPacket> list     = new ArrayList<AbstractPacket>();
 
       @Override
       boolean isTested() {
@@ -85,11 +85,11 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
       }
 
       @Override
-      List<AsyncPacket> getResievedPacketList() {
+      List<AbstractPacket> getResievedPacketList() {
         return list;
       }
 
-      public void receive(AsyncPacket packet, Address sourceAddress) throws Exception {
+      public void receive(AbstractPacket packet, Address sourceAddress) throws Exception {
         assertNotNull(packet);
         list.add(packet);
         if (packet.getType() == AsyncPacketTypes.BIG_PACKET_LAST) {
@@ -110,7 +110,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     
     byte[] bigData = createBLOBTempData(256);
     AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, null,100);
-    trans.sendBigPacket(adr, bigData, new AsyncPacket(0, 
+    trans.sendBigPacket(adr, bigData, new AbstractPacket(0, 
                                                     0, 
                                                     "checksum", 
                                                     System.currentTimeMillis(), 
@@ -119,7 +119,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     assertEquals(true, listener.isTested());
 
-    List<AsyncPacket> list = listener.getResievedPacketList();
+    List<AbstractPacket> list = listener.getResievedPacketList();
     assertEquals(17, list.size());
     assertEquals(AsyncPacketTypes.BIG_PACKET_FIRST, list.get(0).getType());
     for (int i = 1; i < list.size() - 1; i++) {
@@ -151,7 +151,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
       private boolean           isTested = false;
 
-      private List<AsyncPacket> list     = new ArrayList<AsyncPacket>();
+      private List<AbstractPacket> list     = new ArrayList<AbstractPacket>();
 
       @Override
       boolean isTested() {
@@ -159,11 +159,11 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
       }
 
       @Override
-      List<AsyncPacket> getResievedPacketList() {
+      List<AbstractPacket> getResievedPacketList() {
         return list;
       }
 
-      public void receive(AsyncPacket packet, Address sourceAddress) throws Exception {
+      public void receive(AbstractPacket packet, Address sourceAddress) throws Exception {
         assertNotNull(packet);
         list.add(packet);
         isTested = true;
@@ -179,7 +179,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     tchannel.connect();
 
     byte[] buf = "Hello".getBytes();
-    AsyncPacket packet = new AsyncPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET, 
+    AbstractPacket packet = new AbstractPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET, 
                              0, 
                              packetId, 
                              System.currentTimeMillis(), 
@@ -194,7 +194,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     assertEquals(true, listener.isTested());
 
-    List<AsyncPacket> list = listener.getResievedPacketList();
+    List<AbstractPacket> list = listener.getResievedPacketList();
     assertEquals(1, list.size());
 
     // check packet
@@ -278,7 +278,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     tchannel.closeChannel();
   }*/
   
-  protected void checkPacket(AsyncPacket expected, AsyncPacket resieved) {
+  protected void checkPacket(AbstractPacket expected, AbstractPacket resieved) {
     assertEquals(expected.getType(), resieved.getType());
     assertEquals(expected.getCRC(), resieved.getCRC());
     assertEquals(expected.getSize(), resieved.getSize());
@@ -295,7 +295,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     return data;
   }
 
-  private byte[] concatBigPacketBuffer(List<AsyncPacket> list) {
+  private byte[] concatBigPacketBuffer(List<AbstractPacket> list) {
     // count result data size
     int size = 0;
     for (int i = 0; i < list.size()-1; i++) {

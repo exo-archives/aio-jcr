@@ -25,7 +25,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 
 /**
  * Created by The eXo Platform SAS.
@@ -45,7 +45,7 @@ public interface ChangesStorage {
    * @param buff - bytes, data to be stored
    * @param offset - offset in result file from which the data will be stored
    */
-  void addPacket(AsyncPacket packet);
+  void addPacket(AbstractPacket packet);
   
   /**
    * Get last ItemState by Item id.

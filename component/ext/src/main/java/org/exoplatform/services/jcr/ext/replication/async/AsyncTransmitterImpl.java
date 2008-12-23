@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
@@ -70,7 +70,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * {@inheritDoc}
    */
   public void sendGetExport(String nodeId, int remotePriority) {
-    AsyncPacket packet = new GetExportPacket(nodeId, priority);
+    // TODO PRIORITY!!!
+    AbstractPacket packet = new GetExportPacket(nodeId);
     
     try {
       channel.sendPacket(packet);
@@ -196,14 +197,14 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     File f = new File(clFile.getFilePath());
     InputStream in = new FileInputStream(f);
 
-    byte[] buf = new byte[AsyncPacket.MAX_PACKET_SIZE];
+    byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
-    AsyncPacket packet;
+    AbstractPacket packet;
 
     // Send first packet in all cases. If InputStream is empty too.
     len = in.read(buf);
-    if (len < AsyncPacket.MAX_PACKET_SIZE) {
+    if (len < AbstractPacket.MAX_PACKET_SIZE) {
       // cut buffer to original size;
       byte[] b = new byte[len];
       System.arraycopy(buf, 0, b, 0, len);
@@ -226,7 +227,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     while ((len = in.read(buf)) > 0) {
 
-      if (len < AsyncPacket.MAX_PACKET_SIZE) {
+      if (len < AbstractPacket.MAX_PACKET_SIZE) {
         byte[] b = new byte[len];
         // cut buffer to original size;
         System.arraycopy(buf, 0, b, 0, len);

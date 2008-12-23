@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CannotInitilizeConnectionsException;
@@ -142,7 +142,7 @@ public class AsyncInitializer implements AsyncPacketListener {
     this.channelManager.addPacketListener(this);
   }
 
-  public void receive(AsyncPacket packet, Address srcAddress) throws Exception {
+  public void receive(AbstractPacket packet, Address srcAddress) throws Exception {
     /*switch (packet.getType()) {
     case AsyncPacketTypes.GET_STATE_NODE:
       AsyncPacket stateNodePacket = new AsyncPacket(AsyncPacketTypes.STATE_NODE,

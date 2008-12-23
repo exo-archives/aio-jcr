@@ -20,7 +20,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.jgroups.Address;
@@ -47,7 +47,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void onChanges(AsyncPacket packet) {
+  public void onChanges(AbstractPacket packet) {
     // TODO Auto-generated method stub
 
   }
@@ -55,7 +55,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void onGetExport(AsyncPacket packet, Address srcAddress)  {
+  public void onGetExport(AbstractPacket packet, Address srcAddress)  {
     String nodeId = ((GetExportPacket)packet).getNodeId();
     RemoteGetEvent remoteGetEvent = new RemoteGetEvent(nodeId, srcAddress);
     
@@ -65,7 +65,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void receive(AsyncPacket packet, Address srcAddress) {
+  public void receive(AbstractPacket packet, Address srcAddress) {
     switch (packet.getType()) {
     case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
         onGetExport(packet, srcAddress);

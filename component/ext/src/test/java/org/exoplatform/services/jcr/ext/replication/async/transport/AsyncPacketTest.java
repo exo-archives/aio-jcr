@@ -39,11 +39,11 @@ public class AsyncPacketTest extends TestCase {
     //create content
     
     
-    byte[] buf = new byte[AsyncPacket.MAX_PACKET_SIZE];
+    byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
     for (int i = 0; i < buf.length; i++) 
       buf[i] = (byte)(Math.random()*255);
     
-    AsyncPacket srcPacket = new AsyncPacket(AsyncPacketTypes.GET_EXPORT_CHAHGESLOG,
+    AbstractPacket srcPacket = new AbstractPacket(AsyncPacketTypes.GET_EXPORT_CHAHGESLOG,
                                             120214245,
                                             "8bec9d407f00010101bb60adbcdef058",
                                             Calendar.getInstance().getTimeInMillis(),
@@ -55,7 +55,7 @@ public class AsyncPacketTest extends TestCase {
     byte[] serializabelSrcPacket = PacketTransformer.getAsByteArray(srcPacket);
     
     //deserialize serializabelSrcPacket
-    AsyncPacket destPacket = PacketTransformer.getAsPacket(serializabelSrcPacket);
+    AbstractPacket destPacket = PacketTransformer.getAsPacket(serializabelSrcPacket);
     
     //compare
     compareAsyncPacket(srcPacket, destPacket);
@@ -72,7 +72,7 @@ public class AsyncPacketTest extends TestCase {
     objectOutputStream.close();
     
     //readExternal
-    AsyncPacket destAsyncPacketFromFile = new AsyncPacket();
+    AbstractPacket destAsyncPacketFromFile = new AbstractPacket();
     
     ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(serializabeSrcFile));
     
@@ -82,7 +82,7 @@ public class AsyncPacketTest extends TestCase {
     compareAsyncPacket(srcPacket, destAsyncPacketFromFile);
   }
   
-  private void compareAsyncPacket(AsyncPacket srcPacket, AsyncPacket destPacket) {
+  private void compareAsyncPacket(AbstractPacket srcPacket, AbstractPacket destPacket) {
     assertEquals(destPacket.getOffset(), srcPacket.getOffset());
     assertEquals(destPacket.getOffset(), 245852);
     
@@ -90,7 +90,7 @@ public class AsyncPacketTest extends TestCase {
     assertEquals(destPacket.getSize(), 120214245);
     
     assertEquals(destPacket.getBuffer().length, srcPacket.getBuffer().length);
-    assertEquals(destPacket.getBuffer().length, AsyncPacket.MAX_PACKET_SIZE);
+    assertEquals(destPacket.getBuffer().length, AbstractPacket.MAX_PACKET_SIZE);
     
     for (int i = 0; i < srcPacket.getBuffer().length; i++) 
       assertEquals(destPacket.getBuffer()[i], srcPacket.getBuffer()[i]);

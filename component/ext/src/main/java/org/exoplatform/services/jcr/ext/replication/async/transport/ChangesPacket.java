@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * Created by The eXo Platform SAS Author : Karpenko Sergiy
  * karpenko.sergiy@gmail.com 23 Ãðó 2008
  */
-public class ChangesPacket extends AsyncPacket {
+public class ChangesPacket extends AbstractPacket {
 
   /**
    * Time stamp.
@@ -54,10 +54,9 @@ public class ChangesPacket extends AsyncPacket {
   private byte[] buffer;
   
   /**
-   * Changes log root node Id.
+   * The priority of transmitter. 
    */
-  private String nodeId;
-  
+  private int             transmitterPriority;
 
   /**
    * Constructor.
@@ -71,20 +70,19 @@ public class ChangesPacket extends AsyncPacket {
    * @param buffer
    */
   public ChangesPacket(int type,
-                          int transmitterPriority,
+                       int transmitterPriority,
                           String crc,
                           long timeStamp,
-                          String nodeId,
                           int fileCount,
                           long offset,
                           byte[] buffer) {
-    super(type, transmitterPriority);
+    super(type);
+    this.transmitterPriority = transmitterPriority; 
     this.crc = crc;
     this.timeStamp = timeStamp;
     this.fileCount = fileCount;
     this.offset = offset;
     this.buffer = buffer;
-    this.nodeId = nodeId;
   }
 
   public String getCRC() {
@@ -107,8 +105,8 @@ public class ChangesPacket extends AsyncPacket {
     return this.buffer;
   }
 
-  public String getNodeId() {
-    return this.nodeId;
+  public int getTransmitterPriority() {
+    return transmitterPriority;
   }
   
   /**
@@ -116,6 +114,8 @@ public class ChangesPacket extends AsyncPacket {
    */
   public void writeExternal(ObjectOutput out) throws IOException {
     super.writeExternal(out);
+    
+    out.writeInt(transmitterPriority);
         
     if (crc != null) {
       byte[] b = crc.getBytes(Constants.DEFAULT_ENCODING);
@@ -126,15 +126,6 @@ public class ChangesPacket extends AsyncPacket {
       out.writeInt(NULL_VALUE);
     }
     out.writeLong(timeStamp);
-    
-    if (nodeId != null) {
-      byte[] b = nodeId.getBytes(Constants.DEFAULT_ENCODING);
-      out.writeInt(NOT_NULL_VALUE);
-      out.writeInt(b.length);
-      out.write(b);
-    } else {
-      out.writeInt(NULL_VALUE);
-    }
     
     out.writeInt(fileCount);
     out.writeLong(offset);
@@ -151,9 +142,9 @@ public class ChangesPacket extends AsyncPacket {
    * {@inheritDoc}
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-
     super.readExternal(in);
 
+    transmitterPriority = in.readInt();
     if (in.readInt() == NOT_NULL_VALUE) {
       byte[] buf = new byte[in.readInt()];
       in.readFully(buf);
@@ -163,14 +154,6 @@ public class ChangesPacket extends AsyncPacket {
     }
     timeStamp = in.readLong();
 
-    if (in.readInt() == NOT_NULL_VALUE) {
-      byte[] buf = new byte[in.readInt()];
-      in.readFully(buf);
-      nodeId = new String(buf, Constants.DEFAULT_ENCODING);
-    } else {
-      nodeId = null;
-    }
-    
     fileCount = in.readInt();
     offset = in.readLong();
 
