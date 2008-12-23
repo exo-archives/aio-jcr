@@ -228,7 +228,7 @@ public class AsyncChannelManager implements RequestHandler {
    *           will be generated Exception
    */
   public void sendPacket(AsyncPacket packet, List<Address> destinationAddresses) throws IOException {
-    byte[] buffer = AsyncPacket.getAsByteArray(packet);
+    byte[] buffer = PacketTransformer.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
     Vector<Address> destAddresses = (destinationAddresses == null ? null : new Vector<Address>(destinationAddresses));
@@ -262,7 +262,7 @@ public class AsyncChannelManager implements RequestHandler {
    */
   public Object handle(Message message) {
     try {
-      AsyncPacket packet = AsyncPacket.getAsPacket(message.getBuffer());
+      AsyncPacket packet = PacketTransformer.getAsPacket(message.getBuffer());
 
       for (AsyncPacketListener handler : packetListeners) {
         handler.receive(packet, message.getSrc());

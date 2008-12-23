@@ -157,44 +157,6 @@ public class AsyncPacket implements Externalizable {
     this.offset = offset;
   }
   
-  /**
-   * getAsByteArray.
-   *
-   * @param packet
-   *          Packet object 
-   * @return byte[]
-   *           the binary value
-   * @throws IOException
-   *           generate the IOExaption
-   */
-  public static byte[] getAsByteArray(AsyncPacket packet) throws IOException {
-    ByteArrayOutputStream os = new ByteArrayOutputStream();
-    ObjectOutputStream oos = new ObjectOutputStream(os);
-    oos.writeObject(packet);
-
-    byte[] bArray = os.toByteArray();
-    return bArray;
-  }
-  
-  /**
-   * getAsPacket.
-   *
-   * @param byteArray
-   *          binary data
-   * @return Packet
-   *           the Packet object from bytes
-   * @throws IOException
-   *           generate the IOExeption
-   * @throws ClassNotFoundException
-   *           generate the ClassNotFoundException 
-   */
-  public static AsyncPacket getAsPacket(byte[] byteArray) throws IOException, ClassNotFoundException {
-    ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
-    ObjectInputStream ois = new ObjectInputStream(is);
-    AsyncPacket objRead = (AsyncPacket) ois.readObject();
-
-    return objRead;
-  }
   
   /**
    * {@inheritDoc}

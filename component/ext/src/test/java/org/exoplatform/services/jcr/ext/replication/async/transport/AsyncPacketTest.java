@@ -52,10 +52,10 @@ public class AsyncPacketTest extends TestCase {
                                             245852);
     //1.
     //serialize srcPacket
-    byte[] serializabelSrcPacket = AsyncPacket.getAsByteArray(srcPacket);
+    byte[] serializabelSrcPacket = PacketTransformer.getAsByteArray(srcPacket);
     
     //deserialize serializabelSrcPacket
-    AsyncPacket destPacket = AsyncPacket.getAsPacket(serializabelSrcPacket);
+    AsyncPacket destPacket = PacketTransformer.getAsPacket(serializabelSrcPacket);
     
     //compare
     compareAsyncPacket(srcPacket, destPacket);
