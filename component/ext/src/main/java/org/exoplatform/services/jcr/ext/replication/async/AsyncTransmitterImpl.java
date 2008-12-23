@@ -108,7 +108,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param packet the Packet
    * @throws Exception will be generated Exception
    */
-  public void sendBigPacket(Address destinationAddress, byte[] data, AsyncPacket packet) throws Exception {
+  protected void sendBigPacket(Address destinationAddress, byte[] data, AsyncPacket packet) throws Exception {
     InputStream in = new ByteArrayInputStream(data);
 
     List<Address> destLost = new ArrayList<Address>();
@@ -139,7 +139,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param lastPocketType the packet type for last packet
    * @throws Exception will be generated the Exception
    */
-  public void sendBinaryFile(Address destinationAddress,
+  protected void sendBinaryFile(Address destinationAddress,
                              ChangesLogFile clFile,
                              int transmitterPriority,
                              int totalFiles,
@@ -170,7 +170,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param lastPocketType the packet type for last packet
    * @throws Exception will be generated the Exception
    */
-  public void sendBinaryFile(List<Address> destinationAddresses,
+  protected void sendBinaryFile(List<Address> destinationAddresses,
                              ChangesLogFile clFile,
                              int transmitterPriority,
                              int totalFiles,
