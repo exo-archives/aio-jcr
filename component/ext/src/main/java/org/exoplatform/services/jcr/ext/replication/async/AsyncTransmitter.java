@@ -31,7 +31,7 @@ import org.jgroups.Address;
  */
 public interface AsyncTransmitter {
   
-  void sendGetExport(String nodeId);
+  void sendGetExport(String nodeId, int remotePriority);
   
   void sendChanges(List<ChangesLogFile> changes);
   

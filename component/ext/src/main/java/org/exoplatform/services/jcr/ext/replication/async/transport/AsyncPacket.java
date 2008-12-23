@@ -112,6 +112,26 @@ public class AsyncPacket implements Externalizable {
    *          the priority value of transmitters         
    */
   public AsyncPacket(int type, 
+                     byte[] buf,
+                     int transmitterPriority) {
+    this.type = type;
+    this.transmitterPriority = transmitterPriority;
+
+    buffer = new byte[buf.length];
+    System.arraycopy(buf, 0, buffer, 0, buf.length);
+  }
+  
+  /**
+   * Packet  constructor.
+   *
+   * @param type 
+   *          packet type
+   * @param buf
+   *          binary data
+   * @param transmitterPriority
+   *          the priority value of transmitters         
+   */
+  public AsyncPacket(int type, 
                      long size, 
                      String crc, 
                      long timeStamp, 

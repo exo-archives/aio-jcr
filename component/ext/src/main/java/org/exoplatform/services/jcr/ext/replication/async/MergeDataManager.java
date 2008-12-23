@@ -51,7 +51,7 @@ public class MergeDataManager {
                    NodeTypeDataManager ntManager) {
     this.synchronizer = synchronizer;
 
-    this.exporter = new RemoteExporterImpl(transmitter);
+    this.exporter = new RemoteExporterImpl(transmitter, /*TODO*/ 100);
 
     this.dataManager = dataManager;
     

@@ -21,6 +21,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.jgroups.Address;
 
 /**
@@ -67,8 +68,10 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * {@inheritDoc}
    */
   public void receive(AsyncPacket packet, Address srcAddress) {
-    // TODO Auto-generated method stub
-
+    switch (packet.getType()) {
+    case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
+        onGetExport(packet, srcAddress);
+      break;
+    }
   }
-
 }

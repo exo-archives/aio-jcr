@@ -33,8 +33,11 @@ public class RemoteExporterImpl implements RemoteExporter {
 
   protected final AsyncTransmitter transmitter;
   
-  RemoteExporterImpl(AsyncTransmitter transmitter) {
+  protected final int remotePriority;
+  
+  RemoteExporterImpl(AsyncTransmitter transmitter, int remotePriority) {
     this.transmitter = transmitter;
+    this.remotePriority = remotePriority;
   }
   
   /**
@@ -43,7 +46,7 @@ public class RemoteExporterImpl implements RemoteExporter {
   public ItemStateChangesLog exportItem(String nodetId) throws IOException {
     
     // send request
-    transmitter.sendGetExport(nodetId);
+    transmitter.sendGetExport(nodetId, remotePriority);
     
     // TODO lock and wait for responce, error or timeout 
     

@@ -68,9 +68,15 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendGetExport(String nodeId) {
-    // TODO Auto-generated method stub
-
+  public void sendGetExport(String nodeId, int remotePriority) {
+    AsyncPacket packet = new AsyncPacket(AsyncPacketTypes.GET_EXPORT_CHAHGESLOG, nodeId.getBytes(), priority);
+    
+    try {
+      channel.sendPacket(packet);
+    } catch (IOException e) {
+      //TODO need send error message to destAddress
+      log.error("Cannot send export data", e);
+    }
   }
 
   /**
