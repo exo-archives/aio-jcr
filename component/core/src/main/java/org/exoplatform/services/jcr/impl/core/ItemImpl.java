@@ -766,7 +766,10 @@ public abstract class ItemImpl implements Item {
                                                                                                      RepositoryException {
 
     ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(),
-                                                                      session);
+                                                                      session.getLocationFactory(),
+                                                                      session.getTransientNodesManager(),
+                                                                      session.getWorkspace()
+                                                                             .getNodeTypesHolder());
 
     for (ValueData value : newValues) {
       if (!constraints.match(value, type)) {

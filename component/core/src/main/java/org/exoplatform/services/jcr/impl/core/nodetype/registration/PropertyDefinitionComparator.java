@@ -17,11 +17,13 @@
 package org.exoplatform.services.jcr.impl.core.nodetype.registration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
 
@@ -38,7 +40,10 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
+import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
+import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
@@ -53,17 +58,26 @@ public class PropertyDefinitionComparator {
   /**
    * Class logger.
    */
-  private static final Log LOG = ExoLogger.getLogger(PropertyDefinitionComparator.class);
+  private static final Log       LOG = ExoLogger.getLogger(PropertyDefinitionComparator.class);
+
+  private final ValueFactoryImpl valueFactory;
+
+  private final LocationFactory  locationFactory;
 
   /**
    * @param nodeTypeDataManager
    * @param persister
+   * @param valueFactory
    */
   public PropertyDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager,
-                                      DataManager persister) {
+                                      LocationFactory locationFactory,
+                                      DataManager persister,
+                                      ValueFactoryImpl valueFactory) {
     super();
     this.nodeTypeDataManager = nodeTypeDataManager;
+    this.locationFactory = locationFactory;
     this.persister = persister;
+    this.valueFactory = valueFactory;
   }
 
   protected final DataManager           persister;
@@ -199,6 +213,35 @@ public class PropertyDefinitionComparator {
         }
       }
       // ValueConstraints
+      if (!Arrays.equals(ancestorDefinitionData.getValueConstraints(),
+                         recipientDefinitionData.getValueConstraints())) {
+        Set<String> nodes2;
+        if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+        } else {
+          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
+                                                new InternalQName[] { recipientDefinitionData.getName() },
+                                                new InternalQName[] {});
+        }
+        for (String uuid : nodes2) {
+          NodeData nodeData = (NodeData) persister.getItemData(uuid);
+          if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+            List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
+            for (PropertyData propertyData : propertyDatas) {
+              // skip mixin and primary type
+              if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
+                  && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
+                checkValueConstraints(recipientDefinitionData, propertyData);
+              }
+            }
+          } else {
+            PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
+                                                                             new QPathEntry(recipientDefinitionData.getName(),
+                                                                                            0));
+            checkValueConstraints(recipientDefinitionData, propertyData);
+          }
+        }
+      }
       // multiple change
     }
   }
@@ -349,6 +392,33 @@ public class PropertyDefinitionComparator {
       }
       if (isRemoved)
         removedDefinitionData.add(ancestorDefinition[i]);
+    }
+  }
+
+  private void checkValueConstraints(PropertyDefinitionData def, PropertyData propertyData) throws ConstraintViolationException,
+                                                                                           RepositoryException {
+
+    ValueConstraintsMatcher constraints = new ValueConstraintsMatcher(def.getValueConstraints(),
+                                                                      locationFactory,
+                                                                      persister,
+                                                                      nodeTypeDataManager);
+
+    for (ValueData value : propertyData.getValues()) {
+      if (!constraints.match(value, propertyData.getType())) {
+        String strVal = null;
+        try {
+          if (propertyData.getType() != PropertyType.BINARY) {
+            // may have large size
+            strVal = ((TransientValueData) value).getString();
+          } else {
+            strVal = "PropertyType.BINARY";
+          }
+        } catch (Throwable e) {
+          LOG.error("Error of value read: " + e.getMessage(), e);
+        }
+        throw new ConstraintViolationException("Value " + strVal + " for property "
+            + propertyData.getQPath().getAsString() + " doesn't match new constraint ");
+      }
     }
   }
 }

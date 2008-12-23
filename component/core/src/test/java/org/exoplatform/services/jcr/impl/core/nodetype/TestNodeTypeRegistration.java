@@ -24,6 +24,7 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
 
@@ -445,4 +446,115 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     Property prop = tNode.setProperty("t2", 1);
     assertEquals(PropertyType.STRING, prop.getType());
   }
+
+  public void testReregisterRequiredNodeTypeChangeProperty() throws Exception {
+    // part1 any to string
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterRequiredNodeTypeChangeProperty");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    List<PropertyDefinitionValue> props = new ArrayList<PropertyDefinitionValue>();
+
+    props.add(new PropertyDefinitionValue("tt",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.UNDEFINED,
+                                          new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node tNode = root.addNode("test", "exo:testReregisterRequiredNodeTypeChangeProperty");
+    tNode.setProperty("tt", 1);
+
+    session.save();
+
+    // chenge mandatory
+    List<PropertyDefinitionValue> props2 = new ArrayList<PropertyDefinitionValue>();
+    props2.add(new PropertyDefinitionValue("tt",
+                                           false,
+                                           false,
+                                           1,
+                                           false,
+                                           new ArrayList<String>(),
+                                           false,
+                                           PropertyType.STRING,
+                                           new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props2);
+
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+      // ok;
+    }
+    tNode.remove();
+    session.save();
+
+    tNode = root.addNode("test", "exo:testReregisterRequiredNodeTypeChangeProperty");
+    tNode.setProperty("tt", "tt");
+    session.save();
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+    Property prop = tNode.setProperty("tt", "22");
+    assertEquals(PropertyType.STRING, prop.getType());
+  }
+
+  public void testReregisterValueConstraintChangeResidualProperty() throws Exception {
+
+    // part1 any to string
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterValueConstraintChangeResidualProperty");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    List<PropertyDefinitionValue> props = new ArrayList<PropertyDefinitionValue>();
+
+    props.add(new PropertyDefinitionValue("*",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.LONG,
+                                          new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node tNode = root.addNode("test", "exo:testReregisterValueConstraintChangeResidualProperty");
+    tNode.setProperty("tt", 100);
+    tNode.setProperty("t1", 150);
+    tNode.setProperty("t2", 1);
+    tNode.setProperty("t3", 200);
+    session.save();
+    List<String> valueConstraint = new ArrayList<String>();
+    valueConstraint.add("(,100]");
+    valueConstraint.add("[200,)");
+    props = new ArrayList<PropertyDefinitionValue>();
+    props.add(new PropertyDefinitionValue("*",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.LONG,
+                                          valueConstraint));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (ConstraintViolationException e) {
+      // ok;
+    }
+  }
+
 }

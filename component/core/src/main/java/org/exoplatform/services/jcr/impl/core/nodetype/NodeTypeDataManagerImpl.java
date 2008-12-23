@@ -522,7 +522,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       case ExtendedNodeTypeManager.FAIL_IF_EXISTS:
         throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
       case ExtendedNodeTypeManager.IGNORE_IF_EXISTS:
-        LOG.warn("Skipped " + nodeType.getName() + " as already registered");
+        LOG.warn("Skipped " + nodeType.getName().getAsString() + " as already registered");
         break;
       case ExtendedNodeTypeManager.REPLACE_IF_EXISTS:
         reregisterNodeType(registeredNodeType, nodeType);
@@ -768,7 +768,9 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
     PlainChangesLog changesLog = new PlainChangesLogImpl();
     PropertyDefinitionComparator propertyDefinitionComparator = new PropertyDefinitionComparator(this,
-                                                                                                 persister.getDataManager());
+                                                                                                 locationFactory,
+                                                                                                 persister.getDataManager(),
+                                                                                                 valueFactory);
     changesLog.addAll(propertyDefinitionComparator.processPropertyDefinitionChanges(recipientDefinition,
                                                                                     ancestorDefinition.getDeclaredPropertyDefinitions(),
                                                                                     recipientDefinition.getDeclaredPropertyDefinitions())
