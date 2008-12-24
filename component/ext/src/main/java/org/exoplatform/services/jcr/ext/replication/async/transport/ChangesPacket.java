@@ -58,6 +58,10 @@ public class ChangesPacket extends AbstractPacket {
    */
   private int             transmitterPriority;
 
+  public ChangesPacket(){
+    super();
+  }
+  
   /**
    * Constructor.
    * 

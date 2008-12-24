@@ -32,6 +32,11 @@ public class GetExportPacket extends MessagePacket {
   
   private String nodeId;
 
+  public GetExportPacket(){
+    super();
+  }
+  
+  
   public GetExportPacket(String nodeId) {
     super(AsyncPacketTypes.GET_EXPORT_CHAHGESLOG);
     this.nodeId = nodeId;

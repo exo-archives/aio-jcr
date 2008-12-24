@@ -66,7 +66,7 @@ public class PacketTransformer {
     ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
     ObjectInputStream ois = new ObjectInputStream(is);
     AbstractPacket objRead = (AbstractPacket) ois.readObject();
-
+    
     return objRead;
   }
 }

@@ -16,16 +16,19 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.jgroups.Address;
 import org.jgroups.stack.IpAddress;
 
@@ -68,11 +71,9 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
    * 
    * @throws Exception internal exception
    */
-  public void testSendBigPacket() throws Exception {
-    /*
-    String packetId = "Id";
-    String packetOwnName = "Owner";
-
+  public void testSendExport() throws Exception {
+    final int filesize = 600;
+    
     TestPacketListener listener = new TestPacketListener() {
 
       private boolean           isTested = false;
@@ -92,7 +93,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
       public void receive(AbstractPacket packet, Address sourceAddress) throws Exception {
         assertNotNull(packet);
         list.add(packet);
-        if (packet.getType() == AsyncPacketTypes.BIG_PACKET_LAST) {
+        if (packet.getType() == AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET) {
           isTested = true;
         }
         
@@ -108,46 +109,40 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     Address adr = new IpAddress("127.0.0.1",7800);
     
-    byte[] bigData = createBLOBTempData(256);
+    File file  = createBLOBTempFile("mytest", filesize);
+    ChangesFile changes = new ChangesFile(file.getPath(),"crc",System.currentTimeMillis());
+    
     AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, null,100);
-    trans.sendBigPacket(adr, bigData, new AbstractPacket(0, 
-                                                    0, 
-                                                    "checksum", 
-                                                    System.currentTimeMillis(), 
-                                                    100));
+    trans.sendExport(changes, adr);
     Thread.sleep(1000);
 
     assertEquals(true, listener.isTested());
 
     List<AbstractPacket> list = listener.getResievedPacketList();
-    assertEquals(17, list.size());
-    assertEquals(AsyncPacketTypes.BIG_PACKET_FIRST, list.get(0).getType());
+    assertEquals(39, list.size());
+    assertEquals(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET, list.get(0).getType());
     for (int i = 1; i < list.size() - 1; i++) {
-      assertEquals(AsyncPacketTypes.BIG_PACKET_MIDDLE, list.get(i).getType());
+      assertEquals(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET, list.get(i).getType());
     }
-    assertEquals(AsyncPacketTypes.BIG_PACKET_LAST, list.get(list.size() - 1).getType());
+    assertEquals(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET, list.get(list.size() - 1).getType());
 
-    // check Id
-    for (int i = 0; i < list.size(); i++) {
-      assertEquals("checksum", list.get(i).getCRC());
-    }
-
-    // check data
-    assertEquals(true, java.util.Arrays.equals(bigData, concatBigPacketBuffer(list)));
-
-    // close channel
     tchannel.closeChannel();
-    */
-  }
+   
+    FileInputStream fin = new FileInputStream(file);
+    byte[] et = new byte[filesize*1024]; 
+    fin.read(et);
+    
+    byte[] result = concatChangePacketBuffers(list);
+   
+    assertTrue(java.util.Arrays.equals(et, result));
+  } 
 
   /**
    * Test sendPacket method.
    * 
    * @throws Exception internal exception
    */
-  public void testSendPacket() throws Exception {
-    /*
-    String packetId = "Id";
+  public void testSendGetExportPacket() throws Exception {
     
     TestPacketListener listener = new TestPacketListener() {
 
@@ -169,28 +164,20 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
         assertNotNull(packet);
         list.add(packet);
         isTested = true;
-        
       }
+      
     };
 
     channel.addPacketListener(listener);
 
-    // send big file;
     AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
     tchannel.init();
     tchannel.connect();
 
-    byte[] buf = "Hello".getBytes();
-    AbstractPacket packet = new AbstractPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET, 
-                             0, 
-                             packetId, 
-                             System.currentTimeMillis(), 
-                             90,
-                             buf,
-                             0);
+    String nodeId = "nodeId";
     
+    GetExportPacket packet = new GetExportPacket(nodeId);
     
-
     tchannel.sendPacket(packet);
     Thread.sleep(1000);
 
@@ -200,11 +187,11 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     assertEquals(1, list.size());
 
     // check packet
-    checkPacket(packet, list.get(0));
+    assertEquals(packet.getType(), list.get(0).getType());
+    assertEquals(packet.getNodeId(), ((GetExportPacket)list.get(0)).getNodeId());
 
     // close channel
     tchannel.closeChannel();
-    */
   }
 
   /*
@@ -281,40 +268,40 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     tchannel.closeChannel();
   }*/
   
-  /*
+  
   protected void checkPacket(AbstractPacket expected, AbstractPacket resieved) {
     assertEquals(expected.getType(), resieved.getType());
-    assertEquals(expected.getCRC(), resieved.getCRC());
-    assertEquals(expected.getSize(), resieved.getSize());
-    assertEquals(expected.getTimeStamp(), resieved.getTimeStamp());
-    
-    //check data;
-    assertEquals(true, java.util.Arrays.equals(expected.getBuffer(), resieved.getBuffer()));
   }
-
+  
+  protected void checkGetExportPacket(GetExportPacket expected, GetExportPacket resieved){
+   
+  }
+  
+  /*
   protected byte[] createBLOBTempData(int sizeInKb) throws IOException {
     byte[] data = new byte[1024 * sizeInKb]; // 1Kb
     Random random = new Random();
     random.nextBytes(data);
     return data;
   }
+  */
 
-  private byte[] concatBigPacketBuffer(List<AbstractPacket> list) {
+  private byte[] concatChangePacketBuffers(List<AbstractPacket> list) {
     // count result data size
     int size = 0;
     for (int i = 0; i < list.size()-1; i++) {
       
-      size += list.get(i).getBuffer().length;
+      size += ((ChangesPacket)list.get(i)).getBuffer().length;
     }
 
     byte[] buf = new byte[size];
     int pos = 0;
     for (int i = 0; i < list.size()-1; i++) {
-      int length = list.get(i).getBuffer().length;
-      System.arraycopy(list.get(i).getBuffer(), 0, buf, pos, length);
+      int length = ((ChangesPacket)list.get(i)).getBuffer().length;
+      System.arraycopy(((ChangesPacket)list.get(i)).getBuffer(), 0, buf, pos, length);
       pos += length;
     }
     return buf;
-  }*/
+  }
   
 }

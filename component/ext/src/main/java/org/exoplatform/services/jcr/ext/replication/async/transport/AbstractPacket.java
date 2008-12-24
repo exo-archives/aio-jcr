@@ -56,6 +56,10 @@ public abstract class AbstractPacket implements Externalizable {
    */
   private int             type;
 
+  public AbstractPacket(){
+    
+  }
+  
   /**
    * Packet  constructor.
    *

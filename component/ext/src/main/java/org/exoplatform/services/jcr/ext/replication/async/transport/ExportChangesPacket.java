@@ -23,6 +23,10 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
  */
 public class ExportChangesPacket extends ChangesPacket{
 
+  public ExportChangesPacket(){
+    super();
+  }
+  
   public ExportChangesPacket(int type,
                              String crc,
                              long timeStamp,

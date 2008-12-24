@@ -24,6 +24,10 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
  */
 public class MessagePacket extends AbstractPacket {
 
+  public MessagePacket(){
+    super();
+  }
+  
   public MessagePacket(int type){
     super(type);
   }
