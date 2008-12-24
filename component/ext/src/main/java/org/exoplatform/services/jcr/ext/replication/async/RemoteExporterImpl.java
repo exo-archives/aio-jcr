@@ -65,13 +65,13 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
    */
   public Iterator<ItemState> exportItem(String nodetId) throws IOException {
     // registration RemoteChangesListener.
-    receiver.setRemoteChangesListener(this);
+    receiver.setRemoteExportListener(this);
 
     // send request
     transmitter.sendGetExport(nodetId, memberAddress);
 
     // TODO lock and wait for responce, error or timeout
-    receiver.removeRemoteChangesListener();
+    receiver.removeRemoteExportListener();
 
     return new PlainChangesLogImpl().getAllStates().iterator(); // TODO return responce changes
   }

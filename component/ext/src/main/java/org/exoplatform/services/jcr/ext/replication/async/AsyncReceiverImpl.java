@@ -38,15 +38,15 @@ public class AsyncReceiverImpl implements AsyncReceiver {
 
   protected final MergeDataManager      mergeManager;
 
-  protected final WorkspaceSynchronizerImpl synchronizer;
+  protected final RemoteExportServer exportServer;
 
   protected RemoteExportClient       remoteExportListener;
 
   AsyncReceiverImpl(MergeDataManager mergeManager,
-                    WorkspaceSynchronizerImpl synchronizer,
+                    RemoteExportServer exportServer,
                     AsyncChannelManager channel) {
     this.mergeManager = mergeManager;
-    this.synchronizer = synchronizer;
+    this.exportServer = exportServer;
   }
 
   /**
@@ -63,7 +63,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     String nodeId = ((GetExportPacket) packet).getNodeId();
     RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, srcAddress);
 
-    synchronizer.sendExport(remoteGetEvent);
+    exportServer.sendExport(remoteGetEvent);
   }
 
   /**
@@ -107,11 +107,11 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     }
   }
 
-  public void removeRemoteChangesListener() {
+  public void removeRemoteExportListener() {
     this.remoteExportListener = null;
   }
 
-  public void setRemoteChangesListener(RemoteExportClient listener) {
+  public void setRemoteExportListener(RemoteExportClient listener) {
     this.remoteExportListener = listener;
   }
 }
