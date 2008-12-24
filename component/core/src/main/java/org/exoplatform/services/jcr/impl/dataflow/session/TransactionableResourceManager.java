@@ -70,8 +70,10 @@ public class TransactionableResourceManager {
         for (Iterator<SoftReference<XASessionImpl>> siter = joinedList.iterator(); siter.hasNext();) {
           try {
             XASessionImpl xaSession = siter.next().get();
-            if (xaSession == null || !xaSession.isLive())
+            if (xaSession == null || !xaSession.isLive()) {
+              System.err.println("session remove on add, new session " + userSession + ", thread " + Thread.currentThread()); // TODO
               siter.remove();
+            }
           } catch(ConcurrentModificationException e) {
             e.printStackTrace();
             System.err.println("same user >>> " + e); // TODO
@@ -108,8 +110,10 @@ public class TransactionableResourceManager {
       synchronized (joinedList) { // sync for comodifications from concurrent threads of same user
         for (Iterator<SoftReference<XASessionImpl>> siter = joinedList.iterator(); siter.hasNext();) {
           XASessionImpl xaSession = siter.next().get();
-          if (xaSession == null || !xaSession.isLive() || xaSession == userSession)
+          if (xaSession == null || !xaSession.isLive() || xaSession == userSession) {
+            System.err.println("session remove, session " + userSession + ", thread " + Thread.currentThread()); // TODO
             siter.remove();
+          }
         }
 
         // if list is empty - remove mapping to the list
