@@ -123,9 +123,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * NodeImpl constructor.
    * 
-   * @param data Node data
-   * @param session Session
-   * @throws RepositoryException if error occurs during the Node data loading
+   * @param data
+   *          Node data
+   * @param session
+   *          Session
+   * @throws RepositoryException
+   *           if error occurs during the Node data loading
    */
   public NodeImpl(NodeData data, SessionImpl session) throws RepositoryException {
     super(data, session);
@@ -172,8 +175,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   /**
    * Init NodeDefinition.
    * 
-   * @throws RepositoryException if error occurs
-   * @throws ConstraintViolationException if definition not found
+   * @throws RepositoryException
+   *           if error occurs
+   * @throws ConstraintViolationException
+   *           if definition not found
    */
   private void initDefinition() throws RepositoryException, ConstraintViolationException {
 
@@ -645,23 +650,23 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                                   LockException {
 
     // Check if nodeType exists and not mixin
-    String ptStr = sysLocFactory.createJCRName(primaryTypeName).getAsString();
     NodeTypeDataManager nodeTypeDataManager = session.getWorkspace().getNodeTypesHolder();
     NodeTypeData nodeType = nodeTypeDataManager.findNodeType(primaryTypeName);
     if (nodeType == null)
-      throw new NoSuchNodeTypeException("Nodetype not found " + primaryTypeName.getAsString());
+      throw new NoSuchNodeTypeException("Nodetype not found "
+          + sysLocFactory.createJCRName(primaryTypeName).getAsString());
 
     if (nodeType.isMixin())
-      throw new ConstraintViolationException("Add Node failed: Node Type <" + ptStr
-          + "> is MIXIN type!");
+      throw new ConstraintViolationException("Add Node failed, "
+          + sysLocFactory.createJCRName(primaryTypeName).getAsString() + " is MIXIN type!");
 
     // Check if new node's node type is allowed by its parent definition
 
     if (!nodeTypeDataManager.isChildNodePrimaryTypeAllowed(primaryTypeName,
                                                            nodeData().getPrimaryTypeName(),
                                                            nodeData().getMixinTypeNames())) {
-      throw new ConstraintViolationException("Can't add node " + name.getAsString() + " to "
-          + getPath() + " node type " + primaryTypeName.getAsString()
+      throw new ConstraintViolationException("Can't add node " + sysLocFactory.createJCRName(name).getAsString() + " to "
+          + getPath() + " node type " + sysLocFactory.createJCRName(primaryTypeName).getAsString()
           + " is not allowed as child's node type for parent node type ");
 
     }
@@ -672,10 +677,11 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
                                                                              nodeData().getPrimaryTypeName(),
                                                                              nodeData().getMixinTypeNames());
     if (childNodeDefinition == null)
-      throw new ConstraintViolationException("Can't find child node definition for " + name
-          + " in " + nodeData().getQPath().getAsString());
+      throw new ConstraintViolationException("Can't find child node definition for " + sysLocFactory.createJCRName(name).getAsString()
+          + " in " + getPath());
+    
     if (childNodeDefinition.isProtected())
-      throw new ConstraintViolationException("Can't add protected node " + name.getAsString()
+      throw new ConstraintViolationException("Can't add protected node " + sysLocFactory.createJCRName(name).getAsString()
           + " to " + getPath());
 
     // Check if versionable ancestor is not checked-in
@@ -1194,11 +1200,12 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
           rnts[j] = nodeTypeManager.findNodeType(rnames[j]);
         }
 
-        String name = locationFactory.createJCRName(definition.getName() != null ? definition.getName()
-                                                                                : Constants.JCR_ANY_NAME)
-                                     .getAsString();
-        NodeType defType = definition.getDefaultPrimaryType() != null ? nodeTypeManager.findNodeType(definition.getDefaultPrimaryType())
-                                                                     : null;
+        String name = locationFactory.createJCRName(definition.getName() != null
+            ? definition.getName()
+            : Constants.JCR_ANY_NAME).getAsString();
+        NodeType defType = definition.getDefaultPrimaryType() != null
+            ? nodeTypeManager.findNodeType(definition.getDefaultPrimaryType())
+            : null;
         NodeType declaringNodeType = nodeTypeManager.findNodeType(definition.getDeclaringNodeType());
         nodeDefinition = new NodeDefinitionImpl(name,
                                                 declaringNodeType,
@@ -1951,11 +1958,10 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Get nearest versionable ancestor NodeData. If the node is mix:versionable
-   * this NodeData will be returned.
+   * Get nearest versionable ancestor NodeData. If the node is mix:versionable this NodeData will be
+   * returned.
    * 
-   * @return NodeData of versionable ancestor or null if no versionable ancestor
-   *         exists.
+   * @return NodeData of versionable ancestor or null if no versionable ancestor exists.
    * @throws RepositoryException
    */
   public NodeData getVersionableAncestor() throws RepositoryException {
@@ -1996,8 +2002,8 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * For internal use. Doesn't check the InvalidItemStateException and may
-   * return unpooled VersionHistory object.
+   * For internal use. Doesn't check the InvalidItemStateException and may return unpooled
+   * VersionHistory object.
    */
   public VersionHistoryImpl versionHistory(boolean pool) throws UnsupportedRepositoryOperationException,
                                                         RepositoryException {
@@ -2070,7 +2076,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     ((VersionImpl) version).restore(this.getSession(),
                                     destParent,
                                     nodeData().getQPath().getName(),
-                                    removeExisting);//log.info(dataManager.dump(
+                                    removeExisting);// log.info(dataManager.dump(
     // ))
   }
 
@@ -2517,8 +2523,7 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
   }
 
   /**
-   * Add autocreated items to this node. No checks will be passed for
-   * autocreated items.
+   * Add autocreated items to this node. No checks will be passed for autocreated items.
    */
   public void addAutoCreatedItems(InternalQName nodeTypeName) throws RepositoryException,
                                                              ConstraintViolationException {
