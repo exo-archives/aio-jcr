@@ -40,6 +40,4 @@ public interface ChangesSubscriber {
    * @param packet - ChangesPacket
    */
   void onChanges(ChangesPacket packet);
-  
-
 }
