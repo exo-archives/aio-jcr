@@ -39,6 +39,13 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 public interface ChangesStorage {
 
   /**
+   * Get this changes priority.
+   *
+   * @return int
+   */
+  int getMemberPriority();
+  
+  /**
    * Get last ItemState by Item id.
    * 
    * @param itemIdentifier

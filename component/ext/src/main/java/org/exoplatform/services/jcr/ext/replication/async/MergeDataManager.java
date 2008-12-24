@@ -16,11 +16,14 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.Iterator;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesSequence;
 
 /**
  * Created by The eXo Platform SAS.
@@ -35,7 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
  */
 public class MergeDataManager {
 
-  protected final WorkspaceSynchronizerImpl synchronizer;
+  protected final WorkspaceSynchronizer synchronizer;
 
   protected final RemoteExporter        exporter;
 
@@ -45,7 +48,7 @@ public class MergeDataManager {
 
   protected final NodeTypeDataManager   ntManager;
 
-  MergeDataManager(WorkspaceSynchronizerImpl synchronizer,
+  MergeDataManager(WorkspaceSynchronizer synchronizer,
                    RemoteExporter exporter,
                    AsyncReceiver receiver,
                    DataManager dataManager,
@@ -67,10 +70,15 @@ public class MergeDataManager {
    * @param incomeChanges
    *          TransactionChangesLog
    */
-  public void merge(TransactionChangesLog incomeChanges) {
+  public void merge(Iterator<ChangesStorage> memebersChanges) {
 
-    for (ItemState change : incomeChanges.getAllStates()) {
-
+    while (memebersChanges.hasNext()) {
+      ChangesStorage member = memebersChanges.next();
+      ItemStatesSequence<ItemState> changes = member.getChanges();
+      while (changes.hasNext()) {
+        ItemState st = changes.next();
+        // TODO
+      }
     }
   }
 

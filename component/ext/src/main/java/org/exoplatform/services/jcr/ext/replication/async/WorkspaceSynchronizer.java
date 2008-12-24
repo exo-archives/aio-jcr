@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
  * <br/>Date: 24.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id$
+ * @version $Id: WorkspaceSynchronizer.java 25715 2008-12-24 11:40:47Z pnedonosko $
  */
 public interface WorkspaceSynchronizer {
 
@@ -34,6 +34,13 @@ public interface WorkspaceSynchronizer {
    * @return ChangesStorage
    */
   ChangesStorage getLocalChanges();
+  
+  /**
+   * Tell if Local priority enabled.
+   *
+   * @return boolean
+   */
+  boolean isLocalPriority();
   
   /**
    * Save synchronized changes to a local workspace.
