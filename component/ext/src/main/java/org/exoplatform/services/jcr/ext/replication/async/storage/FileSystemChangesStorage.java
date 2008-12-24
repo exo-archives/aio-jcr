@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPack
  * <br/>Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: FileSystemChangesStorage.java 25275 2008-12-17 14:40:05Z pnedonosko $
+ * @version $Id$
  */
 public class FileSystemChangesStorage implements ChangesStorage {
 

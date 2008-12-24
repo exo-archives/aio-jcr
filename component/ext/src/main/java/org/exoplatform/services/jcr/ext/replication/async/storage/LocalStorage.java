@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
  * <br/>Date: 24.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: LocalStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id$
  */
 public interface LocalStorage extends ItemsPersistenceListener{
 

@@ -16,43 +16,17 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 12.12.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ *
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class RemoteChangesEvent {
-  public static final int FIRST  = 0;
-
-  public static final int MIDDLE = 1;
-
-  public static final int LAST   = 2;
-
-  private final int       type;
+public interface RemoteExportServer {
   
-  private final byte[]    buffer;
+  void sendExport(RemoteExportRequest event);
   
-  private final long      offset;
-
-  RemoteChangesEvent(int type, byte[] buffer, long offset) {
-    this.type = type;
-    this.buffer = buffer;
-    this.offset = offset;
-  }
-
-  public int getType() {
-    return type;
-  }
-
-  public byte[] getBuffer() {
-    return buffer;
-  }
-
-  public long getOffset() {
-    return offset;
-  }
-
 }

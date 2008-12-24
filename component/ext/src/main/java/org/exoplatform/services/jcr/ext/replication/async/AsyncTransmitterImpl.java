@@ -164,9 +164,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                      int transmitterPriority,
                      int totalFiles)throws IOException {
     if (log.isDebugEnabled())
-      log.debug("Begin send : " + clFile.getFilePath());
+      log.debug("Begin send : " + clFile.getName());
     
-    File f = new File(clFile.getFilePath());
+    File f = new File(clFile.getName());
     InputStream in = new FileInputStream(f);
 
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
@@ -184,7 +184,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     }
 
     packet = new ExportChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
-                             clFile.getCRC(),
+                             clFile.getChecksum(),
                              clFile.getTimeStamp(),
                              totalFiles,
                              offset,
@@ -204,7 +204,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       }
 
       packet = new ExportChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
-                               clFile.getCRC(),
+                               clFile.getChecksum(),
                                clFile.getTimeStamp(),
                                totalFiles,
                                offset,
@@ -219,7 +219,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     // Send last packet
     packet = new ExportChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
-                             clFile.getCRC(),
+                             clFile.getChecksum(),
                              clFile.getTimeStamp(),
                              totalFiles,
                              offset,
@@ -232,7 +232,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     in.close();
 
     if (log.isDebugEnabled())
-      log.debug("End send : " + clFile.getFilePath());
+      log.debug("End send : " + clFile.getName());
     
   }
   
@@ -248,12 +248,12 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              ChangesFile clFile,
                              int totalFiles) throws IOException {
     if (log.isDebugEnabled())
-      log.debug("Begin send : " + clFile.getFilePath());
+      log.debug("Begin send : " + clFile.getName());
     
     List<Address> destinationAddresses = new ArrayList<Address>();
     destinationAddresses.add(destinationAddress);
 
-    File f = new File(clFile.getFilePath());
+    File f = new File(clFile.getName());
     InputStream in = new FileInputStream(f);
 
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
@@ -271,7 +271,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     }
 
     packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET,
-                             clFile.getCRC(),
+                             clFile.getChecksum(),
                              clFile.getTimeStamp(),
                              totalFiles,
                              offset,
@@ -291,7 +291,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       }
 
       packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET,
-                               clFile.getCRC(),
+                               clFile.getChecksum(),
                                clFile.getTimeStamp(),
                                totalFiles,
                                offset,
@@ -306,7 +306,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     // Send last packet
     packet = new ExportChangesPacket(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET,
-                             clFile.getCRC(),
+                             clFile.getChecksum(),
                              clFile.getTimeStamp(),
                              totalFiles,
                              offset,
@@ -319,7 +319,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     in.close();
 
     if (log.isDebugEnabled())
-      log.debug("End send : " + clFile.getFilePath());
+      log.debug("End send : " + clFile.getName());
   }
 
   /**

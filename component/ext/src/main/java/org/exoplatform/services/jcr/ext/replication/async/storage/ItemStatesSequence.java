@@ -26,7 +26,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * <br/>Date: 17.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: ChangesSequence.java 25190 2008-12-16 23:03:33Z pnedonosko $
+ * @version $Id$
  */
 public interface ItemStatesSequence<T extends ItemState> extends ChangesStorage, Iterator<T> {
 

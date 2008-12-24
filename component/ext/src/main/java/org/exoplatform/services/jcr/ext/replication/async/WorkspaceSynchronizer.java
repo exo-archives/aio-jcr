@@ -28,25 +28,26 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: WorkspaceSynchronizer.java 24986 2008-12-12 12:35:59Z
- *          pnedonosko $
+ * @version $Id$
  */
-public class WorkspaceSynchronizer implements RemoteGetListener {
+public class WorkspaceSynchronizer implements RemoteExportServer {
 
   protected final AsyncInitializer    asyncManager;
-  
+
   protected final AsyncTransmitter    transmitter;
+
+  protected final LocalStorage        storage;
 
   protected final DataManager         dataManager;
 
@@ -56,11 +57,13 @@ public class WorkspaceSynchronizer implements RemoteGetListener {
 
   public WorkspaceSynchronizer(AsyncInitializer asyncManager,
                                AsyncTransmitter transmitter,
+                               LocalStorage storage,
                                DataManager dataManager,
                                NodeTypeDataManager ntManager,
                                boolean localPriority) {
     this.asyncManager = asyncManager;
     this.transmitter = transmitter;
+    this.storage = storage;
     this.dataManager = dataManager;
     this.ntManager = ntManager;
 
@@ -72,10 +75,10 @@ public class WorkspaceSynchronizer implements RemoteGetListener {
   }
 
   /**
-   * Synchronize workspace content. Aplly synchronized changes to a local
-   * workspace.
+   * Synchronize workspace content. Aplly synchronized changes to a local workspace.
    * 
-   * @param synchronizedChanges TransactionChangesLog synchronized changes
+   * @param synchronizedChanges
+   *          TransactionChangesLog synchronized changes
    */
   public void synchronize(TransactionChangesLog synchronizedChanges) {
     // TODO
@@ -84,43 +87,47 @@ public class WorkspaceSynchronizer implements RemoteGetListener {
   /**
    * Return local changes.<br/> 1. to a merger<br/> 2. to a receiver
    * 
-   * @return TransactionChangesLog
+   * @return ChangesStorage
    */
-  public ChangesFile  getLocalChanges() {
-    return null; // TODO
+  public ChangesStorage getLocalChanges() {
+    return storage.getLocalChanges();
   }
 
   /**
    * Return Node traversed changes log for a given path.<br/> Used by receiver.
    * 
-   * @param nodeId Node QPath
+   * @param nodeId
+   *          Node QPath
    * @return ChangesLogFile
    */
   public ChangesFile getExportChanges(String nodeId) throws RepositoryException {
-    
+
     NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
     NodeData parentNode;
-    if(nodeId.equals(Constants.ROOT_UUID)){
+    if (nodeId.equals(Constants.ROOT_UUID)) {
       parentNode = exportedNode;
-    }else{
+    } else {
       parentNode = (NodeData) dataManager.getItemData(exportedNode.getParentIdentifier());
     }
-    
+
     File chLogFile;
-    
-    try{
+
+    try {
       chLogFile = File.createTempFile("chLog", "suf");
       ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
-    
+
       // extract ItemStates
-      ItemDataExportVisitor exporter = new ItemDataExportVisitor(out, parentNode, ntManager, dataManager);
+      ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
+                                                                 parentNode,
+                                                                 ntManager,
+                                                                 dataManager);
       exportedNode.accept(exporter);
       out.close();
-      
-    }catch(IOException e){
+
+    } catch (IOException e) {
       throw new RepositoryException(e);
-    }  
-    
+    }
+
     // TODO make correct ChangesLogFile creation
     return new ChangesFile(chLogFile.getPath(), "TODO", System.currentTimeMillis());
   }
@@ -128,7 +135,7 @@ public class WorkspaceSynchronizer implements RemoteGetListener {
   /**
    * {@inheritDoc}
    */
-  public void onRemoteGet(RemoteGetEvent event) {
+  public void sendExport(RemoteExportRequest event) {
     try {
       ChangesFile chl = getExportChanges(event.getNodeId());
       transmitter.sendExport(chl, event.getAddress());
@@ -143,8 +150,8 @@ public class WorkspaceSynchronizer implements RemoteGetListener {
    * 
    * @return boolean local priority
    */
-  public boolean getLocalPriority(){
+  public boolean getLocalPriority() {
     return localPriority;
   }
-  
+
 }

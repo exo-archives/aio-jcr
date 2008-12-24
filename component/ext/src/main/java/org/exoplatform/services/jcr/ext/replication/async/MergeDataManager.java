@@ -61,14 +61,6 @@ public class MergeDataManager {
     this.addMerger = new AddMerger(synchronizer.getLocalPriority(), exporter, dataManager, ntManager);
   }
 
-  public void onChanges(RemoteChangesEvent event) {
-    //storage.onChanges(event);
-  }
-  
-  public void onRemoteExport(RemoteChangesEvent event) {
-    exporter.onRemoteExport(event);
-  }
-  
   /**
    * Start merge process.
    * 

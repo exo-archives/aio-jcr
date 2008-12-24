@@ -27,13 +27,13 @@ import org.jgroups.Address;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class RemoteGetEvent {
+public class RemoteExportRequest {
 
   private final Address address;
   
   private final String nodeId;
   
-  RemoteGetEvent(String nodeId, Address address) {
+  RemoteExportRequest(String nodeId, Address address) {
     this.address = address;
     this.nodeId = nodeId;
   }

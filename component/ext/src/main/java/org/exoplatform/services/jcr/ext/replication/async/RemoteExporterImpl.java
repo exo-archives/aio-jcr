@@ -35,7 +35,7 @@ import org.jgroups.Address;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class RemoteExporterImpl implements RemoteExporter {
+public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   
   /**
    * log. the apache logger.
@@ -79,21 +79,28 @@ public class RemoteExporterImpl implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public void onRemoteExport(RemoteChangesEvent event) {
+  public void setMemberAddress(Address address) {
+    memberAddress = address;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onRemoteExport(RemoteExportResponce event) {
     try {
     switch (event.getType()) {
-    case RemoteChangesEvent.FIRST:
+    case RemoteExportResponce.FIRST:
       storageFile = File.createTempFile("romoteExport", "tmp");
       rendomAccessStorageFile = new RandomAccessFile(storageFile, "w");
       
       rendomAccessStorageFile.write(event.getBuffer(), (int)event.getOffset(), event.getBuffer().length);
       break;
 
-    case RemoteChangesEvent.MIDDLE:
+    case RemoteExportResponce.MIDDLE:
       rendomAccessStorageFile.write(event.getBuffer(), (int)event.getOffset(), event.getBuffer().length);
       break;
 
-    case RemoteChangesEvent.LAST:
+    case RemoteExportResponce.LAST:
        //TODO
       break;
 
@@ -102,10 +109,6 @@ public class RemoteExporterImpl implements RemoteExporter {
       //TODO
       log.error("Cannot save export changes", e);
     }
-  }
-
-  public void setMemberAddress(Address address) {
-    memberAddress = address;
   }
 
 }

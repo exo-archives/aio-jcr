@@ -30,7 +30,7 @@ import org.jgroups.Address;
 /**
  * Created by The eXo Platform SAS.
  * 
- * Handles remote item export requests. Returns item copy from a remote host.
+ * <br/>Handles remote item export request. Returns item copy from a remote host.
  * Remote item will be returned as list of <code>ItemState</code>. 
  * 
  * <br/>Date: 11.12.2008
@@ -38,7 +38,7 @@ import org.jgroups.Address;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface RemoteExporter extends RemoteChangesListener {
+public interface RemoteExporter {
 
   /**
    * Set exporter side priority.

@@ -40,7 +40,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
 
   protected final WorkspaceSynchronizer synchronizer;
 
-  protected RemoteChangesListener       remoteChangesListener;
+  protected RemoteExportClient       remoteExportListener;
 
   AsyncReceiverImpl(MergeDataManager mergeManager,
                     WorkspaceSynchronizer synchronizer,
@@ -62,9 +62,9 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    */
   public void onGetExport(AbstractPacket packet, Address srcAddress) {
     String nodeId = ((GetExportPacket) packet).getNodeId();
-    RemoteGetEvent remoteGetEvent = new RemoteGetEvent(nodeId, srcAddress);
+    RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, srcAddress);
 
-    synchronizer.onRemoteGet(remoteGetEvent);
+    synchronizer.sendExport(remoteGetEvent);
   }
 
   /**
@@ -78,41 +78,41 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet; 
       
-      RemoteChangesEvent eventFirst = new RemoteChangesEvent(RemoteChangesEvent.FIRST,
+      RemoteExportResponce eventFirst = new RemoteExportResponce(RemoteExportResponce.FIRST,
                                                              exportPacket.getBuffer(),
                                                              exportPacket.getOffset());
       
-      remoteChangesListener.onRemoteExport(eventFirst);
+      remoteExportListener.onRemoteExport(eventFirst);
     }
       break;
     case AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
        
-      RemoteChangesEvent eventMiddle = new RemoteChangesEvent(RemoteChangesEvent.MIDDLE,
+      RemoteExportResponce eventMiddle = new RemoteExportResponce(RemoteExportResponce.MIDDLE,
                                                               exportPacket.getBuffer(),
                                                               exportPacket.getOffset());
        
-      remoteChangesListener.onRemoteExport(eventMiddle);
+      remoteExportListener.onRemoteExport(eventMiddle);
     }
       break;
     case AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet; 
       
-      RemoteChangesEvent eventLast = new RemoteChangesEvent(RemoteChangesEvent.LAST,
+      RemoteExportResponce eventLast = new RemoteExportResponce(RemoteExportResponce.LAST,
                                                             exportPacket.getBuffer(),
                                                             exportPacket.getOffset());;
       
-      remoteChangesListener.onRemoteExport(eventLast);
+      remoteExportListener.onRemoteExport(eventLast);
     }
       break;
     }
   }
 
   public void removeRemoteChangesListener() {
-    this.remoteChangesListener = null;
+    this.remoteExportListener = null;
   }
 
-  public void setRemoteChangesListener(RemoteChangesListener listener) {
-    this.remoteChangesListener = listener;
+  public void setRemoteChangesListener(RemoteExportClient listener) {
+    this.remoteExportListener = listener;
   }
 }

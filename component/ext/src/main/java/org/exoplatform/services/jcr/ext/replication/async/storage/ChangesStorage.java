@@ -34,7 +34,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * <br/>Date: 16.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: ChangesStorage.java 25190 2008-12-16 23:03:33Z pnedonosko $
+ * @version $Id$
  */
 public interface ChangesStorage {
 

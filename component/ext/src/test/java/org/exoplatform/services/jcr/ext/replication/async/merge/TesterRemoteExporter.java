@@ -22,7 +22,7 @@ import java.util.Iterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.ext.replication.async.RemoteChangesEvent;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.jgroups.Address;
 
@@ -64,7 +64,7 @@ public class TesterRemoteExporter implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public void onRemoteExport(RemoteChangesEvent event) {
+  public void onRemoteExport(RemoteExportResponce event) {
     // dummy
   }
 

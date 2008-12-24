@@ -22,14 +22,14 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
  * <br/>Date: 19.12.2008
  *
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
- * @version $Id: ChangesLogFile.java 111 2008-11-11 11:11:11Z rainf0x $
+ * @version $Id$
  */
 public class ChangesFile {
   
   /**
    * The canonical full path to file.
    */
-  private final String filePath;
+  private final String name;
   
   /**
    * Check sum to file.
@@ -41,29 +41,29 @@ public class ChangesFile {
    */
   private final long timeStamp;
   
-  public ChangesFile(String filePath, String crc, long timeStamp) {
-    this.filePath = filePath;
+  public ChangesFile(String name, String crc, long timeStamp) {
+    this.name = name;
     this.crc = crc;
     this.timeStamp = timeStamp;
   }
   
   /**
-   * getFilePath.
+   * Get File name.
    *
    * @return String
-   *           return the canonical full path to file.
+   *           return file name.
    */
-  public String getFilePath() {
-    return filePath;
+  public String getName() {
+    return name;
   }
   
   /**
-   * getCRC.
+   * File checksum.
    *
    * @return String
    *           return the check sum to file.
    */
-  public String getCRC() {
+  public String getChecksum() {
     return crc;
   }
   

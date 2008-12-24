@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPack
  * <br/>Date: 24.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: IncomeStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
+ * @version $Id$
  */
 public interface IncomeStorage {
   
