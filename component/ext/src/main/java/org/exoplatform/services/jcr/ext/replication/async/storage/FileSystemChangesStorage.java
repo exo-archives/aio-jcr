@@ -109,7 +109,7 @@ public class FileSystemChangesStorage implements ChangesStorage {
   /**
    * {@inheritDoc}
    */
-  public ChangesSequence<ItemState> getChanges() {
+  public ItemStatesSequence<ItemState> getChanges() {
     // TODO Auto-generated method stub
     return null;
   }
@@ -117,7 +117,7 @@ public class FileSystemChangesStorage implements ChangesStorage {
   /**
    * {@inheritDoc}
    */
-  public ChangesSequence<ItemState> getDescendantChanges(QPath root) {
+  public ItemStatesSequence<ItemState> getDescendantChanges(QPath root) {
     // TODO Auto-generated method stub
     return null;
   }

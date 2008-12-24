@@ -32,7 +32,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -42,7 +42,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @version $Id: WorkspaceSynchronizer.java 24986 2008-12-12 12:35:59Z
  *          pnedonosko $
  */
-public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGetListener {
+public class WorkspaceSynchronizer implements RemoteGetListener {
 
   protected final AsyncInitializer    asyncManager;
   
@@ -86,7 +86,7 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    * 
    * @return TransactionChangesLog
    */
-  public ChangesLogFile  getLocalChanges() {
+  public ChangesFile  getLocalChanges() {
     return null; // TODO
   }
 
@@ -96,7 +96,7 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    * @param nodeId Node QPath
    * @return ChangesLogFile
    */
-  public ChangesLogFile getExportChanges(String nodeId) throws RepositoryException {
+  public ChangesFile getExportChanges(String nodeId) throws RepositoryException {
     
     NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
     NodeData parentNode;
@@ -122,14 +122,7 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
     }  
     
     // TODO make correct ChangesLogFile creation
-    return new ChangesLogFile(chLogFile.getPath(), "TODO", System.currentTimeMillis());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void onSaveItems(ItemStateChangesLog itemStates) {
-    // TODO Auto-generated method stub
+    return new ChangesFile(chLogFile.getPath(), "TODO", System.currentTimeMillis());
   }
 
   /**
@@ -137,7 +130,7 @@ public class WorkspaceSynchronizer implements ItemsPersistenceListener, RemoteGe
    */
   public void onRemoteGet(RemoteGetEvent event) {
     try {
-      ChangesLogFile chl = getExportChanges(event.getNodeId());
+      ChangesFile chl = getExportChanges(event.getNodeId());
       transmitter.sendExport(chl, event.getAddress());
     } catch (RepositoryException e) {
       e.printStackTrace();

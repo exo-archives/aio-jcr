@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
@@ -62,7 +62,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(List<ChangesLogFile> changes) {
+  public void sendChanges(List<ChangesFile> changes) {
     // TODO Auto-generated method stub
 
   }
@@ -88,7 +88,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws IOException
    */
 
-  public void sendExport(ChangesLogFile changes, Address destAddress) {
+  public void sendExport(ChangesFile changes, Address destAddress) {
     try {
       sendExportChangesLogFile(destAddress,
                      changes,
@@ -147,7 +147,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws Exception will be generated the Exception
    */
   protected void sendChangesLogFile(Address destinationAddress,
-                             ChangesLogFile clFile,
+                             ChangesFile clFile,
                              int transmitterPriority,
                              String nodeId,
                              int totalFiles,
@@ -164,7 +164,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   }
   
   protected void sendChangesLogFile(List<Address> destinationAddresses,
-                     ChangesLogFile clFile,
+                     ChangesFile clFile,
                      int transmitterPriority,
                      int totalFiles)throws IOException {
     if (log.isDebugEnabled())
@@ -253,7 +253,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws IOException
    */
   protected void sendExportChangesLogFile(Address destinationAddress,
-                             ChangesLogFile clFile,
+                             ChangesFile clFile,
                              int totalFiles) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + clFile.getFilePath());

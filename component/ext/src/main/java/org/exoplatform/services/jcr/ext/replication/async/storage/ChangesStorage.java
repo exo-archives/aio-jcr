@@ -25,10 +25,11 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
+ * <br/>Actually ChangesLog impl. But without getAllStates().
  * 
  * <br/>Date: 16.12.2008
  * 
@@ -37,16 +38,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPack
  */
 public interface ChangesStorage {
 
-  /**
-   * Add packet.
-   * 
-   * The storage implementation will decide how to store the packet content.
-   *
-   * @param buff - bytes, data to be stored
-   * @param offset - offset in result file from which the data will be stored
-   */
-  void addPacket(AbstractPacket packet);
-  
   /**
    * Get last ItemState by Item id.
    * 
@@ -81,7 +72,7 @@ public interface ChangesStorage {
    * 
    * @return ChangesSequence
    */
-  ChangesSequence<ItemState> getChanges();
+  ItemStatesSequence<ItemState> getChanges();
 
   /**
    * Get sequence of the path descendant changes.
@@ -90,7 +81,7 @@ public interface ChangesStorage {
    *          QPath, root path
    * @return ChangesSequence
    */
-  ChangesSequence<ItemState> getDescendantChanges(QPath root);
+  ItemStatesSequence<ItemState> getDescendantChanges(QPath root);
 
   // =========== custom ==============
 

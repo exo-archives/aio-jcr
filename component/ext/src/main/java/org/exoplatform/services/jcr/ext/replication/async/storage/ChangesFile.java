@@ -24,7 +24,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
  * @version $Id: ChangesLogFile.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class ChangesLogFile {
+public class ChangesFile {
   
   /**
    * The canonical full path to file.
@@ -41,7 +41,7 @@ public class ChangesLogFile {
    */
   private final long timeStamp;
   
-  public ChangesLogFile(String filePath, String crc, long timeStamp) {
+  public ChangesFile(String filePath, String crc, long timeStamp) {
     this.filePath = filePath;
     this.crc = crc;
     this.timeStamp = timeStamp;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2007 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,29 +14,53 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.util.List;
+import java.util.Iterator;
 
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.jgroups.Address;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 12.12.2008
+ * <br/>Date: 17.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id$
+ * @version $Id: ChangesSequence.java 25190 2008-12-16 23:03:33Z pnedonosko $
  */
-public interface AsyncTransmitter {
+public interface ItemStatesSequence<T extends ItemState> extends ChangesStorage, Iterator<T> {
+
+  /**
+   * {@inheritDoc}
+   */
+  boolean hasNext();
   
-  void sendGetExport(String nodeId, int remotePriority);
+  /**
+   * {@inheritDoc}
+   */
+  T next();
   
-  void sendChanges(List<ChangesFile> changes);
+  /**
+   * TODO not sure we need it.
+   * next.
+   *
+   * @param after
+   * @return
+   */
+  T next(T after);
   
-  void sendExport(ChangesFile changes, Address address);
+  boolean hasPrevious();
   
-  void sendError(String error, Address address);
+  T previous();
+  
+  /**
+   * TODO not sure we need it.
+   * 
+   * previous.
+   *
+   * @param to
+   * @return
+   */
+  T previous(T to);
   
 }

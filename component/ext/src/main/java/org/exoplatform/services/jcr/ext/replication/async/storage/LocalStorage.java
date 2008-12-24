@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2007 eXo Platform SAS.
+ * Copyright (C) 2003-2008 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -16,51 +16,25 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.util.Iterator;
-
-import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 17.12.2008
+ * <br/>Stores changes from local workspace. Used by <code>WorkspaceSynchronizer</code>. 
+ * 
+ * <br/>Date: 24.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: ChangesSequence.java 25190 2008-12-16 23:03:33Z pnedonosko $
+ * @version $Id: LocalStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public interface ChangesSequence<T extends ItemState> extends ChangesStorage, Iterator<T> {
+public interface LocalStorage extends ItemsPersistenceListener{
 
   /**
-   * {@inheritDoc}
-   */
-  boolean hasNext();
-  
-  /**
-   * {@inheritDoc}
-   */
-  T next();
-  
-  /**
-   * TODO not sure we need it.
-   * next.
-   *
-   * @param after
-   * @return
-   */
-  T next(T after);
-  
-  boolean hasPrevious();
-  
-  T previous();
-  
-  /**
-   * TODO not sure we need it.
+   * Return Local changes persisted to a <code>ChangesStorage</code>.
    * 
-   * previous.
-   *
-   * @param to
-   * @return
+   * @return ChangesStorage
    */
-  T previous(T to);
+  ChangesStorage getLocalChanges();
   
 }
