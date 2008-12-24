@@ -24,6 +24,8 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ItemSatesIterator;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 
@@ -72,8 +74,12 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
     // TODO lock and wait for responce, error or timeout
     receiver.removeRemoteExportListener();
-
-    return new PlainChangesLogImpl().getAllStates().iterator(); // TODO return responce changes
+    
+    ChangesFile changesFile = new ChangesFile(storageFile.getCanonicalPath(), "TODO", 0);
+    
+    ItemSatesIterator<ItemState> satesIterator = new ItemSatesIterator<ItemState>(changesFile);
+    
+    return satesIterator; 
   }
 
   /**
@@ -101,7 +107,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       break;
 
     case RemoteExportResponce.LAST:
-       //TODO
+       rendomAccessStorageFile.close();
       break;
 
     }
@@ -110,5 +116,4 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       log.error("Cannot save export changes", e);
     }
   }
-
 }

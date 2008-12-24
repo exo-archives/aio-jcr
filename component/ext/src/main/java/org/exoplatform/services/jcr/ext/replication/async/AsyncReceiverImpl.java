@@ -36,7 +36,7 @@ import org.jgroups.Address;
  */
 public class AsyncReceiverImpl implements AsyncReceiver {
 
-  protected final MergeDataManager      mergeManager;
+  protected final MergeDataManager   mergeManager;
 
   protected final RemoteExportServer exportServer;
 
@@ -51,7 +51,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
 
   /**
    * Put changes to a storage.
-   *
+   * 
    * @param packet
    */
   protected void onChanges(AbstractPacket packet) {
@@ -75,32 +75,33 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       onGetExport(packet, srcAddress);
       break;
     case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
-      ExportChangesPacket exportPacket = (ExportChangesPacket) packet; 
-      
+      ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
+
       RemoteExportResponce eventFirst = new RemoteExportResponce(RemoteExportResponce.FIRST,
-                                                             exportPacket.getBuffer(),
-                                                             exportPacket.getOffset());
-      
+                                                                 exportPacket.getBuffer(),
+                                                                 exportPacket.getOffset());
+
       remoteExportListener.onRemoteExport(eventFirst);
     }
       break;
     case AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
-       
+
       RemoteExportResponce eventMiddle = new RemoteExportResponce(RemoteExportResponce.MIDDLE,
-                                                              exportPacket.getBuffer(),
-                                                              exportPacket.getOffset());
-       
+                                                                  exportPacket.getBuffer(),
+                                                                  exportPacket.getOffset());
+
       remoteExportListener.onRemoteExport(eventMiddle);
     }
       break;
     case AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET: {
-      ExportChangesPacket exportPacket = (ExportChangesPacket) packet; 
-      
+      ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
+
       RemoteExportResponce eventLast = new RemoteExportResponce(RemoteExportResponce.LAST,
-                                                            exportPacket.getBuffer(),
-                                                            exportPacket.getOffset());;
-      
+                                                                exportPacket.getBuffer(),
+                                                                exportPacket.getOffset());
+      ;
+
       remoteExportListener.onRemoteExport(eventLast);
     }
       break;
