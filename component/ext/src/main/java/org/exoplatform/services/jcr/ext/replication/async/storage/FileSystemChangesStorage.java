@@ -196,4 +196,9 @@ public class FileSystemChangesStorage implements ChangesStorage {
     // TODO Auto-generated method stub
     return super.equals(obj);
   }
+
+  public int getMemberPriority() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }
