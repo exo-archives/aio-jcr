@@ -129,6 +129,28 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  public List<ItemState> getUpdateSequence(ItemState startState) {
+    List<ItemState> resultStates = new ArrayList<ItemState>();
+
+    List<ItemState> allStates = getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() == ItemState.UPDATED
+              && item.getData().getQPath().getName().equals(startState.getData()
+                                                                      .getQPath()
+                                                                      .getName())) {
+            resultStates.add(item);
+          }
+        }
+        break;
+      }
+    }
+
+    return resultStates;
+  }
+
   public ItemState getItemState(NodeData parentData, QPathEntry name) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
