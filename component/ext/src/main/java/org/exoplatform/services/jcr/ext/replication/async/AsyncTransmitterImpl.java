@@ -159,7 +159,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              int firstPacketType,
                              int middlePocketType,
                              int lastPocketType) throws IOException {
-    List<Address> destinationAddresses = new ArrayList<Address>();
+   /* List<Address> destinationAddresses = new ArrayList<Address>();
     destinationAddresses.add(destinationAddress);
 
     sendChangesLogFile(destinationAddresses,
@@ -169,22 +169,21 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                    totalFiles,
                    firstPacketType,
                    middlePocketType,
-                   lastPocketType);
+                   lastPocketType);*/
   }
 
   /**
-   * sendBinaryFile.
+   * Send ExportChnagesLog to destinationAddress.
    * 
-   * @param destinstionAddresses the list of destination addresses.
-   * @param clFile the ChangesLogFile owner name
-   * @param transmitterPriority the value of transmitter priority
-   * @param totalFiles the how many the ChangesLogFiles will be sent
-   * @param firstPacketType the packet type for first packet
-   * @param middlePocketType the packet type for middle packets
-   * @param lastPocketType the packet type for last packet
-   * @throws Exception will be generated the Exception
+   * @param destinationAddress
+   * @param clFile
+   * @param totalFiles
+   * @param firstPacketType
+   * @param middlePacketType
+   * @param lastPacketType
+   * @throws IOException
    */
-  protected void sendExportChangesLogFile(List<Address> destinationAddresses,
+  protected void sendExportChangesLogFile(Address destinationAddress,
                              ChangesLogFile clFile,
                              int totalFiles,
                              int firstPacketType,
@@ -192,6 +191,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              int lastPacketType) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + clFile.getFilePath());
+    
+    List<Address> destinationAddresses = new ArrayList<Address>();
+    destinationAddresses.add(destinationAddress);
 
     File f = new File(clFile.getFilePath());
     InputStream in = new FileInputStream(f);

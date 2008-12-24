@@ -16,15 +16,14 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.jgroups.Address;
@@ -70,6 +69,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
    * @throws Exception internal exception
    */
   public void testSendBigPacket() throws Exception {
+    /*
     String packetId = "Id";
     String packetOwnName = "Owner";
 
@@ -137,6 +137,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     // close channel
     tchannel.closeChannel();
+    */
   }
 
   /**
@@ -145,6 +146,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
    * @throws Exception internal exception
    */
   public void testSendPacket() throws Exception {
+    /*
     String packetId = "Id";
     
     TestPacketListener listener = new TestPacketListener() {
@@ -202,6 +204,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     // close channel
     tchannel.closeChannel();
+    */
   }
 
   /*
@@ -278,6 +281,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     tchannel.closeChannel();
   }*/
   
+  /*
   protected void checkPacket(AbstractPacket expected, AbstractPacket resieved) {
     assertEquals(expected.getType(), resieved.getType());
     assertEquals(expected.getCRC(), resieved.getCRC());
@@ -311,6 +315,6 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
       pos += length;
     }
     return buf;
-  }
+  }*/
   
 }
