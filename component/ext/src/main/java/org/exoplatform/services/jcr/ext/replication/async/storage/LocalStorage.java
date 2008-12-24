@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface LocalStorage extends ItemsPersistenceListener{
+public interface LocalStorage extends ItemsPersistenceListener {
 
   /**
    * Return Local changes persisted to a <code>ChangesStorage</code>.

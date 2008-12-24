@@ -38,12 +38,12 @@ public class AsyncReceiverImpl implements AsyncReceiver {
 
   protected final MergeDataManager      mergeManager;
 
-  protected final WorkspaceSynchronizer synchronizer;
+  protected final WorkspaceSynchronizerImpl synchronizer;
 
   protected RemoteExportClient       remoteExportListener;
 
   AsyncReceiverImpl(MergeDataManager mergeManager,
-                    WorkspaceSynchronizer synchronizer,
+                    WorkspaceSynchronizerImpl synchronizer,
                     AsyncChannelManager channel) {
     this.mergeManager = mergeManager;
     this.synchronizer = synchronizer;

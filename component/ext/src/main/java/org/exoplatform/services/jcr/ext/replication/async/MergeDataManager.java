@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
  */
 public class MergeDataManager {
 
-  protected final WorkspaceSynchronizer synchronizer;
+  protected final WorkspaceSynchronizerImpl synchronizer;
 
   protected final RemoteExporter        exporter;
 
@@ -45,7 +45,7 @@ public class MergeDataManager {
 
   protected final NodeTypeDataManager   ntManager;
 
-  MergeDataManager(WorkspaceSynchronizer synchronizer,
+  MergeDataManager(WorkspaceSynchronizerImpl synchronizer,
                    RemoteExporter exporter,
                    AsyncReceiver receiver,
                    DataManager dataManager,

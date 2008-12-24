@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -19,146 +16,29 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.List;
-
-import javax.jcr.RepositoryException;
-
-import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
-import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
-import org.exoplatform.services.jcr.impl.Constants;
-import org.jgroups.Address;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
+ * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * <br/>Date: 24.12.2008
+ *
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class WorkspaceSynchronizer implements ChangesPublisher, RemoteExportServer {
-
-  protected final AsyncInitializer    asyncManager;
-
-  protected final AsyncTransmitter    transmitter;
-
-  protected final LocalStorage        storage;
-
-  protected final DataManager         dataManager;
-
-  protected final NodeTypeDataManager ntManager;
-
-  protected final boolean             localPriority;
-
-  public WorkspaceSynchronizer(AsyncInitializer asyncManager,
-                               AsyncTransmitter transmitter,
-                               LocalStorage storage,
-                               DataManager dataManager,
-                               NodeTypeDataManager ntManager,
-                               boolean localPriority) {
-    this.asyncManager = asyncManager;
-    this.transmitter = transmitter;
-    this.storage = storage;
-    this.dataManager = dataManager;
-    this.ntManager = ntManager;
-
-    this.localPriority = localPriority;
-  }
+public interface WorkspaceSynchronizer {
 
   /**
-   * Return local priority value.
-   * 
-   * @return boolean local priority
-   */
-  public boolean isLocalPriority() {
-    return localPriority;
-  }
-
-  /**
-   * Synchronize workspace content. Aplly synchronized changes to a local workspace.
-   * 
-   * @param synchronizedChanges
-   *          TransactionChangesLog synchronized changes
-   */
-  public void synchronize(TransactionChangesLog /*TODO ChangesStorage*/synchronizedChanges) {
-    // TODO ChangesStorage
-  }
-
-  /**
-   * Return local changes.<br/> 1. to a merger<br/> 2. to a receiver
-   * 
+   * Get Local changes.
+   *
    * @return ChangesStorage
    */
-  public ChangesStorage getLocalChanges() {
-    return storage.getLocalChanges();
-  }
-
-  /**
-   * Return Node traversed changes log for a given path.<br/> Used by receiver.
-   * 
-   * @param nodeId
-   *          Node QPath
-   * @return ChangesLogFile
-   */
-  public ChangesFile getExportChanges(String nodeId) throws RepositoryException {
-
-    NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
-    NodeData parentNode;
-    if (nodeId.equals(Constants.ROOT_UUID)) {
-      parentNode = exportedNode;
-    } else {
-      parentNode = (NodeData) dataManager.getItemData(exportedNode.getParentIdentifier());
-    }
-
-    File chLogFile;
-
-    try {
-      chLogFile = File.createTempFile("chLog", "suf");
-      ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
-
-      // extract ItemStates
-      ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
-                                                                 parentNode,
-                                                                 ntManager,
-                                                                 dataManager);
-      exportedNode.accept(exporter);
-      out.close();
-
-    } catch (IOException e) {
-      throw new RepositoryException(e);
-    }
-
-    // TODO make correct ChangesLogFile creation
-    return new ChangesFile(chLogFile.getPath(), "TODO", System.currentTimeMillis());
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void sendExport(RemoteExportRequest event) {
-    try {
-      ChangesFile chl = getExportChanges(event.getNodeId());
-      transmitter.sendExport(chl, event.getAddress());
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-      transmitter.sendError("error " + e, event.getAddress());
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void sendChanges(List<Address> subscribers) {
-    // TODO Auto-generated method stub
-    
-  }
+  ChangesStorage getLocalChanges();
   
+  /**
+   * Save synchronized changes to a local workspace.
+   *
+   */
+  void save(ChangesStorage synchronizedChanges);
   
 }
