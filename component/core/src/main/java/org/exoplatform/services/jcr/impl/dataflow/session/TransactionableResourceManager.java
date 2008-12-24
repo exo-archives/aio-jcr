@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.impl.dataflow.session;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,9 +68,14 @@ public class TransactionableResourceManager {
       // remove unused session from user list and put this list at the end
       synchronized (joinedList) { // sync for comodifications from concurrent threads of same user
         for (Iterator<SoftReference<XASessionImpl>> siter = joinedList.iterator(); siter.hasNext();) {
-          XASessionImpl xaSession = siter.next().get();
-          if (xaSession == null || !xaSession.isLive())
-            siter.remove();
+          try {
+            XASessionImpl xaSession = siter.next().get();
+            if (xaSession == null || !xaSession.isLive())
+              siter.remove();
+          } catch(ConcurrentModificationException e) {
+            e.printStackTrace();
+            System.err.println("same user >>> " + e); // TODO
+          }
         }
 
         joinedList.add(new SoftReference<XASessionImpl>(userSession));
