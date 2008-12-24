@@ -30,11 +30,29 @@ import org.jgroups.Address;
  * @version $Id$
  */
 public interface AsyncTransmitter {
+
+  /**
+   * Send changes.
+   *
+   * @param changes
+   * @param subscribers
+   */
+  void sendChanges(List<ChangesFile> changes, List<Address> subscribers);
   
+  /**
+   * Send Get Export request.
+   *
+   * @param nodeId
+   * @param address
+   */
   void sendGetExport(String nodeId, Address address);
-  
-  void sendChanges(List<ChangesFile> changes);
-  
+   
+  /**
+   * Send export reult.
+   *
+   * @param changes
+   * @param address
+   */
   void sendExport(ChangesFile changes, Address address);
   
   void sendError(String error, Address address);

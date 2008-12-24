@@ -16,7 +16,10 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.List;
+
 import org.jgroups.Address;
+
 
 /**
  * Created by The eXo Platform SAS.
@@ -33,6 +36,6 @@ public interface ChangesPublisher {
    *
    * @param subscribers - Replication members
    */
-  void sendChanges(Address[] subscribers);
+  void sendChanges(List<Address> subscribers);
   
 }

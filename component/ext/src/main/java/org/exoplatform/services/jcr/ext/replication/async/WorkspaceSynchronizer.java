@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -154,7 +155,7 @@ public class WorkspaceSynchronizer implements ChangesPublisher, RemoteExportServ
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(Address[] subscribers) {
+  public void sendChanges(List<Address> subscribers) {
     // TODO Auto-generated method stub
     
   }

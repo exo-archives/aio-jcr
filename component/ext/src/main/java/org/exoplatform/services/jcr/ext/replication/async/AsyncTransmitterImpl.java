@@ -59,7 +59,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(List<ChangesFile> changes) {
+  public void sendChanges(List<ChangesFile> changes, List<Address> subscribers) {
     // TODO Auto-generated method stub
 
   }
