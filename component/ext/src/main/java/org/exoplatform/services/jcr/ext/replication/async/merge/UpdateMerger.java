@@ -75,7 +75,10 @@ public class UpdateMerger implements ChangesMerger {
 
     // incomeState is DELETE state and nextIncomeState is UPDATE state
     ItemState incomeState = itemChange;
-    ItemState nextIncomeState = income.getNextItemState(incomeState);
+    ItemState nextIncomeState = null;
+    if (incomeState.getData().isNode()) {
+      nextIncomeState = income.getNextItemState(incomeState);
+    }
 
     List<ItemState> resultEmptyState = new ArrayList<ItemState>();
     List<ItemState> resultState = new ArrayList<ItemState>();
@@ -89,25 +92,44 @@ public class UpdateMerger implements ChangesMerger {
         case ItemState.ADDED:
           break;
         case ItemState.UPDATED:
+          // TODO
           break;
         case ItemState.DELETED:
+          // DELETE
+          if (localData.isNode()) {
+            if (income.getNextItemStateByUUIDOnUpdate(incomeState, localState.getData()
+                                                                             .getIdentifier()) != null) {
+              return resultEmptyState;
+            }
+          } else {
+            if (incomeData.getIdentifier().equals(localData.getIdentifier())) {
+              return resultEmptyState;
+            }
+          }
           break;
         case ItemState.RENAMED:
+          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
+          // TODO
           break;
         }
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
+          // TODO
           break;
         case ItemState.UPDATED:
+          // TODO
           break;
         case ItemState.DELETED:
+          // TODO
           break;
         case ItemState.RENAMED:
+          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
+          // TODO
           break;
         }
       }
@@ -116,7 +138,9 @@ public class UpdateMerger implements ChangesMerger {
     // apply income changes if not processed
     if (!itemChangeProcessed) {
       resultState.add(incomeState);
-      resultState.add(nextIncomeState);
+      if (nextIncomeState != null) {
+        resultState.addAll(income.getUpdateSequence(incomeState));
+      }
     }
 
     return resultState;

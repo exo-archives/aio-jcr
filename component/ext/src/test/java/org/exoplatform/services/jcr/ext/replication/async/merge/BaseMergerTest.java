@@ -98,6 +98,12 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
   protected PropertyData            remoteProperty111;
 
+  protected NodeData                remoteItem21x2B;
+
+  protected NodeData                remoteItem21x2A;
+
+  protected NodeData                remoteItem21x1B;
+
   // local
 
   protected NodeData                localItem1;
@@ -477,6 +483,40 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                            0,
                                            localItem1.getIdentifier(),
                                            new AccessControlList());
+
+    remoteItem21x2B = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                2),
+                                            IdGenerator.generate(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            1,
+                                            remoteItem1.getIdentifier(),
+                                            new AccessControlList());
+
+    // SNS items
+    remoteItem21x1B = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                1),
+                                            remoteItem21x2B.getIdentifier(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem1.getIdentifier(),
+                                            new AccessControlList());
+
+    remoteItem21x2A = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                2),
+                                            remoteItem11.getIdentifier(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem1.getIdentifier(),
+                                            new AccessControlList());
 
     // remote, will conflict with localItem21x1B1 (path of parent reordered [2] -> [1], different
     // Node Id)
