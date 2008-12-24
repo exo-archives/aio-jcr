@@ -24,6 +24,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteChangesEvent;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -53,14 +54,6 @@ public class TesterRemoteExporter implements RemoteExporter {
     this.changes = new PlainChangesLogImpl();
   }
 
-  
-  /**
-   * {@inheritDoc}
-   */
-  public void setPriority(int remotePriority) {
-    // dummy
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -73,5 +66,10 @@ public class TesterRemoteExporter implements RemoteExporter {
    */
   public void onRemoteExport(RemoteChangesEvent event) {
     // dummy
+  }
+
+  public void setMemberAddress(Address address) {
+    // TODO Auto-generated method stub
+    
   }
 }

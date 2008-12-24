@@ -22,6 +22,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.jgroups.Address;
 
@@ -36,10 +37,14 @@ import org.jgroups.Address;
 public class AsyncReceiverImpl implements AsyncReceiver {
 
   protected final MergeDataManager      mergeManager;
-  
+
   protected final WorkspaceSynchronizer synchronizer;
 
-  AsyncReceiverImpl(MergeDataManager mergeManager, WorkspaceSynchronizer synchronizer, AsyncChannelManager channel) {
+  protected RemoteChangesListener       remoteChangesListener;
+
+  AsyncReceiverImpl(MergeDataManager mergeManager,
+                    WorkspaceSynchronizer synchronizer,
+                    AsyncChannelManager channel) {
     this.mergeManager = mergeManager;
     this.synchronizer = synchronizer;
   }
@@ -55,10 +60,10 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void onGetExport(AbstractPacket packet, Address srcAddress)  {
-    String nodeId = ((GetExportPacket)packet).getNodeId();
+  public void onGetExport(AbstractPacket packet, Address srcAddress) {
+    String nodeId = ((GetExportPacket) packet).getNodeId();
     RemoteGetEvent remoteGetEvent = new RemoteGetEvent(nodeId, srcAddress);
-    
+
     synchronizer.onRemoteGet(remoteGetEvent);
   }
 
@@ -68,8 +73,46 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   public void receive(AbstractPacket packet, Address srcAddress) {
     switch (packet.getType()) {
     case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
-        onGetExport(packet, srcAddress);
+      onGetExport(packet, srcAddress);
+      break;
+    case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
+      ExportChangesPacket exportPacket = (ExportChangesPacket) packet; 
+      
+      RemoteChangesEvent eventFirst = new RemoteChangesEvent(RemoteChangesEvent.FIRST,
+                                                             exportPacket.getBuffer(),
+                                                             exportPacket.getOffset());
+      
+      remoteChangesListener.onRemoteExport(eventFirst);
+    }
+      break;
+    case AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET: {
+      ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
+       
+      RemoteChangesEvent eventMiddle = new RemoteChangesEvent(RemoteChangesEvent.MIDDLE,
+                                                              exportPacket.getBuffer(),
+                                                              exportPacket.getOffset());
+       
+      remoteChangesListener.onRemoteExport(eventMiddle);
+    }
+      break;
+    case AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET: {
+      ExportChangesPacket exportPacket = (ExportChangesPacket) packet; 
+      
+      RemoteChangesEvent eventLast = new RemoteChangesEvent(RemoteChangesEvent.LAST,
+                                                            exportPacket.getBuffer(),
+                                                            exportPacket.getOffset());;
+      
+      remoteChangesListener.onRemoteExport(eventLast);
+    }
       break;
     }
+  }
+
+  public void removeRemoteChangesListener() {
+    this.remoteChangesListener = null;
+  }
+
+  public void setRemoteChangesListener(RemoteChangesListener listener) {
+    this.remoteChangesListener = listener;
   }
 }

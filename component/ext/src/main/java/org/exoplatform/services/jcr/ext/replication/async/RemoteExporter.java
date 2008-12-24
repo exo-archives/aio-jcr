@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.jgroups.Address;
 
 
 
@@ -44,7 +45,7 @@ public interface RemoteExporter extends RemoteChangesListener {
    *
    * @param remotePriority int
    */
-  void setPriority(int remotePriority);
+  void setMemberAddress(Address address);
   
   /**
    * Exports remote item and return chnages log with ADD states.

@@ -16,8 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -27,28 +25,34 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
  * @version $Id$
  */
 public class RemoteChangesEvent {
+  public static final int FIRST  = 0;
 
-  private final TransactionChangesLog changes;
+  public static final int MIDDLE = 1;
 
-  private final String                command;
+  public static final int LAST   = 2;
 
-  RemoteChangesEvent(String command, TransactionChangesLog changes) {
-    this.changes = changes;
-    this.command = command;
+  private final int       type;
+  
+  private final byte[]    buffer;
+  
+  private final long      offset;
+
+  RemoteChangesEvent(int type, byte[] buffer, long offset) {
+    this.type = type;
+    this.buffer = buffer;
+    this.offset = offset;
   }
 
-  /**
-   * @return the changes
-   */
-  public TransactionChangesLog getChanges() {
-    return changes;
+  public int getType() {
+    return type;
   }
 
-  /**
-   * @return the command
-   */
-  public String getCommand() {
-    return command;
+  public byte[] getBuffer() {
+    return buffer;
+  }
+
+  public long getOffset() {
+    return offset;
   }
 
 }

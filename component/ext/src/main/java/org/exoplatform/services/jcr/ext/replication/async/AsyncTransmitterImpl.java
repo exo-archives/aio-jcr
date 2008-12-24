@@ -25,12 +25,9 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
-import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.*;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 
@@ -70,12 +67,11 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendGetExport(String nodeId, int remotePriority) {
-    // TODO PRIORITY!!!
-    AbstractPacket packet = new GetExportPacket(nodeId);
+  public void sendGetExport(String nodeId, Address adress) {
+    GetExportPacket packet = new GetExportPacket(nodeId);
     
     try {
-      channel.sendPacket(packet);
+      channel.sendPacket(packet, new ArrayList<Address>());
     } catch (IOException e) {
       //TODO need send error message to destAddress
       log.error("Cannot send export data", e);
@@ -240,16 +236,12 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     
   }
   
-
   /**
-   * Send ExportChnagesLog to destinationAddress.
-   * 
+   * sendExportChangesLogFile.
+   *
    * @param destinationAddress
    * @param clFile
    * @param totalFiles
-   * @param firstPacketType
-   * @param middlePacketType
-   * @param lastPacketType
    * @throws IOException
    */
   protected void sendExportChangesLogFile(Address destinationAddress,

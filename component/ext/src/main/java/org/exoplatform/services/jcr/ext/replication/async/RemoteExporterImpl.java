@@ -16,62 +16,96 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Iterator;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.log.ExoLogger;
+import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 11.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class RemoteExporterImpl implements RemoteExporter {
-
-  protected final AsyncTransmitter transmitter;
-  
-  protected final AsyncReceiver receiver;
   
   /**
-   * Remote priority.
-   * Mutable value. Will be changed by Merge manager on each memebers pair merge.
+   * log. the apache logger.
    */
-  protected int remotePriority;
-  
+  private static Log           log = ExoLogger.getLogger("ext.RemoteExporterImpl");
+
+  protected final AsyncTransmitter transmitter;
+
+  protected final AsyncReceiver    receiver;
+
+  /**
+   * Member address. Mutable value. Will be changed by Merge manager on each memebers pair merge.
+   */
+  protected Address                memberAddress;
+
+  private File                     storageFile;
+
+  private RandomAccessFile         rendomAccessStorageFile;
+
   RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
     this.transmitter = transmitter;
     this.receiver = receiver;
-    // this.receiver setListener
   }
-  
-  public void setPriority(int remotePriority) {
-    this.remotePriority = remotePriority;  
-  }
-  
+
   /**
    * {@inheritDoc}
    */
   public Iterator<ItemState> exportItem(String nodetId) throws IOException {
-    
+    // registration RemoteChangesListener.
+    receiver.setRemoteChangesListener(this);
+
     // send request
-    transmitter.sendGetExport(nodetId, remotePriority);
-    
-    // TODO lock and wait for responce, error or timeout 
-    
-    return new PlainChangesLogImpl().getAllStates().iterator(); // TODO return responce changes 
+    transmitter.sendGetExport(nodetId, memberAddress);
+
+    // TODO lock and wait for responce, error or timeout
+    receiver.removeRemoteChangesListener();
+
+    return new PlainChangesLogImpl().getAllStates().iterator(); // TODO return responce changes
   }
 
   /**
    * {@inheritDoc}
    */
   public void onRemoteExport(RemoteChangesEvent event) {
-    // get responce - remote changes
-    if (event.getCommand().equals("REMOTE_EXPORT_BLAH-BLAH")) { // TODO 
-      // TODO cooperate with exportItem lock waiter
+    try {
+    switch (event.getType()) {
+    case RemoteChangesEvent.FIRST:
+      storageFile = File.createTempFile("romoteExport", "tmp");
+      rendomAccessStorageFile = new RandomAccessFile(storageFile, "w");
+      
+      rendomAccessStorageFile.write(event.getBuffer(), (int)event.getOffset(), event.getBuffer().length);
+      break;
+
+    case RemoteChangesEvent.MIDDLE:
+      rendomAccessStorageFile.write(event.getBuffer(), (int)event.getOffset(), event.getBuffer().length);
+      break;
+
+    case RemoteChangesEvent.LAST:
+       //TODO
+      break;
+
     }
-  }  
+    } catch (IOException e) {
+      //TODO
+      log.error("Cannot save export changes", e);
+    }
+  }
+
+  public void setMemberAddress(Address address) {
+    memberAddress = address;
+  }
+
 }

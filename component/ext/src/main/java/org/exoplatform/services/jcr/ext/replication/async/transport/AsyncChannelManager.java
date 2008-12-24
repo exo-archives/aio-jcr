@@ -237,6 +237,22 @@ public class AsyncChannelManager implements RequestHandler {
   }
   
   /**
+  * sendPacket.
+  * 
+  * @param packet
+  *          the Packet with content
+  * @param destinationAddresses
+  *          the destination addresses
+  * @throws Exception
+  *           will be generated Exception
+  */
+ /*public void sendPacket(AbstractPacket packet, Address destinationAddress) throws IOException {
+   byte[] buffer = PacketTransformer.getAsByteArray(packet);
+
+   dispatcher.secastMessage(destAddresses, msg, GroupRequest.GET_NONE, 0);
+ }*/
+  
+  /**
    * sendPacket.
    *
    * @param packet

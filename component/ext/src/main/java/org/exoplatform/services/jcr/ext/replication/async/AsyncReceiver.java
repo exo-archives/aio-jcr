@@ -43,5 +43,18 @@ public interface AsyncReceiver extends AsyncPacketListener {
    *
    */
   void onChanges(AbstractPacket packet);
+  
+  /**
+   * Set RemoteChangesListener for export.
+   *
+   * @param listener RemoteChangesListener.
+   */
+  void setRemoteChangesListener(RemoteChangesListener listener);
+  
+  /**
+   * Remove RemoteChangesListener for export.
+   *
+   */
+  void removeRemoteChangesListener();
 
 }
