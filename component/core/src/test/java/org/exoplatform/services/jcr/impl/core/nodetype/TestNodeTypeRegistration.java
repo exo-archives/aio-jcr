@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionValue;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.log.ExoLogger;
@@ -732,6 +733,114 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
       fail();
     } catch (ValueFormatException e) {
       // ok
+    }
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReregisterRemoveResidualChildNodeDefinition() throws Exception {
+    // create new NodeType value
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterRemoveResidualChildNodeDefinition");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+
+    List<NodeDefinitionValue> nodes = new ArrayList<NodeDefinitionValue>();
+    nodes.add(new NodeDefinitionValue("*",
+                                      false,
+                                      false,
+                                      1,
+                                      false,
+                                      "nt:base",
+                                      new ArrayList<String>(),
+                                      false));
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node testNode = root.addNode("testNode", "exo:testReregisterRemoveResidualChildNodeDefinition");
+    Node child = testNode.addNode("child");
+    session.save();
+
+    nodes = new ArrayList<NodeDefinitionValue>();
+
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+      // ok;
+    }
+    child.remove();
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+
+    try {
+      child = testNode.addNode("child");
+      session.save();
+    } catch (ConstraintViolationException e) {
+      // e.printStackTrace();
+    }
+  }
+
+  /**
+   * @throws Exception
+   */
+  public void testReregisterRemoveChildNodeDefinition() throws Exception {
+    // create new NodeType value
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterRemoveChildNodeDefinition");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+
+    List<NodeDefinitionValue> nodes = new ArrayList<NodeDefinitionValue>();
+    nodes.add(new NodeDefinitionValue("child",
+                                      false,
+                                      false,
+                                      1,
+                                      false,
+                                      "nt:base",
+                                      new ArrayList<String>(),
+                                      false));
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node testNode = root.addNode("testNode", testNValue.getName());
+    Node child = testNode.addNode("child");
+    session.save();
+
+    nodes = new ArrayList<NodeDefinitionValue>();
+
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+      // ok;
+    }
+    child.remove();
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+
+    try {
+      child = testNode.addNode("child");
+      session.save();
+      fail();
+    } catch (ConstraintViolationException e) {
+      // ok
+      // e.printStackTrace();
     }
   }
 }

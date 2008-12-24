@@ -21,7 +21,8 @@ import java.util.List;
 /**
  * Created by The eXo Platform SAS.<br/> NodeDefinition value object
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id: NodeDefinitionValue.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
@@ -37,6 +38,30 @@ public final class NodeDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
+   * @param name
+   * @param autoCreate
+   * @param mandatory
+   * @param onVersion
+   * @param readOnly
+   * @param defaultNodeTypeName
+   * @param requiredNodeTypeNames
+   * @param sameNameSiblings
+   */
+  public NodeDefinitionValue(String name,
+                             boolean autoCreate,
+                             boolean mandatory,
+                             int onVersion,
+                             boolean readOnly,
+                             String defaultNodeTypeName,
+                             List<String> requiredNodeTypeNames,
+                             boolean sameNameSiblings) {
+    super(name, autoCreate, mandatory, onVersion, readOnly);
+    this.defaultNodeTypeName = defaultNodeTypeName;
+    this.requiredNodeTypeNames = requiredNodeTypeNames;
+    this.sameNameSiblings = sameNameSiblings;
+  }
+
+  /**
    * @return Returns the defaultNodeTypeName.
    */
   public String getDefaultNodeTypeName() {
@@ -44,8 +69,7 @@ public final class NodeDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
-   * @param defaultNodeTypeName
-   *          The defaultNodeTypeName to set.
+   * @param defaultNodeTypeName The defaultNodeTypeName to set.
    */
   public void setDefaultNodeTypeName(String defaultNodeTypeName) {
     this.defaultNodeTypeName = defaultNodeTypeName;
@@ -59,8 +83,7 @@ public final class NodeDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
-   * @param sameNameSiblings
-   *          The sameNameSiblings to set.
+   * @param sameNameSiblings The sameNameSiblings to set.
    */
   public void setSameNameSiblings(boolean multiple) {
     this.sameNameSiblings = multiple;
@@ -74,8 +97,7 @@ public final class NodeDefinitionValue extends ItemDefinitionValue {
   }
 
   /**
-   * @param requiredNodeTypeNames
-   *          The requiredNodeTypeNames to set.
+   * @param requiredNodeTypeNames The requiredNodeTypeNames to set.
    */
   public void setRequiredNodeTypeNames(List<String> requiredNodeTypeNames) {
     this.requiredNodeTypeNames = requiredNodeTypeNames;

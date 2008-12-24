@@ -87,6 +87,7 @@ public class NodeDefinitionComparator {
     PlainChangesLog changesLog = new PlainChangesLogImpl();
     // check removed
     validateRemoved(registeredNodeType, removedDefinitionData);
+
     return changesLog;
 
   }
@@ -109,7 +110,7 @@ public class NodeDefinitionComparator {
                 + registeredNodeType.getName().getAsString() + " node type because node "
                 + nodeData.getQPath().getAsString() + " " + " countains child nodes with name :";
             for (NodeData childsData : childs) {
-              msg = childsData.getQPath().getName().getAsString() + " ";
+              msg += childsData.getQPath().getName().getAsString() + " ";
             }
             throw new RepositoryException(msg);
           }
@@ -121,7 +122,7 @@ public class NodeDefinitionComparator {
           ItemData child = persister.getItemData(nodeData,
                                                  new QPathEntry(removeNodeDefinitionData.getName(),
                                                                 0));
-          if (child.isNode()) {
+          if (child != null && child.isNode()) {
             throw new RepositoryException("Can't remove node definition "
                 + removeNodeDefinitionData.getName().getAsString() + "  for "
                 + registeredNodeType.getName().getAsString() + " node type because node "

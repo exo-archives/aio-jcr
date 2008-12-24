@@ -563,7 +563,9 @@ public class NodeImpl extends ItemImpl implements ExtendedNode {
     if (nodeDef == null)
       throw new ConstraintViolationException("Can not define node type for " + name.getAsString());
     InternalQName primaryTypeName = nodeDef.getName();
-    if (primaryTypeName.equals(Constants.JCR_ANY_NAME))
+
+    if (nodeDef.getName().equals(name) || primaryTypeName.equals(Constants.JCR_ANY_NAME))
+
       primaryTypeName = nodeDef.getDefaultPrimaryType();
     // try to make new node
     return doAddNode(parent, name, primaryTypeName);
