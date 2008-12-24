@@ -27,9 +27,11 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
@@ -183,30 +185,147 @@ public class RenameMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
-          // TODO
           break;
         case ItemState.DELETED:
-          // DELETE
-          if (localData.isNode()) {
-            if (localData.getQPath().isDescendantOf(incomeData.getQPath())
-                || localData.getQPath().equals(incomeData.getQPath())) {
+          ItemState nextLocalState = local.getNextItemState(localState);
+
+          // Update sequences
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            // updated node was renamed
+            ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                                      incomeData.getIdentifier());
+            if (nextItem != null) {
+              // set new name
+              QPath qPath = QPath.makeChildPath(nextItem.getData().getQPath().makeAncestorPath(1),
+                                                incomeData.getQPath().getEntries()[incomeData.getQPath()
+                                                                                             .getEntries().length - 1]);
+
+              // set new data
+              NodeData node = (NodeData) incomeData;
+              PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
+                                                             qPath,
+                                                             node.getParentIdentifier(),
+                                                             node.getPersistedVersion(),
+                                                             node.getOrderNumber(),
+                                                             node.getPrimaryTypeName(),
+                                                             node.getMixinTypeNames(),
+                                                             node.getACL());
+              incomeState = new ItemState(item, ItemState.RENAMED, false, qPath);
+              resultState.add(incomeState);
+              resultState.add(nextIncomeState);
+              itemChangeProcessed = true;
               break;
-            } else if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-              // restore deleted node
-              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) 
+            }
+
+            nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                            nextIncomeState.getData()
+                                                                           .getParentIdentifier());
+            if (nextItem != null) {
+              // set new name
+              QPath qPath = QPath.makeChildPath(nextItem.getData().getQPath(),
+                                                nextIncomeState.getData().getQPath().getEntries()[nextIncomeState.getData()
+                                                                                                                 .getQPath()
+                                                                                                                 .getEntries().length - 1]);
+
+              // set new data
+              NodeData node = (NodeData) nextIncomeState.getData();
+              PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
+                                                             qPath,
+                                                             node.getParentIdentifier(),
+                                                             node.getPersistedVersion(),
+                                                             node.getOrderNumber(),
+                                                             node.getPrimaryTypeName(),
+                                                             node.getMixinTypeNames(),
+                                                             node.getACL());
+              nextIncomeState = new ItemState(item, ItemState.DELETED, false, qPath);
+              resultState.add(incomeState);
+              resultState.add(nextIncomeState);
+              itemChangeProcessed = true;
+              break;
+            }
+
+            break;
+          }
+
+          // Rename sequences
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
+            if (incomeData.getQPath().equals(localData.getQPath())) {
+              if (nextIncomeState.getData().getQPath().equals(nextLocalState.getData().getQPath())) {
+                return resultEmptyState;
+              }
+
+              resultState.add(nextIncomeState);
+              if (local.getLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(nextLocalState.getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              nextLocalState.getData().getQPath()));
+              }
+              itemChangeProcessed = true;
+              break;
+
+            } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
+              // restore renamed node
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
                 resultState.add(exp.next());
-              
+              }
+
+              // delete renamed node
+              if (local.getLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(nextLocalState.getData(),
+                                              ItemState.DELETED,
+                                              false,
+                                              nextLocalState.getData().getQPath()));
+              }
+
+              if (!itemChangeProcessed) {
+                resultState.add(incomeState);
+                // resultState.add(nextIncomeState);
+              }
+              itemChangeProcessed = true;
+              break;
+
+            } else if (nextLocalState.getData()
+                                     .getQPath()
+                                     .isDescendantOf(nextIncomeState.getData().getQPath())
+                || nextLocalState.getData().getQPath().equals(nextIncomeState.getData().getQPath())) {
+
+              resultState.add(new ItemState(nextLocalState.getData(),
+                                            ItemState.DELETED,
+                                            false,
+                                            nextLocalState.getData().getQPath()));
+              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+
               if (!itemChangeProcessed) {
                 resultState.add(incomeState);
                 resultState.add(nextIncomeState);
               }
               itemChangeProcessed = true;
               break;
+            }
+            break;
+          }
+
+          // DELETE
+          if (localData.isNode()) {
+            if (incomeData.getQPath().equals(localData.getQPath())) {
+              if (!itemChangeProcessed) {
+                // resultState.add(incomeState);
+                resultState.add(nextIncomeState);
+              }
+              itemChangeProcessed = true;
+              break;
             } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
               // restore deleted node and all subtree with renamed node
-              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) 
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
                 resultState.add(exp.next());
-              
+              }
+
+              if (!itemChangeProcessed) {
+                resultState.add(incomeState);
+                // resultState.add(nextIncomeState);
+              }
+
               itemChangeProcessed = true;
             }
           } else {
@@ -214,7 +333,6 @@ public class RenameMerger implements ChangesMerger {
           }
           break;
         case ItemState.RENAMED:
-          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
           break;

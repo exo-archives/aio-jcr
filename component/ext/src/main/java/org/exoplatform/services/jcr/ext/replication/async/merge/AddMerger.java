@@ -361,7 +361,7 @@ public class AddMerger implements ChangesMerger {
               }
 
               // TODO resultState.add(incomeState);
-              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) 
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();)
                 resultState.add(exp.next());
 
               itemChangeProcessed = true;
@@ -373,10 +373,10 @@ public class AddMerger implements ChangesMerger {
           if (localData.isNode()
               && (incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
                                                                                           .equals(localData.getQPath()))) {
-            
-            for (Iterator<ItemState> exp = exporter.exportItem(localData.getParentIdentifier()); exp.hasNext();) 
+
+            for (Iterator<ItemState> exp = exporter.exportItem(localData.getParentIdentifier()); exp.hasNext();)
               resultState.add(exp.next());
-            
+
             itemChangeProcessed = true;
             break;
           }
