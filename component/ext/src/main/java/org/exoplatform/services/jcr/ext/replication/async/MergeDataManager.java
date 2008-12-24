@@ -58,7 +58,7 @@ public class MergeDataManager {
     
     this.ntManager = ntManager;
 
-    this.addMerger = new AddMerger(synchronizer.getLocalPriority(), exporter, dataManager, ntManager);
+    this.addMerger = new AddMerger(synchronizer.isLocalPriority(), exporter, dataManager, ntManager);
   }
 
   /**

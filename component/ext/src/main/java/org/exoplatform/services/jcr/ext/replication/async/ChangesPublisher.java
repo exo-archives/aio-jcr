@@ -14,32 +14,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.storage;
+package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
+import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Store incoming changes. Takes packets on input and build changes file. When the file done
- * writes it to a <code>ChangesStorage</code>.
- * <br/>When all memebers changes will be received the storage calls <code>MergeDataManager.synchronize(ChangesStorage)</code>.
- * 
  * <br/>Date: 24.12.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ *
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface IncomeStorage {
-  
-  /**
-   * Add packet.
-   * 
-   * The storage implementation will decide how to store the packet content.
-   *
-   * @param packet - AbstractPacket
-   */
-  void addPacket(AbstractPacket packet);
-  
+public interface ChangesPublisher {
 
+  /**
+   * Send changes to a given members.
+   *
+   * @param subscribers - Replication members
+   */
+  void sendChanges(Address[] subscribers);
+  
 }

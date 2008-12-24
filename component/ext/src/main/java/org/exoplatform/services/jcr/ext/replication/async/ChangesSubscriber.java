@@ -16,30 +16,30 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
-
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 12.12.2008
+ * <br/>Store incoming changes. Takes packets on input and build changes file. When the file done
+ * writes it to a <code>ChangesStorage</code>.
+ * <br/>When all memebers changes will be received the storage calls <code>MergeDataManager.synchronize(ChangesStorage)</code>.
+ * 
+ * <br/>Date: 24.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface AsyncReceiver extends AsyncPacketListener {
-
-  /**
-   * Set RemoteChangesListener for export.
-   *
-   * @param listener RemoteChangesListener.
-   */
-  void setRemoteChangesListener(RemoteExportClient listener);
+public interface ChangesSubscriber {
   
   /**
-   * Remove RemoteChangesListener for export.
+   * Add packet.
+   * 
+   * The storage implementation will decide how to store the packet content.
    *
+   * @param packet - ChangesPacket
    */
-  void removeRemoteChangesListener();
+  void onChanges(ChangesPacket packet);
+  
 
 }

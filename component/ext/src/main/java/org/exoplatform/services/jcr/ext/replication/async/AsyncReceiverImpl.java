@@ -50,17 +50,16 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   }
 
   /**
-   * {@inheritDoc}
+   * Put changes to a storage.
+   *
+   * @param packet
    */
-  public void onChanges(AbstractPacket packet) {
+  protected void onChanges(AbstractPacket packet) {
     // TODO Auto-generated method stub
 
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void onGetExport(AbstractPacket packet, Address srcAddress) {
+  protected void onGetExport(AbstractPacket packet, Address srcAddress) {
     String nodeId = ((GetExportPacket) packet).getNodeId();
     RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, srcAddress);
 

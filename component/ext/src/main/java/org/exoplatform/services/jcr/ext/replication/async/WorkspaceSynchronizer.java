@@ -34,6 +34,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
@@ -41,7 +42,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class WorkspaceSynchronizer implements RemoteExportServer {
+public class WorkspaceSynchronizer implements ChangesPublisher, RemoteExportServer {
 
   protected final AsyncInitializer    asyncManager;
 
@@ -70,7 +71,12 @@ public class WorkspaceSynchronizer implements RemoteExportServer {
     this.localPriority = localPriority;
   }
 
-  public boolean isLoacalPriority() {
+  /**
+   * Return local priority value.
+   * 
+   * @return boolean local priority
+   */
+  public boolean isLocalPriority() {
     return localPriority;
   }
 
@@ -80,8 +86,8 @@ public class WorkspaceSynchronizer implements RemoteExportServer {
    * @param synchronizedChanges
    *          TransactionChangesLog synchronized changes
    */
-  public void synchronize(TransactionChangesLog synchronizedChanges) {
-    // TODO
+  public void synchronize(TransactionChangesLog /*TODO ChangesStorage*/synchronizedChanges) {
+    // TODO ChangesStorage
   }
 
   /**
@@ -146,12 +152,12 @@ public class WorkspaceSynchronizer implements RemoteExportServer {
   }
 
   /**
-   * Return local priority value.
-   * 
-   * @return boolean local priority
+   * {@inheritDoc}
    */
-  public boolean getLocalPriority() {
-    return localPriority;
+  public void sendChanges(Address[] subscribers) {
+    // TODO Auto-generated method stub
+    
   }
-
+  
+  
 }
