@@ -190,7 +190,8 @@ public class RenameMerger implements ChangesMerger {
           ItemState nextLocalState = local.getNextItemState(localState);
 
           // Update sequences
-          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+          if (nextLocalState != null && incomeData.isNode()
+              && nextLocalState.getState() == ItemState.UPDATED) {
             // updated node was renamed
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       incomeData.getIdentifier());
