@@ -105,21 +105,21 @@ public final class AsyncPacketTypes {
    *   the pocket type for first packet to binary Changeslog
    *   (using for recovery)
    */
-  public static final int BIG_PACKET_FIRST                     = 14;
+  //public static final int BIG_PACKET_FIRST                     = 14;
 
   /**
    * BIG_PACKET_MIDDLE.
    *   the pocket type for middle packet to binary Changeslog
    *   (using for recovery)
    */
-  public static final int BIG_PACKET_MIDDLE                    = 15;
+  //public static final int BIG_PACKET_MIDDLE                    = 15;
 
   /**
    * BIG_PACKET_LAST.
    *   the pocket type for last packet to binary Changeslog
    *   (using for recovery)
    */
-  public static final int BIG_PACKET_LAST                      = 16;
+  //public static final int BIG_PACKET_LAST                      = 16;
   
   /**
    * SYNCHRONIZATION_CANCEL.
