@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -110,9 +111,7 @@ public class UpdateMerger implements ChangesMerger {
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
             if (incomeData.isNode()
-                && (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null || income.getNextItemStateByUUIDOnUpdate(incomeState,
-                                                                                                                                                   nextLocalState.getData()
-                                                                                                                                                                 .getParentIdentifier()) != null)) {
+                && (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null)) {
               return resultEmptyState;
             } else if (!incomeData.isNode()
                 && incomeData.getParentIdentifier().equals(localData.getIdentifier())) {
@@ -175,19 +174,106 @@ public class UpdateMerger implements ChangesMerger {
         case ItemState.ADDED:
           break;
         case ItemState.UPDATED:
-          // TODO
           break;
         case ItemState.DELETED:
+          ItemState nextLocalState = local.getNextItemState(localState);
+
+          // UPDATE
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                                      incomeState.getData()
+                                                                                 .getIdentifier());
+            if (incomeData.isNode() && nextItem != null) {
+              // restore original order
+              List<ItemState> localUpdateSequence = new ArrayList<ItemState>();
+              localUpdateSequence.add(localState);
+              localUpdateSequence.addAll(local.getUpdateSequence(localState));
+              for (int i = localUpdateSequence.size() - 1; i >= 0; i--) {
+                ItemState item = localUpdateSequence.get(i);
+                NodeData node = (NodeData) item.getData();
+                if (i == localUpdateSequence.size() - 1) {
+                  resultState.add(new ItemState(item.getData(),
+                                                ItemState.DELETED,
+                                                false,
+                                                item.getData().getQPath()));
+                } else {
+                  QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
+                                                   node.getQPath().getName(),
+                                                   i == 0
+                                                       ? node.getQPath().getIndex()
+                                                       : node.getQPath().getIndex() - 1);
+                  PersistedNodeData newItem = new PersistedNodeData(node.getIdentifier(),
+                                                                    name,
+                                                                    node.getParentIdentifier(),
+                                                                    node.getPersistedVersion(),
+                                                                    node.getOrderNumber(),
+                                                                    node.getPrimaryTypeName(),
+                                                                    node.getMixinTypeNames(),
+                                                                    node.getACL());
+                  resultState.add(new ItemState(newItem, ItemState.UPDATED, false, name));
+                }
+              }
+              break;
+            }
+
+            nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                            incomeState.getData()
+                                                                       .getParentIdentifier());
+            if (!incomeData.isNode() && nextItem != null) {
+              QPath name = QPath.makeChildPath(nextItem.getData().getQPath(),
+                                               incomeData.getQPath().getEntries()[incomeData.getQPath()
+                                                                                            .getEntries().length - 1]);
+              PropertyData prop = (PropertyData) incomeData;
+              PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
+                                                                     name,
+                                                                     prop.getParentIdentifier(),
+                                                                     prop.getPersistedVersion(),
+                                                                     prop.getType(),
+                                                                     prop.isMultiValued());
+              item.setValues(prop.getValues());
+
+              incomeState = new ItemState(item, ItemState.UPDATED, false, name);
+              resultState.add(incomeState);
+              itemChangeProcessed = true;
+              break;
+            }
+            break;
+          }
+
+          // RENAME
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
+            if (localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
+              // delete node on new place
+              resultState.add(new ItemState(nextLocalState.getData(),
+                                            ItemState.DELETED,
+                                            false,
+                                            nextLocalState.getData().getQPath()));
+              // restore parent
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
+                resultState.add(exp.next());
+              }
+              itemChangeProcessed = true;
+            } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
+              // delete node on new place
+              resultState.add(new ItemState(nextLocalState.getData(),
+                                            ItemState.DELETED,
+                                            false,
+                                            nextLocalState.getData().getQPath()));
+              // restore node
+              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+            }
+            break;
+          }
+
           // DELETE
           if (localData.isNode()) {
             if (localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
               for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
                 resultState.add(exp.next());
               }
-              return resultState;
+              itemChangeProcessed = true;
             } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
               resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
-              break;
             }
           } else {
             if (localData.getIdentifier().equals(incomeData.getIdentifier())) {
@@ -197,7 +283,6 @@ public class UpdateMerger implements ChangesMerger {
           }
           break;
         case ItemState.RENAMED:
-          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
           break;
