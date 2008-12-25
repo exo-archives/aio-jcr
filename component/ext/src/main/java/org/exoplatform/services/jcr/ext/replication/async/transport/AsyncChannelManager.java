@@ -56,7 +56,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * log. the apache logger.
    */
-  private static Log           log = ExoLogger.getLogger("ext.ChannelManager");
+  private static final Log           LOG = ExoLogger.getLogger("ext.ChannelManager");
 
   /**
    * channel. The JChanel object of JGroups.
@@ -132,7 +132,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public void connect() throws ReplicationException {
 
-    log.info("channalName : " + channelName);
+    LOG.info("channalName : " + channelName);
 
     try {
       channel.connect(channelName);
@@ -267,7 +267,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       }
 
     } catch (Exception e) {
-      log.error("An error in processing packet : ", e);
+      LOG.error("An error in processing packet : ", e);
     }
     
     return new String("Success !");

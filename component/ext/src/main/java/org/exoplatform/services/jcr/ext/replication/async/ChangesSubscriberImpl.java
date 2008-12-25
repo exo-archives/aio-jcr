@@ -69,8 +69,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   }
 
   public void onStart() {
-    // TODO Auto-generated method stub
-    
+    // nothing to do
   }
 
 }

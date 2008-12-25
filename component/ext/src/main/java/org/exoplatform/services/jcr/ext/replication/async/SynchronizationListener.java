@@ -33,7 +33,7 @@ public interface SynchronizationListener {
   /**
    * On sycnhronization Start event action. <br/> operations.
    * <ul>
-   * <li>Publisher will send changes.</li>
+   * <li>Publisher will start send changes.</li>
    * <li>Subscriber will skip this event.</li>
    * </ul>
    * 
