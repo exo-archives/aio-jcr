@@ -278,15 +278,6 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
    
   }
   
-  /*
-  protected byte[] createBLOBTempData(int sizeInKb) throws IOException {
-    byte[] data = new byte[1024 * sizeInKb]; // 1Kb
-    Random random = new Random();
-    random.nextBytes(data);
-    return data;
-  }
-  */
-
   private byte[] concatChangePacketBuffers(List<AbstractPacket> list) {
     // count result data size
     int size = 0;
