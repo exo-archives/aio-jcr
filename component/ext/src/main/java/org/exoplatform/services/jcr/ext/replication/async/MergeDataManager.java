@@ -47,7 +47,48 @@ public class MergeDataManager {
   protected final DataManager           dataManager;
 
   protected final NodeTypeDataManager   ntManager;
+  
+  /**
+   * Current merge worker or null (ready for a new merge).
+   */
+  protected MergeWorker currentMerge; 
 
+  class MergeWorker extends Thread {
+
+    private final Iterator<ChangesStorage> membersChanges;
+    
+    MergeWorker(Iterator<ChangesStorage> membersChanges) {
+      this.membersChanges = membersChanges;
+    }
+    
+    /**
+     * Runs merge till not interrupted or finished.
+     *
+     */
+    private void doMerge() {
+      
+      
+      
+      while (membersChanges.hasNext() && !isInterrupted()) {
+        ChangesStorage member = membersChanges.next();
+        ItemStatesSequence<ItemState> changes = member.getChanges();
+        while (changes.hasNext() && !isInterrupted()) {
+          ItemState st = changes.next();
+          // TODO
+        }
+      }  
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run() {
+      doMerge();
+    }
+    
+  }
+  
   MergeDataManager(WorkspaceSynchronizer synchronizer,
                    RemoteExporter exporter,
                    AsyncReceiver receiver,
@@ -70,16 +111,10 @@ public class MergeDataManager {
    * @param incomeChanges
    *          TransactionChangesLog
    */
-  public void merge(Iterator<ChangesStorage> memebersChanges) {
+  public void merge(Iterator<ChangesStorage> membersChanges) {
 
-    while (memebersChanges.hasNext()) {
-      ChangesStorage member = memebersChanges.next();
-      ItemStatesSequence<ItemState> changes = member.getChanges();
-      while (changes.hasNext()) {
-        ItemState st = changes.next();
-        // TODO
-      }
-    }
+    currentMerge = new MergeWorker(membersChanges);
+    currentMerge.start();
   }
 
 }
