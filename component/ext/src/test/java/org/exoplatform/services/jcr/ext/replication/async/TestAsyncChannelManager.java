@@ -111,7 +111,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     Member adr = new Member (new IpAddress("127.0.0.1",7800));
     
     File file  = createBLOBTempFile("mytest", filesize);
-    ChangesFile changes = new ChangesFile(file.getPath(),"crc",System.currentTimeMillis());
+    ChangesFile changes = new ChangesFile(file,"crc",System.currentTimeMillis());
     
     AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, null,100);
     trans.sendExport(changes, adr);

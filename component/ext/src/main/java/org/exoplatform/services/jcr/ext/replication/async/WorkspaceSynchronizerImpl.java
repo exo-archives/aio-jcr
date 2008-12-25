@@ -134,7 +134,8 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
     }
 
     // TODO make correct ChangesLogFile creation
-    return new ChangesFile(chLogFile.getPath(), "TODO", System.currentTimeMillis());
+    
+    return new ChangesFile(chLogFile, "TODO", System.currentTimeMillis());
   }
 
   /**

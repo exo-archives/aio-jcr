@@ -166,10 +166,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                      int transmitterPriority,
                      int totalFiles)throws IOException {
     if (log.isDebugEnabled())
-      log.debug("Begin send : " + clFile.getName());
+      log.debug("Begin send : " + clFile.getChecksum());
     
-    File f = new File(clFile.getName());
-    InputStream in = new FileInputStream(f);
+    InputStream in = clFile.getDataStream();
 
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
     int len;
@@ -234,7 +233,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     in.close();
 
     if (log.isDebugEnabled())
-      log.debug("End send : " + clFile.getName());
+      log.debug("End send : " + clFile.getChecksum());
     
   }
   
@@ -250,13 +249,13 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              ChangesFile clFile,
                              int totalFiles) throws IOException {
     if (log.isDebugEnabled())
-      log.debug("Begin send : " + clFile.getName());
+      log.debug("Begin send : " + clFile.getChecksum());
     
     List<Member> destinationAddresses = new ArrayList<Member>();
     destinationAddresses.add(destinationAddress);
 
-    File f = new File(clFile.getName());
-    InputStream in = new FileInputStream(f);
+    
+    InputStream in = clFile.getDataStream();
 
     byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
     int len;
@@ -321,7 +320,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     in.close();
 
     if (log.isDebugEnabled())
-      log.debug("End send : " + clFile.getName());
+      log.debug("End send : " + clFile.getChecksum());
   }
 
   /**

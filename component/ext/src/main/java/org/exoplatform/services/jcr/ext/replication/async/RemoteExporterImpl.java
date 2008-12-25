@@ -76,7 +76,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     
     receiver.removeRemoteExportListener();
     
-    ChangesFile changesFile = new ChangesFile(storageFile.getCanonicalPath(), "TODO", 0);
+    // TODO make checksum
+    ChangesFile changesFile = new ChangesFile(storageFile, "TODO", 0);
     
     ItemStateIterator<ItemState> satesIterator = new ItemStateIterator<ItemState>(changesFile);
     
