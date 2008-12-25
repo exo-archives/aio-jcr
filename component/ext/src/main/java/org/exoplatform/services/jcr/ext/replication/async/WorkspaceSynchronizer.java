@@ -47,5 +47,5 @@ public interface WorkspaceSynchronizer {
    *
    */
   void save(ChangesStorage synchronizedChanges);
-  
+
 }

@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacke
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface ChangesSubscriber {
+public interface ChangesSubscriber extends SynchronizationListener {
   
   /**
    * Add packet.
@@ -40,4 +40,5 @@ public interface ChangesSubscriber {
    * @param packet - ChangesPacket
    */
   void onChanges(ChangesPacket packet);
+
 }

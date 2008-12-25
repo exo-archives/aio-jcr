@@ -25,6 +25,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @version $Id$
  */
 public class RemoteExportResponce {
+  
   public static final int FIRST  = 0;
 
   public static final int MIDDLE = 1;
@@ -32,9 +33,9 @@ public class RemoteExportResponce {
   public static final int LAST   = 2;
 
   private final int       type;
-  
+
   private final byte[]    buffer;
-  
+
   private final long      offset;
 
   RemoteExportResponce(int type, byte[] buffer, long offset) {
@@ -54,5 +55,4 @@ public class RemoteExportResponce {
   public long getOffset() {
     return offset;
   }
-
 }

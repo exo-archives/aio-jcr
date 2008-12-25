@@ -116,4 +116,15 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       log.error("Cannot save export changes", e);
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onRemoteError(RemoteExportError event) {
+    // TODO 
+    // - delete export file
+    // - stop waiting in exportItem() method 
+  }
+  
+  
 }

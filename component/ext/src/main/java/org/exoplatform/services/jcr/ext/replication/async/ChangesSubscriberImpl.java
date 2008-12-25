@@ -21,11 +21,10 @@ import java.util.HashMap;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesSubscriberImpl.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ChangesSubscriberImpl implements ChangesSubscriber {
@@ -34,13 +33,29 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
    * Map with CRC key and RandomAccess File
    */
   HashMap<String, ChangesFile> incomChanges;
-  
-  public ChangesSubscriberImpl(){
+
+  public ChangesSubscriberImpl() {
     incomChanges = new HashMap<String, ChangesFile>();
   }
-  
+
   public void onChanges(ChangesPacket packet) {
-    //TODO
+    // TODO
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onCancel() {
+    // TODO Auto-generated method stub
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onDone() {
+    // TODO Auto-generated method stub
 
   }
 

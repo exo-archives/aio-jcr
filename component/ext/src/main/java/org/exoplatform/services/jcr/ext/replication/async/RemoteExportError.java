@@ -16,26 +16,32 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.List;
-
-import org.jgroups.Address;
-
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 24.12.2008
+ * <br/>Date: 25.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface ChangesPublisher extends SynchronizationListener {
+public class RemoteExportError {
 
+  private final String error;
+  
+  // TODO do we need it?
+  // private final Member member;
+  
+  RemoteExportError(String error) {
+    this.error = error;
+  }
+  
   /**
-   * Send changes to a given members.
+   * Return message of an remote side error.
    *
-   * @param subscribers - Replication members
+   * @return String - message
    */
-  void sendChanges(List<Address> subscribers);
+  public String getErrorMessage() {
+    return error;
+  }
   
 }

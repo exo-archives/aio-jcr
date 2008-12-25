@@ -160,6 +160,21 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
     
     transmitter.sendChanges(changes, subscribers);
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onCancel() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onDone() {
+    // TODO Auto-generated method stub
+    
+  }
   
 }

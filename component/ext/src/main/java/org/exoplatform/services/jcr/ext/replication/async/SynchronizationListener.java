@@ -16,26 +16,25 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.List;
-
-import org.jgroups.Address;
-
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 24.12.2008
+ * <br/>Date: 25.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface ChangesPublisher extends SynchronizationListener {
-
-  /**
-   * Send changes to a given members.
-   *
-   * @param subscribers - Replication members
-   */
-  void sendChanges(List<Address> subscribers);
+public interface SynchronizationListener {
   
+  /**
+   * On sycnhronization Done event action.
+   *
+   */
+  void onDone();
+  
+  /**
+   * On sycnhronization Cancel event action.
+   *
+   */
+  void onCancel();
 }

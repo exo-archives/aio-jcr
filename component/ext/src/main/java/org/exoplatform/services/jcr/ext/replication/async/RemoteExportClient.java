@@ -31,4 +31,5 @@ public interface RemoteExportClient {
 
   void onRemoteExport(RemoteExportResponce event);
   
+  void onRemoteError(RemoteExportError event);
 }
