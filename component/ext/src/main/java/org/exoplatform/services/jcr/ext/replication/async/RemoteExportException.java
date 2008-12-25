@@ -44,4 +44,12 @@ public class RemoteExportException extends Exception {
   RemoteExportException(InterruptedException error) {
     super(error);
   }
+  
+  RemoteExportException(ClassNotFoundException error) {
+    super(error);
+  }
+  
+  RemoteExportException(ClassCastException error) {
+    super(error);
+  }
 }
