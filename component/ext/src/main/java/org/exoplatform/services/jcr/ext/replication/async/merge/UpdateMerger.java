@@ -20,14 +20,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
@@ -67,10 +72,12 @@ public class UpdateMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws RepositoryException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) throws IOException {
+                               TransactionChangesLog local) throws IOException, RepositoryException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is UPDATE state
@@ -92,9 +99,45 @@ public class UpdateMerger implements ChangesMerger {
         case ItemState.ADDED:
           break;
         case ItemState.UPDATED:
-          // TODO
+          if (!incomeData.isNode() && incomeData.getIdentifier().equals(localData.getIdentifier())) {
+            return resultEmptyState;
+          }
           break;
         case ItemState.DELETED:
+          ItemState nextLocalState = local.getNextItemState(localState);
+
+          // UPDATE
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                                      incomeState.getData()
+                                                                                 .getIdentifier());
+            if (incomeData.isNode() && nextItem != null) {
+              return resultEmptyState;
+            }
+
+            nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                            incomeState.getData()
+                                                                       .getParentIdentifier());
+            if (!incomeData.isNode() && nextItem != null) {
+              QPath name = QPath.makeChildPath(nextItem.getData().getQPath(),
+                                               incomeData.getQPath().getEntries()[incomeData.getQPath()
+                                                                                            .getEntries().length - 1]);
+              PropertyData prop = (PropertyData) incomeData;
+              PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
+                                                                     name,
+                                                                     prop.getParentIdentifier(),
+                                                                     prop.getPersistedVersion(),
+                                                                     prop.getType(),
+                                                                     prop.isMultiValued());
+              item.setValues(prop.getValues());
+
+              incomeState = new ItemState(item, ItemState.UPDATED, false, name);
+              resultState.add(incomeState);
+              itemChangeProcessed = true;
+            }
+            break;
+          }
+
           // DELETE
           if (localData.isNode()) {
             if (income.getNextItemStateByUUIDOnUpdate(incomeState, localState.getData()

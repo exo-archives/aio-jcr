@@ -417,17 +417,6 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                                  false);
     ((TransientPropertyData) remoteProperty11).setValue(new TransientValueData(2222));
 
-    // remote property (as prop of local item 11)
-    remoteProperty111 = new TransientPropertyData(QPath.makeChildPath(remoteItem111.getQPath(),
-                                                                      new InternalQName(null,
-                                                                                        "testProperty111")),
-                                                  IdGenerator.generate(),
-                                                  0,
-                                                  PropertyType.LONG,
-                                                  remoteItem111.getIdentifier(),
-                                                  false);
-    ((TransientPropertyData) remoteProperty111).setValue(new TransientValueData(111));
-
     // remote property (as prop of local item 1)
     remoteProperty2 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
                                                                     new InternalQName(null,
