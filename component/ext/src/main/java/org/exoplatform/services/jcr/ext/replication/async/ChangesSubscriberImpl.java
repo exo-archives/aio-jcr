@@ -17,9 +17,11 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -57,6 +59,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   public void onDone() {
     // TODO Auto-generated method stub
 
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void onMembersDisconnected(List<Member> member) {
+    // TODO Auto-generated method stub
+    
   }
 
 }

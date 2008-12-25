@@ -178,4 +178,12 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
     
   }
   
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void onMembersDisconnected(List<Member> member) {
+    // TODO Auto-generated method stub
+  }
+  
 }
