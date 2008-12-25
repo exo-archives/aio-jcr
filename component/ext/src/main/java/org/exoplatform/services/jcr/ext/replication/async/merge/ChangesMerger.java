@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -24,6 +23,7 @@ import javax.jcr.RepositoryException;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -54,14 +54,15 @@ public interface ChangesMerger {
    *          CompositeChangesLog with local changes
    * 
    * @return List of item states with resulting changes
-   * @throws IOException
    * @throws IllegalPathException
    * @throws RepositoryException
+   * @throws RemoteExportException
+   *           TODO
    */
   List<ItemState> merge(ItemState itemChange,
                         TransactionChangesLog income,
-                        TransactionChangesLog local) throws IOException,
-                                                    IllegalPathException,
-                                                    RepositoryException;
+                        TransactionChangesLog local) throws IllegalPathException,
+                                                    RepositoryException,
+                                                    RemoteExportException;
 
 }

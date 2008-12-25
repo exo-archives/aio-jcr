@@ -19,41 +19,40 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
-
-
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Handles remote item export request. Returns item copy from a remote host.
- * Remote item will be returned as list of <code>ItemState</code>. 
+ * <br/>Handles remote item export request. Returns item copy from a remote host. Remote item will
+ * be returned as list of <code>ItemState</code>.
  * 
  * <br/>Date: 11.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface RemoteExporter {
 
   /**
    * Set exporter side priority.
-   *
-   * @param remotePriority int
+   * 
+   * @param remotePriority
+   *          int
    */
   void setMemberAddress(Member address);
-  
+
   /**
    * Exports remote item and return chnages log with ADD states.
-   * @param nodetId String
-   * @param remotePriority int
-   *
-   * @return ItemStateChangesLog
+   * 
+   * @param nodetId
+   *          String
+   * @return Iterator of ItemState
+   * @throws RemoteExportException
    */
-  Iterator<ItemState> exportItem(String nodetId) throws IOException;
-  
+  Iterator<ItemState> exportItem(String nodetId) throws RemoteExportException;
+
 }

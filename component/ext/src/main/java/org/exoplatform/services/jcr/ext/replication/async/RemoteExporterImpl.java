@@ -49,8 +49,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   protected final AsyncReceiver    receiver;
 
   /**
-   * Member address. Mutable value. Will be changed by Merge manager on each
-   * members pair merge.
+   * Member address. Mutable value. Will be changed by Merge manager on each members pair merge.
    */
   protected Member                 memberAddress;
 
@@ -63,7 +62,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   // private RandomAccessFile rendomAccessStorageFile;
 
-  private IOException              exception   = null;
+  private RemoteExportException    exception   = null;
 
   RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
     this.transmitter = transmitter;
@@ -73,7 +72,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * {@inheritDoc}
    */
-  public Iterator<ItemState> exportItem(String nodetId) throws IOException {
+  public Iterator<ItemState> exportItem(String nodetId) throws RemoteExportException {
     // registration RemoteChangesListener.
     receiver.setRemoteExportListener(this);
 
@@ -87,13 +86,12 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       latch.wait();
     } catch (InterruptedException e) {
       // TODO
+    } finally {
+      receiver.removeRemoteExportListener();
+      // Throw internal exceptions
+      if (exception != null)
+        throw exception;
     }
-
-    receiver.removeRemoteExportListener();
-
-    // Throw internal exceptions
-    if (exception != null)
-      throw exception;
 
     // check checksums
     try {
@@ -106,10 +104,13 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
       if (!MessageDigest.isEqual(dis.getMessageDigest().digest(),
                                  changesFile.getChecksum().getBytes(Constants.DEFAULT_ENCODING))) {
-        // TODO throw Error
+        
+        throw new RemoteExportException("Remote export failed. Received data corrupted.");
       }
+    } catch (IOException e) {
+      throw new RemoteExportException(e); 
     } catch (NoSuchAlgorithmException e) {
-      // TODO handle exception!
+      throw new RemoteExportException(e);
     }
 
     // return Iterator based on ChangesFile
@@ -149,7 +150,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       }
     } catch (IOException e) {
       log.error("Cannot save export changes", e);
-      exception = e;
+      exception = new RemoteExportException(e);
+      receiver.removeRemoteExportListener();
       latch.countDown();
     }
   }
@@ -162,9 +164,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     // TODO delete ChangesFile
 
     // log exception
-    exception = new IOException(event.getErrorMessage());
+    exception = new RemoteExportException(event.getErrorMessage());
     latch.countDown();
-
   }
 
   private void initChangesFile(String crc, long timeStamp) throws IOException {

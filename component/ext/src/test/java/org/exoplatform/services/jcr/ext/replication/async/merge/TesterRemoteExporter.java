@@ -16,12 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
@@ -57,7 +57,7 @@ public class TesterRemoteExporter implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public Iterator<ItemState> exportItem(String nodetId) throws IOException {
+  public Iterator<ItemState> exportItem(String nodetId) throws RemoteExportException {
     return changes.getAllStates().iterator();
   }
 

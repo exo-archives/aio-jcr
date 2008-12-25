@@ -16,7 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +34,7 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 
 /**
@@ -74,12 +74,11 @@ public class UpdateMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
-   * 
    * @throws RepositoryException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) throws IOException, RepositoryException {
+                               TransactionChangesLog local) throws RepositoryException, RemoteExportException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is UPDATE state
