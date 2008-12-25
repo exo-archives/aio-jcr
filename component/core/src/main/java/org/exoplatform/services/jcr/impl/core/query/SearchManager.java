@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -202,51 +204,107 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     final Set<String> removedNodes = new HashSet<String>();
     // nodes that need to be added to the index.
     final Set<String> addedNodes = new HashSet<String>();
-    // property events
-    List<ItemState> propEvents = new ArrayList<ItemState>();
-    List<ItemState> itemStates = changesLog.getAllStates();
-    for (ItemState itemState : itemStates) {
+
+    final Map<String, List<ItemState>> updatedNodes = new HashMap<String, List<ItemState>>();
+    for (ItemState itemState : changesLog.getAllStates()) {
       if (!isExcluded(itemState)) {
-        if (itemState.isNode()) {
-          if (itemState.isAdded() || itemState.isRenamed()) {
-            addedNodes.add(itemState.getData().getIdentifier());
-          } else if (itemState.isDeleted()) {
-            addedNodes.remove(itemState.getData().getIdentifier());
-            removedNodes.add(itemState.getData().getIdentifier());
-          } else if (itemState.isMixinChanged()) {
-            removedNodes.add(itemState.getData().getIdentifier());
-            addedNodes.add(itemState.getData().getIdentifier());
+        String uuid = itemState.isNode() ? itemState.getData().getIdentifier()
+                                        : itemState.getData().getParentIdentifier();
+
+        if (itemState.isAdded()) {
+          if (itemState.isNode()) {
+            addedNodes.add(uuid);
+          } else {
+            if (!addedNodes.contains(uuid)) {
+              createNewOrAdd(uuid, itemState, updatedNodes);
+            }
           }
-        } else {
-          propEvents.add(itemState);
+        } else if (itemState.isRenamed()) {
+          if (itemState.isNode()) {
+            addedNodes.add(uuid);
+          } else {
+            createNewOrAdd(uuid, itemState, updatedNodes);
+          }
+        } else if (itemState.isUpdated()) {
+          createNewOrAdd(uuid, itemState, updatedNodes);
+        } else if (itemState.isMixinChanged()) {
+          createNewOrAdd(uuid, itemState, updatedNodes);
+        } else if (itemState.isDeleted()) {
+          if (itemState.isNode()) {
+            if (addedNodes.contains(uuid)) {
+              addedNodes.remove(uuid);
+              removedNodes.remove(uuid);
+            } else {
+              removedNodes.add(uuid);
+            }
+            // remove all changes after node remove
+            updatedNodes.remove(uuid);
+          } else {
+            if (!removedNodes.contains(uuid) && !addedNodes.contains(uuid)) {
+              createNewOrAdd(uuid, itemState, updatedNodes);
+            }
+          }
         }
       }
+    }
+    // TODO make quick changes
+    for (String uuid : updatedNodes.keySet()) {
+      removedNodes.add(uuid);
+      addedNodes.add(uuid);
     }
 
-    // sort out property events
-    for (int i = 0; i < propEvents.size(); i++) {
-      ItemState event = propEvents.get(i);
-      String nodeId = event.getData().getParentIdentifier();
-      if (event.isAdded()) {
-        if (!addedNodes.contains(nodeId)) {
-          // only property added
-          // need to re-index
-          addedNodes.add(nodeId);
-          removedNodes.add(nodeId);
-        } else {
-          // the node where this prop belongs to is also new
-        }
-      } else if (event.isRenamed() || event.isUpdated()) {
-        // need to re-index
-        addedNodes.add(nodeId);
-        removedNodes.add(nodeId);
-      } else if (event.isDeleted()) {
-        // property removed event is only generated when node still exists
-        if (removedNodes.add(nodeId)) {
-          addedNodes.add(nodeId);
-        }
-      }
-    }
+    // // property events
+    // List<ItemState> propEvents = new ArrayList<ItemState>();
+    // List<ItemState> itemStates = changesLog.getAllStates();
+    //
+    // final Set<String> allRemovedNodesId = new HashSet<String>();
+    // final Set<String> allAddedNodesId = new HashSet<String>();
+    // for (ItemState itemState : itemStates) {
+    // if (!isExcluded(itemState)) {
+    // if (itemState.isNode()) {
+    // if (itemState.isAdded() || itemState.isRenamed()) {
+    // addedNodes.add(itemState.getData().getIdentifier());
+    // allAddedNodesId.add(itemState.getData().getIdentifier());
+    // } else if (itemState.isDeleted()) {
+    // // remove node from add list, and if node not in add list add it to
+    // // removed list
+    // if (!addedNodes.remove(itemState.getData().getIdentifier()))
+    // removedNodes.add(itemState.getData().getIdentifier());
+    // allRemovedNodesId.add(itemState.getData().getIdentifier());
+    // } else if (itemState.isMixinChanged()) {
+    // removedNodes.add(itemState.getData().getIdentifier());
+    // addedNodes.add(itemState.getData().getIdentifier());
+    // }
+    // } else {
+    // propEvents.add(itemState);
+    // }
+    // }
+    // }
+    //
+    // // sort out property events
+    // for (int i = 0; i < propEvents.size(); i++) {
+    // ItemState event = propEvents.get(i);
+    // String nodeId = event.getData().getParentIdentifier();
+    // if (event.isAdded()) {
+    // if (!addedNodes.contains(nodeId) && !allAddedNodesId.contains(nodeId)) {
+    // // only property added
+    // // need to re-index
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // } else {
+    // // the node where this prop belongs to is also new
+    // }
+    // } else if (event.isRenamed() || event.isUpdated()) {
+    // // need to re-index
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // } else if (event.isDeleted()) {
+    // if (!allRemovedNodesId.contains(nodeId)) {
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // }
+    // }
+    // }
 
     Iterator<NodeData> addedStates = new Iterator<NodeData>() {
       private final Iterator<String> iter = addedNodes.iterator();
@@ -327,6 +385,16 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
       log.debug("onEvent: indexing finished in "
           + String.valueOf(System.currentTimeMillis() - time) + " ms.");
     }
+  }
+
+  public void createNewOrAdd(String key, ItemState state, Map<String, List<ItemState>> updatedNodes) {
+    List<ItemState> list = updatedNodes.get(key);
+    if (list == null) {
+      list = new ArrayList<ItemState>();
+      updatedNodes.put(key, list);
+    }
+    list.add(state);
+
   }
 
   public void start() {

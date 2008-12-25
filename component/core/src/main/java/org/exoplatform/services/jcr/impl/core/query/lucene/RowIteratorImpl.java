@@ -59,7 +59,8 @@ class RowIteratorImpl implements RowIterator {
   private static final String        EXCERPT_FUNC_LPAR    = "excerpt(";
 
   /**
-   * The name of the spell check function without prefix but with left parenthesis.
+   * The name of the spell check function without prefix but with left
+   * parenthesis.
    */
   private static final String        SPELLCHECK_FUNC_LPAR = "spellcheck(";
 
@@ -97,14 +98,13 @@ class RowIteratorImpl implements RowIterator {
   private final ValueFactory         vfactory;
 
   /**
-   * Creates a new <code>RowIteratorImpl</code> that iterates over the result nodes.
+   * Creates a new <code>RowIteratorImpl</code> that iterates over the result
+   * nodes.
    * 
-   * @param nodes
-   *          a <code>ScoreNodeIterator</code> that contains the nodes of the query result.
-   * @param properties
-   *          <code>Name</code> of the select properties.
-   * @param resolver
-   *          <code>NamespaceResolver</code> of the user
+   * @param nodes a <code>ScoreNodeIterator</code> that contains the nodes of
+   *          the query result.
+   * @param properties <code>Name</code> of the select properties.
+   * @param resolver <code>NamespaceResolver</code> of the user
    */
   RowIteratorImpl(ScoreNodeIterator nodes,
                   InternalQName[] properties,
@@ -114,19 +114,18 @@ class RowIteratorImpl implements RowIterator {
   }
 
   /**
-   * Creates a new <code>RowIteratorImpl</code> that iterates over the result nodes.
+   * Creates a new <code>RowIteratorImpl</code> that iterates over the result
+   * nodes.
    * 
-   * @param nodes
-   *          a <code>ScoreNodeIterator</code> that contains the nodes of the query result.
-   * @param properties
-   *          <code>Name</code> of the select properties.
-   * @param resolver
-   *          <code>NamespaceResolver</code> of the user <code>Session</code>.
-   * @param exProvider
-   *          the excerpt provider associated with the query result that created this row iterator.
-   * @param spellSuggestion
-   *          the spell suggestion associated with the query result or <code>null</code> if none is
-   *          available.
+   * @param nodes a <code>ScoreNodeIterator</code> that contains the nodes of
+   *          the query result.
+   * @param properties <code>Name</code> of the select properties.
+   * @param resolver <code>NamespaceResolver</code> of the user
+   *          <code>Session</code>.
+   * @param exProvider the excerpt provider associated with the query result
+   *          that created this row iterator.
+   * @param spellSuggestion the spell suggestion associated with the query
+   *          result or <code>null</code> if none is available.
    */
   RowIteratorImpl(ScoreNodeIterator nodes,
                   InternalQName[] properties,
@@ -146,8 +145,7 @@ class RowIteratorImpl implements RowIterator {
    * Returns the next <code>Row</code> in the iteration.
    * 
    * @return the next <code>Row</code> in the iteration.
-   * @throws NoSuchElementException
-   *           if iteration has no more <code>Row</code>s.
+   * @throws NoSuchElementException if iteration has no more <code>Row</code>s.
    */
   public Row nextRow() throws NoSuchElementException {
     return new RowImpl(nodes.getScore(), nodes.nextNodeImpl());
@@ -156,10 +154,9 @@ class RowIteratorImpl implements RowIterator {
   /**
    * Skip a number of <code>Row</code>s in this iterator.
    * 
-   * @param skipNum
-   *          the non-negative number of <code>Row</code>s to skip
-   * @throws NoSuchElementException
-   *           if skipped past the last <code>Row</code> in this iterator.
+   * @param skipNum the non-negative number of <code>Row</code>s to skip
+   * @throws NoSuchElementException if skipped past the last <code>Row</code> in
+   *           this iterator.
    */
   public void skip(long skipNum) throws NoSuchElementException {
     nodes.skip(skipNum);
@@ -175,10 +172,11 @@ class RowIteratorImpl implements RowIterator {
   }
 
   /**
-   * Returns the current position within this iterator. The number returned is the 0-based index of
-   * the next <code>Row</code> in the iterator, i.e. the one that will be returned on the subsequent
-   * <code>next</code> call. <p/> Note that this method does not check if there is a next element,
-   * i.e. an empty iterator will always return 0.
+   * Returns the current position within this iterator. The number returned is
+   * the 0-based index of the next <code>Row</code> in the iterator, i.e. the
+   * one that will be returned on the subsequent <code>next</code> call. <p/>
+   * Note that this method does not check if there is a next element, i.e. an
+   * empty iterator will always return 0.
    * 
    * @return the current position withing this iterator.
    */
@@ -187,17 +185,16 @@ class RowIteratorImpl implements RowIterator {
   }
 
   /**
-   * @throws UnsupportedOperationException
-   *           always.
+   * @throws UnsupportedOperationException always.
    */
   public void remove() {
     throw new UnsupportedOperationException("remove");
   }
 
   /**
-   * Returns <code>true</code> if the iteration has more <code>Row</code>s. (In other words, returns
-   * <code>true</code> if <code>next</code> would return an <code>Row</code> rather than throwing an
-   * exception.)
+   * Returns <code>true</code> if the iteration has more <code>Row</code>s. (In
+   * other words, returns <code>true</code> if <code>next</code> would return an
+   * <code>Row</code> rather than throwing an exception.)
    * 
    * @return <code>true</code> if the iterator has more elements.
    */
@@ -209,8 +206,7 @@ class RowIteratorImpl implements RowIterator {
    * Returns the next <code>Row</code> in the iteration.
    * 
    * @return the next <code>Row</code> in the iteration.
-   * @throws NoSuchElementException
-   *           if iteration has no more <code>Row</code>s.
+   * @throws NoSuchElementException if iteration has no more <code>Row</code>s.
    */
   public Object next() throws NoSuchElementException {
     return nextRow();
@@ -219,8 +215,8 @@ class RowIteratorImpl implements RowIterator {
   // ---------------------< class RowImpl >------------------------------------
 
   /**
-   * Implements the {@link javax.jcr.query.Row} interface, which represents a row in the query
-   * result.
+   * Implements the {@link javax.jcr.query.Row} interface, which represents a
+   * row in the query result.
    */
   class RowImpl implements Row {
 
@@ -247,10 +243,8 @@ class RowIteratorImpl implements RowIterator {
     /**
      * Creates a new <code>RowImpl</code> instance based on <code>node</code>.
      * 
-     * @param score
-     *          the score value for this result row
-     * @param node
-     *          the underlying <code>Node</code> for this <code>Row</code>.
+     * @param score the score value for this result row
+     * @param node the underlying <code>Node</code> for this <code>Row</code>.
      */
     RowImpl(float score, NodeImpl node) {
       this.score = score;
@@ -258,12 +252,13 @@ class RowIteratorImpl implements RowIterator {
     }
 
     /**
-     * Returns an array of all the values in the same order as the property names (column names)
-     * returned by {@link javax.jcr.query.QueryResult#getColumnNames()}.
+     * Returns an array of all the values in the same order as the property
+     * names (column names) returned by
+     * {@link javax.jcr.query.QueryResult#getColumnNames()}.
      * 
      * @return a <code>Value</code> array.
-     * @throws RepositoryException
-     *           if an error occurs while retrieving the values from the <code>Node</code>.
+     * @throws RepositoryException if an error occurs while retrieving the
+     *           values from the <code>Node</code>.
      */
     public Value[] getValues() throws RepositoryException {
       if (values == null) {
@@ -307,16 +302,15 @@ class RowIteratorImpl implements RowIterator {
     }
 
     /**
-     * Returns the value of the indicated property in this <code>Row</code>. <p/> If
-     * <code>propertyName</code> is not among the column names of the query result table, an
-     * <code>ItemNotFoundException</code> is thrown.
+     * Returns the value of the indicated property in this <code>Row</code>.
+     * <p/> If <code>propertyName</code> is not among the column names of the
+     * query result table, an <code>ItemNotFoundException</code> is thrown.
      * 
      * @return a <code>Value</code>
-     * @throws ItemNotFoundException
-     *           if <code>propertyName</code> is not among the column names of the query result
-     *           table.
-     * @throws RepositoryException
-     *           if <code>propertyName</code> is not a valid property name.
+     * @throws ItemNotFoundException if <code>propertyName</code> is not among
+     *           the column names of the query result table.
+     * @throws RepositoryException if <code>propertyName</code> is not a valid
+     *           property name.
      */
     public Value getValue(String propertyName) throws ItemNotFoundException, RepositoryException {
       if (propertySet == null) {
@@ -368,10 +362,9 @@ class RowIteratorImpl implements RowIterator {
     }
 
     /**
-     * @param name
-     *          a Name.
-     * @return <code>true</code> if <code>name</code> is the exo:excerpt function,
-     *         <code>false</code> otherwise.
+     * @param name a Name.
+     * @return <code>true</code> if <code>name</code> is the exo:excerpt
+     *         function, <code>false</code> otherwise.
      */
     private boolean isExcerptFunction(InternalQName name) {
       return name.getNamespace().equals(Constants.NS_REP_URI)
@@ -379,10 +372,9 @@ class RowIteratorImpl implements RowIterator {
     }
 
     /**
-     * @param name
-     *          a String.
-     * @return <code>true</code> if <code>name</code> is the exo:excerpt function,
-     *         <code>false</code> otherwise.
+     * @param name a String.
+     * @return <code>true</code> if <code>name</code> is the exo:excerpt
+     *         function, <code>false</code> otherwise.
      */
     private boolean isExcerptFunction(String name) {
       try {
@@ -396,23 +388,22 @@ class RowIteratorImpl implements RowIterator {
     /**
      * Returns an excerpt for the node associated with this row.
      * 
-     * @return a StringValue or <code>null</code> if the excerpt cannot be created or an error
-     *         occurs.
+     * @return a StringValue or <code>null</code> if the excerpt cannot be
+     *         created or an error occurs.
      */
     private Value getExcerpt() {
       return createExcerpt(node.getInternalIdentifier());
     }
 
     /**
-     * Returns an excerpt for the node indicated by the relative path parameter of the exo:excerpt
-     * function. The relative path is resolved against the node associated with this row.
+     * Returns an excerpt for the node indicated by the relative path parameter
+     * of the exo:excerpt function. The relative path is resolved against the
+     * node associated with this row.
      * 
-     * @param excerptCall
-     *          the exo:excerpt function with the parameter as string.
-     * @return a StringValue or <code>null</code> if the excerpt cannot be created or an error
-     *         occurs.
-     * @throws RepositoryException
-     *           if the function call is not well-formed.
+     * @param excerptCall the exo:excerpt function with the parameter as string.
+     * @return a StringValue or <code>null</code> if the excerpt cannot be
+     *         created or an error occurs.
+     * @throws RepositoryException if the function call is not well-formed.
      */
     private Value getExcerpt(String excerptCall) throws RepositoryException {
       int idx = excerptCall.indexOf(EXCERPT_FUNC_LPAR);
@@ -440,8 +431,8 @@ class RowIteratorImpl implements RowIterator {
     /**
      * Creates an excerpt for node with the given <code>id</code>.
      * 
-     * @return a StringValue or <code>null</code> if the excerpt cannot be created or an error
-     *         occurs.
+     * @return a StringValue or <code>null</code> if the excerpt cannot be
+     *         created or an error occurs.
      */
     private Value createExcerpt(String id) {
       if (excerptProvider == null) {
@@ -484,10 +475,9 @@ class RowIteratorImpl implements RowIterator {
     }
 
     /**
-     * @param name
-     *          a Name.
-     * @return <code>true</code> if <code>name</code> is the exo:spellcheck function,
-     *         <code>false</code> otherwise.
+     * @param name a Name.
+     * @return <code>true</code> if <code>name</code> is the exo:spellcheck
+     *         function, <code>false</code> otherwise.
      */
     private boolean isSpellCheckFunction(InternalQName name) {
       return name.getNamespace().equals(Constants.NS_REP_URI)
@@ -495,12 +485,12 @@ class RowIteratorImpl implements RowIterator {
     }
 
     /**
-     * Returns the spell checked string of the first relation query node with a spellcheck
-     * operation.
+     * Returns the spell checked string of the first relation query node with a
+     * spellcheck operation.
      * 
-     * @return a StringValue or <code>null</code> if the spell checker thinks the words are spelled
-     *         correctly. This method also returns <code>null</code> if no spell checker is
-     *         configured.
+     * @return a StringValue or <code>null</code> if the spell checker thinks
+     *         the words are spelled correctly. This method also returns
+     *         <code>null</code> if no spell checker is configured.
      */
     private Value getSpellCheckedStatement() {
       String v = null;

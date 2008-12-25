@@ -125,7 +125,8 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
     assertEquals(0, ntManager.getNodes(Constants.MIX_REFERENCEABLE,
                                        new InternalQName[0],
                                        new InternalQName[] { new InternalQName("", "p1"),
-                                           new InternalQName("", "p2") }).size());
+                                           new InternalQName("", "p2") }).size()
+        - refNodes);
 
   }
 }

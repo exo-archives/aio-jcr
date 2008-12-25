@@ -41,6 +41,7 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -59,7 +60,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: NodeTypeDataPersister.java 13962 2008-05-07 16:00:48Z pnedonosko $
+ * @version $Id: NodeTypeDataPersister.java 13962 2008-05-07 16:00:48Z
+ *          pnedonosko $
  */
 
 public class NodeTypeDataPersister {
@@ -603,7 +605,7 @@ public class NodeTypeDataPersister {
 
   public void saveChanges(PlainChangesLog changesLog) throws RepositoryException,
                                                      InvalidItemStateException {
-    dataManager.save(changesLog);
+    dataManager.save(new TransactionChangesLog(changesLog));
   }
 
   DataManager getDataManager() {

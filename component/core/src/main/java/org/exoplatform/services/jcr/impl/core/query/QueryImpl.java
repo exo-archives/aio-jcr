@@ -34,7 +34,9 @@ import javax.jcr.version.VersionException;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.ExtendedNode;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -79,7 +81,8 @@ public class QueryImpl extends AbstractQueryImpl {
   protected ExecutableQuery query;
 
   /**
-   * The node where this query is persisted. Only set when this is a persisted query.
+   * The node where this query is persisted. Only set when this is a persisted
+   * query.
    */
   protected Node            node;
 
@@ -146,8 +149,9 @@ public class QueryImpl extends AbstractQueryImpl {
   }
 
   /**
-   * This method simply forwards the <code>execute</code> call to the {@link ExecutableQuery} object
-   * returned by {@link QueryHandler#createExecutableQuery}. {@inheritDoc}
+   * This method simply forwards the <code>execute</code> call to the
+   * {@link ExecutableQuery} object returned by
+   * {@link QueryHandler#createExecutableQuery}. {@inheritDoc}
    */
   public QueryResult execute() throws RepositoryException {
     checkInitialized();
@@ -219,7 +223,15 @@ public class QueryImpl extends AbstractQueryImpl {
     NodeImpl queryNode = (NodeImpl) session.getTransientNodesManager()
                                            .update(ItemState.createAddedState(queryData), false);
 
-    queryNode.addAutoCreatedItems(Constants.NT_QUERY);
+    NodeTypeDataManager ntmanager = session.getWorkspace().getNodeTypesHolder();
+    PlainChangesLog changes = ntmanager.makeAutoCreatedItems((NodeData) queryNode.getData(),
+                                                             Constants.NT_QUERY,
+                                                             session.getTransientNodesManager(),
+                                                             session.getUserID());
+    for (ItemState autoCreatedState : changes.getAllStates()) {
+      session.getTransientNodesManager().update(autoCreatedState, false);
+    }
+    // queryNode.addAutoCreatedItems(Constants.NT_QUERY);
     // set properties
     TransientValueData value = new TransientValueData(language);
     TransientPropertyData jcrLanguage = TransientPropertyData.createPropertyData(queryData,
@@ -237,7 +249,8 @@ public class QueryImpl extends AbstractQueryImpl {
                                                                                   value);
     session.getTransientNodesManager().update(ItemState.createAddedState(jcrStatement), false);
 
-    // NOTE: for save stored node need save() on parent or on session (6.6.10 The Query Object)
+    // NOTE: for save stored node need save() on parent or on session (6.6.10
+    // The Query Object)
     node = queryNode;
     return node;
   }
@@ -245,8 +258,7 @@ public class QueryImpl extends AbstractQueryImpl {
   /**
    * Sets the maximum size of the result set.
    * 
-   * @param limit
-   *          new maximum size of the result set
+   * @param limit new maximum size of the result set
    */
   public void setLimit(long limit) {
     this.limit = limit;
@@ -255,8 +267,7 @@ public class QueryImpl extends AbstractQueryImpl {
   /**
    * Sets the start offset of the result set.
    * 
-   * @param offset
-   *          new start offset of the result set
+   * @param offset new start offset of the result set
    */
   public void setOffset(long offset) {
     this.offset = offset;
@@ -272,8 +283,8 @@ public class QueryImpl extends AbstractQueryImpl {
   }
 
   /**
-   * Checks if this query is not yet initialized and throws an <code>IllegalStateException</code> if
-   * it is already initialized.
+   * Checks if this query is not yet initialized and throws an
+   * <code>IllegalStateException</code> if it is already initialized.
    */
   protected void checkNotInitialized() {
     if (initialized) {
@@ -282,8 +293,8 @@ public class QueryImpl extends AbstractQueryImpl {
   }
 
   /**
-   * Checks if this query is initialized and throws an <code>IllegalStateException</code> if it is
-   * not yet initialized.
+   * Checks if this query is initialized and throws an
+   * <code>IllegalStateException</code> if it is not yet initialized.
    */
   protected void checkInitialized() {
     if (!initialized) {

@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,6 +32,7 @@ import java.util.WeakHashMap;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.PathNotFoundException;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
@@ -47,6 +49,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessControlPolicy;
 import org.exoplatform.services.jcr.config.RepositoryEntry;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
@@ -60,10 +64,15 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeValuesList;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
+import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.nodetype.registration.NodeDefinitionComparator;
@@ -71,7 +80,13 @@ import org.exoplatform.services.jcr.impl.core.nodetype.registration.PropertyDefi
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
 import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
+import org.exoplatform.services.jcr.impl.core.value.BaseValue;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.dataflow.version.VersionHistoryDataHelper;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -1086,5 +1101,133 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         la[i].nodeTypeUnregistered(ntName);
       }
     }
+  }
+
+  public PlainChangesLog makeAutoCreatedItems(NodeData parent,
+                                              InternalQName nodeTypeName,
+                                              ItemDataConsumer dataManager,
+                                              String owner) throws RepositoryException {
+    PlainChangesLogImpl changes = new PlainChangesLogImpl();
+    NodeTypeData type = findNodeType(nodeTypeName);
+
+    Set<InternalQName> addedProperties = new HashSet<InternalQName>();
+
+    // Add autocreated child properties
+    for (PropertyDefinitionData pdef : getAllPropertyDefinitions(type.getName())) {
+
+      // if (propDefs[i] == null) // TODO it is possible for not mandatory
+      // propDef
+      // continue;
+
+      if (pdef.isAutoCreated()) {
+
+        ItemData pdata = dataManager.getItemData(parent, new QPathEntry(pdef.getName(), 0));
+        if ((pdata == null && !addedProperties.contains(pdef.getName()))
+            || (pdata != null && pdata.isNode())) {
+
+          List<ValueData> listAutoCreateValue = autoCreatedValue(parent, type, pdef, owner);
+
+          if (listAutoCreateValue != null) {
+            TransientPropertyData propertyData = TransientPropertyData.createPropertyData(parent,
+                                                                                          pdef.getName(),
+                                                                                          pdef.getRequiredType(),
+                                                                                          pdef.isMultiple(),
+                                                                                          listAutoCreateValue);
+            changes.add(ItemState.createAddedState(propertyData));
+            addedProperties.add(pdef.getName());
+          }
+        } else {
+          // TODO if autocreated property exists it's has wrong data (e.g. ACL)
+          // - throw an exception
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Skipping existed property " + pdef.getName() + " in "
+                + parent.getQPath().getAsString()
+                + "   during the automatic creation of items for " + nodeTypeName.getAsString()
+                + " nodetype or mixin type");
+          }
+        }
+      }
+    }
+
+    // Add autocreated child nodes
+    for (NodeDefinitionData ndef : getAllChildNodeDefinitions(type.getName())) {
+      if (ndef.isAutoCreated()) {
+        TransientNodeData childNodeData = TransientNodeData.createNodeData(parent, ndef.getName(),
+        // TODO default NT may be null, or check it in NT manager
+                                                                           ndef.getDefaultPrimaryType(),
+                                                                           IdGenerator.generate());
+        changes.add(ItemState.createAddedState(childNodeData));
+        makeAutoCreatedItems(childNodeData, childNodeData.getPrimaryTypeName(), dataManager, owner);
+
+      }
+    }
+
+    // versionable
+    if (isNodeType(Constants.MIX_VERSIONABLE, new InternalQName[] { type.getName() })) {
+
+      // using VH helper as for one new VH, all changes in changes log
+      new VersionHistoryDataHelper(parent, changes, dataManager, this);
+      // for (ItemState istate : changes.getAllStates()) {
+      // dataManager.update(istate, false);
+      // }
+
+    }
+    return changes;
+  }
+
+  private List<ValueData> autoCreatedValue(NodeData parent,
+                                           NodeTypeData type,
+                                           PropertyDefinitionData def,
+                                           String owner) throws RepositoryException {
+    NodeTypeDataManager typeDataManager = this;
+    List<ValueData> vals = new ArrayList<ValueData>();
+
+    if (typeDataManager.isNodeType(Constants.NT_BASE, new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.JCR_PRIMARYTYPE)) {
+      vals.add(new TransientValueData(parent.getPrimaryTypeName()));
+
+    } else if (typeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.JCR_UUID)) {
+      vals.add(new TransientValueData(parent.getIdentifier()));
+
+    } else if (typeDataManager.isNodeType(Constants.NT_HIERARCHYNODE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.JCR_CREATED)) {
+      vals.add(new TransientValueData(Calendar.getInstance()));
+
+    } else if (typeDataManager.isNodeType(Constants.EXO_OWNEABLE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.EXO_OWNER)) {
+      // String owner = session.getUserID();
+      vals.add(new TransientValueData(owner));
+      parent.setACL(new AccessControlList(owner, parent.getACL().getPermissionEntries()));
+
+    } else if (typeDataManager.isNodeType(Constants.EXO_PRIVILEGEABLE,
+                                          new InternalQName[] { type.getName() })
+        && def.getName().equals(Constants.EXO_PERMISSIONS)) {
+      for (AccessControlEntry ace : parent.getACL().getPermissionEntries()) {
+        vals.add(new TransientValueData(ace));
+      }
+
+    } else {
+      String[] propVal = def.getDefaultValues();
+      // there can be null in definition but should not be null value
+      if (propVal != null && propVal.length != 0) {
+        for (String v : propVal) {
+          if (v != null)
+            if (def.getRequiredType() == PropertyType.UNDEFINED)
+              vals.add(((BaseValue) valueFactory.createValue(v)).getInternalData());
+            else
+              vals.add(((BaseValue) valueFactory.createValue(v, def.getRequiredType())).getInternalData());
+          else {
+            vals.add(null);
+          }
+        }
+      } else
+        return null;
+    }
+
+    return vals;
   }
 }

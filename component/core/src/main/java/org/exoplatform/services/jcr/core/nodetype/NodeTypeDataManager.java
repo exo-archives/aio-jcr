@@ -22,7 +22,10 @@ import java.util.List;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
 
 /**
@@ -86,7 +89,7 @@ public interface NodeTypeDataManager {
   public void unregisterNodeType(InternalQName nodeTypeName) throws RepositoryException;
 
   Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues,
-                                       int alreadyExistsBehaviour) throws RepositoryException;
+                                             int alreadyExistsBehaviour) throws RepositoryException;
 
   Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
 
@@ -99,4 +102,15 @@ public interface NodeTypeDataManager {
   // query
 
   public void addQueryHandler(QueryHandler queryHandler);
+
+  /**
+   * Create PlainChangesLog of autocreated items to this node. No checks will be
+   * passed for autocreated items.
+   * 
+   * @throws RepositoryException
+   */
+  public PlainChangesLog makeAutoCreatedItems(NodeData parent,
+                                              InternalQName nodeTypeName,
+                                              ItemDataConsumer dataManager,
+                                              String owner) throws RepositoryException;
 }

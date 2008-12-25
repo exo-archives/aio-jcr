@@ -100,21 +100,21 @@ public class QueryResultImpl implements QueryResult {
   protected final boolean[]         orderSpecs;
 
   /**
-   * The result nodes including their score. This list is populated on a lazy basis while a client
-   * iterates through the results.
+   * The result nodes including their score. This list is populated on a lazy
+   * basis while a client iterates through the results.
    */
   private final List<ScoreNode>     resultNodes = new ArrayList<ScoreNode>();
 
   /**
-   * This is the raw number of results that matched the query. This number also includes matches
-   * which will not be returned due to access restrictions. This value is set when the query is
-   * executed the first time.
+   * This is the raw number of results that matched the query. This number also
+   * includes matches which will not be returned due to access restrictions.
+   * This value is set when the query is executed the first time.
    */
   private int                       numResults  = -1;
 
   /**
-   * The number of results that are invalid, either because a node does not exist anymore or because
-   * the session does not have access to the node.
+   * The number of results that are invalid, either because a node does not
+   * exist anymore or because the session does not have access to the node.
    */
   private int                       invalid     = 0;
 
@@ -151,11 +151,13 @@ public class QueryResultImpl implements QueryResult {
    * @param accessMgr the access manager of the session executiong the query.
    * @param queryImpl the query instance which created this query result.
    * @param query the lucene query to execute on the index.
-   * @param spellSuggestion the spell suggestion or <code>null</code> if none is available.
+   * @param spellSuggestion the spell suggestion or <code>null</code> if none is
+   *          available.
    * @param selectProps the select properties of the query.
    * @param orderProps the names of the order properties.
    * @param orderSpecs the order specs, one for each order property name.
-   * @param documentOrder if <code>true</code> the result is returned in document order.
+   * @param documentOrder if <code>true</code> the result is returned in
+   *          document order.
    * @param limit the maximum result size
    * @param offset the offset in the total result set
    */
@@ -238,8 +240,8 @@ public class QueryResultImpl implements QueryResult {
   }
 
   /**
-   * Executes the query for this result and returns hits. The caller must close the query hits when
-   * he is done using it.
+   * Executes the query for this result and returns hits. The caller must close
+   * the query hits when he is done using it.
    * 
    * @return hits for this query result.
    * @throws IOException if an error occurs while executing the query.
@@ -264,8 +266,9 @@ public class QueryResultImpl implements QueryResult {
   }
 
   /**
-   * Attempts to get <code>size</code> results and puts them into {@link #resultNodes}. If the size
-   * of {@link #resultNodes} is less than <code>size</code> then there are no more than
+   * Attempts to get <code>size</code> results and puts them into
+   * {@link #resultNodes}. If the size of {@link #resultNodes} is less than
+   * <code>size</code> then there are no more than
    * <code>resultNodes.size()</code> results for this query.
    * 
    * @param size the number of results to fetch for the query.
@@ -320,9 +323,10 @@ public class QueryResultImpl implements QueryResult {
   }
 
   /**
-   * Returns the total number of hits. This is the number of results you will get get if you don't
-   * set any limit or offset. Keep in mind that this number may get smaller if nodes are found in
-   * the result set which the current session has no permission to access.
+   * Returns the total number of hits. This is the number of results you will
+   * get get if you don't set any limit or offset. Keep in mind that this number
+   * may get smaller if nodes are found in the result set which the current
+   * session has no permission to access.
    */
   public int getTotalSize() {
     return numResults - invalid;
@@ -415,8 +419,8 @@ public class QueryResultImpl implements QueryResult {
     }
 
     /**
-     * {@inheritDoc} <p/> This value may shrink when the query result encounters non-existing nodes
-     * or the session does not have access to a node.
+     * {@inheritDoc} <p/> This value may shrink when the query result encounters
+     * non-existing nodes or the session does not have access to a node.
      */
     public long getSize() {
       long size = getTotalSize() - offset;
@@ -468,8 +472,8 @@ public class QueryResultImpl implements QueryResult {
     }
 
     /**
-     * Fetches the next node to return by this iterator. If this method returns and {@link #next} is
-     * <code>null</code> then there is no next node.
+     * Fetches the next node to return by this iterator. If this method returns
+     * and {@link #next} is <code>null</code> then there is no next node.
      */
     private void fetchNext() {
       next = null;
@@ -497,6 +501,10 @@ public class QueryResultImpl implements QueryResult {
         ScoreNode sn = resultNodes.get(nextPos);
         try {
           next = (NodeImpl) itemMgr.getItemByIdentifier(sn.getNodeId(), true);
+          if (next == null) {
+            resultNodes.remove(nextPos);
+            invalid++;
+          }
         } catch (RepositoryException e) {
           log.warn("Exception retrieving Node with UUID: " + sn.getNodeId() + ": " + e.toString());
           // remove score node and try next

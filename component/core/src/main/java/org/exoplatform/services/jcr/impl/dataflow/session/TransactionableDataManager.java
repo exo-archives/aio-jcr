@@ -45,7 +45,8 @@ import org.exoplatform.services.transaction.TransactionResource;
  * Created by The eXo Platform SAS.
  * 
  * @author Gennady Azarenkov
- * @version $Id: TransactionableDataManager.java 11907 2008-03-13 15:36:21Z ksm $
+ * @version $Id: TransactionableDataManager.java 11907 2008-03-13 15:36:21Z ksm
+ *          $
  */
 public class TransactionableDataManager implements TransactionResource, DataManager {
 
@@ -77,8 +78,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData(org.exoplatform.services
-   * .jcr.datamodel.NodeData)
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildNodesData
+   * (org.exoplatform.services .jcr.datamodel.NodeData)
    */
   public List<NodeData> getChildNodesData(NodeData parent) throws RepositoryException {
     List<NodeData> nodes = storageDataManager.getChildNodesData(parent);
@@ -97,8 +98,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData(org.exoplatform
-   * .services.jcr.datamodel.NodeData)
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getChildPropertiesData
+   * (org.exoplatform .services.jcr.datamodel.NodeData)
    */
   public List<PropertyData> getChildPropertiesData(NodeData parent) throws RepositoryException {
     List<PropertyData> props = storageDataManager.getChildPropertiesData(parent);
@@ -131,8 +132,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.exoplatform.services
-   * .jcr.datamodel.InternalQPath)
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(org.
+   * exoplatform.services .jcr.datamodel.InternalQPath)
    */
   public ItemData getItemData(NodeData parentData, QPathEntry name) throws RepositoryException {
     ItemData data = null;
@@ -149,7 +150,9 @@ public class TransactionableDataManager implements TransactionResource, DataMana
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getItemData(java
+   * .lang.String)
    */
   public ItemData getItemData(String identifier) throws RepositoryException {
     ItemData data = null;
@@ -166,7 +169,9 @@ public class TransactionableDataManager implements TransactionResource, DataMana
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData(java.lang.String)
+   * @see
+   * org.exoplatform.services.jcr.dataflow.ItemDataConsumer#getReferencesData
+   * (java.lang.String)
    */
   public List<PropertyData> getReferencesData(String identifier, boolean skipVersionStorage) throws RepositoryException {
     return storageDataManager.getReferencesData(identifier, skipVersionStorage);
@@ -177,8 +182,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#start(org.exoplatform.services
-   * .jcr.impl.dataflow.TransactionLifecycleManager)
+   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#start(org
+   * .exoplatform.services .jcr.impl.dataflow.TransactionLifecycleManager)
    */
   public void start() {
     log.debug("tx start() " + this + " txStarted(): " + txStarted());
@@ -189,8 +194,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#commit(org.exoplatform.services
-   * .jcr.impl.dataflow.TransactionLifecycleManager)
+   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#commit(org
+   * .exoplatform.services .jcr.impl.dataflow.TransactionLifecycleManager)
    */
   public void commit() throws TransactionException {
     if (txStarted()) {
@@ -209,8 +214,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#rollback(org.exoplatform.services
-   * .jcr.impl.dataflow.TransactionLifecycleManager)
+   * org.exoplatform.services.jcr.impl.dataflow.TransactionResource#rollback
+   * (org.exoplatform.services .jcr.impl.dataflow.TransactionLifecycleManager)
    */
   public void rollback() {
     log.debug("tx rollback() " + this
@@ -220,11 +225,10 @@ public class TransactionableDataManager implements TransactionResource, DataMana
   }
 
   /**
-   * Updates the manager with new changes If transaction is started it will fill manager's changes
-   * log, else just move changes to workspace storage manager It saves the changes AS IS - i.e. id
-   * DOES NOT care about cloning of this objects etc.
-   * 
-   * Here PlainChangesLog expected
+   * Updates the manager with new changes If transaction is started it will fill
+   * manager's changes log, else just move changes to workspace storage manager
+   * It saves the changes AS IS - i.e. id DOES NOT care about cloning of this
+   * objects etc. Here PlainChangesLog expected
    * 
    * @param changes
    * @throws RepositoryException
@@ -236,7 +240,6 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     if (log.isDebugEnabled())
       log.debug("save() " + this + " txStarted: " + txStarted() + "\n====== Changes ======\n"
           + (statesLog != null ? "\n" + statesLog.dump() : "[NULL]") + "=====================");
-
     if (txStarted())
       transactionLog.addLog(statesLog);
     else
@@ -256,7 +259,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
     return storageDataManager;
   }
 
-  @Deprecated // TODO remove it
+  @Deprecated
+  // TODO remove it
   protected ItemData locate(final ItemData idata) throws RepositoryException {
     if (idata == null)
       return null;
@@ -277,7 +281,8 @@ public class TransactionableDataManager implements TransactionResource, DataMana
    * @return
    * @throws RepositoryException
    */
-  @Deprecated // TODO remove it
+  @Deprecated
+  // TODO remove it
   protected ItemData relocate(final ItemState[] renamedStates, final ItemData idata) throws RepositoryException {
     NodeData dancestor = (NodeData) renamedStates[0].getData(); // deleted
     NodeData rancestor = (NodeData) renamedStates[1].getData(); // renamed
