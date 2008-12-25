@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -177,13 +178,28 @@ public class UpdateMerger implements ChangesMerger {
           // TODO
           break;
         case ItemState.DELETED:
-          // TODO
+          // DELETE
+          if (localData.isNode()) {
+            if (localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
+              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
+                resultState.add(exp.next());
+              }
+              return resultState;
+            } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
+              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+              break;
+            }
+          } else {
+            if (localData.getIdentifier().equals(incomeData.getIdentifier())) {
+              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+              itemChangeProcessed = true;
+            }
+          }
           break;
         case ItemState.RENAMED:
           // TODO
           break;
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       }

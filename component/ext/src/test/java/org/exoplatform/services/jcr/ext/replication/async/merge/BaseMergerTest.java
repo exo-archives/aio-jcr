@@ -481,7 +481,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                             Constants.NT_UNSTRUCTURED,
                                             new InternalQName[0],
                                             1,
-                                            remoteItem1.getIdentifier(),
+                                            remoteItem2.getIdentifier(),
                                             new AccessControlList());
 
     // SNS items
@@ -493,7 +493,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                             Constants.NT_UNSTRUCTURED,
                                             new InternalQName[0],
                                             0,
-                                            localItem1.getIdentifier(),
+                                            localItem2.getIdentifier(),
                                             new AccessControlList());
 
     remoteItem21x2A = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
@@ -504,7 +504,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                             Constants.NT_UNSTRUCTURED,
                                             new InternalQName[0],
                                             0,
-                                            localItem1.getIdentifier(),
+                                            localItem2.getIdentifier(),
                                             new AccessControlList());
 
     // remote, will conflict with localItem21x1B1 (path of parent reordered [2] -> [1], different
