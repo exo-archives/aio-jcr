@@ -312,6 +312,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   public Object handle(Message message) {
     try {
       AbstractPacket packet = PacketTransformer.getAsPacket(message.getBuffer());
+      
       Member member = new Member(message.getSrc());
 
       for (AsyncPacketListener handler : packetListeners) {

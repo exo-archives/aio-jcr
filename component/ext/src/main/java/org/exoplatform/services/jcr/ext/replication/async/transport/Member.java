@@ -30,6 +30,8 @@ public class Member {
   
   private final Address address;
   
+  private int priority = -1;
+  
   /**
    * Member  constructor.
    *
@@ -38,6 +40,11 @@ public class Member {
    */
   public Member(Address address) {
     this.address = address;
+  }
+  
+  public Member(Address address, int priority) {
+    this.address = address;
+    this.priority = priority;
   }
 
   /**

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Iterator;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -27,7 +28,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStateIterator;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -38,11 +38,11 @@ import org.jgroups.Address;
  * @version $Id$
  */
 public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
-  
+
   /**
    * log. the apache logger.
    */
-  private static Log           log = ExoLogger.getLogger("ext.RemoteExporterImpl");
+  private static Log               log = ExoLogger.getLogger("ext.RemoteExporterImpl");
 
   protected final AsyncTransmitter transmitter;
 
@@ -51,9 +51,11 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each memebers pair merge.
    */
-  protected Member                memberAddress;
+  protected Member                 memberAddress;
 
   private File                     storageFile;
+
+  private CountDownLatch           latch;
 
   private RandomAccessFile         rendomAccessStorageFile;
 
@@ -71,17 +73,22 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
     // send request
     transmitter.sendGetExport(nodetId, memberAddress);
+    
+    latch = new CountDownLatch(1);
+    try {
+       latch.wait();
+    } catch (InterruptedException e) {
+      //TODO
+    }
 
-    // TODO lock and wait for responce, error or timeout
-    
     receiver.removeRemoteExportListener();
-    
+
     // TODO make checksum
     ChangesFile changesFile = new ChangesFile(storageFile, "TODO", 0);
-    
+
     ItemStateIterator<ItemState> satesIterator = new ItemStateIterator<ItemState>(changesFile);
-    
-    return satesIterator; 
+
+    return satesIterator;
   }
 
   /**
@@ -96,25 +103,30 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
    */
   public void onRemoteExport(RemoteExportResponce event) {
     try {
-    switch (event.getType()) {
-    case RemoteExportResponce.FIRST:
-      storageFile = File.createTempFile("romoteExport", "tmp");
-      rendomAccessStorageFile = new RandomAccessFile(storageFile, "w");
-      
-      rendomAccessStorageFile.write(event.getBuffer(), (int)event.getOffset(), event.getBuffer().length);
-      break;
+      switch (event.getType()) {
+      case RemoteExportResponce.FIRST:
+        storageFile = File.createTempFile("romoteExport", "tmp");
+        rendomAccessStorageFile = new RandomAccessFile(storageFile, "w");
 
-    case RemoteExportResponce.MIDDLE:
-      rendomAccessStorageFile.write(event.getBuffer(), (int)event.getOffset(), event.getBuffer().length);
-      break;
+        rendomAccessStorageFile.write(event.getBuffer(),
+                                      (int) event.getOffset(),
+                                      event.getBuffer().length);
+        break;
 
-    case RemoteExportResponce.LAST:
-       rendomAccessStorageFile.close();
-      break;
+      case RemoteExportResponce.MIDDLE:
+        rendomAccessStorageFile.write(event.getBuffer(),
+                                      (int) event.getOffset(),
+                                      event.getBuffer().length);
+        break;
 
-    }
+      case RemoteExportResponce.LAST:
+        rendomAccessStorageFile.close();
+        latch.countDown();
+        break;
+
+      }
     } catch (IOException e) {
-      //TODO
+      // TODO
       log.error("Cannot save export changes", e);
     }
   }
@@ -123,10 +135,9 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
    * {@inheritDoc}
    */
   public void onRemoteError(RemoteExportError event) {
-    // TODO 
+    // TODO
     // - delete export file
-    // - stop waiting in exportItem() method 
+    // - stop waiting in exportItem() method
   }
-  
-  
+
 }
