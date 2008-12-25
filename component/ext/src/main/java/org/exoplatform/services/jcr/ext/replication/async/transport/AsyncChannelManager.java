@@ -38,6 +38,7 @@ import org.jgroups.JChannel;
 import org.jgroups.MembershipListener;
 import org.jgroups.Message;
 import org.jgroups.MessageListener;
+import org.jgroups.View;
 import org.jgroups.blocks.GroupRequest;
 import org.jgroups.blocks.MessageDispatcher;
 import org.jgroups.blocks.RequestHandler;
@@ -50,7 +51,7 @@ import org.jgroups.blocks.RequestHandler;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
  */
-public class AsyncChannelManager implements RequestHandler {
+public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
   /**
    * log. the apache logger.
@@ -91,6 +92,8 @@ public class AsyncChannelManager implements RequestHandler {
    * packetListeners. The packet listeners.
    */
   private List<AsyncPacketListener> packetListeners;
+  
+  private List<AsyncStateListener> stateListeners;
 
   /**
    * channelListener. The listener to JChannel when channel-state changed.
@@ -109,6 +112,7 @@ public class AsyncChannelManager implements RequestHandler {
     this.channelConfig = channelConfig;
     this.channelName = channelName;
     this.packetListeners = new ArrayList<AsyncPacketListener>();
+    this.stateListeners = new ArrayList<AsyncStateListener>();
   }
 
   /**
@@ -168,26 +172,36 @@ public class AsyncChannelManager implements RequestHandler {
     channel = null;
   }
 
-  /**
-   * setMembershipListener.
-   * 
-   * @param membershipListener
-   *          set the MembershipListener
-   */
-  public void setMembershipListener(MembershipListener membershipListener) {
-    this.membershipListener = membershipListener;
-  }
+//  /**
+//   * setMembershipListener.
+//   * 
+//   * @param membershipListener
+//   *          set the MembershipListener
+//   */
+//  public void setMembershipListener(MembershipListener membershipListener) {
+//    this.membershipListener = membershipListener;
+//  }
 
-  /**
-   * setMessageListener.
-   * 
-   * @param messageListener
-   *          set the MessageListener
-   */
-  public void setMessageListener(MessageListener messageListener) {
-    this.messageListener = messageListener;
-  }
+//  /**
+//   * setMessageListener.
+//   * 
+//   * @param messageListener
+//   *          set the MessageListener
+//   */
+//  public void setMessageListener(MessageListener messageListener) {
+//    this.messageListener = messageListener;
+//  }
 
+//  /**
+//   * setChannelListener.
+//   * 
+//   * @param channelListener
+//   *          set the ChannelListener
+//   */
+//  public void setChannelListener(ChannelListener channelListener) {
+//    this.channelListener = channelListener;
+//  }
+  
   /**
    * addPacketListener.
    * 
@@ -197,15 +211,28 @@ public class AsyncChannelManager implements RequestHandler {
   public void addPacketListener(AsyncPacketListener packetListener) {
     this.packetListeners.add(packetListener);
   }
-
+  
   /**
-   * setChannelListener.
+   * Remove PacketListener.
    * 
-   * @param channelListener
-   *          set the ChannelListener
+   * @param packetListener
+   *          add the PacketListener
    */
-  public void setChannelListener(ChannelListener channelListener) {
-    this.channelListener = channelListener;
+  public void removePacketListener(AsyncPacketListener packetListener) {
+    this.packetListeners.remove(packetListener);
+  }
+  
+  /**
+   * Add channel state listener (AsynInitializer).
+   *
+   * @param listener AsyncStateListener
+   */
+  public void addStateListener(AsyncStateListener listener) {
+    
+  }
+  
+  public void removeStateListener(AsyncStateListener listener) {
+    
   }
 
   /**
@@ -277,6 +304,8 @@ public class AsyncChannelManager implements RequestHandler {
     return channel;
   }
 
+  // ************ RequestHandler **********
+  
   /**
    * {@inheritDoc}
    */
@@ -295,4 +324,41 @@ public class AsyncChannelManager implements RequestHandler {
     
     return new String("Success !");
   }
+
+  // ******** MembershipListener ***********
+  
+  /**
+   * {@inheritDoc}
+   */
+  public void block() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void suspect(Address arg0) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void viewAccepted(View view) {
+    // TODO Auto-generated method stub
+    
+    AsyncStateEvent event = null;
+    // TODO new AsyncStateEvent( new ArrayList<Member>(view.getMembers()));
+    
+    for (AsyncStateListener listener: stateListeners) {
+      listener.onStateChanged(event);
+    }
+  }
+  
+  // *****************************************
+  
+  
+  
 }

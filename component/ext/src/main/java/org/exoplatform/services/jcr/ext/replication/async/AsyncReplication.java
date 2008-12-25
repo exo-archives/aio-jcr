@@ -39,6 +39,19 @@ public class AsyncReplication implements Startable {
 
   protected final ManageableRepository repository;
   
+  class AsyncWorker extends Thread {
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run() {
+      // TODO Auto-generated method stub
+      
+    }
+    
+  }
+  
   public AsyncReplication(RepositoryService repoService, InitParams params) throws RepositoryException, RepositoryConfigurationException {
     this.repository = repoService.getDefaultRepository();
     
@@ -63,6 +76,15 @@ public class AsyncReplication implements Startable {
     
   }
 
+  /**
+   * Initialize synchronization process.
+   * Process will use the service configuration.
+   *
+   */
+  public void synchronize() {
+    
+  }
+  
   /**
    * {@inheritDoc}
    */

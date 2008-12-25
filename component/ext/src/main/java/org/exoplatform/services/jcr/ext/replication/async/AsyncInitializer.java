@@ -16,14 +16,19 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CannotInitilizeConnectionsException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
@@ -36,7 +41,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class AsyncInitializer implements AsyncPacketListener {
+public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener {
 
   /**
    * The apache logger.
@@ -80,6 +85,13 @@ public class AsyncInitializer implements AsyncPacketListener {
   private HashMap<String, MemberDescriptor> synchronizationMambers;
   
   private ThreadWaiter                      threadWaiter;
+  
+  /////// async stuff /////
+  
+  /**
+   * Listeners in order of addition.
+   */
+  protected final Set<SynchronizationListener> listeners = new LinkedHashSet<SynchronizationListener>();
 
   private class MemberDescriptor {
 
@@ -132,13 +144,36 @@ public class AsyncInitializer implements AsyncPacketListener {
                    String ownName,
                    int priority,
                    int waitTimeout,
-                   List<String> otherParticipants) {
+                   List<String> otherParticipants,
+                   ChangesPublisher publisher) {
     this.channelManager = channelManager;
     this.ownName = ownName;
     this.ownPriority = priority;
     this.waitTimeout = waitTimeout;
     this.otherParticipants = otherParticipants;
     this.channelManager.addPacketListener(this);
+  }
+  
+  public void addSynchronizationListener(SynchronizationListener listener) {
+    listeners.add(listener);
+  }
+  
+  public void removeSynchronizationListener(SynchronizationListener listener) {
+    listeners.remove(listener);
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onStateChanged(AsyncStateEvent event) {
+    List<Member> newList = event.getMembers();
+    // TODO find who removed
+    // if member(s) disconnected and we are in changes exchange...
+    if (true)
+      for (SynchronizationListener syncl : listeners) { 
+        syncl.onMembersDisconnected(new ArrayList<Member>()); //TODO
+      }
   }
 
   public void receive(AbstractPacket packet, Member srcAddress) throws Exception {
@@ -172,6 +207,8 @@ public class AsyncInitializer implements AsyncPacketListener {
     }*/
   }
 
+  //public void addSynchronizationListener
+  
   /**
    * TODO isWaitSynchronization.
    * 

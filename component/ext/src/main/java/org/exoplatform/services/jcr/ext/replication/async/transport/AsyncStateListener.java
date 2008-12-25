@@ -14,31 +14,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.transport;
 
-import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Store incoming changes. Takes packets on input and build changes file. When the file done
- * writes it to a <code>ChangesStorage</code>.
- * <br/>When all memebers changes will be received the storage calls <code>MergeDataManager.synchronize(ChangesStorage)</code>.
- * 
- * <br/>Date: 24.12.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ * <br/>Date: 25.12.2008
+ *
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface ChangesSubscriber extends SynchronizationListener {
-  
+public interface AsyncStateListener {
+
   /**
-   * Add packet.
-   * 
-   * The storage implementation will decide how to store the packet content.
+   * Members connected state.
    *
-   * @param packet - ChangesPacket
+   * @param event List of Member
    */
-  void onChanges(ChangesPacket packet);
+  void onStateChanged(AsyncStateEvent event);
   
 }

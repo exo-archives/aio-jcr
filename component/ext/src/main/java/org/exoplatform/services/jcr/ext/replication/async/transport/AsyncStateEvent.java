@@ -14,28 +14,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.transport;
 
 import java.util.List;
-
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
-
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 24.12.2008
+ * <br/>Date: 25.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id$
+ * @version $Id: AsyncStateEvent.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public interface ChangesPublisher extends SynchronizationListener {
-
+public class AsyncStateEvent {
+  
+  private final List<Member> members;
+  
   /**
-   * Send changes to a given members. Start synchronization actually.
-   *
-   * @param subscribers - Replication members
+   * @return the members
    */
-  void sendChanges(List<Member> subscribers);
+  public List<Member> getMembers() {
+    return members;
+  }
+
+  public AsyncStateEvent(List<Member> members) {
+    this.members = members;
+  }
   
 }
