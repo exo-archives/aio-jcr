@@ -48,47 +48,21 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    */
   private static Log                        log                        = ExoLogger.getLogger("ext.AsyncInitializer");
 
-  private int                               state;
-
   private final int                         waitTimeout;
 
-  private final String                      ownName;
-  
   private final int                         ownPriority;
 
   /**
    * The list of names to other participants cluster.
    */
-  protected final List<String>              otherParticipants;
+  protected final List<Integer>             otherParticipantsPriority;
 
   private AsyncChannelManager               channelManager;
 
   /**
-   * The HashMap of participants who are now online.
-   */
-  private HashMap<String, MemberDescriptor> currentParticipants;
-  
-  /**
-   * The HashMap of participants who are now online.
-   */
-  private HashMap<String, MemberDescriptor> synchronizationMambers;
-  
-  /**
    * Listeners in order of addition.
    */
   protected final Set<SynchronizationListener> listeners = new LinkedHashSet<SynchronizationListener>();
-
-  private class MemberDescriptor {
-
-    private int memberPriority;
-
-    private int memberSate;
-
-    public MemberDescriptor(int memberPriority, int memberSate) {
-      this.memberPriority = memberPriority;
-      this.memberSate = memberSate;
-    }
-  }
 
   /**
    * AsyncInitializer constructor.
@@ -97,16 +71,14 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    *          TODO
    */
   AsyncInitializer(AsyncChannelManager channelManager,
-                   String ownName,
                    int priority,
+                   List<Integer> otherParticipantsPriority,
                    int waitTimeout,
-                   List<String> otherParticipants,
                    ChangesPublisher publisher) {
     this.channelManager = channelManager;
-    this.ownName = ownName;
     this.ownPriority = priority;
     this.waitTimeout = waitTimeout;
-    this.otherParticipants = otherParticipants;
+    this.otherParticipantsPriority = otherParticipantsPriority;
     this.channelManager.addPacketListener(this);
   }
   
@@ -123,18 +95,16 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * {@inheritDoc}
    */
   public void onStateChanged(AsyncStateEvent event) {
-    List<Member> newList = event.getMembers();
-    // TODO find who removed
-    // if member(s) disconnected and we are in changes exchange...
-//    if (true)
-//      for (SynchronizationListener syncl : listeners) { 
-//        syncl.onMembersDisconnected(new ArrayList<Member>()); //TODO
-//      }
+    List<Member> newList = new ArrayList<Member>();
+     
+      for (SynchronizationListener syncl : listeners)  
+        syncl.onMembersDisconnected(new ArrayList<Member>()); 
     
-    // Will be created threadWaiter   
+    // Will be created memberWaiter   
     if (event.getMembers().size() == 2 ) {
       if (true);
     }
+    
   }
 
   public void receive(AbstractPacket packet, Member srcAddress) throws Exception {

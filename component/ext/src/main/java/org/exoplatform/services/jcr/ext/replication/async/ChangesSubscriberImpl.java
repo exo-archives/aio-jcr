@@ -47,7 +47,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   /**
    * {@inheritDoc}
    */
-  public void onCancel() {
+  public void onCancel(Member member) {
     // TODO Auto-generated method stub
 
   }
@@ -55,7 +55,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   /**
    * {@inheritDoc}
    */
-  public void onDone() {
+  public void onDone(Member member) {
     // TODO Auto-generated method stub
 
   }
@@ -68,7 +68,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
     
   }
 
-  public void onStart() {
+  public void onStart(List<Member> members) {
     // nothing to do
   }
 

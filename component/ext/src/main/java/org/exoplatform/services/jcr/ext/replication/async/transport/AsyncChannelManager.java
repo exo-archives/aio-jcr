@@ -297,11 +297,10 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   public void viewAccepted(View view) {
     ArrayList<Member> members = new ArrayList<Member>();
     
-    //TODO
     for (Address address : view.getMembers()) 
       members.add(new Member(address));  
     
-    AsyncStateEvent event =  new AsyncStateEvent(members);
+    AsyncStateEvent event =  new AsyncStateEvent( new Member(channel.getLocalAddress()),members);
     
     for (AsyncStateListener listener: stateListeners) {
       listener.onStateChanged(event);

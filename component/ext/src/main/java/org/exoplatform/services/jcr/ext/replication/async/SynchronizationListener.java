@@ -38,7 +38,7 @@ public interface SynchronizationListener {
    * </ul>
    * 
    */
-  void onStart();
+  void onStart(List<Member> members);
   /**
    * On sycnhronization Done event action. <br/>
    * <ul>

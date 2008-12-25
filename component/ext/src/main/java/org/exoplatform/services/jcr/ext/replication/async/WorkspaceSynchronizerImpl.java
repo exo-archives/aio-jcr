@@ -174,7 +174,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
   /**
    * {@inheritDoc}
    */
-  public void onCancel() {
+  public void onCancel(Member member) {
     // TODO Auto-generated method stub
     
   }
@@ -182,7 +182,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
   /**
    * {@inheritDoc}
    */
-  public void onDone() {
+  public void onDone(Member member) {
     // TODO Auto-generated method stub
     
   }
@@ -195,7 +195,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
     // TODO Auto-generated method stub
   }
 
-  public void onStart() {
+  public void onStart(List<Member> member) {
     // TODO Auto-generated method stub
     
   }

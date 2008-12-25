@@ -30,6 +30,8 @@ public class AsyncStateEvent {
   
   private final List<Member> members;
   
+  private final Member localMember;
+  
   /**
    * @return the members
    */
@@ -37,8 +39,13 @@ public class AsyncStateEvent {
     return members;
   }
 
-  public AsyncStateEvent(List<Member> members) {
+  public AsyncStateEvent(Member localMember, List<Member> members) {
     this.members = members;
+    this.localMember = localMember;
+  }
+
+  public Member getLocalMember() {
+    return localMember;
   }
   
 }
