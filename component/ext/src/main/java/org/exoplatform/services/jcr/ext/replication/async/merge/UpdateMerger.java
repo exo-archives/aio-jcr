@@ -106,6 +106,20 @@ public class UpdateMerger implements ChangesMerger {
         case ItemState.DELETED:
           ItemState nextLocalState = local.getNextItemState(localState);
 
+          // RENAME
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
+            if (incomeData.isNode()
+                && (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null || income.getNextItemStateByUUIDOnUpdate(incomeState,
+                                                                                                                                                   nextLocalState.getData()
+                                                                                                                                                                 .getParentIdentifier()) != null)) {
+              return resultEmptyState;
+            } else if (!incomeData.isNode()
+                && incomeData.getParentIdentifier().equals(localData.getIdentifier())) {
+              return resultEmptyState;
+            }
+            break;
+          }
+
           // UPDATE
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
@@ -151,16 +165,13 @@ public class UpdateMerger implements ChangesMerger {
           }
           break;
         case ItemState.RENAMED:
-          // TODO
           break;
         case ItemState.MIXIN_CHANGED:
-          // TODO
           break;
         }
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          // TODO
           break;
         case ItemState.UPDATED:
           // TODO
