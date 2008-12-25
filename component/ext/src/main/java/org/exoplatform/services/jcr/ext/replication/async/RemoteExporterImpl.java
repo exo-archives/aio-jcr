@@ -29,7 +29,6 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ExportedItemStateIterator;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
