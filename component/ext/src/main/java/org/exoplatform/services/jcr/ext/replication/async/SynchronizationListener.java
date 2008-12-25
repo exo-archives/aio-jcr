@@ -47,8 +47,9 @@ public interface SynchronizationListener {
    * changes will be deleted after the merge will be done.</li>
    * </ul>
    * 
+   * @param member Member 
    */
-  void onDone();
+  void onDone(Member member);
 
   /**
    * On sycnhronization Cancel event action. <br/> operations.
@@ -58,8 +59,9 @@ public interface SynchronizationListener {
    * all income changes will be deleted.</li>
    * </ul>
    * 
+   * @param member Member 
    */
-  void onCancel();
+  void onCancel(Member member);
 
   /**
    * Fire memebers disconnected event.<br/>
