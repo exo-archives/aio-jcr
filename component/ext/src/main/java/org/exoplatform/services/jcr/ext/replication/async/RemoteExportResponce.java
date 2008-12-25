@@ -37,9 +37,14 @@ public class RemoteExportResponce {
   private final byte[]    buffer;
 
   private final long      offset;
+  
+  private final String    crc;
+  private final long      timeStamp;
 
-  RemoteExportResponce(int type, byte[] buffer, long offset) {
+  RemoteExportResponce(int type, String crc, long timeStamp, byte[] buffer, long offset) {
     this.type = type;
+    this.crc = crc;
+    this.timeStamp = timeStamp;
     this.buffer = buffer;
     this.offset = offset;
   }
@@ -48,6 +53,14 @@ public class RemoteExportResponce {
     return type;
   }
 
+  public String getCRC() {
+    return crc;
+  }
+  
+  public long getTimeStamp() {
+    return timeStamp;
+  }
+  
   public byte[] getBuffer() {
     return buffer;
   }

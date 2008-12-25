@@ -22,10 +22,10 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
-import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -75,10 +75,13 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
       onGetExport(packet, srcAddress);
       break;
-    case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
+    case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: 
+    {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
 
       RemoteExportResponce eventFirst = new RemoteExportResponce(RemoteExportResponce.FIRST,
+                                                                 exportPacket.getCRC(),
+                                                                 exportPacket.getTimeStamp(),
                                                                  exportPacket.getBuffer(),
                                                                  exportPacket.getOffset());
 
@@ -89,6 +92,8 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
 
       RemoteExportResponce eventMiddle = new RemoteExportResponce(RemoteExportResponce.MIDDLE,
+                                                                  exportPacket.getCRC(),
+                                                                  exportPacket.getTimeStamp(),
                                                                   exportPacket.getBuffer(),
                                                                   exportPacket.getOffset());
 
@@ -99,13 +104,22 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
 
       RemoteExportResponce eventLast = new RemoteExportResponce(RemoteExportResponce.LAST,
+                                                                exportPacket.getCRC(),
+                                                                exportPacket.getTimeStamp(),
                                                                 exportPacket.getBuffer(),
                                                                 exportPacket.getOffset());
-      ;
 
       remoteExportListener.onRemoteExport(eventLast);
     }
       break;
+    case AsyncPacketTypes.EXPORT_ERROR: {
+      ErrorPacket errorPacket = (ErrorPacket) packet;
+
+      RemoteExportError eventError = new RemoteExportError(errorPacket.getErrorMessage());
+      remoteExportListener.onRemoteError(eventError);
+    }
+      break;
+
     }
   }
 

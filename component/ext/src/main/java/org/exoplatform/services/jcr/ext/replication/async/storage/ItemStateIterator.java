@@ -16,39 +16,66 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date: 24.12.2008
  * 
- * <br/>Date: 24.12.2008
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ItemSatesiterator.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ItemStateIterator<T extends ItemState> implements Iterator<T> {
-  
-  private ChangesFile changesFile;
-  
+
+  private final ChangesFile changesFile;
+
+  private ItemState          prereadedItem;
+
+  private ObjectInputStream  in;
+
   public ItemStateIterator(ChangesFile changesFile) {
     this.changesFile = changesFile;
+
+    try{
+      this.in = new ObjectInputStream(changesFile.getDataStream());
+      this.prereadedItem = getItemState(in);
+    }catch(IOException e){
+      
+    }
   }
 
   public boolean hasNext() {
-    // TODO Auto-generated method stub
-    return false;
+    return prereadedItem != null;
   }
 
-  public T next() {
-    // TODO Auto-generated method stub
-    return null;
+  public T next() throws NoSuchElementException {
+    if (prereadedItem == null)
+      throw new NoSuchElementException();
+
+    ItemState retVal = prereadedItem;
+    prereadedItem = getItemState(in);
+   
+    return (T)retVal;
   }
 
   public void remove() {
     // TODO Auto-generated method stub
-    
+  }
+
+  protected ItemState getItemState(ObjectInputStream in){
+    ItemState elem=null;
+    try{
+      elem = (ItemState) in.readObject();
+    }catch(ClassNotFoundException e){
+      //TODO 
+    }catch(IOException e){
+      //
+    }
+    return elem;
   }
 
 }

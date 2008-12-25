@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,8 +121,16 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
     File chLogFile;
 
     try {
-      chLogFile = File.createTempFile("chLog", "suf");
-      ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+      chLogFile = File.createTempFile(ChangesFile.PREFIX, ChangesFile.SUFIX);
+      MessageDigest digest;
+      try{
+        digest = MessageDigest.getInstance("MD5");
+      }catch(NoSuchAlgorithmException e){
+        throw new RepositoryException(e);
+      }
+      
+      DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(chLogFile),digest); 
+      ObjectOutputStream out = new ObjectOutputStream(dout);
 
       // extract ItemStates
       ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
@@ -128,14 +139,12 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
                                                                  dataManager);
       exportedNode.accept(exporter);
       out.close();
-
+      
+      String crc = new String(digest.digest(), Constants.DEFAULT_ENCODING);
+      return new ChangesFile(chLogFile, crc, System.currentTimeMillis());
     } catch (IOException e) {
       throw new RepositoryException(e);
     }
-
-    // TODO make correct ChangesLogFile creation
-    
-    return new ChangesFile(chLogFile, "TODO", System.currentTimeMillis());
   }
 
   /**

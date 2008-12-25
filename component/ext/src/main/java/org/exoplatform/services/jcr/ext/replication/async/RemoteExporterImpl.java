@@ -16,9 +16,10 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.concurrent.CountDownLatch;
 
@@ -27,12 +28,11 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStateIterator;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 11.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 11.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -40,24 +40,30 @@ import org.exoplatform.services.log.ExoLogger;
 public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
   /**
-   * log. the apache logger.
+   * Logger.
    */
-  private static Log               log = ExoLogger.getLogger("ext.RemoteExporterImpl");
+  private static Log               log         = ExoLogger.getLogger("ext.RemoteExporterImpl");
 
   protected final AsyncTransmitter transmitter;
 
   protected final AsyncReceiver    receiver;
 
   /**
-   * Member address. Mutable value. Will be changed by Merge manager on each memebers pair merge.
+   * Member address. Mutable value. Will be changed by Merge manager on each
+   * members pair merge.
    */
   protected Member                 memberAddress;
 
-  private File                     storageFile;
+  /**
+   * Changes file.
+   */
+  private ChangesFile              changesFile = null;
 
   private CountDownLatch           latch;
 
-  private RandomAccessFile         rendomAccessStorageFile;
+  // private RandomAccessFile rendomAccessStorageFile;
+
+  private IOException              exception   = null;
 
   RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
     this.transmitter = transmitter;
@@ -73,22 +79,43 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
     // send request
     transmitter.sendGetExport(nodetId, memberAddress);
-    
+
+    // ChangesFile changesFile = new ChangesFile("TODO", 0);
+
     latch = new CountDownLatch(1);
     try {
-       latch.wait();
+      latch.wait();
     } catch (InterruptedException e) {
-      //TODO
+      // TODO
     }
 
     receiver.removeRemoteExportListener();
 
-    // TODO make checksum
-    ChangesFile changesFile = new ChangesFile(storageFile, "TODO", 0);
+    // Throw internal exceptions
+    if (exception != null)
+      throw exception;
 
-    ItemStateIterator<ItemState> satesIterator = new ItemStateIterator<ItemState>(changesFile);
+    // check checksums
+    try {
+      DigestInputStream dis = new DigestInputStream(changesFile.getDataStream(),
+                                                    MessageDigest.getInstance("MD5"));
+      byte[] buf = new byte[1024];
+      int len;
+      while ((len = dis.read(buf)) > 0) {
+      }
 
-    return satesIterator;
+      if (!MessageDigest.isEqual(dis.getMessageDigest().digest(),
+                                 changesFile.getChecksum().getBytes(Constants.DEFAULT_ENCODING))) {
+        // TODO throw Error
+      }
+    } catch (NoSuchAlgorithmException e) {
+      // TODO handle exception!
+    }
+
+    // return Iterator based on ChangesFile
+    ItemStateIterator<ItemState> statesIterator = new ItemStateIterator<ItemState>(changesFile);
+
+    return statesIterator;
   }
 
   /**
@@ -105,29 +132,25 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     try {
       switch (event.getType()) {
       case RemoteExportResponce.FIRST:
-        storageFile = File.createTempFile("romoteExport", "tmp");
-        rendomAccessStorageFile = new RandomAccessFile(storageFile, "w");
-
-        rendomAccessStorageFile.write(event.getBuffer(),
-                                      (int) event.getOffset(),
-                                      event.getBuffer().length);
+        initChangesFile(event.getCRC(), event.getTimeStamp());
+        changesFile.writeData(event.getBuffer(), event.getOffset());
         break;
 
       case RemoteExportResponce.MIDDLE:
-        rendomAccessStorageFile.write(event.getBuffer(),
-                                      (int) event.getOffset(),
-                                      event.getBuffer().length);
+        initChangesFile(event.getCRC(), event.getTimeStamp());
+        changesFile.writeData(event.getBuffer(), event.getOffset());
         break;
 
       case RemoteExportResponce.LAST:
-        rendomAccessStorageFile.close();
+        if (changesFile != null)
+          changesFile.finishWrite();
         latch.countDown();
         break;
-
       }
     } catch (IOException e) {
-      // TODO
       log.error("Cannot save export changes", e);
+      exception = e;
+      latch.countDown();
     }
   }
 
@@ -135,9 +158,19 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
    * {@inheritDoc}
    */
   public void onRemoteError(RemoteExportError event) {
-    // TODO
-    // - delete export file
-    // - stop waiting in exportItem() method
+
+    // TODO delete ChangesFile
+
+    // log exception
+    exception = new IOException(event.getErrorMessage());
+    latch.countDown();
+
+  }
+
+  private void initChangesFile(String crc, long timeStamp) throws IOException {
+    if (this.changesFile == null) {
+      changesFile = new ChangesFile(crc, timeStamp);
+    }
   }
 
 }

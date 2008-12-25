@@ -32,8 +32,10 @@ import java.io.RandomAccessFile;
  */
 public class ChangesFile {
   
-  private static final String PREFIX = "ChangesFile"; 
+  public static final String PREFIX = "ChangesFile"; 
 
+  public static final String SUFIX = "SUFIX"; 
+  
   /**
    * Check sum to file.
    */
@@ -55,12 +57,11 @@ public class ChangesFile {
    * @param timeStamp
    */
   public ChangesFile(String crc, long timeStamp) throws IOException{
-    //this.path = null;
     this.crc = crc;
     this.timeStamp = timeStamp;
     
     //create temporary file
-    file = File.createTempFile(PREFIX, crc);
+    file = File.createTempFile(PREFIX, SUFIX);
   }
   
   /**
@@ -71,12 +72,11 @@ public class ChangesFile {
    * @param directory path to directory
    */
   public ChangesFile(String crc, long timeStamp, String directory) throws IOException{
-    //this.path = null;
     this.crc = crc;
     this.timeStamp = timeStamp;
     
     //create file in directory
-    file = File.createTempFile(PREFIX, crc, new File(directory));
+    file = File.createTempFile(PREFIX, SUFIX, new File(directory));
   }
   
   /**
@@ -88,11 +88,8 @@ public class ChangesFile {
    * @throws IOException
    */
   public ChangesFile(File file, String crc, long timeStamp){
-    
     this.crc = crc;
     this.timeStamp = timeStamp;
-    
-    //create file in directory
     this.file = file;
   }
   
@@ -151,6 +148,7 @@ public class ChangesFile {
     if (fileAccessor!=null){
       // close writer
       fileAccessor.close();
+      fileAccessor = null;
     }
   }
   

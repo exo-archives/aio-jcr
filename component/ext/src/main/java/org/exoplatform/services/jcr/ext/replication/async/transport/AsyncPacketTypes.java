@@ -132,4 +132,6 @@ public final class AsyncPacketTypes {
    *   the pocket type to done synchronization
    */
   public static final int SYNCHRONIZATION_DONE                 = 18;
+  
+  public static final int EXPORT_ERROR                         = 19;
 }
