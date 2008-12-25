@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Iterator;
@@ -72,8 +73,11 @@ public class ItemStateIterator<T extends ItemState> implements Iterator<T> {
       elem = (ItemState) in.readObject();
     }catch(ClassNotFoundException e){
       //TODO 
+    }catch(EOFException e){
+      // End of list
+      elem = null;
     }catch(IOException e){
-      //
+      //TODO 
     }
     return elem;
   }
