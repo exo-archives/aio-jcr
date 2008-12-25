@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.jgroups.Address;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 
 
@@ -45,7 +45,7 @@ public interface RemoteExporter {
    *
    * @param remotePriority int
    */
-  void setMemberAddress(Address address);
+  void setMemberAddress(Member address);
   
   /**
    * Exports remote item and return chnages log with ADD states.

@@ -19,7 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.util.List;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.jgroups.Address;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -37,7 +37,7 @@ public interface AsyncTransmitter {
    * @param changes
    * @param subscribers
    */
-  void sendChanges(List<ChangesFile> changes, List<Address> subscribers);
+  void sendChanges(List<ChangesFile> changes, List<Member> subscribers);
   
   /**
    * Send Get Export request.
@@ -45,16 +45,16 @@ public interface AsyncTransmitter {
    * @param nodeId
    * @param address
    */
-  void sendGetExport(String nodeId, Address address);
+  void sendGetExport(String nodeId, Member address);
    
   /**
-   * Send export reult.
+   * Send export response.
    *
    * @param changes
    * @param address
    */
-  void sendExport(ChangesFile changes, Address address);
+  void sendExport(ChangesFile changes, Member address);
   
-  void sendError(String error, Address address);
+  void sendError(String error, Member address);
   
 }

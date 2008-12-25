@@ -227,11 +227,14 @@ public class AsyncChannelManager implements RequestHandler {
    * @throws Exception
    *           will be generated Exception
    */
-  public void sendPacket(AbstractPacket packet, List<Address> destinationAddresses) throws IOException {
+  public void sendPacket(AbstractPacket packet, List<Member> destinationAddresses) throws IOException {
     byte[] buffer = PacketTransformer.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    Vector<Address> destAddresses = (destinationAddresses == null ? null : new Vector<Address>(destinationAddresses));
+    
+    Vector<Address> destAddresses = null;
+    for (Member address : destinationAddresses) 
+      destAddresses.add(address.getAddress());   
 
     dispatcher.castMessage(destAddresses, msg, GroupRequest.GET_NONE, 0);
   }
@@ -246,11 +249,12 @@ public class AsyncChannelManager implements RequestHandler {
   * @throws Exception
   *           will be generated Exception
   */
- /*public void sendPacket(AbstractPacket packet, Address destinationAddress) throws IOException {
-   byte[] buffer = PacketTransformer.getAsByteArray(packet);
-
-   dispatcher.secastMessage(destAddresses, msg, GroupRequest.GET_NONE, 0);
- }*/
+  public void sendPacket(AbstractPacket packet,  Member destinationAddress) throws IOException {
+    List<Member> dest = new ArrayList<Member>();
+    dest.add(destinationAddress);
+    
+    sendPacket(packet, dest);
+  }
   
   /**
    * sendPacket.
@@ -261,7 +265,7 @@ public class AsyncChannelManager implements RequestHandler {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {
-    sendPacket(packet, null);
+    sendPacket(packet, new ArrayList<Member>());
   }
 
   /**
@@ -279,9 +283,10 @@ public class AsyncChannelManager implements RequestHandler {
   public Object handle(Message message) {
     try {
       AbstractPacket packet = PacketTransformer.getAsPacket(message.getBuffer());
+      Member member = new Member(message.getSrc());
 
       for (AsyncPacketListener handler : packetListeners) {
-        handler.receive(packet, message.getSrc());
+        handler.receive(packet, member);
       }
 
     } catch (Exception e) {

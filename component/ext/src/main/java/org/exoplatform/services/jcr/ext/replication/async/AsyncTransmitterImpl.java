@@ -25,11 +25,13 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
-import org.exoplatform.services.jcr.ext.replication.async.transport.*;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
@@ -59,7 +61,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(List<ChangesFile> changes, List<Address> subscribers) {
+  public void sendChanges(List<ChangesFile> changes, List<Member> subscribers) {
     // TODO Auto-generated method stub
 
   }
@@ -67,11 +69,11 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendGetExport(String nodeId, Address adress) {
+  public void sendGetExport(String nodeId, Member address) {
     GetExportPacket packet = new GetExportPacket(nodeId);
     
     try {
-      channel.sendPacket(packet, new ArrayList<Address>());
+      channel.sendPacket(packet, address);
     } catch (IOException e) {
       //TODO need send error message to destAddress
       log.error("Cannot send export data", e);
@@ -84,7 +86,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws IOException
    */
 
-  public void sendExport(ChangesFile changes, Address destAddress) {
+  public void sendExport(ChangesFile changes, Member destAddress) {
     try {
       sendExportChangesLogFile(destAddress,
                      changes,
@@ -98,7 +100,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendError(String error, Address destaddress) {
+  public void sendError(String error, Member destaddress) {
     // TODO
   }
 
@@ -142,7 +144,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param lastPocketType the packet type for last packet
    * @throws Exception will be generated the Exception
    */
-  protected void sendChangesLogFile(Address destinationAddress,
+  protected void sendChangesLogFile(Member destinationAddress,
                              ChangesFile clFile,
                              int transmitterPriority,
                              String nodeId,
@@ -150,7 +152,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                              int firstPacketType,
                              int middlePocketType,
                              int lastPocketType) throws IOException {
-    List<Address> destinationAddresses = new ArrayList<Address>();
+    List<Member> destinationAddresses = new ArrayList<Member>();
     destinationAddresses.add(destinationAddress);
 
     sendChangesLogFile(destinationAddresses,
@@ -159,7 +161,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                    totalFiles);
   }
   
-  protected void sendChangesLogFile(List<Address> destinationAddresses,
+  protected void sendChangesLogFile(List<Member> destinationAddresses,
                      ChangesFile clFile,
                      int transmitterPriority,
                      int totalFiles)throws IOException {
@@ -244,13 +246,13 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param totalFiles
    * @throws IOException
    */
-  protected void sendExportChangesLogFile(Address destinationAddress,
+  protected void sendExportChangesLogFile(Member destinationAddress,
                              ChangesFile clFile,
                              int totalFiles) throws IOException {
     if (log.isDebugEnabled())
       log.debug("Begin send : " + clFile.getName());
     
-    List<Address> destinationAddresses = new ArrayList<Address>();
+    List<Member> destinationAddresses = new ArrayList<Member>();
     destinationAddresses.add(destinationAddress);
 
     File f = new File(clFile.getName());

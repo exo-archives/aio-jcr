@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.List;
 
-import org.jgroups.Address;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 
 /**
@@ -36,6 +36,6 @@ public interface ChangesPublisher extends SynchronizationListener {
    *
    * @param subscribers - Replication members
    */
-  void sendChanges(List<Address> subscribers);
+  void sendChanges(List<Member> subscribers);
   
 }

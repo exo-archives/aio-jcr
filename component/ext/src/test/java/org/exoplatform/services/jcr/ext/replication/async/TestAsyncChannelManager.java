@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketL
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.jgroups.Address;
 import org.jgroups.stack.IpAddress;
 
@@ -90,7 +91,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
         return list;
       }
 
-      public void receive(AbstractPacket packet, Address sourceAddress) throws Exception {
+      public void receive(AbstractPacket packet, Member sourceAddress) throws Exception {
         assertNotNull(packet);
         list.add(packet);
         if (packet.getType() == AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET) {
@@ -107,7 +108,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     tchannel.init();
     tchannel.connect();
 
-    Address adr = new IpAddress("127.0.0.1",7800);
+    Member adr = new Member (new IpAddress("127.0.0.1",7800));
     
     File file  = createBLOBTempFile("mytest", filesize);
     ChangesFile changes = new ChangesFile(file.getPath(),"crc",System.currentTimeMillis());
@@ -160,7 +161,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
         return list;
       }
 
-      public void receive(AbstractPacket packet, Address sourceAddress) throws Exception {
+      public void receive(AbstractPacket packet, Member sourceAddress) throws Exception {
         assertNotNull(packet);
         list.add(packet);
         isTested = true;

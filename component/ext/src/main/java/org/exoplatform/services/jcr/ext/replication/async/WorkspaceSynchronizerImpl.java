@@ -34,8 +34,8 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
@@ -153,7 +153,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(List<Address> subscribers) {
+  public void sendChanges(List<Member> subscribers) {
     
     List<ChangesFile> changes = new ArrayList<ChangesFile>();
     // TODO fill list

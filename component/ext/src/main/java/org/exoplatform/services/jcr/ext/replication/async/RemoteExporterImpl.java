@@ -23,9 +23,9 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStateIterator;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 
@@ -51,7 +51,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each memebers pair merge.
    */
-  protected Address                memberAddress;
+  protected Member                memberAddress;
 
   private File                     storageFile;
 
@@ -73,6 +73,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     transmitter.sendGetExport(nodetId, memberAddress);
 
     // TODO lock and wait for responce, error or timeout
+    
     receiver.removeRemoteExportListener();
     
     ChangesFile changesFile = new ChangesFile(storageFile.getCanonicalPath(), "TODO", 0);
@@ -85,7 +86,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * {@inheritDoc}
    */
-  public void setMemberAddress(Address address) {
+  public void setMemberAddress(Member address) {
     memberAddress = address;
   }
 

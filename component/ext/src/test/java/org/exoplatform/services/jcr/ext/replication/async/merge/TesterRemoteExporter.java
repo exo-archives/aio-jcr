@@ -24,7 +24,7 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.jgroups.Address;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -68,7 +68,7 @@ public class TesterRemoteExporter implements RemoteExporter {
     // dummy
   }
 
-  public void setMemberAddress(Address address) {
+  public void setMemberAddress(Member address) {
     // TODO Auto-generated method stub
     
   }

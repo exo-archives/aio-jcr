@@ -21,13 +21,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CannotInitilizeConnectionsException;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
-import org.jgroups.Address;
 
 /**
  * Created by The eXo Platform SAS.
@@ -142,7 +141,7 @@ public class AsyncInitializer implements AsyncPacketListener {
     this.channelManager.addPacketListener(this);
   }
 
-  public void receive(AbstractPacket packet, Address srcAddress) throws Exception {
+  public void receive(AbstractPacket packet, Member srcAddress) throws Exception {
     /*switch (packet.getType()) {
     case AsyncPacketTypes.GET_STATE_NODE:
       AsyncPacket stateNodePacket = new AsyncPacket(AsyncPacketTypes.STATE_NODE,
