@@ -37,7 +37,11 @@ public class RemoteExportException extends Exception {
     super(ioError);
   }
   
-  RemoteExportException(NoSuchAlgorithmException ioError) {
-    super(ioError);
+  RemoteExportException(NoSuchAlgorithmException error) {
+    super(error);
+  }
+  
+  RemoteExportException(InterruptedException error) {
+    super(error);
   }
 }

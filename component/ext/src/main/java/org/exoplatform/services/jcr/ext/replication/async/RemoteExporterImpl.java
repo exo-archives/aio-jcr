@@ -85,12 +85,16 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     try {
       latch.wait();
     } catch (InterruptedException e) {
-      // TODO
+      throw new RemoteExportException(e);
     } finally {
       receiver.removeRemoteExportListener();
       // Throw internal exceptions
       if (exception != null)
-        throw exception;
+        try {
+          throw exception;
+        } finally {
+          exception = null;
+        }
     }
 
     // check checksums
@@ -151,7 +155,6 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     } catch (IOException e) {
       log.error("Cannot save export changes", e);
       exception = new RemoteExportException(e);
-      receiver.removeRemoteExportListener();
       latch.countDown();
     }
   }
