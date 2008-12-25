@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ItemSatesIterator;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStateIterator;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 
@@ -77,7 +77,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     
     ChangesFile changesFile = new ChangesFile(storageFile.getCanonicalPath(), "TODO", 0);
     
-    ItemSatesIterator<ItemState> satesIterator = new ItemSatesIterator<ItemState>(changesFile);
+    ItemStateIterator<ItemState> satesIterator = new ItemStateIterator<ItemState>(changesFile);
     
     return satesIterator; 
   }

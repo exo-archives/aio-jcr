@@ -28,11 +28,11 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
  * @version $Id: ItemSatesiterator.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class ItemSatesIterator<T extends ItemState> implements Iterator<T> {
+public class ItemStateIterator<T extends ItemState> implements Iterator<T> {
   
   private ChangesFile changesFile;
   
-  public ItemSatesIterator(ChangesFile changesFile) {
+  public ItemStateIterator(ChangesFile changesFile) {
     this.changesFile = changesFile;
   }
 
