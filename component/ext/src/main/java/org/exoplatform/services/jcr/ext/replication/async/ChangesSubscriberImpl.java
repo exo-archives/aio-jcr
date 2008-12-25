@@ -42,7 +42,6 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
 
   public void onChanges(ChangesPacket packet) {
     // TODO
-
   }
 
   /**
@@ -65,6 +64,11 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
    * {@inheritDoc}
    */
   public void onMembersDisconnected(List<Member> member) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void onStart() {
     // TODO Auto-generated method stub
     
   }

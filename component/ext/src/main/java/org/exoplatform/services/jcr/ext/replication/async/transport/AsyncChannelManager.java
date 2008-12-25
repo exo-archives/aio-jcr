@@ -79,26 +79,11 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   private final String         channelName;
 
   /**
-   * membershipListener. The listener to JChannel when channel-state changed.
-   */
-  private MembershipListener   membershipListener;
-
-  /**
-   * messageListener. The listener for Messages.
-   */
-  private MessageListener      messageListener;
-
-  /**
    * packetListeners. The packet listeners.
    */
   private List<AsyncPacketListener> packetListeners;
   
   private List<AsyncStateListener> stateListeners;
-
-  /**
-   * channelListener. The listener to JChannel when channel-state changed.
-   */
-  private ChannelListener      channelListener;
 
   /**
    * ChannelManager constructor.
@@ -131,16 +116,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
         dispatcher = new MessageDispatcher(channel, null, null, null);
 
-        if (channelListener != null)
-          channel.addChannelListener(channelListener);
-
-        if (membershipListener != null)
-          dispatcher.setMembershipListener(membershipListener);
-
-        if (messageListener != null)
-          dispatcher.setMessageListener(messageListener);
-
         dispatcher.setRequestHandler(this);
+        dispatcher.setMembershipListener(this);
       }
     } catch (ChannelException e) {
       throw new ReplicationException("Can't create JGroups channel", e);
@@ -172,36 +149,6 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     channel = null;
   }
 
-//  /**
-//   * setMembershipListener.
-//   * 
-//   * @param membershipListener
-//   *          set the MembershipListener
-//   */
-//  public void setMembershipListener(MembershipListener membershipListener) {
-//    this.membershipListener = membershipListener;
-//  }
-
-//  /**
-//   * setMessageListener.
-//   * 
-//   * @param messageListener
-//   *          set the MessageListener
-//   */
-//  public void setMessageListener(MessageListener messageListener) {
-//    this.messageListener = messageListener;
-//  }
-
-//  /**
-//   * setChannelListener.
-//   * 
-//   * @param channelListener
-//   *          set the ChannelListener
-//   */
-//  public void setChannelListener(ChannelListener channelListener) {
-//    this.channelListener = channelListener;
-//  }
-  
   /**
    * addPacketListener.
    * 
@@ -348,10 +295,13 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * {@inheritDoc}
    */
   public void viewAccepted(View view) {
-    // TODO Auto-generated method stub
+    ArrayList<Member> members = new ArrayList<Member>();
     
-    AsyncStateEvent event = null;
-    // TODO new AsyncStateEvent( new ArrayList<Member>(view.getMembers()));
+    //TODO
+    for (Address address : view.getMembers()) 
+      members.add(new Member(address));  
+    
+    AsyncStateEvent event =  new AsyncStateEvent(members);
     
     for (AsyncStateListener listener: stateListeners) {
       listener.onStateChanged(event);
@@ -359,7 +309,5 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   }
   
   // *****************************************
-  
-  
   
 }

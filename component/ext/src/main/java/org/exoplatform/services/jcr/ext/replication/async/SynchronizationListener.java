@@ -31,6 +31,15 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 public interface SynchronizationListener {
 
   /**
+   * On sycnhronization Start event action. <br/> operations.
+   * <ul>
+   * <li>Publisher will send changes.</li>
+   * <li>Subscriber will skip this event.</li>
+   * </ul>
+   * 
+   */
+  void onStart();
+  /**
    * On sycnhronization Done event action. <br/>
    * <ul>
    * <li>Publisher will not send more changes.</li>

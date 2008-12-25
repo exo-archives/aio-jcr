@@ -185,5 +185,10 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
   public void onMembersDisconnected(List<Member> member) {
     // TODO Auto-generated method stub
   }
+
+  public void onStart() {
+    // TODO Auto-generated method stub
+    
+  }
   
 }
