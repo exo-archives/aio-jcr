@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -42,15 +43,18 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
 import org.picocontainer.Startable;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 10.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class AsyncReplication implements Startable {
 
+  /**
+   * The template for ip-address in configuration.
+   */
+  private static final String IP_ADRESS_TEMPLATE    = "[$]bind-ip-address";
+  
   protected final RepositoryService   repoService;
 
   protected final AsyncChannelManager channel;
@@ -59,13 +63,25 @@ public class AsyncReplication implements Startable {
 
   protected final LocalStorage        localStorage;
 
-  protected final int                 priority;
+  protected int                 priority;
 
   protected final List<Integer>       otherParticipantsPriority;
 
   protected Set<AsyncWorker>          currentWorkers;
 
   protected ManageableRepository      repository;
+
+  protected String                    bindIPAddress;
+
+  protected String                    channelConfig;
+
+  protected String                    channelName;
+
+  protected int                       waitAllMembersTimeout;
+
+  protected String                    incomStoragePath;
+
+  protected String                    localStoragePath;
 
   class AsyncWorker extends Thread {
     protected final AsyncInitializer          initializer;
@@ -78,8 +94,8 @@ public class AsyncReplication implements Startable {
 
     protected final AsyncReceiver             receiver;
 
-    protected final RemoteExporter exporter;
-    
+    protected final RemoteExporter            exporter;
+
     protected final MergeDataManager          mergeManager;
 
     protected final DataManager               dataManager;
@@ -102,11 +118,15 @@ public class AsyncReplication implements Startable {
                                                 localPriority);
 
       receiver = new AsyncReceiverImpl(channel, publisher);
-      
-      exporter = new RemoteExporterImpl(transmitter, receiver); 
-      
-      mergeManager = new MergeDataManager(publisher, exporter, dataManager, ntManager, localPriority);
-      
+
+      exporter = new RemoteExporterImpl(transmitter, receiver);
+
+      mergeManager = new MergeDataManager(publisher,
+                                          exporter,
+                                          dataManager,
+                                          ntManager,
+                                          localPriority);
+
       subscriber = new ChangesSubscriberImpl(mergeManager);
 
       // TODO to inform about merge DONE process
@@ -114,11 +134,7 @@ public class AsyncReplication implements Startable {
       mergeManager.addSynchronizationListener(subscriber);
 
       int waitTimeout = 1000; // TODO
-      initializer = new AsyncInitializer(channel,
-                                         priority,
-                                         otherParticipantsPriority,
-                                         waitTimeout,
-                                         publisher);
+      initializer = new AsyncInitializer(channel, priority, otherParticipantsPriority, waitTimeout);
       initializer.addSynchronizationListener(publisher);
       initializer.addSynchronizationListener(subscriber);
     }
@@ -149,7 +165,7 @@ public class AsyncReplication implements Startable {
 
     this.repoService = repoService;
 
-    // TODO params to a local var(s)
+    readParameters(params);
 
     // TODO restore previous state if it's restart
     // handle local restoration or cleanups of unfinished or breaked work
@@ -159,22 +175,14 @@ public class AsyncReplication implements Startable {
     this.priority = -1; // TODO
     this.otherParticipantsPriority = new ArrayList<Integer>(); // TODO
 
-    String channelConfig = null; // TODO
-    String channelName = null; // TODO
     this.channel = new AsyncChannelManager(channelConfig, channelName);
-
-    String incomeStoragePath = null; // TODO
-    this.incomeStorage = new IncomeStorageImpl(incomeStoragePath);
-
-    String localStoragePath = null; // TODO
+    this.incomeStorage = new IncomeStorageImpl(incomStoragePath);
     this.localStorage = new LocalStorageImpl(localStoragePath);
-
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
   }
 
   /**
    * Initializer.
-   * 
    */
   private void init() {
     // TODO add listeners to a Repository Workspaces
@@ -182,8 +190,8 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process. Process will use the service configuration.
-   * 
+   * Initialize synchronization process. Process will use the service
+   * configuration.
    */
   public void synchronize() {
 
@@ -225,4 +233,20 @@ public class AsyncReplication implements Startable {
   public void stop() {
     // TODO stop after the JCR Repo stopped
   }
+
+  protected void readParameters(InitParams initParams) {
+    PropertiesParam pps = initParams.getPropertiesParam("replication-properties");
+
+    // initialize replication parameters;
+    priority = Integer.parseInt(pps.getProperty("priority"));
+    bindIPAddress = pps.getProperty("bind-ip-address");
+    channelConfig = pps.getProperty("channel-config");
+    channelConfig = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
+    
+    channelName = pps.getProperty("channel-name");
+    waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
+    incomStoragePath = pps.getProperty("incom-storage-dir");
+    localStoragePath = pps.getProperty("local-storage-dir");
+  }
+  
 }

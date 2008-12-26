@@ -81,8 +81,6 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     // send request
     transmitter.sendGetExport(nodetId, member);
 
-    // ChangesFile changesFile = new ChangesFile("TODO", 0);
-
     latch = new CountDownLatch(1);
     try {
       latch.wait();

@@ -83,15 +83,12 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   AsyncInitializer(AsyncChannelManager channelManager,
                    int priority,
                    List<Integer> otherParticipantsPriority,
-                   int memberWaitTimeout,
-                   ChangesPublisher publisher) {
+                   int memberWaitTimeout) {
     this.channelManager = channelManager;
     this.ownPriority = priority;
     this.memberWaitTimeout = memberWaitTimeout;
     this.otherParticipantsPriority = otherParticipantsPriority;
     this.channelManager.addPacketListener(this);
-
-    this.listeners.add(publisher);
   }
 
   public void addSynchronizationListener(SynchronizationListener listener) {
