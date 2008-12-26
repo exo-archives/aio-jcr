@@ -48,7 +48,6 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, ChangesPublisher, RemoteExportServer {
 
-  protected final AsyncInitializer    asyncManager;
 
   protected final AsyncTransmitter    transmitter;
 
@@ -60,13 +59,12 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
 
   protected final boolean             localPriority;
 
-  public WorkspaceSynchronizerImpl(AsyncInitializer asyncManager,
+  public WorkspaceSynchronizerImpl(
                                AsyncTransmitter transmitter,
                                LocalStorage storage,
                                DataManager dataManager,
                                NodeTypeDataManager ntManager,
                                boolean localPriority) {
-    this.asyncManager = asyncManager;
     this.transmitter = transmitter;
     this.storage = storage;
     this.dataManager = dataManager;
