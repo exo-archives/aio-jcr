@@ -105,7 +105,7 @@ public class AsyncReplication implements Startable {
       
       exporter = new RemoteExporterImpl(transmitter, receiver); 
       
-      mergeManager = new MergeDataManager(exporter, dataManager, ntManager, localPriority);
+      mergeManager = new MergeDataManager(publisher, exporter, dataManager, ntManager, localPriority);
       
       subscriber = new ChangesSubscriberImpl(mergeManager);
 

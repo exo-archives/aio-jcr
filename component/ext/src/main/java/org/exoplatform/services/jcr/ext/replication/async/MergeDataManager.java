@@ -39,6 +39,8 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesSequ
  */
 public class MergeDataManager {
 
+  protected final WorkspaceSynchronizer workspace;
+  
   protected final RemoteExporter               exporter;
 
   protected final AddMerger                    addMerger;
@@ -71,13 +73,22 @@ public class MergeDataManager {
      */
     private void doMerge() {
 
+      ChangesStorage synchronizedChanges = null;
+      
       while (membersChanges.hasNext() && !isInterrupted()) {
         ChangesStorage member = membersChanges.next();
         ItemStatesSequence<ItemState> changes = member.getChanges();
         while (changes.hasNext() && !isInterrupted()) {
           ItemState incomeChange = changes.next();
-          // TODO
+          // TODO merge to synchronizedChanges
         }
+      }
+      
+      if (!isInterrupted()) { // if success
+        workspace.save(synchronizedChanges);
+        for (SynchronizationListener syncl : listeners)
+          // inform all interested
+          syncl.onDone(null); // TODO local done - null
       }
     }
 
@@ -91,10 +102,14 @@ public class MergeDataManager {
 
   }
 
-  MergeDataManager(RemoteExporter exporter,
+  MergeDataManager(WorkspaceSynchronizer workspace, 
+                   RemoteExporter exporter,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager,
                    boolean localPriority) {
+    
+    this.workspace = workspace;
+    
     this.exporter = exporter;
 
     this.dataManager = dataManager;
