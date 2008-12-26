@@ -25,7 +25,6 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesSequence;
 
 /**
  * Created by The eXo Platform SAS.
@@ -77,7 +76,7 @@ public class MergeDataManager {
       
       while (membersChanges.hasNext() && !isInterrupted()) {
         ChangesStorage member = membersChanges.next();
-        ItemStatesSequence<ItemState> changes = member.getChanges();
+        Iterator<ItemState> changes = member.getChanges();
         while (changes.hasNext() && !isInterrupted()) {
           ItemState incomeChange = changes.next();
           // TODO merge to synchronizedChanges

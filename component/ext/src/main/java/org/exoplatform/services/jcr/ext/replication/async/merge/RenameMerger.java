@@ -25,7 +25,6 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -33,6 +32,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -73,8 +73,8 @@ public class RenameMerger implements ChangesMerger {
    * {@inheritDoc}
    */
   public List<ItemState> merge(ItemState itemChange,
-                               TransactionChangesLog income,
-                               TransactionChangesLog local) throws RemoteExportException {
+                               ChangesStorage income,
+                               ChangesStorage local) throws RemoteExportException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
@@ -84,7 +84,8 @@ public class RenameMerger implements ChangesMerger {
     List<ItemState> resultEmptyState = new ArrayList<ItemState>();
     List<ItemState> resultState = new ArrayList<ItemState>();
 
-    for (ItemState localState : local.getAllStates()) {
+    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+      ItemState localState = liter.next();
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
 
@@ -159,14 +160,14 @@ public class RenameMerger implements ChangesMerger {
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
             for (int i = itemsArray.length - 1; i >= 0; i--) {
-              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+              if (local.findLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(itemsArray[i].getData(),
                                               ItemState.DELETED,
                                               itemsArray[i].isEventFire(),
                                               itemsArray[i].getData().getQPath()));
               }
             }
-            if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
+            if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
                                             localState.isEventFire(),
@@ -259,7 +260,7 @@ public class RenameMerger implements ChangesMerger {
               }
 
               resultState.add(nextIncomeState);
-              if (local.getLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
+              if (local.findLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextLocalState.getData(),
                                               ItemState.DELETED,
                                               nextLocalState.isEventFire(),
@@ -275,7 +276,7 @@ public class RenameMerger implements ChangesMerger {
               }
 
               // delete renamed node
-              if (local.getLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
+              if (local.findLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextLocalState.getData(),
                                               ItemState.DELETED,
                                               nextLocalState.isEventFire(),

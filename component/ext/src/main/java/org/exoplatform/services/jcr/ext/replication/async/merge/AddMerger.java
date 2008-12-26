@@ -27,7 +27,6 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -38,6 +37,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -80,8 +80,8 @@ public class AddMerger implements ChangesMerger {
    * @throws RepositoryException
    */
   public List<ItemState> merge(ItemState itemChange,
-                               TransactionChangesLog income,
-                               TransactionChangesLog local) throws RepositoryException,
+                               ChangesStorage income,
+                               ChangesStorage local) throws RepositoryException,
                                                            RemoteExportException {
 
     boolean itemChangeProcessed = false;
@@ -90,7 +90,8 @@ public class AddMerger implements ChangesMerger {
     List<ItemState> resultEmptyState = new ArrayList<ItemState>();
     List<ItemState> resultState = new ArrayList<ItemState>();
 
-    for (ItemState localState : local.getAllStates()) {
+    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+      ItemState localState = liter.next();
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
 
@@ -240,14 +241,14 @@ public class AddMerger implements ChangesMerger {
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
             for (int i = itemsArray.length - 1; i >= 0; i--) {
-              if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+              if (local.findLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(itemsArray[i].getData(),
                                               ItemState.DELETED,
                                               itemsArray[i].isEventFire(),
                                               itemsArray[i].getData().getQPath()));
               }
             }
-            if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
+            if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
                                             localState.isEventFire(),
@@ -347,14 +348,14 @@ public class AddMerger implements ChangesMerger {
               ItemState itemsArray[];
               itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
               for (int i = itemsArray.length - 1; i >= 0; i--) {
-                if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                if (local.findLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
                   resultState.add(new ItemState(itemsArray[i].getData(),
                                                 ItemState.DELETED,
                                                 itemsArray[i].isEventFire(),
                                                 itemsArray[i].getData().getQPath()));
                 }
               }
-              if (local.getLastState(nextState.getData().getQPath()) != ItemState.DELETED) {
+              if (local.findLastState(nextState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextState.getData(),
                                               ItemState.DELETED,
                                               nextState.isEventFire(),

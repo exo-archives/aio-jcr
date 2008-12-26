@@ -20,6 +20,8 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -46,6 +48,15 @@ public interface ChangesStorage {
   int getMemberPriority();
   
   /**
+   * Get sequence of all changes.
+   * 
+   * @return Collection
+   */
+  Iterator<ItemState> getChanges();
+  
+  // ***********************************************
+  
+  /**
    * Get last ItemState by Item id.
    * 
    * @param itemIdentifier
@@ -64,33 +75,35 @@ public interface ChangesStorage {
    * @return ItemState
    */
   ItemState getItemState(NodeData parentData, QPathEntry name);
-
+  
   /**
-   * Get last ItemState by Item path.
+   * TODO can we rely on sequence on log?
    * 
-   * @param itemPath
-   *          QPath, path
-   * @return ItemState
-   */
-  ItemState getItemState(QPath itemPath);
-
-  /**
-   * Get sequence of all changes.
+   * getNextItemState.
    * 
-   * @return ChangesSequence
+   * @param item
+   * @return
    */
-  ItemStatesSequence<ItemState> getChanges();
-
-  /**
-   * Get sequence of the path descendant changes.
-   * 
-   * @param root
-   *          QPath, root path
-   * @return ChangesSequence
-   */
-  ItemStatesSequence<ItemState> getDescendantChanges(QPath root);
+  ItemState getNextItemState(ItemState item);
 
   // =========== custom ==============
+  
+  /**
+   * Find last Item state value or return -1.
+   *
+   * @param itemPath QPath
+   * @return int with ItemState state value
+   */
+  int findLastState(QPath itemPath);
+  
+  /**
+   * getNextItemStateByIndexOnUpdate.
+   *
+   * @param startState from ItemState
+   * @param prevIndex int
+   * @return ItemState
+   */
+  ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex);
 
   /**
    * TODO
@@ -107,18 +120,6 @@ public interface ChangesStorage {
    */
   Collection<ItemState> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique);
 
-  
-  /**
-   * TODO can we rely on sequence on log?
-   * 
-   * getPreviousItemStateByQPath.
-   * 
-   * @param startState
-   * @param path
-   * @return
-   */
-  ItemState getPreviousItemStateByQPath(ItemState startState, QPath path);
-
   /**
    * TODO can we rely on sequence on log?
    * 
@@ -128,26 +129,13 @@ public interface ChangesStorage {
    * @param UUID
    * @return
    */
-  QPath getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID);
+  ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID);
 
   /**
-   * TODO can we rely on sequence on log?
-   * 
-   * getPreviousItemState.
-   * 
-   * @param item
-   * @return
+   * getUpdateSequence.
+   *
+   * @param startState ItemState
+   * @return List of ItemState
    */
-  ItemState getPreviousItemState(ItemState item);
-
-  /**
-   * TODO can we rely on sequence on log?
-   * 
-   * getNextItemState.
-   * 
-   * @param item
-   * @return
-   */
-  ItemState getNextItemState(ItemState item);
-
+  List<ItemState> getUpdateSequence(ItemState startState);
 }

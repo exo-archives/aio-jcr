@@ -18,15 +18,15 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.TreeMap;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 
 /**
  * Created by The eXo Platform SAS.
@@ -95,9 +95,11 @@ public class FileSystemChangesStorage implements ChangesStorage {
 
   }
 
-  protected final LinkedHashMap<ItemKey, StateLocator> index = new LinkedHashMap<ItemKey, StateLocator>();
-  
-  protected final TreeMap<ItemKey, StateLocator> storage = new TreeMap<ItemKey, StateLocator>(); // TODO key Comparable
+  protected final LinkedHashMap<ItemKey, StateLocator> index   = new LinkedHashMap<ItemKey, StateLocator>();
+
+  protected final TreeMap<ItemKey, StateLocator>       storage = new TreeMap<ItemKey, StateLocator>();      // TODO
+                                                                                                             // key
+                                                                                                             // Comparable
 
   protected final File                                 storagePath;
 
@@ -109,15 +111,7 @@ public class FileSystemChangesStorage implements ChangesStorage {
   /**
    * {@inheritDoc}
    */
-  public ItemStatesSequence<ItemState> getChanges() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ItemStatesSequence<ItemState> getDescendantChanges(QPath root) {
+  public Iterator<ItemState> getChanges() {
     // TODO Auto-generated method stub
     return null;
   }
@@ -143,14 +137,6 @@ public class FileSystemChangesStorage implements ChangesStorage {
   /**
    * {@inheritDoc}
    */
-  public ItemState getItemState(QPath itemPath) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public ItemState getItemState(String itemIdentifier) {
     // TODO Auto-generated method stub
     return null;
@@ -167,23 +153,7 @@ public class FileSystemChangesStorage implements ChangesStorage {
   /**
    * {@inheritDoc}
    */
-  public QPath getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ItemState getPreviousItemState(ItemState item) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public ItemState getPreviousItemStateByQPath(ItemState startState, QPath path) {
+  public ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
     // TODO Auto-generated method stub
     return null;
   }
@@ -201,4 +171,29 @@ public class FileSystemChangesStorage implements ChangesStorage {
     // TODO Auto-generated method stub
     return 0;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public int findLastState(QPath itemPath) {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<ItemState> getUpdateSequence(ItemState startState) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

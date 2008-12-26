@@ -22,9 +22,9 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -62,8 +62,8 @@ public interface ChangesMerger {
    * @throws IOException
    */
   List<ItemState> merge(ItemState itemChange,
-                        TransactionChangesLog income,
-                        TransactionChangesLog local) throws IllegalPathException,
+                        ChangesStorage income,
+                        ChangesStorage local) throws IllegalPathException,
                                                     RepositoryException,
                                                     RemoteExportException;
 

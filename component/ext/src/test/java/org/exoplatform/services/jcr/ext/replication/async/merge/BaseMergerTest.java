@@ -52,9 +52,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
   public static final InternalQName EXO_TEST_UNSTRUCTURED_NOSNS = new InternalQName(Constants.NS_EXO_URI,
                                                                                     "testUnstructuredNoSNS");
 
-  protected TransactionChangesLog   local;
+  protected TransactionChangesStorage   local;
 
-  protected TransactionChangesLog   income;
+  protected TransactionChangesStorage   income;
 
   // remote
 
@@ -554,8 +554,8 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                            new AccessControlList());
 
     // logs
-    local = new TransactionChangesLog();
-    income = new TransactionChangesLog();
+    local = new TransactionChangesStorage(new TransactionChangesLog());
+    income = new TransactionChangesStorage(new TransactionChangesLog());
   }
 
   /**

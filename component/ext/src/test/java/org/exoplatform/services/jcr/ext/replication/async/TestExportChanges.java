@@ -124,8 +124,7 @@ public class TestExportChanges extends BaseStandaloneTest {
     WorkspaceSynchronizerImpl synchronizer = new WorkspaceSynchronizerImpl(transmitter,
                                                                            null,
                                                                            dm,
-                                                                           ntm,
-                                                                           true);
+                                                                           ntm);
 
     RemoteExportServer exportServer = synchronizer;
 

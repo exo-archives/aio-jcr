@@ -26,7 +26,6 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -36,6 +35,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -78,8 +78,8 @@ public class UpdateMerger implements ChangesMerger {
    * @throws RepositoryException
    */
   public List<ItemState> merge(ItemState itemChange,
-                               TransactionChangesLog income,
-                               TransactionChangesLog local) throws RepositoryException,
+                               ChangesStorage income,
+                               ChangesStorage local) throws RepositoryException,
                                                            RemoteExportException {
     boolean itemChangeProcessed = false;
 
@@ -93,7 +93,8 @@ public class UpdateMerger implements ChangesMerger {
     List<ItemState> resultEmptyState = new ArrayList<ItemState>();
     List<ItemState> resultState = new ArrayList<ItemState>();
 
-    for (ItemState localState : local.getAllStates()) {
+    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+      ItemState localState = liter.next();
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
 
