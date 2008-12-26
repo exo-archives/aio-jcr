@@ -33,11 +33,11 @@ public class RemoteExportException extends Exception {
     super(message);
   }
   
-  RemoteExportException(IOException ioError) {
+  public RemoteExportException(IOException ioError) {
     super(ioError);
   }
   
-  RemoteExportException(NoSuchAlgorithmException error) {
+  public RemoteExportException(NoSuchAlgorithmException error) {
     super(error);
   }
   
@@ -45,11 +45,11 @@ public class RemoteExportException extends Exception {
     super(error);
   }
   
-  RemoteExportException(ClassNotFoundException error) {
+  public RemoteExportException(ClassNotFoundException error) {
     super(error);
   }
   
-  RemoteExportException(ClassCastException error) {
+  public RemoteExportException(ClassCastException error) {
     super(error);
   }
 }

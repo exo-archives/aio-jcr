@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.security.DigestInputStream;
@@ -29,6 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SerializedItemStateIterator;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
@@ -63,61 +65,6 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   private CountDownLatch           latch;
 
   private RemoteExportException    exception   = null;
-
-  class ResultIterator<T extends ItemState> implements Iterator<T> {
-    private T                 nextItem;
-
-    private ObjectInputStream in;
-
-    public ResultIterator() throws RemoteExportException {
-      try {
-        this.in = new ObjectInputStream(changesFile.getDataStream());
-        this.nextItem = readNext();
-      } catch (IOException e) {
-        throw new RemoteExportException(e);
-      } catch (ClassNotFoundException e) {
-        throw new RemoteExportException(e);
-      } catch (ClassCastException e) {
-        throw new RemoteExportException(e);
-      }
-    }
-
-    public boolean hasNext() {
-      return nextItem != null;
-    }
-
-    public T next() throws NoSuchElementException {
-      if (nextItem == null)
-        throw new NoSuchElementException();
-
-      T retVal = nextItem;
-      try {
-        nextItem = readNext();
-      } catch (IOException e) {
-        throw new NoSuchElementException(e.getMessage());
-      } catch (ClassNotFoundException e) {
-        throw new NoSuchElementException(e.getMessage());
-      } catch (ClassCastException e) {
-        throw new NoSuchElementException(e.getMessage());
-      }
-
-      return retVal;
-    }
-
-    public void remove() {
-      // TODO Auto-generated method stub
-    }
-
-    @SuppressWarnings("unchecked")
-    protected T readNext() throws IOException, ClassNotFoundException, ClassCastException {
-      try {
-        return (T) in.readObject();
-      } catch (EOFException e) {
-        // End of list
-        return null;
-      }
-    }
-  }
 
   RemoteExporterImpl(AsyncTransmitter transmitter, AsyncReceiver receiver) {
     this.transmitter = transmitter;
@@ -166,14 +113,14 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
         throw new RemoteExportException("Remote export failed. Received data corrupted.");
       }
+
+      // return Iterator based on ChangesFile
+      return new SerializedItemStateIterator<ItemState>(changesFile.getDataStream());
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } catch (NoSuchAlgorithmException e) {
       throw new RemoteExportException(e);
     }
-
-    // return Iterator based on ChangesFile
-    return new ResultIterator<ItemState>();
   }
 
   /**
