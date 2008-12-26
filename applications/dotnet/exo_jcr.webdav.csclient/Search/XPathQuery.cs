@@ -45,7 +45,7 @@ namespace exo_jcr.webdav.csclient.Search
 
         public void toXml(XmlTextWriter writer)
         {
-            writer.WriteStartElement(Constants.XPATH_PREFIX, "xpath", Constants.XPATH_NAMESPACE);
+            writer.WriteStartElement(Constants.BASICSEARCH_PREFIX, "xpath", Constants.BASICSEARCH_NAMESPACE);
             writer.WriteValue(query);
             writer.WriteEndElement();
            
