@@ -43,7 +43,7 @@ public interface RemoteExporter {
    * @param remotePriority
    *          int
    */
-  void setMemberAddress(Member address);
+  void setMember(Member address);
 
   /**
    * Exports remote item and return chnages log with ADD states.

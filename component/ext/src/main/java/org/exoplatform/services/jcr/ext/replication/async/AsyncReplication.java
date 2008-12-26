@@ -19,77 +19,180 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 10.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class AsyncReplication implements Startable {
 
-  protected final ManageableRepository repository;
+  protected final RepositoryService repoService;
   
+  protected final AsyncChannelManager  channel;
+
+  protected final IncomeStorage        incomeStorage;
+
+  protected final LocalStorage         localStorage;
+
+  protected final int                  priority;
+
+  protected final List<Integer>        otherParticipantsPriority;
+
+  protected Set<AsyncWorker>                currentWorkers;
+
+  protected ManageableRepository repository;
+
   class AsyncWorker extends Thread {
+    protected final AsyncInitializer          initializer;
+
+    protected final WorkspaceSynchronizerImpl publisher;
+
+    protected final ChangesSubscriber         subscriber;
+
+    protected final AsyncTransmitter          transmitter;
+
+    protected final AsyncReceiver             receiver;
+
+    protected final DataManager               dataManager;
+
+    protected final NodeTypeDataManager       ntManager;
+
+    AsyncWorker(DataManager dataManager, NodeTypeDataManager ntManager) {
+      
+      this.dataManager = dataManager;
+      
+      this.ntManager = ntManager;
+      
+      transmitter = new AsyncTransmitterImpl(channel, priority);
+      
+      subscriber = new ChangesSubscriberImpl();
+      
+      boolean localPriority = true; // TODO
+      publisher = new WorkspaceSynchronizerImpl(transmitter, localStorage, dataManager, ntManager, localPriority);
+      
+      receiver = new AsyncReceiverImpl(channel, publisher);
+      
+      int waitTimeout = 1000; // TODO
+      initializer = new AsyncInitializer(channel, priority, otherParticipantsPriority, waitTimeout, publisher); 
+
+    }
+
+    private void doSynchronize() {
+
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void run() {
-      // TODO Auto-generated method stub
-      
+      try {
+        doSynchronize();
+      } finally {
+        currentWorkers.remove(this); // remove itself
+      }
     }
-    
+
   }
-  
-  public AsyncReplication(RepositoryService repoService, InitParams params) throws RepositoryException, RepositoryConfigurationException {
-    this.repository = repoService.getDefaultRepository();
+
+  public AsyncReplication(RepositoryService repoService, InitParams params) throws RepositoryException,
+      RepositoryConfigurationException {
+
+    this.repoService = repoService;
     
     // TODO params to a local var(s)
-    
+
     // TODO restore previous state if it's restart
     // handle local restoration or cleanups of unfinished or breaked work
-    
+
     // Ready to begin...
-    // TODO Init 
-    init();
-  }
-  
-  /**
-   * Initializer.
-   *
-   */
-  private void init() {
-    // TODO add listeners to a Repository Workspaces
+
+    this.priority = -1; // TODO
+    this.otherParticipantsPriority = new ArrayList<Integer>(); // TODO
+
+    String channelConfig = null; // TODO
+    String channelName = null; // TODO
+    this.channel = new AsyncChannelManager(channelConfig, channelName);
+
+    String incomeStoragePath = null; // TODO
+    this.incomeStorage = new IncomeStorageImpl(incomeStoragePath);
+
+    String localStoragePath = null; // TODO
+    this.localStorage = new LocalStorageImpl(localStoragePath);
     
-    // TODO Initialize schedulling for AsyncInitializer on high priority node.
     
+    this.currentWorkers = new LinkedHashSet<AsyncWorker>();
   }
 
   /**
-   * Initialize synchronization process.
-   * Process will use the service configuration.
-   *
+   * Initializer.
+   * 
+   */
+  private void init() {
+    // TODO add listeners to a Repository Workspaces
+
+  }
+
+  /**
+   * Initialize synchronization process. Process will use the service configuration.
+   * 
    */
   public void synchronize() {
-    
+
+    if (currentWorkers.size() <= 0) {
+      // TODO run for all workspaces in default repo
+      for (String wsName : repository.getWorkspaceNames()) {
+      
+        WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+      
+        NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
+        DataManager dm = (DataManager) wsc.getComponent(DataManager.class);
+        
+        AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
+        synchWorker.start();
+        
+        currentWorkers.add(synchWorker);
+      }
+    } // TODO else warn about active sync
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public void start() {
-    // TODO start after the JCR Repo started 
+    try {
+      this.repository = repoService.getDefaultRepository();
+    } catch (RepositoryException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (RepositoryConfigurationException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   /**

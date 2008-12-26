@@ -14,26 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.transport;
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 25.12.2008
+ * <br/>Date: 26.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface AsyncStateListener {
+public class LocalStorageImpl implements LocalStorage {
 
-  /**
-   * Members connected state.
-   *
-   * @param event List of Member
-   */
-  void onStateChanged(AsyncStateEvent event);
-    
-  void onDisconnected();
+  protected final String storagePath;
+
+  public LocalStorageImpl(String storagePath) {
+    this.storagePath = storagePath;
+  }
   
+  public ChangesStorage getLocalChanges() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public void onSaveItems(ItemStateChangesLog itemStates) {
+    // TODO Auto-generated method stub
+
+  }
+
 }

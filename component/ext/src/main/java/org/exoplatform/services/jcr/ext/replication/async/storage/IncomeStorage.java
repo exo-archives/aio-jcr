@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -39,9 +41,9 @@ public interface IncomeStorage {
    * Add <code>ChangesFile</code> to a member (subscriber) storage.
    *
    * @param changes ChangesFile
-   * @param memeber MemberAddress
+   * @param memeber Member
    */
-  void addMemeberChanges(int /*MemberAddress*/ memeber, ChangesFile changes);
+  void addMemberChanges(Member memeber, ChangesFile changes);
   
   
   

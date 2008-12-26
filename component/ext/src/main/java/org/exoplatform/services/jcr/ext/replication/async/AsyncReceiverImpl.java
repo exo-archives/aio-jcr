@@ -37,15 +37,11 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  */
 public class AsyncReceiverImpl implements AsyncReceiver {
 
-//  protected final MergeDataManager   mergeManager;
-
   protected final RemoteExportServer exportServer;
 
   protected RemoteExportClient       remoteExportListener;
 
-  AsyncReceiverImpl(RemoteExportServer exportServer,
-                    AsyncChannelManager channel) {
-   // this.mergeManager = mergeManager;
+  AsyncReceiverImpl(AsyncChannelManager channel, RemoteExportServer exportServer) {
     this.exportServer = exportServer;
   }
 

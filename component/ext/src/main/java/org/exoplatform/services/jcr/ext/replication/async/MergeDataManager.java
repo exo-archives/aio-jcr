@@ -73,7 +73,7 @@ public class MergeDataManager {
         ChangesStorage member = membersChanges.next();
         ItemStatesSequence<ItemState> changes = member.getChanges();
         while (changes.hasNext() && !isInterrupted()) {
-          ItemState st = changes.next();
+          ItemState incomeChange = changes.next();
           // TODO
         }
       }  

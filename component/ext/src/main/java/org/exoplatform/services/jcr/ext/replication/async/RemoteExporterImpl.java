@@ -55,7 +55,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each members pair merge.
    */
-  protected Member                 memberAddress;
+  protected Member                 member;
 
   /**
    * Changes file.
@@ -79,7 +79,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     receiver.setRemoteExportListener(this);
 
     // send request
-    transmitter.sendGetExport(nodetId, memberAddress);
+    transmitter.sendGetExport(nodetId, member);
 
     // ChangesFile changesFile = new ChangesFile("TODO", 0);
 
@@ -126,8 +126,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * {@inheritDoc}
    */
-  public void setMemberAddress(Member address) {
-    memberAddress = address;
+  public void setMember(Member address) {
+    member = address;
   }
 
   /**

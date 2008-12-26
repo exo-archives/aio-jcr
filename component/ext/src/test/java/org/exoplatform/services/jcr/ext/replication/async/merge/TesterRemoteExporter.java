@@ -68,7 +68,7 @@ public class TesterRemoteExporter implements RemoteExporter {
     // dummy
   }
 
-  public void setMemberAddress(Member address) {
+  public void setMember(Member address) {
     // TODO Auto-generated method stub
     
   }
