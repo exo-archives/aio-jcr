@@ -298,7 +298,8 @@ public class RenameMerger implements ChangesMerger {
                                             ItemState.DELETED,
                                             nextLocalState.isEventFire(),
                                             nextLocalState.getData().getQPath()));
-              resultState.add(new ItemState(localData,
+              // same data
+              resultState.add(new ItemState(nextLocalState.getData(),
                                             ItemState.ADDED,
                                             localState.isEventFire(),
                                             localData.getQPath()));
