@@ -1721,7 +1721,7 @@ public class RenameMergerTest extends BaseMergerTest {
     assertTrue(hasState(result, new ItemState(localItem21, ItemState.DELETED, false, null), true));
     assertTrue(hasState(result, remoteItem21Rename, true));
     assertTrue(hasState(result, remoteItem31Delete, true));
-    assertTrue(hasState(result, new ItemState(localItem11, ItemState.ADDED, false, null), true));
+    assertTrue(hasState(result, new ItemState(localItem21, ItemState.ADDED, false, null), true));
   }
 
   /**
