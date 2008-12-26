@@ -113,7 +113,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     File file  = createBLOBTempFile("mytest", filesize);
     ChangesFile changes = new ChangesFile(file,"crc",System.currentTimeMillis());
     
-    AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, null,100);
+    AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, 100);
     trans.sendExport(changes, adr);
     Thread.sleep(1000);
 
