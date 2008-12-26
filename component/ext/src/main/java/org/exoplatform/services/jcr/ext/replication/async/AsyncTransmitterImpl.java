@@ -46,15 +46,15 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    */
   private static Log                    log = ExoLogger.getLogger("ext.AsyncTransmitterImpl");
 
-  protected final WorkspaceSynchronizerImpl synchronizer;
+//  protected final WorkspaceSynchronizerImpl synchronizer;
 
   protected final AsyncChannelManager   channel;
 
   protected final int                   priority;
 
-  AsyncTransmitterImpl(AsyncChannelManager channel, WorkspaceSynchronizerImpl synchronizer, int priority) {
+  AsyncTransmitterImpl(AsyncChannelManager channel, int priority) {
     this.channel = channel;
-    this.synchronizer = synchronizer;
+    //this.synchronizer = synchronizer;
     this.priority = priority;
   }
 
