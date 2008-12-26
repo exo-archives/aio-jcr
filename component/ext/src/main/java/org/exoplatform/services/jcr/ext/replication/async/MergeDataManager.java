@@ -17,6 +17,8 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -28,8 +30,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesSequ
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>
- * Merge manager per Workspace.
+ * <br/> Merge manager per Workspace.
  * 
  * <br/>Date: 10.12.2008
  * 
@@ -38,37 +39,40 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesSequ
  */
 public class MergeDataManager {
 
-  protected final WorkspaceSynchronizer synchronizer;
+  protected final WorkspaceSynchronizer        synchronizer;
 
-  protected final RemoteExporter        exporter;
+  protected final RemoteExporter               exporter;
 
-  protected final AddMerger             addMerger;
+  protected final AddMerger                    addMerger;
 
-  protected final DataManager           dataManager;
+  protected final DataManager                  dataManager;
 
-  protected final NodeTypeDataManager   ntManager;
-  
+  protected final NodeTypeDataManager          ntManager;
+
+  /**
+   * Listeners in order of addition.
+   */
+  protected final Set<SynchronizationListener> listeners = new LinkedHashSet<SynchronizationListener>();
+
   /**
    * Current merge worker or null (ready for a new merge).
    */
-  protected MergeWorker currentMerge; 
+  protected MergeWorker                        currentMerge;
 
   class MergeWorker extends Thread {
 
     private final Iterator<ChangesStorage> membersChanges;
-    
+
     MergeWorker(Iterator<ChangesStorage> membersChanges) {
       this.membersChanges = membersChanges;
     }
-    
+
     /**
      * Runs merge till not interrupted or finished.
-     *
+     * 
      */
     private void doMerge() {
-      
-      
-      
+
       while (membersChanges.hasNext() && !isInterrupted()) {
         ChangesStorage member = membersChanges.next();
         ItemStatesSequence<ItemState> changes = member.getChanges();
@@ -76,9 +80,9 @@ public class MergeDataManager {
           ItemState incomeChange = changes.next();
           // TODO
         }
-      }  
+      }
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -86,12 +90,11 @@ public class MergeDataManager {
     public void run() {
       doMerge();
     }
-    
+
   }
-  
+
   MergeDataManager(WorkspaceSynchronizer synchronizer,
                    RemoteExporter exporter,
-                   AsyncReceiver receiver,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager) {
     this.synchronizer = synchronizer;
@@ -99,7 +102,7 @@ public class MergeDataManager {
     this.exporter = exporter;
 
     this.dataManager = dataManager;
-    
+
     this.ntManager = ntManager;
 
     this.addMerger = new AddMerger(synchronizer.isLocalPriority(), exporter, dataManager, ntManager);
@@ -115,6 +118,14 @@ public class MergeDataManager {
 
     currentMerge = new MergeWorker(membersChanges);
     currentMerge.start();
+  }
+
+  public void addSynchronizationListener(SynchronizationListener listener) {
+    listeners.add(listener);
+  }
+
+  public void removeSynchronizationListener(SynchronizationListener listener) {
+    listeners.remove(listener);
   }
 
 }

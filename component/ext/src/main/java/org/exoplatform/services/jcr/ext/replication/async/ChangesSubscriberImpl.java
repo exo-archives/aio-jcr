@@ -34,10 +34,13 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   /**
    * Map with CRC key and RandomAccess File
    */
-  HashMap<String, ChangesFile> incomChanges;
+  protected final HashMap<String, ChangesFile> incomChanges;
+  
+  protected final MergeDataManager mergeManager;
 
-  public ChangesSubscriberImpl() {
-    incomChanges = new HashMap<String, ChangesFile>();
+  public ChangesSubscriberImpl(MergeDataManager mergeManager) {
+    this.incomChanges = new HashMap<String, ChangesFile>();
+    this.mergeManager = mergeManager;
   }
 
   public void onChanges(ChangesPacket packet) {
@@ -70,6 +73,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
 
   public void onStart(List<Member> members) {
     // nothing to do
+  }
+  
+  protected void merge() {
+    
   }
 
 }

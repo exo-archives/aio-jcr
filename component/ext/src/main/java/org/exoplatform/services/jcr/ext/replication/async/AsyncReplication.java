@@ -33,6 +33,7 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
@@ -50,21 +51,21 @@ import org.picocontainer.Startable;
  */
 public class AsyncReplication implements Startable {
 
-  protected final RepositoryService repoService;
-  
-  protected final AsyncChannelManager  channel;
+  protected final RepositoryService   repoService;
 
-  protected final IncomeStorage        incomeStorage;
+  protected final AsyncChannelManager channel;
 
-  protected final LocalStorage         localStorage;
+  protected final IncomeStorage       incomeStorage;
 
-  protected final int                  priority;
+  protected final LocalStorage        localStorage;
 
-  protected final List<Integer>        otherParticipantsPriority;
+  protected final int                 priority;
 
-  protected Set<AsyncWorker>                currentWorkers;
+  protected final List<Integer>       otherParticipantsPriority;
 
-  protected ManageableRepository repository;
+  protected Set<AsyncWorker>          currentWorkers;
+
+  protected ManageableRepository      repository;
 
   class AsyncWorker extends Thread {
     protected final AsyncInitializer          initializer;
@@ -77,32 +78,49 @@ public class AsyncReplication implements Startable {
 
     protected final AsyncReceiver             receiver;
 
+    protected final RemoteExporter exporter;
+    
+    protected final MergeDataManager          mergeManager;
+
     protected final DataManager               dataManager;
 
     protected final NodeTypeDataManager       ntManager;
 
     AsyncWorker(DataManager dataManager, NodeTypeDataManager ntManager) {
-      
+
       this.dataManager = dataManager;
-      
+
       this.ntManager = ntManager;
-      
+
       transmitter = new AsyncTransmitterImpl(channel, priority);
-      
-      subscriber = new ChangesSubscriberImpl();
-      
+
       boolean localPriority = true; // TODO
-      publisher = new WorkspaceSynchronizerImpl(transmitter, localStorage, dataManager, ntManager, localPriority);
-      
+      publisher = new WorkspaceSynchronizerImpl(transmitter,
+                                                localStorage,
+                                                dataManager,
+                                                ntManager,
+                                                localPriority);
+
       receiver = new AsyncReceiverImpl(channel, publisher);
       
-      int waitTimeout = 1000; // TODO
-      initializer = new AsyncInitializer(channel, priority, otherParticipantsPriority, waitTimeout, publisher); 
+      exporter = new RemoteExporterImpl(transmitter, receiver); 
+      
+      mergeManager = new MergeDataManager(publisher, exporter, dataManager, ntManager);
 
+      subscriber = new ChangesSubscriberImpl(mergeManager);
+
+      int waitTimeout = 1000; // TODO
+      initializer = new AsyncInitializer(channel,
+                                         priority,
+                                         otherParticipantsPriority,
+                                         waitTimeout,
+                                         publisher);
+      initializer.addSynchronizationListener(publisher);
+      initializer.addSynchronizationListener(subscriber);
     }
 
-    private void doSynchronize() {
-
+    private void doSynchronize() throws ReplicationException {
+      channel.connect();
     }
 
     /**
@@ -112,6 +130,9 @@ public class AsyncReplication implements Startable {
     public void run() {
       try {
         doSynchronize();
+      } catch (ReplicationException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       } finally {
         currentWorkers.remove(this); // remove itself
       }
@@ -123,7 +144,7 @@ public class AsyncReplication implements Startable {
       RepositoryConfigurationException {
 
     this.repoService = repoService;
-    
+
     // TODO params to a local var(s)
 
     // TODO restore previous state if it's restart
@@ -143,8 +164,7 @@ public class AsyncReplication implements Startable {
 
     String localStoragePath = null; // TODO
     this.localStorage = new LocalStorageImpl(localStoragePath);
-    
-    
+
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
   }
 
@@ -166,15 +186,15 @@ public class AsyncReplication implements Startable {
     if (currentWorkers.size() <= 0) {
       // TODO run for all workspaces in default repo
       for (String wsName : repository.getWorkspaceNames()) {
-      
+
         WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-      
+
         NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
         DataManager dm = (DataManager) wsc.getComponent(DataManager.class);
-        
+
         AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
         synchWorker.start();
-        
+
         currentWorkers.add(synchWorker);
       }
     } // TODO else warn about active sync
