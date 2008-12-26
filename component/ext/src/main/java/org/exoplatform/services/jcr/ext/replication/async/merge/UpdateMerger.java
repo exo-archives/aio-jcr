@@ -121,6 +121,7 @@ public class UpdateMerger implements ChangesMerger {
 
           // UPDATE
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            // same node updated
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       incomeState.getData()
                                                                                  .getIdentifier());
@@ -128,6 +129,35 @@ public class UpdateMerger implements ChangesMerger {
               return resultEmptyState;
             }
 
+            // parent updated for node
+            nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                            incomeState.getData()
+                                                                       .getParentIdentifier());
+            if (incomeData.isNode() && nextItem != null) {
+              List<ItemState> incomeUpdateSequence = new ArrayList<ItemState>();
+              incomeUpdateSequence.add(incomeState);
+              incomeUpdateSequence.addAll(income.getUpdateSequence(incomeState));
+              for (ItemState item : incomeUpdateSequence) {
+                NodeData node = (NodeData) item.getData();
+                QPath name = QPath.makeChildPath(localData.getQPath(),
+                                                 node.getQPath().getEntries()[node.getQPath()
+                                                                                  .getEntries().length - 1]);
+
+                PersistedNodeData newNode = new PersistedNodeData(node.getIdentifier(),
+                                                                  name,
+                                                                  node.getParentIdentifier(),
+                                                                  node.getPersistedVersion(),
+                                                                  node.getOrderNumber(),
+                                                                  node.getPrimaryTypeName(),
+                                                                  node.getMixinTypeNames(),
+                                                                  node.getACL());
+                resultState.add(new ItemState(newNode, item.getState(), item.isEventFire(), name));
+              }
+              itemChangeProcessed = true;
+              break;
+            }
+
+            // parent updated for property
             nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                             incomeState.getData()
                                                                        .getParentIdentifier());
@@ -144,9 +174,10 @@ public class UpdateMerger implements ChangesMerger {
                                                                      prop.isMultiValued());
               item.setValues(prop.getValues());
 
-              incomeState = new ItemState(item, ItemState.UPDATED, false, name);
+              incomeState = new ItemState(item, ItemState.UPDATED, incomeState.isEventFire(), name);
               resultState.add(incomeState);
               itemChangeProcessed = true;
+              break;
             }
             break;
           }
@@ -179,6 +210,7 @@ public class UpdateMerger implements ChangesMerger {
 
           // UPDATE
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            // same node update
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       incomeState.getData()
                                                                                  .getIdentifier());
@@ -215,6 +247,35 @@ public class UpdateMerger implements ChangesMerger {
               break;
             }
 
+            // parent updated for node
+            nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
+                                                            incomeState.getData()
+                                                                       .getParentIdentifier());
+            if (incomeData.isNode() && nextItem != null) {
+              List<ItemState> incomeUpdateSequence = new ArrayList<ItemState>();
+              incomeUpdateSequence.add(incomeState);
+              incomeUpdateSequence.addAll(income.getUpdateSequence(incomeState));
+              for (ItemState item : incomeUpdateSequence) {
+                NodeData node = (NodeData) item.getData();
+                QPath name = QPath.makeChildPath(localData.getQPath(),
+                                                 node.getQPath().getEntries()[node.getQPath()
+                                                                                  .getEntries().length - 1]);
+
+                PersistedNodeData newNode = new PersistedNodeData(node.getIdentifier(),
+                                                                  name,
+                                                                  node.getParentIdentifier(),
+                                                                  node.getPersistedVersion(),
+                                                                  node.getOrderNumber(),
+                                                                  node.getPrimaryTypeName(),
+                                                                  node.getMixinTypeNames(),
+                                                                  node.getACL());
+                resultState.add(new ItemState(newNode, item.getState(), item.isEventFire(), name));
+              }
+              itemChangeProcessed = true;
+              break;
+            }
+
+            // parent updated for property
             nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                             incomeState.getData()
                                                                        .getParentIdentifier());

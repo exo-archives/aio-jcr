@@ -545,6 +545,140 @@ public class UpdateMergerTest extends BaseMergerTest {
   /**
    * Update node locally remove node remotely.
    * 
+   * Local : UPD N2[1] -> N2[2]
+   * 
+   * Remote (priority): UPD N2/N21[1] -> N2/N21[2]
+   * 
+   * Expect: local changes will be restored, remote changes will be applied
+   */
+  public void testUpdateLocalPriority5() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemData localItem2x2B = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                       new InternalQName(null,
+                                                                                         "item2"),
+                                                                       2),
+                                                   IdGenerator.generate(),
+                                                   0,
+                                                   Constants.NT_UNSTRUCTURED,
+                                                   new InternalQName[0],
+                                                   1,
+                                                   Constants.ROOT_UUID,
+                                                   new AccessControlList());
+
+    ItemData localItem2x1B = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                       new InternalQName(null,
+                                                                                         "item2"),
+                                                                       1),
+                                                   localItem2x2B.getIdentifier(),
+                                                   0,
+                                                   Constants.NT_UNSTRUCTURED,
+                                                   new InternalQName[0],
+                                                   0,
+                                                   Constants.ROOT_UUID,
+                                                   new AccessControlList());
+
+    ItemData localItem2x2A = new TransientNodeData(QPath.makeChildPath(localItem2x1B.getQPath(),
+                                                                       new InternalQName(null,
+                                                                                         "item2"),
+                                                                       2),
+                                                   IdGenerator.generate(),
+                                                   0,
+                                                   Constants.NT_UNSTRUCTURED,
+                                                   new InternalQName[0],
+                                                   0,
+                                                   Constants.ROOT_UUID,
+                                                   new AccessControlList());
+
+    remoteItem21x2B = new TransientNodeData(QPath.makeChildPath(localItem2x1B.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                2),
+                                            IdGenerator.generate(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            1,
+                                            localItem2x2B.getIdentifier(),
+                                            new AccessControlList());
+
+    // SNS items
+    remoteItem21x1B = new TransientNodeData(QPath.makeChildPath(localItem2x1B.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                1),
+                                            remoteItem21x2B.getIdentifier(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem2x2B.getIdentifier(),
+                                            new AccessControlList());
+
+    remoteItem21x2A = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                2),
+                                            remoteItem11.getIdentifier(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem2x2B.getIdentifier(),
+                                            new AccessControlList());
+
+    final ItemState localItem2x2Remove = new ItemState(localItem2x2B,
+                                                       ItemState.DELETED,
+                                                       false,
+                                                       null);
+    localLog.add(localItem2x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem2x2A, ItemState.UPDATED, false, null);
+    localLog.add(localItem21Update);
+    final ItemState localItem2x1Update = new ItemState(localItem2x1B,
+                                                       ItemState.UPDATED,
+                                                       false,
+                                                       null);
+    localLog.add(localItem2x1Update);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
+                                                         ItemState.DELETED,
+                                                         false,
+                                                         null);
+    remoteLog.add(remoteItem21x2Remove);
+    final ItemState remoteItem21Update = new ItemState(remoteItem21x2A,
+                                                       ItemState.UPDATED,
+                                                       false,
+                                                       null);
+    remoteLog.add(remoteItem21Update);
+    final ItemState remoteItem21x1Update = new ItemState(remoteItem21x1B,
+                                                         ItemState.UPDATED,
+                                                         false,
+                                                         null);
+    remoteLog.add(remoteItem21x1Update);
+    income.addLog(remoteLog);
+
+    UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
+    List<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
+    QPath qPath1 = QPath.makeChildPath(localItem2x2B.getQPath(),
+                                       remoteItem21x2B.getQPath().getEntries()[remoteItem21x2B.getQPath()
+                                                                                              .getEntries().length - 1]);
+    QPath qPath2 = QPath.makeChildPath(localItem2x2B.getQPath(),
+                                       remoteItem21x1B.getQPath().getEntries()[remoteItem21x2B.getQPath()
+                                                                                              .getEntries().length - 1]);
+
+    QPath qPath3 = QPath.makeChildPath(localItem2x2B.getQPath(),
+                                       remoteItem21x2A.getQPath().getEntries()[remoteItem21x2B.getQPath()
+                                                                                              .getEntries().length - 1]);
+
+    assertEquals(result.size(), 3);
+    assertNotNull(findStateByPath(result, qPath1));
+    assertNotNull(findStateByPath(result, qPath2));
+    assertNotNull(findStateByPath(result, qPath3));
+  }
+
+  /**
+   * Update node locally remove node remotely.
+   * 
    * Local (priority): REN N2/N21[1] -> N3
    * 
    * Remote: UPD N2/N21[1] -> N2/N21[2]
@@ -1494,4 +1628,137 @@ public class UpdateMergerTest extends BaseMergerTest {
     assertTrue(hasState(result, remoteItem21Update, true));
   }
 
+  /**
+   * Update node locally remove node remotely.
+   * 
+   * Local : UPD N2[1] -> N2[2]
+   * 
+   * Remote (priority): UPD N2/N21[1] -> N2/N21[2]
+   * 
+   * Expect: local changes will be restored, remote changes will be applied
+   */
+  public void testUpdateRemotePriority5() throws Exception {
+    PlainChangesLog localLog = new PlainChangesLogImpl();
+
+    ItemData localItem2x2B = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                       new InternalQName(null,
+                                                                                         "item2"),
+                                                                       2),
+                                                   IdGenerator.generate(),
+                                                   0,
+                                                   Constants.NT_UNSTRUCTURED,
+                                                   new InternalQName[0],
+                                                   1,
+                                                   Constants.ROOT_UUID,
+                                                   new AccessControlList());
+
+    ItemData localItem2x1B = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
+                                                                       new InternalQName(null,
+                                                                                         "item2"),
+                                                                       1),
+                                                   localItem2x2B.getIdentifier(),
+                                                   0,
+                                                   Constants.NT_UNSTRUCTURED,
+                                                   new InternalQName[0],
+                                                   0,
+                                                   Constants.ROOT_UUID,
+                                                   new AccessControlList());
+
+    ItemData localItem2x2A = new TransientNodeData(QPath.makeChildPath(localItem2x1B.getQPath(),
+                                                                       new InternalQName(null,
+                                                                                         "item2"),
+                                                                       2),
+                                                   IdGenerator.generate(),
+                                                   0,
+                                                   Constants.NT_UNSTRUCTURED,
+                                                   new InternalQName[0],
+                                                   0,
+                                                   Constants.ROOT_UUID,
+                                                   new AccessControlList());
+
+    remoteItem21x2B = new TransientNodeData(QPath.makeChildPath(localItem2x1B.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                2),
+                                            IdGenerator.generate(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            1,
+                                            localItem2x2B.getIdentifier(),
+                                            new AccessControlList());
+
+    // SNS items
+    remoteItem21x1B = new TransientNodeData(QPath.makeChildPath(localItem2x1B.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                1),
+                                            remoteItem21x2B.getIdentifier(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem2x2B.getIdentifier(),
+                                            new AccessControlList());
+
+    remoteItem21x2A = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
+                                                                new InternalQName(null, "item21"),
+                                                                2),
+                                            remoteItem11.getIdentifier(),
+                                            0,
+                                            Constants.NT_UNSTRUCTURED,
+                                            new InternalQName[0],
+                                            0,
+                                            localItem2x2B.getIdentifier(),
+                                            new AccessControlList());
+
+    final ItemState localItem2x2Remove = new ItemState(localItem2x2B,
+                                                       ItemState.DELETED,
+                                                       false,
+                                                       null);
+    localLog.add(localItem2x2Remove);
+    final ItemState localItem21Update = new ItemState(localItem2x2A, ItemState.UPDATED, false, null);
+    localLog.add(localItem21Update);
+    final ItemState localItem2x1Update = new ItemState(localItem2x1B,
+                                                       ItemState.UPDATED,
+                                                       false,
+                                                       null);
+    localLog.add(localItem2x1Update);
+    local.addLog(localLog);
+
+    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+
+    final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
+                                                         ItemState.DELETED,
+                                                         false,
+                                                         null);
+    remoteLog.add(remoteItem21x2Remove);
+    final ItemState remoteItem21Update = new ItemState(remoteItem21x2A,
+                                                       ItemState.UPDATED,
+                                                       false,
+                                                       null);
+    remoteLog.add(remoteItem21Update);
+    final ItemState remoteItem21x1Update = new ItemState(remoteItem21x1B,
+                                                         ItemState.UPDATED,
+                                                         false,
+                                                         null);
+    remoteLog.add(remoteItem21x1Update);
+    income.addLog(remoteLog);
+
+    UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
+    List<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
+    QPath qPath1 = QPath.makeChildPath(localItem2x2B.getQPath(),
+                                       remoteItem21x2B.getQPath().getEntries()[remoteItem21x2B.getQPath()
+                                                                                              .getEntries().length - 1]);
+    QPath qPath2 = QPath.makeChildPath(localItem2x2B.getQPath(),
+                                       remoteItem21x1B.getQPath().getEntries()[remoteItem21x2B.getQPath()
+                                                                                              .getEntries().length - 1]);
+
+    QPath qPath3 = QPath.makeChildPath(localItem2x2B.getQPath(),
+                                       remoteItem21x2A.getQPath().getEntries()[remoteItem21x2B.getQPath()
+                                                                                              .getEntries().length - 1]);
+
+    assertEquals(result.size(), 3);
+    assertNotNull(findStateByPath(result, qPath1));
+    assertNotNull(findStateByPath(result, qPath2));
+    assertNotNull(findStateByPath(result, qPath3));
+  }
 }
