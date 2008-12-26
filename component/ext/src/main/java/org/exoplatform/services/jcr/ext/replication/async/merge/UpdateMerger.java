@@ -244,6 +244,7 @@ public class UpdateMerger implements ChangesMerger {
                                                                     node.getPrimaryTypeName(),
                                                                     node.getMixinTypeNames(),
                                                                     node.getACL());
+                  // generate update state from delete state (in one case)
                   resultState.add(new ItemState(newItem,
                                                 ItemState.UPDATED,
                                                 item.isEventFire(),
@@ -325,8 +326,8 @@ public class UpdateMerger implements ChangesMerger {
                                             ItemState.DELETED,
                                             nextLocalState.isEventFire(),
                                             nextLocalState.getData().getQPath()));
-              // restore node
-              resultState.add(new ItemState(localData,
+              // restore node (same data)
+              resultState.add(new ItemState(nextLocalState.getData(),
                                             ItemState.ADDED,
                                             localState.isEventFire(),
                                             localData.getQPath()));
@@ -342,6 +343,7 @@ public class UpdateMerger implements ChangesMerger {
               }
               itemChangeProcessed = true;
             } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
+              // generate ADD state from DELETE
               resultState.add(new ItemState(localData,
                                             ItemState.ADDED,
                                             localState.isEventFire(),
@@ -349,6 +351,7 @@ public class UpdateMerger implements ChangesMerger {
             }
           } else {
             if (localData.getIdentifier().equals(incomeData.getIdentifier())) {
+              // generate ADD state from DELETE
               resultState.add(new ItemState(localData,
                                             ItemState.ADDED,
                                             localState.isEventFire(),
