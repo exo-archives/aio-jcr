@@ -111,23 +111,18 @@ public class AsyncReplication implements Startable {
 
       transmitter = new AsyncTransmitterImpl(channel, priority);
 
-      boolean localPriority = true; // TODO
       publisher = new WorkspaceSynchronizerImpl(transmitter,
                                                 localStorage,
                                                 dataManager,
-                                                ntManager,
-                                                localPriority);
+                                                ntManager);
 
       receiver = new AsyncReceiverImpl(channel, publisher);
+      
+      exporter = new RemoteExporterImpl(transmitter, receiver); 
 
-      exporter = new RemoteExporterImpl(transmitter, receiver);
-
-      mergeManager = new MergeDataManager(publisher,
-                                          exporter,
-                                          dataManager,
-                                          ntManager,
-                                          localPriority);
-
+      boolean localPriority = true; // TODO
+      mergeManager = new MergeDataManager(publisher, exporter, dataManager, ntManager, localPriority);
+      
       subscriber = new ChangesSubscriberImpl(mergeManager);
 
       // TODO to inform about merge DONE process

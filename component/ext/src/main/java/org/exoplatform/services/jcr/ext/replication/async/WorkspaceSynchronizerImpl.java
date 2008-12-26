@@ -57,29 +57,15 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
 
   protected final NodeTypeDataManager ntManager;
 
-  protected final boolean             localPriority;
-
   public WorkspaceSynchronizerImpl(
                                AsyncTransmitter transmitter,
                                LocalStorage storage,
                                DataManager dataManager,
-                               NodeTypeDataManager ntManager,
-                               boolean localPriority) {
+                               NodeTypeDataManager ntManager) {
     this.transmitter = transmitter;
     this.storage = storage;
     this.dataManager = dataManager;
     this.ntManager = ntManager;
-
-    this.localPriority = localPriority;
-  }
-
-  /**
-   * Return local priority value.
-   * 
-   * @return boolean local priority
-   */
-  public boolean isLocalPriority() {
-    return localPriority;
   }
 
   /**
@@ -189,7 +175,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
   /**
    * {@inheritDoc}
    */
-  public void onMembersDisconnected(List<Member> member) {
+  public void onDisconnectMembers(List<Member> member) {
     // TODO Auto-generated method stub
   }
 

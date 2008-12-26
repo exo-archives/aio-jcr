@@ -138,7 +138,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       disconnectedMembers.removeAll(event.getMembers());
 
       for (SynchronizationListener syncl : listeners)
-        syncl.onMembersDisconnected(disconnectedMembers);
+        syncl.onDisconnectMembers(disconnectedMembers);
 
       // TODO Check if disconnected the previous coordinator.
     }

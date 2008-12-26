@@ -36,13 +36,6 @@ public interface WorkspaceSynchronizer {
   ChangesStorage getLocalChanges();
   
   /**
-   * Tell if Local priority enabled.
-   *
-   * @return boolean
-   */
-  boolean isLocalPriority();
-  
-  /**
    * Save synchronized changes to a local workspace.
    *
    */

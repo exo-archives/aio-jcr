@@ -66,7 +66,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   /**
    * {@inheritDoc}
    */
-  public void onMembersDisconnected(List<Member> member) {
+  public void onDisconnectMembers(List<Member> member) {
     // TODO Auto-generated method stub
     
   }

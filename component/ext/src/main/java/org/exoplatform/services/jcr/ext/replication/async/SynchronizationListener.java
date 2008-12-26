@@ -34,7 +34,7 @@ public interface SynchronizationListener {
    * On sycnhronization Start event action. <br/> operations.
    * <ul>
    * <li>Publisher will start send changes.</li>
-   * <li>Subscriber will skip this event.</li>
+   * <li>Subscriber will prepare the storage for memebers changes.</li>
    * </ul>
    * 
    */
@@ -74,5 +74,5 @@ public interface SynchronizationListener {
    * <br/>
    * 
    */
-  void onMembersDisconnected(List<Member> member);
+  void onDisconnectMembers(List<Member> member);
 }
