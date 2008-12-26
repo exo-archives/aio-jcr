@@ -1243,15 +1243,15 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem21x1Update);
     local.addLog(localLog);
 
-    ItemData remoteItem21x1 = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
+    ItemData remoteItem21x1 = new TransientNodeData(QPath.makeChildPath(localItem21x2B.getQPath(),
                                                                         new InternalQName(null,
                                                                                           "item21")),
-                                                    IdGenerator.generate(),
+                                                    localItem21x1B.getIdentifier(),
                                                     2,
                                                     EXO_TEST_UNSTRUCTURED_NOSNS,
                                                     new InternalQName[0],
                                                     0,
-                                                    localItem21x2A.getIdentifier(),
+                                                    localItem21x1B.getParentIdentifier(),
                                                     new AccessControlList());
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl();

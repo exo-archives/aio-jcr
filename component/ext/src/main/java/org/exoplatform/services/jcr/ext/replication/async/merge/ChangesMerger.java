@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
@@ -58,6 +59,7 @@ public interface ChangesMerger {
    * @throws RepositoryException
    * @throws RemoteExportException
    *           TODO
+   * @throws IOException
    */
   List<ItemState> merge(ItemState itemChange,
                         TransactionChangesLog income,

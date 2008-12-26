@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -76,11 +77,14 @@ public class DeleteMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
    * @throws RepositoryException
+   * @throws IOException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) throws RepositoryException, RemoteExportException {
+                               TransactionChangesLog local) throws RepositoryException,
+                                                           RemoteExportException {
 
     boolean itemChangeProcessed = false;
 
@@ -253,6 +257,7 @@ public class DeleteMerger implements ChangesMerger {
               itemChangeProcessed = true;
               break;
             }
+
             break;
           }
 
@@ -271,10 +276,10 @@ public class DeleteMerger implements ChangesMerger {
                                             ItemState.DELETED,
                                             false,
                                             nextState.getData().getQPath()));
-              
-              for (Iterator<ItemState> exp = exporter.exportItem(incomeData.getParentIdentifier()); exp.hasNext();) 
+
+              for (Iterator<ItemState> exp = exporter.exportItem(incomeData.getParentIdentifier()); exp.hasNext();)
                 resultState.add(exp.next());
-              
+
               itemChangeProcessed = true;
               break;
             }
