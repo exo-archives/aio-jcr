@@ -105,9 +105,13 @@ public class AsyncReplication implements Startable {
       
       exporter = new RemoteExporterImpl(transmitter, receiver); 
       
-      mergeManager = new MergeDataManager(publisher, exporter, dataManager, ntManager);
-
+      mergeManager = new MergeDataManager(exporter, dataManager, ntManager, localPriority);
+      
       subscriber = new ChangesSubscriberImpl(mergeManager);
+
+      // TODO to inform about merge DONE process
+      mergeManager.addSynchronizationListener(publisher);
+      mergeManager.addSynchronizationListener(subscriber);
 
       int waitTimeout = 1000; // TODO
       initializer = new AsyncInitializer(channel,

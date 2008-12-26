@@ -39,8 +39,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesSequ
  */
 public class MergeDataManager {
 
-  protected final WorkspaceSynchronizer        synchronizer;
-
   protected final RemoteExporter               exporter;
 
   protected final AddMerger                    addMerger;
@@ -93,19 +91,17 @@ public class MergeDataManager {
 
   }
 
-  MergeDataManager(WorkspaceSynchronizer synchronizer,
-                   RemoteExporter exporter,
+  MergeDataManager(RemoteExporter exporter,
                    DataManager dataManager,
-                   NodeTypeDataManager ntManager) {
-    this.synchronizer = synchronizer;
-
+                   NodeTypeDataManager ntManager,
+                   boolean localPriority) {
     this.exporter = exporter;
 
     this.dataManager = dataManager;
 
     this.ntManager = ntManager;
 
-    this.addMerger = new AddMerger(synchronizer.isLocalPriority(), exporter, dataManager, ntManager);
+    this.addMerger = new AddMerger(localPriority, exporter, dataManager, ntManager);
   }
 
   /**
