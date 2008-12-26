@@ -41,7 +41,7 @@ public class RemoteExportRequest {
   /**
    * @return the source address.
    */
-  public Member getAddress() {
+  public Member getMember() {
     return address;
   }
 

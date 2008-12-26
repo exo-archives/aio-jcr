@@ -96,6 +96,8 @@ public class AsyncReplication implements Startable {
     protected final AsyncReceiver             receiver;
 
     protected final RemoteExporter            exporter;
+    
+    protected final RemoteExportServer exportServer;
 
     protected final MergeDataManager          mergeManager;
 
@@ -116,7 +118,9 @@ public class AsyncReplication implements Startable {
                                                 dataManager,
                                                 ntManager);
 
-      receiver = new AsyncReceiverImpl(channel, publisher);
+      exportServer = new RemoteExportServerImpl(transmitter, dataManager, ntManager);
+      
+      receiver = new AsyncReceiverImpl(channel, exportServer);
       
       exporter = new RemoteExporterImpl(transmitter, receiver); 
 

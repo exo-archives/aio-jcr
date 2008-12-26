@@ -46,7 +46,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, ChangesPublisher, RemoteExportServer {
+public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, ChangesPublisher {
 
 
   protected final AsyncTransmitter    transmitter;
@@ -83,65 +83,6 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer, Changes
   public void save(ChangesStorage synchronizedChanges) {
     // TODO Auto-generated method stub
     
-  }
-
-  /**
-   * Return Node traversed changes log for a given path.<br/> Used by receiver.
-   * 
-   * @param nodeId
-   *          Node QPath
-   * @return ChangesLogFile
-   */
-  protected ChangesFile getExportChanges(String nodeId) throws RepositoryException {
-
-    NodeData exportedNode = (NodeData) dataManager.getItemData(nodeId);
-    NodeData parentNode;
-    if (nodeId.equals(Constants.ROOT_UUID)) {
-      parentNode = exportedNode;
-    } else {
-      parentNode = (NodeData) dataManager.getItemData(exportedNode.getParentIdentifier());
-    }
-
-    File chLogFile;
-
-    try {
-      chLogFile = File.createTempFile(ChangesFile.PREFIX, ChangesFile.SUFIX);
-      MessageDigest digest;
-      try{
-        digest = MessageDigest.getInstance("MD5");
-      }catch(NoSuchAlgorithmException e){
-        throw new RepositoryException(e);
-      }
-      
-      DigestOutputStream dout = new DigestOutputStream(new FileOutputStream(chLogFile),digest); 
-      ObjectOutputStream out = new ObjectOutputStream(dout);
-
-      // extract ItemStates
-      ItemDataExportVisitor exporter = new ItemDataExportVisitor(out,
-                                                                 parentNode,
-                                                                 ntManager,
-                                                                 dataManager);
-      exportedNode.accept(exporter);
-      out.close();
-      
-      String crc = new String(digest.digest(), Constants.DEFAULT_ENCODING);
-      return new ChangesFile(chLogFile, crc, System.currentTimeMillis());
-    } catch (IOException e) {
-      throw new RepositoryException(e);
-    }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void sendExport(RemoteExportRequest event) {
-    try {
-      ChangesFile chl = getExportChanges(event.getNodeId());
-      transmitter.sendExport(chl, event.getAddress());
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-      transmitter.sendError("error " + e, event.getAddress());
-    }
   }
 
   /**

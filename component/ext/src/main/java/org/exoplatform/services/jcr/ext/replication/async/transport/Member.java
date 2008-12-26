@@ -22,36 +22,67 @@ import org.jgroups.Address;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 25.12.2008
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Member.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class Member {
-  
+
   private final Address address;
-  
-  private int priority = -1;
-  
+
+  private int           priority = -1;
+
   /**
-   * Member  constructor.
-   *
+   * Member constructor.
+   * 
    * @param address
    *          address of memmber
    */
   public Member(Address address) {
     this.address = address;
   }
-  
+
   public Member(Address address, int priority) {
     this.address = address;
     this.priority = priority;
   }
 
   /**
+   * Get member name in format "priority. address".
+   * <br/>For information purpose only. Use address and priority in comparisons.
+   * 
+   * @return String
+   * 
+   * @see {@link Member.getAddress()}
+   */
+  public String getName() {
+    return this.priority + ". " + this.address.toString();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof Member)
+      return this.address.equals(((Member) obj).address)
+          && this.priority == ((Member) obj).priority;
+    else
+      return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return this.toString() + " [" + getName() + "]";
+  }
+
+  /**
    * Get address of member.
-   *
-   * @return Address
-   *           return address of member 
+   * 
+   * @return Address return address of member
    */
   public Address getAddress() {
     return address;
