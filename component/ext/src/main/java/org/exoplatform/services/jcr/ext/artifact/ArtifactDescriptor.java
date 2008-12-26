@@ -87,11 +87,22 @@ public final class ArtifactDescriptor implements Descriptor {
     DocumentBuilder docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     Document doc = docBuilder.parse(pomfile);
 
+    
     NodeList groupIdList = doc.getElementsByTagName("groupId");
-    String groupId = groupIdList.item(0).getTextContent();
+    String groupId = "";
+    for (int i = 0; i < groupIdList.getLength(); i++) {
+      if (groupIdList.item(i).getParentNode().getNodeName().equals("project"))
+        groupId = groupIdList.item(i).getTextContent();
+    }
 
     NodeList artifactIdList = doc.getElementsByTagName("artifactId");
-    String artifactId = artifactIdList.item(0).getTextContent();
+    // String artifactId = artifactIdList.item(0).getTextContent();
+    String artifactId = "";
+    for (int i = 0; i < artifactIdList.getLength(); i++) {
+      if (artifactIdList.item(i).getParentNode().getNodeName().equals("project"))
+        artifactId = artifactIdList.item(i).getTextContent();
+    }
+    
 
     NodeList versionList = doc.getElementsByTagName("version");
     String versionId = validMavenVersion(versionList.item(0).getTextContent());

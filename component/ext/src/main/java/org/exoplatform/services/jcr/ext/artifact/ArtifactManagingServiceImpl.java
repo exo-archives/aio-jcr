@@ -123,6 +123,8 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
   private static Log          LOGGER            = ExoLogger.getLogger(ArtifactManagingServiceImpl.class);
 
   private Map<String, String> mimeMap           = new Hashtable<String, String>();
+  
+  private List<String> listErrorPom = new ArrayList<String>();
 
   /**
    * @param params
@@ -420,7 +422,6 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     try {
       FileUtils.deleteDirectory(temporaryFolder);
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       LOGGER.error("Cannot remove temporary folder", e);
     }
 
@@ -436,9 +437,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     if (!folder.exists())
       throw new FileNotFoundException("Source folder expected");
     try {
+      this.listErrorPom.clear();
       importFilesToJCR(sp, folder);
-    } catch (Exception e) {
-      LOGGER.error("Execption during uploading local folder to JCR", e);
+     } catch (Exception e) {
+      LOGGER.error("Exception during uploading local folder to JCR", e);
     }
   }
 
@@ -446,12 +448,15 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
    * This method provides adding to JCR artifacts. this means that jar-files and appropriate pom
    * files would be added. Main logic: scan all files & if it is a pair jar/pom -add it.
    */
-  private void importFilesToJCR(SessionProvider sp, File folder) throws Exception {
+  private void  importFilesToJCR(SessionProvider sp, File folder) throws Exception {
+    
+    
 
     for (File file : folder.listFiles(new DefaultFileFilter())) {
 
-      if (file.isDirectory())
-        importFilesToJCR(sp, file);
+      if (file.isDirectory()) {
+         importFilesToJCR(sp, file);
+      }
 
       String ext = FilenameUtils.getExtension(file.getAbsolutePath());
       if (ext.equals("pom")) {
@@ -460,12 +465,16 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
         if (jarfile.exists()) {
           // get descripting from pom file
-
+          try {
           ArtifactDescriptor artifact = ArtifactDescriptor.createFromPomfile(file);
           InputStream jarIStream = new FileInputStream(jarfile);
           InputStream pomIStream = new FileInputStream(file);
-
           addArtifact(sp, artifact, jarIStream, pomIStream);
+          } catch (org.xml.sax.SAXParseException e) {
+//            throw new ArtifactDescriptorException(FilenameUtils.getName(file.getAbsolutePath()));
+            this.listErrorPom.add(FilenameUtils.getName(file.getAbsolutePath()));
+            continue;
+          }
         }
       }
     }
@@ -497,14 +506,14 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
 
     Node rmNode = (Node) session.getItem(pathToRemove);
 
-    while (rmNode != root) {
-      Node parent = rmNode.getParent();
+//    while (rmNode != root) {
+//      Node parent = rmNode.getParent();
       rmNode.remove();
-      if (!parent.hasNodes())
-        rmNode = parent;
-      else
-        break;
-    }
+//      if (!parent.hasNodes())
+//        rmNode = parent;
+//      else
+//        break;
+//    }
     session.save();
   }
 
@@ -1156,5 +1165,10 @@ public class ArtifactManagingServiceImpl implements ArtifactManagingService, Sta
     LOGGER.info("Workspace from configuration file: " + repoWorkspaceName);
     LOGGER.info("RootNode from configuration file: " + rootNodePath);
   }
+  
+  public List getListErrors () {
+    return listErrorPom;
+  }
+  
 
 }
