@@ -162,6 +162,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  @Deprecated
   public ItemState getPreviousItemStateByQPath(ItemState startState, QPath path) {
     List<ItemState> allStates = getAllStates();
 
@@ -195,6 +196,28 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
       }
     }
     return null;
+  }
+
+  public ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) {
+    List<ItemState> allStates = getAllStates();
+    ItemState lastState = null;
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() != ItemState.UPDATED) {
+            return lastState;
+          } else if (startState.getData().getQPath().getIndex() != prevIndex
+              && item.getData().getQPath().getIndex() == prevIndex + 1) {
+            return item;
+          }
+          lastState = item;
+        }
+      }
+    }
+
+    return lastState;
   }
 
   /**
