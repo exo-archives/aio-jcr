@@ -48,4 +48,7 @@ public class AsyncStateEvent {
     return localMember;
   }
   
+  public boolean isCoordinator () {
+    return members.get(0).getAddress().equals(localMember.getAddress());
+  }
 }
