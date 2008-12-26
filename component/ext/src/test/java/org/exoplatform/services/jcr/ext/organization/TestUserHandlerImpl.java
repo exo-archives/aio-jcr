@@ -202,7 +202,7 @@ public class TestUserHandlerImpl extends BaseStandaloneTest {
       e.printStackTrace();
       fail("Exception should not be thrown.");
     } finally {
-      uHandler.removeUser("user_", true);
+      uHandler.removeUser("userNew", true);
     }
   }
 
