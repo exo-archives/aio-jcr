@@ -154,7 +154,7 @@ public class RenameMerger implements ChangesMerger {
 
             // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
-                                                                                true,
+                                                                                false,
                                                                                 true);
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
@@ -162,14 +162,14 @@ public class RenameMerger implements ChangesMerger {
               if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(itemsArray[i].getData(),
                                               ItemState.DELETED,
-                                              false,
+                                              itemsArray[i].isEventFire(),
                                               itemsArray[i].getData().getQPath()));
               }
             }
             if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
-                                            false,
+                                            localState.isEventFire(),
                                             localData.getQPath()));
             }
 
@@ -211,7 +211,7 @@ public class RenameMerger implements ChangesMerger {
                                                              node.getPrimaryTypeName(),
                                                              node.getMixinTypeNames(),
                                                              node.getACL());
-              incomeState = new ItemState(item, ItemState.RENAMED, false, qPath);
+              incomeState = new ItemState(item, ItemState.DELETED, incomeState.isEventFire(), qPath);
               resultState.add(incomeState);
               resultState.add(nextIncomeState);
               itemChangeProcessed = true;
@@ -238,7 +238,10 @@ public class RenameMerger implements ChangesMerger {
                                                              node.getPrimaryTypeName(),
                                                              node.getMixinTypeNames(),
                                                              node.getACL());
-              nextIncomeState = new ItemState(item, ItemState.DELETED, false, qPath);
+              nextIncomeState = new ItemState(item,
+                                              ItemState.RENAMED,
+                                              nextIncomeState.isEventFire(),
+                                              qPath);
               resultState.add(incomeState);
               resultState.add(nextIncomeState);
               itemChangeProcessed = true;
@@ -259,7 +262,7 @@ public class RenameMerger implements ChangesMerger {
               if (local.getLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextLocalState.getData(),
                                               ItemState.DELETED,
-                                              false,
+                                              nextLocalState.isEventFire(),
                                               nextLocalState.getData().getQPath()));
               }
               itemChangeProcessed = true;
@@ -275,7 +278,7 @@ public class RenameMerger implements ChangesMerger {
               if (local.getLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextLocalState.getData(),
                                               ItemState.DELETED,
-                                              false,
+                                              nextLocalState.isEventFire(),
                                               nextLocalState.getData().getQPath()));
               }
 
@@ -293,9 +296,12 @@ public class RenameMerger implements ChangesMerger {
 
               resultState.add(new ItemState(nextLocalState.getData(),
                                             ItemState.DELETED,
-                                            false,
+                                            nextLocalState.isEventFire(),
                                             nextLocalState.getData().getQPath()));
-              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+              resultState.add(new ItemState(localData,
+                                            ItemState.ADDED,
+                                            localState.isEventFire(),
+                                            localData.getQPath()));
 
               if (!itemChangeProcessed) {
                 resultState.add(incomeState);

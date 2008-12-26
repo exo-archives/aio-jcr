@@ -161,7 +161,10 @@ public class AddMerger implements ChangesMerger {
                                                                node.getPrimaryTypeName(),
                                                                node.getMixinTypeNames(),
                                                                node.getACL());
-                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                incomeState = new ItemState(item,
+                                            ItemState.ADDED,
+                                            incomeState.isEventFire(),
+                                            new QPath(names));
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -173,7 +176,10 @@ public class AddMerger implements ChangesMerger {
                                                                        prop.isMultiValued());
                 item.setValues(prop.getValues());
 
-                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                incomeState = new ItemState(item,
+                                            ItemState.ADDED,
+                                            incomeState.isEventFire(),
+                                            new QPath(names));
                 resultState.add(incomeState);
               }
               itemChangeProcessed = true;
@@ -229,7 +235,7 @@ public class AddMerger implements ChangesMerger {
 
             // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
-                                                                                true,
+                                                                                false,
                                                                                 true);
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
@@ -237,14 +243,14 @@ public class AddMerger implements ChangesMerger {
               if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(itemsArray[i].getData(),
                                               ItemState.DELETED,
-                                              false,
+                                              itemsArray[i].isEventFire(),
                                               itemsArray[i].getData().getQPath()));
               }
             }
             if (local.getLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
-                                            false,
+                                            localState.isEventFire(),
                                             localData.getQPath()));
             }
 
@@ -300,7 +306,10 @@ public class AddMerger implements ChangesMerger {
                                                                node.getPrimaryTypeName(),
                                                                node.getMixinTypeNames(),
                                                                node.getACL());
-                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                incomeState = new ItemState(item,
+                                            ItemState.ADDED,
+                                            incomeState.isEventFire(),
+                                            new QPath(names));
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -312,7 +321,10 @@ public class AddMerger implements ChangesMerger {
                                                                        prop.isMultiValued());
                 item.setValues(prop.getValues());
 
-                incomeState = new ItemState(item, ItemState.ADDED, false, new QPath(names));
+                incomeState = new ItemState(item,
+                                            ItemState.ADDED,
+                                            incomeState.isEventFire(),
+                                            new QPath(names));
                 resultState.add(incomeState);
               }
               itemChangeProcessed = true;
@@ -330,7 +342,7 @@ public class AddMerger implements ChangesMerger {
               // add DELETE state
               Collection<ItemState> itemsCollection = local.getDescendantsChanges(nextState.getData()
                                                                                            .getQPath(),
-                                                                                  true,
+                                                                                  false,
                                                                                   true);
               ItemState itemsArray[];
               itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
@@ -338,15 +350,15 @@ public class AddMerger implements ChangesMerger {
                 if (local.getLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
                   resultState.add(new ItemState(itemsArray[i].getData(),
                                                 ItemState.DELETED,
-                                                false,
+                                                itemsArray[i].isEventFire(),
                                                 itemsArray[i].getData().getQPath()));
                 }
               }
               if (local.getLastState(nextState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextState.getData(),
                                               ItemState.DELETED,
-                                              false,
-                                              localData.getQPath()));
+                                              nextState.isEventFire(),
+                                              nextState.getData().getQPath()));
               }
 
               // TODO resultState.add(incomeState);

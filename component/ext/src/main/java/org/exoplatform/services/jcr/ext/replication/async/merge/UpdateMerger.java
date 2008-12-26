@@ -74,11 +74,13 @@ public class UpdateMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
    * @throws RepositoryException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) throws RepositoryException, RemoteExportException {
+                               TransactionChangesLog local) throws RepositoryException,
+                                                           RemoteExportException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is UPDATE state
@@ -225,7 +227,7 @@ public class UpdateMerger implements ChangesMerger {
                 if (i == localUpdateSequence.size() - 1) {
                   resultState.add(new ItemState(item.getData(),
                                                 ItemState.DELETED,
-                                                false,
+                                                item.isEventFire(),
                                                 item.getData().getQPath()));
                 } else {
                   QPath name = QPath.makeChildPath(node.getQPath().makeParentPath(),
@@ -241,7 +243,10 @@ public class UpdateMerger implements ChangesMerger {
                                                                     node.getPrimaryTypeName(),
                                                                     node.getMixinTypeNames(),
                                                                     node.getACL());
-                  resultState.add(new ItemState(newItem, ItemState.UPDATED, false, name));
+                  resultState.add(new ItemState(newItem,
+                                                ItemState.UPDATED,
+                                                item.isEventFire(),
+                                                name));
                 }
               }
               break;
@@ -292,7 +297,7 @@ public class UpdateMerger implements ChangesMerger {
                                                                      prop.isMultiValued());
               item.setValues(prop.getValues());
 
-              incomeState = new ItemState(item, ItemState.UPDATED, false, name);
+              incomeState = new ItemState(item, ItemState.UPDATED, incomeState.isEventFire(), name);
               resultState.add(incomeState);
               itemChangeProcessed = true;
               break;
@@ -306,7 +311,7 @@ public class UpdateMerger implements ChangesMerger {
               // delete node on new place
               resultState.add(new ItemState(nextLocalState.getData(),
                                             ItemState.DELETED,
-                                            false,
+                                            nextLocalState.isEventFire(),
                                             nextLocalState.getData().getQPath()));
               // restore parent
               for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
@@ -317,10 +322,13 @@ public class UpdateMerger implements ChangesMerger {
               // delete node on new place
               resultState.add(new ItemState(nextLocalState.getData(),
                                             ItemState.DELETED,
-                                            false,
+                                            nextLocalState.isEventFire(),
                                             nextLocalState.getData().getQPath()));
               // restore node
-              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+              resultState.add(new ItemState(localData,
+                                            ItemState.ADDED,
+                                            localState.isEventFire(),
+                                            localData.getQPath()));
             }
             break;
           }
@@ -333,11 +341,17 @@ public class UpdateMerger implements ChangesMerger {
               }
               itemChangeProcessed = true;
             } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
-              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+              resultState.add(new ItemState(localData,
+                                            ItemState.ADDED,
+                                            localState.isEventFire(),
+                                            localData.getQPath()));
             }
           } else {
             if (localData.getIdentifier().equals(incomeData.getIdentifier())) {
-              resultState.add(new ItemState(localData, ItemState.ADDED, false, localData.getQPath()));
+              resultState.add(new ItemState(localData,
+                                            ItemState.ADDED,
+                                            localState.isEventFire(),
+                                            localData.getQPath()));
               itemChangeProcessed = true;
             }
           }
