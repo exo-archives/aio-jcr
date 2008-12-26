@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageI
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.picocontainer.Startable;
 
 /**
@@ -202,7 +203,7 @@ public class AsyncReplication implements Startable {
         WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
 
         NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
-        DataManager dm = (DataManager) wsc.getComponent(DataManager.class);
+        DataManager dm = (DataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
 
         AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
         synchWorker.start();

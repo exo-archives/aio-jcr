@@ -206,7 +206,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
     Message msg = new Message(null, null, buffer);
     
-    Vector<Address> destAddresses = null;
+    Vector<Address> destAddresses = new Vector<Address>();
     for (Member address : destinationAddresses) 
       destAddresses.add(address.getAddress());   
 
