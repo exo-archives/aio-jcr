@@ -129,6 +129,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  // merge
   public List<ItemState> getUpdateSequence(ItemState startState) {
     List<ItemState> resultStates = new ArrayList<ItemState>();
 
@@ -180,6 +181,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  // merge
   public ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
     List<ItemState> allStates = getAllStates();
 
@@ -227,6 +229,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    * @param item
    * @return
    */
+  @Deprecated
   public ItemState getPreviousItemState(ItemState item) {
     ItemState resultState = null;
 
@@ -249,6 +252,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    * @param item
    * @return
    */
+  // mereg
   public ItemState getNextItemState(ItemState item) {
     ItemState resultState = null;
 
@@ -273,6 +277,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    * @param itemPath
    * @return
    */
+  // merge
   public int getLastState(QPath itemPath) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
@@ -291,6 +296,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    * @param unique
    * @return
    */
+  // merge
   public Collection<ItemState> getDescendantsChanges(QPath rootPath,
                                                      boolean onlyNodes,
                                                      boolean unique) {
