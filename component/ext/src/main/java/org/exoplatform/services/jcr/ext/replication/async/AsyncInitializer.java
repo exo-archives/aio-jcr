@@ -35,6 +35,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.DonePacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
+import sun.awt.X11.MWMConstants;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -50,7 +52,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    */
   private static Log                        log = ExoLogger.getLogger("ext.AsyncInitializer");
 
-  private final int                         waitTimeout;
+  private final int                         memberWaitTimeout;
 
   private final int                         ownPriority;
 
@@ -60,10 +62,16 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   private final List<Integer>               otherParticipantsPriority;
   
   private final boolean                     isSynchronizationContinues;
+  
+  private boolean                           isCoordinator; 
 
   private AsyncChannelManager               channelManager;
   
   private List<Member>                      previousMemmbers;
+  
+  private Member                            localMember;
+  
+  private MemberWaiter                      memberWaiter;
 
   /**
    * Listeners in order of addition.
@@ -79,12 +87,12 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   AsyncInitializer(AsyncChannelManager channelManager,
                    int priority,
                    List<Integer> otherParticipantsPriority,
-                   int waitTimeout,
+                   int memberWaitTimeout,
                    boolean isSynchronizationContinues,
                    ChangesPublisher publisher) {
     this.channelManager = channelManager;
     this.ownPriority = priority;
-    this.waitTimeout = waitTimeout;
+    this.memberWaitTimeout = memberWaitTimeout;
     this.otherParticipantsPriority = otherParticipantsPriority;
     this.isSynchronizationContinues = isSynchronizationContinues;
     this.channelManager.addPacketListener(this);
@@ -100,12 +108,12 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     listeners.remove(listener);
   }
 
-
   /**
    * {@inheritDoc}
    */
   public void onStateChanged(AsyncStateEvent event) {
     if (previousMemmbers == null) {
+      localMember = event.getLocalMember();
       previousMemmbers = event.getMembers();
     }
     else if (previousMemmbers.size() > event.getMembers().size()) {
@@ -113,19 +121,26 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       // Will be created memberWaiter   
       if (event.getMembers().size() == 2 ) {
         if (event.isCoordinator()) {
-          //TODO 
+           isCoordinator = event.isCoordinator();
+           
+           memberWaiter = new MemberWaiter(this);
+           memberWaiter.start();
+           
         }
       }
       
       // check if all member was connected 
       if (event.getMembers().size() == (otherParticipantsPriority.size() + 1)) {
+        if (isCoordinator) {
+          memberWaiter.stop();
+          memberWaiter = null;
+        }
+        
         List<Member> members = new ArrayList<Member>(event.getMembers());
         
         members.remove(event.getLocalMember());
          
-        if (event.isCoordinator()) 
-          for (SynchronizationListener syncl : listeners)  
-            syncl.onStart(members);   
+        start(members);   
       }
       
       
@@ -134,10 +149,25 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       disconnectedMembers.removeAll(event.getMembers());
       
       for (SynchronizationListener syncl : listeners)  
-        syncl.onMembersDisconnected(disconnectedMembers); 
+        syncl.onMembersDisconnected(disconnectedMembers);
+      
+      //TODO Check if disconnected the previous coordinator.
     }
      
+    localMember = event.getLocalMember();
     previousMemmbers = event.getMembers();   
+  }
+  
+  /**
+   * Will be celled onStart for SynchronizationListener. 
+   *
+   * @param members 
+   *          list of members
+   */
+  private void start(List<Member> members ) {
+    if (isCoordinator) 
+      for (SynchronizationListener syncl : listeners)  
+        syncl.onStart(members);
   }
 
   public void receive(AbstractPacket packet, Member srcAddress) throws Exception {
@@ -178,9 +208,29 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     }
   }
   
-  class MemberWaiter extends Thread {
+  private class MemberWaiter extends Thread {
+    private AsyncInitializer initializer;
+    
+    public MemberWaiter(AsyncInitializer initializer) {
+      this.initializer = initializer;
+    }
+    
     @Override
     public void run() {
+      try {
+        Thread.sleep(memberWaitTimeout);
+        
+        if (previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
+            && isSynchronizationContinues ) {
+          List<Member> members = new ArrayList<Member>(previousMemmbers);
+          members.remove(localMember);
+          
+          this.initializer.start(members);
+        }
+        
+      } catch (Exception e) {
+        // TODO: handle exception
+      }
       
     }    
   }
