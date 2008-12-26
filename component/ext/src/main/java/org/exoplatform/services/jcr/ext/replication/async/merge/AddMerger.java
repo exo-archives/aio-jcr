@@ -76,11 +76,13 @@ public class AddMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
    * @throws RepositoryException
    */
   public List<ItemState> merge(ItemState itemChange,
                                TransactionChangesLog income,
-                               TransactionChangesLog local) throws RepositoryException, RemoteExportException {
+                               TransactionChangesLog local) throws RepositoryException,
+                                                           RemoteExportException {
 
     boolean itemChangeProcessed = false;
 
@@ -126,28 +128,21 @@ public class AddMerger implements ChangesMerger {
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
               int relativeDegree = incomeState.getData().getQPath().getEntries().length
-                  - localData.getQPath().getEntries().length - 1;
+                  - localData.getQPath().getEntries().length;
 
-              // find state with parent node that is child of UPDATED node
-              ItemState parentState = relativeDegree > 0
-                  ? income.getPreviousItemStateByQPath(incomeState,
-                                                       incomeState.getData()
-                                                                  .getQPath()
-                                                                  .makeAncestorPath(relativeDegree))
-                  : null;
-
-              // find new path of UPDATED node
-              QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
-                                                                      parentState != null
-                                                                          ? parentState.getData()
-                                                                                       .getParentIdentifier()
-                                                                          : incomeData.getParentIdentifier())
-                                      .getData()
-                                      .getQPath();
+              ItemState parent = local.getNextItemStateByIndexOnUpdate(localState,
+                                                                       incomeState.getData()
+                                                                                  .getQPath()
+                                                                                  .makeAncestorPath(relativeDegree)
+                                                                                  .getIndex());
 
               // set new QPath
               QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
-              System.arraycopy(parentPath.getEntries(), 0, names, 0, parentPath.getEntries().length);
+              System.arraycopy(parent.getData().getQPath().getEntries(),
+                               0,
+                               names,
+                               0,
+                               parent.getData().getQPath().getEntries().length);
               System.arraycopy(incomeData.getQPath().getEntries(),
                                localData.getQPath().getEntries().length,
                                names,
@@ -272,26 +267,21 @@ public class AddMerger implements ChangesMerger {
             // if item added to updated item
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
 
-              ItemState parentState = income.getPreviousItemStateByQPath(incomeState,
-                                                                         incomeState.getData()
-                                                                                    .getQPath()
-                                                                                    .makeAncestorPath(incomeState.getData()
-                                                                                                                 .getQPath()
-                                                                                                                 .getEntries().length
-                                                                                        - localData.getQPath()
-                                                                                                   .getEntries().length
-                                                                                        - 1));
+              int relativeDegree = incomeState.getData().getQPath().getEntries().length
+                  - localData.getQPath().getEntries().length;
 
-              QPath parentPath = local.getNextItemStateByUUIDOnUpdate(localState,
-                                                                      parentState != null
-                                                                          ? parentState.getData()
-                                                                                       .getParentIdentifier()
-                                                                          : incomeData.getParentIdentifier())
-                                      .getData()
-                                      .getQPath();
+              ItemState parent = local.getNextItemStateByIndexOnUpdate(localState,
+                                                                       incomeState.getData()
+                                                                                  .getQPath()
+                                                                                  .makeAncestorPath(relativeDegree)
+                                                                                  .getIndex());
 
               QPathEntry names[] = new QPathEntry[incomeData.getQPath().getEntries().length];
-              System.arraycopy(parentPath.getEntries(), 0, names, 0, parentPath.getEntries().length);
+              System.arraycopy(parent.getData().getQPath().getEntries(),
+                               0,
+                               names,
+                               0,
+                               parent.getData().getQPath().getEntries().length);
               System.arraycopy(incomeData.getQPath().getEntries(),
                                localData.getQPath().getEntries().length,
                                names,
