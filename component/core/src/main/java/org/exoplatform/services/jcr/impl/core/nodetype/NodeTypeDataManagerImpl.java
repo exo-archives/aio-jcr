@@ -1103,18 +1103,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
   }
 
-  public PlainChangesLog makeAutoCreatedItems(NodeData parent,
-                                              InternalQName nodeTypeName,
-                                              ItemDataConsumer dataManager,
-                                              String owner) throws RepositoryException {
+  public PlainChangesLog makeAutoCreatedProperties(NodeData parent,
+                                                   InternalQName typeName,
+                                                   PropertyDefinitionData[] propDefs,
+                                                   ItemDataConsumer dataManager,
+                                                   String owner) throws RepositoryException {
     PlainChangesLogImpl changes = new PlainChangesLogImpl();
-    NodeTypeData type = findNodeType(nodeTypeName);
 
     Set<InternalQName> addedProperties = new HashSet<InternalQName>();
 
     // Add autocreated child properties
-    for (PropertyDefinitionData pdef : getAllPropertyDefinitions(type.getName())) {
 
+    for (PropertyDefinitionData pdef : propDefs) {
       // if (propDefs[i] == null) // TODO it is possible for not mandatory
       // propDef
       // continue;
@@ -1125,7 +1125,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
         if ((pdata == null && !addedProperties.contains(pdef.getName()))
             || (pdata != null && pdata.isNode())) {
 
-          List<ValueData> listAutoCreateValue = autoCreatedValue(parent, type, pdef, owner);
+          List<ValueData> listAutoCreateValue = autoCreatedValue(parent, typeName, pdef, owner);
 
           if (listAutoCreateValue != null) {
             TransientPropertyData propertyData = TransientPropertyData.createPropertyData(parent,
@@ -1142,15 +1142,22 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
           if (LOG.isDebugEnabled()) {
             LOG.debug("Skipping existed property " + pdef.getName() + " in "
                 + parent.getQPath().getAsString()
-                + "   during the automatic creation of items for " + nodeTypeName.getAsString()
+                + "   during the automatic creation of items for " + typeName.getAsString()
                 + " nodetype or mixin type");
           }
         }
       }
     }
+    return changes;
+  }
 
-    // Add autocreated child nodes
-    for (NodeDefinitionData ndef : getAllChildNodeDefinitions(type.getName())) {
+  public PlainChangesLog makeAutoCreatedNodes(NodeData parent,
+                                              NodeDefinitionData[] nodeDefs,
+                                              ItemDataConsumer dataManager,
+                                              String owner) throws RepositoryException {
+    PlainChangesLogImpl changes = new PlainChangesLogImpl();
+
+    for (NodeDefinitionData ndef : nodeDefs) {
       if (ndef.isAutoCreated()) {
         TransientNodeData childNodeData = TransientNodeData.createNodeData(parent, ndef.getName(),
         // TODO default NT may be null, or check it in NT manager
@@ -1161,12 +1168,34 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
       }
     }
+    return changes;
+
+  }
+
+  public PlainChangesLog makeAutoCreatedItems(NodeData parent,
+                                              InternalQName nodeTypeName,
+                                              ItemDataConsumer dataManager,
+                                              String owner) throws RepositoryException {
+    PlainChangesLogImpl changes = new PlainChangesLogImpl();
+    NodeTypeData type = findNodeType(nodeTypeName);
+
+    changes.addAll(makeAutoCreatedProperties(parent,
+                                             nodeTypeName,
+                                             getAllPropertyDefinitions(nodeTypeName),
+                                             dataManager,
+                                             owner).getAllStates());
+    changes.addAll(makeAutoCreatedNodes(parent,
+                                        getAllChildNodeDefinitions(nodeTypeName),
+                                        dataManager,
+                                        owner).getAllStates());
+
+    // Add autocreated child nodes
 
     // versionable
     if (isNodeType(Constants.MIX_VERSIONABLE, new InternalQName[] { type.getName() })) {
 
       // using VH helper as for one new VH, all changes in changes log
-      new VersionHistoryDataHelper(parent, changes, dataManager, this);
+      makeMixVesionableChanges(parent, dataManager, changes);
       // for (ItemState istate : changes.getAllStates()) {
       // dataManager.update(istate, false);
       // }
@@ -1175,36 +1204,47 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return changes;
   }
 
+  /**
+   * @param parent
+   * @param dataManager
+   * @param changes
+   * @throws RepositoryException
+   */
+  private void makeMixVesionableChanges(NodeData parent,
+                                        ItemDataConsumer dataManager,
+                                        PlainChangesLogImpl changes) throws RepositoryException {
+    new VersionHistoryDataHelper(parent, changes, dataManager, this);
+  }
+
   private List<ValueData> autoCreatedValue(NodeData parent,
-                                           NodeTypeData type,
+                                           InternalQName typeName,
                                            PropertyDefinitionData def,
                                            String owner) throws RepositoryException {
     NodeTypeDataManager typeDataManager = this;
     List<ValueData> vals = new ArrayList<ValueData>();
 
-    if (typeDataManager.isNodeType(Constants.NT_BASE, new InternalQName[] { type.getName() })
+    if (typeDataManager.isNodeType(Constants.NT_BASE, new InternalQName[] { typeName })
         && def.getName().equals(Constants.JCR_PRIMARYTYPE)) {
       vals.add(new TransientValueData(parent.getPrimaryTypeName()));
 
     } else if (typeDataManager.isNodeType(Constants.MIX_REFERENCEABLE,
-                                          new InternalQName[] { type.getName() })
+                                          new InternalQName[] { typeName })
         && def.getName().equals(Constants.JCR_UUID)) {
       vals.add(new TransientValueData(parent.getIdentifier()));
 
     } else if (typeDataManager.isNodeType(Constants.NT_HIERARCHYNODE,
-                                          new InternalQName[] { type.getName() })
+                                          new InternalQName[] { typeName })
         && def.getName().equals(Constants.JCR_CREATED)) {
       vals.add(new TransientValueData(Calendar.getInstance()));
 
-    } else if (typeDataManager.isNodeType(Constants.EXO_OWNEABLE,
-                                          new InternalQName[] { type.getName() })
+    } else if (typeDataManager.isNodeType(Constants.EXO_OWNEABLE, new InternalQName[] { typeName })
         && def.getName().equals(Constants.EXO_OWNER)) {
       // String owner = session.getUserID();
       vals.add(new TransientValueData(owner));
       parent.setACL(new AccessControlList(owner, parent.getACL().getPermissionEntries()));
 
     } else if (typeDataManager.isNodeType(Constants.EXO_PRIVILEGEABLE,
-                                          new InternalQName[] { type.getName() })
+                                          new InternalQName[] { typeName })
         && def.getName().equals(Constants.EXO_PERMISSIONS)) {
       for (AccessControlEntry ace : parent.getACL().getPermissionEntries()) {
         vals.add(new TransientValueData(ace));

@@ -31,7 +31,6 @@ import org.exoplatform.services.jcr.core.ExtendedPropertyType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.DataManager;
-import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -45,8 +44,6 @@ import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -112,7 +109,7 @@ public class PropertyDefinitionComparator {
 
     Set<String> nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
     //
-    doAdd(newDefinitionData, changesLog, nodes);
+    doAdd(newDefinitionData, changesLog, nodes, registeredNodeType);
     // changed
     doChanged(registeredNodeType, changedDefinitionData, nodes);
     return changesLog;
@@ -151,33 +148,27 @@ public class PropertyDefinitionComparator {
    * @param toAddList
    * @param changesLog
    * @param nodes
+   * @param registeredNodeType
    * @throws RepositoryException
    */
   private void doAdd(List<PropertyDefinitionData> toAddList,
                      PlainChangesLog changesLog,
-                     Set<String> nodes) throws RepositoryException {
+                     Set<String> nodes,
+                     NodeTypeData registeredNodeType) throws RepositoryException {
     for (String uuid : nodes) {
       NodeData nodeData = (NodeData) persister.getItemData(uuid);
 
       // added properties
       for (PropertyDefinitionData newPropertyDefinitionData : toAddList) {
-        if (newPropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
-          continue;
-
-        List<ValueData> valueConstraintsValues = new ArrayList<ValueData>();
-        for (String vc : newPropertyDefinitionData.getDefaultValues())
-          valueConstraintsValues.add(new TransientValueData(vc));
-
-        // added state
-        int type = newPropertyDefinitionData.getRequiredType();
-        changesLog.add(new ItemState(TransientPropertyData.createPropertyData(nodeData,
-                                                                              newPropertyDefinitionData.getName(),
-                                                                              type,
-                                                                              newPropertyDefinitionData.isMultiple(),
-                                                                              valueConstraintsValues),
-                                     ItemState.ADDED,
-                                     false,
-                                     nodeData.getQPath()));
+        if (!newPropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME)
+            && newPropertyDefinitionData.isAutoCreated())
+          changesLog.addAll(nodeTypeDataManager.makeAutoCreatedProperties(nodeData,
+                                                                          registeredNodeType.getName(),
+                                                                          new PropertyDefinitionData[] { newPropertyDefinitionData },
+                                                                          persister,
+                                                                          nodeData.getACL()
+                                                                                  .getOwner())
+                                               .getAllStates());
       }
     }
   }

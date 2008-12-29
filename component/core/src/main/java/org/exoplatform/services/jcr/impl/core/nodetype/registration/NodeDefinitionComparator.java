@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
@@ -88,7 +89,160 @@ public class NodeDefinitionComparator {
     // check removed
     validateRemoved(registeredNodeType, removedDefinitionData);
 
+    Set<String> nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+
+    validateAdded(registeredNodeType.getName(), newDefinitionData, nodes);
+
+    //
+    doAdd(newDefinitionData, changesLog, nodes, registeredNodeType);
+
+    // changed
+    doChanged(registeredNodeType, changedDefinitionData, nodes);
+
     return changesLog;
+
+  }
+
+  /**
+   * @param toAddList
+   * @param changesLog
+   * @param nodes
+   * @param registeredNodeType
+   * @throws RepositoryException
+   */
+  private void doAdd(List<NodeDefinitionData> toAddList,
+                     PlainChangesLog changesLog,
+                     Set<String> nodes,
+                     NodeTypeData registeredNodeType) throws RepositoryException {
+
+    for (String uuid : nodes) {
+      NodeData nodeData = (NodeData) persister.getItemData(uuid);
+
+      // added properties
+      for (NodeDefinitionData newNodeDefinitionData : toAddList) {
+        if (!newNodeDefinitionData.getName().equals(Constants.JCR_ANY_NAME)
+            && newNodeDefinitionData.isAutoCreated())
+          changesLog.addAll(nodeTypeDataManager.makeAutoCreatedNodes(nodeData,
+                                                                     new NodeDefinitionData[] { newNodeDefinitionData },
+                                                                     persister,
+                                                                     nodeData.getACL().getOwner())
+                                               .getAllStates());
+      }
+    }
+  }
+
+  private void doChanged(NodeTypeData registeredNodeType,
+                         List<List<NodeDefinitionData>> changedDefinitionData,
+                         Set<String> nodes) throws RepositoryException {
+    for (List<NodeDefinitionData> list : changedDefinitionData) {
+      NodeDefinitionData ancestorDefinitionData = list.get(0);
+      NodeDefinitionData recipientDefinitionData = list.get(1);
+      // change from mandatory=false to mandatory = true
+      // TODO residual
+      if (!ancestorDefinitionData.isMandatory() && recipientDefinitionData.isMandatory()) {
+        for (String uuid : nodes) {
+          NodeData nodeData = (NodeData) persister.getItemData(uuid);
+          ItemData child = persister.getItemData(nodeData,
+                                                 new QPathEntry(recipientDefinitionData.getName(),
+                                                                0));
+          if (child == null || !child.isNode()) {
+            String message = "Can not change " + recipientDefinitionData.getName().getAsString()
+                + " node definition for " + registeredNodeType.getName().getAsString()
+                + " node type " + " from mandatory=false to mandatory = true , because " + " node "
+                + nodeData.getQPath().getAsString() + " doesn't have child node with name "
+                + recipientDefinitionData.getName().getAsString();
+            throw new RepositoryException(message);
+          }
+        }
+      }
+
+      // change from Protected=false to Protected = true
+      if (!ancestorDefinitionData.isProtected() && recipientDefinitionData.isProtected()) {
+        // TODO residual
+        for (String uuid : nodes) {
+          NodeData nodeData = (NodeData) persister.getItemData(uuid);
+          ItemData child = persister.getItemData(nodeData,
+                                                 new QPathEntry(recipientDefinitionData.getName(),
+                                                                0));
+          if (child == null || !child.isNode()) {
+            String message = "Can not change " + recipientDefinitionData.getName().getAsString()
+                + " node definition for " + registeredNodeType.getName().getAsString()
+                + " node type " + " from rotected=false to Protected = true , because " + " node "
+                + nodeData.getQPath().getAsString() + " doesn't have child node with name "
+                + recipientDefinitionData.getName().getAsString();
+            throw new RepositoryException(message);
+          }
+        }
+      }
+    }
+  }
+
+  private void init(NodeDefinitionData[] ancestorDefinition,
+                    NodeDefinitionData[] recipientDefinition,
+                    List<NodeDefinitionData> sameDefinitionData,
+                    List<List<NodeDefinitionData>> changedDefinitionData,
+                    List<NodeDefinitionData> newDefinitionData,
+                    List<NodeDefinitionData> removedDefinitionData) {
+    for (int i = 0; i < recipientDefinition.length; i++) {
+      boolean isNew = true;
+      for (int j = 0; j < ancestorDefinition.length; j++) {
+        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+          isNew = false;
+          if (recipientDefinition[i].equals(ancestorDefinition[j]))
+            sameDefinitionData.add(recipientDefinition[i]);
+          else {
+            // TODO make better structure
+            List<NodeDefinitionData> list = new ArrayList<NodeDefinitionData>();
+            list.add(ancestorDefinition[j]);
+            list.add(recipientDefinition[i]);
+            changedDefinitionData.add(list);
+          }
+        }
+      }
+      if (isNew)
+        newDefinitionData.add(recipientDefinition[i]);
+    }
+    for (int i = 0; i < ancestorDefinition.length; i++) {
+      boolean isRemoved = true;
+      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
+        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+          isRemoved = false;
+          break;
+        }
+      }
+      if (isRemoved)
+        removedDefinitionData.add(ancestorDefinition[i]);
+    }
+  }
+
+  private void validateAdded(InternalQName nodeTypeName,
+                             List<NodeDefinitionData> newDefinitionData,
+                             Set<String> nodes) throws RepositoryException {
+
+    for (NodeDefinitionData nodeDefinitionData : newDefinitionData) {
+      // skipping residual
+      if (nodeDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
+        continue;
+      // try to add mandatory or auto-created properties for
+      // for already addded nodes.
+      if (nodeDefinitionData.isMandatory() && !nodeDefinitionData.isAutoCreated()) {
+
+        for (String uuid : nodes) {
+          NodeData nodeData = (NodeData) persister.getItemData(uuid);
+          ItemData child = persister.getItemData(nodeData,
+                                                 new QPathEntry(nodeDefinitionData.getName(), 0));
+          if (child == null || !child.isNode()) {
+            throw new RepositoryException("Fail to  add mandatory and not auto-created "
+                + "child node definition " + nodeDefinitionData.getName().getAsString() + " for "
+                + nodeDefinitionData.getDeclaringNodeType().getAsString() + " because node "
+                + nodeData.getQPath().getAsString() + " doesn't contains child node with name "
+                + nodeDefinitionData.getName().getAsString());
+
+          }
+        }
+
+      }
+    }
 
   }
 
@@ -133,44 +287,6 @@ public class NodeDefinitionComparator {
         }
 
       }
-    }
-  }
-
-  private void init(NodeDefinitionData[] ancestorDefinition,
-                    NodeDefinitionData[] recipientDefinition,
-                    List<NodeDefinitionData> sameDefinitionData,
-                    List<List<NodeDefinitionData>> changedDefinitionData,
-                    List<NodeDefinitionData> newDefinitionData,
-                    List<NodeDefinitionData> removedDefinitionData) {
-    for (int i = 0; i < recipientDefinition.length; i++) {
-      boolean isNew = true;
-      for (int j = 0; j < ancestorDefinition.length; j++) {
-        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
-          isNew = false;
-          if (recipientDefinition[i].equals(ancestorDefinition[j]))
-            sameDefinitionData.add(recipientDefinition[i]);
-          else {
-            // TODO make better structure
-            List<NodeDefinitionData> list = new ArrayList<NodeDefinitionData>();
-            list.add(ancestorDefinition[j]);
-            list.add(recipientDefinition[i]);
-            changedDefinitionData.add(list);
-          }
-        }
-      }
-      if (isNew)
-        newDefinitionData.add(recipientDefinition[i]);
-    }
-    for (int i = 0; i < ancestorDefinition.length; i++) {
-      boolean isRemoved = true;
-      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
-          isRemoved = false;
-          break;
-        }
-      }
-      if (isRemoved)
-        removedDefinitionData.add(ancestorDefinition[i]);
     }
   }
 }
