@@ -61,7 +61,7 @@ public class TestExportChanges extends BaseStandaloneTest {
                                             + "oob_thread_pool.min_threads=8;"
                                             + "use_incoming_packet_handler=true;"
                                             + "thread_pool.rejection_policy=Run;"
-                                            + "bind_addr=192.168.0.66;"
+                                            + "bind_addr=127.0.0.1;"
                                             + "thread_pool.min_threads=8;"
                                             + "thread_pool.keep_alive_time=5000;"
                                             + "enable_bundling=true)"
@@ -110,13 +110,6 @@ public class TestExportChanges extends BaseStandaloneTest {
 
     AsyncChannelManager channel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
 
-    ChangesPublisher publisher = null; // TODO unused
-    AsyncInitializer asyncManager = new AsyncInitializer(channel,
-                                                         100,
-                                                         new ArrayList<Integer>(),
-                                                         30000,
-                                                         true); // TODO unused
-
     int priority = 50;
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority);
@@ -129,7 +122,6 @@ public class TestExportChanges extends BaseStandaloneTest {
 
     RemoteExportServer exportServer = new RemoteExportServerImpl(transmitter, dm, ntm);
 
-    // TODO HERE
     AsyncReceiver receiver = new AsyncReceiverImpl(channel, exportServer);
 
     RemoteExporterImpl exporter = new RemoteExporterImpl(transmitter, receiver);
