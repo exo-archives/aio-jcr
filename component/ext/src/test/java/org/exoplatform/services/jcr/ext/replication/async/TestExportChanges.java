@@ -41,45 +41,45 @@ import org.jgroups.stack.IpAddress;
  */
 public class TestExportChanges extends BaseStandaloneTest {
 
-  private static final String CH_CONFIG = "TCP(oob_thread_pool.queue_max_size=100;" +
-  		"thread_naming_pattern=cl;" +
-  		"use_concurrent_stack=true;" +
-  		"oob_thread_pool.rejection_policy=Run;" +
-  		"discard_incompatible_packets=true;" +
-  		"thread_pool.max_threads=40;" +
-  		"oob_thread_pool.enabled=false;" +
-  		"oob_thread_pool.max_threads=20;" +
-  		"loopback=false;" +
-  		"oob_thread_pool.keep_alive_time=5000;" +
-  		"thread_pool.queue_enabled=false;" +
-  		"oob_thread_pool.queue_enabled=false;" +
-  		"max_bundle_size=64000;" +
-  		"thread_pool.queue_max_size=100;" +
-  		"thread_pool.enabled=false;" +
-  		"enable_diagnostics=true;" +
-  		"max_bundle_timeout=30;" +
-  		"oob_thread_pool.min_threads=8;" +
-  		"use_incoming_packet_handler=true;" +
-  		"thread_pool.rejection_policy=Run;" +
-  		"bind_addr=192.168.0.66;" +
-  		"thread_pool.min_threads=8;" +
-  		"thread_pool.keep_alive_time=5000;" +
-  		"enable_bundling=true)" +
-  		":MPING(timeout=2000;" +
-  		"num_initial_members=8;" +
-  		"mcast_port=34526;" +
-  		"mcast_addr=224.0.0.1)" +
-  		":FD(timeout=2000;max_tries=5;shun=true)" +
-  		":FD_SOCK:VERIFY_SUSPECT(timeout=1500)" +
-  		":pbcast.NAKACK(max_xmit_size=60000;" +
-  		"print_stability_history_on_failed_xmit=true;" +
-  		"use_mcast_xmit=false;" +
-  		"gc_lag=0;discard_delivered_msgs=true;" +
-  		"retransmit_timeout=300,600,1200,2400,4800)" +
-  		":pbcast.STABLE(stability_delay=1000;desired_avg_gossip=50000;max_bytes=8000000)" +
-  		":pbcast.GMS(print_local_addr=true;join_timeout=3000;view_bundling=true" +
-  		";join_retry_timeout=2000;shun=true;merge_leader=true;" +
-  		"reject_join_from_existing_member=true)";
+  private static final String CH_CONFIG = "TCP(oob_thread_pool.queue_max_size=100;"
+                                            + "thread_naming_pattern=cl;"
+                                            + "use_concurrent_stack=true;"
+                                            + "oob_thread_pool.rejection_policy=Run;"
+                                            + "discard_incompatible_packets=true;"
+                                            + "thread_pool.max_threads=40;"
+                                            + "oob_thread_pool.enabled=false;"
+                                            + "oob_thread_pool.max_threads=20;"
+                                            + "loopback=false;"
+                                            + "oob_thread_pool.keep_alive_time=5000;"
+                                            + "thread_pool.queue_enabled=false;"
+                                            + "oob_thread_pool.queue_enabled=false;"
+                                            + "max_bundle_size=64000;"
+                                            + "thread_pool.queue_max_size=100;"
+                                            + "thread_pool.enabled=false;"
+                                            + "enable_diagnostics=true;"
+                                            + "max_bundle_timeout=30;"
+                                            + "oob_thread_pool.min_threads=8;"
+                                            + "use_incoming_packet_handler=true;"
+                                            + "thread_pool.rejection_policy=Run;"
+                                            + "bind_addr=192.168.0.66;"
+                                            + "thread_pool.min_threads=8;"
+                                            + "thread_pool.keep_alive_time=5000;"
+                                            + "enable_bundling=true)"
+                                            + ":MPING(timeout=2000;"
+                                            + "num_initial_members=8;"
+                                            + "mcast_port=34526;"
+                                            + "mcast_addr=224.0.0.1)"
+                                            + ":FD(timeout=2000;max_tries=5;shun=true)"
+                                            + ":FD_SOCK:VERIFY_SUSPECT(timeout=1500)"
+                                            + ":pbcast.NAKACK(max_xmit_size=60000;"
+                                            + "print_stability_history_on_failed_xmit=true;"
+                                            + "use_mcast_xmit=false;"
+                                            + "gc_lag=0;discard_delivered_msgs=true;"
+                                            + "retransmit_timeout=300,600,1200,2400,4800)"
+                                            + ":pbcast.STABLE(stability_delay=1000;desired_avg_gossip=50000;max_bytes=8000000)"
+                                            + ":pbcast.GMS(print_local_addr=true;join_timeout=3000;view_bundling=true"
+                                            + ";join_retry_timeout=2000;shun=true;merge_leader=true;"
+                                            + "reject_join_from_existing_member=true)";
 
   private static final String CH_NAME   = "TestChannel";
 
@@ -110,12 +110,12 @@ public class TestExportChanges extends BaseStandaloneTest {
 
     AsyncChannelManager channel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
 
-    ChangesPublisher publisher = null;
-    AsyncInitializer asyncManager = new AsyncInitializer(channel, 
-                                                         100, 
-                                                         new ArrayList<Integer>(), 
-                                                         30000, 
-                                                         true);
+    ChangesPublisher publisher = null; // TODO unused
+    AsyncInitializer asyncManager = new AsyncInitializer(channel,
+                                                         100,
+                                                         new ArrayList<Integer>(),
+                                                         30000,
+                                                         true); // TODO unused
 
     int priority = 50;
 
@@ -127,13 +127,6 @@ public class TestExportChanges extends BaseStandaloneTest {
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     DataManager dm = (DataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
 
-    LocalStorage ls = new LocalStorageImpl("TODO");
-    
-    WorkspaceSynchronizerImpl synchronizer = new WorkspaceSynchronizerImpl(transmitter,
-                                                                           ls,
-                                                                           dm,
-                                                                           ntm);
-
     RemoteExportServer exportServer = new RemoteExportServerImpl(transmitter, dm, ntm);
 
     // TODO HERE
@@ -141,7 +134,7 @@ public class TestExportChanges extends BaseStandaloneTest {
 
     RemoteExporterImpl exporter = new RemoteExporterImpl(transmitter, receiver);
 
-    exporter.setMember(new Member(new IpAddress("127.0.0.1",7800)));
+    exporter.setMember(new Member(new IpAddress("127.0.0.1", 7800)));
     channel.addPacketListener(receiver);
     channel.connect();
 
