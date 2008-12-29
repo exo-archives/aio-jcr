@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -42,15 +43,15 @@ public class CompositeChangesStorage implements ChangesStorage {
 
   private final TransactionChangesLog chlog;
   
-  private final int priority;
+  private final Member member;
   
-  public CompositeChangesStorage(TransactionChangesLog chlog, int priority) {
+  public CompositeChangesStorage(TransactionChangesLog chlog, Member member) {
     this.chlog = chlog;
-    this.priority = priority;
+    this.member = member;
   }
   
-  public CompositeChangesStorage(TransactionChangesLog chlog) {
-    this(chlog, 1);
+  CompositeChangesStorage(TransactionChangesLog chlog) {
+    this(chlog, null);
   }
   
   public void addLog(PlainChangesLog log) {
@@ -104,8 +105,8 @@ public class CompositeChangesStorage implements ChangesStorage {
   /**
    * {@inheritDoc}
    */
-  public int getMemberPriority() {
-    return priority;
+  public Member getMember() {
+    return member;
   }
 
   /**

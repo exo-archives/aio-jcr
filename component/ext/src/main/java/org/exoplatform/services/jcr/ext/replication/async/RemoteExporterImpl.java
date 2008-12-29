@@ -23,7 +23,6 @@ import java.io.ObjectInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 
@@ -74,7 +73,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * {@inheritDoc}
    */
-  public Iterator<ItemState> exportItem(String nodetId) throws RemoteExportException {
+  public SerializedItemStateIterator<ItemState> exportItem(String nodetId) throws RemoteExportException {
     // registration RemoteChangesListener.
     receiver.setRemoteExportListener(this);
 

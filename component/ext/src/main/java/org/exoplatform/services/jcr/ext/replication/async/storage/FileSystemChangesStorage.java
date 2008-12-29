@@ -108,7 +108,7 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
 
   public FileSystemChangesStorage(File storagePath, Member member) {
     this.storagePath = storagePath;
-    this.storagePath.mkdirs();
+    // this.storagePath.mkdirs();
     this.member = member;
   }
 
@@ -205,7 +205,7 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
     
   }
 
-  public void addAll(Iterator<ItemState> changes) {
+  public void addAll(SerializedItemStateIterator<ItemState> changes) {
     // TODO Auto-generated method stub
     
   }

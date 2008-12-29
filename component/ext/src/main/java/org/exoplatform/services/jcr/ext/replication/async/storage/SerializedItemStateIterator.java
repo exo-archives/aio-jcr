@@ -30,21 +30,31 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 26.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class SerializedItemStateIterator<T extends ItemState> implements Iterator<T> {
 
-  private final ObjectInputStream in;
-  
-  private T                 nextItem;
+  protected final ObjectInputStream in;
+
+  private T                       nextItem;
 
   /**
-   * SerializedItemStateIterator  constructor.
+   * SerializedItemStateIterator  constructor - FOR TESTS only!!!.
    *
-   * @param dataStream InputStream
-   * @throws RemoteExportException if error occurs
+   */
+  public SerializedItemStateIterator() {
+    this.in = null; // TODO remove this constructor
+  }
+  
+  /**
+   * SerializedItemStateIterator constructor.
+   * 
+   * @param dataStream
+   *          InputStream
+   * @throws RemoteExportException
+   *           if error occurs
    */
   public SerializedItemStateIterator(InputStream dataStream) throws RemoteExportException {
     try {
@@ -104,5 +114,5 @@ public class SerializedItemStateIterator<T extends ItemState> implements Iterato
       return null;
     }
   }
-  
+
 }

@@ -65,7 +65,7 @@ public class MergeDataManager {
 
     private final Iterator<ChangesStorage> membersChanges;
     
-    MergeWorker(int localPriority, Iterator<ChangesStorage> membersChanges) {
+    MergeWorker(Iterator<ChangesStorage> membersChanges) {
       this.membersChanges = membersChanges;
     }
 
@@ -89,6 +89,7 @@ public class MergeDataManager {
           nextChanges = membersChanges.next();
         } else {
           // TODO
+          localChanges = null;
         }
         
         exporter.setMember(nextChanges.getMember());
