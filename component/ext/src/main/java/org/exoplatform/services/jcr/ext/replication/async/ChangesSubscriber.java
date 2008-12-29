@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface ChangesSubscriber extends SynchronizationEventListener, SynchronizationEventProducer {
+public interface ChangesSubscriber {
   
   /**
    * Add packet.
