@@ -79,10 +79,8 @@ public class AddMerger implements ChangesMerger {
    * 
    * @throws RepositoryException
    */
-  public List<ItemState> merge(ItemState itemChange,
-                               ChangesStorage income,
-                               ChangesStorage local) throws RepositoryException,
-                                                           RemoteExportException {
+  public List<ItemState> merge(ItemState itemChange, ChangesStorage income, ChangesStorage local) throws RepositoryException,
+                                                                                                 RemoteExportException {
 
     boolean itemChangeProcessed = false;
 
@@ -120,10 +118,10 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          ItemState nextState = local.getNextItemState(localState);
+          ItemState nextLocalState = local.getNextItemState(localState);
 
           // UPDATE sequences
-          if (nextState != null && nextState.getState() == ItemState.UPDATED) {
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
 
             // if item added to updated item
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
@@ -189,11 +187,11 @@ public class AddMerger implements ChangesMerger {
           }
 
           // RENAME sequences
-          if (nextState != null && nextState.getState() == ItemState.RENAMED) {
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                 || incomeData.getQPath().equals(localData.getQPath())
-                || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
-                || incomeData.getQPath().equals(nextState.getData().getQPath())) {
+                || incomeData.getQPath().isDescendantOf(nextLocalState.getData().getQPath())
+                || incomeData.getQPath().equals(nextLocalState.getData().getQPath())) {
               return resultEmptyState;
             }
             break;
@@ -362,7 +360,6 @@ public class AddMerger implements ChangesMerger {
                                               nextState.getData().getQPath()));
               }
 
-              // TODO resultState.add(incomeState);
               for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();)
                 resultState.add(exp.next());
 

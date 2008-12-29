@@ -83,8 +83,6 @@ public class MergeDataManager {
      */
     private void doMerge() {
 
-      String lastParentIdentifierOnUpdate = null;
-
       ChangesStorage synchronizedChanges = null;
       ChangesStorage currentChanges = membersChanges.next();
       ChangesStorage localChanges;
@@ -159,10 +157,7 @@ public class MergeDataManager {
             }
             break;
           case ItemState.UPDATED:
-            // TODO skip update sequence, allow single update itemstate
-            if (lastParentIdentifierOnUpdate == null
-                || !lastParentIdentifierOnUpdate.equals(incomeChange.getData()
-                                                                    .getParentIdentifier())) {
+            if (!incomeChange.getData().isNode()) {
               try {
                 udpateMerger.merge(incomeChange, incomeChanges, localChanges);
               } catch (Exception e) {
