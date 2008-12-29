@@ -57,27 +57,27 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(List<ChangesFile> changes, List<Member> subscribers) {
+  public void sendChanges(List<ChangesFile> changes, List<Member> subscribers) throws IOException{
     try {
       for (int i = 0; i < changes.size(); i++) {
         this.sendChangesLogFile(subscribers, changes.get(i), priority, changes.size());
       }
     } catch (IOException e) {
-      // TODO
       log.error("Cannot send changes", e);
+      throw e;
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public void sendGetExport(String nodeId, Member address) {
+  public void sendGetExport(String nodeId, Member address) throws IOException {
     GetExportPacket packet = new GetExportPacket(nodeId);
     try {
       channel.sendPacket(packet, address);
     } catch (IOException e) {
-      // TODO need send error message to destAddress
       log.error("Cannot send export data", e);
+      throw e;
     }
   }
 
@@ -87,27 +87,27 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws IOException
    */
 
-  public void sendExport(ChangesFile changes, Member destAddress) {
+  public void sendExport(ChangesFile changes, Member destAddress) throws IOException{
     try {
       sendExportChangesLogFile(destAddress, changes, 1);
     } catch (IOException e) {
       log.error("Cannot send export data", e);
       sendError("Cannot send export data. Internal error ossurs.", destAddress);
+      throw e;
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public void sendError(String error, Member destAddress) {
+  public void sendError(String error, Member destAddress) throws IOException {
     try {
 
       ErrorPacket packet = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, error);
       channel.sendPacket(packet, destAddress);
     } catch (IOException e) {
       log.error("Cannot send export data", e);
-      // TODO
-      // sendError("Cannot send export data. Internal error ossurs.", destAddress);
+      throw e;
     }
   }
 

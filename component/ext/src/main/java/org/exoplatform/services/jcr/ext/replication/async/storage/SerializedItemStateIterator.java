@@ -30,35 +30,29 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 26.12.2008
- * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
+ *
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
 public class SerializedItemStateIterator<T extends ItemState> implements Iterator<T> {
 
-  protected final ObjectInputStream in;
-
-  private T                       nextItem;
-
-  /**
-   * SerializedItemStateIterator  constructor - FOR TESTS only!!!.
-   *
-   */
-  public SerializedItemStateIterator() {
-    this.in = null; // TODO remove this constructor
-  }
+  private final ObjectInputStream in;
   
+  private final ChangesFile changesFile;
+  
+  private T                 nextItem;
+  
+
   /**
-   * SerializedItemStateIterator constructor.
-   * 
-   * @param dataStream
-   *          InputStream
-   * @throws RemoteExportException
-   *           if error occurs
+   * SerializedItemStateIterator  constructor.
+   *
+   * @param dataStream InputStream
+   * @throws RemoteExportException if error occurs
    */
-  public SerializedItemStateIterator(InputStream dataStream) throws RemoteExportException {
+  public SerializedItemStateIterator(ChangesFile changesFile) throws RemoteExportException {
+    this.changesFile = changesFile;
     try {
-      this.in = new ObjectInputStream(dataStream);
+      this.in = new ObjectInputStream(this.changesFile.getDataStream());
       this.nextItem = readNext();
     } catch (IOException e) {
       throw new RemoteExportException(e);
@@ -115,4 +109,13 @@ public class SerializedItemStateIterator<T extends ItemState> implements Iterato
     }
   }
 
+  /**
+   * Returns ChangesFile which objects are iterated by this iterator.
+   * 
+   * @return ChangesFile
+   */
+  public ChangesFile getChangesFile(){
+    return changesFile;
+  }
+  
 }

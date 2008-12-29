@@ -78,7 +78,11 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     receiver.setRemoteExportListener(this);
 
     // send request
-    transmitter.sendGetExport(nodetId, member);
+    try{
+      transmitter.sendGetExport(nodetId, member);
+    }catch(IOException e){
+      throw new RemoteExportException(e);
+    }
 
     latch = new CountDownLatch(1);
     try {
@@ -113,7 +117,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       }
 
       // return Iterator based on ChangesFile
-      return new SerializedItemStateIterator<ItemState>(changesFile.getDataStream());
+      return new SerializedItemStateIterator<ItemState>(changesFile);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } catch (NoSuchAlgorithmException e) {

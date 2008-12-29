@@ -80,12 +80,23 @@ public class RemoteExportServerImpl implements RemoteExportServer, Synchronizati
 
         if (LOG.isDebugEnabled())
           LOG.debug("Remote export request served, send result to member " + member.getName());
+      } catch (IOException e){
+        
+      
       } catch (RepositoryException e) {
         LOG.error("Repository error on remote export request " + e, e);
-        transmitter.sendError("error " + e, member);
+        try{
+          transmitter.sendError("error " + e, member);
+        }catch(IOException ioe){
+          //do nothing;
+        }
       } catch (RemoteExportException e) {
         LOG.error("Remote export request causes the error " + e, e);
-        transmitter.sendError("error " + e, member);
+        try{
+          transmitter.sendError("error " + e, member);
+        }catch(IOException ioe){
+          //do nothing;
+        }
       } finally {
         workers.remove(this);
       }

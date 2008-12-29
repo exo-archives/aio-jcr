@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,11 @@ public class ChangesPublisherImpl implements ChangesPublisher {
     List<ChangesFile> changes = new ArrayList<ChangesFile>();
     // TODO fill list
 
-    transmitter.sendChanges(changes, subscribers);
+    try{
+      transmitter.sendChanges(changes, subscribers);
+    }catch(IOException e){
+      //TODO
+    }
   }
 
   public void onCancel(Member member) {
