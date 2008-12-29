@@ -38,18 +38,18 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class TransactionChangesStorage implements ChangesStorage {
+public class CompositeChangesStorage implements ChangesStorage {
 
   private final TransactionChangesLog chlog;
   
   private final int priority;
   
-  public TransactionChangesStorage(TransactionChangesLog chlog, int priority) {
+  public CompositeChangesStorage(TransactionChangesLog chlog, int priority) {
     this.chlog = chlog;
     this.priority = priority;
   }
   
-  public TransactionChangesStorage(TransactionChangesLog chlog) {
+  public CompositeChangesStorage(TransactionChangesLog chlog) {
     this(chlog, 1);
   }
   
