@@ -33,7 +33,5 @@ public interface AsyncStateListener {
    * @param event List of Member
    */
   void onStateChanged(AsyncStateEvent event);
-    
-  void onDisconnected();
   
 }

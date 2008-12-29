@@ -56,34 +56,34 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * log. the apache logger.
    */
-  private static final Log           LOG = ExoLogger.getLogger("ext.ChannelManager");
+  private static final Log          LOG = ExoLogger.getLogger("ext.ChannelManager");
 
   /**
    * channel. The JChanel object of JGroups.
    */
-  private JChannel             channel;
+  private JChannel                  channel;
 
   /**
    * dispatcher. The MessageDispatcher will be transmitted the Massage.
    */
-  private MessageDispatcher    dispatcher;
+  private MessageDispatcher         dispatcher;
 
   /**
    * channelConfig. The configuration to JChannel.
    */
-  private final String         channelConfig;
+  private final String              channelConfig;
 
   /**
    * channelName. The name to JChannel.
    */
-  private final String         channelName;
+  private final String              channelName;
 
   /**
    * packetListeners. The packet listeners.
    */
   private List<AsyncPacketListener> packetListeners;
-  
-  private List<AsyncStateListener> stateListeners;
+
+  private List<AsyncStateListener>  stateListeners;
 
   /**
    * ChannelManager constructor.
@@ -101,13 +101,13 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   }
 
   /**
-   * connect. Connect to channel.
-   * // TODO
+   * connect. Connect to channel. // TODO
+   * 
    * @throws ReplicationException
    *           Will be generated the ReplicationException.
    */
   public void connect() throws ReplicationException {
-    
+
     try {
       if (channel == null) {
         channel = new JChannel(channelConfig);
@@ -150,7 +150,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   public void addPacketListener(AsyncPacketListener packetListener) {
     this.packetListeners.add(packetListener);
   }
-  
+
   /**
    * Remove PacketListener.
    * 
@@ -160,18 +160,19 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   public void removePacketListener(AsyncPacketListener packetListener) {
     this.packetListeners.remove(packetListener);
   }
-  
+
   /**
    * Add channel state listener (AsynInitializer).
-   *
-   * @param listener AsyncStateListener
+   * 
+   * @param listener
+   *          AsyncStateListener
    */
   public void addStateListener(AsyncStateListener listener) {
-    
+
   }
-  
+
   public void removeStateListener(AsyncStateListener listener) {
-    
+
   }
 
   /**
@@ -197,34 +198,34 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     byte[] buffer = PacketTransformer.getAsByteArray(packet);
 
     Message msg = new Message(null, null, buffer);
-    
+
     Vector<Address> destAddresses = new Vector<Address>();
-    for (Member address : destinationAddresses) 
-      destAddresses.add(address.getAddress());   
+    for (Member address : destinationAddresses)
+      destAddresses.add(address.getAddress());
 
     dispatcher.castMessage(destAddresses, msg, GroupRequest.GET_NONE, 0);
   }
-  
-  /**
-  * sendPacket.
-  * 
-  * @param packet
-  *          the Packet with content
-  * @param destinationAddresses
-  *          the destination addresses
-  * @throws Exception
-  *           will be generated Exception
-  */
-  public void sendPacket(AbstractPacket packet,  Member destinationAddress) throws IOException {
-    List<Member> dest = new ArrayList<Member>();
-    dest.add(destinationAddress);
-    
-    sendPacket(packet, dest);
-  }
-  
+
   /**
    * sendPacket.
-   *
+   * 
+   * @param packet
+   *          the Packet with content
+   * @param destinationAddresses
+   *          the destination addresses
+   * @throws Exception
+   *           will be generated Exception
+   */
+  public void sendPacket(AbstractPacket packet, Member destinationAddress) throws IOException {
+    List<Member> dest = new ArrayList<Member>();
+    dest.add(destinationAddress);
+
+    sendPacket(packet, dest);
+  }
+
+  /**
+   * sendPacket.
+   * 
    * @param packet
    *          the Packet with contents
    * @throws Exception
@@ -244,35 +245,38 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   }
 
   // ************ RequestHandler **********
-  
+
   /**
    * {@inheritDoc}
    */
   public Object handle(Message message) {
+
     try {
       AbstractPacket packet = PacketTransformer.getAsPacket(message.getBuffer());
-      
       Member member = new Member(message.getSrc());
 
       for (AsyncPacketListener handler : packetListeners) {
         handler.receive(packet, member);
       }
 
-    } catch (Exception e) {
-      LOG.error("An error in processing packet : ", e);
-    }
-    
-    return new String("Success !");
+      return new String("Success !");
+    } catch (IOException e) {
+      LOG.error("", e); // TODO
+      return e.getMessage();
+    } catch (ClassNotFoundException e) {
+      LOG.error("", e); // TODO
+      return e.getMessage();
+    }    
   }
 
   // ******** MembershipListener ***********
-  
+
   /**
    * {@inheritDoc}
    */
   public void block() {
     // TODO Auto-generated method stub
-    
+
   }
 
   /**
@@ -280,7 +284,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public void suspect(Address arg0) {
     // TODO Auto-generated method stub
-    
+
   }
 
   /**
@@ -288,17 +292,17 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public void viewAccepted(View view) {
     ArrayList<Member> members = new ArrayList<Member>();
-    
-    for (Address address : view.getMembers()) 
-      members.add(new Member(address));  
-    
-    AsyncStateEvent event =  new AsyncStateEvent( new Member(channel.getLocalAddress()),members);
-    
-    for (AsyncStateListener listener: stateListeners) {
+
+    for (Address address : view.getMembers())
+      members.add(new Member(address));
+
+    AsyncStateEvent event = new AsyncStateEvent(new Member(channel.getLocalAddress()), members);
+
+    for (AsyncStateListener listener : stateListeners) {
       listener.onStateChanged(event);
     }
   }
-  
+
   // *****************************************
-  
+
 }

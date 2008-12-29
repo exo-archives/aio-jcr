@@ -46,11 +46,11 @@ public class ChangesPublisherImpl implements ChangesPublisher {
   public void sendChanges(List<Member> subscribers) {
     List<ChangesFile> changes = new ArrayList<ChangesFile>();
     // TODO fill list
-
-    try{
+    try {
       transmitter.sendChanges(changes, subscribers);
-    }catch(IOException e){
-      //TODO
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
     }
   }
 
@@ -71,7 +71,7 @@ public class ChangesPublisherImpl implements ChangesPublisher {
 
   public void onStart(List<Member> members) {
     // TODO Auto-generated method stub
-
+    sendChanges(null); // TODO
   }
 
 }

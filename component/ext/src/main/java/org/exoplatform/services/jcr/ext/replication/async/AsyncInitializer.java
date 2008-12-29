@@ -53,7 +53,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   private final int                            memberWaitTimeout;
 
   private final int                            ownPriority;
-  
+
   private final boolean                        cancelMemberNotConnected;
 
   /**
@@ -69,7 +69,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
   private Member                               localMember;
 
-  private MemberWaiter                         memberWaiter;
+  private LastMemberWaiter                     memberWaiter;
 
   /**
    * Listeners in order of addition.
@@ -117,7 +117,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         if (event.isCoordinator()) {
           isCoordinator = event.isCoordinator();
 
-          memberWaiter = new MemberWaiter(this);
+          memberWaiter = new LastMemberWaiter();
           memberWaiter.start();
         }
       }
@@ -130,8 +130,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
           List<Member> members = new ArrayList<Member>(event.getMembers());
           members.remove(event.getLocalMember());
-  
-          start(members);
+
+          doStart(members);
         }
       }
 
@@ -143,18 +143,18 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         syncl.onDisconnectMembers(disconnectedMembers);
 
       // Check if disconnected the previous coordinator.
-      
+
       if (event.isCoordinator() == true && isCoordinator == false) {
         isCoordinator = event.isCoordinator();
 
-        memberWaiter = new MemberWaiter(this);
+        memberWaiter = new LastMemberWaiter();
         memberWaiter.start();
-        
+
       } else if (event.isCoordinator() == true && isCoordinator == true) {
         memberWaiter.stop();
         memberWaiter = null;
       }
-       
+
     }
 
     localMember = event.getLocalMember();
@@ -167,28 +167,24 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * @param members
    *          list of members
    */
-  private void start(List<Member> members) {
+  private void doStart(List<Member> members) {
     if (isCoordinator)
       for (SynchronizationListener syncl : listeners)
         syncl.onStart(members);
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void onDisconnected() {
-    // TODO Auto-generated method stub
-
+  private void doCancel(Member member) {
+    for (SynchronizationListener syncl : listeners)
+      syncl.onCancel(member);
   }
 
-  public void receive(AbstractPacket packet, Member srcAddress) throws Exception {
+  public void receive(AbstractPacket packet, Member srcAddress) {
     switch (packet.getType()) {
     case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
-      for (SynchronizationListener syncl : listeners)
-        syncl.onCancel(member);
+      doCancel(member);
     }
       break;
 
@@ -217,12 +213,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     }
   }
 
-  private class MemberWaiter extends Thread {
-    private AsyncInitializer initializer;
-
-    public MemberWaiter(AsyncInitializer initializer) {
-      this.initializer = initializer;
-    }
+  /**
+   * LastMemberWaiter - Coordinator work.
+   * 
+   */
+  private class LastMemberWaiter extends Thread {
 
     @Override
     public void run() {
@@ -230,15 +225,14 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         Thread.sleep(memberWaitTimeout);
 
         if (previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
-          && previousMemmbers.size() > 1
-          && cancelMemberNotConnected) { 
+            && previousMemmbers.size() > 1 && cancelMemberNotConnected) {
           List<Member> members = new ArrayList<Member>(previousMemmbers);
           members.remove(localMember);
 
-          this.initializer.start(members);
+          doStart(members);
         } else {
           channelManager.disconnect();
-          initializer.onDisconnected();
+          doCancel(null);
         }
 
       } catch (Exception e) {

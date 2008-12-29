@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.util.List;
+
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
@@ -46,5 +48,12 @@ public interface IncomeStorage {
    * @param memeber Member
    */
   void addMemberChanges(Member memeber, ChangesFile changes);
+  
+  /**
+   * getChanges.
+   *
+   * @return
+   */
+  List<ChangesStorage> getChanges();
   
 }

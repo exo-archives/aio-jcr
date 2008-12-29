@@ -57,13 +57,15 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   }
 
   public void onChanges(ChangesPacket packet, Member member) {
-    try {
+    
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
 
         cf.writeData(packet.getBuffer(), packet.getOffset());
+        
+        packet.getFileCount();
 
         incomChanges.put(new Key(packet.getCRC(), packet.getTimeStamp()),
                          new MemberChangesFile(cf, mem));
@@ -81,9 +83,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
         break;
 
       }
-    } catch (IOException e) {
-      log.error("Cannot save export changes", e);
-    }
+    
   }
 
   /**
@@ -115,7 +115,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
   }
 
   protected void merge() {
-
+    mergeManager.merge(incomeStorrage.getChanges());
   }
 
   private class Key {
