@@ -16,8 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -28,6 +26,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
@@ -71,7 +70,6 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    */
   public void sendGetExport(String nodeId, Member address) {
     GetExportPacket packet = new GetExportPacket(nodeId);
-    
     try {
       channel.sendPacket(packet, address);
     } catch (IOException e) {
@@ -100,8 +98,16 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendError(String error, Member destaddress) {
-    // TODO
+  public void sendError(String error, Member destAddress) {
+    try {
+      
+      ErrorPacket packet = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, error);
+      channel.sendPacket(packet, destAddress);
+    } catch (IOException e) {
+      log.error("Cannot send export data", e);
+      // TODO
+      //sendError("Cannot send export data. Internal error ossurs.", destAddress);
+    }
   }
 
   /**
