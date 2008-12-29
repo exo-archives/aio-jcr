@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
@@ -24,6 +25,8 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -106,10 +109,13 @@ public class TestExportChanges extends BaseStandaloneTest {
     String id = d.getIdentifier();
 
     AsyncChannelManager channel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
-    channel.init();
 
     ChangesPublisher publisher = null;
-    AsyncInitializer asyncManager = new AsyncInitializer(channel, 100, null, 1000);
+    AsyncInitializer asyncManager = new AsyncInitializer(channel, 
+                                                         100, 
+                                                         new ArrayList<Integer>(), 
+                                                         30000, 
+                                                         true);
 
     int priority = 50;
 
@@ -121,12 +127,14 @@ public class TestExportChanges extends BaseStandaloneTest {
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     DataManager dm = (DataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
 
+    LocalStorage ls = new LocalStorageImpl("TODO");
+    
     WorkspaceSynchronizerImpl synchronizer = new WorkspaceSynchronizerImpl(transmitter,
-                                                                           null,
+                                                                           ls,
                                                                            dm,
                                                                            ntm);
 
-    RemoteExportServer exportServer = synchronizer;
+    RemoteExportServer exportServer = new RemoteExportServerImpl(transmitter, dm, ntm);
 
     // TODO HERE
     AsyncReceiver receiver = new AsyncReceiverImpl(channel, exportServer);

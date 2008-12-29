@@ -101,12 +101,13 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   }
 
   /**
-   * init. Will be initialized JChannel and MessageDispatcher.
-   * 
+   * connect. Connect to channel.
+   * // TODO
    * @throws ReplicationException
    *           Will be generated the ReplicationException.
    */
-  public void init() throws ReplicationException {
+  public void connect() throws ReplicationException {
+    
     try {
       if (channel == null) {
         channel = new JChannel(channelConfig);
@@ -122,15 +123,6 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     } catch (ChannelException e) {
       throw new ReplicationException("Can't create JGroups channel", e);
     }
-  }
-
-  /**
-   * connect. Connect to channel.
-   * // TODO
-   * @throws ReplicationException
-   *           Will be generated the ReplicationException.
-   */
-  public void connect() throws ReplicationException {
 
     LOG.info("channalName : " + channelName);
 
@@ -144,7 +136,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * closeChannel. Close the channel.
    */
-  public void closeChannel() {
+  public void disconnect() {
     channel.close();
     channel = null;
   }

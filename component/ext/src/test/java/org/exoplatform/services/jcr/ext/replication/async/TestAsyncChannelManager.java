@@ -58,12 +58,11 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
   public void setUp() throws Exception {
     // init channel
     channel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
-    channel.init();
     channel.connect();
   }
 
   public void tearDown() throws Exception {
-    channel.closeChannel();
+    channel.disconnect();
     channel = null;
   }
 
@@ -105,7 +104,6 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     // send big file;
     AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
-    tchannel.init();
     tchannel.connect();
 
     Member adr = new Member (new IpAddress("127.0.0.1",7800));
@@ -127,7 +125,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     }
     assertEquals(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET, list.get(list.size() - 1).getType());
 
-    tchannel.closeChannel();
+    tchannel.disconnect();
    
     FileInputStream fin = new FileInputStream(file);
     byte[] et = new byte[filesize*1024]; 
@@ -172,7 +170,6 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     channel.addPacketListener(listener);
 
     AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
-    tchannel.init();
     tchannel.connect();
 
     String nodeId = "nodeId";
@@ -192,7 +189,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     assertEquals(packet.getNodeId(), ((GetExportPacket)list.get(0)).getNodeId());
 
     // close channel
-    tchannel.closeChannel();
+    tchannel.disconnect();
   }
 
   /*

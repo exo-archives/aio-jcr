@@ -133,8 +133,8 @@ public class AsyncReplication implements Startable {
       mergeManager.addSynchronizationListener(publisher);
       mergeManager.addSynchronizationListener(subscriber);
 
-      int waitTimeout = 1000; // TODO
-      initializer = new AsyncInitializer(channel, priority, otherParticipantsPriority, waitTimeout);
+      int waitTimeout = 60000; // TODO
+      initializer = new AsyncInitializer(channel, priority, otherParticipantsPriority, waitTimeout, true);
       initializer.addSynchronizationListener(publisher);
       initializer.addSynchronizationListener(subscriber);
     }

@@ -53,6 +53,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   private final int                            memberWaitTimeout;
 
   private final int                            ownPriority;
+  
+  private final boolean                        cancelMemberNotConnected;
 
   /**
    * The list of names to other participants cluster.
@@ -83,12 +85,14 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   AsyncInitializer(AsyncChannelManager channelManager,
                    int priority,
                    List<Integer> otherParticipantsPriority,
-                   int memberWaitTimeout) {
+                   int memberWaitTimeout,
+                   boolean cancelMemberNotConnected) {
     this.channelManager = channelManager;
     this.ownPriority = priority;
     this.memberWaitTimeout = memberWaitTimeout;
     this.otherParticipantsPriority = otherParticipantsPriority;
     this.channelManager.addPacketListener(this);
+    this.cancelMemberNotConnected = cancelMemberNotConnected;
   }
 
   public void addSynchronizationListener(SynchronizationListener listener) {
@@ -115,7 +119,6 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
           memberWaiter = new MemberWaiter(this);
           memberWaiter.start();
-
         }
       }
 
@@ -124,13 +127,12 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         if (isCoordinator) {
           memberWaiter.stop();
           memberWaiter = null;
+
+          List<Member> members = new ArrayList<Member>(event.getMembers());
+          members.remove(event.getLocalMember());
+  
+          start(members);
         }
-
-        List<Member> members = new ArrayList<Member>(event.getMembers());
-
-        members.remove(event.getLocalMember());
-
-        start(members);
       }
 
     } else if (previousMemmbers.size() < event.getMembers().size()) {
@@ -140,7 +142,19 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       for (SynchronizationListener syncl : listeners)
         syncl.onDisconnectMembers(disconnectedMembers);
 
-      // TODO Check if disconnected the previous coordinator.
+      // Check if disconnected the previous coordinator.
+      
+      if (event.isCoordinator() == true && isCoordinator == false) {
+        isCoordinator = event.isCoordinator();
+
+        memberWaiter = new MemberWaiter(this);
+        memberWaiter.start();
+        
+      } else if (event.isCoordinator() == true && isCoordinator == true) {
+        memberWaiter.stop();
+        memberWaiter = null;
+      }
+       
     }
 
     localMember = event.getLocalMember();
@@ -186,7 +200,6 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         syncl.onDone(member);
     }
       break;
-
     }
   }
 
@@ -198,7 +211,6 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    */
   private void initChannel() throws CannotInitilizeConnectionsException {
     try {
-      channelManager.init();
       channelManager.connect();
     } catch (ReplicationException e) {
       throw new CannotInitilizeConnectionsException("Cannot initilize connections", e);
@@ -218,11 +230,15 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         Thread.sleep(memberWaitTimeout);
 
         if (previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
-        /*&& isSynchronizationContinues*/) { // TODO isSynchronizationContinues looks wery strange
+          && previousMemmbers.size() > 1
+          && cancelMemberNotConnected) { 
           List<Member> members = new ArrayList<Member>(previousMemmbers);
           members.remove(localMember);
 
           this.initializer.start(members);
+        } else {
+          channelManager.disconnect();
+          initializer.onDisconnected();
         }
 
       } catch (Exception e) {
