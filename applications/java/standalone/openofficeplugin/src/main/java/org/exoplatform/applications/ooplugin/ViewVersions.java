@@ -254,8 +254,9 @@ public class ViewVersions extends PlugInDialog {
       }
       
       ResponseDoc response = responses.get(selectedItem);
-      String href = TextUtils.UnEscape(response.getHref(), '%');
+      //String href = TextUtils.UnEscape(response.getHref(), '%');
 
+      String href = response.getHref();
       doOpenRemoteFile(href);
       isOpened = true;
       xDialog.endExecute();

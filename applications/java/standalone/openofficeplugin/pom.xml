@@ -18,7 +18,7 @@
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.webdavclient</artifactId>
-      <version>${org.exoplatform.jcr.version}</version>
+      <version>1.9</version>
       <scope>compile</scope>
     </dependency>
     

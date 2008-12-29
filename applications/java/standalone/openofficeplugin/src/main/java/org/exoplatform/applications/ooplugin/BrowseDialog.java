@@ -474,7 +474,8 @@ public abstract class BrowseDialog extends PlugInDialog {
     }
     
     try {
-      doOpenRemoteFile(TextUtils.UnEscape(response.getHref(), '%'));
+//      doOpenRemoteFile(TextUtils.UnEscape(response.getHref(), '%'));
+      doOpenRemoteFile(response.getHref());
       Thread.sleep(100);
       xDialog.endExecute();
     } catch (Exception exc) {
