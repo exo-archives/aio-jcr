@@ -64,7 +64,7 @@ public class AsyncReplication implements Startable {
 
   protected final LocalStorage        localStorage;
 
-  protected int                       priority;
+  protected final int                       priority;
 
   protected final List<Integer>       otherParticipantsPriority;
 
@@ -188,7 +188,6 @@ public class AsyncReplication implements Startable {
 
     // Ready to begin...
 
-    this.priority = -1; // TODO
     this.otherParticipantsPriority = new ArrayList<Integer>(); // TODO
 
     this.channel = new AsyncChannelManager(channelConfig, channelName);
