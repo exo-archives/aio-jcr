@@ -67,5 +67,19 @@ public interface AsyncTransmitter {
    * @throws IOException
    */
   void sendError(String error, Member address) throws IOException;
+  
+  /**
+   * send 'Done'.
+   *
+   * @throws IOException
+   */
+  void sendDone() throws IOException;
+  
+  /**
+   * send 'Cancel'.
+   *
+   * @throws IOException
+   */
+  void sendCancel() throws IOException;
 
 }

@@ -232,7 +232,15 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {
-    sendPacket(packet, new ArrayList<Member>());
+    List<Address> addresses = channel.getView().getMembers(); 
+    addresses.remove(channel.getLocalAddress());
+    
+    List<Member> list = new ArrayList<Member>();
+    
+    for (Address address : addresses)
+      list.add(new Member(address));
+    
+    sendPacket(packet, list);
   }
 
   /**

@@ -26,6 +26,8 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.DonePacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
@@ -102,7 +104,6 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    */
   public void sendError(String error, Member destAddress) throws IOException {
     try {
-
       ErrorPacket packet = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, error);
       channel.sendPacket(packet, destAddress);
     } catch (IOException e) {
@@ -110,37 +111,16 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       throw e;
     }
   }
+  
+  public void sendCancel() throws IOException {
+    CancelPacket cancelPacket = new CancelPacket (AsyncPacketTypes.SYNCHRONIZATION_CANCEL, priority);
+    channel.sendPacket(cancelPacket);
+  }
 
-  /**
-   * Send big data.
-   * 
-   * @param data
-   *          the binary data
-   * @param packet
-   *          the Packet
-   * @throws Exception
-   *           will be generated Exception
-   */
-  /* protected void sendBigPacket(Address destinationAddress, byte[] data, AsyncPacket packet) throws Exception {
-     InputStream in = new ByteArrayInputStream(data);
-
-     List<Address> destLost = new ArrayList<Address>();
-     destLost.add(destinationAddress);
-
-     // TODO make crc from data;
-     String crc = "";
-     sendInputStream(destLost,
-                     in,
-                     crc,
-                     packet.getTimeStamp(),
-                     packet.getTransmitterPriority(),
-                     data.length,
-                     AsyncPacketTypes.BIG_PACKET_FIRST,
-                     AsyncPacketTypes.BIG_PACKET_MIDDLE,
-                     AsyncPacketTypes.BIG_PACKET_LAST);
-
-     in.close();
-   }*/
+  public void sendDone() throws IOException {
+    DonePacket donePacket = new DonePacket (AsyncPacketTypes.SYNCHRONIZATION_DONE, priority);
+    channel.sendPacket(donePacket);
+  }
 
   /**
    * sendBinaryFile.
@@ -332,4 +312,5 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     if (log.isDebugEnabled())
       log.debug("End send : " + clFile.getChecksum());
   }
+  
 }
