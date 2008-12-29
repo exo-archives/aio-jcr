@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -36,7 +37,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class FileSystemChangesStorage implements ChangesStorage {
+public class FileSystemChangesStorage implements EditableChangesStorage {
 
   class ItemKey {
     private final String key;
@@ -102,10 +103,13 @@ public class FileSystemChangesStorage implements ChangesStorage {
                                                                                                              // Comparable
 
   protected final File                                 storagePath;
+  
+  protected final Member member;
 
-  public FileSystemChangesStorage(File storagePath) {
+  public FileSystemChangesStorage(File storagePath, Member member) {
     this.storagePath = storagePath;
     this.storagePath.mkdirs();
+    this.member = member;
   }
 
   /**
@@ -194,6 +198,20 @@ public class FileSystemChangesStorage implements ChangesStorage {
   public List<ItemState> getUpdateSequence(ItemState startState) {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  public void add(ItemState change) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public void addAll(Iterator<ItemState> changes) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  public Member getMember() {
+    return member;
   }
 
 }
