@@ -100,6 +100,8 @@ public class AsyncReplication implements Startable {
     protected final RemoteExporter      exporter;
 
     protected final RemoteExportServer  exportServer;
+    
+    protected final IncomeStorage       incomeStorage;
 
     protected final MergeDataManager    mergeManager;
 
@@ -131,7 +133,9 @@ public class AsyncReplication implements Startable {
                                           ntManager,
                                           priority);
 
-      subscriber = new ChangesSubscriberImpl(mergeManager);
+      incomeStorage = new IncomeStorageImpl(incomStoragePath);
+      
+      subscriber = new ChangesSubscriberImpl(mergeManager, incomeStorage);
       
       receiver.setChangesSubscriber(subscriber);
 
