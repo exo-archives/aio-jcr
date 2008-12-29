@@ -16,8 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -71,7 +69,6 @@ public class TesterRemoteExporter implements RemoteExporter {
        */
       @Override
       public boolean hasNext() {
-        // TODO Auto-generated method stub
         return wrapped.hasNext();
       }
 
@@ -80,7 +77,6 @@ public class TesterRemoteExporter implements RemoteExporter {
        */
       @Override
       public ItemState next() throws NoSuchElementException {
-        // TODO Auto-generated method stub
         return wrapped.next();
       }
 
@@ -95,7 +91,6 @@ public class TesterRemoteExporter implements RemoteExporter {
   }
 
   public void setMember(Member address) {
-    // TODO Auto-generated method stub
-
+    // dummy
   }
 }
