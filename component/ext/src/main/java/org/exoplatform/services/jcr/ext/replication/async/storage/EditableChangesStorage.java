@@ -14,34 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import javax.jcr.InvalidItemStateException;
-import javax.jcr.RepositoryException;
+import java.util.Iterator;
 
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 24.12.2008
+ * <br/>Date: 29.12.2008
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
- * @version $Id: WorkspaceSynchronizer.java 25715 2008-12-24 11:40:47Z pnedonosko $
+ * @version $Id: EditableChangesStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public interface WorkspaceSynchronizer {
+public interface EditableChangesStorage extends ChangesStorage {
 
   /**
-   * Get Local changes.
+   * Add change.
    *
-   * @return ChangesStorage
+   * @param change ItemState 
    */
-  ChangesStorage getLocalChanges();
+  void add(ItemState change);
   
   /**
-   * Save synchronized changes to a local workspace.
+   * Add all changes.
    *
+   * @param changes Iterator of ItemState 
    */
-  void save(ChangesStorage synchronizedChanges);
-
+  void addAll(Iterator<ItemState> changes);
+  
 }

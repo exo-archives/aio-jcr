@@ -54,8 +54,8 @@ public class AsyncReplication implements Startable {
   /**
    * The template for ip-address in configuration.
    */
-  private static final String IP_ADRESS_TEMPLATE    = "[$]bind-ip-address";
-  
+  private static final String         IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
+
   protected final RepositoryService   repoService;
 
   protected final AsyncChannelManager channel;
@@ -64,7 +64,7 @@ public class AsyncReplication implements Startable {
 
   protected final LocalStorage        localStorage;
 
-  protected int                 priority;
+  protected int                       priority;
 
   protected final List<Integer>       otherParticipantsPriority;
 
@@ -85,25 +85,27 @@ public class AsyncReplication implements Startable {
   protected String                    localStoragePath;
 
   class AsyncWorker extends Thread {
-    protected final AsyncInitializer          initializer;
+    protected final AsyncInitializer    initializer;
 
-    protected final WorkspaceSynchronizerImpl publisher;
+    protected final ChangesPublisher    publisher;
 
-    protected final ChangesSubscriber         subscriber;
-
-    protected final AsyncTransmitter          transmitter;
-
-    protected final AsyncReceiver             receiver;
-
-    protected final RemoteExporter            exporter;
+    protected final ChangesSubscriber   subscriber;
     
-    protected final RemoteExportServer exportServer;
+    protected final WorkspaceSynchronizer    synchronyzer;
 
-    protected final MergeDataManager          mergeManager;
+    protected final AsyncTransmitter    transmitter;
 
-    protected final DataManager               dataManager;
+    protected final AsyncReceiver       receiver;
 
-    protected final NodeTypeDataManager       ntManager;
+    protected final RemoteExporter      exporter;
+
+    protected final RemoteExportServer  exportServer;
+
+    protected final MergeDataManager    mergeManager;
+
+    protected final DataManager         dataManager;
+
+    protected final NodeTypeDataManager ntManager;
 
     AsyncWorker(DataManager dataManager, NodeTypeDataManager ntManager) {
 
@@ -113,20 +115,23 @@ public class AsyncReplication implements Startable {
 
       transmitter = new AsyncTransmitterImpl(channel, priority);
 
-      publisher = new WorkspaceSynchronizerImpl(transmitter,
-                                                localStorage,
-                                                dataManager,
-                                                ntManager);
+      synchronyzer = new WorkspaceSynchronizerImpl(dataManager, localStorage);
+      
+      publisher = new ChangesPublisherImpl(transmitter, localStorage);
 
       exportServer = new RemoteExportServerImpl(transmitter, dataManager, ntManager);
-      
+
       receiver = new AsyncReceiverImpl(channel, exportServer);
-      
-      exporter = new RemoteExporterImpl(transmitter, receiver); 
+
+      exporter = new RemoteExporterImpl(transmitter, receiver);
 
       boolean localPriority = true; // TODO
-      mergeManager = new MergeDataManager(publisher, exporter, dataManager, ntManager, localPriority);
-      
+      mergeManager = new MergeDataManager(synchronyzer,
+                                          exporter,
+                                          dataManager,
+                                          ntManager,
+                                          localPriority);
+
       subscriber = new ChangesSubscriberImpl(mergeManager);
 
       // TODO to inform about merge DONE process
@@ -190,8 +195,7 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initialize synchronization process. Process will use the service
-   * configuration.
+   * Initialize synchronization process. Process will use the service configuration.
    */
   public void synchronize() {
 
@@ -242,11 +246,11 @@ public class AsyncReplication implements Startable {
     bindIPAddress = pps.getProperty("bind-ip-address");
     channelConfig = pps.getProperty("channel-config");
     channelConfig = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
-    
+
     channelName = pps.getProperty("channel-name");
     waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
     incomStoragePath = pps.getProperty("incom-storage-dir");
     localStoragePath = pps.getProperty("local-storage-dir");
   }
-  
+
 }
