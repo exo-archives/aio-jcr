@@ -187,14 +187,6 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Initializer.
-   */
-  private void init() {
-    // TODO add listeners to a Repository Workspaces
-
-  }
-
-  /**
    * Initialize synchronization process. Process will use the service configuration.
    */
   public void synchronize() {
