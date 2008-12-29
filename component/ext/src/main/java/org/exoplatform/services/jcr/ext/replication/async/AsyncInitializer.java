@@ -48,33 +48,33 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   /**
    * The apache logger.
    */
-  private static Log                           log       = ExoLogger.getLogger("ext.AsyncInitializer");
+  private static Log                                log       = ExoLogger.getLogger("ext.AsyncInitializer");
 
-  private final int                            memberWaitTimeout;
+  private final int                                 memberWaitTimeout;
 
-  private final int                            ownPriority;
+  private final int                                 ownPriority;
 
-  private final boolean                        cancelMemberNotConnected;
+  private final boolean                             cancelMemberNotConnected;
 
   /**
    * The list of names to other participants cluster.
    */
-  private final List<Integer>                  otherParticipantsPriority;
+  private final List<Integer>                       otherParticipantsPriority;
 
-  private boolean                              isCoordinator;
+  private boolean                                   isCoordinator;
 
-  private AsyncChannelManager                  channelManager;
+  private AsyncChannelManager                       channelManager;
 
-  private List<Member>                         previousMemmbers;
+  private List<Member>                              previousMemmbers;
 
-  private Member                               localMember;
+  private Member                                    localMember;
 
-  private LastMemberWaiter                     memberWaiter;
+  private LastMemberWaiter                          memberWaiter;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<SynchronizationListener> listeners = new LinkedHashSet<SynchronizationListener>();
+  protected final Set<SynchronizationEventListener> listeners = new LinkedHashSet<SynchronizationEventListener>();
 
   /**
    * AsyncInitializer constructor.
@@ -95,11 +95,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     this.cancelMemberNotConnected = cancelMemberNotConnected;
   }
 
-  public void addSynchronizationListener(SynchronizationListener listener) {
+  public void addSynchronizationListener(SynchronizationEventListener listener) {
     listeners.add(listener);
   }
 
-  public void removeSynchronizationListener(SynchronizationListener listener) {
+  public void removeSynchronizationListener(SynchronizationEventListener listener) {
     listeners.remove(listener);
   }
 
@@ -139,7 +139,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       List<Member> disconnectedMembers = new ArrayList<Member>(previousMemmbers);
       disconnectedMembers.removeAll(event.getMembers());
 
-      for (SynchronizationListener syncl : listeners)
+      for (SynchronizationEventListener syncl : listeners)
         syncl.onDisconnectMembers(disconnectedMembers);
 
       // Check if disconnected the previous coordinator.
@@ -169,12 +169,12 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    */
   private void doStart(List<Member> members) {
     if (isCoordinator)
-      for (SynchronizationListener syncl : listeners)
+      for (SynchronizationEventListener syncl : listeners)
         syncl.onStart(members);
   }
 
   private void doCancel(Member member) {
-    for (SynchronizationListener syncl : listeners)
+    for (SynchronizationEventListener syncl : listeners)
       syncl.onCancel(member);
   }
 
@@ -192,11 +192,19 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       Member member = new Member(srcAddress.getAddress(),
                                  ((DonePacket) packet).getTransmitterPriority());
 
-      for (SynchronizationListener syncl : listeners)
+      for (SynchronizationEventListener syncl : listeners)
         syncl.onDone(member);
     }
       break;
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onError(Member sourceAddress) {
+    // TODO Auto-generated method stub
+
   }
 
   /**

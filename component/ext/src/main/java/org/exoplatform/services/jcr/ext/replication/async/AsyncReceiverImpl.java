@@ -39,13 +39,12 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 public class AsyncReceiverImpl implements AsyncReceiver {
 
   protected final RemoteExportServer exportServer;
-  
+
   protected ChangesSubscriber        changesSubscriber;
 
   protected RemoteExportClient       remoteExportListener;
 
-  AsyncReceiverImpl(AsyncChannelManager channel, 
-                    RemoteExportServer exportServer) {
+  AsyncReceiverImpl(AsyncChannelManager channel, RemoteExportServer exportServer) {
     this.exportServer = exportServer;
   }
 
@@ -54,7 +53,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * 
    * @param packet
    */
-  protected void onChanges(ChangesPacket packet , Member member) {
+  protected void onChanges(ChangesPacket packet, Member member) {
     changesSubscriber.onChanges(packet, member);
   }
 
@@ -73,8 +72,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
       onGetExport(packet, srcAddress);
       break;
-    case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: 
-    {
+    case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
 
       RemoteExportResponce eventFirst = new RemoteExportResponce(RemoteExportResponce.FIRST,
@@ -117,20 +115,28 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       remoteExportListener.onRemoteError(eventError);
     }
       break;
-      
-    case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET :
-        onChanges((ChangesPacket) packet, srcAddress);
+
+    case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
+      onChanges((ChangesPacket) packet, srcAddress);
       break;
-      
-    case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET :
-        onChanges((ChangesPacket) packet, srcAddress);
+
+    case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
+      onChanges((ChangesPacket) packet, srcAddress);
       break;
-      
-    case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET :
-        onChanges((ChangesPacket) packet, srcAddress);
+
+    case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
+      onChanges((ChangesPacket) packet, srcAddress);
       break;
 
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onError(Member sourceAddress) {
+    // TODO Auto-generated method stub
+
   }
 
   public void removeRemoteExportListener() {
@@ -144,5 +150,5 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   public void setChangesSubscriber(ChangesSubscriber subscriber) {
     this.changesSubscriber = subscriber;
   }
-  
+
 }

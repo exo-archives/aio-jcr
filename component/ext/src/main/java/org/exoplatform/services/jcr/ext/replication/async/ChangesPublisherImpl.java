@@ -18,7 +18,9 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
@@ -32,11 +34,17 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ChangesPublisherImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class ChangesPublisherImpl implements ChangesPublisher {
+public class ChangesPublisherImpl implements ChangesPublisher, SynchronizationEventListener,
+    SynchronizationEventProducer {
 
   protected final AsyncTransmitter transmitter;
 
   protected final LocalStorage     storage;
+  
+  /**
+   * Listeners in order of addition.
+   */
+  protected final Set<SynchronizationEventListener> listeners = new LinkedHashSet<SynchronizationEventListener>();
 
   public ChangesPublisherImpl(AsyncTransmitter transmitter, LocalStorage storage) {
     this.transmitter = transmitter;
@@ -74,4 +82,20 @@ public class ChangesPublisherImpl implements ChangesPublisher {
     sendChanges(null); // TODO
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public void addSynchronizationListener(SynchronizationEventListener listener) {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void removeSynchronizationListener(SynchronizationEventListener listener) {
+    // TODO Auto-generated method stub
+    
+  }
+  
 }

@@ -87,21 +87,21 @@ public class AsyncReplication implements Startable {
   class AsyncWorker extends Thread {
     protected final AsyncInitializer    initializer;
 
-    protected final ChangesPublisher    publisher;
+    protected final ChangesPublisherImpl    publisher;
 
-    protected final ChangesSubscriber   subscriber;
+    protected final ChangesSubscriberImpl   subscriber;
     
-    protected final WorkspaceSynchronizer    synchronyzer;
+    protected final WorkspaceSynchronizerImpl    synchronyzer;
 
-    protected final AsyncTransmitter    transmitter;
+    protected final AsyncTransmitterImpl    transmitter;
 
-    protected final AsyncReceiver       receiver;
+    protected final AsyncReceiverImpl       receiver;
 
-    protected final RemoteExporter      exporter;
+    protected final RemoteExporterImpl      exporter;
 
-    protected final RemoteExportServer  exportServer;
+    protected final RemoteExportServerImpl  exportServer;
     
-    protected final IncomeStorage       incomeStorage;
+    protected final IncomeStorageImpl       incomeStorage;
 
     protected final MergeDataManager    mergeManager;
 
@@ -135,13 +135,9 @@ public class AsyncReplication implements Startable {
 
       incomeStorage = new IncomeStorageImpl(incomStoragePath);
       
-      subscriber = new ChangesSubscriberImpl(mergeManager, incomeStorage);
+      subscriber = new ChangesSubscriberImpl(mergeManager, incomeStorage, transmitter);
       
       receiver.setChangesSubscriber(subscriber);
-
-      // TODO to inform about merge DONE process
-      mergeManager.addSynchronizationListener(publisher);
-      mergeManager.addSynchronizationListener(subscriber);
 
       int waitTimeout = 60000; // TODO
       initializer = new AsyncInitializer(channel, priority, otherParticipantsPriority, waitTimeout, true);

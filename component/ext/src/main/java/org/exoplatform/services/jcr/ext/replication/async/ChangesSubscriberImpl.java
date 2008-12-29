@@ -18,7 +18,11 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
@@ -34,38 +38,58 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesSubscriberImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ChangesSubscriberImpl implements ChangesSubscriber {
-  
+public class ChangesSubscriberImpl implements ChangesSubscriber, SynchronizationEventListener,
+    SynchronizationEventProducer {
+
   /**
    * Logger.
    */
-  private static Log                              log = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  private static Log                                log       = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected final HashMap<Key, MemberChangesFile> incomChanges;
+  protected final HashMap<Key, MemberChangesFile>   incomChanges;
 
-  protected final MergeDataManager                mergeManager;
+  protected final MergeDataManager                  mergeManager;
 
-  protected final IncomeStorage                   incomeStorrage;
+  protected final IncomeStorage                     incomeStorrage;
 
-  public ChangesSubscriberImpl(MergeDataManager mergeManager, IncomeStorage incomeStorage) {
+  protected final AsyncTransmitter                  transmitter;
+
+  /**
+   * Listeners in order of addition.
+   */
+  protected final Set<SynchronizationEventListener> listeners = new LinkedHashSet<SynchronizationEventListener>();
+
+  public ChangesSubscriberImpl(MergeDataManager mergeManager,
+                               IncomeStorage incomeStorage,
+                               AsyncTransmitter transmitter) {
     this.incomChanges = new HashMap<Key, MemberChangesFile>();
     this.mergeManager = mergeManager;
     this.incomeStorrage = incomeStorage;
+    this.transmitter = transmitter;
+  }
+
+  public void addSynchronizationListener(SynchronizationEventListener listener) {
+    listeners.add(listener);
+  }
+
+  public void removeSynchronizationListener(SynchronizationEventListener listener) {
+    listeners.remove(listener);
   }
 
   public void onChanges(ChangesPacket packet, Member member) {
-    
+
+    try {
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
 
         cf.writeData(packet.getBuffer(), packet.getOffset());
-        
-        packet.getFileCount();
+
+        packet.getFileCount(); // TODO remeber whole packets count for this member
 
         incomChanges.put(new Key(packet.getCRC(), packet.getTimeStamp()),
                          new MemberChangesFile(cf, mem));
@@ -78,12 +102,31 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
-        incomeStorrage.addMemberChanges(mcf.getMember(), 
-                                        mcf.changesFile);
+        incomeStorrage.addMemberChanges(mcf.getMember(), mcf.changesFile);
+
+        // TODO if all changes here, doMerge
+
         break;
 
       }
-    
+    } catch (IOException e) {
+      // TODO
+      log.error("Cannot save changes " + e, e);
+      // transmitter.sendCancel(error, address)
+
+      // TODO local cancel, incl. merge
+    }
+  }
+
+  protected void doMerge() throws RepositoryException, RemoteExportException, IOException {
+    // TODO run merge in dedicated Thread, the merge can be canceled see merege manager cancel
+    mergeManager.merge(incomeStorrage.getChanges());
+  }
+
+  protected void doCancel() {
+    for (SynchronizationEventListener syncl : listeners)
+      // inform all interested
+      syncl.onDone(null); // TODO local done - null
   }
 
   /**
@@ -112,10 +155,6 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
 
   public void onStart(List<Member> members) {
     // nothing to do
-  }
-
-  protected void merge() {
-    mergeManager.merge(incomeStorrage.getChanges());
   }
 
   private class Key {

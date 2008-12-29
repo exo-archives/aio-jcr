@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -61,6 +60,15 @@ public class SerializedItemStateIterator<T extends ItemState> implements Iterato
     } catch (ClassCastException e) {
       throw new RemoteExportException(e);
     }
+  }
+  
+  /**
+   * SerializedItemStateIterator  constructor - for TESTS.
+   *
+   */
+  public SerializedItemStateIterator() {
+    this.changesFile = null;
+    this.in = null;
   }
 
   /**

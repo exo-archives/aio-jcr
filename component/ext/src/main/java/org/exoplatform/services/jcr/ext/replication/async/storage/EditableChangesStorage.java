@@ -44,4 +44,11 @@ public interface EditableChangesStorage extends ChangesStorage {
    */
   void addAll(SerializedItemStateIterator<ItemState> changes) throws IOException;
   
+  /**
+   * Delete this storage.
+   *
+   * @throws IOException
+   */
+  void delete() throws IOException;
+
 }

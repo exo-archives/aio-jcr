@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface SynchronizationListener {
+public interface SynchronizationEventListener {
 
   /**
    * On sycnhronization Start event action. <br/> operations.

@@ -47,7 +47,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class RemoteExportServerImpl implements RemoteExportServer, SynchronizationListener {
+public class RemoteExportServerImpl implements RemoteExportServer, SynchronizationEventListener {
 
   protected static final Log          LOG     = ExoLogger.getLogger("jcr.RemoteExportServerImpl");
 
@@ -80,27 +80,26 @@ public class RemoteExportServerImpl implements RemoteExportServer, Synchronizati
 
         if (LOG.isDebugEnabled())
           LOG.debug("Remote export request served, send result to member " + member.getName());
-      } catch (IOException e){
+      } catch (IOException e) {
         LOG.error("IO error on send export changes " + e, e);
       } catch (RepositoryException e) {
         LOG.error("Repository error on remote export request " + e, e);
-        try{
+        try {
           transmitter.sendError("error " + e, member);
-        }catch(IOException ioe){
+        } catch (IOException ioe) {
           LOG.error("IO error on send error message " + e, e);
         }
       } catch (RemoteExportException e) {
         LOG.error("Remote export request causes the error " + e, e);
-        try{
+        try {
           transmitter.sendError("error " + e, member);
-        }catch(IOException ioe){
+        } catch (IOException ioe) {
           LOG.error("IO error on send error message " + e, e);
         }
       } finally {
         workers.remove(this);
       }
     }
-
   }
 
   public RemoteExportServerImpl(AsyncTransmitter transmitter,

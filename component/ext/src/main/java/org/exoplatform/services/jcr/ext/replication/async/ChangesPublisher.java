@@ -29,7 +29,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface ChangesPublisher extends SynchronizationListener {
+public interface ChangesPublisher {
 
   /**
    * Send changes to a given members. Start synchronization actually.

@@ -19,6 +19,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -43,20 +44,20 @@ public interface ChangesStorage {
 
   /**
    * Get this changes member.
-   *
+   * 
    * @return Member
    */
   Member getMember();
-  
+
   /**
    * Get sequence of all changes.
    * 
    * @return Collection
    */
   Iterator<ItemState> getChanges();
-  
+
   // ***********************************************
-  
+
   /**
    * Get last ItemState by Item id.
    * 
@@ -76,7 +77,7 @@ public interface ChangesStorage {
    * @return ItemState
    */
   ItemState getItemState(NodeData parentData, QPathEntry name);
-  
+
   /**
    * TODO can we rely on sequence on log?
    * 
@@ -88,20 +89,23 @@ public interface ChangesStorage {
   ItemState getNextItemState(ItemState item);
 
   // =========== custom ==============
-  
+
   /**
    * Find last Item state value or return -1.
-   *
-   * @param itemPath QPath
+   * 
+   * @param itemPath
+   *          QPath
    * @return int with ItemState state value
    */
   int findLastState(QPath itemPath);
-  
+
   /**
    * getNextItemStateByIndexOnUpdate.
-   *
-   * @param startState from ItemState
-   * @param prevIndex int
+   * 
+   * @param startState
+   *          from ItemState
+   * @param prevIndex
+   *          int
    * @return ItemState
    */
   ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex);
@@ -134,8 +138,9 @@ public interface ChangesStorage {
 
   /**
    * getUpdateSequence.
-   *
-   * @param startState ItemState
+   * 
+   * @param startState
+   *          ItemState
    * @return List of ItemState
    */
   List<ItemState> getUpdateSequence(ItemState startState);

@@ -34,8 +34,7 @@ import org.jgroups.Address;
 import org.jgroups.stack.IpAddress;
 
 /**
- * Created by The eXo Platform SAS Author : Karpenko Sergiy
- * karpenko.sergiy@gmail.com.
+ * Created by The eXo Platform SAS Author : Karpenko Sergiy karpenko.sergiy@gmail.com.
  */
 public class TestAsyncChannelManager extends BaseStandaloneTest {
 
@@ -52,7 +51,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
   private static final String CH_CONFIG = "TCP(oob_thread_pool.queue_max_size=100;thread_naming_pattern=cl;use_concurrent_stack=true;oob_thread_pool.rejection_policy=Run;discard_incompatible_packets=true;thread_pool.max_threads=40;oob_thread_pool.enabled=false;oob_thread_pool.max_threads=20;loopback=false;oob_thread_pool.keep_alive_time=5000;thread_pool.queue_enabled=false;oob_thread_pool.queue_enabled=false;max_bundle_size=64000;thread_pool.queue_max_size=100;thread_pool.enabled=false;enable_diagnostics=true;max_bundle_timeout=30;oob_thread_pool.min_threads=8;use_incoming_packet_handler=true;thread_pool.rejection_policy=Run;bind_addr=127.0.0.1;thread_pool.min_threads=8;thread_pool.keep_alive_time=5000;enable_bundling=true):MPING(timeout=2000;num_initial_members=8;mcast_port=34526;mcast_addr=224.0.0.1):FD(timeout=2000;max_tries=5;shun=true):FD_SOCK:VERIFY_SUSPECT(timeout=1500):pbcast.NAKACK(max_xmit_size=60000;print_stability_history_on_failed_xmit=true;use_mcast_xmit=false;gc_lag=0;discard_delivered_msgs=true;retransmit_timeout=300,600,1200,2400,4800):pbcast.STABLE(stability_delay=1000;desired_avg_gossip=50000;max_bytes=8000000):pbcast.GMS(print_local_addr=true;join_timeout=3000;view_bundling=true;join_retry_timeout=2000;shun=true;merge_leader=true;reject_join_from_existing_member=true)";
 
   private static final String CH_NAME   = "TestChannel";
- 
+
   private AsyncChannelManager channel;
 
   public void setUp() throws Exception {
@@ -69,14 +68,15 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
   /**
    * Test sendBigPacket method.
    * 
-   * @throws Exception internal exception
+   * @throws Exception
+   *           internal exception
    */
   public void testSendExport() throws Exception {
     final int filesize = 600;
-    
+
     TestPacketListener listener = new TestPacketListener() {
 
-      private boolean           isTested = false;
+      private boolean              isTested = false;
 
       private List<AbstractPacket> list     = new ArrayList<AbstractPacket>();
 
@@ -90,13 +90,18 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
         return list;
       }
 
-      public void receive(AbstractPacket packet, Member sourceAddress) throws Exception {
+      public void receive(AbstractPacket packet, Member sourceAddress) {
         assertNotNull(packet);
         list.add(packet);
         if (packet.getType() == AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET) {
           isTested = true;
         }
-        
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      public void onError(Member sourceAddress) {
       }
     };
 
@@ -106,12 +111,12 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
     tchannel.connect();
 
-    Member adr = new Member (new IpAddress("127.0.0.1",7800));
-    
-    File file  = createBLOBTempFile("mytest", filesize);
-    ChangesFile changes = new ChangesFile(file,"crc",System.currentTimeMillis());
-    
-    AsyncTransmitterImpl trans  = new AsyncTransmitterImpl(tchannel, 100);
+    Member adr = new Member(new IpAddress("127.0.0.1", 7800));
+
+    File file = createBLOBTempFile("mytest", filesize);
+    ChangesFile changes = new ChangesFile(file, "crc", System.currentTimeMillis());
+
+    AsyncTransmitterImpl trans = new AsyncTransmitterImpl(tchannel, 100);
     trans.sendExport(changes, adr);
     Thread.sleep(1000);
 
@@ -126,26 +131,27 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     assertEquals(AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET, list.get(list.size() - 1).getType());
 
     tchannel.disconnect();
-   
+
     FileInputStream fin = new FileInputStream(file);
-    byte[] et = new byte[filesize*1024]; 
+    byte[] et = new byte[filesize * 1024];
     fin.read(et);
-    
+
     byte[] result = concatChangePacketBuffers(list);
-   
+
     assertTrue(java.util.Arrays.equals(et, result));
-  } 
+  }
 
   /**
    * Test sendPacket method.
    * 
-   * @throws Exception internal exception
+   * @throws Exception
+   *           internal exception
    */
   public void testSendGetExportPacket() throws Exception {
-    
+
     TestPacketListener listener = new TestPacketListener() {
 
-      private boolean           isTested = false;
+      private boolean              isTested = false;
 
       private List<AbstractPacket> list     = new ArrayList<AbstractPacket>();
 
@@ -159,12 +165,18 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
         return list;
       }
 
-      public void receive(AbstractPacket packet, Member sourceAddress) throws Exception {
+      public void receive(AbstractPacket packet, Member sourceAddress) {
         assertNotNull(packet);
         list.add(packet);
         isTested = true;
       }
-      
+
+      /**
+       * {@inheritDoc}
+       */
+      public void onError(Member sourceAddress) {
+      }
+
     };
 
     channel.addPacketListener(listener);
@@ -173,9 +185,9 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     tchannel.connect();
 
     String nodeId = "nodeId";
-    
+
     GetExportPacket packet = new GetExportPacket(nodeId);
-    
+
     tchannel.sendPacket(packet);
     Thread.sleep(1000);
 
@@ -186,7 +198,7 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
 
     // check packet
     assertEquals(packet.getType(), list.get(0).getType());
-    assertEquals(packet.getNodeId(), ((GetExportPacket)list.get(0)).getNodeId());
+    assertEquals(packet.getNodeId(), ((GetExportPacket) list.get(0)).getNodeId());
 
     // close channel
     tchannel.disconnect();
@@ -265,32 +277,31 @@ public class TestAsyncChannelManager extends BaseStandaloneTest {
     // close channel
     tchannel.closeChannel();
   }*/
-  
-  
+
   protected void checkPacket(AbstractPacket expected, AbstractPacket resieved) {
     assertEquals(expected.getType(), resieved.getType());
   }
-  
-  protected void checkGetExportPacket(GetExportPacket expected, GetExportPacket resieved){
-   
+
+  protected void checkGetExportPacket(GetExportPacket expected, GetExportPacket resieved) {
+
   }
-  
+
   private byte[] concatChangePacketBuffers(List<AbstractPacket> list) {
     // count result data size
     int size = 0;
-    for (int i = 0; i < list.size()-1; i++) {
-      
-      size += ((ChangesPacket)list.get(i)).getBuffer().length;
+    for (int i = 0; i < list.size() - 1; i++) {
+
+      size += ((ChangesPacket) list.get(i)).getBuffer().length;
     }
 
     byte[] buf = new byte[size];
     int pos = 0;
-    for (int i = 0; i < list.size()-1; i++) {
-      int length = ((ChangesPacket)list.get(i)).getBuffer().length;
-      System.arraycopy(((ChangesPacket)list.get(i)).getBuffer(), 0, buf, pos, length);
+    for (int i = 0; i < list.size() - 1; i++) {
+      int length = ((ChangesPacket) list.get(i)).getBuffer().length;
+      System.arraycopy(((ChangesPacket) list.get(i)).getBuffer(), 0, buf, pos, length);
       pos += length;
     }
     return buf;
   }
-  
+
 }

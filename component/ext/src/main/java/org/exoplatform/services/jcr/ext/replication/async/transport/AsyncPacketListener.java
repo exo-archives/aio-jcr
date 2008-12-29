@@ -35,4 +35,11 @@ public interface AsyncPacketListener {
    *          the Packet object.
    */
   void receive(AbstractPacket packet, Member sourceAddress);
+  
+  /**
+   * onError.
+   *
+   * @param sourceAddress
+   */
+  void onError(Member sourceAddress);
 }

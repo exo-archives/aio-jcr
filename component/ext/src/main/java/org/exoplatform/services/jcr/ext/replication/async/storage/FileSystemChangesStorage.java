@@ -49,8 +49,9 @@ import org.exoplatform.services.jcr.impl.Constants;
 public class FileSystemChangesStorage implements EditableChangesStorage {
 
   public static final String PREFIX = "FSPERF";
+
   public static final String SUFFIX = "FSsuf";
-  
+
   /*class ItemKey {
     private final String key;
 
@@ -62,63 +63,62 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
       this.key = path.getAsString();
     }*/
 
-    /**
-     * {@inheritDoc}
-     */
+  /**
+   * {@inheritDoc}
+   */
   /* @Override
     public boolean equals(Object obj) {
       return key.equals(obj);
     }*/
 
-    /**
-     * {@inheritDoc}
-     */
-   /* @Override
-    public int hashCode() {
-      return key.hashCode();
-    }
+  /**
+   * {@inheritDoc}
+   */
+  /* @Override
+   public int hashCode() {
+     return key.hashCode();
+   }
   }*/
 
- /* class StateLocator {
-    private final String logPath;
+  /* class StateLocator {
+     private final String logPath;
 
-    private final QPath  path;
+     private final QPath  path;
 
-    private final String itemId;
+     private final String itemId;
 
-    private final int    state;
+     private final int    state;
 
-    StateLocator(String logPath, QPath path, String itemId, int state) {
-      this.logPath = logPath;
+     StateLocator(String logPath, QPath path, String itemId, int state) {
+       this.logPath = logPath;
 
-      // path, id, state used in traversing
-      this.path = path;
-      this.itemId = itemId;
-      this.state = state;
-    }*/
+       // path, id, state used in traversing
+       this.path = path;
+       this.itemId = itemId;
+       this.state = state;
+     }*/
 
-    /**
-     * Read file and deserialize the state.
-     * 
-     * @return ItemState
-     */
+  /**
+   * Read file and deserialize the state.
+   * 
+   * @return ItemState
+   */
   /*  ItemState getChange() {
       return null; // TODO
     }
   }*/
-  
-  
+
   class MultiFileIterator<T extends ItemState> implements Iterator<T> {
 
-    private ObjectInputStream in;
-    
-    private final List<ChangesFile> changesFiles;
-    
-    private T                 nextItem;
-    
-    private int currentFileIndex;
+    private ObjectInputStream       in;
 
-    public MultiFileIterator(List<ChangesFile> changesFiles) throws IOException{
+    private final List<ChangesFile> changesFiles;
+
+    private T                       nextItem;
+
+    private int                     currentFileIndex;
+
+    public MultiFileIterator(List<ChangesFile> changesFiles) throws IOException {
       this.changesFiles = changesFiles;
       currentFileIndex = 0;
       try {
@@ -172,38 +172,39 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
       } catch (EOFException e) {
         // End of list
         in.close();
-        if(currentFileIndex == changesFiles.size()-1){
+        if (currentFileIndex == changesFiles.size() - 1) {
           return null;
-        }else{
+        } else {
           currentFileIndex++;
-          return readNext(); 
+          return readNext();
         }
       }
     }
   }
 
-  
+  // protected final LinkedHashMap<ItemKey, StateLocator> index = new LinkedHashMap<ItemKey,
+  // StateLocator>();
 
- // protected final LinkedHashMap<ItemKey, StateLocator> index   = new LinkedHashMap<ItemKey, StateLocator>();
+  // protected final TreeMap<ItemKey, StateLocator> storage = new TreeMap<ItemKey, StateLocator>();
+  // // TODO
+  // key Comparable
+  protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
 
- // protected final TreeMap<ItemKey, StateLocator>       storage = new TreeMap<ItemKey, StateLocator>();      // TODO
-                                                                                                             // key Comparable
-  protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();                                                                                                            
+  protected final File              storagePath;
 
-  protected final File                                 storagePath;
-  
-  protected final Member member;
-  
-  protected MessageDigest digest; 
-  
-  protected File currentFile;
-  protected ObjectOutputStream stream;
+  protected final Member            member;
+
+  protected MessageDigest           digest;
+
+  protected File                    currentFile;
+
+  protected ObjectOutputStream      stream;
 
   public FileSystemChangesStorage(File storagePath, Member member) {
     this.storagePath = storagePath;
     // this.storagePath.mkdirs();
     this.member = member;
-    
+
     try {
       digest = MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
@@ -216,10 +217,10 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
    * {@inheritDoc}
    */
   public Iterator<ItemState> getChanges() {
-    try{
+    try {
       return new MultiFileIterator<ItemState>(this.storage);
-    }catch(IOException e){
-      //TODO
+    } catch (IOException e) {
+      // TODO
       return null;
     }
   }
@@ -253,7 +254,7 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
    */
   public ItemState getNextItemState(ItemState item) {
     Iterator<ItemState> it = getChanges();
-    
+
     if(it.hasNext()){
       ItemState state =it.next(); 
       if(state.equals(item)){
@@ -288,7 +289,7 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
    * {@inheritDoc}
    */
   public int findLastState(QPath itemPath) {
-    
+
     return 0;
   }
 
@@ -313,7 +314,7 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
     this.stream.writeObject(change);
   }
 
-  public void addAll(SerializedItemStateIterator<ItemState> changes) throws IOException{
+  public void addAll(SerializedItemStateIterator<ItemState> changes) throws IOException {
     flush();
     storage.add(changes.getChangesFile());
   }
@@ -321,25 +322,34 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
   public Member getMember() {
     return member;
   }
-  
-  private void initFileForWrite() throws IOException{
-    if(currentFile==null){
+
+  private void initFileForWrite() throws IOException {
+    if (currentFile == null) {
       currentFile = File.createTempFile(PREFIX, SUFFIX, storagePath);
       digest.reset();
-      stream = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(currentFile), digest));
+      stream = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(currentFile),
+                                                             digest));
     }
   }
-  
-  private void flush() throws IOException{
-    //wrap current file
+
+  private void flush() throws IOException {
+    // wrap current file
     stream.close();
-    
+
     String crc = new String(digest.digest(), Constants.DEFAULT_ENCODING);
-    
+
     ChangesFile wrapedFile = new ChangesFile(currentFile, crc, System.currentTimeMillis());
-    
+
     this.storage.add(wrapedFile);
     currentFile = null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void delete() throws IOException {
+    // TODO Auto-generated method stub
+
   }
 
 }
