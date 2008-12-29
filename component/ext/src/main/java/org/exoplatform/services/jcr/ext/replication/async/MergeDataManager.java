@@ -83,6 +83,8 @@ public class MergeDataManager {
      */
     private void doMerge() {
 
+      String lastParentIdentifierOnUpdate = null;
+
       ChangesStorage synchronizedChanges = null;
       ChangesStorage currentChanges = membersChanges.next();
       ChangesStorage localChanges;
@@ -146,6 +148,7 @@ public class MergeDataManager {
               } else if (nextIncomeChange != null
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
                 try {
+                  // incomeChange.getData().getParentIdentifier();
                   udpateMerger.merge(incomeChange, incomeChanges, localChanges);
                 } catch (Exception e) {
                   e.printStackTrace();
@@ -155,6 +158,17 @@ public class MergeDataManager {
               }
             }
             break;
+          case ItemState.UPDATED:
+            // TODO skip update sequence, allow single update itemstate
+            if (lastParentIdentifierOnUpdate == null
+                || !lastParentIdentifierOnUpdate.equals(incomeChange.getData()
+                                                                    .getParentIdentifier())) {
+              try {
+                udpateMerger.merge(incomeChange, incomeChanges, localChanges);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            }
           case ItemState.MIXIN_CHANGED:
             break;
           }
@@ -205,7 +219,6 @@ public class MergeDataManager {
    *          TransactionChangesLog
    */
   public void merge(Iterator<ChangesStorage> membersChanges) {
-
     currentMerge = new MergeWorker(membersChanges);
     currentMerge.start();
   }
