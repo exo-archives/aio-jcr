@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
@@ -25,36 +26,46 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 12.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface AsyncTransmitter {
 
   /**
    * Send changes.
-   *
+   * 
    * @param changes
    * @param subscribers
+   * @throws IOException
    */
-  void sendChanges(List<ChangesFile> changes, List<Member> subscribers);
-  
+  void sendChanges(List<ChangesFile> changes, List<Member> subscribers) throws IOException;
+
   /**
    * Send Get Export request.
-   *
+   * 
    * @param nodeId
    * @param address
+   * @throws IOException
    */
-  void sendGetExport(String nodeId, Member address);
-   
+  void sendGetExport(String nodeId, Member address) throws IOException;
+
   /**
    * Send export response.
-   *
+   * 
    * @param changes
    * @param address
+   * @throws IOException
    */
-  void sendExport(ChangesFile changes, Member address);
-  
-  void sendError(String error, Member address);
-  
+  void sendExport(ChangesFile changes, Member address) throws IOException;
+
+  /**
+   * sendError.
+   *
+   * @param error
+   * @param address
+   * @throws IOException
+   */
+  void sendError(String error, Member address) throws IOException;
+
 }
