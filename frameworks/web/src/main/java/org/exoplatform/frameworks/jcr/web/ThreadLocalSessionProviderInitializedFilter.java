@@ -117,11 +117,13 @@ public class ThreadLocalSessionProviderInitializedFilter implements Filter {
           log.warn("An error occured while removing the session provider from the conversation state", e);
         }
       }
-      try {
-        // remove SessionProvider
-        providerService.removeSessionProvider(null);
-      } catch (Exception e) {
-        log.warn("An error occured while cleaning the ThreadLocal", e);
+      if (providerService.getSessionProvider(null) != null) {
+        try {
+          // remove SessionProvider
+          providerService.removeSessionProvider(null);
+        } catch (Exception e) {
+          log.warn("An error occured while cleaning the ThreadLocal", e);
+        }
       }        
     }
   }
