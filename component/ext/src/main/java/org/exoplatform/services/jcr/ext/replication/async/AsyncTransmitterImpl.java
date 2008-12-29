@@ -61,8 +61,14 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * {@inheritDoc}
    */
   public void sendChanges(List<ChangesFile> changes, List<Member> subscribers) {
-    // TODO Auto-generated method stub
-
+    try{
+      for(int i=0; i<changes.size(); i++){
+        this.sendChangesLogFile(subscribers, changes.get(i), priority, changes.size());
+      }
+    } catch(IOException e){
+      //TODO 
+      log.error("Cannot send changes",e);
+    }
   }
 
   /**
@@ -153,11 +159,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   protected void sendChangesLogFile(Member destinationAddress,
                              ChangesFile clFile,
                              int transmitterPriority,
-                             String nodeId,
-                             int totalFiles,
-                             int firstPacketType,
-                             int middlePocketType,
-                             int lastPocketType) throws IOException {
+                             int totalFiles) throws IOException {
     List<Member> destinationAddresses = new ArrayList<Member>();
     destinationAddresses.add(destinationAddress);
 

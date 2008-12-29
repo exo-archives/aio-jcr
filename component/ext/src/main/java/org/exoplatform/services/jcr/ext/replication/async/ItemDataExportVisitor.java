@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -28,14 +28,14 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemDataTraversingVisitor;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -89,7 +89,16 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
                                                                   property.getParentIdentifier(),
                                                                   property.isMultiValued());
 
-    newProperty.setValues(property.getValues());
+    List<ValueData> list = property.getValues();
+    
+    Iterator<ValueData> it = list.iterator();
+    
+    while(it.hasNext()){
+      TransientValueData value = ((AbstractValueData)it.next()).createTransientCopy();
+      newProperty.setValue(value);
+    }
+    
+    //newProperty.setValues(property.getValues());
 
     try {
       out.writeObject(new ItemState(newProperty,

@@ -72,17 +72,17 @@ public class AsyncReplication implements Startable {
 
   protected ManageableRepository      repository;
 
-  protected String                    bindIPAddress;
+  protected final String                    bindIPAddress;
 
-  protected String                    channelConfig;
+  protected final String                    channelConfig;
 
-  protected String                    channelName;
+  protected final String                    channelName;
 
-  protected int                       waitAllMembersTimeout;
+  protected final int                       waitAllMembersTimeout;
 
-  protected String                    incomStoragePath;
+  protected final String                    incomStoragePath;
 
-  protected String                    localStoragePath;
+  protected final String                    localStoragePath;
 
   class AsyncWorker extends Thread {
     protected final AsyncInitializer    initializer;
@@ -170,7 +170,18 @@ public class AsyncReplication implements Startable {
 
     this.repoService = repoService;
 
-    readParameters(params);
+    PropertiesParam pps = params.getPropertiesParam("replication-properties");
+
+    // initialize replication parameters;
+    priority = Integer.parseInt(pps.getProperty("priority"));
+    bindIPAddress = pps.getProperty("bind-ip-address");
+    String chConfig = pps.getProperty("channel-config");
+    channelConfig = chConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
+    
+    channelName = pps.getProperty("channel-name");
+    waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
+    incomStoragePath = pps.getProperty("incom-storage-dir");
+    localStoragePath = pps.getProperty("local-storage-dir");
 
     // TODO restore previous state if it's restart
     // handle local restoration or cleanups of unfinished or breaked work
@@ -229,20 +240,4 @@ public class AsyncReplication implements Startable {
   public void stop() {
     // TODO stop after the JCR Repo stopped
   }
-
-  protected void readParameters(InitParams initParams) {
-    PropertiesParam pps = initParams.getPropertiesParam("replication-properties");
-
-    // initialize replication parameters;
-    priority = Integer.parseInt(pps.getProperty("priority"));
-    bindIPAddress = pps.getProperty("bind-ip-address");
-    channelConfig = pps.getProperty("channel-config");
-    channelConfig = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
-
-    channelName = pps.getProperty("channel-name");
-    waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
-    incomStoragePath = pps.getProperty("incom-storage-dir");
-    localStoragePath = pps.getProperty("local-storage-dir");
-  }
-
 }
