@@ -125,12 +125,11 @@ public class AsyncReplication implements Startable {
 
       exporter = new RemoteExporterImpl(transmitter, receiver);
 
-      boolean localPriority = true; // TODO
       mergeManager = new MergeDataManager(synchronyzer,
                                           exporter,
                                           dataManager,
                                           ntManager,
-                                          localPriority);
+                                          priority);
 
       subscriber = new ChangesSubscriberImpl(mergeManager);
 

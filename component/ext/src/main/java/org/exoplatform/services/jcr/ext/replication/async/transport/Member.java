@@ -30,7 +30,7 @@ public class Member {
 
   private final Address address;
 
-  private int           priority = -1;
+  private final int     priority;
 
   /**
    * Member constructor.
@@ -40,6 +40,7 @@ public class Member {
    */
   public Member(Address address) {
     this.address = address;
+    this.priority = -1;
   }
 
   public Member(Address address, int priority) {
@@ -48,8 +49,8 @@ public class Member {
   }
 
   /**
-   * Get member name in format "priority. address".
-   * <br/>For information purpose only. Use address and priority in comparisons.
+   * Get member name in format "priority. address". <br/>For information purpose only. Use address
+   * and priority in comparisons.
    * 
    * @return String
    * 
@@ -87,4 +88,12 @@ public class Member {
   public Address getAddress() {
     return address;
   }
+
+  /**
+   * @return the priority
+   */
+  public int getPriority() {
+    return priority;
+  }
+
 }

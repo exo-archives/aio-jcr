@@ -27,6 +27,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -41,11 +42,11 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 public interface ChangesStorage {
 
   /**
-   * Get this changes priority.
+   * Get this changes member.
    *
-   * @return int
+   * @return Member
    */
-  int getMemberPriority();
+  Member getMember();
   
   /**
    * Get sequence of all changes.

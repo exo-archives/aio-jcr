@@ -407,6 +407,7 @@ public class AddMerger implements ChangesMerger {
    * @return
    */
   protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+    // TODO case of remote changes merge, local managers can be not actual
     PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
                                                                      parent.getPrimaryTypeName(),
                                                                      parent.getMixinTypeNames());
