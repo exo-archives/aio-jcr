@@ -18,7 +18,10 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+
+import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 
@@ -80,8 +83,11 @@ public class MergeDataManager {
     /**
      * Runs merge till not interrupted or finished.
      * 
+     * @throws RemoteExportException
+     * @throws RepositoryException
+     * 
      */
-    private void doMerge() {
+    private void doMerge() throws RepositoryException, RemoteExportException {
 
       ChangesStorage synchronizedChanges = null;
       ChangesStorage currentChanges = membersChanges.next();
@@ -122,35 +128,22 @@ public class MergeDataManager {
 
           switch (incomeChange.getState()) {
           case ItemState.ADDED:
-            try {
-              addMerger.merge(incomeChange, incomeChanges, localChanges);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
+            addMerger.merge(incomeChange, incomeChanges, localChanges);
             break;
           case ItemState.DELETED:
+            // DELETE
             if (incomeChange.isPersisted()) {
-              try {
-                deleteMerger.merge(incomeChange, incomeChanges, localChanges);
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
+              deleteMerger.merge(incomeChange, incomeChanges, localChanges);
             } else {
               ItemState nextIncomeChange = incomeChanges.getNextItemState(incomeChange);
+
+              // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
-                try {
-                  renameMerger.merge(incomeChange, incomeChanges, localChanges);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
+                renameMerger.merge(incomeChange, incomeChanges, localChanges);
+                // UPDATE
               } else if (nextIncomeChange != null
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
-                try {
-                  // incomeChange.getData().getParentIdentifier();
-                  udpateMerger.merge(incomeChange, incomeChanges, localChanges);
-                } catch (Exception e) {
-                  e.printStackTrace();
-                }
+                udpateMerger.merge(incomeChange, incomeChanges, localChanges);
               } else {
                 log.error("Unknown DELETE sequence");
               }
@@ -158,11 +151,7 @@ public class MergeDataManager {
             break;
           case ItemState.UPDATED:
             if (!incomeChange.getData().isNode()) {
-              try {
-                udpateMerger.merge(incomeChange, incomeChanges, localChanges);
-              } catch (Exception e) {
-                e.printStackTrace();
-              }
+              udpateMerger.merge(incomeChange, incomeChanges, localChanges);
             }
           case ItemState.MIXIN_CHANGED:
             break;
@@ -185,9 +174,16 @@ public class MergeDataManager {
      */
     @Override
     public void run() {
-      doMerge();
+      try {
+        doMerge();
+      } catch (RepositoryException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (RemoteExportException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
     }
-
   }
 
   MergeDataManager(WorkspaceSynchronizer workspace,
@@ -213,8 +209,20 @@ public class MergeDataManager {
    * @param incomeChanges
    *          TransactionChangesLog
    */
-  public void merge(Iterator<ChangesStorage> membersChanges) {
-    currentMerge = new MergeWorker(membersChanges);
+  public void merge(List<ChangesStorage> membersChanges) {
+    // add local changes to list
+    if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
+      membersChanges.add(workspace.getLocalChanges());
+    } else {
+      for (int i = 0; i < membersChanges.size(); i++) {
+        if (membersChanges.get(i).getMember().getPriority() > localPriority) {
+          membersChanges.add(i, workspace.getLocalChanges());
+          break;
+        }
+      }
+    }
+
+    currentMerge = new MergeWorker(membersChanges.iterator());
     currentMerge.start();
   }
 
