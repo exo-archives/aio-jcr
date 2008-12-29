@@ -20,14 +20,17 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.jcr.RepositoryException;
+import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.DeleteMerger;
+import org.exoplatform.services.jcr.ext.replication.async.merge.RenameMerger;
+import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -48,8 +51,13 @@ public class MergeDataManager {
   protected final DataManager                  dataManager;
 
   protected final NodeTypeDataManager          ntManager;
-  
-  private final int localPriority;
+
+  private final int                            localPriority;
+
+  /**
+   * Log.
+   */
+  protected static Log                         log       = ExoLogger.getLogger("jcr.MergerDataManager");
 
   /**
    * Listeners in order of addition.
@@ -64,7 +72,7 @@ public class MergeDataManager {
   class MergeWorker extends Thread {
 
     private final Iterator<ChangesStorage> membersChanges;
-    
+
     MergeWorker(Iterator<ChangesStorage> membersChanges) {
       this.membersChanges = membersChanges;
     }
@@ -76,44 +84,83 @@ public class MergeDataManager {
     private void doMerge() {
 
       ChangesStorage synchronizedChanges = null;
-
+      ChangesStorage currentChanges = membersChanges.next();
+      ChangesStorage localChanges;
+      ChangesStorage incomeChanges;
       while (membersChanges.hasNext() && !isInterrupted()) {
         ChangesStorage nextChanges = membersChanges.next();
 
-        // TODO
-        boolean isLocalPriority = localPriority == nextChanges.getMember().getPriority();
-      
-        ChangesStorage localChanges;
+        boolean isLocalPriority = localPriority >= nextChanges.getMember().getPriority();
         if (isLocalPriority) {
+          incomeChanges = currentChanges;
           localChanges = nextChanges;
-          nextChanges = membersChanges.next();
         } else {
-          // TODO
-          localChanges = null;
+          incomeChanges = nextChanges;
+          localChanges = currentChanges;
         }
-        
+
         exporter.setMember(nextChanges.getMember());
         // TODO NT reregistration
+
         AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
-        DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority, exporter, dataManager, ntManager);
+        DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
+                                                     exporter,
+                                                     dataManager,
+                                                     ntManager);
+        UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
+                                                     exporter,
+                                                     dataManager,
+                                                     ntManager);
+        RenameMerger renameMerger = new RenameMerger(isLocalPriority,
+                                                     exporter,
+                                                     dataManager,
+                                                     ntManager);
 
-
-        Iterator<ItemState> changes = nextChanges.getChanges();
+        Iterator<ItemState> changes = incomeChanges.getChanges();
         while (changes.hasNext() && !isInterrupted()) {
           ItemState incomeChange = changes.next();
-          
-          try {
-            addMerger.merge(incomeChange, nextChanges, localChanges);
-          } catch (RepositoryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          } catch (RemoteExportException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+          switch (incomeChange.getState()) {
+          case ItemState.ADDED:
+            try {
+              addMerger.merge(incomeChange, incomeChanges, localChanges);
+            } catch (Exception e) {
+              e.printStackTrace();
+            }
+            break;
+          case ItemState.DELETED:
+            if (incomeChange.isPersisted()) {
+              try {
+                deleteMerger.merge(incomeChange, incomeChanges, localChanges);
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            } else {
+              ItemState nextIncomeChange = incomeChanges.getNextItemState(incomeChange);
+              if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
+                try {
+                  renameMerger.merge(incomeChange, incomeChanges, localChanges);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              } else if (nextIncomeChange != null
+                  && nextIncomeChange.getState() == ItemState.UPDATED) {
+                try {
+                  udpateMerger.merge(incomeChange, incomeChanges, localChanges);
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              } else {
+                log.error("Unknown DELETE sequence");
+              }
+            }
+            break;
+          case ItemState.MIXIN_CHANGED:
+            break;
           }
-                    
-          // TODO merge to synchronizedChanges
         }
+
+        currentChanges = synchronizedChanges;
       }
 
       if (!isInterrupted()) { // if success
@@ -147,10 +194,8 @@ public class MergeDataManager {
     this.dataManager = dataManager;
 
     this.ntManager = ntManager;
-    
-    this.localPriority = localPriority;
 
-    //this.addMerger = new AddMerger(localPriority, exporter, dataManager, ntManager);
+    this.localPriority = localPriority;
   }
 
   /**
@@ -161,7 +206,7 @@ public class MergeDataManager {
    */
   public void merge(Iterator<ChangesStorage> membersChanges) {
 
-    currentMerge = new MergeWorker( membersChanges);
+    currentMerge = new MergeWorker(membersChanges);
     currentMerge.start();
   }
 
