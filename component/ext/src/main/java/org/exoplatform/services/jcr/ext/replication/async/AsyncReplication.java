@@ -132,6 +132,8 @@ public class AsyncReplication implements Startable {
                                           priority);
 
       subscriber = new ChangesSubscriberImpl(mergeManager);
+      
+      receiver.setChangesSubscriber(subscriber);
 
       // TODO to inform about merge DONE process
       mergeManager.addSynchronizationListener(publisher);

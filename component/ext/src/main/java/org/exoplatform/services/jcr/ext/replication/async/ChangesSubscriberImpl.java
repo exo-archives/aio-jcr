@@ -16,12 +16,17 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -30,21 +35,55 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @version $Id: ChangesSubscriberImpl.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ChangesSubscriberImpl implements ChangesSubscriber {
+  
+  /**
+   * Logger.
+   */
+  private static Log                              log = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected final HashMap<String, ChangesFile> incomChanges;
-  
-  protected final MergeDataManager mergeManager;
+  protected final HashMap<Key, MemberChangesFile> incomChanges;
 
-  public ChangesSubscriberImpl(MergeDataManager mergeManager) {
-    this.incomChanges = new HashMap<String, ChangesFile>();
+  protected final MergeDataManager                mergeManager;
+
+  protected final IncomeStorage                   incomeStorrage;
+
+  public ChangesSubscriberImpl(MergeDataManager mergeManager, IncomeStorage incomeStorage) {
+    this.incomChanges = new HashMap<Key, MemberChangesFile>();
     this.mergeManager = mergeManager;
+    this.incomeStorrage = incomeStorage;
   }
 
-  public void onChanges(ChangesPacket packet) {
-    // TODO
+  public void onChanges(ChangesPacket packet, Member member) {
+    try {
+      switch (packet.getType()) {
+      case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
+        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
+        Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
+
+        cf.writeData(packet.getBuffer(), packet.getOffset());
+
+        incomChanges.put(new Key(packet.getCRC(), packet.getTimeStamp()),
+                         new MemberChangesFile(cf, mem));
+        break;
+
+      case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
+        cf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp())).getChangesFile();
+        cf.writeData(packet.getBuffer(), packet.getOffset());
+        break;
+
+      case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
+        MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
+        incomeStorrage.addMemberChanges(mcf.getMember(), 
+                                        mcf.changesFile);
+        break;
+
+      }
+    } catch (IOException e) {
+      log.error("Cannot save export changes", e);
+    }
   }
 
   /**
@@ -62,21 +101,74 @@ public class ChangesSubscriberImpl implements ChangesSubscriber {
     // TODO Auto-generated method stub
 
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> member) {
     // TODO Auto-generated method stub
-    
+
   }
 
   public void onStart(List<Member> members) {
     // nothing to do
   }
-  
+
   protected void merge() {
-    
+
   }
 
+  private class Key {
+    private final String crc;
+
+    private final Long   timeStamp;
+
+    public Key(String crc, long timeStamp) {
+      this.crc = crc;
+      this.timeStamp = timeStamp;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean equals(Object o) {
+      Key k = (Key) o;
+
+      return crc.equals(k.getCrc()) && timeStamp == k.getTimeStamp();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int hashCode() {
+      return crc.hashCode() ^ timeStamp.hashCode();
+    }
+
+    public String getCrc() {
+      return crc;
+    }
+
+    public long getTimeStamp() {
+      return timeStamp;
+    }
+  }
+
+  private class MemberChangesFile {
+    private final ChangesFile changesFile;
+
+    private final Member      member;
+
+    public MemberChangesFile(ChangesFile changesFile, Member member) {
+      this.changesFile = changesFile;
+      this.member = member;
+    }
+
+    public ChangesFile getChangesFile() {
+      return changesFile;
+    }
+
+    public Member getMember() {
+      return member;
+    }
+  }
 }

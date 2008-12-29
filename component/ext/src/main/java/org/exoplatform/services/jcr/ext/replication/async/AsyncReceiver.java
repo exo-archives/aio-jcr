@@ -41,5 +41,12 @@ public interface AsyncReceiver extends AsyncPacketListener {
    *
    */
   void removeRemoteExportListener();
+  
+  /**
+   * setChangesSubscriberListener.
+   *
+   * @param subscriber
+   */
+  void setChangesSubscriber(ChangesSubscriber subscriber);
 
 }

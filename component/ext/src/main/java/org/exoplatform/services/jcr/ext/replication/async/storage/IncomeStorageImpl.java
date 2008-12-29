@@ -39,7 +39,7 @@ public class IncomeStorageImpl implements IncomeStorage {
 
   }
 
-  public ChangesFile createChangesFile() {
+  public ChangesFile createChangesFile(String crc, long timeStamp) {
     // TODO Auto-generated method stub
     return null;
   }

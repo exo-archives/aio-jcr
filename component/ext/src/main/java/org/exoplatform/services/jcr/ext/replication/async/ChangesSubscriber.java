@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,6 +40,6 @@ public interface ChangesSubscriber extends SynchronizationListener {
    *
    * @param packet - ChangesPacket
    */
-  void onChanges(ChangesPacket packet);
+  void onChanges(ChangesPacket packet, Member member);
   
 }

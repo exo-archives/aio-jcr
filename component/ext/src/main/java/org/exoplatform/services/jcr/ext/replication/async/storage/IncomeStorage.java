@@ -33,9 +33,11 @@ public interface IncomeStorage {
   /**
    * Create empty <code>ChangesFile</code>. Will be used to save incoming changes (packets) by <code>ChangesPublisher</code>.
    *
+   * @param crc String
+   * @param timeStamp long
    * @return ChangesFile
    */
-  ChangesFile createChangesFile();
+  ChangesFile createChangesFile(String crc, long timeStamp);
   
   /**
    * Add <code>ChangesFile</code> to a member (subscriber) storage.
@@ -44,7 +46,5 @@ public interface IncomeStorage {
    * @param memeber Member
    */
   void addMemberChanges(Member memeber, ChangesFile changes);
-  
-  
   
 }

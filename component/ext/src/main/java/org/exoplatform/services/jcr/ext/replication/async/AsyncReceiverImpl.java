@@ -22,6 +22,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
@@ -38,10 +39,13 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 public class AsyncReceiverImpl implements AsyncReceiver {
 
   protected final RemoteExportServer exportServer;
+  
+  protected ChangesSubscriber        changesSubscriber;
 
   protected RemoteExportClient       remoteExportListener;
 
-  AsyncReceiverImpl(AsyncChannelManager channel, RemoteExportServer exportServer) {
+  AsyncReceiverImpl(AsyncChannelManager channel, 
+                    RemoteExportServer exportServer) {
     this.exportServer = exportServer;
   }
 
@@ -50,8 +54,8 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * 
    * @param packet
    */
-  protected void onChanges(AbstractPacket packet) {
-    // TODO Auto-generated method stub
+  protected void onChanges(ChangesPacket packet , Member member) {
+    changesSubscriber.onChanges(packet, member);
   }
 
   protected void onGetExport(AbstractPacket packet, Member srcAddress) {
@@ -113,6 +117,18 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       remoteExportListener.onRemoteError(eventError);
     }
       break;
+      
+    case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET :
+        onChanges((ChangesPacket) packet, srcAddress);
+      break;
+      
+    case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET :
+        onChanges((ChangesPacket) packet, srcAddress);
+      break;
+      
+    case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET :
+        onChanges((ChangesPacket) packet, srcAddress);
+      break;
 
     }
   }
@@ -124,4 +140,9 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   public void setRemoteExportListener(RemoteExportClient listener) {
     this.remoteExportListener = listener;
   }
+
+  public void setChangesSubscriber(ChangesSubscriber subscriber) {
+    this.changesSubscriber = subscriber;
+  }
+  
 }
