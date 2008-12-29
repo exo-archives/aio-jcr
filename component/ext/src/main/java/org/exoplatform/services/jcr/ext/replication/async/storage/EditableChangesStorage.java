@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.IOException;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 
 /**
@@ -33,13 +35,13 @@ public interface EditableChangesStorage extends ChangesStorage {
    *
    * @param change ItemState 
    */
-  void add(ItemState change);
+  void add(ItemState change) throws IOException;
   
   /**
    * Add all changes.
    *
    * @param changes Iterator of ItemState 
    */
-  void addAll(SerializedItemStateIterator<ItemState> changes);
+  void addAll(SerializedItemStateIterator<ItemState> changes) throws IOException;
   
 }

@@ -105,7 +105,6 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
   /*  ItemState getChange() {
       return null; // TODO
     }
-
   }*/
   
   
@@ -255,6 +254,12 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
   public ItemState getNextItemState(ItemState item) {
     Iterator<ItemState> it = getChanges();
     
+    if(it.hasNext()){
+      ItemState state =it.next(); 
+      if(state.equals(item)){
+        return state;
+      }
+    }
     return null;
   }
 
@@ -311,7 +316,6 @@ public class FileSystemChangesStorage implements EditableChangesStorage {
   public void addAll(SerializedItemStateIterator<ItemState> changes) throws IOException{
     flush();
     storage.add(changes.getChangesFile());
-   // last = new ChangesFile();
   }
 
   public Member getMember() {
