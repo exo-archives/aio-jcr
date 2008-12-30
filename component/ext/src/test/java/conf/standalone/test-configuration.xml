@@ -352,9 +352,9 @@
     </init-params>
   </component>
   
-  <component>
+  <!--component>
     <type>org.exoplatform.services.organization.impl.mock.DummyOrganizationService</type>
-  </component>
+  </component-->
   
   <component>
     <key>org.exoplatform.services.security.Authenticator</key>
@@ -409,7 +409,7 @@
     </init-params>
   </component>
   
-  <!--component>
+  <component>
     <key>org.exoplatform.services.organization.OrganizationService</key>
     <type>org.exoplatform.services.jcr.ext.organization.JCROrganizationServiceImpl</type>
     <init-params>
@@ -419,7 +419,7 @@
         <value>ws</value>
       </value-param>
     </init-params>
-  </component-->
+  </component>
   
   <!--component>
     <key>org.exoplatform.services.database.HibernateService</key>
