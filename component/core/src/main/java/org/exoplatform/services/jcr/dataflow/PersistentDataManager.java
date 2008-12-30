@@ -30,4 +30,6 @@ public interface PersistentDataManager extends DataManager {
 
   void addItemPersistenceListener(ItemsPersistenceListener listener);
   
+  void removeItemPersistenceListener(ItemsPersistenceListener listener);
+  
 }
