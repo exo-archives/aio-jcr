@@ -185,7 +185,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
         
-        ChangesFile cf = incomeStorrage.createChangesFile(mem, packet.getCRC(), packet.getTimeStamp());
+        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
 
         cf.writeData(packet.getBuffer(), packet.getOffset());
 

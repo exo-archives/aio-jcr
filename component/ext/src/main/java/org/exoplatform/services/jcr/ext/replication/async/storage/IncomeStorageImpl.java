@@ -48,7 +48,7 @@ public class IncomeStorageImpl implements IncomeStorage {
   /**
    * {@inheritDoc}
    */
-  public ChangesFile createChangesFile(Member member, String crc, long timeStamp) {
+  public ChangesFile createChangesFile(String crc, long timeStamp) {
     // TODO Auto-generated method stub
     return null;
   }

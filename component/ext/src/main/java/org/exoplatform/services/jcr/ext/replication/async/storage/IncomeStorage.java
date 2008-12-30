@@ -37,14 +37,14 @@ public interface IncomeStorage {
    * Create empty <code>ChangesFile</code>. Will be used to save incoming changes (packets) by
    * <code>ChangesSubscriber</code>. This method guaranties order of files in the storage. Files
    * will be stored in order of creation.
-   * 
    * @param crc
    *          String
    * @param timeStamp
    *          long
+   * 
    * @return ChangesFile
    */
-  ChangesFile createChangesFile(Member member, String crc, long timeStamp);
+  ChangesFile createChangesFile(String crc, long timeStamp);
 
   /**
    * Add <code>ChangesFile</code> to a member (subscriber) storage.
