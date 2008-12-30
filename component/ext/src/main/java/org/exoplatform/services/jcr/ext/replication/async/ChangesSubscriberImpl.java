@@ -17,10 +17,12 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
@@ -62,9 +64,13 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
 
   protected final AsyncTransmitter                  transmitter;
   
-  protected HashMap<Integer, Counter>               counterMap; 
+  protected HashMap<Integer, Counter>               counterMap;
+  
+  protected List<Integer>                           doneList;
 
   protected final int                               localPriority;
+  
+  protected final int                               membersCount;
   
   protected MergeWorker                             mergeWorker = null;
 
@@ -84,6 +90,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
     public void run() {
       try {
         runMerge();
+        
+        doDone();
+        
+        
       } catch (RepositoryException e) {
         log.error("Merge error " + e, e);
         doCancel();
@@ -148,13 +158,15 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
                                MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
                                AsyncTransmitter transmitter,
-                               int localPriority) {
+                               int localPriority,
+                               int membersCount) {
     this.incomChanges = new HashMap<Key, MemberChangesFile>();
     this.mergeManager = mergeManager;
     this.workspace = workspace;
     this.incomeStorrage = incomeStorage;
     this.transmitter = transmitter;
     this.localPriority = localPriority;
+    this.membersCount = membersCount;
   }
 
   public void addSynchronizationListener(SynchronizationEventListener listener) {
@@ -194,9 +206,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
           counterMap = new LinkedHashMap<Integer, Counter>();
         
         if (counterMap.containsKey(packet.getTransmitterPriority())) {
-          counterMap.get(packet.getTransmitterPriority()).countUp();
+          Counter counter = counterMap.get(packet.getTransmitterPriority()); 
+          counter.countUp();
           
-          if (counterMap.get(packet.getTransmitterPriority()).isTotalTransfer()) 
+          if (counter.isTotalTransfer()) 
             if (isAllTransfered())
               doMerge();
           
@@ -220,9 +233,13 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
   }
   
   private boolean isAllTransfered() {
-    for(Integer transferPriority : counterMap.keySet()) 
-      if (counterMap.get(transferPriority).isTotalTransfer() == false)
+    if ((counterMap.size() + 1) != membersCount )
+      return false;
+    
+    for( Map.Entry<Integer, Counter>  e: counterMap.entrySet()) 
+      if (e.getValue().isTotalTransfer() == false)
         return false;
+    
     return true;
   }
 
@@ -245,6 +262,19 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
     
     try {
       transmitter.sendCancel();
+    } catch (IOException ioe) {
+      log.error("Cannot send 'Cancel'" + ioe, ioe);
+    }
+  }
+  
+  protected void doDone() {
+    log.error("Do DONE");
+    for (SynchronizationEventListener syncl : listeners)
+      // inform all interested
+      syncl.onDone(null); // local done - null
+    
+    try {
+      transmitter.sendDone();
     } catch (IOException ioe) {
       log.error("Cannot send 'Cancel'" + ioe, ioe);
     }
@@ -272,8 +302,16 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
    * {@inheritDoc}
    */
   public void onDone(Member member) {
-    // TODO Auto-generated method stub
-
+     if (doneList == null) 
+       doneList = new ArrayList<Integer>();
+     
+     // check if cell it self.
+     if (member == null)
+       doneList.add(localPriority);
+     else 
+       doneList.add(member.getPriority());
+     
+     // TODO run save 
   }
 
   /**
