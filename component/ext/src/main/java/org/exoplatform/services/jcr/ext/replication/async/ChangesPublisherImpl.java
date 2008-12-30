@@ -85,7 +85,8 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
       ChangesFile[] files = local.getChangesFile();
 
       List<ChangesFile> ch = new ArrayList<ChangesFile>(files.length);
-      // TODO fill list
+      for (int i=0; i < files.length; i++)
+        ch.set(i, files[i]);
 
       transmitter.sendChanges(ch, subscribers);
     }
