@@ -1169,4 +1169,120 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
   }
+
+  public void testReregisterisAllowsSameNameSiblingsChangeChildNodeDefinition() throws Exception {
+    // create new NodeType value
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterisAllowsSameNameSiblingsChangeChildNodeDefinition");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+
+    List<NodeDefinitionValue> nodes = new ArrayList<NodeDefinitionValue>();
+
+    nodes.add(new NodeDefinitionValue("child",
+                                      false,
+                                      false,
+                                      1,
+                                      false,
+                                      "nt:unstructured",
+                                      new ArrayList<String>(),
+                                      true));
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    Node testNode = root.addNode("testNode", testNValue.getName());
+    Node child = testNode.addNode("child");
+    Node child1 = child.addNode("child");
+    Node child2 = child.addNode("child");
+    session.save();
+
+    nodes = new ArrayList<NodeDefinitionValue>();
+    nodes.add(new NodeDefinitionValue("child",
+                                      false,
+                                      false,
+                                      1,
+                                      false,
+                                      "nt:unstructured",
+                                      new ArrayList<String>(),
+                                      false));
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+
+      // ok
+    }
+    child.remove();
+
+    session.save();
+
+    child = testNode.addNode("child");
+    child1 = child.addNode("child");
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+  }
+
+  public void testReregisterisAllowsSameNameSiblingsChangeResidualChildNodeDefinition() throws Exception {
+    // create new NodeType value
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterisAllowsSameNameSiblingsChangeResidualChildNodeDefinition");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+
+    List<NodeDefinitionValue> nodes = new ArrayList<NodeDefinitionValue>();
+
+    nodes.add(new NodeDefinitionValue("*",
+                                      false,
+                                      false,
+                                      1,
+                                      false,
+                                      "nt:unstructured",
+                                      new ArrayList<String>(),
+                                      true));
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    Node testNode = root.addNode("testNode", testNValue.getName());
+    Node child = testNode.addNode("child");
+    Node child1 = child.addNode("child");
+    Node child2 = child.addNode("child");
+    session.save();
+
+    nodes = new ArrayList<NodeDefinitionValue>();
+    nodes.add(new NodeDefinitionValue("*",
+                                      false,
+                                      false,
+                                      1,
+                                      false,
+                                      "nt:unstructured",
+                                      new ArrayList<String>(),
+                                      false));
+    testNValue.setDeclaredChildNodeDefinitionValues(nodes);
+
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (RepositoryException e) {
+
+      // ok
+    }
+    child.remove();
+
+    session.save();
+
+    child = testNode.addNode("child");
+    child1 = child.addNode("child");
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+  }
 }

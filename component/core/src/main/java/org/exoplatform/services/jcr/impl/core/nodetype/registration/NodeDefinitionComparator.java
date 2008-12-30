@@ -92,13 +92,17 @@ public class NodeDefinitionComparator {
 
     Set<String> nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
 
-    validateAdded(registeredNodeType.getName(), newDefinitionData, nodes);
+    validateAdded(registeredNodeType.getName(),
+                  newDefinitionData,
+                  nodes,
+                  ancestorDefinition,
+                  recipientDefinition);
 
     //
     doAdd(newDefinitionData, changesLog, nodes, registeredNodeType);
 
     // changed
-    doChanged(registeredNodeType, changedDefinitionData, nodes);
+    doChanged(registeredNodeType.getName(), changedDefinitionData, nodes, recipientDefinition);
 
     return changesLog;
 
@@ -132,9 +136,10 @@ public class NodeDefinitionComparator {
     }
   }
 
-  private void doChanged(NodeTypeData registeredNodeType,
+  private void doChanged(InternalQName registeredNodeType,
                          List<List<NodeDefinitionData>> changedDefinitionData,
-                         Set<String> nodes) throws RepositoryException {
+                         Set<String> nodes,
+                         NodeDefinitionData[] allRecipientDefinition) throws RepositoryException {
     for (List<NodeDefinitionData> list : changedDefinitionData) {
       NodeDefinitionData ancestorDefinitionData = list.get(0);
       NodeDefinitionData recipientDefinitionData = list.get(1);
@@ -148,8 +153,8 @@ public class NodeDefinitionComparator {
                                                                 0));
           if (child == null || !child.isNode()) {
             String message = "Can not change " + recipientDefinitionData.getName().getAsString()
-                + " node definition for " + registeredNodeType.getName().getAsString()
-                + " node type " + " from mandatory=false to mandatory = true , because " + " node "
+                + " node definition for " + registeredNodeType.getAsString() + " node type "
+                + " from mandatory=false to mandatory = true , because " + " node "
                 + nodeData.getQPath().getAsString() + " doesn't have child node with name "
                 + recipientDefinitionData.getName().getAsString();
             throw new RepositoryException(message);
@@ -167,7 +172,7 @@ public class NodeDefinitionComparator {
                                                                 0));
           if (child == null || !child.isNode()) {
             String message = "Fail to  change " + recipientDefinitionData.getName().getAsString()
-                + " node definition for " + registeredNodeType.getName().getAsString()
+                + " node definition for " + registeredNodeType.getAsString()
                 + " node type  from rotected=false to Protected = true , because " + " node "
                 + nodeData.getQPath().getAsString() + " doesn't have child node with name "
                 + recipientDefinitionData.getName().getAsString();
@@ -175,76 +180,65 @@ public class NodeDefinitionComparator {
           }
         }
       }
-      // Required type change
-      InternalQName[] requiredPrimaryTypes = recipientDefinitionData.getRequiredPrimaryTypes();
-      if (!Arrays.equals(ancestorDefinitionData.getRequiredPrimaryTypes(), requiredPrimaryTypes)) {
-        for (String uuid : nodes) {
-          NodeData nodeData = (NodeData) persister.getItemData(uuid);
-          if (recipientDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
-            List<NodeData> childs = persister.getChildNodesData(nodeData);
-            for (NodeData child : childs) {
-              for (int i = 0; i < requiredPrimaryTypes.length; i++) {
-                if (!nodeTypeDataManager.isNodeType(requiredPrimaryTypes[i],
-                                                    child.getPrimaryTypeName(),
-                                                    child.getMixinTypeNames())) {
-                  StringBuffer buffer = new StringBuffer();
-                  buffer.append("Fail to change ");
-                  buffer.append(recipientDefinitionData.getName().getAsString());
-                  buffer.append(" node definition for ");
-                  buffer.append(registeredNodeType.getName().getAsString());
-                  buffer.append("node type from ");
-                  buffer.append(Arrays.toString(ancestorDefinitionData.getRequiredPrimaryTypes()));
-                  buffer.append(" to ");
-                  buffer.append(Arrays.toString(recipientDefinitionData.getRequiredPrimaryTypes()));
-                  buffer.append(" because ");
-                  buffer.append(child.getQPath().getAsString());
-                  buffer.append("doesn't much ");
-                  buffer.append(requiredPrimaryTypes[i].getAsString());
-                  buffer.append(" as required primary type");
-                  throw new RepositoryException(buffer.toString());
+      if (!Arrays.equals(ancestorDefinitionData.getRequiredPrimaryTypes(),
+                         recipientDefinitionData.getRequiredPrimaryTypes())) {
+        checkRequiredPrimaryType(registeredNodeType,
+                                 nodes,
+                                 ancestorDefinitionData.getRequiredPrimaryTypes(),
+                                 recipientDefinitionData,
+                                 allRecipientDefinition);
+      }
+      // check sibling
+      checkSameNameSibling(registeredNodeType,
+                           nodes,
+                           ancestorDefinitionData,
+                           recipientDefinitionData);
+    }
+  }
 
-                }
-              }
-            }
-          } else {
-            List<NodeData> childs = persister.getChildNodesData(nodeData);
-            for (NodeData child : childs) {
-              if (child.getQPath().getName().equals(recipientDefinitionData.getName())) {
-                for (int i = 0; i < requiredPrimaryTypes.length; i++) {
-                  if (!nodeTypeDataManager.isNodeType(requiredPrimaryTypes[i],
-                                                      child.getPrimaryTypeName(),
-                                                      child.getMixinTypeNames())) {
-                    StringBuffer buffer = new StringBuffer();
-                    buffer.append("Fail to change ");
-                    buffer.append(recipientDefinitionData.getName().getAsString());
-                    buffer.append(" node definition for ");
-                    buffer.append(registeredNodeType.getName().getAsString());
-                    buffer.append("node type from ");
-                    buffer.append(Arrays.toString(ancestorDefinitionData.getRequiredPrimaryTypes()));
-                    buffer.append(" to ");
-                    buffer.append(Arrays.toString(recipientDefinitionData.getRequiredPrimaryTypes()));
-                    buffer.append(" because ");
-                    buffer.append(child.getQPath().getAsString());
-                    buffer.append("doesn't much ");
-                    buffer.append(requiredPrimaryTypes[i].getAsString());
-                    buffer.append(" as required primary type");
-                    throw new RepositoryException(buffer.toString());
-                  }
-                }
+  /**
+   * @param registeredNodeType
+   * @param nodes
+   * @param ancestorDefinitionData
+   * @param recipientDefinitionData
+   * @throws RepositoryException
+   */
+  private void checkSameNameSibling(InternalQName registeredNodeType,
+                                    Set<String> nodes,
+                                    NodeDefinitionData ancestorDefinitionData,
+                                    NodeDefinitionData recipientDefinitionData) throws RepositoryException {
+    if (ancestorDefinitionData.isAllowsSameNameSiblings()
+        && !recipientDefinitionData.isAllowsSameNameSiblings()) {
+      for (String uuid : nodes) {
+        NodeData nodeData = (NodeData) persister.getItemData(uuid);
+        if (recipientDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
+          // child of node type
+          List<NodeData> childs = persister.getChildNodesData(nodeData);
+          for (NodeData child : childs) {
+            List<NodeData> childs2 = persister.getChildNodesData(child);
+
+            for (NodeData child2 : childs2) {
+              if (child2.getQPath().getIndex() > 1) {
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("Fail to change ");
+                buffer.append(recipientDefinitionData.getName().getAsString());
+                buffer.append(" node definition for ");
+                buffer.append(registeredNodeType.getAsString());
+                buffer.append("node type from AllowsSameNameSiblings = true to AllowsSameNameSiblings = false");
+                buffer.append(" because ");
+                buffer.append(child.getQPath().getAsString());
+                buffer.append(" contains more then one child with name");
+                buffer.append(child2.getQPath().getName().getAsString());
+                throw new RepositoryException(buffer.toString());
               }
             }
           }
-        }
-      }
-      // check sibling
-      if (ancestorDefinitionData.isAllowsSameNameSiblings()
-          && !recipientDefinitionData.isAllowsSameNameSiblings()) {
-        for (String uuid : nodes) {
-          NodeData nodeData = (NodeData) persister.getItemData(uuid);
-          if (recipientDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
-            // child of node type
-            List<NodeData> childs = persister.getChildNodesData(nodeData);
-            for (NodeData child : childs) {
+        } else {
+
+          // child of node type
+          List<NodeData> childs = persister.getChildNodesData(nodeData);
+          for (NodeData child : childs) {
+            if (child.getQPath().getName().equals(recipientDefinitionData.getName())) {
               List<NodeData> childs2 = persister.getChildNodesData(child);
 
               for (NodeData child2 : childs2) {
@@ -253,7 +247,7 @@ public class NodeDefinitionComparator {
                   buffer.append("Fail to change ");
                   buffer.append(recipientDefinitionData.getName().getAsString());
                   buffer.append(" node definition for ");
-                  buffer.append(registeredNodeType.getName().getAsString());
+                  buffer.append(registeredNodeType.getAsString());
                   buffer.append("node type from AllowsSameNameSiblings = true to AllowsSameNameSiblings = false");
                   buffer.append(" because ");
                   buffer.append(child.getQPath().getAsString());
@@ -263,34 +257,85 @@ public class NodeDefinitionComparator {
                 }
               }
             }
-          } else {
 
-            // child of node type
-            List<NodeData> childs = persister.getChildNodesData(nodeData);
-            for (NodeData child : childs) {
-              if (child.getQPath().getName().equals(recipientDefinitionData.getName())) {
-                List<NodeData> childs2 = persister.getChildNodesData(child);
+          }
+        }
 
-                for (NodeData child2 : childs2) {
-                  if (child2.getQPath().getIndex() > 1) {
-                    StringBuffer buffer = new StringBuffer();
-                    buffer.append("Fail to change ");
-                    buffer.append(recipientDefinitionData.getName().getAsString());
-                    buffer.append(" node definition for ");
-                    buffer.append(registeredNodeType.getName().getAsString());
-                    buffer.append("node type from AllowsSameNameSiblings = true to AllowsSameNameSiblings = false");
-                    buffer.append(" because ");
-                    buffer.append(child.getQPath().getAsString());
-                    buffer.append(" contains more then one child with name");
-                    buffer.append(child2.getQPath().getName().getAsString());
-                    throw new RepositoryException(buffer.toString());
-                  }
-                }
+      }
+    }
+  }
+
+  /**
+   * @param registeredNodeType
+   * @param nodes
+   * @param ancestorDefinitionData
+   * @param recipientDefinitionData
+   * @throws RepositoryException
+   */
+  private void checkRequiredPrimaryType(InternalQName registeredNodeType,
+                                        Set<String> nodes,
+                                        InternalQName[] ancestorRequiredPrimaryTypes,
+                                        NodeDefinitionData recipientDefinitionData,
+                                        NodeDefinitionData[] allRecipientDefinition) throws RepositoryException {
+    // Required type change
+    InternalQName[] requiredPrimaryTypes = recipientDefinitionData.getRequiredPrimaryTypes();
+
+    for (String uuid : nodes) {
+      NodeData nodeData = (NodeData) persister.getItemData(uuid);
+      if (recipientDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
+        List<NodeData> childs = persister.getChildNodesData(nodeData);
+        for (NodeData child : childs) {
+          if (isResidualMatch(child.getQPath().getName(), allRecipientDefinition)) {
+            for (int i = 0; i < requiredPrimaryTypes.length; i++) {
+              if (!nodeTypeDataManager.isNodeType(requiredPrimaryTypes[i],
+                                                  child.getPrimaryTypeName(),
+                                                  child.getMixinTypeNames())) {
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("Fail to change ");
+                buffer.append(recipientDefinitionData.getName().getAsString());
+                buffer.append(" node definition for ");
+                buffer.append(registeredNodeType.getAsString());
+                buffer.append("node type from ");
+                buffer.append(Arrays.toString(ancestorRequiredPrimaryTypes));
+                buffer.append(" to ");
+                buffer.append(Arrays.toString(recipientDefinitionData.getRequiredPrimaryTypes()));
+                buffer.append(" because ");
+                buffer.append(child.getQPath().getAsString());
+                buffer.append("doesn't much ");
+                buffer.append(requiredPrimaryTypes[i].getAsString());
+                buffer.append(" as required primary type");
+                throw new RepositoryException(buffer.toString());
+
               }
-
             }
           }
-
+        }
+      } else {
+        List<NodeData> childs = persister.getChildNodesData(nodeData);
+        for (NodeData child : childs) {
+          if (child.getQPath().getName().equals(recipientDefinitionData.getName())) {
+            for (int i = 0; i < requiredPrimaryTypes.length; i++) {
+              if (!nodeTypeDataManager.isNodeType(requiredPrimaryTypes[i],
+                                                  child.getPrimaryTypeName(),
+                                                  child.getMixinTypeNames())) {
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("Fail to change ");
+                buffer.append(recipientDefinitionData.getName().getAsString());
+                buffer.append(" node definition for ");
+                buffer.append(registeredNodeType.getAsString());
+                buffer.append("node type from ");
+                buffer.append(Arrays.toString(ancestorRequiredPrimaryTypes));
+                buffer.append(" to ");
+                buffer.append(Arrays.toString(recipientDefinitionData.getRequiredPrimaryTypes()));
+                buffer.append(" because ");
+                buffer.append(child.getQPath().getAsString());
+                buffer.append("doesn't much ");
+                buffer.append(requiredPrimaryTypes[i].getAsString());
+                buffer.append(" as required primary type");
+                throw new RepositoryException(buffer.toString());
+              }
+            }
+          }
         }
       }
     }
@@ -336,12 +381,23 @@ public class NodeDefinitionComparator {
 
   private void validateAdded(InternalQName nodeTypeName,
                              List<NodeDefinitionData> newDefinitionData,
-                             Set<String> nodes) throws RepositoryException {
+                             Set<String> nodes,
+                             NodeDefinitionData[] ancestorDefinition,
+                             NodeDefinitionData[] recipientDefinition) throws RepositoryException {
 
     for (NodeDefinitionData nodeDefinitionData : newDefinitionData) {
 
       if (nodeDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
         // TODO add residual check existed for all constraint
+        // checkRequiredPrimaryType(nodeTypeName,nodes,)
+        for (int i = 0; i < ancestorDefinition.length; i++) {
+          checkRequiredPrimaryType(nodeTypeName,
+                                   nodes,
+                                   ancestorDefinition[i].getRequiredPrimaryTypes(),
+                                   nodeDefinitionData,
+                                   recipientDefinition);
+        }
+
       } else {
 
         // try to add mandatory or auto-created properties for
@@ -406,8 +462,18 @@ public class NodeDefinitionComparator {
 
           }
         }
-
       }
     }
+  }
+
+  private boolean isResidualMatch(InternalQName itemName, NodeDefinitionData[] recipientDefinition) {
+    boolean containsResidual = false;
+    for (int i = 0; i < recipientDefinition.length; i++) {
+      if (itemName.equals(recipientDefinition[i].getName()))
+        return false;
+      else if (Constants.JCR_ANY_NAME.equals(recipientDefinition[i].getName()))
+        containsResidual = true;
+    }
+    return containsResidual;
   }
 }
