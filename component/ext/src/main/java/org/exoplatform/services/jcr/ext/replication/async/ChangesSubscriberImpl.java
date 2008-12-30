@@ -227,8 +227,6 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
   }
 
   protected void doMerge() {
-    // TODO run merge in dedicated Thread, the merge can be canceled see merege manager cancel
-
     if (mergeWorker == null) {
       mergeWorker = new MergeWorker();
       mergeWorker.start();
@@ -253,7 +251,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
    * {@inheritDoc}
    */
   public void onCancel(Member member) {
-    // TODO Auto-generated method stub
+    if (mergeWorker != null)
+      try {
+        mergeWorker.cancel();
+      } catch (RepositoryException e) {
+        log.error("Error of merge process cancelation " + e, e);
+      } catch (RemoteExportException e) {
+        log.error("Error of merge process cancelation " + e, e);
+      }
   }
 
   /**
