@@ -397,16 +397,15 @@ public class PropertyDefinitionComparator {
     if (newDefinitionData.size() > 0) {
 
       for (PropertyDefinitionData propertyDefinitionData : newDefinitionData) {
-        // skipping residual
-        if (propertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME))
-          continue;
-        // try to add mandatory or auto-created properties for
-        // for already addded nodes.
-        if (propertyDefinitionData.isMandatory() || propertyDefinitionData.isAutoCreated()) {
-          if (propertyDefinitionData.getDefaultValues().length == 0)
-            throw new RepositoryException("No default values defined for "
-                + propertyDefinitionData.getName());
+        if (propertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
+          // TODO add residual check existed for all constraint
+        } else {
+          if (propertyDefinitionData.isMandatory() || propertyDefinitionData.isAutoCreated()) {
+            if (propertyDefinitionData.getDefaultValues().length == 0)
+              throw new RepositoryException("No default values defined for "
+                  + propertyDefinitionData.getName());
 
+          }
         }
       }
     }
