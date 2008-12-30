@@ -28,27 +28,20 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id: EditableChangesStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public interface EditableChangesStorage extends ChangesStorage {
+public interface EditableChangesStorage<T extends ItemState> extends ChangesStorage<T> {
 
   /**
    * Add change.
    *
    * @param change ItemState 
    */
-  void add(ItemState change) throws IOException;
+  void add(T change) throws IOException;
   
   /**
    * Add all changes.
    *
    * @param changes Iterator of ItemState 
    */
-  void addAll(SerializedItemStateIterator<ItemState> changes) throws IOException;
+  void addAll(ChangesStorage<T> changes) throws IOException;
   
-  /**
-   * Delete this storage.
-   *
-   * @throws IOException
-   */
-  void delete() throws IOException;
-
 }

@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -105,7 +106,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -138,7 +139,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -174,7 +175,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -204,7 +205,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
 
@@ -254,7 +255,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 
@@ -292,7 +293,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 8);
 
@@ -349,7 +350,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -376,7 +377,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
@@ -421,7 +422,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -466,7 +467,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 4);
 
@@ -511,7 +512,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -544,7 +545,7 @@ public class AddMergerTest extends BaseMergerTest {
     exportLog.add(remoteItem121Change);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
 
     // should restore parent /localItem1/item12
     // and add /localItem1/item12/item121
@@ -632,7 +633,7 @@ public class AddMergerTest extends BaseMergerTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
 
-    List<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 
@@ -706,7 +707,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -782,7 +783,7 @@ public class AddMergerTest extends BaseMergerTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
 
-    List<ItemState> result = addMerger.merge(remoteItem3Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem3Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem3Add, true));
   }
@@ -858,7 +859,7 @@ public class AddMergerTest extends BaseMergerTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
 
-    List<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
 
   }
@@ -938,7 +939,7 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
 
     // 1. usecase test
-    List<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 3);
     assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem21,
                                                                               ItemState.DELETED,
@@ -1050,7 +1051,7 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
 
     // 1. usecase test
-    List<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 3);
     assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem21,
                                                                               ItemState.DELETED,
@@ -1133,7 +1134,7 @@ public class AddMergerTest extends BaseMergerTest {
     exportLog.add(remoteItem21Add);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem21,
@@ -1218,7 +1219,7 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
 
     // 3. usecase test
-    List<ItemState> result = addMerger.merge(remoteItem3Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem3Add, income, local);
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem3Add, true));
   }
@@ -1271,7 +1272,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1326,7 +1327,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1394,7 +1395,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem212Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem212Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1482,7 +1483,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem2121Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2121Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1570,7 +1571,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem212Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem212Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1667,7 +1668,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem21x21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21x21Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
 
@@ -1766,7 +1767,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem21x21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21x21Add, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
 
@@ -1814,7 +1815,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
@@ -1847,7 +1848,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
@@ -1879,7 +1880,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -1904,7 +1905,7 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(remoteLog);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    List<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
 
@@ -1953,7 +1954,7 @@ public class AddMergerTest extends BaseMergerTest {
                                         new TesterRemoteExporter(),
                                         new TesterDataManager(items),
                                         nodeTypeDataManager);
-    List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote ADD state expected ", hasState(result, remoteProperty1Change, true));
@@ -1991,7 +1992,7 @@ public class AddMergerTest extends BaseMergerTest {
                                         new TesterRemoteExporter(),
                                         new TesterDataManager(items),
                                         nodeTypeDataManager);
-    List<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote Add state expected ", hasState(result, remoteProperty1Change, true));

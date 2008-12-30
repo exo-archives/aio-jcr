@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +38,8 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -77,10 +81,11 @@ public class UpdateMerger implements ChangesMerger {
    * 
    * @throws RepositoryException
    */
-  public List<ItemState> merge(ItemState itemChange,
-                               ChangesStorage income,
-                               ChangesStorage local) throws RepositoryException,
-                                                           RemoteExportException {
+  public ChangesStorage<ItemState> merge(ItemState itemChange,
+                                         ChangesStorage<ItemState> income,
+                                         ChangesStorage<ItemState> local) throws RepositoryException,
+                                                                         RemoteExportException,
+                                                                         IOException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is UPDATE state
@@ -90,8 +95,10 @@ public class UpdateMerger implements ChangesMerger {
       nextIncomeState = income.getNextItemState(incomeState);
     }
 
-    List<ItemState> resultEmptyState = new ArrayList<ItemState>();
-    List<ItemState> resultState = new ArrayList<ItemState>();
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
+    // path
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
+    // path
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -316,9 +323,8 @@ public class UpdateMerger implements ChangesMerger {
                                             nextLocalState.isEventFire(),
                                             nextLocalState.getData().getQPath()));
               // restore parent
-              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
-                resultState.add(exp.next());
-              }
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+
               itemChangeProcessed = true;
             } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
               // delete node on new place
@@ -338,9 +344,7 @@ public class UpdateMerger implements ChangesMerger {
           // DELETE
           if (localData.isNode()) {
             if (localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
-              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
-                resultState.add(exp.next());
-              }
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
               itemChangeProcessed = true;
             } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
               // generate ADD state from DELETE
@@ -372,7 +376,8 @@ public class UpdateMerger implements ChangesMerger {
     if (!itemChangeProcessed) {
       resultState.add(incomeState);
       if (nextIncomeState != null) {
-        resultState.addAll(income.getUpdateSequence(incomeState));
+        for (ItemState st : income.getUpdateSequence(incomeState))
+          resultState.add(st);
       }
     }
 

@@ -16,8 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
-import java.util.List;
-
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -25,6 +23,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.util.IdGenerator;
@@ -137,7 +136,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 
@@ -209,7 +208,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 
@@ -269,7 +268,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
@@ -396,7 +395,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem111Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem111Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
 
     result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -462,7 +461,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 
@@ -530,7 +529,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem21Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem21Deleted, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -612,7 +611,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem211Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem211Deleted, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem211Deleted, true));
@@ -683,7 +682,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem3Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem3Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -767,7 +766,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -850,7 +849,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -930,7 +929,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -1004,7 +1003,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem31Delete, true));
@@ -1081,7 +1080,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 4);
     assertTrue("Local Delete state expected: ", hasState(result, new ItemState(localItem111,
                                                                                ItemState.DELETED,
@@ -1161,7 +1160,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 3);
     assertTrue("Local Delete state expected: ", hasState(result, new ItemState(localItem21,
@@ -1228,7 +1227,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
@@ -1306,7 +1305,7 @@ public class RenameMergerTest extends BaseMergerTest {
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
 
-    List<ItemState> result = renameMerger.merge(remoteItem111Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem111Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 1);
     // assertTrue("Remote Delete state expected: ", hasState(result, remoteItem111Deleted, true));
     assertTrue("Remote Rename state expected: ", hasState(result, remoteItem211Renamed, true));
@@ -1378,7 +1377,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                  new TesterRemoteExporter(exportLog),
                                                  null,
                                                  null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 3);
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem21Add, true));
@@ -1446,7 +1445,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                  new TesterRemoteExporter(exportLog),
                                                  null,
                                                  null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem11Deleted, true));
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem21Renamed, true));
@@ -1531,7 +1530,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Delete state expected: ", hasState(result, new ItemState(localItem21,
@@ -1631,7 +1630,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                        new TesterRemoteExporter(exportLog),
                                                        null,
                                                        null);
-    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 4);
     assertTrue(hasState(result, localItem11Add, true));
@@ -1715,7 +1714,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 4);
     assertTrue(hasState(result, new ItemState(localItem21, ItemState.DELETED, false, null), true));
@@ -1793,7 +1792,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Remote Delete state expected: ", hasState(result, remoteItem31Delete, true));
@@ -1864,7 +1863,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem21Deleted, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem21Deleted, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     QPath qPath = QPath.makeChildPath(localItem21x2A.getQPath().makeAncestorPath(1),
@@ -1948,7 +1947,7 @@ public class RenameMergerTest extends BaseMergerTest {
     income.addLog(incomeLog);
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
-    List<ItemState> result = renameMerger.merge(remoteItem3Delete, income, local);
+    ChangesStorage<ItemState> result = renameMerger.merge(remoteItem3Delete, income, local);
 
     assertEquals("Wrong changes count ", result.size(), 2);
     QPath qPath = QPath.makeChildPath(localItem21x2A.getQPath(),

@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 
 /**
@@ -34,7 +35,7 @@ public class LocalStorageImpl implements LocalStorage {
     this.storagePath = storagePath;
   }
   
-  public ChangesStorage getLocalChanges() {
+  public ChangesStorage<ItemState> getLocalChanges() {
     // TODO Auto-generated method stub
     return null;
   }

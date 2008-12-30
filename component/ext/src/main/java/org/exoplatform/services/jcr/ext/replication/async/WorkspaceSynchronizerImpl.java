@@ -23,6 +23,7 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -50,14 +51,14 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    * 
    * @return ChangesStorage
    */
-  public ChangesStorage getLocalChanges() {
+  public ChangesStorage<ItemState> getLocalChanges() {
     return storage.getLocalChanges();
   }
 
   /**
    * {@inheritDoc} 
    */
-  public void save(ChangesStorage synchronizedChanges) {
+  public void save(ChangesStorage<ItemState> synchronizedChanges) {
     // TODO save to Workspace data manager
     ItemStateChangesLog changes = new PlainChangesLogImpl();
     try {

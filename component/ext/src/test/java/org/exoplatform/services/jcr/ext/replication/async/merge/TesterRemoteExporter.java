@@ -16,16 +16,14 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
-import org.exoplatform.services.jcr.ext.replication.async.storage.SerializedItemStateIterator;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
@@ -38,13 +36,13 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  */
 public class TesterRemoteExporter implements RemoteExporter {
 
-  private final ItemStateChangesLog changes;
+  private final PlainChangesLog changes;
 
   /**
    * Wrapped RemoteExporter.
    * 
    */
-  TesterRemoteExporter(ItemStateChangesLog changes) {
+  TesterRemoteExporter(PlainChangesLog changes) {
     this.changes = changes;
   }
 
@@ -59,28 +57,27 @@ public class TesterRemoteExporter implements RemoteExporter {
   /**
    * {@inheritDoc}
    */
-  public SerializedItemStateIterator<ItemState> exportItem(String nodetId) throws RemoteExportException {
-    final Iterator<ItemState> wrapped = changes.getAllStates().iterator();
+  public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
+    return new CompositeChangesStorage<ItemState>(new TransactionChangesLog(changes));
 
-    return new SerializedItemStateIterator<ItemState>() {
-
-      /**
-       * {@inheritDoc}
-       */
-      @Override
-      public boolean hasNext() {
-        return wrapped.hasNext();
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      @Override
-      public ItemState next() throws NoSuchElementException {
-        return wrapped.next();
-      }
-
-    };
+//    return new SerializedItemStateIterator<ItemState>() {
+//
+//       * {@inheritDoc}
+//       */
+//      @Override
+//      public boolean hasNext() {
+//        return wrapped.hasNext();
+//      }
+//
+//      /**
+//       * {@inheritDoc}
+//       */
+//      @Override
+//      public ItemState next() throws NoSuchElementException {
+//        return wrapped.next();
+//      }
+//
+//    };
   }
 
   /**

@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -33,6 +35,8 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -72,17 +76,20 @@ public class RenameMerger implements ChangesMerger {
   /**
    * {@inheritDoc}
    */
-  public List<ItemState> merge(ItemState itemChange,
-                               ChangesStorage income,
-                               ChangesStorage local) throws RemoteExportException {
+  public ChangesStorage<ItemState> merge(ItemState itemChange,
+                                         ChangesStorage<ItemState> income,
+                                         ChangesStorage<ItemState> local) throws RemoteExportException,
+                                                                         IOException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
     ItemState incomeState = itemChange;
     ItemState nextIncomeState = income.getNextItemState(incomeState);
 
-    List<ItemState> resultEmptyState = new ArrayList<ItemState>();
-    List<ItemState> resultState = new ArrayList<ItemState>();
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
+    // path
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
+    // path
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -179,9 +186,12 @@ public class RenameMerger implements ChangesMerger {
               resultState.add(incomeState);
               resultState.add(nextIncomeState);
             }
-            resultState.addAll(income.getDescendantsChanges(nextIncomeState.getData().getQPath(),
-                                                            false,
-                                                            false));
+
+            for (ItemState st : income.getDescendantsChanges(nextIncomeState.getData().getQPath(),
+                                                             false,
+                                                             false))
+              resultState.add(st);
+
             itemChangeProcessed = true;
           }
           break;
@@ -271,9 +281,7 @@ public class RenameMerger implements ChangesMerger {
 
             } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
               // restore renamed node
-              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
-                resultState.add(exp.next());
-              }
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
 
               // delete renamed node
               if (local.findLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
@@ -326,9 +334,7 @@ public class RenameMerger implements ChangesMerger {
               break;
             } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
               // restore deleted node and all subtree with renamed node
-              for (Iterator<ItemState> exp = exporter.exportItem(localData.getIdentifier()); exp.hasNext();) {
-                resultState.add(exp.next());
-              }
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
 
               if (!itemChangeProcessed) {
                 resultState.add(incomeState);

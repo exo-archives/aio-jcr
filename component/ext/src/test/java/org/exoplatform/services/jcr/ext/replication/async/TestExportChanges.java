@@ -16,17 +16,13 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -130,7 +126,7 @@ public class TestExportChanges extends BaseStandaloneTest {
     channel.addPacketListener(receiver);
     channel.connect();
 
-    Iterator<ItemState> it = exporter.exportItem(id);
+    ChangesStorage<ItemState> it = exporter.exportItem(id);
 
     assertNotNull(it);
 

@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.RenameMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -86,17 +88,18 @@ public class MergeDataManager {
   /**
    * Start merge process.
    * 
-   * @param incomeChanges
-   *          TransactionChangesLog
-   * @throws RemoteExportException
+   * @param membersChanges
+   *          List of members changes
    * @throws RepositoryException
-   * @throws IOException 
+   * @throws RemoteExportException
+   * @throws IOException
    */
-  public void merge(List<ChangesStorage> membersChanges) throws RepositoryException,
-                                                        RemoteExportException, IOException {
+  public void merge(List<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
+                                                                         RemoteExportException,
+                                                                         IOException {
 
     try {
-      // add local changes to list
+      // add local changes to the list
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
         membersChanges.add(workspace.getLocalChanges());
       } else {
@@ -129,87 +132,89 @@ public class MergeDataManager {
    * 
    * @throws RemoteExportException
    * @throws RepositoryException
-   * @throws IOException 
+   * @throws IOException
    */
-  private void doMerge(Iterator<ChangesStorage> membersChanges) throws RepositoryException,
-                                                               RemoteExportException, IOException {
+  private void doMerge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
+                                                                                RemoteExportException,
+                                                                                IOException {
 
-    EditableChangesStorage synchronizedChanges = null;
-    
+    EditableChangesStorage<ItemState> synchronizedChanges = new EditableItemStatesStorage<ItemState>(new File("")); // TODO
+                                                                                                                    // path
+
     try {
-    ChangesStorage currentChanges = membersChanges.next();
-    ChangesStorage localChanges;
-    ChangesStorage incomeChanges;
-    while (membersChanges.hasNext() && run) {
-      ChangesStorage nextChanges = membersChanges.next();
+      ChangesStorage<ItemState> currentChanges = membersChanges.next();
+      ChangesStorage<ItemState> localChanges;
+      ChangesStorage<ItemState> incomeChanges;
+      while (membersChanges.hasNext() && run) {
+        ChangesStorage<ItemState> nextChanges = membersChanges.next();
 
-      boolean isLocalPriority = localPriority >= nextChanges.getMember().getPriority();
-      if (isLocalPriority) {
-        incomeChanges = currentChanges;
-        localChanges = nextChanges;
-      } else {
-        incomeChanges = nextChanges;
-        localChanges = currentChanges;
-      }
-
-      exporter.setMember(nextChanges.getMember());
-      // TODO NT reregistration
-
-      AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
-      DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
-                                                   exporter,
-                                                   dataManager,
-                                                   ntManager);
-      UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
-                                                   exporter,
-                                                   dataManager,
-                                                   ntManager);
-      RenameMerger renameMerger = new RenameMerger(isLocalPriority,
-                                                   exporter,
-                                                   dataManager,
-                                                   ntManager);
-
-      Iterator<ItemState> changes = incomeChanges.getChanges();
-      while (changes.hasNext() && run) {
-        ItemState incomeChange = changes.next();
-
-        switch (incomeChange.getState()) {
-        case ItemState.ADDED:
-          addMerger.merge(incomeChange, incomeChanges, localChanges);
-          break;
-        case ItemState.DELETED:
-          // DELETE
-          if (incomeChange.isPersisted()) {
-            deleteMerger.merge(incomeChange, incomeChanges, localChanges);
-          } else {
-            ItemState nextIncomeChange = incomeChanges.getNextItemState(incomeChange);
-
-            // RENAME
-            if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
-              renameMerger.merge(incomeChange, incomeChanges, localChanges);
-              // UPDATE
-            } else if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.UPDATED) {
-              udpateMerger.merge(incomeChange, incomeChanges, localChanges);
-            } else {
-              log.error("Unknown DELETE sequence");
-            }
-          }
-          break;
-        case ItemState.UPDATED:
-          if (!incomeChange.getData().isNode()) {
-            udpateMerger.merge(incomeChange, incomeChanges, localChanges);
-          }
-        case ItemState.MIXIN_CHANGED:
-          break;
+        boolean isLocalPriority = localPriority >= nextChanges.getMember().getPriority();
+        if (isLocalPriority) {
+          incomeChanges = currentChanges;
+          localChanges = nextChanges;
+        } else {
+          incomeChanges = nextChanges;
+          localChanges = currentChanges;
         }
+
+        exporter.setMember(nextChanges.getMember());
+        // TODO NT reregistration
+
+        AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
+        DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
+                                                     exporter,
+                                                     dataManager,
+                                                     ntManager);
+        UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
+                                                     exporter,
+                                                     dataManager,
+                                                     ntManager);
+        RenameMerger renameMerger = new RenameMerger(isLocalPriority,
+                                                     exporter,
+                                                     dataManager,
+                                                     ntManager);
+
+        for (Iterator<ItemState> changes = incomeChanges.getChanges(); changes.hasNext() && run;) {
+          ItemState incomeChange = changes.next();
+
+          switch (incomeChange.getState()) {
+          case ItemState.ADDED:
+            synchronizedChanges.addAll(addMerger.merge(incomeChange, incomeChanges, localChanges));
+            break;
+          case ItemState.DELETED:
+            // DELETE
+            if (incomeChange.isPersisted()) {
+              deleteMerger.merge(incomeChange, incomeChanges, localChanges);
+            } else {
+              ItemState nextIncomeChange = incomeChanges.getNextItemState(incomeChange);
+
+              // RENAME
+              if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
+                renameMerger.merge(incomeChange, incomeChanges, localChanges);
+                // UPDATE
+              } else if (nextIncomeChange != null
+                  && nextIncomeChange.getState() == ItemState.UPDATED) {
+                udpateMerger.merge(incomeChange, incomeChanges, localChanges);
+              } else {
+                log.error("Unknown DELETE sequence");
+              }
+            }
+            break;
+          case ItemState.UPDATED:
+            if (!incomeChange.getData().isNode()) {
+              udpateMerger.merge(incomeChange, incomeChanges, localChanges);
+            }
+          case ItemState.MIXIN_CHANGED:
+            break;
+          }
+        }
+
+        currentChanges = synchronizedChanges;
       }
 
-      currentChanges = synchronizedChanges;
-    }
+      // if success
+      workspace.save(synchronizedChanges);
 
-    // if success
-    workspace.save(synchronizedChanges);
-    
     } finally {
       // clean synchronizedChanges anyway
       synchronizedChanges.delete();

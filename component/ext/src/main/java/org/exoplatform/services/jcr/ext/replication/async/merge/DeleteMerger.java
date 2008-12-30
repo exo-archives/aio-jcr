@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +40,8 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -81,16 +84,19 @@ public class DeleteMerger implements ChangesMerger {
    * @throws RepositoryException
    * @throws IOException
    */
-  public List<ItemState> merge(ItemState itemChange,
-                               ChangesStorage income,
-                               ChangesStorage local) throws RepositoryException,
-                                                           RemoteExportException {
+  public ChangesStorage<ItemState> merge(ItemState itemChange,
+                                         ChangesStorage<ItemState> income,
+                                         ChangesStorage<ItemState> local) throws RepositoryException,
+                                                                         RemoteExportException,
+                                                                         IOException {
 
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
-    List<ItemState> resultEmptyState = new ArrayList<ItemState>();
-    List<ItemState> resultState = new ArrayList<ItemState>();
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
+    // path
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
+    // path
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -226,7 +232,10 @@ public class DeleteMerger implements ChangesMerger {
 
             // apply income changes for all subtree
             resultState.add(itemChange);
-            resultState.addAll(income.getDescendantsChanges(incomeData.getQPath(), false, false));
+
+            for (ItemState st : income.getDescendantsChanges(incomeData.getQPath(), false, false))
+              resultState.add(st);
+
             return resultState;
           }
           break;
@@ -315,8 +324,7 @@ public class DeleteMerger implements ChangesMerger {
                                             nextState.isEventFire(),
                                             nextState.getData().getQPath()));
 
-              for (Iterator<ItemState> exp = exporter.exportItem(incomeData.getParentIdentifier()); exp.hasNext();)
-                resultState.add(exp.next());
+              resultState.addAll(exporter.exportItem(incomeData.getParentIdentifier()));
 
               itemChangeProcessed = true;
               break;

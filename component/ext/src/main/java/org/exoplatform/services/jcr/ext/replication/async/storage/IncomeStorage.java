@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.util.List;
 
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
@@ -54,6 +55,6 @@ public interface IncomeStorage {
    *
    * @return
    */
-  List<ChangesStorage> getChanges();
+  List<ChangesStorage<ItemState>> getChanges();
   
 }

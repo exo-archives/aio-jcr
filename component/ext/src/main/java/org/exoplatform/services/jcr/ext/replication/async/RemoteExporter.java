@@ -21,7 +21,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.storage.SerializedItemStateIterator;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
@@ -53,6 +53,6 @@ public interface RemoteExporter {
    * @return Iterator of ItemState
    * @throws RemoteExportException
    */
-  SerializedItemStateIterator<ItemState> exportItem(String nodetId) throws RemoteExportException;
+  ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException;
 
 }

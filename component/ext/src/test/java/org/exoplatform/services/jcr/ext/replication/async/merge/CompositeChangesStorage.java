@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
@@ -39,7 +41,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class CompositeChangesStorage implements ChangesStorage {
+public class CompositeChangesStorage<T extends ItemState> implements ChangesStorage<ItemState> {
 
   private final TransactionChangesLog chlog;
   
@@ -52,6 +54,13 @@ public class CompositeChangesStorage implements ChangesStorage {
   
   CompositeChangesStorage(TransactionChangesLog chlog) {
     this(chlog, null);
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public int size() {
+    return chlog.getSize();
   }
   
   public void addLog(PlainChangesLog log) {
@@ -135,6 +144,22 @@ public class CompositeChangesStorage implements ChangesStorage {
    */
   public List<ItemState> getUpdateSequence(ItemState startState) {
     return chlog.getUpdateSequence(startState);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void delete() throws IOException {
+    // TODO Auto-generated method stub
+    
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public ChangesFile[] getChangesFile() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   

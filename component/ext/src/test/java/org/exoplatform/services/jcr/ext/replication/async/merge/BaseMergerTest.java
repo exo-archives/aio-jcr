@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.ByteArrayInputStream;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.PropertyType;
@@ -30,6 +31,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -565,8 +567,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
     super.tearDown();
   }
 
-  protected ItemState findStateByPath(List<ItemState> changes, QPath path) {
-    for (ItemState st : changes) {
+  protected ItemState findStateByPath(ChangesStorage<ItemState> changes, QPath path) {
+    for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
+      ItemState st = iter.next();
       if (st.getData().getQPath().equals(path))
         return st;
     }
@@ -574,8 +577,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
     return null;
   }
 
-  protected ItemState findStateById(List<ItemState> changes, String id) {
-    for (ItemState st : changes) {
+  protected ItemState findStateById(ChangesStorage<ItemState> changes, String id) {
+    for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
+      ItemState st = iter.next();
       if (st.getData().getIdentifier().equals(id))
         return st;
     }
@@ -583,8 +587,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
     return null;
   }
 
-  protected boolean hasState(List<ItemState> changes, ItemState expected, boolean respectId) {
-    for (ItemState st : changes) {
+  protected boolean hasState(ChangesStorage<ItemState> changes, ItemState expected, boolean respectId) {
+    for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
+      ItemState st = iter.next();
       if (st.getData().getQPath().equals(expected.getData().getQPath())
           && st.getState() == expected.getState()
           && (respectId

@@ -16,20 +16,17 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.EOFException;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.SerializedItemStateIterator;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
@@ -73,7 +70,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * {@inheritDoc}
    */
-  public SerializedItemStateIterator<ItemState> exportItem(String nodetId) throws RemoteExportException {
+  public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
     // registration RemoteChangesListener.
     receiver.setRemoteExportListener(this);
 
@@ -117,7 +114,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       }
 
       // return Iterator based on ChangesFile
-      return new SerializedItemStateIterator<ItemState>(changesFile);
+      return new ItemStatesStorage<ItemState>(changesFile);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } catch (NoSuchAlgorithmException e) {

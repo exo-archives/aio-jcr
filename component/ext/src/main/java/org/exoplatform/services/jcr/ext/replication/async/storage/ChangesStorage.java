@@ -40,7 +40,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface ChangesStorage {
+public interface ChangesStorage<T extends ItemState> {
 
   /**
    * Get this changes member.
@@ -48,13 +48,34 @@ public interface ChangesStorage {
    * @return Member
    */
   Member getMember();
+  
+  /**
+   * Return this storage backed ChangesFile(s).
+   * 
+   * @return array of ChangesFile
+   */
+  ChangesFile[] getChangesFile();
+
+  /**
+   * Delete this storage.
+   * 
+   * @throws IOException
+   */
+  void delete() throws IOException;
 
   /**
    * Get sequence of all changes.
    * 
    * @return Collection
    */
-  Iterator<ItemState> getChanges();
+  Iterator<T> getChanges();
+  
+  /**
+   * Return changes (ItemState) count.
+   *
+   * @return int
+   */
+  int size();
 
   // ***********************************************
 
@@ -65,7 +86,7 @@ public interface ChangesStorage {
    *          String, Item id
    * @return ItemState
    */
-  ItemState getItemState(String itemIdentifier);
+  T getItemState(String itemIdentifier);
 
   /**
    * Get last ItemState by parent and Item name.
@@ -76,7 +97,7 @@ public interface ChangesStorage {
    *          QPathEntry, Item name
    * @return ItemState
    */
-  ItemState getItemState(NodeData parentData, QPathEntry name);
+  T getItemState(NodeData parentData, QPathEntry name);
 
   /**
    * TODO can we rely on sequence on log?
@@ -86,7 +107,7 @@ public interface ChangesStorage {
    * @param item
    * @return
    */
-  ItemState getNextItemState(ItemState item);
+  T getNextItemState(ItemState item);
 
   // =========== custom ==============
 
@@ -108,7 +129,7 @@ public interface ChangesStorage {
    *          int
    * @return ItemState
    */
-  ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex);
+  T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex);
 
   /**
    * TODO
@@ -123,7 +144,7 @@ public interface ChangesStorage {
    *          - ???
    * @return Collection of ItemState
    */
-  Collection<ItemState> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique);
+  Collection<T> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique);
 
   /**
    * TODO can we rely on sequence on log?
@@ -134,7 +155,7 @@ public interface ChangesStorage {
    * @param UUID
    * @return
    */
-  ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID);
+  T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID);
 
   /**
    * getUpdateSequence.
@@ -143,5 +164,5 @@ public interface ChangesStorage {
    *          ItemState
    * @return List of ItemState
    */
-  List<ItemState> getUpdateSequence(ItemState startState);
+  List<T> getUpdateSequence(ItemState startState);
 }

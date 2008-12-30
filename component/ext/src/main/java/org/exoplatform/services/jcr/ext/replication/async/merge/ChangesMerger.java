@@ -17,7 +17,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -61,10 +60,10 @@ public interface ChangesMerger {
    *           TODO
    * @throws IOException
    */
-  List<ItemState> merge(ItemState itemChange,
-                        ChangesStorage income,
-                        ChangesStorage local) throws IllegalPathException,
+  ChangesStorage<ItemState> merge(ItemState itemChange,
+                        ChangesStorage<ItemState> income,
+                        ChangesStorage<ItemState> local) throws IllegalPathException,
                                                     RepositoryException,
-                                                    RemoteExportException;
+                                                    RemoteExportException, IOException;
 
 }

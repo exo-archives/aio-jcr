@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.util.List;
 
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
@@ -49,11 +50,9 @@ public class IncomeStorageImpl implements IncomeStorage {
   /**
    * {@inheritDoc}
    */
-  public List<ChangesStorage> getChanges() {
+  public List<ChangesStorage<ItemState>> getChanges() {
     // TODO Auto-generated method stub
     return null;
   }
-  
-  
 
 }
