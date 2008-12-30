@@ -132,7 +132,7 @@ public class AsyncReplication implements Startable {
                                              incomeStorage,
                                              transmitter,
                                              priority,
-                                             otherParticipantsPriority.size());
+                                             otherParticipantsPriority.size()+1);
       
       publisher.addLocalListener(subscriber);
 

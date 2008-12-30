@@ -231,8 +231,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * {@inheritDoc}
    */
   public void onStop() {
-    // TODO Auto-generated method stub
-
+    channelManager.disconnect();
   }
 
   /**
