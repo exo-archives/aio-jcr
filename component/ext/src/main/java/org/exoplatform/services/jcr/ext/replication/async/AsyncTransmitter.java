@@ -73,7 +73,7 @@ public interface AsyncTransmitter {
    *
    * @throws IOException
    */
-  void sendDone() throws IOException;
+  void sendMerge() throws IOException;
   
   /**
    * send 'Cancel'.

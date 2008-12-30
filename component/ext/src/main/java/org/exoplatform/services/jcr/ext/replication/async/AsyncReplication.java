@@ -131,8 +131,10 @@ public class AsyncReplication implements Startable {
                                              mergeManager,
                                              incomeStorage,
                                              transmitter,
-                                             priority);
-      subscriber.addSynchronizationListener(publisher);
+                                             priority,
+                                             otherParticipantsPriority.size());
+      
+      publisher.addLocalListener(subscriber);
 
       receiver.setChangesSubscriber(subscriber);
 
@@ -142,8 +144,11 @@ public class AsyncReplication implements Startable {
                                          otherParticipantsPriority,
                                          waitTimeout,
                                          true);
-      initializer.addSynchronizationListener(publisher);
-      initializer.addSynchronizationListener(subscriber);
+      initializer.addMembersListener(publisher);
+      initializer.addMembersListener(subscriber);
+      
+      subscriber.addLocalListener(publisher);
+      subscriber.addLocalListener(initializer);
     }
 
     private void doSynchronize() throws ReplicationException {

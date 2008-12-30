@@ -24,19 +24,19 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface SynchronizationEventProducer {
+public interface LocalEventProducer {
   
   /**
    * Add SynchronizationEventListener.
    *
-   * @param listener SynchronizationEventListener
+   * @param listener LocalEventListener
    */
-  void addSynchronizationListener(SynchronizationEventListener listener);
+  void addLocalListener(LocalEventListener listener);
 
   /**
    * Remove SynchronizationEventListener.
    *
-   * @param listener SynchronizationEventListener
+   * @param listener LocalEventListener
    */
-  void removeSynchronizationListener(SynchronizationEventListener listener); 
+  void removeLocalListener(LocalEventListener listener); 
 }

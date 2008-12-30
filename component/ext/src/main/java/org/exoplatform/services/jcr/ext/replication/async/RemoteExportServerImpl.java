@@ -47,7 +47,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class RemoteExportServerImpl implements RemoteExportServer, SynchronizationEventListener {
+public class RemoteExportServerImpl implements RemoteExportServer, LocalEventListener {
 
   protected static final Log          LOG     = ExoLogger.getLogger("jcr.RemoteExportServerImpl");
 
@@ -179,7 +179,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, Synchronizati
   /**
    * {@inheritDoc}
    */
-  public void onCancel(Member member) {
+  public void onCancel() {
 
     for (ExportWorker worker : workers) {
       worker.interrupt();
@@ -202,7 +202,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, Synchronizati
   /**
    * {@inheritDoc}
    */
-  public void onDone(Member member) {
+  public void onMerge(Member member) {
     // not interested
   }
 
@@ -213,4 +213,13 @@ public class RemoteExportServerImpl implements RemoteExportServer, Synchronizati
     // not interested
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public void onStop() {
+    // TODO Auto-generated method stub
+    
+  }
+
+  
 }

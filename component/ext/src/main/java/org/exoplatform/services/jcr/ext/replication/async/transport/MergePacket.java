@@ -24,9 +24,9 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
  * @version $Id: DonePacket.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class DonePacket extends CancelPacket {
+public class MergePacket extends CancelPacket {
 
-  public DonePacket(int type, int transmitterPriority) {
+  public MergePacket(int type, int transmitterPriority) {
     super(type, transmitterPriority);
   }
 

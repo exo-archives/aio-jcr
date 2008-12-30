@@ -27,7 +27,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPack
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.DonePacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
@@ -117,9 +117,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     channel.sendPacket(cancelPacket);
   }
 
-  public void sendDone() throws IOException {
-    DonePacket donePacket = new DonePacket (AsyncPacketTypes.SYNCHRONIZATION_DONE, priority);
-    channel.sendPacket(donePacket);
+  public void sendMerge() throws IOException {
+    MergePacket mergePacket = new MergePacket (AsyncPacketTypes.SYNCHRONIZATION_MERGE, priority);
+    channel.sendPacket(mergePacket);
   }
 
   /**

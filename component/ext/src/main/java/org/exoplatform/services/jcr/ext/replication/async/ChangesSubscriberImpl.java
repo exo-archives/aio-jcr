@@ -43,13 +43,13 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesSubscriberImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ChangesSubscriberImpl implements ChangesSubscriber, SynchronizationEventListener,
-    SynchronizationEventProducer {
+public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventListener,
+    LocalEventListener, LocalEventProducer {
 
   /**
    * Logger.
    */
-  private static Log                                log          = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  private static Log                                log         = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   /**
    * Map with CRC key and RandomAccess File
@@ -63,21 +63,21 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
   protected final IncomeStorage                     incomeStorrage;
 
   protected final AsyncTransmitter                  transmitter;
-  
+
   protected HashMap<Integer, Counter>               counterMap;
-  
+
   protected List<Integer>                           doneList;
 
   protected final int                               localPriority;
-  
+
   protected final int                               membersCount;
-  
+
   protected MergeWorker                             mergeWorker = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<SynchronizationEventListener> listeners    = new LinkedHashSet<SynchronizationEventListener>();
+  protected final Set<LocalEventListener> listeners   = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
 
@@ -90,10 +90,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
     public void run() {
       try {
         runMerge();
-        
-        doDone();
-        
-        
+
+        doDoneMerge();
+
       } catch (RepositoryException e) {
         log.error("Merge error " + e, e);
         doCancel();
@@ -134,27 +133,28 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
       // merge
       result = mergeManager.merge(membersChanges.iterator());
     }
-    
+
   }
-  
+
   private class Counter {
     int total;
+
     int counter;
-    
+
     public Counter(int total, int counter) {
       this.total = total;
       this.counter = counter;
     }
-    
+
     public void countUp() {
       counter++;
     }
-    
+
     public boolean isTotalTransfer() {
       return total == counter;
     }
   }
-  
+
   public ChangesSubscriberImpl(WorkspaceSynchronizer workspace,
                                MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
@@ -170,11 +170,11 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
     this.membersCount = membersCount;
   }
 
-  public void addSynchronizationListener(SynchronizationEventListener listener) {
+  public void addLocalListener(LocalEventListener listener) {
     listeners.add(listener);
   }
 
-  public void removeSynchronizationListener(SynchronizationEventListener listener) {
+  public void removeLocalListener(LocalEventListener listener) {
     listeners.remove(listener);
   }
 
@@ -205,20 +205,20 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
 
         if (counterMap == null)
           counterMap = new LinkedHashMap<Integer, Counter>();
-        
+
         if (counterMap.containsKey(packet.getTransmitterPriority())) {
-          Counter counter = counterMap.get(packet.getTransmitterPriority()); 
+          Counter counter = counterMap.get(packet.getTransmitterPriority());
           counter.countUp();
-          
-          if (counter.isTotalTransfer()) 
+
+          if (counter.isTotalTransfer())
             if (isAllTransfered())
-              doMerge();
-          
+              doStartMerge();
+
         } else {
-          Counter counter = new Counter((int)packet.getFileCount(), 1);
+          Counter counter = new Counter((int) packet.getFileCount(), 1);
           counterMap.put(packet.getTransmitterPriority(), counter);
         }
-          
+
         // TODO if all changes here, doMerge
 
         break;
@@ -226,56 +226,56 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
       }
     } catch (IOException e) {
       log.error("Cannot save changes " + e, e);
-      
+
       // local cancel, incl. merge.
       // and remote cancel.
       doCancel();
     }
   }
-  
+
   private boolean isAllTransfered() {
-    if ((counterMap.size() + 1) != membersCount )
+    if ((counterMap.size() + 1) != membersCount)
       return false;
-    
-    for( Map.Entry<Integer, Counter>  e: counterMap.entrySet()) 
+
+    for (Map.Entry<Integer, Counter> e : counterMap.entrySet())
       if (e.getValue().isTotalTransfer() == false)
         return false;
-    
+
     return true;
   }
 
-  protected void doMerge() {
+  protected void doStartMerge() {
     if (mergeWorker == null) {
       mergeWorker = new MergeWorker();
       mergeWorker.start();
-    } else 
+    } else
       log.error("Error, merge process laready activated.");
   }
 
   protected void doCancel() {
     log.error("Do CANCEL");
-    
+
     mergeCancel();
-    
-    for (SynchronizationEventListener syncl : listeners)
+
+    for (LocalEventListener syncl : listeners)
       // inform all interested
-      syncl.onCancel(null); // local done - null
-    
+      syncl.onCancel(); // local done - null
+
     try {
       transmitter.sendCancel();
     } catch (IOException ioe) {
       log.error("Cannot send 'Cancel'" + ioe, ioe);
     }
   }
-  
-  protected void doDone() {
+
+  protected void doDoneMerge() {
     log.error("Do DONE");
-    for (SynchronizationEventListener syncl : listeners)
-      // inform all interested
-      syncl.onDone(null); // local done - null
-    
+//    for (LocalEventListener syncl : listeners)
+//      // inform all interested
+//      syncl.onMerge(null); // local done - null
+
     try {
-      transmitter.sendDone();
+      transmitter.sendMerge();
     } catch (IOException ioe) {
       log.error("Cannot send 'Cancel'" + ioe, ioe);
     }
@@ -284,10 +284,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
   /**
    * {@inheritDoc}
    */
-  public void onCancel(Member member) {
+  public void onCancel() {
     mergeCancel();
   }
-  
+
   private void mergeCancel() {
     if (mergeWorker != null)
       try {
@@ -302,18 +302,22 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
   /**
    * {@inheritDoc}
    */
-  public void onDone(Member member) {
-     if (doneList == null) 
-       doneList = new ArrayList<Integer>();
-     
-     // check if cell it self.
-     if (member == null)
-       doneList.add(localPriority);
-     else 
-       doneList.add(member.getPriority());
-     
-     if (doneList.size() == membersCount)
-       workspace.save(mergeWorker.result);
+  public void onMerge(Member member) {
+    if (doneList == null)
+      doneList = new ArrayList<Integer>();
+
+    // check if cell it self.
+    if (member == null)
+      doneList.add(localPriority);
+    else
+      doneList.add(member.getPriority());
+
+    if (doneList.size() == membersCount)
+      workspace.save(mergeWorker.result);
+    
+    // TODO
+    for (LocalEventListener ll : listeners)
+      ll.onStop();
   }
 
   /**
@@ -326,6 +330,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
 
   public void onStart(List<Member> members) {
     // nothing to do
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onStop() {
+    // TODO Auto-generated method stub
+
   }
 
   private class Key {

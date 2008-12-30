@@ -34,17 +34,17 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ChangesPublisherImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class ChangesPublisherImpl implements ChangesPublisher, SynchronizationEventListener,
-    SynchronizationEventProducer {
+public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListener,
+    LocalEventListener, LocalEventProducer {
 
-  protected final AsyncTransmitter transmitter;
+  protected final AsyncTransmitter                  transmitter;
 
-  protected final LocalStorage     storage;
-  
+  protected final LocalStorage                      storage;
+
   /**
    * Listeners in order of addition.
    */
-  protected final Set<SynchronizationEventListener> listeners = new LinkedHashSet<SynchronizationEventListener>();
+  protected final Set<LocalEventListener> listeners = new LinkedHashSet<LocalEventListener>();
 
   public ChangesPublisherImpl(AsyncTransmitter transmitter, LocalStorage storage) {
     this.transmitter = transmitter;
@@ -62,7 +62,7 @@ public class ChangesPublisherImpl implements ChangesPublisher, SynchronizationEv
     }
   }
 
-  public void onCancel(Member member) {
+  public void onCancel() {
     // TODO Auto-generated method stub
 
   }
@@ -72,7 +72,7 @@ public class ChangesPublisherImpl implements ChangesPublisher, SynchronizationEv
 
   }
 
-  public void onDone(Member member) {
+  public void onMerge(Member member) {
     // TODO Auto-generated method stub
 
   }
@@ -85,17 +85,25 @@ public class ChangesPublisherImpl implements ChangesPublisher, SynchronizationEv
   /**
    * {@inheritDoc}
    */
-  public void addSynchronizationListener(SynchronizationEventListener listener) {
+  public void onStop() {
     // TODO Auto-generated method stub
-    
+
   }
 
   /**
    * {@inheritDoc}
    */
-  public void removeSynchronizationListener(SynchronizationEventListener listener) {
+  public void addLocalListener(LocalEventListener listener) {
     // TODO Auto-generated method stub
-    
+
   }
-  
+
+  /**
+   * {@inheritDoc}
+   */
+  public void removeLocalListener(LocalEventListener listener) {
+    // TODO Auto-generated method stub
+
+  }
+
 }

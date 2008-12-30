@@ -128,10 +128,10 @@ public final class AsyncPacketTypes {
   public static final int SYNCHRONIZATION_CANCEL               = 17;
   
   /**
-   * SYNCHRONIZATION_DONE.
-   *   the pocket type to done synchronization
+   * SYNCHRONIZATION_MERGE.
+   *   the pocket type to done synchronization merge
    */
-  public static final int SYNCHRONIZATION_DONE                 = 18;
+  public static final int SYNCHRONIZATION_MERGE                 = 18;
   
   public static final int EXPORT_ERROR                         = 19;
 }

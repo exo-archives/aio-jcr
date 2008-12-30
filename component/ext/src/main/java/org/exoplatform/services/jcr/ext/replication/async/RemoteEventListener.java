@@ -28,7 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface SynchronizationEventListener {
+public interface RemoteEventListener {
 
   /**
    * On sycnhronization Start event action. <br/> operations.
@@ -39,17 +39,17 @@ public interface SynchronizationEventListener {
    * 
    */
   void onStart(List<Member> members);
+  
   /**
-   * On sycnhronization Done event action. <br/>
+   * On sycnhronization merge done event action. <br/>
    * <ul>
    * <li>Publisher will not send more changes.</li>
-   * <li>Subscriber will start the merge of received changes on last active member done. All income
-   * changes will be deleted after the merge will be done.</li>
+   * <li>Subscriber will start the merge of received changes on last active member done.</li>
    * </ul>
    * 
    * @param member Member 
    */
-  void onDone(Member member);
+  void onMerge(Member member);
 
   /**
    * On sycnhronization Cancel event action. <br/> operations.
@@ -58,10 +58,8 @@ public interface SynchronizationEventListener {
    * <li>Subscriber will stops changes receive process or stops the merge of received changes. Then
    * all income changes will be deleted.</li>
    * </ul>
-   * 
-   * @param member Member 
    */
-  void onCancel(Member member);
+  void onCancel();
 
   /**
    * Fire memebers disconnected event.<br/>
@@ -75,4 +73,5 @@ public interface SynchronizationEventListener {
    * 
    */
   void onDisconnectMembers(List<Member> member);
+  
 }
