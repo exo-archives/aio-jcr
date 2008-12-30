@@ -134,6 +134,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
       // merge
       result = mergeManager.merge(membersChanges.iterator());
     }
+    
   }
   
   private class Counter {
@@ -311,7 +312,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
      else 
        doneList.add(member.getPriority());
      
-     // TODO run save 
+     if (doneList.size() == membersCount)
+       workspace.save(mergeWorker.result);
   }
 
   /**
