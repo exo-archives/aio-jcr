@@ -24,6 +24,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -95,8 +96,8 @@ public class MergeDataManager {
    * @throws IOException
    */
   public void merge(List<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
-                                                                         RemoteExportException,
-                                                                         IOException {
+                                                                   RemoteExportException,
+                                                                   IOException {
 
     try {
       // add local changes to the list
@@ -135,11 +136,11 @@ public class MergeDataManager {
    * @throws IOException
    */
   private void doMerge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
-                                                                                RemoteExportException,
-                                                                                IOException {
+                                                                          RemoteExportException,
+                                                                          IOException {
 
     EditableChangesStorage<ItemState> synchronizedChanges = new EditableItemStatesStorage<ItemState>(new File("")); // TODO
-                                                                                                                    // path
+    // path
 
     try {
       ChangesStorage<ItemState> currentChanges = membersChanges.next();
@@ -184,17 +185,23 @@ public class MergeDataManager {
           case ItemState.DELETED:
             // DELETE
             if (incomeChange.isPersisted()) {
-              deleteMerger.merge(incomeChange, incomeChanges, localChanges);
+              synchronizedChanges.addAll(deleteMerger.merge(incomeChange,
+                                                            incomeChanges,
+                                                            localChanges));
             } else {
               ItemState nextIncomeChange = incomeChanges.getNextItemState(incomeChange);
 
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
-                renameMerger.merge(incomeChange, incomeChanges, localChanges);
+                synchronizedChanges.addAll(renameMerger.merge(incomeChange,
+                                                              incomeChanges,
+                                                              localChanges));
                 // UPDATE
               } else if (nextIncomeChange != null
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
-                udpateMerger.merge(incomeChange, incomeChanges, localChanges);
+                synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
+                                                              incomeChanges,
+                                                              localChanges));
               } else {
                 log.error("Unknown DELETE sequence");
               }
@@ -202,7 +209,9 @@ public class MergeDataManager {
             break;
           case ItemState.UPDATED:
             if (!incomeChange.getData().isNode()) {
-              udpateMerger.merge(incomeChange, incomeChanges, localChanges);
+              synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
+                                                            incomeChanges,
+                                                            localChanges));
             }
           case ItemState.MIXIN_CHANGED:
             break;
