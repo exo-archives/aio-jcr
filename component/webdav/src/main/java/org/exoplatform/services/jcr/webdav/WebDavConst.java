@@ -127,7 +127,7 @@ public class WebDavConst {
      * Webdav document "lockinfo" property.
      */
     public static final String LOCKINFO = "lockinfo";
-
+    
     /**
      * Webdav document "property behavior" property. See <a
      * href='http://www.ietf.org/rfc/rfc2518.txt'>HTTP Extensions for
@@ -205,6 +205,8 @@ public class WebDavConst {
      * Distributed Authoring </a> for more information.
      */
     public static final String SUPPORDEDMETHODSET = "supported-method-set";
+    
+    public static final String OPAQUELOCKTOKEN = "opaquelocktoken:";
   }
 
   /**
