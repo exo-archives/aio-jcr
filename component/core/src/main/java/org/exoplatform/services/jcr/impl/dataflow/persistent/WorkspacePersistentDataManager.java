@@ -412,6 +412,12 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
     log.info("Workspace Data manager of '" + this.dataContainer.getName()
         + "' registered listener: " + listener);
   }
+  
+  public void removeItemPersistenceListener(ItemsPersistenceListener listener) {
+    listeners.remove(listener);
+    log.info("Workspace Data manager of '" + this.dataContainer.getName()
+        + "' unregistered listener: " + listener);
+  }
 
   /**
    * Notify all listeners about current changes log persistent state.
