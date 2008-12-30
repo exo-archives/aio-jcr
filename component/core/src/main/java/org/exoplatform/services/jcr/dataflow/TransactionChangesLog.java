@@ -163,6 +163,29 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  /**
+   * 
+   * getPreviousState.
+   * 
+   * @param item
+   * @return
+   */
+  @Deprecated
+  public ItemState getPreviousItemState(ItemState item) {
+    ItemState resultState = null;
+
+    for (ItemState itemState : getAllStates()) {
+      if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
+        if (itemState.equals(item)) {
+          break;
+        }
+        resultState = itemState;
+      }
+    }
+
+    return resultState;
+  }
+
   @Deprecated
   public ItemState getPreviousItemStateByQPath(ItemState startState, QPath path) {
     List<ItemState> allStates = getAllStates();
@@ -200,6 +223,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
+  // merge
   public ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) {
     List<ItemState> allStates = getAllStates();
     ItemState lastState = null;
@@ -222,37 +246,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return lastState;
   }
 
-  /**
-   * 
-   * getPreviousState.
-   * 
-   * @param item
-   * @return
-   */
-  @Deprecated
-  public ItemState getPreviousItemState(ItemState item) {
-    ItemState resultState = null;
-
-    for (ItemState itemState : getAllStates()) {
-      if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
-        if (itemState.equals(item)) {
-          break;
-        }
-        resultState = itemState;
-      }
-    }
-
-    return resultState;
-  }
-
-  /**
-   * 
-   * getPreviousState.
-   * 
-   * @param item
-   * @return
-   */
-  // mereg
+  // merge
   public ItemState getNextItemState(ItemState item) {
     ItemState resultState = null;
 

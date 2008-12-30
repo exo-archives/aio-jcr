@@ -26,10 +26,9 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
-import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -50,7 +49,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: WorkspacePersistentDataManager.java 13366 2008-04-17 09:12:24Z pnedonosko $
  */
-public abstract class WorkspacePersistentDataManager implements DataManager {
+public abstract class WorkspacePersistentDataManager implements PersistentDataManager {
 
   /**
    * Logger.
