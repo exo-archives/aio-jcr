@@ -24,9 +24,7 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 19.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 19.12.2008
  * 
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id$
@@ -70,12 +68,9 @@ public class ChangesFile {
   /**
    * Create ChangesFile with file in directory.
    * 
-   * @param crc
-   *          constant checksum
-   * @param timeStamp
-   *          time stamp
-   * @param directory
-   *          path to directory
+   * @param crc constant checksum
+   * @param timeStamp time stamp
+   * @param directory path to directory
    */
   public ChangesFile(String crc, long timeStamp, String directory) throws IOException {
     this.crc = crc;
@@ -88,12 +83,9 @@ public class ChangesFile {
   /**
    * Create ChangesFile with already formed file.
    * 
-   * @param file
-   *          changes file
-   * @param crc
-   *          checksum
-   * @param timeStamp
-   *          time stamp
+   * @param file changes file
+   * @param crc checksum
+   * @param timeStamp time stamp
    * @throws IOException
    */
   public ChangesFile(File file, String crc, long timeStamp) {
@@ -128,16 +120,16 @@ public class ChangesFile {
    */
   public InputStream getDataStream() throws IOException {
     finishWrite();
-    
+
     if (fileInput != null)
       fileInput.close();
-    
+
     return fileInput = new FileInputStream(file);
   }
-  
-  public OutputStream getOutputStream() throws IOException{
-    return new OutputStream(){
-       
+
+  public OutputStream getOutputStream() throws IOException {
+    return new OutputStream() {
+
       @Override
       public void write(int b) throws IOException {
         checkFileAccessor();
@@ -145,14 +137,14 @@ public class ChangesFile {
           fileAccessor.write(b);
         }
       }
-      
+
       public void write(byte b[]) throws IOException {
         checkFileAccessor();
         synchronized (fileAccessor) {
-          fileAccessor.write(b); 
+          fileAccessor.write(b);
         }
       }
-      
+
       public void write(byte b[], int off, int len) throws IOException {
         checkFileAccessor();
         synchronized (fileAccessor) {
@@ -165,10 +157,8 @@ public class ChangesFile {
   /**
    * Write data to file.
    * 
-   * @param data
-   *          byte buffer
-   * @param position
-   *          to write
+   * @param data byte buffer
+   * @param position to write
    * @throws IOException
    */
   public void writeData(byte[] data, long position) throws IOException {
@@ -182,8 +172,7 @@ public class ChangesFile {
   /**
    * Say internal writer that file write stopped.
    * 
-   * @throws IOException
-   *           error on file accessor close.
+   * @throws IOException error on file accessor close.
    */
   public void finishWrite() throws IOException {
     if (fileAccessor != null) {
@@ -196,29 +185,34 @@ public class ChangesFile {
   /**
    * Check is file accessor created. Create if not.
    * 
-   * @throws IOException
-   *           error on file accessor creation.
+   * @throws IOException error on file accessor creation.
    */
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
       fileAccessor = new RandomAccessFile(file, "rw");
     }
   }
-  
+
   /**
    * Delete file and its file-system storage.
-   *
+   * 
    * @return boolean, true if delete successful.
    * @see java.io.File.delete()
    * @throws IOException on error
    */
   public boolean delete() throws IOException {
     finishWrite();
-    
+
     if (fileInput != null)
       fileInput.close();
-    
+
     return file.delete();
   }
 
+  public void moveTo(File dir) throws IOException {
+    // TODO which time stamp used? Derived from sender(creator) or generated at
+    // move moment?
+    File dest = new File(dir, Long.toString(System.currentTimeMillis()));
+    file.renameTo(dest);
+  }
 }

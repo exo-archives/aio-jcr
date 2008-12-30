@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -44,17 +45,17 @@ public interface IncomeStorage {
    * 
    * @return ChangesFile
    */
-  ChangesFile createChangesFile(String crc, long timeStamp);
+  ChangesFile createChangesFile(String crc, long timeStamp) throws IOException;
 
   /**
    * Add <code>ChangesFile</code> to a member (subscriber) storage.
    * 
    * @param changes
    *          ChangesFile
-   * @param memeber
+   * @param member
    *          Member
    */
-  void addMemberChanges(Member memeber, ChangesFile changes);
+  void addMemberChanges(Member member, ChangesFile changes) throws IOException;
 
   /**
    * getChanges.
@@ -62,5 +63,7 @@ public interface IncomeStorage {
    * @return
    */
   List<ChangesStorage<ItemState>> getChanges();
+  
+  void clean() throws IOException;
 
 }

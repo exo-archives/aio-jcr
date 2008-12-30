@@ -16,15 +16,16 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 26.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 26.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
@@ -40,25 +41,62 @@ public class IncomeStorageImpl implements IncomeStorage {
   /**
    * {@inheritDoc}
    */
-  public void addMemberChanges(Member memeber, ChangesFile changes) {
-    // TODO Auto-generated method stub
-    
+  public void addMemberChanges(Member member, ChangesFile changes) throws IOException {
+    // get member directory
+    File dir = new File(storagePath, Integer.toString(member.getPriority()));
+    // move changes file to member directory
+    changes.moveTo(dir);
   }
 
   /**
    * {@inheritDoc}
    */
-  public ChangesFile createChangesFile(String crc, long timeStamp) {
-    // TODO Auto-generated method stub
-    return null;
+  public ChangesFile createChangesFile(String crc, long timeStamp) throws IOException {
+    return new ChangesFile(crc, timeStamp, storagePath);
   }
 
   /**
    * {@inheritDoc}
    */
   public List<ChangesStorage<ItemState>> getChanges() {
-    // TODO Auto-generated method stub
+
+    File incomStorage = new File(storagePath);
+    String[] childnames = incomStorage.list();
+
+    List<ChangesStorage<ItemState>> changes = new ArrayList<ChangesStorage<ItemState>>();
+    for (int i = 0; i < childnames.length; i++) {
+      try {
+
+        // TODO get Member object
+        Integer.parseInt(childnames[i]); // also check - is member folder;
+
+        File memberDir = new File(incomStorage, childnames[i]);
+
+        String[] fileNames = memberDir.list();
+        // Sort names in ascending mode
+        java.util.Arrays.sort(fileNames);
+
+        List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
+        for (int j = 0; j < fileNames.length; j++) {
+          File ch = new File(memberDir, fileNames[j]);
+          chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+        }
+       // ItemStatesStorage<ItemState> storage = new ItemStatesStorage<ItemState>(chFiles, null);
+        
+        
+
+      } catch (NumberFormatException e) {
+        // this is not int named file
+      }
+    }
+    
+
     return null;
   }
 
+  public void clean() throws IOException{
+    
+    
+  }
+  
 }

@@ -76,7 +76,7 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
       if (this.store.size() > 0) {
         currentFileIndex = 0;
         try {
-          this.in = new ObjectInputStream(storage.get(currentFileIndex).getDataStream());
+          this.in = new ObjectInputStream(this.store.get(currentFileIndex).getDataStream());
           this.nextItem = readNext();
         } catch (ClassNotFoundException e) {
           // TODO
