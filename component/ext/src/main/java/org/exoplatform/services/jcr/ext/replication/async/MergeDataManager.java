@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -99,24 +98,26 @@ public class MergeDataManager {
 
     try {
 
-      ChangesStorage<ItemState> localChanges;
-      ChangesStorage<ItemState> incomeChanges;
-      
-      ChangesStorage<ItemState> currentChanges = membersChanges.next();
-      
-      while (membersChanges.hasNext() && run) {
-        ChangesStorage<ItemState> nextChanges = membersChanges.next();
+      ChangesStorage<ItemState> local;
+      ChangesStorage<ItemState> income;
 
-        boolean isLocalPriority = localPriority >= nextChanges.getMember().getPriority();
+      ChangesStorage<ItemState> first = membersChanges.next();
+
+      while (membersChanges.hasNext() && run) {
+        synchronizedChanges = new EditableItemStatesStorage<ItemState>(new File("")); // TODO
+
+        ChangesStorage<ItemState> second = membersChanges.next();
+
+        boolean isLocalPriority = localPriority >= second.getMember().getPriority();
         if (isLocalPriority) {
-          incomeChanges = currentChanges;
-          localChanges = nextChanges;
+          income = first;
+          local = second;
         } else {
-          incomeChanges = nextChanges;
-          localChanges = currentChanges;
+          income = second;
+          local = first;
         }
 
-        exporter.setMember(nextChanges.getMember());
+        exporter.setMember(second.getMember());
         // TODO NT reregistration
 
         AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
@@ -133,33 +134,27 @@ public class MergeDataManager {
                                                      dataManager,
                                                      ntManager);
 
-        for (Iterator<ItemState> changes = incomeChanges.getChanges(); changes.hasNext() && run;) {
+        for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
 
           switch (incomeChange.getState()) {
           case ItemState.ADDED:
-            synchronizedChanges.addAll(addMerger.merge(incomeChange, incomeChanges, localChanges));
+            synchronizedChanges.addAll(addMerger.merge(incomeChange, income, local));
             break;
           case ItemState.DELETED:
             // DELETE
             if (incomeChange.isPersisted()) {
-              synchronizedChanges.addAll(deleteMerger.merge(incomeChange,
-                                                            incomeChanges,
-                                                            localChanges));
+              synchronizedChanges.addAll(deleteMerger.merge(incomeChange, income, local));
             } else {
-              ItemState nextIncomeChange = incomeChanges.getNextItemState(incomeChange);
+              ItemState nextIncomeChange = income.getNextItemState(incomeChange);
 
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
-                synchronizedChanges.addAll(renameMerger.merge(incomeChange,
-                                                              incomeChanges,
-                                                              localChanges));
+                synchronizedChanges.addAll(renameMerger.merge(incomeChange, income, local));
                 // UPDATE
               } else if (nextIncomeChange != null
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
-                synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
-                                                              incomeChanges,
-                                                              localChanges));
+                synchronizedChanges.addAll(udpateMerger.merge(incomeChange, income, local));
               } else {
                 log.error("Unknown DELETE sequence");
               }
@@ -167,16 +162,14 @@ public class MergeDataManager {
             break;
           case ItemState.UPDATED:
             if (!incomeChange.getData().isNode()) {
-              synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
-                                                            incomeChanges,
-                                                            localChanges));
+              synchronizedChanges.addAll(udpateMerger.merge(incomeChange, income, local));
             }
           case ItemState.MIXIN_CHANGED:
             break;
           }
         }
 
-        currentChanges = synchronizedChanges;
+        first = synchronizedChanges;
       }
 
       // if success
