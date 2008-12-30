@@ -270,10 +270,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   }
 
   protected void doDoneMerge() {
-    log.error("Do DONE");
-//    for (LocalEventListener syncl : listeners)
-//      // inform all interested
-//      syncl.onMerge(null); // local done - null
+    log.info("Do DONE");
 
     try {
       transmitter.sendMerge();
@@ -286,7 +283,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    * {@inheritDoc}
    */
   public void onCancel() {
+    log.info("On 'CANCEL'");
     mergeCancel();
+    
+    try {
+      incomeStorrage.clean();
+    } catch (IOException e) {
+      log.error("Cannot clean income storage ", e);
+    }
   }
 
   private void mergeCancel() {
@@ -307,16 +311,12 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     if (doneList == null)
       doneList = new ArrayList<Integer>();
 
-    // check if cell it self.
-    if (member == null)
-      doneList.add(localPriority);
-    else
-      doneList.add(member.getPriority());
+    doneList.add(member.getPriority());
 
-    if (doneList.size() == membersCount)
+    if (doneList.size()+1 == membersCount)
       workspace.save(mergeWorker.result);
     
-    // TODO
+    
     for (LocalEventListener ll : listeners)
       ll.onStop();
   }
@@ -338,7 +338,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    */
   public void onStop() {
     // TODO Auto-generated method stub
-
+    log.info("On 'STOP'");
   }
 
   private class Key {

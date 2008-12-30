@@ -18,13 +18,20 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.jcr.RepositoryException;
+
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -37,14 +44,48 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListener,
     LocalEventListener, LocalEventProducer {
 
-  protected final AsyncTransmitter                  transmitter;
+  /**
+   * Logger.
+   */
+  private static Log                      log       = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
-  protected final LocalStorage                      storage;
+  protected final AsyncTransmitter        transmitter;
+
+  protected final LocalStorage            storage;
 
   /**
    * Listeners in order of addition.
    */
   protected final Set<LocalEventListener> listeners = new LinkedHashSet<LocalEventListener>();
+
+  protected PublisherWorker               publisherWorker;
+
+  private class PublisherWorker extends Thread {
+    private List<Member> subscribers;
+
+    public PublisherWorker(List<Member> subscribers) {
+      this.subscribers = new ArrayList<Member>(subscribers);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void run() {
+      try {
+        runSendChanges();
+      } catch (IOException e) {
+        log.error("Cannot send changes " + e, e);
+        doCancel();
+      }
+    }
+
+    private void runSendChanges() throws IOException {
+        // TODO fill list
+        List<ChangesFile> ch = new ArrayList<ChangesFile>();
+        
+        transmitter.sendChanges(ch, subscribers);
+    }
+  }
 
   public ChangesPublisherImpl(AsyncTransmitter transmitter, LocalStorage storage) {
     this.transmitter = transmitter;
@@ -52,19 +93,11 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
   }
 
   public void sendChanges(List<Member> subscribers) {
-    List<ChangesFile> changes = new ArrayList<ChangesFile>();
-    // TODO fill list
-    try {
-      transmitter.sendChanges(changes, subscribers);
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+    publisherWorker = new PublisherWorker(subscribers);
   }
 
   public void onCancel() {
-    // TODO Auto-generated method stub
-
+    publisherCancel();
   }
 
   public void onDisconnectMembers(List<Member> member) {
@@ -86,8 +119,32 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
    * {@inheritDoc}
    */
   public void onStop() {
-    // TODO Auto-generated method stub
+    //TODO 
+    // Publisher will stop work, run local storage rotation and set Repository RW state.
+  }
 
+  private void publisherCancel() {
+    if (publisherWorker != null)
+      try {
+        // Stop publisher.
+        publisherWorker.join();
+      } catch (InterruptedException e) {
+        log.error("Error of publisher process cancelation " + e, e);
+      }
+  }
+
+  protected void doCancel() {
+    log.error("Do CANCEL");
+
+    for (LocalEventListener syncl : listeners)
+      // inform all interested
+      syncl.onCancel(); // local done - null
+
+    try {
+      transmitter.sendCancel();
+    } catch (IOException ioe) {
+      log.error("Cannot send 'Cancel' " + ioe, ioe);
+    }
   }
 
   /**
