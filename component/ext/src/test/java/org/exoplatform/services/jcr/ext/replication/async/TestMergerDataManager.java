@@ -26,7 +26,11 @@ import java.util.List;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -101,14 +105,87 @@ public class TestMergerDataManager extends BaseStandaloneTest {
     session3.save();
 
     saveResultedChanges(merger.merge(membersChanges.iterator()).getChanges(), "ws4");
-    assertTrue(CompareWorkspaces());
+    assertTrue(isWorkspacesEquals());
   }
 
   /**
    * CompareWorkspaces.
    */
-  protected boolean CompareWorkspaces() {
-    // TODO
+  protected boolean isWorkspacesEquals() throws Exception {
+    return isNodesEquals(root3, root4);
+  }
+
+  /**
+   * Compare two nodes.
+   * 
+   * @param src
+   * @param dst
+   * @return
+   */
+  private boolean isNodesEquals(Node src, Node dst) throws Exception {
+    // compare node name
+    if (!src.getName().equals(dst.getName())) {
+      return false;
+    }
+
+    // compare properties
+    PropertyIterator srcProps = src.getProperties();
+    PropertyIterator dstProps = dst.getProperties();
+    while (srcProps.hasNext()) {
+      if (!dstProps.hasNext()) {
+        return false;
+      }
+
+      Property srcProp = srcProps.nextProperty();
+      Property dstProp = dstProps.nextProperty();
+
+      if (!srcProp.getName().equals(dstProp.getName())) {
+        return false;
+      }
+
+      Value srcValues[];
+      try {
+        srcValues = srcProp.getValues();
+      } catch (ValueFormatException e) {
+        srcValues = new Value[1];
+        srcValues[0] = srcProp.getValue();
+      }
+
+      Value dstValues[];
+      try {
+        dstValues = dstProp.getValues();
+      } catch (ValueFormatException e) {
+        dstValues = new Value[1];
+        dstValues[0] = dstProp.getValue();
+      }
+
+      // TODO compare value property
+      // if (!srcValues.equals(dstValues)) {
+      // return false;
+      // }
+    }
+
+    if (dstProps.hasNext()) {
+      return false;
+    }
+
+    // compare child nodes
+    NodeIterator srcNodes = src.getNodes();
+    NodeIterator dstNodes = dst.getNodes();
+    while (srcNodes.hasNext()) {
+      if (!dstNodes.hasNext()) {
+        return false;
+      }
+
+      if (!isNodesEquals(srcNodes.nextNode(), dstNodes.nextNode())) {
+        return false;
+      }
+    }
+
+    if (dstNodes.hasNext()) {
+      return false;
+    }
+
     return true;
   }
 
