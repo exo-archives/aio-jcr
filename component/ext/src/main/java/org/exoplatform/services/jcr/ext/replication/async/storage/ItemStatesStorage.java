@@ -17,14 +17,8 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.EOFException;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,12 +27,10 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
-import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
