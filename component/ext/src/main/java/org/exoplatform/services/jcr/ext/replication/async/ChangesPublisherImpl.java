@@ -80,10 +80,14 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
     }
 
     private void runSendChanges() throws IOException {
-        // TODO fill list
-        List<ChangesFile> ch = new ArrayList<ChangesFile>();
-        
-        transmitter.sendChanges(ch, subscribers);
+      ChangesStorage<ItemState> local = storage.getLocalChanges();
+
+      ChangesFile[] files = local.getChangesFile();
+
+      List<ChangesFile> ch = new ArrayList<ChangesFile>(files.length);
+      // TODO fill list
+
+      transmitter.sendChanges(ch, subscribers);
     }
   }
 
@@ -92,8 +96,9 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
     this.storage = storage;
   }
 
-  public void sendChanges(List<Member> subscribers) {
-    publisherWorker = new PublisherWorker(subscribers);
+  public void sendChanges(List<Member> members) {
+    publisherWorker = new PublisherWorker(members);
+    publisherWorker.start();
   }
 
   public void onCancel() {
@@ -112,14 +117,14 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
 
   public void onStart(List<Member> members) {
     // TODO Auto-generated method stub
-    sendChanges(null); // TODO
+    sendChanges(members); // TODO
   }
 
   /**
    * {@inheritDoc}
    */
   public void onStop() {
-    //TODO 
+    // TODO
     // Publisher will stop work, run local storage rotation and set Repository RW state.
   }
 
