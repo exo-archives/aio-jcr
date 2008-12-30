@@ -37,8 +37,15 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
     EditableChangesStorage<T> {
+  
+  public static final String        PREFIX  = "FSPERF";
+
+  public static final String        SUFFIX  = "FSsuf";
 
   protected final File          storagePath;
+  protected ObjectOutputStream      stream;
+  
+  protected File                    currentFile;
 
   protected final MessageDigest digest;
 

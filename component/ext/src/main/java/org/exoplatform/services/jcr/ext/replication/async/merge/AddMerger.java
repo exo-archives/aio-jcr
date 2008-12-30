@@ -240,7 +240,6 @@ public class AddMerger implements ChangesMerger {
 
             // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
-                                                                                false,
                                                                                 true);
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
@@ -264,7 +263,7 @@ public class AddMerger implements ChangesMerger {
               resultState.add(incomeState);
             }
 
-            for (ItemState st : income.getDescendantsChanges(incomeData.getQPath(), false, false))
+            for (ItemState st : income.getDescendantsChanges(incomeData.getQPath(), false))
               resultState.add(st);
 
             itemChangeProcessed = true;
@@ -349,7 +348,6 @@ public class AddMerger implements ChangesMerger {
               // add DELETE state
               Collection<ItemState> itemsCollection = local.getDescendantsChanges(nextState.getData()
                                                                                            .getQPath(),
-                                                                                  false,
                                                                                   true);
               ItemState itemsArray[];
               itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);

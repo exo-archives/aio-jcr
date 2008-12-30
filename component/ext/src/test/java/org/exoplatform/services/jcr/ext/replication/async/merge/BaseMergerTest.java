@@ -17,8 +17,8 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.jcr.PropertyType;
 
@@ -567,7 +567,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
     super.tearDown();
   }
 
-  protected ItemState findStateByPath(ChangesStorage<ItemState> changes, QPath path) {
+  protected ItemState findStateByPath(ChangesStorage<ItemState> changes, QPath path) throws IOException{
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getQPath().equals(path))
@@ -577,7 +577,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
     return null;
   }
 
-  protected ItemState findStateById(ChangesStorage<ItemState> changes, String id) {
+  protected ItemState findStateById(ChangesStorage<ItemState> changes, String id) throws IOException{
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getIdentifier().equals(id))
@@ -587,7 +587,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
     return null;
   }
 
-  protected boolean hasState(ChangesStorage<ItemState> changes, ItemState expected, boolean respectId) {
+  protected boolean hasState(ChangesStorage<ItemState> changes, ItemState expected, boolean respectId) throws IOException {
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getQPath().equals(expected.getData().getQPath())

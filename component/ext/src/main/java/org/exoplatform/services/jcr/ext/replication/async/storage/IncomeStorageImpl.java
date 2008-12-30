@@ -42,7 +42,7 @@ public class IncomeStorageImpl implements IncomeStorage {
    */
   public void addMemberChanges(Member memeber, ChangesFile changes) {
     // TODO Auto-generated method stub
-
+    
   }
 
   /**

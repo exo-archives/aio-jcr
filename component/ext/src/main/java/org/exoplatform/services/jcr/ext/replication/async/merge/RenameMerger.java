@@ -162,7 +162,6 @@ public class RenameMerger implements ChangesMerger {
 
             // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
-                                                                                false,
                                                                                 true);
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
@@ -188,7 +187,6 @@ public class RenameMerger implements ChangesMerger {
             }
 
             for (ItemState st : income.getDescendantsChanges(nextIncomeState.getData().getQPath(),
-                                                             false,
                                                              false))
               resultState.add(st);
 

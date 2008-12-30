@@ -68,14 +68,14 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @return Collection
    */
-  Iterator<T> getChanges();
+  Iterator<T> getChanges() throws IOException;
   
   /**
    * Return changes (ItemState) count.
    *
    * @return int
    */
-  int size();
+  int size() throws IOException;
 
   // ***********************************************
 
@@ -107,7 +107,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @param item
    * @return
    */
-  T getNextItemState(ItemState item);
+  T getNextItemState(ItemState item) throws IOException;
 
   // =========== custom ==============
 
@@ -118,7 +118,7 @@ public interface ChangesStorage<T extends ItemState> {
    *          QPath
    * @return int with ItemState state value
    */
-  int findLastState(QPath itemPath);
+  int findLastState(QPath itemPath) throws IOException;
 
   /**
    * getNextItemStateByIndexOnUpdate.
@@ -129,7 +129,7 @@ public interface ChangesStorage<T extends ItemState> {
    *          int
    * @return ItemState
    */
-  T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex);
+  T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException;
 
   /**
    * TODO
@@ -138,13 +138,11 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @param rootPath
    *          - QPath
-   * @param onlyNodes
-   *          - boolean, true for only NodeData changes
    * @param unique
    *          - ???
    * @return Collection of ItemState
    */
-  Collection<T> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique);
+  Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException;
 
   /**
    * TODO can we rely on sequence on log?
@@ -155,7 +153,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @param UUID
    * @return
    */
-  T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID);
+  T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException;
 
   /**
    * getUpdateSequence.
@@ -164,5 +162,5 @@ public interface ChangesStorage<T extends ItemState> {
    *          ItemState
    * @return List of ItemState
    */
-  List<T> getUpdateSequence(ItemState startState);
+  List<T> getUpdateSequence(ItemState startState) throws IOException;
 }

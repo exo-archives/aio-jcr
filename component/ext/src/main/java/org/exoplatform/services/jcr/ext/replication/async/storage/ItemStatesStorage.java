@@ -27,11 +27,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
@@ -39,44 +41,39 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 10.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T> {
 
-  public static final String        PREFIX  = "FSPERF";
-
-  public static final String        SUFFIX  = "FSsuf";
-
-  // protected final LinkedHashMap<ItemKey, StateLocator> index = new LinkedHashMap<ItemKey,
+  // protected final LinkedHashMap<ItemKey, StateLocator> index = new
+  // LinkedHashMap<ItemKey,
   // StateLocator>();
 
-  // protected final TreeMap<ItemKey, StateLocator> storage = new TreeMap<ItemKey, StateLocator>();
-  // // TODO
+  // protected final TreeMap<ItemKey, StateLocator> storage = new
+  // TreeMap<ItemKey, StateLocator>();
+  // 
   // key Comparable
 
   protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
 
   protected final Member            member;
 
-  protected File                    currentFile;
-
-  protected ObjectOutputStream      stream;
-
   class MultiFileIterator<T extends ItemState> implements Iterator<T> {
 
-    private ObjectInputStream in;
+    private final List<ChangesFile> store;
 
-    private T                 nextItem;
+    private ObjectInputStream       in;
 
-    private int               currentFileIndex;
+    private T                       nextItem;
 
-    public MultiFileIterator() throws IOException {
-      if (storage.size() > 0) {
+    private int                     currentFileIndex;
+
+    public MultiFileIterator(List<ChangesFile> store) throws IOException {
+      this.store = store;
+      if (this.store.size() > 0) {
         currentFileIndex = 0;
         try {
           this.in = new ObjectInputStream(storage.get(currentFileIndex).getDataStream());
@@ -138,10 +135,10 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
 
           // fetch next
           currentFileIndex++;
-          if (currentFileIndex >= storage.size()) {
+          if (currentFileIndex >= store.size()) {
             return null;
           } else {
-            in = new ObjectInputStream(storage.get(currentFileIndex).getDataStream());
+            in = new ObjectInputStream(store.get(currentFileIndex).getDataStream());
             return (T) in.readObject();
           }
         }
@@ -152,7 +149,6 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
 
   /**
    * ItemStatesStorage constructor for merge (Editable...).
-   * 
    */
   ItemStatesStorage() {
     this.member = null;
@@ -183,9 +179,14 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public int size() {
-    // TODO !!!!!!!!!!!! need for TESTS
-    return 0;
+  public int size() throws IOException {
+    Iterator<T> it = getChanges();
+    int i =0;
+    while(it.hasNext()){
+      i++;
+      it.next();
+    }
+    return i;
   }
 
   /**
@@ -213,13 +214,8 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public Iterator<T> getChanges() {
-    try {
-      return new MultiFileIterator<T>();
-    } catch (IOException e) {
-      // TODO
-      return null;
-    }
+  public Iterator<T> getChanges() throws IOException{
+    return new MultiFileIterator<T>(storage);
   }
 
   /**
@@ -239,7 +235,7 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public T getNextItemState(ItemState item) {
+  public T getNextItemState(ItemState item) throws IOException{
     Iterator<T> it = getChanges();
 
     if (it.hasNext()) {
@@ -254,41 +250,117 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public int findLastState(QPath itemPath) {
+  public int findLastState(QPath itemPath) throws IOException {
 
-    return 0;
+    // reverse changes files
+    List<ChangesFile> revlst = new ArrayList<ChangesFile>();
+    for (int i = storage.size() - 1; i >= 0; i--) {
+      revlst.add(storage.get(i));
+    }
+
+    MultiFileIterator<T> it = new MultiFileIterator<T>(revlst);
+    while (it.hasNext()) {
+      T state = it.next();
+      if (state.getData().getQPath().equals(itemPath)) {
+        return state.getState();
+      }
+    }
+    return -1;
   }
 
   /**
    * {@inheritDoc}
    */
-  public Collection<T> getDescendantsChanges(QPath rootPath, boolean onlyNodes, boolean unique) {
-    // TODO Auto-generated method stub
+  public Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException {
+    // List<ItemState> list = new ArrayList<ItemState>();
+    HashMap<Object, T> index = new HashMap<Object, T>();
+    Iterator<T> it = getChanges();
+    
+    while(it.hasNext()){
+      T item = it.next();
+      if(item.getData().getQPath().isDescendantOf(rootPath)){
+        if (!unique || index.get(item.getData().getQPath()) == null) {
+          index.put(item.getData().getQPath(), item);
+        }
+      }
+    }
+    return index.values();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
+    
+    Iterator<T> it = getChanges();
+    
+    T lastState = null;
+    
+    // TODO check it
+    while(it.hasNext()){
+      T state = it.next();
+      if(state.equals(startState)){
+        while(it.hasNext()){
+          T instate = it.next();
+          if(instate.getState() != ItemState.UPDATED){
+            return lastState;
+          }else if(startState.getData().getQPath().getIndex() != prevIndex
+              && state.getData().getQPath().getIndex() == prevIndex + 1){
+            return state;
+          }
+          lastState = state;
+        }
+      }
+    }
+ 
+    return lastState; 
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException{
+    Iterator<T> it = getChanges();
+    
+    // TODO check it
+    while(it.hasNext()){
+      T state = it.next();
+      if(state.equals(startState)){
+        while(it.hasNext()){
+          T inState = it.next();
+          if (inState.getState() != ItemState.UPDATED) {
+            return null;
+          } else if (inState.getData().getIdentifier().equals(UUID)) {
+            return inState;
+          }
+        }
+      }
+    }
     return null;
   }
 
   /**
    * {@inheritDoc}
    */
-  public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+  public List<T> getUpdateSequence(ItemState startState) throws IOException {
+    List<T> resultStates = new ArrayList<T>();
 
-  /**
-   * {@inheritDoc}
-   */
-  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public List<T> getUpdateSequence(ItemState startState) {
-    // TODO Auto-generated method stub
-    return null;
+    Iterator<T> it = getChanges();
+    while(it.hasNext()){
+      T state = it.next();
+      if(state.equals(startState)){
+        while(it.hasNext()){
+          T inState = it.next();
+          if( inState.getState() == ItemState.UPDATED
+              && inState.getData().getQPath().getName().equals(startState.getData()
+                                                                      .getQPath()
+                                                                      .getName())){
+            resultStates.add(inState);
+          }
+        }
+      }
+    }
+    return resultStates;
   }
 
 }

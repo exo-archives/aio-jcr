@@ -92,9 +92,8 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
    * {@inheritDoc}
    */
   public Collection<ItemState> getDescendantsChanges(QPath rootPath,
-                                                     boolean onlyNodes,
                                                      boolean unique) {
-    return chlog.getDescendantsChanges(rootPath, onlyNodes, unique);
+    return chlog.getDescendantsChanges(rootPath, false, unique);
   }
 
   /**
