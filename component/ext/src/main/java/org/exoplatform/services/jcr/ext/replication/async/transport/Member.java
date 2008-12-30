@@ -16,6 +16,11 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import org.jgroups.Address;
 
 /**
@@ -26,17 +31,20 @@ import org.jgroups.Address;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Member.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class Member {
+public class Member implements Externalizable{
 
-  private final Address address;
+  private Address address;
 
-  private final int     priority;
+  private int     priority;
 
+  public Member(){
+  }
+  
   /**
    * Member constructor.
    * 
    * @param address
-   *          address of memmber
+   *          address of member
    */
   public Member(Address address) {
     this.address = address;
@@ -94,6 +102,16 @@ public class Member {
    */
   public int getPriority() {
     return priority;
+  }
+
+  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    priority = in.readInt();
+    address = (Address)in.readObject();
+  }
+
+  public void writeExternal(ObjectOutput out) throws IOException {
+    out.writeInt(this.priority);
+    out.writeObject(address);
   }
 
 }

@@ -17,7 +17,11 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +36,9 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  */
 public class IncomeStorageImpl implements IncomeStorage {
 
-  protected final String storagePath;
+  protected final String        storagePath;
+
+  protected final static String MEMBER_INFO_FILE_NAME = "member_info";
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -44,6 +50,15 @@ public class IncomeStorageImpl implements IncomeStorage {
   public void addMemberChanges(Member member, ChangesFile changes) throws IOException {
     // get member directory
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
+
+    File memberInfo = new File(dir, MEMBER_INFO_FILE_NAME);
+    if (!memberInfo.exists()) {
+      // store member info
+      ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(memberInfo));
+      out.writeObject(member);
+      out.close();
+    }
+
     // move changes file to member directory
     changes.moveTo(dir);
   }
@@ -58,7 +73,7 @@ public class IncomeStorageImpl implements IncomeStorage {
   /**
    * {@inheritDoc}
    */
-  public List<ChangesStorage<ItemState>> getChanges() {
+  public List<ChangesStorage<ItemState>> getChanges() throws IOException {
 
     File incomStorage = new File(storagePath);
     String[] childnames = incomStorage.list();
@@ -66,10 +81,25 @@ public class IncomeStorageImpl implements IncomeStorage {
     List<ChangesStorage<ItemState>> changeStorages = new ArrayList<ChangesStorage<ItemState>>();
     for (int i = 0; i < childnames.length; i++) {
       try {
-        // TODO get Member object
+
         Integer.parseInt(childnames[i]); // also check - is member folder;
 
         File memberDir = new File(incomStorage, childnames[i]);
+        File memberInfo = new File(memberDir, MEMBER_INFO_FILE_NAME);
+        Member member = null;
+        if (memberInfo.exists()) {
+          // read member info
+          ObjectInputStream in = new ObjectInputStream(new FileInputStream(memberInfo));
+          try {
+            member = (Member) in.readObject();
+          } catch (ClassNotFoundException e) {
+            // TODO
+          } finally {
+            in.close();
+          }
+        } else {
+          // TODO
+        }
 
         String[] fileNames = memberDir.list();
         // Sort names in ascending mode
@@ -80,17 +110,21 @@ public class IncomeStorageImpl implements IncomeStorage {
           File ch = new File(memberDir, fileNames[j]);
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
-        ItemStatesStorage<ItemState> storage = new ItemStatesStorage<ItemState>(chFiles, null);
+        ItemStatesStorage<ItemState> storage = new ItemStatesStorage<ItemState>(chFiles, member);
         changeStorages.add(storage);
       } catch (NumberFormatException e) {
-        // this is not int named file
+        // This is not int-named file. Skip it.
       }
     }
     return changeStorages;
   }
 
   public void clean() throws IOException {
-
+    // delete all data in storage
+    File storage = new File(this.storagePath);
+    for (File file : storage.listFiles()) {
+      file.delete();
+    }
   }
 
 }

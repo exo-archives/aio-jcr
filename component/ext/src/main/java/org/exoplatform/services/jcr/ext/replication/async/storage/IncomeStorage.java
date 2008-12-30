@@ -62,7 +62,7 @@ public interface IncomeStorage {
    * 
    * @return
    */
-  List<ChangesStorage<ItemState>> getChanges();
+  List<ChangesStorage<ItemState>> getChanges() throws IOException;
   
   void clean() throws IOException;
 
