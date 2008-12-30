@@ -23,7 +23,6 @@ import java.util.Iterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -34,6 +33,7 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -61,6 +61,8 @@ public class MergeDataManager {
    */
   private volatile boolean            run = true;
 
+  private final String                storageDir;
+
   /**
    * Log.
    */
@@ -69,7 +71,8 @@ public class MergeDataManager {
   MergeDataManager(RemoteExporter exporter,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager,
-                   int localPriority) {
+                   int localPriority,
+                   String storageDir) {
 
     this.exporter = exporter;
 
@@ -78,8 +81,16 @@ public class MergeDataManager {
     this.ntManager = ntManager;
 
     this.localPriority = localPriority;
+
+    this.storageDir = storageDir;
   }
 
+  private File makePath(Member first, Member second) {
+    File dir = new File(storageDir, first.getPriority() + "-" + second.getPriority());
+    dir.mkdirs();
+    return dir;
+  }
+  
   /**
    * Start merge process.
    * 
@@ -93,20 +104,19 @@ public class MergeDataManager {
                                                                                             RemoteExportException,
                                                                                             IOException {
 
-    EditableChangesStorage<ItemState> synchronizedChanges = new EditableItemStatesStorage<ItemState>(new File("")); // TODO
-    // path
-
     try {
 
+      EditableChangesStorage<ItemState> synchronizedChanges = null;
+      
       ChangesStorage<ItemState> local;
       ChangesStorage<ItemState> income;
 
       ChangesStorage<ItemState> first = membersChanges.next();
 
       while (membersChanges.hasNext() && run) {
-        synchronizedChanges = new EditableItemStatesStorage<ItemState>(new File("")); // TODO
-
         ChangesStorage<ItemState> second = membersChanges.next();
+        
+        synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(), second.getMember()));
 
         boolean isLocalPriority = localPriority >= second.getMember().getPriority();
         if (isLocalPriority) {

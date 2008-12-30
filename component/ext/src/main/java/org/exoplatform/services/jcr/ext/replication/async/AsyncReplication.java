@@ -19,6 +19,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -64,7 +65,7 @@ public class AsyncReplication implements Startable {
 
   protected final LocalStorage        localStorage;
 
-  protected final int                       priority;
+  protected final int                 priority;
 
   protected final List<Integer>       otherParticipantsPriority;
 
@@ -72,42 +73,39 @@ public class AsyncReplication implements Startable {
 
   protected ManageableRepository      repository;
 
-  protected final String                    bindIPAddress;
+  protected final String              bindIPAddress;
 
-  protected final String                    channelConfig;
+  protected final String              channelConfig;
 
-  protected final String                    channelName;
+  protected final String              channelName;
 
-  protected final int                       waitAllMembersTimeout;
-
-  protected final String                    incomStoragePath;
-
-  protected final String                    localStoragePath;
+  protected final int                 waitAllMembersTimeout;
+  
+  protected final String              mergeTempDir;
 
   class AsyncWorker extends Thread {
-    protected final AsyncInitializer    initializer;
-
-    protected final ChangesPublisherImpl    publisher;
-
-    protected final ChangesSubscriberImpl   subscriber;
     
-    protected final WorkspaceSynchronizerImpl    synchronyzer;
+    protected final AsyncInitializer          initializer;
 
-    protected final AsyncTransmitterImpl    transmitter;
+    protected final ChangesPublisherImpl      publisher;
 
-    protected final AsyncReceiverImpl       receiver;
+    protected final ChangesSubscriberImpl     subscriber;
 
-    protected final RemoteExporterImpl      exporter;
+    protected final WorkspaceSynchronizerImpl synchronyzer;
 
-    protected final RemoteExportServerImpl  exportServer;
-    
-    protected final IncomeStorageImpl       incomeStorage;
+    protected final AsyncTransmitterImpl      transmitter;
 
-    protected final MergeDataManager    mergeManager;
+    protected final AsyncReceiverImpl         receiver;
 
-    protected final DataManager         dataManager;
+    protected final RemoteExporterImpl        exporter;
 
-    protected final NodeTypeDataManager ntManager;
+    protected final RemoteExportServerImpl    exportServer;
+
+    protected final MergeDataManager          mergeManager;
+
+    protected final DataManager               dataManager;
+
+    protected final NodeTypeDataManager       ntManager;
 
     AsyncWorker(DataManager dataManager, NodeTypeDataManager ntManager) {
 
@@ -118,7 +116,7 @@ public class AsyncReplication implements Startable {
       transmitter = new AsyncTransmitterImpl(channel, priority);
 
       synchronyzer = new WorkspaceSynchronizerImpl(dataManager, localStorage);
-      
+
       publisher = new ChangesPublisherImpl(transmitter, localStorage);
 
       exportServer = new RemoteExportServerImpl(transmitter, dataManager, ntManager);
@@ -127,19 +125,23 @@ public class AsyncReplication implements Startable {
 
       exporter = new RemoteExporterImpl(transmitter, receiver);
 
-      mergeManager = new MergeDataManager(exporter,
-                                          dataManager,
-                                          ntManager,
-                                          priority);
+      mergeManager = new MergeDataManager(exporter, dataManager, ntManager, priority, mergeTempDir);
 
-      incomeStorage = new IncomeStorageImpl(incomStoragePath);
-      
-      subscriber = new ChangesSubscriberImpl(synchronyzer, mergeManager, incomeStorage, transmitter, priority);
-      
+      subscriber = new ChangesSubscriberImpl(synchronyzer,
+                                             mergeManager,
+                                             incomeStorage,
+                                             transmitter,
+                                             priority);
+      subscriber.addSynchronizationListener(publisher);
+
       receiver.setChangesSubscriber(subscriber);
 
       int waitTimeout = 60000; // TODO
-      initializer = new AsyncInitializer(channel, priority, otherParticipantsPriority, waitTimeout, true);
+      initializer = new AsyncInitializer(channel,
+                                         priority,
+                                         otherParticipantsPriority,
+                                         waitTimeout,
+                                         true);
       initializer.addSynchronizationListener(publisher);
       initializer.addSynchronizationListener(subscriber);
     }
@@ -177,11 +179,11 @@ public class AsyncReplication implements Startable {
     bindIPAddress = pps.getProperty("bind-ip-address");
     String chConfig = pps.getProperty("channel-config");
     channelConfig = chConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
-    
+
     channelName = pps.getProperty("channel-name");
     waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
-    incomStoragePath = pps.getProperty("incom-storage-dir");
-    localStoragePath = pps.getProperty("local-storage-dir");
+
+    String storagePath = pps.getProperty("storage-dir");
 
     // TODO restore previous state if it's restart
     // handle local restoration or cleanups of unfinished or breaked work
@@ -191,8 +193,20 @@ public class AsyncReplication implements Startable {
     this.otherParticipantsPriority = new ArrayList<Integer>(); // TODO
 
     this.channel = new AsyncChannelManager(channelConfig, channelName);
-    this.incomeStorage = new IncomeStorageImpl(incomStoragePath);
-    this.localStorage = new LocalStorageImpl(localStoragePath);
+    
+    File incomeDir = new File(storagePath + "/income");
+    incomeDir.mkdirs();
+    this.incomeStorage = new IncomeStorageImpl(incomeDir.getAbsolutePath());
+    
+    File localDir = new File(storagePath + "/local");
+    localDir.mkdirs();
+    this.localStorage = new LocalStorageImpl(localDir.getAbsolutePath());
+    
+    File mergeTempDir = new File(storagePath + "/merge-temp");
+    mergeTempDir.mkdirs();
+    
+    this.mergeTempDir = mergeTempDir.getAbsolutePath();
+    
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
   }
 

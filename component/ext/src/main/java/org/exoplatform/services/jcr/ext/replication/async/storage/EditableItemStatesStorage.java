@@ -25,6 +25,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
@@ -63,7 +64,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
 
     this.digest = d;
   }
-  
+    
   /**
    * {@inheritDoc}
    */
