@@ -63,10 +63,9 @@ public class IncomeStorageImpl implements IncomeStorage {
     File incomStorage = new File(storagePath);
     String[] childnames = incomStorage.list();
 
-    List<ChangesStorage<ItemState>> changes = new ArrayList<ChangesStorage<ItemState>>();
+    List<ChangesStorage<ItemState>> changeStorages = new ArrayList<ChangesStorage<ItemState>>();
     for (int i = 0; i < childnames.length; i++) {
       try {
-
         // TODO get Member object
         Integer.parseInt(childnames[i]); // also check - is member folder;
 
@@ -81,22 +80,17 @@ public class IncomeStorageImpl implements IncomeStorage {
           File ch = new File(memberDir, fileNames[j]);
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
-       // ItemStatesStorage<ItemState> storage = new ItemStatesStorage<ItemState>(chFiles, null);
-        
-        
-
+        ItemStatesStorage<ItemState> storage = new ItemStatesStorage<ItemState>(chFiles, null);
+        changeStorages.add(storage);
       } catch (NumberFormatException e) {
         // this is not int named file
       }
     }
-    
-
-    return null;
+    return changeStorages;
   }
 
-  public void clean() throws IOException{
-    
-    
+  public void clean() throws IOException {
+
   }
-  
+
 }

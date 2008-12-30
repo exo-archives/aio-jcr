@@ -71,10 +71,14 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   }
 
   private void flushFile() throws IOException {
-    stream.close();
-    stream = null;
-    currentFile.finishWrite();
-    currentFile = null;
+    if (stream != null) {
+      stream.close();
+      stream = null;
+    }
+    if (currentFile != null) {
+      currentFile.finishWrite();
+      currentFile = null;
+    }
   }
 
   private ChangesFile createFile() throws IOException {

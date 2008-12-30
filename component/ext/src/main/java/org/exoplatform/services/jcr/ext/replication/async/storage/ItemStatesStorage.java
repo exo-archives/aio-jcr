@@ -60,6 +60,7 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
 
   protected final Member            member;
+  
 
   class MultiFileIterator<T extends ItemState> implements Iterator<T> {
 
@@ -165,6 +166,12 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     this.member = null;
   }
 
+  public ItemStatesStorage(List<ChangesFile> changes) {
+    this.storage.addAll(changes);
+    this.member = null;
+  }
+  
+  
   /**
    * ItemStatesStorage constructor for income storage.
    * 
@@ -176,6 +183,11 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     this.member = member;
   }
 
+  public ItemStatesStorage(List<ChangesFile> changes, Member member) {
+    this.storage.addAll(changes);
+    this.member = member;
+  }
+  
   /**
    * {@inheritDoc}
    */
