@@ -44,7 +44,7 @@ public interface IncomeStorage {
    *          long
    * @return ChangesFile
    */
-  ChangesFile createChangesFile(String crc, long timeStamp);
+  ChangesFile createChangesFile(Member member, String crc, long timeStamp);
 
   /**
    * Add <code>ChangesFile</code> to a member (subscriber) storage.
