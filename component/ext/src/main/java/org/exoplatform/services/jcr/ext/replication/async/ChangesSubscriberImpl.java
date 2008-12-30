@@ -183,6 +183,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     try {
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
+        
+        // TODO fire event to Publisher to send own changes out
+        
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
         
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());

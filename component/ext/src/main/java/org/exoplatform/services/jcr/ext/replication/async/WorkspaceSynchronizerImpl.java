@@ -22,9 +22,9 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
-import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
@@ -39,9 +39,9 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
   protected final LocalStorage storage;
   
-  protected final DataManager workspace;
+  protected final PersistentDataManager workspace;
 
-  public WorkspaceSynchronizerImpl(DataManager workspace, LocalStorage storage) {
+  public WorkspaceSynchronizerImpl(PersistentDataManager workspace, LocalStorage storage) {
     this.storage = storage;
     this.workspace = workspace;
   }

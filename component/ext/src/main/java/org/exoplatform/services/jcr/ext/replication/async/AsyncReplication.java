@@ -34,14 +34,13 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
-import org.exoplatform.services.jcr.dataflow.DataManager;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.picocontainer.Startable;
 
 /**
@@ -103,11 +102,11 @@ public class AsyncReplication implements Startable {
 
     protected final MergeDataManager          mergeManager;
 
-    protected final DataManager               dataManager;
+    protected final PersistentDataManager               dataManager;
 
     protected final NodeTypeDataManager       ntManager;
 
-    AsyncWorker(DataManager dataManager, NodeTypeDataManager ntManager) {
+    AsyncWorker(PersistentDataManager dataManager, NodeTypeDataManager ntManager) {
 
       this.dataManager = dataManager;
 
@@ -227,7 +226,7 @@ public class AsyncReplication implements Startable {
         WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
 
         NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
-        DataManager dm = (DataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+        PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
         AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
         synchWorker.start();
