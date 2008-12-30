@@ -236,6 +236,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
 
   protected void doCancel() {
     log.error("Do CANCEL");
+    
+    mergeCancel();
+    
     for (SynchronizationEventListener syncl : listeners)
       // inform all interested
       syncl.onCancel(null); // local done - null
@@ -251,6 +254,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
    * {@inheritDoc}
    */
   public void onCancel(Member member) {
+    mergeCancel();
+  }
+  
+  private void mergeCancel() {
     if (mergeWorker != null)
       try {
         mergeWorker.cancel();
