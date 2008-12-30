@@ -37,11 +37,17 @@ public class IncomeStorageImpl implements IncomeStorage {
     this.storagePath = storagePath;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void addMemberChanges(Member memeber, ChangesFile changes) {
     // TODO Auto-generated method stub
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public ChangesFile createChangesFile(String crc, long timeStamp) {
     // TODO Auto-generated method stub
     return null;

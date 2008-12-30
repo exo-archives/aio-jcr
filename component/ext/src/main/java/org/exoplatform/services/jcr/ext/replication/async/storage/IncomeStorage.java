@@ -27,34 +27,40 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * <br/>Stores all members (subscribers) changes. Can returns changes for a requested memeber.
  * 
  * <br/>Date: 24.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: IncomeStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
 public interface IncomeStorage {
 
   /**
-   * Create empty <code>ChangesFile</code>. Will be used to save incoming changes (packets) by <code>ChangesPublisher</code>.
-   *
-   * @param crc String
-   * @param timeStamp long
+   * Create empty <code>ChangesFile</code>. Will be used to save incoming changes (packets) by
+   * <code>ChangesSubscriber</code>. This method guaranties order of files in the storage. Files
+   * will be stored in order of creation.
+   * 
+   * @param crc
+   *          String
+   * @param timeStamp
+   *          long
    * @return ChangesFile
    */
   ChangesFile createChangesFile(String crc, long timeStamp);
-  
+
   /**
    * Add <code>ChangesFile</code> to a member (subscriber) storage.
-   *
-   * @param changes ChangesFile
-   * @param memeber Member
+   * 
+   * @param changes
+   *          ChangesFile
+   * @param memeber
+   *          Member
    */
   void addMemberChanges(Member memeber, ChangesFile changes);
-  
+
   /**
    * getChanges.
-   *
+   * 
    * @return
    */
   List<ChangesStorage<ItemState>> getChanges();
-  
+
 }

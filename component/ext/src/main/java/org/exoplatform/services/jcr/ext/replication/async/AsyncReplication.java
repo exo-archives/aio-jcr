@@ -127,15 +127,14 @@ public class AsyncReplication implements Startable {
 
       exporter = new RemoteExporterImpl(transmitter, receiver);
 
-      mergeManager = new MergeDataManager(synchronyzer,
-                                          exporter,
+      mergeManager = new MergeDataManager(exporter,
                                           dataManager,
                                           ntManager,
                                           priority);
 
       incomeStorage = new IncomeStorageImpl(incomStoragePath);
       
-      subscriber = new ChangesSubscriberImpl(mergeManager, incomeStorage, transmitter);
+      subscriber = new ChangesSubscriberImpl(synchronyzer, mergeManager, incomeStorage, transmitter, priority);
       
       receiver.setChangesSubscriber(subscriber);
 

@@ -49,33 +49,28 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class MergeDataManager {
 
-  protected final WorkspaceSynchronizer workspace;
+  protected final RemoteExporter      exporter;
 
-  protected final RemoteExporter        exporter;
+  protected final DataManager         dataManager;
 
-  protected final DataManager           dataManager;
+  protected final NodeTypeDataManager ntManager;
 
-  protected final NodeTypeDataManager   ntManager;
-
-  protected final int                   localPriority;
+  protected final int                 localPriority;
 
   /**
    * Flag allowing run of merge.
    */
-  private volatile boolean              run = true;
+  private volatile boolean            run = true;
 
   /**
    * Log.
    */
-  protected static Log                  log = ExoLogger.getLogger("jcr.MergerDataManager");
+  protected static Log                log = ExoLogger.getLogger("jcr.MergerDataManager");
 
-  MergeDataManager(WorkspaceSynchronizer workspace,
-                   RemoteExporter exporter,
+  MergeDataManager(RemoteExporter exporter,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager,
                    int localPriority) {
-
-    this.workspace = workspace;
 
     this.exporter = exporter;
 
@@ -95,57 +90,20 @@ public class MergeDataManager {
    * @throws RemoteExportException
    * @throws IOException
    */
-  public void merge(List<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
-                                                                   RemoteExportException,
-                                                                   IOException {
-
-    try {
-      // add local changes to the list
-      if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
-        membersChanges.add(workspace.getLocalChanges());
-      } else {
-        for (int i = 0; i < membersChanges.size(); i++) {
-          if (membersChanges.get(i).getMember().getPriority() > localPriority) {
-            membersChanges.add(i, workspace.getLocalChanges());
-            break;
-          }
-        }
-      }
-
-      doMerge(membersChanges.iterator());
-    } finally {
-      run = true;
-    }
-  }
-
-  /**
-   * Cancel current merge process.
-   * 
-   * @throws RepositoryException
-   * @throws RemoteExportException
-   */
-  public void cancel() throws RepositoryException, RemoteExportException {
-    run = false;
-  }
-
-  /**
-   * Runs merge till not interrupted or finished.
-   * 
-   * @throws RemoteExportException
-   * @throws RepositoryException
-   * @throws IOException
-   */
-  private void doMerge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
-                                                                          RemoteExportException,
-                                                                          IOException {
+  public ChangesStorage<ItemState> merge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
+                                                                                            RemoteExportException,
+                                                                                            IOException {
 
     EditableChangesStorage<ItemState> synchronizedChanges = new EditableItemStatesStorage<ItemState>(new File("")); // TODO
     // path
 
     try {
-      ChangesStorage<ItemState> currentChanges = membersChanges.next();
+
       ChangesStorage<ItemState> localChanges;
       ChangesStorage<ItemState> incomeChanges;
+      
+      ChangesStorage<ItemState> currentChanges = membersChanges.next();
+      
       while (membersChanges.hasNext() && run) {
         ChangesStorage<ItemState> nextChanges = membersChanges.next();
 
@@ -222,11 +180,33 @@ public class MergeDataManager {
       }
 
       // if success
-      workspace.save(synchronizedChanges);
+      return synchronizedChanges;
 
     } finally {
-      // clean synchronizedChanges anyway
-      synchronizedChanges.delete();
+      run = true;
     }
+  }
+
+  /**
+   * Cancel current merge process.
+   * 
+   * @throws RepositoryException
+   * @throws RemoteExportException
+   */
+  public void cancel() throws RepositoryException, RemoteExportException {
+    run = false;
+  }
+
+  /**
+   * Runs merge till not interrupted or finished.
+   * 
+   * @throws RemoteExportException
+   * @throws RepositoryException
+   * @throws IOException
+   */
+  private void doMerge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
+                                                                          RemoteExportException,
+                                                                          IOException {
+
   }
 }

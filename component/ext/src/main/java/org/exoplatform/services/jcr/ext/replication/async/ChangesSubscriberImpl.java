@@ -25,7 +25,9 @@ import java.util.Set;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
@@ -53,22 +55,30 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
 
   protected final MergeDataManager                  mergeManager;
 
+  protected final WorkspaceSynchronizer             workspace;
+
   protected final IncomeStorage                     incomeStorrage;
 
   protected final AsyncTransmitter                  transmitter;
+
+  protected final int                               localPriority;
 
   /**
    * Listeners in order of addition.
    */
   protected final Set<SynchronizationEventListener> listeners = new LinkedHashSet<SynchronizationEventListener>();
 
-  public ChangesSubscriberImpl(MergeDataManager mergeManager,
+  public ChangesSubscriberImpl(WorkspaceSynchronizer workspace,
+                               MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
-                               AsyncTransmitter transmitter) {
+                               AsyncTransmitter transmitter,
+                               int localPriority) {
     this.incomChanges = new HashMap<Key, MemberChangesFile>();
     this.mergeManager = mergeManager;
+    this.workspace = workspace;
     this.incomeStorrage = incomeStorage;
     this.transmitter = transmitter;
+    this.localPriority = localPriority;
   }
 
   public void addSynchronizationListener(SynchronizationEventListener listener) {
@@ -120,7 +130,21 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
 
   protected void doMerge() throws RepositoryException, RemoteExportException, IOException {
     // TODO run merge in dedicated Thread, the merge can be canceled see merege manager cancel
-    mergeManager.merge(incomeStorrage.getChanges());
+
+    // add local changes to the list
+    List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
+    if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
+      membersChanges.add(workspace.getLocalChanges());
+    } else {
+      for (int i = 0; i < membersChanges.size(); i++) {
+        if (membersChanges.get(i).getMember().getPriority() > localPriority) {
+          membersChanges.add(i, workspace.getLocalChanges());
+          break;
+        }
+      }
+    }
+
+    ChangesStorage<ItemState> result = mergeManager.merge(membersChanges.iterator());
   }
 
   protected void doCancel() {
