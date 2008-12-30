@@ -17,60 +17,38 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.security.DigestOutputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
-import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS.
- * 
- * <br/>Date: 30.12.2008
+ * Created by The eXo Platform SAS. <br/>Date: 30.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
     EditableChangesStorage<T> {
-  
-  public static final String        PREFIX  = "FSPERF";
 
-  public static final String        SUFFIX  = "FSsuf";
+  protected final File         storagePath;
 
-  protected final File          storagePath;
-  protected ObjectOutputStream      stream;
-  
-  protected File                    currentFile;
+  protected ObjectOutputStream stream;
 
-  protected final MessageDigest digest;
+  protected ChangesFile        currentFile;
+
+  // protected final MessageDigest digest;
 
   public EditableItemStatesStorage(File storagePath) {
     this.storagePath = storagePath;
-
-    // TODO do we need CRC here?
-    MessageDigest d;
-    try {
-      d = MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      // TODO;
-      d = null;
-    }
-
-    this.digest = d;
   }
-    
+
   /**
    * {@inheritDoc}
    */
   public void add(T change) throws IOException {
     initFile();
-    this.stream.writeObject(change);
+    stream.writeObject(change);
   }
 
   /**
@@ -85,30 +63,24 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
 
   private void initFile() throws IOException {
     if (currentFile == null) {
-      currentFile = File.createTempFile(PREFIX, SUFFIX, storagePath);
-
-      if (digest != null) {
-        digest.reset();
-
-        stream = new ObjectOutputStream(new DigestOutputStream(new FileOutputStream(currentFile),
-                                                               digest));
-      } else
-        stream = new ObjectOutputStream(new FileOutputStream(currentFile));
+      currentFile = createFile();
+      this.storage.add(currentFile);
     }
+
+    stream = new ObjectOutputStream(currentFile.getOutputStream());
   }
 
   private void flushFile() throws IOException {
     stream.close();
-
-    String crc;
-    if (digest != null)
-      crc = new String(digest.digest(), Constants.DEFAULT_ENCODING);
-    else
-      crc = "";
-
-    this.storage.add(new ChangesFile(currentFile, crc, System.currentTimeMillis()));
-
     stream = null;
+    currentFile.finishWrite();
     currentFile = null;
+  }
+
+  private ChangesFile createFile() throws IOException {
+    long timestamp = System.currentTimeMillis();
+    File file = new File(storagePath, Long.toString(timestamp));
+    String crc = ""; // crc is ignored
+    return new ChangesFile(file, crc, timestamp);
   }
 }

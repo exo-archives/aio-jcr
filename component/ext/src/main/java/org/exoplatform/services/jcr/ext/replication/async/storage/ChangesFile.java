@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
 /**
@@ -132,6 +133,33 @@ public class ChangesFile {
       fileInput.close();
     
     return fileInput = new FileInputStream(file);
+  }
+  
+  public OutputStream getOutputStream() throws IOException{
+    return new OutputStream(){
+       
+      @Override
+      public void write(int b) throws IOException {
+        checkFileAccessor();
+        synchronized (fileAccessor) {
+          fileAccessor.write(b);
+        }
+      }
+      
+      public void write(byte b[]) throws IOException {
+        checkFileAccessor();
+        synchronized (fileAccessor) {
+          fileAccessor.write(b); 
+        }
+      }
+      
+      public void write(byte b[], int off, int len) throws IOException {
+        checkFileAccessor();
+        synchronized (fileAccessor) {
+          fileAccessor.write(b, off, len);
+        }
+      }
+    };
   }
 
   /**
