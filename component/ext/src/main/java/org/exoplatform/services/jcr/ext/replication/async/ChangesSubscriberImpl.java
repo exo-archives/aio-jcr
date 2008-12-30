@@ -47,7 +47,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
   /**
    * Logger.
    */
-  private static Log                                log       = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  private static Log                                log          = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   /**
    * Map with CRC key and RandomAccess File
@@ -66,14 +66,65 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
 
   protected final int                               localPriority;
   
-  protected MergerWorker                            mergerWorker;
-  
-  protected ChangesStorage<ItemState>               synchronizedChanges;
+  protected MergeWorker                             mergeWorker = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<SynchronizationEventListener> listeners = new LinkedHashSet<SynchronizationEventListener>();
+  protected final Set<SynchronizationEventListener> listeners    = new LinkedHashSet<SynchronizationEventListener>();
+
+  class MergeWorker extends Thread {
+
+    ChangesStorage<ItemState> result = null;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void run() {
+      try {
+        runMerge();
+      } catch (RepositoryException e) {
+        log.error("Merge error " + e, e);
+        doCancel();
+      } catch (RemoteExportException e) {
+        log.error("Merge error " + e, e);
+        doCancel();
+      } catch (IOException e) {
+        log.error("Merge error " + e, e);
+        doCancel();
+      }
+    }
+
+    /**
+     * Try cancel merge.
+     * 
+     * @throws RemoteExportException
+     * @throws RepositoryException
+     * 
+     */
+    public void cancel() throws RepositoryException, RemoteExportException {
+      mergeManager.cancel();
+    }
+
+    private void runMerge() throws RepositoryException, RemoteExportException, IOException {
+      // add local changes to the list
+      List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
+      if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
+        membersChanges.add(workspace.getLocalChanges());
+      } else {
+        for (int i = 0; i < membersChanges.size(); i++) {
+          if (membersChanges.get(i).getMember().getPriority() > localPriority) {
+            membersChanges.add(i, workspace.getLocalChanges());
+            break;
+          }
+        }
+      }
+
+      // merge
+      result = mergeManager.merge(membersChanges.iterator());
+    }
+  }
   
   private class Counter {
     int total;
@@ -93,35 +144,6 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
     }
   }
   
-  private class MergerWorker extends Thread {
-    
-    /**
-     * {@inheritDoc}
-     */
-    public void run() {
-      
-      try {
-        doMerge();
-        
-        
-        
-        workspace.save(synchronizedChanges);
-        
-      } catch (RepositoryException e) {
-        log.error("Cannor marge changes" + e , e);
-        doCancel();
-      } catch (RemoteExportException e) {
-        log.error("Cannor marge changes" + e , e);
-        doCancel();
-      } catch (IOException e) {
-        log.error("Cannor marge changes" + e , e);
-        doCancel();
-      } 
-      
-      
-    }
-  }
-
   public ChangesSubscriberImpl(WorkspaceSynchronizer workspace,
                                MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
@@ -175,10 +197,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
           counterMap.get(packet.getTransmitterPriority()).countUp();
           
           if (counterMap.get(packet.getTransmitterPriority()).isTotalTransfer()) 
-            if (isAllTransfered()) {
-              mergerWorker = new MergerWorker();
-              mergerWorker.start();
-            } 
+            if (isAllTransfered())
+              doMerge();
           
         } else {
           Counter counter = new Counter((int)packet.getFileCount(), 1);
@@ -206,23 +226,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, Synchronization
     return true;
   }
 
-  protected void doMerge() throws RepositoryException, RemoteExportException, IOException {
+  protected void doMerge() {
     // TODO run merge in dedicated Thread, the merge can be canceled see merege manager cancel
 
-    // add local changes to the list
-    List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
-    if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
-      membersChanges.add(workspace.getLocalChanges());
-    } else {
-      for (int i = 0; i < membersChanges.size(); i++) {
-        if (membersChanges.get(i).getMember().getPriority() > localPriority) {
-          membersChanges.add(i, workspace.getLocalChanges());
-          break;
-        }
-      }
-    }
-
-    synchronizedChanges = mergeManager.merge(membersChanges.iterator());
+    if (mergeWorker == null) {
+      mergeWorker = new MergeWorker();
+      mergeWorker.start();
+    } else 
+      log.error("Error, merge process laready activated.");
   }
 
   protected void doCancel() {

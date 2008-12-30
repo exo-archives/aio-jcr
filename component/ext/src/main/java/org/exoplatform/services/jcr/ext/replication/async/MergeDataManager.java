@@ -189,17 +189,4 @@ public class MergeDataManager {
   public void cancel() throws RepositoryException, RemoteExportException {
     run = false;
   }
-
-  /**
-   * Runs merge till not interrupted or finished.
-   * 
-   * @throws RemoteExportException
-   * @throws RepositoryException
-   * @throws IOException
-   */
-  private void doMerge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
-                                                                          RemoteExportException,
-                                                                          IOException {
-
-  }
 }
