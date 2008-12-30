@@ -70,6 +70,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   private Member                                    localMember;
 
   private LastMemberWaiter                          memberWaiter;
+  
+  private FirstMemberWaiter                    firstMemberWaiter;
 
   /**
    * Listeners in order of addition.
@@ -110,6 +112,12 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     if (previousMemmbers == null) {
       localMember = event.getLocalMember();
       previousMemmbers = event.getMembers();
+      
+      // Start first timeout (member is not connected)
+      if (event.getMembers().size() == 1) {
+        firstMemberWaiter = new FirstMemberWaiter();
+        firstMemberWaiter.start();
+      }
     } else if (previousMemmbers.size() > event.getMembers().size()) {
 
       // Will be created memberWaiter
@@ -135,7 +143,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         }
       }
 
-    } else if (previousMemmbers.size() < event.getMembers().size()) {
+    } else if (previousMemmbers.size() > event.getMembers().size()) {
       List<Member> disconnectedMembers = new ArrayList<Member>(previousMemmbers);
       disconnectedMembers.removeAll(event.getMembers());
 
@@ -155,6 +163,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         memberWaiter = null;
       }
 
+    }
+    
+    if (event.getMembers().size() > 1 && firstMemberWaiter != null) {
+      firstMemberWaiter.stop();
+      firstMemberWaiter = null;
     }
 
     localMember = event.getLocalMember();
@@ -226,6 +239,35 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * 
    */
   private class LastMemberWaiter extends Thread {
+
+    @Override
+    public void run() {
+      try {
+        Thread.sleep(memberWaitTimeout);
+
+        if (previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
+            && previousMemmbers.size() > 1 && cancelMemberNotConnected) {
+          List<Member> members = new ArrayList<Member>(previousMemmbers);
+          members.remove(localMember);
+
+          doStart(members);
+        } else {
+          channelManager.disconnect();
+          doCancel(null);
+        }
+
+      } catch (Exception e) {
+        // TODO: handle exception
+      }
+
+    }
+  }
+  
+  /**
+   * FirstMemberWaiter - all member work.
+   * 
+   */
+  private class FirstMemberWaiter extends Thread {
 
     @Override
     public void run() {
