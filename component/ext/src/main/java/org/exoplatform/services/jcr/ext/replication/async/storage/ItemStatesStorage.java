@@ -204,6 +204,7 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
    * {@inheritDoc}
    */
   public void delete() throws IOException {
+    // TODO delete ChangesFile
     for (ChangesFile cf : storage)
       cf.delete();
   }
