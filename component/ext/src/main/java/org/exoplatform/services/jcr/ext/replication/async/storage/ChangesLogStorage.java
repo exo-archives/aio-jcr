@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -207,8 +206,14 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage {
   }
 
   public Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    List<T> list = new ArrayList<T>();
     
-    return null;
+    // TODO check lot of data, may be JavaheapSpace
+    while(it.hasNext()){
+      list.addAll((Collection<T>)it.next().getDescendantsChanges(rootPath, false, unique));
+    }
+    return list;
   }
 
   public T getItemState(String itemIdentifier) {
