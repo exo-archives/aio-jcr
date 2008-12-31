@@ -42,7 +42,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
   private final List<ChangesFile> storage;
 
-  class ChangesLogsIterator<T extends TransactionChangesLog> implements Iterator<T> {
+  class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
 
     private final List<ChangesFile> list;
 
@@ -60,14 +60,15 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
       }
     }
 
-    public T next() throws NoSuchElementException {
+    @SuppressWarnings("unchecked")
+    public L next() throws NoSuchElementException {
       try {
         ChangesFile file = list.get(currentFile++);
 
         ObjectInputStream stream = new ObjectInputStream(file.getDataStream());
         // TODO check it
-        TransactionChangesLog log = (TransactionChangesLog) stream.readObject();
-        return (T) log;
+        L log = (L) stream.readObject();
+        return log;
       } catch (IOException e) {
         throw new NoSuchElementException(e.getMessage());
       } catch (ClassNotFoundException e) {
@@ -80,13 +81,13 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
   }
 
-  class MultiFileIterator<T extends ItemState> implements Iterator<T> {
+  class MultiFileIterator<C extends ItemState> implements Iterator<C> {
 
     private final List<ChangesFile> store;
 
-    private Iterator<T>   currentChangesLog;
+    private Iterator<C>   currentChangesLog;
 
-    private T                       nextItem;
+    private C                       nextItem;
 
     private int                     currentFileIndex;
 
@@ -124,7 +125,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     /**
      * {@inheritDoc}
      */
-    public T next() throws NoSuchElementException {
+    public C next() throws NoSuchElementException {
       if (currentChangesLog == null)
         throw new NoSuchElementException();
 
@@ -150,7 +151,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
 
     @SuppressWarnings("unchecked")
-    protected Iterator<T> readNextIterator() throws IOException,
+    protected Iterator<C> readNextIterator() throws IOException,
                                                    ClassNotFoundException,
                                                    ClassCastException {
       // fetch next
@@ -160,7 +161,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
         ObjectInputStream in = new ObjectInputStream(store.get(currentFileIndex).getDataStream());
         currentFileIndex++;
         TransactionChangesLog curLog = (TransactionChangesLog) in.readObject();
-        return (Iterator<T>)curLog.getAllStates().iterator();
+        return (Iterator<C>) curLog.getAllStates().iterator();
       }
     }
   }
@@ -236,7 +237,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return null;
   }
 
-  public List getUpdateSequence(ItemState startState) throws IOException {
+  public List<T> getUpdateSequence(ItemState startState) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }
