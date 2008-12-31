@@ -27,7 +27,6 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -37,6 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -212,14 +212,16 @@ public class RenameMerger implements ChangesMerger {
 
               // set new data
               NodeData node = (NodeData) incomeData;
-              PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
-                                                             qPath,
-                                                             node.getParentIdentifier(),
+              
+              TransientNodeData item = new TransientNodeData(qPath,
+                                                             node.getIdentifier(),
                                                              node.getPersistedVersion(),
-                                                             node.getOrderNumber(),
                                                              node.getPrimaryTypeName(),
                                                              node.getMixinTypeNames(),
+                                                             node.getOrderNumber(),
+                                                             node.getParentIdentifier(),
                                                              node.getACL());
+              
               incomeState = new ItemState(item, ItemState.DELETED, incomeState.isEventFire(), qPath);
               resultState.add(incomeState);
               resultState.add(nextIncomeState);
@@ -239,14 +241,16 @@ public class RenameMerger implements ChangesMerger {
 
               // set new data
               NodeData node = (NodeData) nextIncomeState.getData();
-              PersistedNodeData item = new PersistedNodeData(node.getIdentifier(),
-                                                             qPath,
-                                                             node.getParentIdentifier(),
+              
+              TransientNodeData item = new TransientNodeData(qPath,
+                                                             node.getIdentifier(),
                                                              node.getPersistedVersion(),
-                                                             node.getOrderNumber(),
                                                              node.getPrimaryTypeName(),
                                                              node.getMixinTypeNames(),
+                                                             node.getOrderNumber(),
+                                                             node.getParentIdentifier(),
                                                              node.getACL());
+              
               nextIncomeState = new ItemState(item,
                                               ItemState.RENAMED,
                                               nextIncomeState.isEventFire(),
