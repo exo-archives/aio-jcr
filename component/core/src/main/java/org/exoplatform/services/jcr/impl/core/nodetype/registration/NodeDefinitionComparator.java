@@ -189,39 +189,44 @@ public class NodeDefinitionComparator {
                                  allRecipientDefinition);
       }
       // check sibling
-      checkSameNameSibling(registeredNodeType,
-                           nodes,
-                           ancestorDefinitionData,
-                           recipientDefinitionData);
+      if (ancestorDefinitionData.isAllowsSameNameSiblings()
+          && !recipientDefinitionData.isAllowsSameNameSiblings()) {
+        checkSameNameSibling(registeredNodeType,
+                             nodes,
+                             recipientDefinitionData.getName(),
+                             allRecipientDefinition);
+      }
     }
   }
 
   /**
    * @param registeredNodeType
    * @param nodes
+   * @param allRecipientDefinition
    * @param ancestorDefinitionData
    * @param recipientDefinitionData
    * @throws RepositoryException
    */
   private void checkSameNameSibling(InternalQName registeredNodeType,
                                     Set<String> nodes,
-                                    NodeDefinitionData ancestorDefinitionData,
-                                    NodeDefinitionData recipientDefinitionData) throws RepositoryException {
-    if (ancestorDefinitionData.isAllowsSameNameSiblings()
-        && !recipientDefinitionData.isAllowsSameNameSiblings()) {
-      for (String uuid : nodes) {
-        NodeData nodeData = (NodeData) persister.getItemData(uuid);
-        if (recipientDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
-          // child of node type
-          List<NodeData> childs = persister.getChildNodesData(nodeData);
-          for (NodeData child : childs) {
+                                    InternalQName recipientName,
+                                    NodeDefinitionData[] allRecipientDefinition) throws RepositoryException {
+
+    for (String uuid : nodes) {
+      NodeData nodeData = (NodeData) persister.getItemData(uuid);
+
+      if (recipientName.equals(Constants.JCR_ANY_NAME)) {
+        // child of node type
+        List<NodeData> childs = persister.getChildNodesData(nodeData);
+        for (NodeData child : childs) {
+          if (isResidualMatch(child.getQPath().getName(), allRecipientDefinition)) {
             List<NodeData> childs2 = persister.getChildNodesData(child);
 
             for (NodeData child2 : childs2) {
               if (child2.getQPath().getIndex() > 1) {
                 StringBuffer buffer = new StringBuffer();
                 buffer.append("Fail to change ");
-                buffer.append(recipientDefinitionData.getName().getAsString());
+                buffer.append(recipientName.getAsString());
                 buffer.append(" node definition for ");
                 buffer.append(registeredNodeType.getAsString());
                 buffer.append("node type from AllowsSameNameSiblings = true to AllowsSameNameSiblings = false");
@@ -233,36 +238,37 @@ public class NodeDefinitionComparator {
               }
             }
           }
-        } else {
+        }
+      } else {
 
-          // child of node type
-          List<NodeData> childs = persister.getChildNodesData(nodeData);
-          for (NodeData child : childs) {
-            if (child.getQPath().getName().equals(recipientDefinitionData.getName())) {
-              List<NodeData> childs2 = persister.getChildNodesData(child);
+        // child of node type
+        List<NodeData> childs = persister.getChildNodesData(nodeData);
+        for (NodeData child : childs) {
+          if (child.getQPath().getName().equals(recipientName)) {
+            List<NodeData> childs2 = persister.getChildNodesData(child);
 
-              for (NodeData child2 : childs2) {
-                if (child2.getQPath().getIndex() > 1) {
-                  StringBuffer buffer = new StringBuffer();
-                  buffer.append("Fail to change ");
-                  buffer.append(recipientDefinitionData.getName().getAsString());
-                  buffer.append(" node definition for ");
-                  buffer.append(registeredNodeType.getAsString());
-                  buffer.append("node type from AllowsSameNameSiblings = true to AllowsSameNameSiblings = false");
-                  buffer.append(" because ");
-                  buffer.append(child.getQPath().getAsString());
-                  buffer.append(" contains more then one child with name");
-                  buffer.append(child2.getQPath().getName().getAsString());
-                  throw new RepositoryException(buffer.toString());
-                }
+            for (NodeData child2 : childs2) {
+              if (child2.getQPath().getIndex() > 1) {
+                StringBuffer buffer = new StringBuffer();
+                buffer.append("Fail to change ");
+                buffer.append(recipientName.getAsString());
+                buffer.append(" node definition for ");
+                buffer.append(registeredNodeType.getAsString());
+                buffer.append("node type from AllowsSameNameSiblings = true to AllowsSameNameSiblings = false");
+                buffer.append(" because ");
+                buffer.append(child.getQPath().getAsString());
+                buffer.append(" contains more then one child with name");
+                buffer.append(child2.getQPath().getName().getAsString());
+                throw new RepositoryException(buffer.toString());
               }
             }
-
           }
-        }
 
+        }
       }
+
     }
+
   }
 
   /**
@@ -296,7 +302,10 @@ public class NodeDefinitionComparator {
                 buffer.append(" node definition for ");
                 buffer.append(registeredNodeType.getAsString());
                 buffer.append("node type from ");
-                buffer.append(Arrays.toString(ancestorRequiredPrimaryTypes));
+                if (ancestorRequiredPrimaryTypes != null)
+                  buffer.append(Arrays.toString(ancestorRequiredPrimaryTypes));
+                else
+                  buffer.append(" '' ");
                 buffer.append(" to ");
                 buffer.append(Arrays.toString(recipientDefinitionData.getRequiredPrimaryTypes()));
                 buffer.append(" because ");
@@ -324,7 +333,10 @@ public class NodeDefinitionComparator {
                 buffer.append(" node definition for ");
                 buffer.append(registeredNodeType.getAsString());
                 buffer.append("node type from ");
-                buffer.append(Arrays.toString(ancestorRequiredPrimaryTypes));
+                if (ancestorRequiredPrimaryTypes != null)
+                  buffer.append(Arrays.toString(ancestorRequiredPrimaryTypes));
+                else
+                  buffer.append(" '' ");
                 buffer.append(" to ");
                 buffer.append(Arrays.toString(recipientDefinitionData.getRequiredPrimaryTypes()));
                 buffer.append(" because ");
@@ -388,17 +400,22 @@ public class NodeDefinitionComparator {
     for (NodeDefinitionData nodeDefinitionData : newDefinitionData) {
 
       if (nodeDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
-        // TODO add residual check existed for all constraint
-        // checkRequiredPrimaryType(nodeTypeName,nodes,)
         for (int i = 0; i < ancestorDefinition.length; i++) {
           checkRequiredPrimaryType(nodeTypeName,
                                    nodes,
                                    ancestorDefinition[i].getRequiredPrimaryTypes(),
                                    nodeDefinitionData,
                                    recipientDefinition);
+          checkSameNameSibling(nodeTypeName,
+                               nodes,
+                               nodeDefinitionData.getName(),
+                               recipientDefinition);
         }
 
       } else {
+        // check existed nodes for new constraint
+        checkRequiredPrimaryType(nodeTypeName, nodes, null, nodeDefinitionData, recipientDefinition);
+        checkSameNameSibling(nodeTypeName, nodes, nodeDefinitionData.getName(), recipientDefinition);
 
         // try to add mandatory or auto-created properties for
         // for already addded nodes.
