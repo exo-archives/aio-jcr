@@ -23,8 +23,7 @@ import java.io.ObjectOutput;
 import org.exoplatform.services.jcr.impl.Constants;
 
 /**
- * Created by The eXo Platform SAS Author : Karpenko Sergiy
- * karpenko.sergiy@gmail.com 23 Ãðó 2008
+ * Created by The eXo Platform SAS.
  */
 public class ChangesPacket extends AbstractPacket {
 
@@ -167,6 +166,5 @@ public class ChangesPacket extends AbstractPacket {
       in.readFully(buffer);
     } else
       buffer = null;
-  }
-
+  } 
 }
