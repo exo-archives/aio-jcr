@@ -66,8 +66,9 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
       currentFile = createFile();
       this.storage.add(currentFile);
     }
-
-    stream = new ObjectOutputStream(currentFile.getOutputStream());
+    if(stream == null){
+      stream = new ObjectOutputStream(currentFile.getOutputStream());
+    }
   }
 
   private void flushFile() throws IOException {
@@ -83,7 +84,18 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
 
   private ChangesFile createFile() throws IOException {
     long timestamp = System.currentTimeMillis();
+    try{
+      
+     //TODO CHANGE ChangesFile naming system!!!!!! 
+     Thread.sleep(100);
+    }catch(InterruptedException e){
+      
+    }
     File file = new File(storagePath, Long.toString(timestamp));
+    
+    if (file.exists()){
+      throw new IOException("File already exists");
+    }
     String crc = ""; // crc is ignored
     return new ChangesFile(file, crc, timestamp);
   }
