@@ -211,11 +211,11 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage {
     return null;
   }
 
-  public ItemState getItemState(String itemIdentifier) {
+  public T getItemState(String itemIdentifier) {
     throw new RuntimeException("Not implemented");
   }
 
-  public ItemState getItemState(NodeData parentData, QPathEntry name) {
+  public T getItemState(NodeData parentData, QPathEntry name) {
     throw new RuntimeException("Not implemented");
   }
 
@@ -223,44 +223,56 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage {
     return this.member;
   }
 
-  public ItemState getNextItemState(ItemState item) throws IOException {
+  public T getNextItemState(ItemState item) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
-    ItemState result = null;
+    T result = null;
     while(it.hasNext()){
-      result = it.next().getNextItemState(item);
+      result = (T)it.next().getNextItemState(item);
       if(result!=null) return result;
     }
     return null;
   }
 
-  public ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
+  public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
-    ItemState result = null;
+    T result = null;
     while(it.hasNext()){
-      result = it.next().getNextItemStateByIndexOnUpdate(startState, prevIndex);
+      result = (T)it.next().getNextItemStateByIndexOnUpdate(startState, prevIndex);
       if(result!=null) return result;
     }
     return null;
   }
 
-  public ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
+  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
-    ItemState result = null;
+    T result = null;
     while(it.hasNext()){
-      result = it.next().getNextItemStateByUUIDOnUpdate(startState, UUID);
+      result = (T)it.next().getNextItemStateByUUIDOnUpdate(startState, UUID);
       if(result!=null) return result;
     }
     return null;
   }
 
-  public List getUpdateSequence(ItemState startState) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+  public List<T> getUpdateSequence(ItemState startState) throws IOException {
+    List<T> list = new ArrayList<T>(); 
+    
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    
+    while(it.hasNext()){
+      list.addAll((List<T>)it.next().getUpdateSequence(startState));
+    }
+    return list;
   }
 
   public int size() throws IOException {
-    // TODO Auto-generated method stub
-    return 0;
+     
+    int size=0;
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    
+    while(it.hasNext()){
+      size+=it.next().getSize();
+    }
+    return size;
   }
 
 }
