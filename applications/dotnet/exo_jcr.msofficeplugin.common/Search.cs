@@ -141,6 +141,8 @@ namespace exo_jcr.msofficeplugin.common
                     displayName = ((DisplayNameProperty)displayNameProp).getDisplayName();
                 }
 
+                href = href.Substring(0, href.LastIndexOf("/")) + "/" + displayName;
+
                 ResourceTypeProperty resourceTypeProp = (ResourceTypeProperty)response.getProperty(DavProperty.RESOURCETYPE);
                 if (resourceTypeProp.getResourceType() == ResourceTypeProperty.COLLECTION)
                     image = 2;
@@ -194,6 +196,9 @@ namespace exo_jcr.msofficeplugin.common
             if (rtproperty.getResourceType() != ResourceTypeProperty.RESOURCE)
                 return;
             String _path = response.getHref().getHref();
+
+            WebDavProperty displayNameProperty = response.getProperty(DavProperty.DISPLAYNAME);
+            _path = _path.Substring(0, _path.LastIndexOf("/")) + "/" + displayNameProperty.getTextContent();
 
             Utils.doGetFile(application,_path );
 
