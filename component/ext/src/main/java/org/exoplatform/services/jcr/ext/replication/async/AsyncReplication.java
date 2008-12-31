@@ -188,6 +188,10 @@ public class AsyncReplication implements Startable {
     waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
 
     String storagePath = pps.getProperty("storage-dir");
+    
+    String sOtherParticipantsPriority = pps.getProperty("other-participants-priority");
+    
+    String saOtherParticipantsPriority[] = sOtherParticipantsPriority.split(",");
 
     // TODO restore previous state if it's restart
     // handle local restoration or cleanups of unfinished or breaked work
@@ -195,6 +199,9 @@ public class AsyncReplication implements Startable {
     // Ready to begin...
 
     this.otherParticipantsPriority = new ArrayList<Integer>(); // TODO
+    
+    for(String sPriority : saOtherParticipantsPriority)
+      otherParticipantsPriority.add(Integer.valueOf(sPriority));
 
     this.channel = new AsyncChannelManager(channelConfig, channelName);
     
