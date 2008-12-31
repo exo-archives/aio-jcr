@@ -26,11 +26,9 @@ import java.util.List;
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import javax.jcr.ValueFormatException;
 
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -42,6 +40,8 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.merge.CompositeChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
+import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManagerTestWrapper;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.core.WorkspaceImpl;
@@ -61,13 +61,13 @@ public class TestMergerDataManager extends BaseStandaloneTest {
 
   protected WorkspaceImpl                   workspace3;
 
-  protected Node                            root3;
+  protected NodeImpl                        root3;
 
   protected SessionImpl                     session4;
 
   protected WorkspaceImpl                   workspace4;
 
-  protected Node                            root4;
+  protected NodeImpl                        root4;
 
   protected MergeDataManager                merger;
 
@@ -81,11 +81,11 @@ public class TestMergerDataManager extends BaseStandaloneTest {
 
     session3 = (SessionImpl) repository.login(credentials, "ws3");
     workspace3 = session3.getWorkspace();
-    root3 = session3.getRootNode();
+    root3 = (NodeImpl) session3.getRootNode();
 
     session4 = (SessionImpl) repository.login(credentials, "ws4");
     workspace4 = session4.getWorkspace();
-    root4 = session4.getRootNode();
+    root4 = (NodeImpl) session4.getRootNode();
 
     merger = new MergeDataManager(new RemoteExporterImpl(null, null),
                                   null,
@@ -96,7 +96,26 @@ public class TestMergerDataManager extends BaseStandaloneTest {
   }
 
   public void testAddMergeLocalPriority() throws Exception {
-    root3.addNode("item1");
+    Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    node.setProperty("prop1", "value");
+
+    SessionDataManagerTestWrapper dataManager = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
+    addChangesToChangesStorage(dataManager.getChangesLog(), LOCAL_PRIORITY - 1);
+    addChangesToChangesStorage(new PlainChangesLogImpl(), LOCAL_PRIORITY);
+
+    saveResultedChanges(merger.merge(membersChanges.iterator()), "ws4");
+    session3.save();
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  public void testDeleteMergeLocalPriority() throws Exception {
+    Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+    node.setProperty("prop1", "value");
+    node.remove();
 
     SessionDataManagerTestWrapper dataManager = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
     addChangesToChangesStorage(dataManager.getChangesLog(), LOCAL_PRIORITY - 1);
@@ -122,10 +141,13 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    * @param dst
    * @return
    */
-  private boolean isNodesEquals(Node src, Node dst) throws Exception {
+  private boolean isNodesEquals(NodeImpl src, NodeImpl dst) throws Exception {
     // compare node name
     // TODO compare UUID
-    if (!src.getName().equals(dst.getName())) {
+    if (!src.getName().equals(dst.getName())
+        || src.isNodeType("mix:referenceable") != dst.isNodeType("mix:referenceable")
+        || (src.isNodeType("mix:referenceable") && dst.isNodeType("mix:referenceable") && !src.getUUID()
+                                                                                              .equals(dst.getUUID()))) {
       return false;
     }
 
@@ -137,34 +159,38 @@ public class TestMergerDataManager extends BaseStandaloneTest {
         return false;
       }
 
-      Property srcProp = srcProps.nextProperty();
-      Property dstProp = dstProps.nextProperty();
+      PropertyImpl srcProp = (PropertyImpl) srcProps.nextProperty();
+      PropertyImpl dstProp = (PropertyImpl) dstProps.nextProperty();
 
-      // TODO compare UUID
-      if (!srcProp.getName().equals(dstProp.getName())) {
+      if (!srcProp.getName().equals(dstProp.getName()) || srcProp.getType() != dstProp.getType()) {
         return false;
       }
 
       Value srcValues[];
-      try {
+      if (srcProp.isMultiValued()) {
         srcValues = srcProp.getValues();
-      } catch (ValueFormatException e) {
+      } else {
         srcValues = new Value[1];
         srcValues[0] = srcProp.getValue();
       }
 
       Value dstValues[];
-      try {
+      if (dstProp.isMultiValued()) {
         dstValues = dstProp.getValues();
-      } catch (ValueFormatException e) {
+      } else {
         dstValues = new Value[1];
         dstValues[0] = dstProp.getValue();
       }
 
-      // TODO compare value property
-      // if (!srcValues.toString().equals(dstValues.toString())) {
-      // return false;
-      // }
+      if (srcValues.length != dstValues.length) {
+        return false;
+      }
+
+      for (int i = 0; i < srcValues.length; i++) {
+        if (!srcValues[i].equals(dstValues[i])) {
+          return false;
+        }
+      }
     }
 
     if (dstProps.hasNext()) {
@@ -179,7 +205,7 @@ public class TestMergerDataManager extends BaseStandaloneTest {
         return false;
       }
 
-      if (!isNodesEquals(srcNodes.nextNode(), dstNodes.nextNode())) {
+      if (!isNodesEquals((NodeImpl) srcNodes.nextNode(), (NodeImpl) dstNodes.nextNode())) {
         return false;
       }
     }
