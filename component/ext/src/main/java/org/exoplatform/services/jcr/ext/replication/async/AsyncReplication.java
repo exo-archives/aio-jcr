@@ -288,7 +288,7 @@ public class AsyncReplication implements Startable {
       this.repositories = repos;
       
       // run test 
-      //this.synchronize();
+      this.synchronize();
     } catch (Throwable e) {
       // e.printStackTrace();
       throw new RuntimeException("Asynchronous replication start fails " + e, e);
