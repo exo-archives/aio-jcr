@@ -38,11 +38,13 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesLogStorage.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T> {
+public class ChangesLogStorage<T extends ItemState> implements ChangesStorage {
 
   private final List<ChangesFile> storage;
+  
+  private final Member member;
 
-  class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
+  class ChangesLogsIterator<T extends TransactionChangesLog> implements Iterator<T> {
 
     private final List<ChangesFile> list;
 
@@ -60,15 +62,14 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
       }
     }
 
-    @SuppressWarnings("unchecked")
-    public L next() throws NoSuchElementException {
+    public T next() throws NoSuchElementException {
       try {
         ChangesFile file = list.get(currentFile++);
 
         ObjectInputStream stream = new ObjectInputStream(file.getDataStream());
         // TODO check it
-        L log = (L) stream.readObject();
-        return log;
+        TransactionChangesLog log = (TransactionChangesLog) stream.readObject();
+        return (T) log;
       } catch (IOException e) {
         throw new NoSuchElementException(e.getMessage());
       } catch (ClassNotFoundException e) {
@@ -81,13 +82,13 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
   }
 
-  class MultiFileIterator<C extends ItemState> implements Iterator<C> {
+  class MultiFileIterator<T extends ItemState> implements Iterator<T> {
 
     private final List<ChangesFile> store;
 
-    private Iterator<C>   currentChangesLog;
+    private Iterator<T>   currentChangesLog;
 
-    private C                       nextItem;
+    private T                       nextItem;
 
     private int                     currentFileIndex;
 
@@ -125,7 +126,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     /**
      * {@inheritDoc}
      */
-    public C next() throws NoSuchElementException {
+    public T next() throws NoSuchElementException {
       if (currentChangesLog == null)
         throw new NoSuchElementException();
 
@@ -151,7 +152,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
 
     @SuppressWarnings("unchecked")
-    protected Iterator<C> readNextIterator() throws IOException,
+    protected Iterator<T> readNextIterator() throws IOException,
                                                    ClassNotFoundException,
                                                    ClassCastException {
       // fetch next
@@ -161,13 +162,14 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
         ObjectInputStream in = new ObjectInputStream(store.get(currentFileIndex).getDataStream());
         currentFileIndex++;
         TransactionChangesLog curLog = (TransactionChangesLog) in.readObject();
-        return (Iterator<C>) curLog.getAllStates().iterator();
+        return (Iterator<T>)curLog.getAllStates().iterator();
       }
     }
   }
 
   public ChangesLogStorage(List<ChangesFile> storage) {
     this.storage = storage;
+    this.member = null;
   }
 
   public void delete() throws IOException {
@@ -205,39 +207,53 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   }
 
   public Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException {
-    // TODO Auto-generated method stub
+    
     return null;
   }
 
-  public T getItemState(String itemIdentifier) {
+  public ItemState getItemState(String itemIdentifier) {
     throw new RuntimeException("Not implemented");
   }
 
-  public T getItemState(NodeData parentData, QPathEntry name) {
+  public ItemState getItemState(NodeData parentData, QPathEntry name) {
     throw new RuntimeException("Not implemented");
   }
 
   public Member getMember() {
-    // TODO Auto-generated method stub
+    return this.member;
+  }
+
+  public ItemState getNextItemState(ItemState item) throws IOException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    ItemState result = null;
+    while(it.hasNext()){
+      result = it.next().getNextItemState(item);
+      if(result!=null) return result;
+    }
     return null;
   }
 
-  public T getNextItemState(ItemState item) throws IOException {
-    // TODO Auto-generated method stub
+  public ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    ItemState result = null;
+    while(it.hasNext()){
+      result = it.next().getNextItemStateByIndexOnUpdate(startState, prevIndex);
+      if(result!=null) return result;
+    }
     return null;
   }
 
-  public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
-    // TODO Auto-generated method stub
+  public ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    ItemState result = null;
+    while(it.hasNext()){
+      result = it.next().getNextItemStateByUUIDOnUpdate(startState, UUID);
+      if(result!=null) return result;
+    }
     return null;
   }
 
-  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public List<T> getUpdateSequence(ItemState startState) throws IOException {
+  public List getUpdateSequence(ItemState startState) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }
