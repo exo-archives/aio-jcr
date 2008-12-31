@@ -24,9 +24,8 @@ import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS
- * Author : Karpenko Sergiy
- *          karpenko.sergiy@gmail.com
- * 23 Ãðó 2008  
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
+ * @version $Id: GetExportPacket.java 111 2008-11-11 11:11:11Z serg $
  */
 public class GetExportPacket extends MessagePacket {
   

@@ -24,6 +24,8 @@ import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
+ * @version $Id: ChangesPacket.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ChangesPacket extends AbstractPacket {
 

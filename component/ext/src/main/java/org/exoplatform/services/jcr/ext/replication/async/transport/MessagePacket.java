@@ -17,10 +17,9 @@
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Karpenko Sergiy
- *          karpenko.sergiy@gmail.com
- * 23 Ãðó 2008  
+ * Created by The eXo Platform SAS.
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
+ * @version $Id: MessagePacket.java 111 2008-11-11 11:11:11Z serg $
  */
 public class MessagePacket extends AbstractPacket {
 

@@ -18,8 +18,8 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
 
 /**
  * Created by The eXo Platform SAS
- * Author : Karpenko Sergiy
- *          karpenko.sergiy@gmail.com
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
+ * @version $Id: ExportChangesPacket.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ExportChangesPacket extends ChangesPacket{
 
