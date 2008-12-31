@@ -26,11 +26,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -49,6 +51,8 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   // 
   // key Comparable
 
+  protected static final Log                LOG = ExoLogger.getLogger("jcr.ItemStatesStorage");
+  
   protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
 
   protected final Member            member;
@@ -72,9 +76,9 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
           this.in = new ObjectInputStream(this.store.get(currentFileIndex).getDataStream());
           this.nextItem = readNext();
         } catch (ClassNotFoundException e) {
-          // TODO
+          LOG.error("" + e, e); // TODO
         } catch (ClassCastException e) {
-          // TODO
+          LOG.error("" + e, e); // TODO
         }
       } else {
         this.in = null;
