@@ -20,7 +20,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Vector;
 
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
@@ -33,8 +32,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEv
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
-import org.jgroups.Address;
-import org.jgroups.View;
 
 /**
  * Created by The eXo Platform SAS.
