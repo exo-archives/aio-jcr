@@ -300,6 +300,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * {@inheritDoc}
    */
   public void viewAccepted(View view) {
+    view.printDetails();
+    
     ArrayList<Member> members = new ArrayList<Member>();
 
     for (Address address : view.getMembers())

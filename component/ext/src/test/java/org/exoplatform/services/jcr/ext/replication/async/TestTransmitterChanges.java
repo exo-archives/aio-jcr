@@ -90,7 +90,8 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
                                                     + "max_bytes=8000000)" + ":pbcast.GMS("
                                                     + "print_local_addr=true;"
                                                     + "join_timeout=3000;" + "view_bundling=true;"
-                                                    + "join_retry_timeout=2000;" + "shun=true;"
+                                                    + "join_retry_timeout=2000;"
+                                                    + "shun=true;"
                                                     + "merge_leader=true;"
                                                     + "reject_join_from_existing_member=true)";
 
@@ -162,6 +163,8 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
     
     
     transmitter.sendChanges(cfList,memberList);
+    
+    transmitter.sendMerge();
   }
 
   public void onSaveItems(ItemStateChangesLog itemStates) {
