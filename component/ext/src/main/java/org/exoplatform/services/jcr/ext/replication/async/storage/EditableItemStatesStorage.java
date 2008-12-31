@@ -89,7 +89,6 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
      //TODO CHANGE ChangesFile naming system!!!!!! 
      Thread.sleep(100);
     }catch(InterruptedException e){
-      
     }
     File file = new File(storagePath, Long.toString(timestamp));
     

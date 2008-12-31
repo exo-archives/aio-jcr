@@ -42,7 +42,7 @@ public class IncomeStorageImpl implements IncomeStorage {
   
   protected final String        storagePath;
 
-  protected final static String MEMBER_INFO_FILE_NAME = "member_info";
+  //protected final static String MEMBER_INFO_FILE_NAME = "member_info";
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -55,13 +55,13 @@ public class IncomeStorageImpl implements IncomeStorage {
     // get member directory
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
 
-    File memberInfo = new File(dir, MEMBER_INFO_FILE_NAME);
+   /* File memberInfo = new File(dir, MEMBER_INFO_FILE_NAME);
     if (!memberInfo.exists()) {
       // store member info
       ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(memberInfo));
       out.writeObject(member);
       out.close();
-    }
+    }*/
 
     // move changes file to member directory
     changes.moveTo(dir);
@@ -86,10 +86,10 @@ public class IncomeStorageImpl implements IncomeStorage {
     for (int i = 0; i < childnames.length; i++) {
       try {
 
-        Integer.parseInt(childnames[i]); // also check - is member folder;
+        int memberPriority = Integer.parseInt(childnames[i]); // also check - is member folder;
 
         File memberDir = new File(incomStorage, childnames[i]);
-        File memberInfo = new File(memberDir, MEMBER_INFO_FILE_NAME);
+      /*  File memberInfo = new File(memberDir, MEMBER_INFO_FILE_NAME);
         Member member = null;
         if (memberInfo.exists()) {
           // read member info
@@ -103,7 +103,7 @@ public class IncomeStorageImpl implements IncomeStorage {
           }
         } else {
           LOG.error("member info doesnt exist "); // TODO
-        }
+        }*/
 
         String[] fileNames = memberDir.list();
         // Sort names in ascending mode
@@ -114,7 +114,7 @@ public class IncomeStorageImpl implements IncomeStorage {
           File ch = new File(memberDir, fileNames[j]);
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
-        ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles, new Member(null, 100));
+        ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles, new Member(null, memberPriority));
         changeStorages.add(storage);
       } catch (NumberFormatException e) {
         // This is not int-named file. Skip it.
