@@ -277,17 +277,15 @@ public class AsyncReplication implements Startable {
 
           WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
 
-          NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
           PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-
-          AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
-          synchWorker.start();
-
-          currentWorkers.add(synchWorker);
+          dm.addItemPersistenceListener(localStorage);
         }
       }
 
       this.repositories = repos;
+      
+      // run test 
+      //this.synchronize();
     } catch (Throwable e) {
       throw new RuntimeException("Asynchronous replication start fails " + e, e);
     }
