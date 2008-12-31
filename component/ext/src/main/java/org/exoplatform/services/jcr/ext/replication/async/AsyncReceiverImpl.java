@@ -19,6 +19,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
@@ -27,6 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -38,6 +40,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  */
 public class AsyncReceiverImpl implements AsyncReceiver {
 
+  protected static final Log                LOG = ExoLogger.getLogger("jcr.AsyncReceiverImpl");
+  
   protected final RemoteExportServer exportServer;
 
   protected ChangesSubscriber        changesSubscriber;
@@ -54,6 +58,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * @param packet
    */
   protected void onChanges(ChangesPacket packet, Member member) {
+    LOG.info("AsyncReceiver.onChanges, member " + member.getName() + ", packet " + packet);
     changesSubscriber.onChanges(packet, member);
   }
 

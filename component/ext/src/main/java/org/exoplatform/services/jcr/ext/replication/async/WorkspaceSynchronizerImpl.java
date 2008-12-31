@@ -19,15 +19,20 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
+import java.util.Iterator;
+
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
@@ -37,8 +42,10 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
  */
 public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
-  protected final LocalStorage storage;
-  
+  private static final Log              LOG = ExoLogger.getLogger("ext.WorkspaceSynchronizerImpl");
+
+  protected final LocalStorage          storage;
+
   protected final PersistentDataManager workspace;
 
   public WorkspaceSynchronizerImpl(PersistentDataManager workspace, LocalStorage storage) {
@@ -56,22 +63,33 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
   }
 
   /**
-   * {@inheritDoc} 
+   * {@inheritDoc}
    */
   public void save(ChangesStorage<ItemState> synchronizedChanges) {
     // TODO save to Workspace data manager
-    ItemStateChangesLog changes = new PlainChangesLogImpl();
+
+    LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
+
+    PlainChangesLogImpl changes = new PlainChangesLogImpl();
+
+    // TODO for demo
     try {
+      for (Iterator<ItemState> iter = synchronizedChanges.getChanges(); iter.hasNext();)
+        changes.add(iter.next());
+
       workspace.save(changes);
     } catch (InvalidItemStateException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      // TODO message fix
+      LOG.info("WorkspaceSynchronizer.save error " + e, e);
     } catch (UnsupportedOperationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      // TODO message fix
+      LOG.info("WorkspaceSynchronizer.save error " + e, e);
     } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      // TODO message fix
+      LOG.info("WorkspaceSynchronizer.save error " + e, e);
+    } catch (IOException e) {
+      // TODO message fix
+      LOG.info("WorkspaceSynchronizer.save error " + e, e);
     }
   }
 

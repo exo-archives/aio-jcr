@@ -168,5 +168,14 @@ public class ChangesPacket extends AbstractPacket {
       in.readFully(buffer);
     } else
       buffer = null;
-  } 
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String toString() {
+    return super.toString() + " [p:" + getTransmitterPriority() + ", fc:" + getFileCount() + ", t:" + getTimeStamp() + "]";
+  }
+  
 }

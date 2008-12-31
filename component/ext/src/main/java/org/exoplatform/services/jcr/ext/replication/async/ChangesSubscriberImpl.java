@@ -131,7 +131,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       }
 
       // merge
+      log.info("start merge");
       result = mergeManager.merge(membersChanges.iterator());
+      log.info("done merge");
     }
 
   }
@@ -186,6 +188,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         
         // TODO fire event to Publisher to send own changes out
         
+        log.info("BINARY_CHANGESLOG_FIRST_PACKET");
+        
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
         
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
@@ -199,11 +203,15 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         break;
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
+        log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
+        
         cf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp())).getChangesFile();
         cf.writeData(packet.getBuffer(), packet.getOffset());
         break;
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
+        log.info("BINARY_CHANGESLOG_LAST_PACKET");
+        
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         incomeStorrage.addMemberChanges(mcf.getMember(), mcf.changesFile);
 
@@ -311,6 +319,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    * {@inheritDoc}
    */
   public void onMerge(Member member) {
+    
+    log.info("ChangesSubscriber.onMerge member " + member.getName());
+    
     if (doneList == null)
       doneList = new ArrayList<Integer>();
 
