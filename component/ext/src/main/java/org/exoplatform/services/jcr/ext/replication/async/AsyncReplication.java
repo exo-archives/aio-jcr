@@ -27,6 +27,7 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
@@ -42,6 +43,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageI
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.log.ExoLogger;
 import org.picocontainer.Startable;
 
 /**
@@ -52,6 +54,8 @@ import org.picocontainer.Startable;
  */
 public class AsyncReplication implements Startable {
 
+  private static Log                       log       = ExoLogger.getLogger("ext.AsyncReplication");
+  
   /**
    * The template for ip-address in configuration.
    */
@@ -116,7 +120,7 @@ public class AsyncReplication implements Startable {
       this.ntManager = ntManager;
 
       transmitter = new AsyncTransmitterImpl(channel, priority);
-
+      
       synchronyzer = new WorkspaceSynchronizerImpl(dataManager, localStorage);
 
       publisher = new ChangesPublisherImpl(transmitter, localStorage);
@@ -126,6 +130,7 @@ public class AsyncReplication implements Startable {
       receiver = new AsyncReceiverImpl(channel, exportServer);
 
       exporter = new RemoteExporterImpl(transmitter, receiver);
+      channel.addPacketListener(receiver);
 
       mergeManager = new MergeDataManager(exporter, dataManager, ntManager, priority, mergeTempDir);
 
@@ -148,7 +153,9 @@ public class AsyncReplication implements Startable {
                                          true);
       initializer.addMembersListener(publisher);
       initializer.addMembersListener(subscriber);
-
+      
+      channel.addPacketListener(initializer);
+      
       subscriber.addLocalListener(publisher);
       subscriber.addLocalListener(initializer);
     }
@@ -287,7 +294,8 @@ public class AsyncReplication implements Startable {
 
       this.repositories = repos;
       
-      // run test 
+      // run test
+      log.info("run synchronize");
       this.synchronize();
     } catch (Throwable e) {
       // e.printStackTrace();

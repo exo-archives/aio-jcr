@@ -91,7 +91,6 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     this.ownPriority = priority;
     this.memberWaitTimeout = memberWaitTimeout;
     this.otherParticipantsPriority = otherParticipantsPriority;
-    this.channelManager.addPacketListener(this);
     this.cancelMemberNotConnected = cancelMemberNotConnected;
   }
 

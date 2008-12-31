@@ -27,11 +27,12 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPack
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -59,7 +60,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(List<ChangesFile> changes, List<Member> subscribers) throws IOException{
+  public void sendChanges(List<ChangesFile> changes, List<Member> subscribers) throws IOException {
     try {
       for (int i = 0; i < changes.size(); i++) {
         this.sendChangesLogFile(subscribers, changes.get(i), priority, changes.size());
@@ -89,7 +90,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws IOException
    */
 
-  public void sendExport(ChangesFile changes, Member destAddress) throws IOException{
+  public void sendExport(ChangesFile changes, Member destAddress) throws IOException {
     try {
       sendExportChangesLogFile(destAddress, changes, 1);
     } catch (IOException e) {
@@ -111,14 +112,14 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       throw e;
     }
   }
-  
+
   public void sendCancel() throws IOException {
-    CancelPacket cancelPacket = new CancelPacket (AsyncPacketTypes.SYNCHRONIZATION_CANCEL, priority);
+    CancelPacket cancelPacket = new CancelPacket(AsyncPacketTypes.SYNCHRONIZATION_CANCEL, priority);
     channel.sendPacket(cancelPacket);
   }
 
   public void sendMerge() throws IOException {
-    MergePacket mergePacket = new MergePacket (AsyncPacketTypes.SYNCHRONIZATION_MERGE, priority);
+    MergePacket mergePacket = new MergePacket(AsyncPacketTypes.SYNCHRONIZATION_MERGE, priority);
     channel.sendPacket(mergePacket);
   }
 
@@ -175,12 +176,13 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       buf = b;
     }
 
-    packet = new ExportChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
-                                     clFile.getChecksum(),
-                                     clFile.getTimeStamp(),
-                                     totalFiles,
-                                     offset,
-                                     buf);
+    packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
+                               priority,
+                               clFile.getChecksum(),
+                               clFile.getTimeStamp(),
+                               totalFiles,
+                               offset,
+                               buf);
     channel.sendPacket(packet, destinationAddresses);
     offset += len;
     if (log.isDebugEnabled())
@@ -195,12 +197,13 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
         buf = b;
       }
 
-      packet = new ExportChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
-                                       clFile.getChecksum(),
-                                       clFile.getTimeStamp(),
-                                       totalFiles,
-                                       offset,
-                                       buf);
+      packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
+                                 priority,
+                                 clFile.getChecksum(),
+                                 clFile.getTimeStamp(),
+                                 totalFiles,
+                                 offset,
+                                 buf);
 
       channel.sendPacket(packet, destinationAddresses);
 
@@ -210,12 +213,13 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     }
 
     // Send last packet
-    packet = new ExportChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
-                                     clFile.getChecksum(),
-                                     clFile.getTimeStamp(),
-                                     totalFiles,
-                                     offset,
-                                     new byte[0]);
+    packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
+                               priority,
+                               clFile.getChecksum(),
+                               clFile.getTimeStamp(),
+                               totalFiles,
+                               offset,
+                               new byte[0]);
     if (log.isDebugEnabled())
       log.debug("Send PacType [BINARY_CHANGESLOG_LAST_PACKET] --> " + offset);
 
@@ -312,5 +316,5 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     if (log.isDebugEnabled())
       log.debug("End send : " + clFile.getChecksum());
   }
-  
+
 }

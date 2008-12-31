@@ -32,6 +32,10 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class CancelPacket extends MessagePacket {
   
+  public CancelPacket(){
+    super();
+  }
+  
   /**
    * The priority of transmitter. 
    */

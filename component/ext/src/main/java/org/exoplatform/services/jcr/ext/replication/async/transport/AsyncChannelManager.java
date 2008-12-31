@@ -168,11 +168,11 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *          AsyncStateListener
    */
   public void addStateListener(AsyncStateListener listener) {
-
+    this.stateListeners.add(listener);
   }
 
   public void removeStateListener(AsyncStateListener listener) {
-
+    this.stateListeners.remove(listener);
   }
 
   /**
@@ -232,7 +232,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {
-    List<Address> addresses = channel.getView().getMembers(); 
+    List<Address> addresses = new ArrayList<Address>(channel.getView().getMembers()); 
     addresses.remove(channel.getLocalAddress());
     
     List<Member> list = new ArrayList<Member>();
@@ -259,6 +259,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public Object handle(Message message) {
 
+    LOG.info("handle " + message);
+    
     Member member = new Member(message.getSrc());
     
     try {
@@ -300,7 +302,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * {@inheritDoc}
    */
   public void viewAccepted(View view) {
-    view.printDetails();
+    
+    LOG.info("viewAccepted " + view.printDetails());
     
     ArrayList<Member> members = new ArrayList<Member>();
 

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -32,6 +33,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEv
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -42,6 +44,9 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
  * @version $Id: TestTransmitterChanges.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsPersistenceListener, AsyncStateListener {
+  
+  private static Log                       log       = ExoLogger.getLogger("ext.TestTransmitterChanges");
+  
   private static final String         CH_CONFIG = "TCP("
                                                     + "start_port=7700;"
                                                     + "oob_thread_pool.queue_max_size=100;"
@@ -101,7 +106,7 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
 
   private static final int            priority  = 50;
   
-  private static final String         bindAddress = "192.168.0.15"; 
+  private static final String         bindAddress = "192.168.0.3"; 
   
   private static List<Member>         memberList;
 
@@ -160,10 +165,14 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
   }
 
   public void onSaveItems(ItemStateChangesLog itemStates) {
+    log.info("onSaveItems");
+    
     tclList.add((TransactionChangesLog) itemStates);
   }
 
   public void onStateChanged(AsyncStateEvent event) {
+    log.info("onStateChanged");
+    
     memberList = event.getMembers();
     memberList.remove(event.getLocalMember());
   }

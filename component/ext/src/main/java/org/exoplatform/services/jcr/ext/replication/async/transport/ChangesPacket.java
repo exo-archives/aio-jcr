@@ -175,7 +175,7 @@ public class ChangesPacket extends AbstractPacket {
    */
   @Override
   public String toString() {
-    return super.toString() + " [p:" + getTransmitterPriority() + ", fc:" + getFileCount() + ", t:" + getTimeStamp() + "]";
+    return super.toString() + " [fc:" + getFileCount() + ", t:" + getTimeStamp() + "]";
   }
   
 }

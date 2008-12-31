@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -26,8 +27,11 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
  */
 public class MergePacket extends CancelPacket {
 
+  public MergePacket(){
+    super();
+  }
+  
   public MergePacket(int type, int transmitterPriority) {
     super(type, transmitterPriority);
   }
-
 }
