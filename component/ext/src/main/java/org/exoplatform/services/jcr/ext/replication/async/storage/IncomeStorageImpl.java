@@ -110,7 +110,7 @@ public class IncomeStorageImpl implements IncomeStorage {
           File ch = new File(memberDir, fileNames[j]);
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
-        ItemStatesStorage<ItemState> storage = new ItemStatesStorage<ItemState>(chFiles, member);
+        ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles);
         changeStorages.add(storage);
       } catch (NumberFormatException e) {
         // This is not int-named file. Skip it.
