@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -93,10 +94,12 @@ public class ItemDataExportVisitor extends ItemDataTraversingVisitor {
     
     Iterator<ValueData> it = list.iterator();
     
+    List<ValueData> res = new ArrayList<ValueData>();
     while(it.hasNext()){
       TransientValueData value = ((AbstractValueData)it.next()).createTransientCopy();
-      newProperty.setValue(value);
+      res.add(value);
     }
+    newProperty.setValues(res);
     
     //newProperty.setValues(property.getValues());
 
