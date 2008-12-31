@@ -65,7 +65,7 @@ public class Member implements Externalizable{
    * @see {@link Member.getAddress()}
    */
   public String getName() {
-    return this.priority + ". " + this.address.toString();
+    return this.priority + ". " + this.address;
   }
 
   /**

@@ -155,7 +155,6 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
    * ItemStatesStorage constructor for remote exporter.
    * 
    * @param changes
-   * @param member
    */
   public ItemStatesStorage(ChangesFile changes) {
     this.storage.add(changes);

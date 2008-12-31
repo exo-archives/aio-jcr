@@ -172,9 +172,9 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
   }
 
-  public ChangesLogStorage(List<ChangesFile> storage) {
+  public ChangesLogStorage(List<ChangesFile> storage, Member member) {
     this.storage = storage;
-    this.member = null;
+    this.member = member;
   }
 
   public void delete() throws IOException {
