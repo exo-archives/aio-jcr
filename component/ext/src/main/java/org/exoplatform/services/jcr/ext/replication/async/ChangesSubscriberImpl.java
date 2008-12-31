@@ -49,35 +49,35 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   /**
    * Logger.
    */
-  private static Log                                log         = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  private static Log                              log         = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected final HashMap<Key, MemberChangesFile>   incomChanges;
+  protected final HashMap<Key, MemberChangesFile> incomChanges;
 
-  protected final MergeDataManager                  mergeManager;
+  protected final MergeDataManager                mergeManager;
 
-  protected final WorkspaceSynchronizer             workspace;
+  protected final WorkspaceSynchronizer           workspace;
 
-  protected final IncomeStorage                     incomeStorrage;
+  protected final IncomeStorage                   incomeStorrage;
 
-  protected final AsyncTransmitter                  transmitter;
+  protected final AsyncTransmitter                transmitter;
 
-  protected HashMap<Integer, Counter>               counterMap;
+  protected HashMap<Integer, Counter>             counterMap;
 
-  protected List<Integer>                           doneList;
+  protected List<Integer>                         doneList;
 
-  protected final int                               localPriority;
+  protected final int                             localPriority;
 
-  protected final int                               membersCount;
+  protected final int                             membersCount;
 
-  protected MergeWorker                             mergeWorker = null;
+  protected MergeWorker                           mergeWorker = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<LocalEventListener> listeners   = new LinkedHashSet<LocalEventListener>();
+  protected final Set<LocalEventListener>         listeners   = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
 
@@ -185,13 +185,13 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     try {
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-        
+
         // TODO fire event to Publisher to send own changes out
-        
+
         log.info("BINARY_CHANGESLOG_FIRST_PACKET");
-        
+
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
-        
+
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
 
         cf.writeData(packet.getBuffer(), packet.getOffset());
@@ -204,14 +204,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
         log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
-        
+
         cf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp())).getChangesFile();
         cf.writeData(packet.getBuffer(), packet.getOffset());
         break;
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
         log.info("BINARY_CHANGESLOG_LAST_PACKET");
-        
+
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         incomeStorrage.addMemberChanges(mcf.getMember(), mcf.changesFile);
 
@@ -296,7 +296,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   public void onCancel() {
     log.info("On 'CANCEL'");
     mergeCancel();
-    
+
     try {
       incomeStorrage.clean();
     } catch (IOException e) {
@@ -319,24 +319,25 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    * {@inheritDoc}
    */
   public void onMerge(Member member) {
-    
+
     log.info("ChangesSubscriber.onMerge member " + member.getName());
-    
+
     if (doneList == null)
       doneList = new ArrayList<Integer>();
 
     doneList.add(member.getPriority());
 
-    log.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount=" + membersCount);
-    
-    if (doneList.size()+1 == membersCount)
+    log.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount="
+        + membersCount);
+
+    if (doneList.size() + 1 == membersCount) {
       workspace.save(mergeWorker.result);
-    
-    
-    log.info("Fire LocalEventListener.onStop");
-    
-    for (LocalEventListener ll : listeners)
-      ll.onStop();
+
+      log.info("Fire LocalEventListener.onStop");
+
+      for (LocalEventListener ll : listeners)
+        ll.onStop();
+    }
   }
 
   /**
