@@ -1132,12 +1132,6 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
 
-    // try {
-    // testNode.addNode("wrongchild");
-    // fail();
-    // } catch (ConstraintViolationException e) {
-    // // ok
-    // }
     Node child = testNode.addNode("child", "nt:base");
     session.save();
 
