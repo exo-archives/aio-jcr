@@ -29,7 +29,6 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
-import org.exoplatform.services.jcr.dataflow.persistent.PersistedPropertyData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -40,6 +39,8 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
  * Created by The eXo Platform SAS.
@@ -176,11 +177,11 @@ public class UpdateMerger implements ChangesMerger {
                                                incomeData.getQPath().getEntries()[incomeData.getQPath()
                                                                                             .getEntries().length - 1]);
               PropertyData prop = (PropertyData) incomeData;
-              PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
-                                                                     name,
-                                                                     prop.getParentIdentifier(),
+              TransientPropertyData item = new TransientPropertyData(name,
+                                                                     prop.getIdentifier(),
                                                                      prop.getPersistedVersion(),
                                                                      prop.getType(),
+                                                                     prop.getParentIdentifier(),
                                                                      prop.isMultiValued());
               item.setValues(prop.getValues());
 
@@ -243,13 +244,13 @@ public class UpdateMerger implements ChangesMerger {
                                                    i == 0
                                                        ? node.getQPath().getIndex()
                                                        : node.getQPath().getIndex() - 1);
-                  PersistedNodeData newItem = new PersistedNodeData(node.getIdentifier(),
-                                                                    name,
-                                                                    node.getParentIdentifier(),
+                  TransientNodeData newItem = new TransientNodeData(name,
+                                                                    node.getIdentifier(),
                                                                     node.getPersistedVersion(),
-                                                                    node.getOrderNumber(),
                                                                     node.getPrimaryTypeName(),
                                                                     node.getMixinTypeNames(),
+                                                                    node.getOrderNumber(),
+                                                                    node.getParentIdentifier(),
                                                                     node.getACL());
                   // generate update state from delete state (in one case)
                   resultState.add(new ItemState(newItem,
@@ -275,13 +276,13 @@ public class UpdateMerger implements ChangesMerger {
                                                  node.getQPath().getEntries()[node.getQPath()
                                                                                   .getEntries().length - 1]);
 
-                PersistedNodeData newNode = new PersistedNodeData(node.getIdentifier(),
-                                                                  name,
-                                                                  node.getParentIdentifier(),
+                TransientNodeData newNode = new TransientNodeData(name,
+                                                                  node.getIdentifier(),
                                                                   node.getPersistedVersion(),
-                                                                  node.getOrderNumber(),
                                                                   node.getPrimaryTypeName(),
                                                                   node.getMixinTypeNames(),
+                                                                  node.getOrderNumber(),
+                                                                  node.getParentIdentifier(),
                                                                   node.getACL());
                 resultState.add(new ItemState(newNode, item.getState(), item.isEventFire(), name));
               }
@@ -298,11 +299,11 @@ public class UpdateMerger implements ChangesMerger {
                                                incomeData.getQPath().getEntries()[incomeData.getQPath()
                                                                                             .getEntries().length - 1]);
               PropertyData prop = (PropertyData) incomeData;
-              PersistedPropertyData item = new PersistedPropertyData(prop.getIdentifier(),
-                                                                     name,
-                                                                     prop.getParentIdentifier(),
+              TransientPropertyData item = new TransientPropertyData(name,
+                                                                     prop.getIdentifier(),
                                                                      prop.getPersistedVersion(),
                                                                      prop.getType(),
+                                                                     prop.getParentIdentifier(),
                                                                      prop.isMultiValued());
               item.setValues(prop.getValues());
 

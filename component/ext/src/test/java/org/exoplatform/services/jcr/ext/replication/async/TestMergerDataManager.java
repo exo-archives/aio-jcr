@@ -102,9 +102,9 @@ public class TestMergerDataManager extends BaseStandaloneTest {
     addChangesToChangesStorage(dataManager.getChangesLog(), LOCAL_PRIORITY - 1);
     addChangesToChangesStorage(new PlainChangesLogImpl(), LOCAL_PRIORITY);
 
+    saveResultedChanges(merger.merge(membersChanges.iterator()), "ws4");
     session3.save();
 
-    saveResultedChanges(merger.merge(membersChanges.iterator()).getChanges(), "ws4");
     assertTrue(isWorkspacesEquals());
   }
 
@@ -124,6 +124,7 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    */
   private boolean isNodesEquals(Node src, Node dst) throws Exception {
     // compare node name
+    // TODO compare UUID
     if (!src.getName().equals(dst.getName())) {
       return false;
     }
@@ -139,6 +140,7 @@ public class TestMergerDataManager extends BaseStandaloneTest {
       Property srcProp = srcProps.nextProperty();
       Property dstProp = dstProps.nextProperty();
 
+      // TODO compare UUID
       if (!srcProp.getName().equals(dstProp.getName())) {
         return false;
       }
@@ -160,7 +162,7 @@ public class TestMergerDataManager extends BaseStandaloneTest {
       }
 
       // TODO compare value property
-      // if (!srcValues.equals(dstValues)) {
+      // if (!srcValues.toString().equals(dstValues.toString())) {
       // return false;
       // }
     }
@@ -211,14 +213,14 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    * @throws UnsupportedOperationException
    * @throws InvalidItemStateException
    */
-  protected void saveResultedChanges(Iterator<ItemState> res, String workspaceName) throws Exception {
+  protected void saveResultedChanges(ChangesStorage<ItemState> changes, String workspaceName) throws Exception {
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(workspaceName);
     DataManager dm = (DataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
 
     PlainChangesLog resLog = new PlainChangesLogImpl();
 
-    while (res.hasNext()) {
-      resLog.add(res.next());
+    for (Iterator<ItemState> itemStates = changes.getChanges(); itemStates.hasNext();) {
+      resLog.add(itemStates.next());
     }
 
     dm.save(resLog);
