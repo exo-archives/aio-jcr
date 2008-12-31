@@ -29,6 +29,7 @@ import javax.jcr.RepositoryException;
 
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
+import org.exoplatform.container.xml.ValuesParam;
 import org.exoplatform.services.jcr.RepositoryService;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.core.ManageableRepository;
@@ -70,8 +71,6 @@ public class AsyncReplication implements Startable {
 
   protected Set<AsyncWorker>          currentWorkers;
 
-  protected ManageableRepository      repository;
-
   protected final String              bindIPAddress;
 
   protected final String              channelConfig;
@@ -79,11 +78,13 @@ public class AsyncReplication implements Startable {
   protected final String              channelName;
 
   protected final int                 waitAllMembersTimeout;
-  
+
   protected final String              mergeTempDir;
 
+  protected final String[]            repositories;
+
   class AsyncWorker extends Thread {
-    
+
     protected final AsyncInitializer          initializer;
 
     protected final ChangesPublisherImpl      publisher;
@@ -102,7 +103,7 @@ public class AsyncReplication implements Startable {
 
     protected final MergeDataManager          mergeManager;
 
-    protected final PersistentDataManager               dataManager;
+    protected final PersistentDataManager     dataManager;
 
     protected final NodeTypeDataManager       ntManager;
 
@@ -131,8 +132,8 @@ public class AsyncReplication implements Startable {
                                              incomeStorage,
                                              transmitter,
                                              priority,
-                                             otherParticipantsPriority.size()+1);
-      
+                                             otherParticipantsPriority.size() + 1);
+
       publisher.addLocalListener(subscriber);
 
       receiver.setChangesSubscriber(subscriber);
@@ -145,7 +146,7 @@ public class AsyncReplication implements Startable {
                                          true);
       initializer.addMembersListener(publisher);
       initializer.addMembersListener(subscriber);
-      
+
       subscriber.addLocalListener(publisher);
       subscriber.addLocalListener(initializer);
     }
@@ -176,6 +177,16 @@ public class AsyncReplication implements Startable {
 
     this.repoService = repoService;
 
+    ValuesParam vp = params.getValuesParam("repositories");
+    if (vp == null || vp.getValues().size() == 0)
+      throw new RuntimeException("repositories not specified");
+
+    List<String> repoNamesList = vp.getValues();
+
+    String[] repos = new String[repoNamesList.size()];
+    repoNamesList.toArray(repos);
+    repositories = repos;
+
     PropertiesParam pps = params.getPropertiesParam("replication-properties");
 
     // initialize replication parameters;
@@ -204,41 +215,46 @@ public class AsyncReplication implements Startable {
       otherParticipantsPriority.add(Integer.valueOf(sPriority));
 
     this.channel = new AsyncChannelManager(channelConfig, channelName);
-    
+
     File incomeDir = new File(storagePath + "/income");
     incomeDir.mkdirs();
     this.incomeStorage = new IncomeStorageImpl(incomeDir.getAbsolutePath());
-    
+
     File localDir = new File(storagePath + "/local");
     localDir.mkdirs();
     this.localStorage = new LocalStorageImpl(localDir.getAbsolutePath());
-    
+
     File mergeTempDir = new File(storagePath + "/merge-temp");
     mergeTempDir.mkdirs();
-    
+
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
-    
+
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
   }
 
   /**
    * Initialize synchronization process. Process will use the service configuration.
+   * @throws RepositoryConfigurationException 
+   * @throws RepositoryException 
    */
-  public void synchronize() {
+  public void synchronize() throws RepositoryException, RepositoryConfigurationException {
 
     if (currentWorkers.size() <= 0) {
       // TODO run for all workspaces in default repo
-      for (String wsName : repository.getWorkspaceNames()) {
+      for (String repoName : repositories) {
+        ManageableRepository repository = repoService.getRepository(repoName);
+        for (String wsName : repository.getWorkspaceNames()) {
 
-        WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+          WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
 
-        NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
-        PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+          NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
+          PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
-        AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
-        synchWorker.start();
+          AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
+          synchWorker.start();
 
-        currentWorkers.add(synchWorker);
+          currentWorkers.add(synchWorker);
+        }
       }
     } // TODO else warn about active sync
   }
@@ -247,15 +263,7 @@ public class AsyncReplication implements Startable {
    * {@inheritDoc}
    */
   public void start() {
-    try {
-      this.repository = repoService.getDefaultRepository();
-    } catch (RepositoryException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (RepositoryConfigurationException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+
   }
 
   /**
