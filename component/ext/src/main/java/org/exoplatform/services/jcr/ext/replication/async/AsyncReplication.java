@@ -271,7 +271,8 @@ public class AsyncReplication implements Startable {
 
     ManageableRepository[] repos = new ManageableRepository[repositoryNames.length];
     try {
-      for (String repoName : repositoryNames) {
+      for (int i=0; i<repositoryNames.length; i++) {
+        String repoName = repositoryNames[i];
         ManageableRepository repository = repoService.getRepository(repoName);
         for (String wsName : repository.getWorkspaceNames()) {
 
@@ -280,6 +281,8 @@ public class AsyncReplication implements Startable {
           PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
           dm.addItemPersistenceListener(localStorage);
         }
+        
+        repos[i] = repository;
       }
 
       this.repositories = repos;
@@ -287,6 +290,7 @@ public class AsyncReplication implements Startable {
       // run test 
       //this.synchronize();
     } catch (Throwable e) {
+      // e.printStackTrace();
       throw new RuntimeException("Asynchronous replication start fails " + e, e);
     }
   }
