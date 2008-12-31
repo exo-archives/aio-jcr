@@ -210,9 +210,7 @@ public class ChangesFile {
   }
 
   public void moveTo(File dir) throws IOException {
-    // TODO which time stamp used? Derived from sender(creator) or generated at
-    // move moment?
-    File dest = new File(dir, Long.toString(System.currentTimeMillis()));
+    File dest = new File(dir, Long.toString(getTimeStamp()));
     file.renameTo(dest);
   }
 }
