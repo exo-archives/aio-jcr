@@ -29,9 +29,12 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.jgroups.Address;
+import org.jgroups.View;
 
 /**
  * Created by The eXo Platform SAS.
@@ -41,7 +44,7 @@ import org.jgroups.Address;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestTransmitterChanges.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsPersistenceListener {
+public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsPersistenceListener, AsyncStateListener {
   private static final String         CH_CONFIG = "TCP("
                                                     + "start_port=7700;"
                                                     + "oob_thread_pool.queue_max_size=100;"
@@ -101,7 +104,9 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
 
   private static final int            priority  = 50;
   
-  private static final String         bindAddress = "192.168.0.15";  
+  private static final String         bindAddress = "192.168.0.15"; 
+  
+  private static List<Member>         memberList;
 
   private List<TransactionChangesLog> tclList   = new ArrayList<TransactionChangesLog>();
 
@@ -146,21 +151,11 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
     
     AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME);
+    channel.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority);
 
     channel.connect();
-    
-    
-    //subscribers
-    Vector<Address> addresses = channel.getDispatcher().getChannel().getView().getMembers();
-    addresses.remove(channel.getDispatcher().getChannel().getLocalAddress());
-    
-    
-    List<Member> memberList = new ArrayList<Member>();
-    for (Address addr : addresses)
-      memberList.add(new Member(addr));
-    
     
     transmitter.sendChanges(cfList,memberList);
     
@@ -169,6 +164,11 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
 
   public void onSaveItems(ItemStateChangesLog itemStates) {
     tclList.add((TransactionChangesLog) itemStates);
+  }
+
+  public void onStateChanged(AsyncStateEvent event) {
+    memberList = event.getMembers();
+    memberList.remove(event.getLocalMember());
   }
 
 }
