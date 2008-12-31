@@ -25,8 +25,10 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 26.12.2008
@@ -36,6 +38,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  */
 public class IncomeStorageImpl implements IncomeStorage {
 
+  protected static final Log                LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
+  
   protected final String        storagePath;
 
   protected final static String MEMBER_INFO_FILE_NAME = "member_info";
@@ -93,12 +97,12 @@ public class IncomeStorageImpl implements IncomeStorage {
           try {
             member = (Member) in.readObject();
           } catch (ClassNotFoundException e) {
-            // TODO
+            LOG.error("" + e, e); // TODO
           } finally {
             in.close();
           }
         } else {
-          // TODO
+          LOG.error("member info doesnt exist "); // TODO
         }
 
         String[] fileNames = memberDir.list();
@@ -114,6 +118,7 @@ public class IncomeStorageImpl implements IncomeStorage {
         changeStorages.add(storage);
       } catch (NumberFormatException e) {
         // This is not int-named file. Skip it.
+        LOG.error("" + e, e); // TODO
       }
     }
     return changeStorages;

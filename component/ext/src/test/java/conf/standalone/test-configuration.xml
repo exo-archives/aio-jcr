@@ -395,7 +395,7 @@
     <init-params>
       <values-param>
         <name>repositories</name>
-        <value>repository</value>
+        <value>db1</value>
       </values-param>
       <properties-param>
         <name>replication-properties</name>

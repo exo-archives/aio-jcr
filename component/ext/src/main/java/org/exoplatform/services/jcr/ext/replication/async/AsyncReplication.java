@@ -81,7 +81,9 @@ public class AsyncReplication implements Startable {
 
   protected final String              mergeTempDir;
 
-  protected final String[]            repositories;
+  protected final String[]            repositoryNames;
+
+  protected ManageableRepository[]    repositories = null;
 
   class AsyncWorker extends Thread {
 
@@ -185,7 +187,7 @@ public class AsyncReplication implements Startable {
 
     String[] repos = new String[repoNamesList.size()];
     repoNamesList.toArray(repos);
-    repositories = repos;
+    repositoryNames = repos;
 
     PropertiesParam pps = params.getPropertiesParam("replication-properties");
 
@@ -199,9 +201,9 @@ public class AsyncReplication implements Startable {
     waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
 
     String storagePath = pps.getProperty("storage-dir");
-    
+
     String sOtherParticipantsPriority = pps.getProperty("other-participants-priority");
-    
+
     String saOtherParticipantsPriority[] = sOtherParticipantsPriority.split(",");
 
     // TODO restore previous state if it's restart
@@ -210,8 +212,8 @@ public class AsyncReplication implements Startable {
     // Ready to begin...
 
     this.otherParticipantsPriority = new ArrayList<Integer>(); // TODO
-    
-    for(String sPriority : saOtherParticipantsPriority)
+
+    for (String sPriority : saOtherParticipantsPriority)
       otherParticipantsPriority.add(Integer.valueOf(sPriority));
 
     this.channel = new AsyncChannelManager(channelConfig, channelName);
@@ -234,14 +236,42 @@ public class AsyncReplication implements Startable {
 
   /**
    * Initialize synchronization process. Process will use the service configuration.
-   * @throws RepositoryConfigurationException 
-   * @throws RepositoryException 
+   * 
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
    */
   public void synchronize() throws RepositoryException, RepositoryConfigurationException {
 
     if (currentWorkers.size() <= 0) {
-      // TODO run for all workspaces in default repo
-      for (String repoName : repositories) {
+      if (this.repositories != null) {
+        for (ManageableRepository repository : repositories) {
+          for (String wsName : repository.getWorkspaceNames()) {
+
+            WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
+
+            NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
+            PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+
+            AsyncWorker synchWorker = new AsyncWorker(dm, ntm);
+            synchWorker.start();
+
+            currentWorkers.add(synchWorker);
+          }
+        }
+      } else
+        System.err.println("[ERROR] Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
+    } else
+      System.err.println("[ERROR] Asynchronous replication service already active. Wait for current synchronization finish.");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void start() {
+
+    ManageableRepository[] repos = new ManageableRepository[repositoryNames.length];
+    try {
+      for (String repoName : repositoryNames) {
         ManageableRepository repository = repoService.getRepository(repoName);
         for (String wsName : repository.getWorkspaceNames()) {
 
@@ -256,14 +286,11 @@ public class AsyncReplication implements Startable {
           currentWorkers.add(synchWorker);
         }
       }
-    } // TODO else warn about active sync
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void start() {
-
+      this.repositories = repos;
+    } catch (Throwable e) {
+      throw new RuntimeException("Asynchronous replication start fails " + e, e);
+    }
   }
 
   /**
