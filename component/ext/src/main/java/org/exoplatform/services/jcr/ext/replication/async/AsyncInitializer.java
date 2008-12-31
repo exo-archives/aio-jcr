@@ -190,8 +190,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   }
 
   public void receive(AbstractPacket packet, Member srcAddress) {
+    
     switch (packet.getType()) {
     case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
+      log.info("SYNCHRONIZATION_CANCEL");
+      
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
@@ -200,6 +203,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       break;
 
     case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
+      log.info("SYNCHRONIZATION_MERGE");
+      
       Member member = new Member(srcAddress.getAddress(),
                                  ((MergePacket) packet).getTransmitterPriority());
 
@@ -231,6 +236,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * {@inheritDoc}
    */
   public void onStop() {
+    log.info("AsyncInitializer.onStop");
+    
     channelManager.disconnect();
   }
 

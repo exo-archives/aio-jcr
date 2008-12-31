@@ -327,9 +327,13 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
     doneList.add(member.getPriority());
 
+    log.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount=" + membersCount);
+    
     if (doneList.size()+1 == membersCount)
       workspace.save(mergeWorker.result);
     
+    
+    log.info("Fire LocalEventListener.onStop");
     
     for (LocalEventListener ll : listeners)
       ll.onStop();
