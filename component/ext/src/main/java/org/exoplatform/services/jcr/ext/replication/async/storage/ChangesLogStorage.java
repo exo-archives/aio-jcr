@@ -38,7 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesLogStorage.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ChangesLogStorage<T extends ItemState> implements ChangesStorage {
+public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T> {
 
   private final List<ChangesFile> storage;
 
@@ -203,16 +203,16 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage {
     return files;
   }
 
-  public Collection getDescendantsChanges(QPath rootPath, boolean unique) throws IOException {
+  public Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public ItemState getItemState(String itemIdentifier) {
+  public T getItemState(String itemIdentifier) {
     throw new RuntimeException("Not implemented");
   }
 
-  public ItemState getItemState(NodeData parentData, QPathEntry name) {
+  public T getItemState(NodeData parentData, QPathEntry name) {
     throw new RuntimeException("Not implemented");
   }
 
@@ -221,17 +221,17 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage {
     return null;
   }
 
-  public ItemState getNextItemState(ItemState item) throws IOException {
+  public T getNextItemState(ItemState item) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
+  public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
+  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
     // TODO Auto-generated method stub
     return null;
   }
