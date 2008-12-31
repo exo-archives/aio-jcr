@@ -28,7 +28,6 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.persistent.PersistedNodeData;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -154,13 +153,13 @@ public class UpdateMerger implements ChangesMerger {
                                                  node.getQPath().getEntries()[node.getQPath()
                                                                                   .getEntries().length - 1]);
 
-                PersistedNodeData newNode = new PersistedNodeData(node.getIdentifier(),
-                                                                  name,
-                                                                  node.getParentIdentifier(),
+                TransientNodeData newNode = new TransientNodeData(name,
+                                                                  node.getIdentifier(),
                                                                   node.getPersistedVersion(),
-                                                                  node.getOrderNumber(),
                                                                   node.getPrimaryTypeName(),
                                                                   node.getMixinTypeNames(),
+                                                                  node.getOrderNumber(),
+                                                                  node.getParentIdentifier(),
                                                                   node.getACL());
                 resultState.add(new ItemState(newNode, item.getState(), item.isEventFire(), name));
               }
