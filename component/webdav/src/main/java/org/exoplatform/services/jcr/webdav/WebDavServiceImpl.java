@@ -76,21 +76,21 @@ import org.exoplatform.services.jcr.webdav.lock.NullResourceLocksHolder;
 import org.exoplatform.services.jcr.webdav.util.NodeTypeUtil;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.CHECKIN;
-import org.exoplatform.services.rest.CHECKOUT;
-import org.exoplatform.services.rest.COPY;
-import org.exoplatform.services.rest.LOCK;
-import org.exoplatform.services.rest.MKCOL;
-import org.exoplatform.services.rest.MOVE;
-import org.exoplatform.services.rest.OPTIONS;
-import org.exoplatform.services.rest.ORDERPATCH;
-import org.exoplatform.services.rest.PROPFIND;
-import org.exoplatform.services.rest.PROPPATCH;
-import org.exoplatform.services.rest.REPORT;
-import org.exoplatform.services.rest.SEARCH;
-import org.exoplatform.services.rest.UNCHECKOUT;
-import org.exoplatform.services.rest.UNLOCK;
-import org.exoplatform.services.rest.VERSIONCONTROL;
+import org.exoplatform.services.rest.ExtHttpHeaders;
+import org.exoplatform.services.rest.ext.method.webdav.CHECKOUT;
+import org.exoplatform.services.rest.ext.method.webdav.COPY;
+import org.exoplatform.services.rest.ext.method.webdav.LOCK;
+import org.exoplatform.services.rest.ext.method.webdav.MKCOL;
+import org.exoplatform.services.rest.ext.method.webdav.MOVE;
+import org.exoplatform.services.rest.ext.method.webdav.OPTIONS;
+import org.exoplatform.services.rest.ext.method.webdav.ORDERPATCH;
+import org.exoplatform.services.rest.ext.method.webdav.PROPFIND;
+import org.exoplatform.services.rest.ext.method.webdav.PROPPATCH;
+import org.exoplatform.services.rest.ext.method.webdav.REPORT;
+import org.exoplatform.services.rest.ext.method.webdav.SEARCH;
+import org.exoplatform.services.rest.ext.method.webdav.UNCHECKOUT;
+import org.exoplatform.services.rest.ext.method.webdav.UNLOCK;
+import org.exoplatform.services.rest.ext.method.webdav.VERSIONCONTROL;
 import org.exoplatform.services.rest.impl.ResourceBinder;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
@@ -206,12 +206,12 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
-  @CHECKIN
+  @CHECKOUT
   @Path("/{repoName}/{repoPath:.*}/")
   public Response checkin(@PathParam("repoName") String repoName,
                           @PathParam("repoPath") String repoPath,
-                          @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                          @HeaderParam(WebDavHeaders.IF) String ifHeader) {
+                          @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                          @HeaderParam(ExtHttpHeaders.IF) String ifHeader) {
 
     if (log.isDebugEnabled()) {
       log.debug("CHECKIN " + repoName + "/" + repoPath);
@@ -233,8 +233,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response checkout(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
-                           @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                           @HeaderParam(WebDavHeaders.IF) String ifHeader) {
+                           @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                           @HeaderParam(ExtHttpHeaders.IF) String ifHeader) {
 
     if (log.isDebugEnabled()) {
       log.debug("CHECKOUT " + repoName + "/" + repoPath);
@@ -256,11 +256,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response copy(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
-                       @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
-                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                       @HeaderParam(WebDavHeaders.IF) String ifHeader,
-                       @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
-                       @HeaderParam(WebDavHeaders.OVERWRITE) String overwriteHeader,
+                       @HeaderParam(ExtHttpHeaders.DESTINATION) String destinationHeader,
+                       @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                       @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
+                       @HeaderParam(ExtHttpHeaders.DEPTH) String depthHeader,
+                       @HeaderParam(ExtHttpHeaders.OVERWRITE) String overwriteHeader,
                        @Context UriInfo uriInfo,
                        HierarchicalProperty body) {
 
@@ -347,8 +347,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response delete(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
-                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                         @HeaderParam(WebDavHeaders.IF) String ifHeader) {
+                         @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                         @HeaderParam(ExtHttpHeaders.IF) String ifHeader) {
 
     if (log.isDebugEnabled()) {
       log.debug("DELETE " + repoName + "/" + repoPath);
@@ -373,7 +373,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response get(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
-                      @HeaderParam(WebDavHeaders.RANGE) String rangeHeader,
+                      @HeaderParam(ExtHttpHeaders.RANGE) String rangeHeader,
                       @QueryParam("version") String version,
                       @Context UriInfo uriInfo) {
 
@@ -461,9 +461,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response lock(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
-                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                       @HeaderParam(WebDavHeaders.IF) String ifHeader,
-                       @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
+                       @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                       @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
+                       @HeaderParam(ExtHttpHeaders.DEPTH) String depthHeader,
                        HierarchicalProperty body) {
 
     if (log.isDebugEnabled()) {
@@ -499,8 +499,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response unlock(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
-                         @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                         @HeaderParam(WebDavHeaders.IF) String ifHeader) {
+                         @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                         @HeaderParam(ExtHttpHeaders.IF) String ifHeader) {
 
     if (log.isDebugEnabled()) {
       log.debug("UNLOCK " + repoName + "/" + repoPath);
@@ -527,10 +527,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response mkcol(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
-                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                        @HeaderParam(WebDavHeaders.IF) String ifHeader,
-                        @HeaderParam(WebDavHeaders.NODETYPE) String nodeTypeHeader,
-                        @HeaderParam(WebDavHeaders.MIXTYPE) String mixinTypesHeader) {
+                        @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                        @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
+                        @HeaderParam(ExtHttpHeaders.NODETYPE) String nodeTypeHeader,
+                        @HeaderParam(ExtHttpHeaders.MIXTYPE) String mixinTypesHeader) {
     if (log.isDebugEnabled()) {
       log.debug("MKCOL " + repoName + "/" + repoPath);
     }
@@ -563,11 +563,11 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response move(@PathParam("repoName") String repoName,
                        @PathParam("repoPath") String repoPath,
-                       @HeaderParam(WebDavHeaders.DESTINATION) String destinationHeader,
-                       @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                       @HeaderParam(WebDavHeaders.IF) String ifHeader,
-                       @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
-                       @HeaderParam(WebDavHeaders.OVERWRITE) String overwriteHeader,
+                       @HeaderParam(ExtHttpHeaders.DESTINATION) String destinationHeader,
+                       @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                       @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
+                       @HeaderParam(ExtHttpHeaders.DEPTH) String depthHeader,
+                       @HeaderParam(ExtHttpHeaders.OVERWRITE) String overwriteHeader,
                        @Context UriInfo uriInfo,
                        HierarchicalProperty body) {
 
@@ -669,10 +669,10 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
         + "<exo:xpath xmlns:exo=\"http://exoplatform.com/jcr\"/>";
 
     return Response.ok()
-                   .header(WebDavHeaders.ALLOW, /*allowCommands*/ALLOW)
-                   .header(WebDavHeaders.DAV, "1, 2, ordered-collections")
-                   .header(WebDavHeaders.DASL, DASL_VALUE)
-                   .header(WebDavHeaders.MSAUTHORVIA, "DAV")
+                   .header(ExtHttpHeaders.ALLOW, /*allowCommands*/ALLOW)
+                   .header(ExtHttpHeaders.DAV, "1, 2, ordered-collections")
+                   .header(ExtHttpHeaders.DASL, DASL_VALUE)
+                   .header(ExtHttpHeaders.MSAUTHORVIA, "DAV")
                    .build();
   }
 
@@ -680,8 +680,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response order(@PathParam("repoName") String repoName,
                         @PathParam("repoPath") String repoPath,
-                        @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                        @HeaderParam(WebDavHeaders.IF) String ifHeader,
+                        @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                        @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
                         @Context UriInfo uriInfo,
                         HierarchicalProperty body) {
 
@@ -707,7 +707,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response propfind(@PathParam("repoName") String repoName,
                            @PathParam("repoPath") String repoPath,
-                           @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
+                           @HeaderParam(ExtHttpHeaders.DEPTH) String depthHeader,
                            @Context UriInfo uriInfo,
                            HierarchicalProperty body) {
     if (log.isDebugEnabled()) {
@@ -736,8 +736,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response proppatch(@PathParam("repoName") String repoName,
                             @PathParam("repoPath") String repoPath,
-                            @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                            @HeaderParam(WebDavHeaders.IF) String ifHeader,
+                            @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                            @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
                             @Context UriInfo uriInfo,
                             HierarchicalProperty body) {
     if (log.isDebugEnabled()) {
@@ -769,9 +769,9 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response put(@PathParam("repoName") String repoName,
                       @PathParam("repoPath") String repoPath,
-                      @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                      @HeaderParam(WebDavHeaders.IF) String ifHeader,
-                      @HeaderParam(WebDavHeaders.NODETYPE) String nodeTypeHeader,
+                      @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                      @HeaderParam(ExtHttpHeaders.IF) String ifHeader,
+                      @HeaderParam(ExtHttpHeaders.NODETYPE) String nodeTypeHeader,
                       @HeaderParam(HttpHeaders.CONTENT_TYPE) String mimeType,
                       InputStream inputStream) {
 
@@ -818,7 +818,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response report(@PathParam("repoName") String repoName,
                          @PathParam("repoPath") String repoPath,
-                         @HeaderParam(WebDavHeaders.DEPTH) String depthHeader,
+                         @HeaderParam(ExtHttpHeaders.DEPTH) String depthHeader,
                          @Context UriInfo uriInfo,
                          HierarchicalProperty body) {
 
@@ -875,8 +875,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response uncheckout(@PathParam("repoName") String repoName,
                              @PathParam("repoPath") String repoPath,
-                             @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                             @HeaderParam(WebDavHeaders.IF) String ifHeader) {
+                             @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                             @HeaderParam(ExtHttpHeaders.IF) String ifHeader) {
 
     if (log.isDebugEnabled()) {
       log.debug("UNCHECKOUT " + repoName + "/" + repoPath);
@@ -903,8 +903,8 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
   @Path("/{repoName}/{repoPath:.*}/")
   public Response versionControl(@PathParam("repoName") String repoName,
                                  @PathParam("repoPath") String repoPath,
-                                 @HeaderParam(WebDavHeaders.LOCKTOKEN) String lockTokenHeader,
-                                 @HeaderParam(WebDavHeaders.IF) String ifHeader) {
+                                 @HeaderParam(ExtHttpHeaders.LOCKTOKEN) String lockTokenHeader,
+                                 @HeaderParam(ExtHttpHeaders.IF) String ifHeader) {
 
     if (log.isDebugEnabled()) {
       log.debug("VERSION-CONTROL " + repoName + "/" + repoPath);
