@@ -200,6 +200,14 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
     return -1;
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasState(ItemState state) throws IOException {
+    // TODO Auto-generated method stub
+    return false;
+  }
 
   public Iterator<T> getChanges() throws IOException {
     return new MultiFileIterator<T>(storage);

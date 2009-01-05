@@ -42,15 +42,6 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T> {
 
-  // protected final LinkedHashMap<ItemKey, StateLocator> index = new
-  // LinkedHashMap<ItemKey,
-  // StateLocator>();
-
-  // protected final TreeMap<ItemKey, StateLocator> storage = new
-  // TreeMap<ItemKey, StateLocator>();
-  // 
-  // key Comparable
-
   protected static final Log                LOG = ExoLogger.getLogger("jcr.ItemStatesStorage");
   
   protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
@@ -274,6 +265,15 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
       }
     }
     return -1;
+  }
+  
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasState(ItemState state) throws IOException {
+    // TODO Auto-generated method stub
+    return false;
   }
 
   /**

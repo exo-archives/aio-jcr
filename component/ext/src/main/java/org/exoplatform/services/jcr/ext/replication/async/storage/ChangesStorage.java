@@ -119,6 +119,15 @@ public interface ChangesStorage<T extends ItemState> {
    * @return int with ItemState state value
    */
   int findLastState(QPath itemPath) throws IOException;
+  
+  /**
+   * Tell if state presents in storage.
+   *
+   * @param state ItemState
+   * @return boolean
+   * @throws IOException if error
+   */
+  boolean hasState(ItemState state) throws IOException;
 
   /**
    * getNextItemStateByIndexOnUpdate.

@@ -73,6 +73,17 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
   public int findLastState(QPath itemPath) {
     return chlog.getLastState(itemPath);
   }
+  
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasState(ItemState state) throws IOException {
+    for (ItemState st : chlog.getAllStates()) {
+      if (st.equals(state))
+        return true;
+    }
+    return false;
+  }
 
   /**
    * {@inheritDoc}
