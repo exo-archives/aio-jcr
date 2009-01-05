@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -41,8 +42,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T> {
 
-  protected static final Log                LOG = ExoLogger.getLogger("jcr.ChangesLogStorage");
-  
+  protected static final Log      LOG = ExoLogger.getLogger("jcr.ChangesLogStorage");
+
   private final List<ChangesFile> storage;
 
   private final Member            member;
@@ -101,7 +102,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
         currentChangesLog = readNextIterator();
       } catch (ClassNotFoundException e) {
         // TODO handle exception
-        LOG.error("" + e, e); 
+        LOG.error("" + e, e);
       }
     }
 
@@ -200,12 +201,18 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
     return -1;
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public boolean hasState(ItemState state) throws IOException {
-    // TODO Auto-generated method stub
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    while (it.hasNext()) {
+      if (it.next().equals(state)) {
+        return true;
+      }
+    }
+
     return false;
   }
 

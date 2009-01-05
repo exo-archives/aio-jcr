@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -42,12 +43,11 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T> {
 
-  protected static final Log                LOG = ExoLogger.getLogger("jcr.ItemStatesStorage");
-  
+  protected static final Log        LOG     = ExoLogger.getLogger("jcr.ItemStatesStorage");
+
   protected final List<ChangesFile> storage = new ArrayList<ChangesFile>();
 
   protected final Member            member;
-  
 
   class MultiFileIterator<T extends ItemState> implements Iterator<T> {
 
@@ -156,8 +156,7 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     this.storage.addAll(changes);
     this.member = null;
   }
-  
-  
+
   /**
    * ItemStatesStorage constructor for income storage.
    * 
@@ -173,14 +172,14 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     this.storage.addAll(changes);
     this.member = member;
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public int size() throws IOException {
     Iterator<T> it = getChanges();
-    int i =0;
-    while(it.hasNext()){
+    int i = 0;
+    while (it.hasNext()) {
       i++;
       it.next();
     }
@@ -213,7 +212,7 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public Iterator<T> getChanges() throws IOException{
+  public Iterator<T> getChanges() throws IOException {
     return new MultiFileIterator<T>(storage);
   }
 
@@ -234,7 +233,7 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public T getNextItemState(ItemState item) throws IOException{
+  public T getNextItemState(ItemState item) throws IOException {
     Iterator<T> it = getChanges();
 
     if (it.hasNext()) {
@@ -266,13 +265,18 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     }
     return -1;
   }
-  
 
   /**
    * {@inheritDoc}
    */
   public boolean hasState(ItemState state) throws IOException {
-    // TODO Auto-generated method stub
+    Iterator<T> it = getChanges();
+
+    while (it.hasNext()) {
+      if (it.next().equals(state)) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -283,10 +287,10 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     // List<ItemState> list = new ArrayList<ItemState>();
     HashMap<Object, T> index = new HashMap<Object, T>();
     Iterator<T> it = getChanges();
-    
-    while(it.hasNext()){
+
+    while (it.hasNext()) {
       T item = it.next();
-      if(item.getData().getQPath().isDescendantOf(rootPath)){
+      if (item.getData().getQPath().isDescendantOf(rootPath)) {
         if (!unique || index.get(item.getData().getQPath()) == null) {
           index.put(item.getData().getQPath(), item);
         }
@@ -299,42 +303,42 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
    * {@inheritDoc}
    */
   public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
-    
+
     Iterator<T> it = getChanges();
-    
+
     T lastState = null;
-    
+
     // TODO check it
-    while(it.hasNext()){
+    while (it.hasNext()) {
       T state = it.next();
-      if(state.equals(startState)){
-        while(it.hasNext()){
+      if (state.equals(startState)) {
+        while (it.hasNext()) {
           T instate = it.next();
-          if(instate.getState() != ItemState.UPDATED){
+          if (instate.getState() != ItemState.UPDATED) {
             return lastState;
-          }else if(startState.getData().getQPath().getIndex() != prevIndex
-              && state.getData().getQPath().getIndex() == prevIndex + 1){
+          } else if (startState.getData().getQPath().getIndex() != prevIndex
+              && state.getData().getQPath().getIndex() == prevIndex + 1) {
             return state;
           }
           lastState = state;
         }
       }
     }
- 
-    return lastState; 
+
+    return lastState;
   }
 
   /**
    * {@inheritDoc}
    */
-  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException{
+  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
     Iterator<T> it = getChanges();
-    
+
     // TODO check it
-    while(it.hasNext()){
+    while (it.hasNext()) {
       T state = it.next();
-      if(state.equals(startState)){
-        while(it.hasNext()){
+      if (state.equals(startState)) {
+        while (it.hasNext()) {
           T inState = it.next();
           if (inState.getState() != ItemState.UPDATED) {
             return null;
@@ -354,15 +358,15 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     List<T> resultStates = new ArrayList<T>();
 
     Iterator<T> it = getChanges();
-    while(it.hasNext()){
+    while (it.hasNext()) {
       T state = it.next();
-      if(state.equals(startState)){
-        while(it.hasNext()){
+      if (state.equals(startState)) {
+        while (it.hasNext()) {
           T inState = it.next();
-          if( inState.getState() == ItemState.UPDATED
+          if (inState.getState() == ItemState.UPDATED
               && inState.getData().getQPath().getName().equals(startState.getData()
-                                                                      .getQPath()
-                                                                      .getName())){
+                                                                         .getQPath()
+                                                                         .getName())) {
             resultStates.add(inState);
           }
         }

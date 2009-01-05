@@ -84,7 +84,8 @@ public class AddMerger implements ChangesMerger {
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
                                          ChangesStorage<ItemState> local) throws RepositoryException,
-                                                                         RemoteExportException, IOException {
+                                                                         RemoteExportException,
+                                                                         IOException {
 
     boolean itemChangeProcessed = false;
 
@@ -158,7 +159,7 @@ public class AddMerger implements ChangesMerger {
               // set new ItemData
               if (incomeData.isNode()) {
                 NodeData node = (NodeData) incomeData;
-                
+
                 TransientNodeData item = new TransientNodeData(new QPath(names),
                                                                node.getIdentifier(),
                                                                node.getPersistedVersion(),
@@ -174,14 +175,14 @@ public class AddMerger implements ChangesMerger {
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
-                
+
                 TransientPropertyData item = new TransientPropertyData(new QPath(names),
                                                                        prop.getIdentifier(),
                                                                        prop.getPersistedVersion(),
                                                                        prop.getType(),
                                                                        prop.getParentIdentifier(),
                                                                        prop.isMultiValued());
-                
+
                 item.setValues(prop.getValues());
 
                 incomeState = new ItemState(item,
@@ -225,6 +226,7 @@ public class AddMerger implements ChangesMerger {
         switch (localState.getState()) {
         case ItemState.ADDED:
           if (incomeData.getQPath().equals(localData.getQPath())) {
+            // income.findParentAdd
 
             // try to add property and node with same name
             if (incomeData.isNode() != localData.isNode()) {
@@ -307,7 +309,7 @@ public class AddMerger implements ChangesMerger {
               // set new ItemData
               if (incomeData.isNode()) {
                 NodeData node = (NodeData) incomeData;
-                
+
                 TransientNodeData item = new TransientNodeData(new QPath(names),
                                                                node.getIdentifier(),
                                                                node.getPersistedVersion(),
@@ -323,7 +325,7 @@ public class AddMerger implements ChangesMerger {
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
-                
+
                 TransientPropertyData item = new TransientPropertyData(new QPath(names),
                                                                        prop.getIdentifier(),
                                                                        prop.getPersistedVersion(),

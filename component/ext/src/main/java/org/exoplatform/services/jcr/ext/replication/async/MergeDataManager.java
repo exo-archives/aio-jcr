@@ -23,6 +23,7 @@ import java.util.Iterator;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -90,7 +91,7 @@ public class MergeDataManager {
     dir.mkdirs();
     return dir;
   }
-  
+
   /**
    * Start merge process.
    * 
@@ -107,7 +108,7 @@ public class MergeDataManager {
     try {
 
       EditableChangesStorage<ItemState> synchronizedChanges = null;
-      
+
       ChangesStorage<ItemState> local;
       ChangesStorage<ItemState> income;
 
@@ -115,8 +116,9 @@ public class MergeDataManager {
 
       while (membersChanges.hasNext() && run) {
         ChangesStorage<ItemState> second = membersChanges.next();
-        
-        synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(), second.getMember()));
+
+        synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
+                                                                                second.getMember()));
 
         boolean isLocalPriority = localPriority >= second.getMember().getPriority();
         if (isLocalPriority) {
@@ -146,6 +148,11 @@ public class MergeDataManager {
 
         for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
+
+          // skip already processed itemstate
+          if (synchronizedChanges.hasState(incomeChange)) {
+            continue;
+          }
 
           switch (incomeChange.getState()) {
           case ItemState.ADDED:
