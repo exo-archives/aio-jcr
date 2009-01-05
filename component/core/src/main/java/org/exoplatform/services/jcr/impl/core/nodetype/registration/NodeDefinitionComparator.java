@@ -35,7 +35,6 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
-import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -51,8 +50,6 @@ public class NodeDefinitionComparator {
    */
   private static final Log              LOG = ExoLogger.getLogger(NodeDefinitionComparator.class);
 
-  private final LocationFactory         locationFactory;
-
   protected final DataManager           persister;
 
   private final NodeTypeDataManagerImpl nodeTypeDataManager;
@@ -62,11 +59,8 @@ public class NodeDefinitionComparator {
    * @param nodeTypeDataManager
    * @param persister
    */
-  public NodeDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager,
-                                  LocationFactory locationFactory,
-                                  DataManager persister) {
+  public NodeDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager, DataManager persister) {
     super();
-    this.locationFactory = locationFactory;
     this.nodeTypeDataManager = nodeTypeDataManager;
     this.persister = persister;
   }
@@ -88,7 +82,7 @@ public class NodeDefinitionComparator {
     // create changes log
     PlainChangesLog changesLog = new PlainChangesLogImpl();
     // check removed
-    validateRemoved(registeredNodeType, removedDefinitionData);
+    validateRemoved(registeredNodeType, removedDefinitionData, recipientDefinition);
 
     Set<String> nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
 
@@ -180,8 +174,8 @@ public class NodeDefinitionComparator {
           }
         }
       }
-      if (!Arrays.equals(ancestorDefinitionData.getRequiredPrimaryTypes(),
-                         recipientDefinitionData.getRequiredPrimaryTypes())) {
+      if (!Arrays.deepEquals(ancestorDefinitionData.getRequiredPrimaryTypes(),
+                             recipientDefinitionData.getRequiredPrimaryTypes())) {
         checkRequiredPrimaryType(registeredNodeType,
                                  nodes,
                                  ancestorDefinitionData.getRequiredPrimaryTypes(),
@@ -310,7 +304,7 @@ public class NodeDefinitionComparator {
                 buffer.append(Arrays.toString(recipientDefinitionData.getRequiredPrimaryTypes()));
                 buffer.append(" because ");
                 buffer.append(child.getQPath().getAsString());
-                buffer.append("doesn't much ");
+                buffer.append(" doesn't much ");
                 buffer.append(requiredPrimaryTypes[i].getAsString());
                 buffer.append(" as required primary type");
                 throw new RepositoryException(buffer.toString());
@@ -441,7 +435,8 @@ public class NodeDefinitionComparator {
   }
 
   private void validateRemoved(NodeTypeData registeredNodeType,
-                               List<NodeDefinitionData> removedDefinitionData) throws RepositoryException {
+                               List<NodeDefinitionData> removedDefinitionData,
+                               NodeDefinitionData[] recipientDefinition) throws RepositoryException {
 
     for (NodeDefinitionData removeNodeDefinitionData : removedDefinitionData) {
       Set<String> nodes;
@@ -464,19 +459,21 @@ public class NodeDefinitionComparator {
           }
         }
       } else {
-        nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
-        for (String uuid : nodes) {
-          NodeData nodeData = (NodeData) persister.getItemData(uuid);
-          ItemData child = persister.getItemData(nodeData,
-                                                 new QPathEntry(removeNodeDefinitionData.getName(),
-                                                                0));
-          if (child != null && child.isNode()) {
-            throw new RepositoryException("Can't remove node definition "
-                + removeNodeDefinitionData.getName().getAsString() + "  for "
-                + registeredNodeType.getName().getAsString() + " node type because node "
-                + nodeData.getQPath().getAsString() + " " + " countains child node with name "
-                + child.getQPath().getName().getAsString());
+        if (!isResidualMatch(removeNodeDefinitionData.getName(), recipientDefinition)) {
+          nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+          for (String uuid : nodes) {
+            NodeData nodeData = (NodeData) persister.getItemData(uuid);
+            ItemData child = persister.getItemData(nodeData,
+                                                   new QPathEntry(removeNodeDefinitionData.getName(),
+                                                                  0));
+            if (child != null && child.isNode()) {
+              throw new RepositoryException("Can't remove node definition "
+                  + removeNodeDefinitionData.getName().getAsString() + "  for "
+                  + registeredNodeType.getName().getAsString() + " node type because node "
+                  + nodeData.getQPath().getAsString() + " " + " countains child node with name "
+                  + child.getQPath().getName().getAsString());
 
+            }
           }
         }
       }

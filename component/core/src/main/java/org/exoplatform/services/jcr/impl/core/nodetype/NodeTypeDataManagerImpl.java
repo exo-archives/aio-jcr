@@ -791,30 +791,28 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
           + ": can't reregister built-in node type.");
     }
     PlainChangesLog changesLog = new PlainChangesLogImpl();
-    PropertyDefinitionComparator propertyDefinitionComparator = new PropertyDefinitionComparator(this,
-                                                                                                 locationFactory,
-                                                                                                 persister.getDataManager(),
-                                                                                                 valueFactory);
-    changesLog.addAll(propertyDefinitionComparator.processPropertyDefinitionChanges(recipientDefinition,
-                                                                                    ancestorDefinition.getDeclaredPropertyDefinitions(),
-                                                                                    recipientDefinition.getDeclaredPropertyDefinitions())
-                                                  .getAllStates());
 
+    // TODO super names
+    // TODO primaryItemName
+    // TODO child nodes
     NodeDefinitionComparator nodeDefinitionComparator = new NodeDefinitionComparator(this,
-                                                                                     locationFactory,
                                                                                      persister.getDataManager());
     changesLog.addAll(nodeDefinitionComparator.processNodeDefinitionChanges(recipientDefinition,
                                                                             ancestorDefinition.getDeclaredChildNodeDefinitions(),
                                                                             recipientDefinition.getDeclaredChildNodeDefinitions())
                                               .getAllStates());
 
-    // TODO super names
-    // TODO primaryItemName
-    // TODO child nodes
     // TODO properties defs
+    PropertyDefinitionComparator propertyDefinitionComparator = new PropertyDefinitionComparator(this,
+                                                                                                 locationFactory,
+                                                                                                 persister.getDataManager());
+    changesLog.addAll(propertyDefinitionComparator.processPropertyDefinitionChanges(recipientDefinition,
+                                                                                    ancestorDefinition.getDeclaredPropertyDefinitions(),
+                                                                                    recipientDefinition.getDeclaredPropertyDefinitions())
+                                                  .getAllStates());
 
     // TODO hasOrderableChildNodes
-    // TODO mixinom
+    // TODO mixin
 
     changesLog.addAll(internalUnregister(ancestorDefinition.getName(), ancestorDefinition));
     changesLog.addAll(internalRegister(recipientDefinition, false).getAllStates());

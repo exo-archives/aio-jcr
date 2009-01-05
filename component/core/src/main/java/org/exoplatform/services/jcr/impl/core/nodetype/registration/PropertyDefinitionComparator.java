@@ -42,7 +42,6 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 import org.exoplatform.services.jcr.impl.core.value.ValueConstraintsMatcher;
-import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
 import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -58,8 +57,6 @@ public class PropertyDefinitionComparator {
    */
   private static final Log              LOG = ExoLogger.getLogger(PropertyDefinitionComparator.class);
 
-  private final ValueFactoryImpl        valueFactory;
-
   private final LocationFactory         locationFactory;
 
   protected final DataManager           persister;
@@ -73,13 +70,11 @@ public class PropertyDefinitionComparator {
    */
   public PropertyDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager,
                                       LocationFactory locationFactory,
-                                      DataManager persister,
-                                      ValueFactoryImpl valueFactory) {
+                                      DataManager persister) {
     super();
     this.nodeTypeDataManager = nodeTypeDataManager;
     this.locationFactory = locationFactory;
     this.persister = persister;
-    this.valueFactory = valueFactory;
   }
 
   public PlainChangesLog processPropertyDefinitionChanges(NodeTypeData registeredNodeType,
@@ -268,8 +263,8 @@ public class PropertyDefinitionComparator {
         }
       }
       // ValueConstraints
-      if (!Arrays.equals(ancestorDefinitionData.getValueConstraints(),
-                         recipientDefinitionData.getValueConstraints())) {
+      if (!Arrays.deepEquals(ancestorDefinitionData.getValueConstraints(),
+                             recipientDefinitionData.getValueConstraints())) {
         Set<String> nodes2;
         if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
           nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
