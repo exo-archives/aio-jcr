@@ -33,9 +33,11 @@ import javax.jcr.Value;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.merge.CompositeChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -52,7 +54,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: TestMergerDataManager.java 111 2008-11-11 11:11:11Z $
  */
-public class TestMergerDataManager extends BaseStandaloneTest {
+public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPersistenceListener {
 
   private final int                         HIGH_PRIORITY = 100;
 
@@ -79,6 +81,8 @@ public class TestMergerDataManager extends BaseStandaloneTest {
   protected MergeDataManager                mergerHigh;
 
   protected List<ChangesStorage<ItemState>> membersChanges;
+
+  private TransactionChangesLog             cLog;
 
   /**
    * {@inheritDoc}
@@ -109,6 +113,15 @@ public class TestMergerDataManager extends BaseStandaloneTest {
                                       "target/storage/high");
 
     membersChanges = new ArrayList<ChangesStorage<ItemState>>();
+
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session3.getWorkspace()
+                                                                            .getName());
+    CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.addItemPersistenceListener(this);
+
+    wsc = repository.getWorkspaceContainer(session4.getWorkspace().getName());
+    dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
+    dm.addItemPersistenceListener(this);
   }
 
   /**
@@ -122,14 +135,13 @@ public class TestMergerDataManager extends BaseStandaloneTest {
     node.addMixin("mix:referenceable");
     node.setProperty("prop1", "value3");
 
-    addChangesToChangesStorage(dataManager3.getChangesLog(), LOW_PRIORITY);
-    addChangesToChangesStorage(dataManager4.getChangesLog(), HIGH_PRIORITY);
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    session3.save();
-    session4.save();
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
@@ -147,14 +159,13 @@ public class TestMergerDataManager extends BaseStandaloneTest {
     node.addMixin("mix:referenceable");
     node.setProperty("prop1", "value4");
 
-    addChangesToChangesStorage(dataManager3.getChangesLog(), LOW_PRIORITY);
-    addChangesToChangesStorage(dataManager4.getChangesLog(), HIGH_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    session3.save();
-    session4.save();
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
@@ -178,14 +189,14 @@ public class TestMergerDataManager extends BaseStandaloneTest {
     node.addMixin("mix:referenceable");
     node.setProperty("prop1", "value4");
 
-    addChangesToChangesStorage(dataManager3.getChangesLog(), LOW_PRIORITY);
-    addChangesToChangesStorage(dataManager4.getChangesLog(), HIGH_PRIORITY);
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    session3.save();
-    session4.save();
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
@@ -198,20 +209,19 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    * Expected: apply income changes
    */
   public void testDeleteLocalPriority1() throws Exception {
-    // low priority changes
+    // low priority changes: add and move node
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
     node.setProperty("prop1", "value");
     node.remove();
 
-    addChangesToChangesStorage(dataManager3.getChangesLog(), LOW_PRIORITY);
-    addChangesToChangesStorage(dataManager4.getChangesLog(), HIGH_PRIORITY);
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    session3.save();
-    session4.save();
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
@@ -224,20 +234,19 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    * Expected: apply income changes
    */
   public void testDeleteRemotePriority1() throws Exception {
-    // high priority changes
+    // high priority changes: add and remove node
     Node node = root4.addNode("item1");
     node.addMixin("mix:referenceable");
     node.setProperty("prop1", "value");
     node.remove();
 
-    addChangesToChangesStorage(dataManager3.getChangesLog(), LOW_PRIORITY);
-    addChangesToChangesStorage(dataManager4.getChangesLog(), HIGH_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    session3.save();
-    session4.save();
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
@@ -250,19 +259,18 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    * Expected: apply income changes
    */
   public void testRenameLocalPriority1() throws Exception {
-    // low priority changes
+    // low priority changes: add and move node
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
     session3.move(node.getPath(), root3.getPath() + "item2");
 
-    addChangesToChangesStorage(dataManager3.getChangesLog(), LOW_PRIORITY);
-    addChangesToChangesStorage(dataManager4.getChangesLog(), HIGH_PRIORITY);
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    session3.save();
-    session4.save();
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
@@ -275,52 +283,105 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    * Expected: apply income changes
    */
   public void testRenameRemotePriority1() throws Exception {
-    // high priority changes
+    // high priority changes: add and move node
     Node node = root4.addNode("item1");
     node.addMixin("mix:referenceable");
     session4.move(node.getPath(), root4.getPath() + "item2");
 
-    addChangesToChangesStorage(dataManager3.getChangesLog(), LOW_PRIORITY);
-    addChangesToChangesStorage(dataManager4.getChangesLog(), HIGH_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-    session3.save();
-    session4.save();
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
     assertTrue(isWorkspacesEquals());
   }
 
-  /*  public void testUpdateMergeLocalPriority() throws Exception {
-      Node node1_1 = root3.addNode("item1");
-      node1_1.addMixin("mix:referenceable");
-      Node node1_2 = root3.addNode("item1");
-      node1_2.addMixin("mix:referenceable");
+  /**
+   * 1. update Item, no local changes. Local has high priority.
+   * 
+   * Expected: apply income changes
+   */
+  public void testUpdateLocalPriority1() throws Exception {
+    // low priority changes: add same name items
+    Node node1_1 = root3.addNode("item1");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = root3.addNode("item1");
+    node1_2.addMixin("mix:referenceable");
 
-      SessionDataManagerTestWrapper dataManager = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
-      addChangesToChangesStorage(dataManager.getChangesLog(), LOCAL_PRIORITY - 1);
-      addChangesToChangesStorage(new PlainChangesLogImpl(), LOCAL_PRIORITY);
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
 
-      saveResultedChanges(merger.merge(membersChanges.iterator()), "ws4");
-      session3.save();
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
-      assertTrue(isWorkspacesEquals());
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
 
-      root3.orderBefore("item1[2]", "item1");
+    assertTrue(isWorkspacesEquals());
 
-      membersChanges.clear();
-      dataManager = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
-      addChangesToChangesStorage(dataManager.getChangesLog(), LOCAL_PRIORITY - 1);
-      addChangesToChangesStorage(new PlainChangesLogImpl(), LOCAL_PRIORITY);
+    // low priority changes: update
+    root3.orderBefore("item1[2]", "item1");
 
-      saveResultedChanges(merger.merge(membersChanges.iterator()), "ws4");
-      session3.save();
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
 
-      assertTrue(isWorkspacesEquals());
-    }*/
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 1. update Item, no local changes. Local has low priority.
+   * 
+   * Expected: apply income changes
+   */
+  public void testUpdateRemotePriority1() throws Exception {
+    // high priority changes: add same name items
+    Node node1_1 = root4.addNode("item1");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = root4.addNode("item1");
+    node1_2.addMixin("mix:referenceable");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // high priority changes: update
+    root4.orderBefore("item1[2]", "item1");
+
+    membersChanges.clear();
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
 
   /**
    * CompareWorkspaces.
@@ -417,9 +478,8 @@ public class TestMergerDataManager extends BaseStandaloneTest {
    * @param log
    * @param priority
    */
-  protected void addChangesToChangesStorage(PlainChangesLog log, int priority) {
+  protected void addChangesToChangesStorage(TransactionChangesLog cLog, int priority) {
     Member member = new Member(null, priority);
-    TransactionChangesLog cLog = new TransactionChangesLog(log);
     CompositeChangesStorage<ItemState> changes = new CompositeChangesStorage<ItemState>(cLog,
                                                                                         member);
     membersChanges.add(changes);
@@ -443,7 +503,7 @@ public class TestMergerDataManager extends BaseStandaloneTest {
       resLog.add(itemStates.next());
     }
 
-    dm.save(resLog);
+    dm.save(new TransactionChangesLog(resLog));
   }
 
   /**
@@ -490,4 +550,7 @@ public class TestMergerDataManager extends BaseStandaloneTest {
     super.tearDown();
   }
 
+  public void onSaveItems(ItemStateChangesLog itemStates) {
+    cLog = (TransactionChangesLog) itemStates;
+  }
 }
