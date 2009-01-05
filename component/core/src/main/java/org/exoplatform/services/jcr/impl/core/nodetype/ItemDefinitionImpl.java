@@ -108,6 +108,8 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
   }
 
   /**
+   * }
+   * 
    * @see javax.jcr.nodetype.ItemDef#isMandatory
    */
   public boolean isMandatory() {
@@ -125,47 +127,44 @@ public abstract class ItemDefinitionImpl implements ExtendedItemDefinition {
 
   /*
    * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition#isResidualSet()
+   * @see
+   * org.exoplatform.services.jcr.core.nodetype.ExtendedItemDefinition#isResidualSet
+   * ()
    */
   public boolean isResidualSet() {
     return this.name.equals(ExtendedItemDefinition.RESIDUAL_SET);
   }
 
   /**
-   * @param autoCreate
-   *          The autoCreate to set.
+   * @param autoCreate The autoCreate to set.
    */
   public void setAutoCreate(boolean autoCreate) {
     this.autoCreate = autoCreate;
   }
 
   /**
-   * @param declaringNodeType
-   *          The declaringNodeType to set.
+   * @param declaringNodeType The declaringNodeType to set.
    */
   public void setDeclaringNodeType(NodeType declaringNodeType) {
     this.declaringNodeType = declaringNodeType;
   }
 
   /**
-   * @param mandatory
-   *          The mandatory to set.
+   * @param mandatory The mandatory to set.
    */
   public void setMandatory(boolean mandatory) {
     this.mandatory = mandatory;
   }
 
   /**
-   * @param onVersion
-   *          The onVersion to set.
+   * @param onVersion The onVersion to set.
    */
   public void setOnVersion(int onVersion) {
     this.onVersion = onVersion;
   }
 
   /**
-   * @param readOnly
-   *          The readOnly to set.
+   * @param readOnly The readOnly to set.
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
