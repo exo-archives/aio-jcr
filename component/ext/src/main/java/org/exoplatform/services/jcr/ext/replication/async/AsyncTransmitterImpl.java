@@ -317,4 +317,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       log.debug("End send : " + clFile.getChecksum());
   }
 
+  public List<Member> getOtherMembers() {
+    return channel.getOtherMembers();
+  }
+
 }

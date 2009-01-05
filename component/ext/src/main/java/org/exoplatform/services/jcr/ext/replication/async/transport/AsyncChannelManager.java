@@ -183,6 +183,23 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   public MessageDispatcher getDispatcher() {
     return dispatcher;
   }
+  
+  /**
+   * getOtherMembers.
+   *
+   * @return List<Member> list of other members.
+   */
+  public List<Member> getOtherMembers() {
+    List<Address> list = new ArrayList<Address>(channel.getView().getMembers());
+    list.remove(channel.getLocalAddress());
+    
+    List<Member> members = new ArrayList<Member>();
+    
+    for (Address address : list)
+      members.add(new Member(address));
+    
+    return members;
+  }
 
   /**
    * sendPacket.

@@ -16,6 +16,10 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.List;
+
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+
 
 
 /**
@@ -26,7 +30,23 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
+/**
+ * LocalEventListener.
+ *
+ */
 public interface LocalEventListener {
+  
+  /**
+   * On start send local changes to other members.
+   * 
+   * <ul>
+   * <li>Publisher will start send changes.</li>
+   * </ul>
+   * 
+   * @param members List of Members
+   * 
+   */
+  void onStart(List<Member> members);
 
   /**
    * On sycnhronization Cancel event action. <br/> operations.
@@ -35,6 +55,7 @@ public interface LocalEventListener {
    * <li>Subscriber will stops changes receive process or stops the merge of received changes. Then
    * all income changes will be deleted.</li>
    * </ul>
+   * 
    */
   void onCancel();
 

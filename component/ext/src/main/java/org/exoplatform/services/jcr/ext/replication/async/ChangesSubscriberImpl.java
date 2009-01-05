@@ -71,8 +71,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   protected final int                             localPriority;
 
   protected final int                             membersCount;
-
+  
   protected MergeWorker                           mergeWorker = null;
+  
+  private volatile boolean                        localEventSendChanges;
 
   /**
    * Listeners in order of addition.
@@ -170,6 +172,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     this.transmitter = transmitter;
     this.localPriority = localPriority;
     this.membersCount = membersCount;
+    this.localEventSendChanges = false;
   }
 
   public void addLocalListener(LocalEventListener listener) {
@@ -186,7 +189,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
 
-        // TODO fire event to Publisher to send own changes out
+        // Fire event to Publisher to send own changes out
+        doSendChanges();
 
         log.info("BINARY_CHANGESLOG_FIRST_PACKET");
 
@@ -262,6 +266,20 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       mergeWorker.start();
     } else
       log.error("Error, merge process laready activated.");
+  }
+  
+  /**
+   * doSendChanges.
+   * 
+   *   Fire event to Publisher to send own changes out.
+   */
+  private void doSendChanges() {
+    if (localEventSendChanges != true) {
+      localEventSendChanges = true;
+      
+      for (LocalEventListener syncl : listeners)
+        syncl.onStart(transmitter.getOtherMembers());
+    } 
   }
 
   protected void doCancel() {
@@ -349,7 +367,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   }
 
   public void onStart(List<Member> members) {
-    // nothing to do
+    // not interested
   }
 
   /**

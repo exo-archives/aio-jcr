@@ -102,23 +102,34 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
     publisherWorker.start();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void onCancel() {
     publisherCancel();
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void onDisconnectMembers(List<Member> member) {
     // TODO Auto-generated method stub
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void onMerge(Member member) {
     // TODO Auto-generated method stub
 
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void onStart(List<Member> members) {
-    // TODO Auto-generated method stub
-    sendChanges(members); // TODO
+    sendChanges(members); 
   }
 
   /**

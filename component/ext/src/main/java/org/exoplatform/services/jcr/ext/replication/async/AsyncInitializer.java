@@ -220,15 +220,20 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    */
   public void onError(Member sourceAddress) {
     // TODO Auto-generated method stub
-
   }
 
   /**
    * {@inheritDoc}
    */
+  public void onStart(List<Member> members) {
+    // not interested 
+  }
+  
+  /**
+   * {@inheritDoc}
+   */
   public void onCancel() {
     // TODO Auto-generated method stub
-
   }
 
   /**

@@ -81,5 +81,12 @@ public interface AsyncTransmitter {
    * @throws IOException
    */
   void sendCancel() throws IOException;
+  
+  /**
+   * getOtherMembers.
+   *
+   * @return List<Member> list of other members.
+   */
+  List<Member> getOtherMembers();
 
 }
