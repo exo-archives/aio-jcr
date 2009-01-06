@@ -310,6 +310,26 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return index.values();
   }
 
+  /**
+   * getChanges.
+   * 
+   * @param rootPath
+   * @return
+   * @throws IOException
+   */
+  public Collection<ItemState> getChanges(QPath rootPath) throws IOException {
+    List<ItemState> list = new ArrayList<ItemState>();
+
+    for (ItemState itemState : getAllStates()) {
+      if (itemState.getData().getQPath().isDescendantOf(rootPath)
+          || itemState.getData().getQPath().equals(rootPath)) {
+        list.add(itemState);
+      }
+    }
+
+    return list;
+  }
+
   public List<ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
     List<ItemState> list = new ArrayList<ItemState>();
     for (ItemState state : getAllStates()) {
