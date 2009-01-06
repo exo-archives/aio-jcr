@@ -28,8 +28,9 @@ import javax.jcr.query.QueryResult;
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 
 /**
- * Created by The eXo Platform SAS Author : Alex Reshetnyak alex.reshetnyak@exoplatform.org.ua
- * reshetnyak.alex@gmail.com 20.07.2007 14:05:20
+ * Created by The eXo Platform SAS Author : Alex Reshetnyak
+ * alex.reshetnyak@exoplatform.org.ua reshetnyak.alex@gmail.com 20.07.2007
+ * 14:05:20
  * 
  * @version $Id: TestDateBetween.java 20.07.2007 14:05:20 rainfox
  */
@@ -93,11 +94,11 @@ public class TestDateBetween extends JcrAPIBaseTest {
   public void testDateSQL() throws Exception {
     StringBuffer sb = new StringBuffer();
     sb.append("select * from nt:resource where ");
-    sb.append("( jcr:lastModified >= '");
+    sb.append("( jcr:lastModified >= TIMESTAMP '");
     sb.append("2006-06-04T15:34:15.917+02:00");
     sb.append("' )");
     sb.append(" and ");
-    sb.append("( jcr:lastModified <= '");
+    sb.append("( jcr:lastModified <= TIMESTAMP '");
     sb.append("2008-06-04T15:34:15.917+02:00");
     sb.append("' )");
 
@@ -123,11 +124,11 @@ public class TestDateBetween extends JcrAPIBaseTest {
   public void testDateBETWEEN_SQL() throws Exception {
     StringBuffer sb = new StringBuffer();
     sb.append("select * from nt:resource where jcr:lastModified between ");
-    sb.append("'");
+    sb.append(" TIMESTAMP '");
     sb.append("2006-06-04T15:34:15.917+02:00");
     sb.append("'");
     sb.append(" and ");
-    sb.append("'");
+    sb.append("TIMESTAMP '");
     sb.append("2008-06-04T15:34:15.917+02:00");
     sb.append("'");
 
@@ -153,8 +154,8 @@ public class TestDateBetween extends JcrAPIBaseTest {
   public void testDate_equals() throws Exception {
     StringBuffer sb = new StringBuffer();
     sb.append("select * from nt:resource where jcr:lastModified = ");
-    sb.append("'");
-    sb.append("2005-01-19T15:34:15.917+02:00");
+    sb.append("TIMESTAMP '");
+    // sb.append("2005-01-19T15:34:15.917+02:00");
     sb.append(date);
     sb.append("'");
 
