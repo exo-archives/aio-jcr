@@ -511,7 +511,7 @@
                 <exclude>**/impl/**/TestSessionCleaner.java</exclude>
                 <exclude>**/impl/**/Base*.java</exclude>
                 <exclude>**/api/TestAll.java</exclude>
-                <exclude>**/usecases/**/TestDateBetween.java</exclude>
+                <!--exclude>**/usecases/**/TestDateBetween.java</exclude-->
                 <exclude>**/usecases/**/RemoveSameNameSiblingTest.java</exclude>
                 <exclude>**/usecases/**/TestQueryWithNumberAndSpace.java</exclude>
                 <exclude>**/usecases/BaseUsecasesTest.java</exclude>
