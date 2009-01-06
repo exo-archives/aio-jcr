@@ -36,13 +36,13 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  */
 public class TesterRemoteExporter implements RemoteExporter {
 
-  private final PlainChangesLog changes;
+  private PlainChangesLog changes;
 
   /**
    * Wrapped RemoteExporter.
    * 
    */
-  TesterRemoteExporter(PlainChangesLog changes) {
+  public TesterRemoteExporter(PlainChangesLog changes) {
     this.changes = changes;
   }
 
@@ -50,7 +50,7 @@ public class TesterRemoteExporter implements RemoteExporter {
    * Empty RemoteExporter.
    * 
    */
-  TesterRemoteExporter() {
+  public TesterRemoteExporter() {
     this.changes = new PlainChangesLogImpl();
   }
 
@@ -59,25 +59,10 @@ public class TesterRemoteExporter implements RemoteExporter {
    */
   public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
     return new CompositeChangesStorage<ItemState>(new TransactionChangesLog(changes));
+  }
 
-//    return new SerializedItemStateIterator<ItemState>() {
-//
-//       * {@inheritDoc}
-//       */
-//      @Override
-//      public boolean hasNext() {
-//        return wrapped.hasNext();
-//      }
-//
-//      /**
-//       * {@inheritDoc}
-//       */
-//      @Override
-//      public ItemState next() throws NoSuchElementException {
-//        return wrapped.next();
-//      }
-//
-//    };
+  public void setChanges(PlainChangesLog changes) {
+    this.changes = changes;
   }
 
   /**

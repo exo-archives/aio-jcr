@@ -381,6 +381,7 @@ public class AddMerger implements ChangesMerger {
               && (incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
                                                                                           .equals(localData.getQPath()))) {
 
+            // local.hasParentDelete(;)
             resultState.addAll(exporter.exportItem(localData.getParentIdentifier()));
 
             itemChangeProcessed = true;

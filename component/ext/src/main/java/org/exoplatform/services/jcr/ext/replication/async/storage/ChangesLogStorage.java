@@ -315,4 +315,15 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return list;
   }
 
+  public boolean hasParentDeleteState(ItemState startState) throws IOException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    while (it.hasNext()) {
+      if (it.next().hasParentDeleteState(startState)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
 }

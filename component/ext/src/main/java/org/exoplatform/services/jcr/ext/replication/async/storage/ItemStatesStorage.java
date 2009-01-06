@@ -392,4 +392,22 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     return resultStates;
   }
 
+  public boolean hasParentDeleteState(ItemState startState) throws IOException {
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      T state = it.next();
+      if (state.equals(startState)) {
+        while (it.hasNext()) {
+          T inState = it.next();
+          if (inState.getState() == ItemState.DELETED
+              && inState.getData().getIdentifier().equals(startState.getData()
+                                                                    .getParentIdentifier())) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
 }

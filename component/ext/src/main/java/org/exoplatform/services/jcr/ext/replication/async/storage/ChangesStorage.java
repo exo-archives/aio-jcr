@@ -143,6 +143,26 @@ public interface ChangesStorage<T extends ItemState> {
   T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException;
 
   /**
+   * TODO can we rely on sequence on log?
+   * 
+   * getNextItemStateByUUIDOnUpdate.
+   * 
+   * @param startState
+   * @param UUID
+   * @return
+   */
+  T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException;
+
+  /**
+   * findParentDeleteState.
+   * 
+   * @param startState
+   * @return
+   * @throws IOException
+   */
+  boolean hasParentDeleteState(ItemState startState) throws IOException;
+
+  /**
    * TODO
    * 
    * Return descendants changes for a given path.
@@ -165,17 +185,6 @@ public interface ChangesStorage<T extends ItemState> {
    * @return Collection of ItemState
    */
   Collection<T> getChanges(QPath rootPath) throws IOException;
-
-  /**
-   * TODO can we rely on sequence on log?
-   * 
-   * getNextItemStateByUUIDOnUpdate.
-   * 
-   * @param startState
-   * @param UUID
-   * @return
-   */
-  T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException;
 
   /**
    * getUpdateSequence.

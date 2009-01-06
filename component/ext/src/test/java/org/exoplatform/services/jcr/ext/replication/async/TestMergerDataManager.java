@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.merge.CompositeChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
@@ -84,6 +85,8 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
 
   private TransactionChangesLog             cLog;
 
+  private TesterRemoteExporter              exporter;
+
   /**
    * {@inheritDoc}
    */
@@ -100,12 +103,9 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
     root4 = session4.getRootNode();
     dataManager4 = new SessionDataManagerTestWrapper(session4.getTransientNodesManager());
 
-    mergerLow = new MergeDataManager(new RemoteExporterImpl(null, null),
-                                     null,
-                                     null,
-                                     LOW_PRIORITY,
-                                     "target/storage/low");
+    exporter = new TesterRemoteExporter();
 
+    mergerLow = new MergeDataManager(exporter, null, null, LOW_PRIORITY, "target/storage/low");
     mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null),
                                       null,
                                       null,
@@ -247,12 +247,12 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
    * Expected (high priority) : ignore income changes
    */
   public void testAddRemotePriority3() throws Exception {
-    // low priority changes: add
+    // low priority changes: add and delete node
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
     node.remove();
 
-    // high priority changes: add and delete node
+    // high priority changes: add
     node = root4.addNode("item1");
     node.addMixin("mix:referenceable");
 
@@ -263,6 +263,54 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 4. Add Item on high priority to a deleted parent on low priority (conflict)
+   * 
+   * Expected (low priority) : restore parent from high priority
+   * 
+   * Expected (high priority) : ignore income changes
+   */
+  public void testAddLocalPriority4() throws Exception {
+    // low priority changes: add node
+    Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: remove parent
+    node = root3.getNode("item1");
+    node.remove();
+
+    // high priority changes: add child
+    node = root4.getNode("item1");
+    node.addNode("item11");
+
+    membersChanges.clear();
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
 
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");

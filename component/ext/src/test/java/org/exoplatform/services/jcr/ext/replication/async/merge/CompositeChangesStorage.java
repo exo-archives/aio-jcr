@@ -175,4 +175,7 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
     return chlog.getChanges(rootPath);
   }
 
+  public boolean hasParentDeleteState(ItemState startState) throws IOException {
+    return chlog.hasParentDeleteState(startState);
+  }
 }
