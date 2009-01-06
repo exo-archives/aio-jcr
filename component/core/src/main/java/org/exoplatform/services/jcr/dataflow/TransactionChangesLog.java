@@ -265,6 +265,25 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return resultState;
   }
 
+  // merger
+  public boolean hasParentDeleteState(ItemState startState) throws IOException {
+    List<ItemState> allStates = getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() == ItemState.DELETED
+              && item.getData().getIdentifier().equals(startState.getData().getParentIdentifier())) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
   /**
    * getLastState.
    * 
@@ -310,6 +329,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return index.values();
   }
 
+  // merger
   /**
    * getChanges.
    * 
