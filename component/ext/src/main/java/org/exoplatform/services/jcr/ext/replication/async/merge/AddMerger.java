@@ -264,14 +264,10 @@ public class AddMerger implements ChangesMerger {
             }
 
             // add all state from income changes
-            if (!itemChangeProcessed) {
-              resultState.add(incomeState);
-            }
-
-            for (ItemState st : income.getDescendantsChanges(incomeData.getQPath(), false))
+            for (ItemState st : income.getChanges(incomeData.getQPath()))
               resultState.add(st);
 
-            itemChangeProcessed = true;
+            return resultState;
           }
           break;
         case ItemState.UPDATED:
