@@ -121,7 +121,7 @@ public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsP
    *
    * @throws Exception
    */
-  public void testGetExport() throws Exception {
+  public void testSendChanges() throws Exception {
 
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
                                                                            .getName());
