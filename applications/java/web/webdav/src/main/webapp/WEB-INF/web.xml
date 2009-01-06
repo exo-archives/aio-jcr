@@ -9,9 +9,11 @@ PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     <!-- W E B D A V  S E R V L E T                                              -->
     <!-- ====================================================================== -->
 
+<!--
 	<listener>
-		<listener-class>org.exoplatform.frameworks.jcr.web.StandaloneContainerInitializedListener</listener-class>
+		<listener-class>org.exoplatform.ws.frameworks.servlet.StandaloneContainerInitializedListener</listener-class>
 	</listener>
+	-->
 
   <servlet>
 		<servlet-name>JnlpDownloadServlet</servlet-name>
