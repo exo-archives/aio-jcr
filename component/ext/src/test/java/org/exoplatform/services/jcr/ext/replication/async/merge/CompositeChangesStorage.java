@@ -172,8 +172,7 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
   }
 
   public Collection<ItemState> getChanges(QPath rootPath) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    return chlog.getChanges(rootPath);
   }
 
 }

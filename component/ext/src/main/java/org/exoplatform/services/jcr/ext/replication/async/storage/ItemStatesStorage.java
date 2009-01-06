@@ -375,9 +375,21 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     return resultStates;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Collection<T> getChanges(QPath rootPath) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    List<T> resultStates = new ArrayList<T>();
+    Iterator<T> it = getChanges();
+
+    while (it.hasNext()) {
+      T item = it.next();
+      if (item.getData().getQPath().isDescendantOf(rootPath)
+          || item.getData().getQPath().equals(rootPath)) {
+        resultStates.add(item);
+      }
+    }
+    return resultStates;
   }
 
 }

@@ -305,8 +305,14 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   }
 
   public Collection<T> getChanges(QPath rootPath) throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    List<T> list = new ArrayList<T>();
+
+    // TODO check lot of data, may be JavaheapSpace
+    while (it.hasNext()) {
+      list.addAll((Collection<T>) it.next().getChanges(rootPath));
+    }
+    return list;
   }
 
 }
