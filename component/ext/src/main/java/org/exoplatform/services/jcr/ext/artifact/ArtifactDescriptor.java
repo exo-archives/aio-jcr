@@ -89,11 +89,8 @@ public final class ArtifactDescriptor implements Descriptor {
 
     
     NodeList groupIdList = doc.getElementsByTagName("groupId");
-    String groupId = "";
-    for (int i = 0; i < groupIdList.getLength(); i++) {
-      if (groupIdList.item(i).getParentNode().getNodeName().equals("project"))
-        groupId = groupIdList.item(i).getTextContent();
-    }
+    String groupId = groupIdList.item(0).getTextContent();
+
 
     NodeList artifactIdList = doc.getElementsByTagName("artifactId");
     // String artifactId = artifactIdList.item(0).getTextContent();
