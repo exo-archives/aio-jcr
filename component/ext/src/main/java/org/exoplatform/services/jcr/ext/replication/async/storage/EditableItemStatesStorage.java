@@ -37,8 +37,6 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
 
   protected ChangesFile        currentFile;
 
-  // protected final MessageDigest digest;
-
   public EditableItemStatesStorage(File storagePath) {
     this.storagePath = storagePath;
   }
