@@ -4,7 +4,6 @@
     <artifactId>config</artifactId>
     <version>1.11-SNAPSHOT</version>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
   <artifactId>exo.jcr.framework.web</artifactId>
   <packaging>jar</packaging>
@@ -12,46 +11,46 @@
   <name>eXo JCR Web framework</name>
   <url>http://www.exoplatform.org</url>
   <description>eXo JCR REST adapter</description>
-
   <dependencies>
-
     <dependency>
-        <groupId>org.exoplatform.jcr</groupId>
-        <artifactId>exo.jcr.component.ext</artifactId>
-        <version>${org.exoplatform.jcr.version}</version>
-        <scope>compile</scope>
+      <groupId>org.exoplatform.jcr</groupId>
+      <artifactId>exo.jcr.component.ext</artifactId>
+      <version>${org.exoplatform.jcr.version}</version>
+      <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.jcr</groupId>
       <artifactId>exo.jcr.framework.command</artifactId>
       <version>${org.exoplatform.jcr.version}</version>
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.container</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.exoplatform.kernel</groupId>
       <artifactId>exo.kernel.component.common</artifactId>
       <version>${org.exoplatform.kernel.version}</version>
       <scope>provided</scope>
     </dependency>
-
+<!--    Remove this after removing deprecated PortalContainerInitializedFilter-->
+    <dependency>
+      <groupId>org.exoplatform.ws</groupId>
+      <artifactId>exo.ws.frameworks.servlet</artifactId>
+      <version>${org.exoplatform.ws.version}</version>
+      <scope>compile</scope>
+    </dependency>
+<!--    ======================================= -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>2.4</version>
       <scope>provided</scope>
     </dependency>
-
   </dependencies>
-
   <build>
     <plugins>
       <plugin>
@@ -60,7 +59,9 @@
         <executions>
           <execution>
             <phase>compile</phase>
-            <goals><goal>jar</goal></goals>
+            <goals>
+              <goal>jar</goal>
+            </goals>
           </execution>
         </executions>
         <configuration>
@@ -73,5 +74,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
