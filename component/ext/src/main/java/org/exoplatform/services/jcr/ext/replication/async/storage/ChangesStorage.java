@@ -48,7 +48,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @return Member
    */
   Member getMember();
-  
+
   /**
    * Return this storage backed ChangesFile(s).
    * 
@@ -69,10 +69,10 @@ public interface ChangesStorage<T extends ItemState> {
    * @return Collection
    */
   Iterator<T> getChanges() throws IOException;
-  
+
   /**
    * Return changes (ItemState) count.
-   *
+   * 
    * @return int
    */
   int size() throws IOException;
@@ -119,13 +119,15 @@ public interface ChangesStorage<T extends ItemState> {
    * @return int with ItemState state value
    */
   int findLastState(QPath itemPath) throws IOException;
-  
+
   /**
    * Tell if state presents in storage.
-   *
-   * @param state ItemState
+   * 
+   * @param state
+   *          ItemState
    * @return boolean
-   * @throws IOException if error
+   * @throws IOException
+   *           if error
    */
   boolean hasState(ItemState state) throws IOException;
 
@@ -152,6 +154,17 @@ public interface ChangesStorage<T extends ItemState> {
    * @return Collection of ItemState
    */
   Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException;
+
+  /**
+   * TODO
+   * 
+   * Return changes for a given path
+   * 
+   * @param rootPath
+   * 
+   * @return Collection of ItemState
+   */
+  Collection<T> getChanges(QPath rootPath) throws IOException;
 
   /**
    * TODO can we rely on sequence on log?

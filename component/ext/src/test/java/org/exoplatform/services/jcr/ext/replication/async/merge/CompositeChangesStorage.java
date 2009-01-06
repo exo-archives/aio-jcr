@@ -37,43 +37,43 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * <br/> FOR DEBUG/TESTS ONLY!
  * 
  * <br/>Date: 26.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class CompositeChangesStorage<T extends ItemState> implements ChangesStorage<ItemState> {
 
   private final TransactionChangesLog chlog;
-  
-  private final Member member;
-  
+
+  private final Member                member;
+
   public CompositeChangesStorage(TransactionChangesLog chlog, Member member) {
     this.chlog = chlog;
     this.member = member;
   }
-  
+
   CompositeChangesStorage(TransactionChangesLog chlog) {
     this(chlog, null);
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public int size() {
     return chlog.getSize();
   }
-  
+
   public void addLog(PlainChangesLog log) {
     chlog.addLog(log);
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public int findLastState(QPath itemPath) {
     return chlog.getLastState(itemPath);
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -102,8 +102,7 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
   /**
    * {@inheritDoc}
    */
-  public Collection<ItemState> getDescendantsChanges(QPath rootPath,
-                                                     boolean unique) {
+  public Collection<ItemState> getDescendantsChanges(QPath rootPath, boolean unique) {
     return chlog.getDescendantsChanges(rootPath, false, unique);
   }
 
@@ -161,7 +160,7 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
    */
   public void delete() throws IOException {
     // TODO Auto-generated method stub
-    
+
   }
 
   /**
@@ -172,6 +171,9 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
     return null;
   }
 
-  
-  
+  public Collection<ItemState> getChanges(QPath rootPath) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

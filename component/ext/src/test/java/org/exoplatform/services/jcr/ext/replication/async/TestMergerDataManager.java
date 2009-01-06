@@ -204,6 +204,35 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
   }
 
   /**
+   * 3. Add Item already added and deleted locally (same path, conflict). Local has High priority.
+   * 
+   * Expected:ignore income changes
+   */
+  public void testAddLocalPriority3() throws Exception {
+    // low priority changes: add
+    Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    // high priority changes: add and delete node
+    node = root4.addNode("item1");
+    node.addMixin("mix:referenceable");
+    node.remove();
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
    * 1. Delete item, no local changes. Local has High priority.
    * 
    * Expected: apply income changes

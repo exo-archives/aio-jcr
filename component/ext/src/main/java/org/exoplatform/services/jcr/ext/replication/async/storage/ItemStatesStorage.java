@@ -375,4 +375,9 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     return resultStates;
   }
 
+  public Collection<T> getChanges(QPath rootPath) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }
