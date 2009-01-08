@@ -46,7 +46,9 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEv
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
@@ -350,6 +352,73 @@ public class TestAsyncTransmitter extends BaseStandaloneTest implements ItemsPer
     assertEquals(mergeReceiver.mergePacket.getTransmitterPriority(), 100);
     assertEquals(mergeReceiver.mergePacket.getType(), AsyncPacketTypes.SYNCHRONIZATION_MERGE);
   }
+  
+  public void testSendExportError() throws Exception {
+    String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
+
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    ExporErrorReceiver exporErrorReceiver = new ExporErrorReceiver();
+    channel1.addPacketListener(exporErrorReceiver);
+
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    channel2.addStateListener(this);
+
+    AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
+
+    channel1.connect();
+    channel2.connect();
+
+    latch = new CountDownLatch(1);
+
+    Exception e = new Exception("Error message");
+    
+    transmitter.sendError(e.getMessage(), memberList.get(0));
+
+    // wait receive
+    latch.await();
+
+    // disconnect from channel
+    channel1.disconnect();
+    channel2.disconnect();
+
+    // compare
+    assertEquals(exporErrorReceiver.errorPacket.getErrorMessage(), e.getMessage());
+    assertEquals(exporErrorReceiver.errorPacket.getType(), AsyncPacketTypes.EXPORT_ERROR);
+  }
+  
+  public void testSendGetExport() throws Exception {
+    String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
+
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    GetExportReceiver getExportReceiver = new GetExportReceiver();
+    channel1.addPacketListener(getExportReceiver);
+
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    channel2.addStateListener(this);
+
+    AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel2, 100);
+
+    channel1.connect();
+    channel2.connect();
+
+    latch = new CountDownLatch(1);
+
+    String nodeId = ((NodeImpl)root).getData().getIdentifier();
+    
+    transmitter.sendGetExport(nodeId, memberList.get(0));
+
+    // wait receive
+    latch.await();
+
+    // disconnect from channel
+    channel1.disconnect();
+    channel2.disconnect();
+
+    // compare
+    assertEquals(getExportReceiver.getExportPacket.getNodeId(), nodeId);
+    assertEquals(getExportReceiver.getExportPacket.getType(), AsyncPacketTypes.GET_EXPORT_CHAHGESLOG);
+  }
+  
 
   public void onSaveItems(ItemStateChangesLog itemStates) {
     log.info("onSaveItems");
@@ -449,7 +518,7 @@ public class TestAsyncTransmitter extends BaseStandaloneTest implements ItemsPer
     }
 
     public void receive(AbstractPacket packet, Member sourceAddress) {
-      if (packet instanceof CancelPacket) {
+      if (packet instanceof MergePacket) {
         switch (packet.getType()) {
         case AsyncPacketTypes.SYNCHRONIZATION_MERGE:
 
@@ -460,6 +529,48 @@ public class TestAsyncTransmitter extends BaseStandaloneTest implements ItemsPer
         }
       } else
         fail("Han been received not MergePacket.");
+    }
+  }
+  
+  private class ExporErrorReceiver implements AsyncPacketListener {
+    private ErrorPacket errorPacket;
+
+    public void onError(Member sourceAddress) {
+    }
+
+    public void receive(AbstractPacket packet, Member sourceAddress) {
+      if (packet instanceof ErrorPacket) {
+        switch (packet.getType()) {
+        case AsyncPacketTypes.EXPORT_ERROR:
+
+          errorPacket = (ErrorPacket) packet;
+          latch.countDown();
+
+          break;
+        }
+      } else
+        fail("Han been received not ErrorPacket.");
+    }
+  }
+  
+  private class GetExportReceiver implements AsyncPacketListener {
+    private GetExportPacket getExportPacket;
+
+    public void onError(Member sourceAddress) {
+    }
+
+    public void receive(AbstractPacket packet, Member sourceAddress) {
+      if (packet instanceof GetExportPacket) {
+        switch (packet.getType()) {
+        case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
+
+          getExportPacket = (GetExportPacket) packet;
+          latch.countDown();
+
+          break;
+        }
+      } else
+        fail("Han been received not GetExportPacket.");
     }
   }
 
