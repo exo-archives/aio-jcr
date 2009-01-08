@@ -1280,7 +1280,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
   }
 
-  public void testReregisterFromNameToResidualChechRequiredNodeType() throws Exception {
+  public void testReregisterFromNameToResidualChangeRequiredNodeType() throws Exception {
     // create new NodeType value
     NodeTypeValue testNValue = new NodeTypeValue();
 
@@ -1336,7 +1336,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
 
   }
 
-  public void testReregisterFromNameToResidualChechSameNameSibling() throws Exception {
+  public void testReregisterFromNameToResidualChangeSameNameSibling() throws Exception {
     // create new NodeType value
     NodeTypeValue testNValue = new NodeTypeValue();
 
@@ -1353,7 +1353,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
                                       false,
                                       1,
                                       false,
-                                      "nt:base",
+                                      "nt:unstructured",
                                       new ArrayList<String>(),
                                       true));
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
@@ -1361,7 +1361,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
 
     Node testNode = root.addNode("testNode", testNValue.getName());
-    Node child = testNode.addNode("child", "nt:base");
+    Node child = testNode.addNode("child");
     child.addNode("subchild1");
     child.addNode("subchild1");
     session.save();
@@ -1385,11 +1385,72 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     }
     child.remove();
     session.save();
-    child = testNode.addNode("child", "nt:unstructured");
+
+    child = testNode.addNode("child");
     child.addNode("subchild1");
     session.save();
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+  }
 
+  public void testReregisterIsMixinChange1() throws Exception {
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterIsMixinChange1");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    testNValue.setMixin(false);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node testNode = root.addNode("testNode", testNValue.getName());
+    session.save();
+    testNValue.setMixin(true);
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (ConstraintViolationException e) {
+      // ok
+    }
+    testNode.remove();
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+
+    testNode = root.addNode("testNode");
+    testNode.addMixin(testNValue.getName());
+    session.save();
+  }
+
+  public void testReregisterIsMixinChange2() throws Exception {
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:testReregisterIsMixinChange2");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    testNValue.setMixin(true);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node testNode = root.addNode("testNode");
+    testNode.addMixin(testNValue.getName());
+    session.save();
+
+    testNValue.setMixin(false);
+    try {
+      nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+      fail();
+    } catch (ConstraintViolationException e) {
+      // ok
+    }
+    testNode.remove();
+    session.save();
+
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+
+    testNode = root.addNode("testNode", testNValue.getName());
+    session.save();
   }
 }

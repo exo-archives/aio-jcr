@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
 
@@ -67,7 +68,8 @@ public class NodeDefinitionComparator {
 
   public PlainChangesLog processNodeDefinitionChanges(NodeTypeData registeredNodeType,
                                                       NodeDefinitionData[] ancestorDefinition,
-                                                      NodeDefinitionData[] recipientDefinition) throws RepositoryException {
+                                                      NodeDefinitionData[] recipientDefinition) throws ConstraintViolationException,
+                                                                                               RepositoryException {
 
     List<NodeDefinitionData> sameDefinitionData = new ArrayList<NodeDefinitionData>();
     List<List<NodeDefinitionData>> changedDefinitionData = new ArrayList<List<NodeDefinitionData>>();
@@ -228,7 +230,7 @@ public class NodeDefinitionComparator {
                 buffer.append(child.getQPath().getAsString());
                 buffer.append(" contains more then one child with name");
                 buffer.append(child2.getQPath().getName().getAsString());
-                throw new RepositoryException(buffer.toString());
+                throw new ConstraintViolationException(buffer.toString());
               }
             }
           }
@@ -253,7 +255,7 @@ public class NodeDefinitionComparator {
                 buffer.append(child.getQPath().getAsString());
                 buffer.append(" contains more then one child with name");
                 buffer.append(child2.getQPath().getName().getAsString());
-                throw new RepositoryException(buffer.toString());
+                throw new ConstraintViolationException(buffer.toString());
               }
             }
           }
@@ -307,7 +309,7 @@ public class NodeDefinitionComparator {
                 buffer.append(" doesn't much ");
                 buffer.append(requiredPrimaryTypes[i].getAsString());
                 buffer.append(" as required primary type");
-                throw new RepositoryException(buffer.toString());
+                throw new ConstraintViolationException(buffer.toString());
 
               }
             }
@@ -338,7 +340,7 @@ public class NodeDefinitionComparator {
                 buffer.append("doesn't much ");
                 buffer.append(requiredPrimaryTypes[i].getAsString());
                 buffer.append(" as required primary type");
-                throw new RepositoryException(buffer.toString());
+                throw new ConstraintViolationException(buffer.toString());
               }
             }
           }
@@ -420,7 +422,7 @@ public class NodeDefinitionComparator {
             ItemData child = persister.getItemData(nodeData,
                                                    new QPathEntry(nodeDefinitionData.getName(), 0));
             if (child == null || !child.isNode()) {
-              throw new RepositoryException("Fail to  add mandatory and not auto-created "
+              throw new ConstraintViolationException("Fail to  add mandatory and not auto-created "
                   + "child node definition " + nodeDefinitionData.getName().getAsString() + " for "
                   + nodeDefinitionData.getDeclaringNodeType().getAsString() + " because node "
                   + nodeData.getQPath().getAsString() + " doesn't contains child node with name "
@@ -436,7 +438,8 @@ public class NodeDefinitionComparator {
 
   private void validateRemoved(NodeTypeData registeredNodeType,
                                List<NodeDefinitionData> removedDefinitionData,
-                               NodeDefinitionData[] recipientDefinition) throws RepositoryException {
+                               NodeDefinitionData[] recipientDefinition) throws ConstraintViolationException,
+                                                                        RepositoryException {
 
     for (NodeDefinitionData removeNodeDefinitionData : removedDefinitionData) {
       Set<String> nodes;
@@ -455,7 +458,7 @@ public class NodeDefinitionComparator {
             for (NodeData childsData : childs) {
               msg += childsData.getQPath().getName().getAsString() + " ";
             }
-            throw new RepositoryException(msg);
+            throw new ConstraintViolationException(msg);
           }
         }
       } else {
@@ -467,7 +470,7 @@ public class NodeDefinitionComparator {
                                                    new QPathEntry(removeNodeDefinitionData.getName(),
                                                                   0));
             if (child != null && child.isNode()) {
-              throw new RepositoryException("Can't remove node definition "
+              throw new ConstraintViolationException("Can't remove node definition "
                   + removeNodeDefinitionData.getName().getAsString() + "  for "
                   + registeredNodeType.getName().getAsString() + " node type because node "
                   + nodeData.getQPath().getAsString() + " " + " countains child node with name "

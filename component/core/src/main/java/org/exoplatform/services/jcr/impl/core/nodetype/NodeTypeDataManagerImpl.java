@@ -35,6 +35,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.ValueFormatException;
+import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 
 import org.jibx.runtime.BindingDirectory;
@@ -782,7 +783,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     internalUnregister(nodeTypeName, nodeType);
   }
 
-  void reregisterNodeType(NodeTypeData ancestorDefinition, NodeTypeData recipientDefinition) throws RepositoryException {
+  void reregisterNodeType(NodeTypeData ancestorDefinition, NodeTypeData recipientDefinition) throws ConstraintViolationException,
+                                                                                            RepositoryException {
     if (!ancestorDefinition.getName().equals(recipientDefinition.getName())) {
       throw new RepositoryException("Unsupported Operation");
     }
@@ -813,6 +815,27 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     // TODO hasOrderableChildNodes
     // TODO mixin
+    if (ancestorDefinition.isMixin() != recipientDefinition.isMixin()) {
+      Set<String> nodes = getNodes(recipientDefinition.getName());
+      if (nodes.size() > 0) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Fail to change ");
+        buffer.append(recipientDefinition.getName().getAsString());
+        buffer.append("node type from IsMixin=");
+        buffer.append(ancestorDefinition.isMixin());
+        buffer.append(" to IsMixin=");
+        buffer.append(recipientDefinition.isMixin());
+        buffer.append(" because the folowing node exists: ");
+        for (String uuid : nodes) {
+          ItemData item = persister.getDataManager().getItemData(uuid);
+          if (item != null && item.isNode()) {
+            buffer.append(item.getQPath().getAsString());
+            buffer.append(" ");
+          }
+        }
+        throw new ConstraintViolationException(buffer.toString());
+      }
+    }
 
     changesLog.addAll(internalUnregister(ancestorDefinition.getName(), ancestorDefinition));
     changesLog.addAll(internalRegister(recipientDefinition, false).getAllStates());
