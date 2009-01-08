@@ -17,11 +17,14 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
@@ -44,6 +47,10 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
   public void addLog(ItemStateChangesLog log) throws IOException {
     File ch = File.createTempFile("test", "-" + this.storage.size());
     ch.deleteOnExit();
+    
+    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(ch));
+    TransactionChangesLog tlog = (TransactionChangesLog)log; 
+    out.writeObject(tlog);
     
     this.storage.add(new ChangesFile(ch, "", System.currentTimeMillis()));
   }
