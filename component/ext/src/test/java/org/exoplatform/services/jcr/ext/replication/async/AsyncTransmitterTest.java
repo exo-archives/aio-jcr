@@ -35,15 +35,12 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
@@ -64,12 +61,9 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestAsyncTransmitter.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsPersistenceListener,
-    AsyncStateListener {
+public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsPersistenceListener {
 
   private static Log                  log                = ExoLogger.getLogger("ext.TestAsyncTransmitter");
-
-  private static List<Member>         memberList;
 
   private List<TransactionChangesLog> srcChangesLogList  = new ArrayList<TransactionChangesLog>();
 
@@ -293,7 +287,12 @@ public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsP
     // compare
     assertEquals(mergeReceiver.mergePacket.getTransmitterPriority(), 100);
     assertEquals(mergeReceiver.mergePacket.getType(), AsyncPacketTypes.SYNCHRONIZATION_MERGE);
-  }
+  }/*public void onStateChanged(AsyncStateEvent event) {
+  log.info("onStateChanged");
+
+  memberList = new ArrayList<Member>(event.getMembers());
+  memberList.remove(event.getLocalMember());
+}*/
   
   public void testSendExportError() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
@@ -365,13 +364,6 @@ public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsP
   public void onSaveItems(ItemStateChangesLog itemStates) {
     log.info("onSaveItems");
     srcChangesLogList.add((TransactionChangesLog) itemStates);
-  }
-
-  public void onStateChanged(AsyncStateEvent event) {
-    log.info("onStateChanged");
-
-    memberList = new ArrayList<Member>(event.getMembers());
-    memberList.remove(event.getLocalMember());
   }
 
   private class ChangesPacketReceiver implements AsyncPacketListener {
