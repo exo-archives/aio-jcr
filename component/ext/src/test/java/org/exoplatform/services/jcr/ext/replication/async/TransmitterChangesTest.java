@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestTransmitterChanges.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class TestTransmitterChanges extends BaseStandaloneTest implements ItemsPersistenceListener, AsyncStateListener {
+public class TransmitterChangesTest extends BaseStandaloneTest implements ItemsPersistenceListener, AsyncStateListener {
   
   private static Log                       log       = ExoLogger.getLogger("ext.TestTransmitterChanges");
   
