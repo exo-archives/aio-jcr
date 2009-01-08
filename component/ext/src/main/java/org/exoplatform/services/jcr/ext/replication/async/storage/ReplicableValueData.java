@@ -16,14 +16,22 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.Calendar;
 
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.datamodel.Identifier;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 
 /**
@@ -34,8 +42,116 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  */
 public class ReplicableValueData extends TransientValueData {
 
-  // private static final int BUF_SIZE = 2048; // 2 kb
+  private static final int DEF_MAX_BUF_SIZE = 2048;//2kb
+ 
+  public ReplicableValueData(int orderNumber,
+                            byte[] bytes,
+                            InputStream stream,
+                            File spoolFile,
+                            FileCleaner fileCleaner,
+                            int maxBufferSize,
+                            File tempDirectory,
+                            boolean deleteSpoolFile) throws IOException {
 
+    super(orderNumber,
+          bytes,
+          stream,
+          spoolFile,
+          fileCleaner,
+          maxBufferSize,
+          tempDirectory,
+          deleteSpoolFile);
+    
+    }
+
+  public  ReplicableValueData(InputStream stream) {
+    super(stream);
+  }
+
+  /**
+   * Constructor for String value data
+   * 
+   * @param value
+   */
+  public  ReplicableValueData(String value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for boolean value data
+   * 
+   * @param value
+   */
+  public  ReplicableValueData(boolean value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for Calendar value data
+   * 
+   * @param value
+   */
+  public  ReplicableValueData(Calendar value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for double value data
+   * 
+   * @param value
+   */
+  public  ReplicableValueData(double value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for long value data
+   * 
+   * @param value
+   */
+  public ReplicableValueData(long value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for Name value data
+   * 
+   * @param value
+   */
+  public  ReplicableValueData(InternalQName value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for Path value data
+   * 
+   * @param value
+   */
+  public  ReplicableValueData(QPath value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for Reference value data
+   * 
+   * @param value
+   */
+  public ReplicableValueData(Identifier value) {
+    super(value);
+  }
+
+  /**
+   * Constructor for Permission value data
+   * 
+   * @param value
+   */
+  public  ReplicableValueData(AccessControlEntry value) {
+    super(value);
+  }
+
+  public ReplicableValueData() {
+  }
+  
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(orderNumber);
     out.writeInt(maxBufferSize);
@@ -63,19 +179,23 @@ public class ReplicableValueData extends TransientValueData {
 
     long length = in.readLong();
 
-    if (length > maxBufferSize) {
+    if (length > DEF_MAX_BUF_SIZE) {
       // store data as file
       
+      //TODO where store spool file
       SpoolFile sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
       FileOutputStream sfout = new FileOutputStream(sf);
       
-      byte[] buf = new byte[maxBufferSize];
+      byte[] buf = new byte[DEF_MAX_BUF_SIZE];
 
       sf.acquire(this);
+      
       int l=0;
       while((l=in.read(buf))!=-1){
         sfout.write(buf, 0, l );
       }
+      
+      this.spoolFile = sf;
       
     } else {
       // store data as bytearray
