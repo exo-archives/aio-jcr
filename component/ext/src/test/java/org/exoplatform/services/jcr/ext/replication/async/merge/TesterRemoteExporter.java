@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.IOException;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
@@ -58,7 +60,13 @@ public class TesterRemoteExporter implements RemoteExporter {
    * {@inheritDoc}
    */
   public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
-    return new CompositeChangesStorage<ItemState>(new TransactionChangesLog(changes));
+    TesterChangesStorage<ItemState> chs = new TesterChangesStorage<ItemState>(new Member(null, -1));
+    try {
+      chs.addLog(changes);
+    } catch (IOException e) {
+      throw new RemoteExportException(e);
+    }
+    return chs;
   }
 
   public void setChanges(PlainChangesLog changes) {

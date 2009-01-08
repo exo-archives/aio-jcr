@@ -44,9 +44,9 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
   protected static final Log      LOG = ExoLogger.getLogger("jcr.ChangesLogStorage");
 
-  private final List<ChangesFile> storage;
+  protected final List<ChangesFile> storage;
 
-  private final Member            member;
+  protected final Member            member;
 
   class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
 

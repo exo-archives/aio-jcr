@@ -25,13 +25,13 @@ import javax.jcr.PropertyType;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -46,97 +46,97 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  */
 public class BaseMergerTest extends BaseStandaloneTest {
 
-  protected NodeTypeDataManager     nodeTypeDataManager;
+  protected NodeTypeDataManager             nodeTypeDataManager;
 
   /**
    * Test nodetype. UNSTRUCTURED but child nodes SNS disallowed.
    */
-  public static final InternalQName EXO_TEST_UNSTRUCTURED_NOSNS = new InternalQName(Constants.NS_EXO_URI,
-                                                                                    "testUnstructuredNoSNS");
+  public static final InternalQName         EXO_TEST_UNSTRUCTURED_NOSNS = new InternalQName(Constants.NS_EXO_URI,
+                                                                                            "testUnstructuredNoSNS");
 
-  protected CompositeChangesStorage   local;
+  protected TesterChangesStorage<ItemState> local;
 
-  protected CompositeChangesStorage   income;
+  protected TesterChangesStorage<ItemState> income;
 
   // remote
 
-  protected NodeData                remoteItem1;
+  protected NodeData                        remoteItem1;
 
-  protected NodeData                remoteItem11;
+  protected NodeData                        remoteItem11;
 
-  protected NodeData                remoteItem112;
+  protected NodeData                        remoteItem112;
 
-  protected NodeData                remoteItem1121;
+  protected NodeData                        remoteItem1121;
 
-  protected NodeData                remoteItem1111;
+  protected NodeData                        remoteItem1111;
 
-  protected NodeData                remoteItem12;
+  protected NodeData                        remoteItem12;
 
-  protected NodeData                remoteItem121;
+  protected NodeData                        remoteItem121;
 
-  protected NodeData                remoteItem111;
+  protected NodeData                        remoteItem111;
 
-  protected NodeData                remoteItem2;
+  protected NodeData                        remoteItem2;
 
-  protected NodeData                remoteItem21;
+  protected NodeData                        remoteItem21;
 
-  protected NodeData                remoteItem211;
+  protected NodeData                        remoteItem211;
 
-  protected NodeData                remoteItem3;
+  protected NodeData                        remoteItem3;
 
-  protected NodeData                remoteItem21x21;
+  protected NodeData                        remoteItem21x21;
 
-  protected NodeData                remoteItem21x22;
+  protected NodeData                        remoteItem21x22;
 
-  protected NodeData                remoteItem212;
+  protected NodeData                        remoteItem212;
 
-  protected NodeData                remoteItem2121;
+  protected NodeData                        remoteItem2121;
 
-  protected PropertyData            remoteProperty1;
+  protected PropertyData                    remoteProperty1;
 
-  protected PropertyData            remoteProperty2;
+  protected PropertyData                    remoteProperty2;
 
-  protected PropertyData            remoteProperty11;
+  protected PropertyData                    remoteProperty11;
 
-  protected PropertyData            remoteProperty111;
+  protected PropertyData                    remoteProperty111;
 
-  protected NodeData                remoteItem21x2B;
+  protected NodeData                        remoteItem21x2B;
 
-  protected NodeData                remoteItem21x2A;
+  protected NodeData                        remoteItem21x2A;
 
-  protected NodeData                remoteItem21x1B;
+  protected NodeData                        remoteItem21x1B;
 
   // local
 
-  protected NodeData                localItem1;
+  protected NodeData                        localItem1;
 
-  protected NodeData                localItem2;
+  protected NodeData                        localItem2;
 
-  protected NodeData                localItem21;
+  protected NodeData                        localItem21;
 
-  protected NodeData                localItem21x2B;
+  protected NodeData                        localItem21x2B;
 
-  protected NodeData                localItem21x2A;
+  protected NodeData                        localItem21x2A;
 
-  protected NodeData                localItem21x1B1;
+  protected NodeData                        localItem21x1B1;
 
-  protected NodeData                localItem21x1B;
+  protected NodeData                        localItem21x1B;
 
-  protected NodeData                localItem3;
+  protected NodeData                        localItem3;
 
-  protected NodeData                localItem11;
+  protected NodeData                        localItem11;
 
-  protected NodeData                localItem111;
+  protected NodeData                        localItem111;
 
-  protected NodeData                localItem112;
+  protected NodeData                        localItem112;
 
-  protected NodeData                localItem12;
+  protected NodeData                        localItem12;
 
-  protected NodeData                localItem122;
+  protected NodeData                        localItem122;
 
-  protected PropertyData            localProperty1;
+  protected PropertyData                    localProperty1;
 
-  protected PropertyData            localProperty2;
+  protected PropertyData                    localProperty2;
 
   /**
    * {@inheritDoc}
@@ -556,18 +556,22 @@ public class BaseMergerTest extends BaseStandaloneTest {
                                            new AccessControlList());
 
     // logs
-    local = new CompositeChangesStorage(new TransactionChangesLog());
-    income = new CompositeChangesStorage(new TransactionChangesLog());
+    // TODO priority is dumy here
+    local = new TesterChangesStorage<ItemState>(new Member(null, 100));
+    income = new TesterChangesStorage<ItemState>(new Member(null, 50));
   }
 
   /**
    * {@inheritDoc}
    */
   protected void tearDown() throws Exception {
+    local.delete();
+    income.delete();
+    
     super.tearDown();
   }
 
-  protected ItemState findStateByPath(ChangesStorage<ItemState> changes, QPath path) throws IOException{
+  protected ItemState findStateByPath(ChangesStorage<ItemState> changes, QPath path) throws IOException {
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getQPath().equals(path))
@@ -577,7 +581,7 @@ public class BaseMergerTest extends BaseStandaloneTest {
     return null;
   }
 
-  protected ItemState findStateById(ChangesStorage<ItemState> changes, String id) throws IOException{
+  protected ItemState findStateById(ChangesStorage<ItemState> changes, String id) throws IOException {
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getIdentifier().equals(id))
@@ -587,7 +591,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
     return null;
   }
 
-  protected boolean hasState(ChangesStorage<ItemState> changes, ItemState expected, boolean respectId) throws IOException {
+  protected boolean hasState(ChangesStorage<ItemState> changes,
+                             ItemState expected,
+                             boolean respectId) throws IOException {
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getQPath().equals(expected.getData().getQPath())

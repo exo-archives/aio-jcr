@@ -19,6 +19,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,7 +40,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
-import org.exoplatform.services.jcr.ext.replication.async.merge.CompositeChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.merge.TesterChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
@@ -592,11 +593,11 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
    * 
    * @param log
    * @param priority
+   * @throws IOException 
    */
-  protected void addChangesToChangesStorage(TransactionChangesLog cLog, int priority) {
-    Member member = new Member(null, priority);
-    CompositeChangesStorage<ItemState> changes = new CompositeChangesStorage<ItemState>(cLog,
-                                                                                        member);
+  protected void addChangesToChangesStorage(TransactionChangesLog cLog, int priority) throws IOException {
+    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(new Member(null, priority));
+    changes.addLog(cLog);
     membersChanges.add(changes);
   }
 

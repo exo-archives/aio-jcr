@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: TestChangesFile.java 111 2008-11-11 11:11:11Z serg $
  */
-public class TestChangesFile extends BaseStandaloneTest {
+public class ChangesFileTest extends BaseStandaloneTest {
 
   private static final String CRC = "CRC";
 
