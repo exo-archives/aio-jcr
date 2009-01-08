@@ -33,25 +33,24 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 08.01.2009
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage<T> {
 
-  
   public TesterChangesStorage(Member member) {
     super(new ArrayList<ChangesFile>(), member);
   }
-  
+
   public void addLog(ItemStateChangesLog log) throws IOException {
     File ch = File.createTempFile("test", "-" + this.storage.size());
     ch.deleteOnExit();
-    
+
     ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(ch));
-    TransactionChangesLog tlog = (TransactionChangesLog)log; 
+    TransactionChangesLog tlog = (TransactionChangesLog) log;
     out.writeObject(tlog);
-    
+
     this.storage.add(new ChangesFile(ch, "", System.currentTimeMillis()));
   }
 }

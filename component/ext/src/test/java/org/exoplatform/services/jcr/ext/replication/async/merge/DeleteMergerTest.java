@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -64,7 +65,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRemoveAddLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
     localLog.add(localItem12Change);
@@ -73,12 +74,12 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                            false,
                                                            null);
     localLog.add(localItem12ChangeAdded);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
@@ -96,16 +97,16 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testAddChildLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem122Change = new ItemState(localItem122, ItemState.ADDED, false, null);
     localLog.add(localItem122Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
@@ -123,19 +124,19 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRemovePropertyRemoteAddNodeLocalLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
     localLog.add(localItem11Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteProperty1Change = new ItemState(remoteProperty1,
                                                           ItemState.DELETED,
                                                           false,
                                                           null);
     remoteLog.add(remoteProperty1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteProperty1Change, income, local);
@@ -154,16 +155,16 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testAddLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
     localLog.add(localItem11Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
@@ -182,19 +183,19 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRemoveSameLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
     localLog.add(localItem12Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
@@ -212,17 +213,17 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRemoveChildLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem122Change = new ItemState(localItem122, ItemState.DELETED, false, null);
     localLog.add(localItem122Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
@@ -241,17 +242,17 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRemoveLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem2Change = new ItemState(localItem2, ItemState.DELETED, false, null);
     localLog.add(localItem2Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -270,20 +271,20 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRemovePropertyLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localProperty1Change = new ItemState(localProperty1,
                                                          ItemState.DELETED,
                                                          false,
                                                          null);
     localLog.add(localProperty1Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -302,7 +303,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRenameSameLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final String testItem2 = "testItem2";
     ItemData localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
@@ -320,13 +321,13 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem1Delete);
     final ItemState localItem2Add = new ItemState(localItem2, ItemState.RENAMED, false, null);
     localLog.add(localItem2Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -344,7 +345,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRenameSameLocalPriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final String testItem2 = "testItem2";
     ItemData localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
@@ -362,15 +363,15 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem1Delete);
     final ItemState localItem2Add = new ItemState(localItem2, ItemState.RENAMED, false, null);
     localLog.add(localItem2Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem2Add = new ItemState(remoteItem2, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem2Add);
     final ItemState remoteItem2Deleted = new ItemState(remoteItem2, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem2Deleted);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem2Deleted, income, local);
@@ -388,7 +389,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRenameLocalPriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final String testItem2 = "testItem2";
     ItemData localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
@@ -422,13 +423,13 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem2Add);
     final ItemState localItem21Add = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Change = new ItemState(remoteItem11, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem11Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem11Change, income, local);
@@ -446,7 +447,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRenameLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final String testItem2 = "testItem2";
     ItemData localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
@@ -464,13 +465,13 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem1Delete);
     final ItemState localItem2Add = new ItemState(localItem2, ItemState.RENAMED, false, null);
     localLog.add(localItem2Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem3Change = new ItemState(remoteItem3, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem3Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem3Change, income, local);
@@ -510,7 +511,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    */
   public void testLocalSNSParentUpdatedLocalPriority() throws Exception {
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
                                                         false,
@@ -526,7 +527,7 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     ItemData remoteItem21x1 = new TransientNodeData(QPath.makeChildPath(localItem21x1B.getQPath(),
                                                                         new InternalQName(null,
@@ -539,13 +540,13 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                     localItem21x2A.getIdentifier(),
                                                     new AccessControlList());
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem21x1Delete = new ItemState(remoteItem21x1,
                                                          ItemState.DELETED,
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem21x1Delete, income, local);
@@ -602,7 +603,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    */
   public void testLocalSNSParentUpdatedLocalPriority2() throws Exception {
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
                                                         false,
@@ -618,7 +619,7 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     // create /testItem1
     ItemData remoteItem21x2 = new TransientNodeData(QPath.makeChildPath(localItem21x2A.getQPath(),
@@ -632,13 +633,13 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                     localItem21x1B.getIdentifier(),
                                                     new AccessControlList());
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem212Delete = new ItemState(remoteItem212,
                                                         ItemState.DELETED,
                                                         false,
                                                         null);
     remoteLog.add(remoteItem212Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem212Delete, income, local);
@@ -695,7 +696,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    */
   public void testLocalSNSParentUpdatedLocalPriority3() throws Exception {
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
                                                         false,
@@ -711,7 +712,7 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     ItemData remoteItem212 = new TransientNodeData(QPath.makeChildPath(localItem21x1B.getQPath(),
                                                                        new InternalQName(null,
@@ -735,7 +736,7 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                     remoteItem212.getIdentifier(),
                                                     new AccessControlList());
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem212Delete = new ItemState(remoteItem212,
                                                         ItemState.DELETED,
                                                         false,
@@ -746,7 +747,7 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem2121Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem2121Delete, income, local);
@@ -801,7 +802,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    */
   public void testLocalSNSParentUpdatedLocalPriority4() throws Exception {
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
                                                         false,
@@ -817,12 +818,12 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem3Delete = new ItemState(remoteItem3, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem3Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(true, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem3Delete, income, local);
@@ -843,16 +844,16 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testAddNodeRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
     localLog.add(localItem12Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem11Change = new ItemState(remoteItem11, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem11Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem11Change, income, local);
@@ -871,19 +872,19 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testAddNodeRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
     localLog.add(localItem12Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem1Change = new ItemState(remoteProperty1,
                                                       ItemState.DELETED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -902,7 +903,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testAddNodeRemotePriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem11Change = new ItemState(localItem11, ItemState.ADDED, false, null);
     localLog.add(localItem11Change);
@@ -912,13 +913,13 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem111Delete);
     final ItemState localItem112Change = new ItemState(localItem112, ItemState.ADDED, false, null);
     localLog.add(localItem112Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     final ItemState remoteItem11Change = new ItemState(remoteItem11, ItemState.ADDED, false, null);
     remoteLog.add(remoteItem11Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -948,11 +949,11 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testAddNodeRemotePriority4() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.ADDED, false, null);
     localLog.add(localItem12Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     ItemData remoteProperty2 = new TransientPropertyData(QPath.makeChildPath(remoteItem1.getQPath(),
                                                                              new InternalQName(null,
@@ -964,13 +965,13 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                          false);
     ((TransientPropertyData) remoteProperty2).setValue(new TransientValueData(123l));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem1Change = new ItemState(remoteProperty1,
                                                       ItemState.DELETED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -989,16 +990,16 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testAddPropertyRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem1P1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
     localLog.add(localItem1P1Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -1017,19 +1018,19 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testAddPropertyRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem1P1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
     localLog.add(localItem1P1Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem1Change = new ItemState(remoteProperty2,
                                                       ItemState.DELETED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -1048,19 +1049,19 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRemoveRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
     localLog.add(localItem12Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem12Change, income, local);
@@ -1078,19 +1079,19 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRemoveRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem12Change = new ItemState(localItem12, ItemState.DELETED, false, null);
     localLog.add(localItem12Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -1109,19 +1110,19 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRemoveRemotePriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem1Change = new ItemState(localProperty1, ItemState.DELETED, false, null);
     localLog.add(localItem1Change);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem12Change);
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -1140,21 +1141,21 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRemoveRemotePriority4() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem1Change = new ItemState(localItem1, ItemState.DELETED, false, null);
     localLog.add(localItem1Change);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Change = new ItemState(remoteProperty1,
                                                       ItemState.DELETED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -1172,21 +1173,21 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored.
    */
   public void testRemoveRemotePriority5() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem1Change = new ItemState(localProperty1, ItemState.DELETED, false, null);
     localLog.add(localItem1Change);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem111Change = new ItemState(remoteProperty1,
                                                         ItemState.DELETED,
                                                         false,
                                                         null);
     remoteLog.add(remoteItem111Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem111Change, income, local);
@@ -1224,7 +1225,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    */
   public void testUpdatedRemotePriority() throws Exception {
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
                                                         false,
@@ -1240,7 +1241,7 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     ItemData remoteItem21x1 = new TransientNodeData(localItem21x1B.getQPath(),
                                                     localItem21x2A.getIdentifier(),
@@ -1251,13 +1252,13 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                     localItem21x2A.getParentIdentifier(),
                                                     new AccessControlList());
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem21x1Delete = new ItemState(remoteItem21x1,
                                                          ItemState.DELETED,
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem21x1Delete, income, local);
@@ -1307,7 +1308,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    */
   public void testUpdatedRemotePriority2() throws Exception {
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
                                                         false,
@@ -1323,12 +1324,12 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem2Delete = new ItemState(remoteItem2, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem2Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem2Delete, income, local);
@@ -1368,7 +1369,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    */
   public void testUpdatedRemotePriority3() throws Exception {
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
                                                         false,
@@ -1384,7 +1385,7 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     ItemData remoteItem21x1_1 = new TransientNodeData(QPath.makeChildPath(localItem21x1B.getQPath(),
                                                                           new InternalQName(null,
@@ -1397,13 +1398,13 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                       localItem21x2A.getIdentifier(),
                                                       new AccessControlList());
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteProperty21x1_1Delete = new ItemState(remoteItem21x1_1,
                                                                ItemState.DELETED,
                                                                false,
                                                                null);
     remoteLog.add(remoteProperty21x1_1Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteProperty21x1_1Delete, income, local);
@@ -1438,7 +1439,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRenameRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                                      new InternalQName(null,
@@ -1466,15 +1467,15 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem11Delete);
     final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Delete = new ItemState(remoteItem11, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem11Delete);
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
@@ -1493,7 +1494,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be accepted.
    */
   public void testRenameRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localItem11 = new TransientNodeData(QPath.makeChildPath(localItem1.getQPath(),
                                                                      new InternalQName(null,
@@ -1532,13 +1533,13 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem11Delete);
     final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Delete = new ItemState(remoteItem11, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem11Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem11Delete, income, local);
@@ -1560,7 +1561,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * Expect: income changes will be ignored (renamed node will be restored).
    */
   public void testRenameRemotePriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                     new InternalQName(null, "item1")),
@@ -1606,18 +1607,18 @@ public class DeleteMergerTest extends BaseMergerTest {
     localLog.add(localItem1Delete);
     final ItemState localItem2Rename = new ItemState(localItem2, ItemState.RENAMED, false, null);
     localLog.add(localItem2Rename);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Delete = new ItemState(remoteProperty1,
                                                       ItemState.DELETED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Delete);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
-    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    PlainChangesLog exportLog = new PlainChangesLogImpl("sessionId");
     ItemState remoteItem1Add = new ItemState(remoteItem1, ItemState.ADDED, false, null);
     exportLog.add(remoteItem1Add);
 

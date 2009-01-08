@@ -53,7 +53,7 @@ public class TesterRemoteExporter implements RemoteExporter {
    * 
    */
   public TesterRemoteExporter() {
-    this.changes = new PlainChangesLogImpl();
+    this.changes = new PlainChangesLogImpl("sessionId");
   }
 
   /**
@@ -62,7 +62,7 @@ public class TesterRemoteExporter implements RemoteExporter {
   public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
     TesterChangesStorage<ItemState> chs = new TesterChangesStorage<ItemState>(new Member(null, -1));
     try {
-      chs.addLog(changes);
+      chs.addLog(new TransactionChangesLog(changes));
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }

@@ -470,6 +470,102 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
   }
 
   /**
+   * 5. Add Item on high priority updated parent on low priority(same-name-sibling parent order
+   * only, conflict)
+   * 
+   * Expected (low priority) : apply income changes
+   * 
+   * Expected (high priority) : apply income changes
+   */
+  public void testAddLocalPriority6() throws Exception {
+    // low priority changes: add node
+    Node node = root3.addNode("item1");
+    root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: orgerBefore
+    root3.orderBefore("item1[2]", "item1");
+
+    // high priority changes: add child
+    root4.getNode("item1").addNode("item11");
+
+    membersChanges.clear();
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 5. Add Item on low priority updated parent on high priority(same-name-sibling parent order
+   * only, conflict)
+   * 
+   * Expected (low priority) : apply income changes
+   * 
+   * Expected (high priority) : apply income changes
+   */
+  public void testAddRemotePriority6() throws Exception {
+    // low priority changes: add node
+    Node node = root3.addNode("item1");
+    root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: orgerBefore
+    root3.getNode("item1").addNode("item11");
+
+    // high priority changes: add child
+    root4.orderBefore("item1[2]", "item1");
+
+    membersChanges.clear();
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
    * 1. Delete item, no local changes. Local has High priority.
    * 
    * Expected: apply income changes

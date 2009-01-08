@@ -22,6 +22,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -92,7 +93,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testAddLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem211 = new TransientNodeData(QPath.makeChildPath(remoteItem21x2B.getQPath(),
                                                                             new InternalQName(null,
@@ -109,9 +110,9 @@ public class UpdateMergerTest extends BaseMergerTest {
     final ItemState localItem211Add = new ItemState(localItem211, ItemState.ADDED, false, null);
     localLog.add(localItem211Add);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -128,7 +129,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -148,7 +149,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testDeleteLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem21 = new TransientNodeData(remoteItem21x2A.getQPath(),
                                                        remoteItem21x2A.getIdentifier(),
@@ -163,9 +164,9 @@ public class UpdateMergerTest extends BaseMergerTest {
     final ItemState localItem21Delete = new ItemState(localItem21, ItemState.DELETED, false, null);
     localLog.add(localItem21Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -182,7 +183,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -199,14 +200,14 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testDeleteLocalPriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem3Delete = new ItemState(localItem3, ItemState.DELETED, false, null);
     localLog.add(localItem3Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -223,7 +224,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -243,7 +244,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testDeleteLocalPriority4() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     localProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
                                                                    new InternalQName(null,
@@ -257,16 +258,16 @@ public class UpdateMergerTest extends BaseMergerTest {
     final ItemState localItem1Delete = new ItemState(localProperty1, ItemState.DELETED, false, null);
     localLog.add(localItem1Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Update = new ItemState(remoteProperty1,
                                                       ItemState.UPDATED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update, income, local);
@@ -283,21 +284,21 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testDeleteLocalPriority5() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem2Delete = new ItemState(localProperty2, ItemState.DELETED, false, null);
     localLog.add(localItem2Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Update = new ItemState(remoteProperty1,
                                                       ItemState.UPDATED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update, income, local);
@@ -315,7 +316,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testUpdateLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     localItem21x2B = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
                                                                new InternalQName(null, "item21"),
@@ -365,9 +366,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -384,7 +385,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -401,7 +402,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted to new path
    */
   public void testUpdateLocalPriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
@@ -418,7 +419,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     // remote property (as prop of local item 11)
     ItemData remoteProperty111 = new TransientPropertyData(QPath.makeChildPath(localItem21x2A.getQPath(),
@@ -431,11 +432,11 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                            false);
     ((TransientPropertyData) remoteProperty111).setValue(new TransientValueData(111));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     ItemState Item111Update = new ItemState(remoteProperty111, ItemState.UPDATED, false, null);
     remoteLog.add(Item111Update);
 
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(Item111Update, income, local);
@@ -458,7 +459,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted to new path
    */
   public void testUpdateLocalPriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localProperty111 = new TransientPropertyData(QPath.makeChildPath(localItem21x1B.getQPath(),
                                                                               new InternalQName(null,
@@ -470,9 +471,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           false);
     ItemState localItem111Update = new ItemState(localProperty111, ItemState.UPDATED, false, null);
     localLog.add(localItem111Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -489,7 +490,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -509,7 +510,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testUpdateLocalPriority4() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localProperty21 = new TransientPropertyData(QPath.makeChildPath(localItem2.getQPath(),
                                                                              new InternalQName(null,
@@ -521,9 +522,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false);
     ItemState localItem111Update = new ItemState(localProperty21, ItemState.UPDATED, false, null);
     localLog.add(localItem111Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     ItemData remoteProperty21 = new TransientPropertyData(QPath.makeChildPath(remoteItem2.getQPath(),
                                                                               new InternalQName(null,
                                                                                                 "testProperty111")),
@@ -534,7 +535,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           false);
     ItemState remoteItem21Update = new ItemState(remoteProperty21, ItemState.UPDATED, false, null);
     remoteLog.add(localItem111Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21Update, income, local);
@@ -551,7 +552,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: local changes will be restored, remote changes will be applied
    */
   public void testUpdateLocalPriority5() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localItem2x2B = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                        new InternalQName(null,
@@ -635,9 +636,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                        false,
                                                        null);
     localLog.add(localItem2x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -654,7 +655,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -685,7 +686,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testRenameLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem21 = new TransientNodeData(remoteItem21x1B.getQPath(),
                                                        remoteItem21x1B.getIdentifier(),
@@ -710,13 +711,13 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                       Constants.ROOT_UUID,
                                                       new AccessControlList());
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem21Delete = new ItemState(localItem21, ItemState.DELETED, false, null);
     localLog.add(localItem21Delete);
     ItemState localItem3Rename = new ItemState(localItem3, ItemState.RENAMED, false, null);
     localLog.add(localItem3Rename);
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -733,7 +734,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -750,7 +751,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testRenameLocalPriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                           new InternalQName(null,
@@ -777,14 +778,14 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem3Delete = new ItemState(localItem3, ItemState.DELETED, false, null);
     localLog.add(localItem3Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -801,7 +802,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -821,7 +822,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testRenameLocalPriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                           new InternalQName(null,
@@ -848,14 +849,14 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem1Delete = new ItemState(localItem1, ItemState.DELETED, false, null);
     localLog.add(localItem1Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     ItemData remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(remoteItem1.getQPath(),
                                                                              new InternalQName(null,
@@ -871,7 +872,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(true, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update, income, local);
@@ -888,7 +889,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testAddRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem211 = new TransientNodeData(QPath.makeChildPath(remoteItem21x2B.getQPath(),
                                                                             new InternalQName(null,
@@ -905,9 +906,9 @@ public class UpdateMergerTest extends BaseMergerTest {
     final ItemState localItem211Add = new ItemState(localItem211, ItemState.ADDED, false, null);
     localLog.add(localItem211Add);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -924,7 +925,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -944,7 +945,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: deleted node will be restored, remote changes will be applied
    */
   public void testDeleteRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem21 = new TransientNodeData(remoteItem21x2A.getQPath(),
                                                        remoteItem21x2A.getIdentifier(),
@@ -959,9 +960,9 @@ public class UpdateMergerTest extends BaseMergerTest {
     final ItemState localItem21Delete = new ItemState(localItem21, ItemState.DELETED, false, null);
     localLog.add(localItem21Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -978,7 +979,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -999,14 +1000,14 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testDeleteRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem3Delete = new ItemState(localItem3, ItemState.DELETED, false, null);
     localLog.add(localItem3Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -1023,7 +1024,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -1043,7 +1044,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: deleted property will be restored
    */
   public void testDeleteRemotePriority4() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     localProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
                                                                    new InternalQName(null,
@@ -1057,16 +1058,16 @@ public class UpdateMergerTest extends BaseMergerTest {
     final ItemState localItem1Delete = new ItemState(localProperty1, ItemState.DELETED, false, null);
     localLog.add(localItem1Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem1Update = new ItemState(remoteProperty1,
                                                       ItemState.UPDATED,
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update, income, local);
@@ -1084,14 +1085,14 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: deleted node and all subtree will be restored
    */
   public void testDeleteRemotePriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21Delete = new ItemState(localItem2, ItemState.DELETED, false, null);
     localLog.add(localItem21Delete);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     remoteItem21x2B = new TransientNodeData(QPath.makeChildPath(remoteItem2.getQPath(),
                                                                 new InternalQName(null, "item21"),
@@ -1142,9 +1143,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
-    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    PlainChangesLog exportLog = new PlainChangesLogImpl("sessionId");
     ItemState localItem2Add = new ItemState(localItem2, ItemState.ADDED, false, null);
     exportLog.add(localItem2Add);
     ItemState remoteItem21x1BAdd = new ItemState(remoteItem21x1B, ItemState.ADDED, false, null);
@@ -1174,7 +1175,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted, deleted node will be restored
    */
   public void testRenameRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem21 = new TransientNodeData(remoteItem21x1B.getQPath(),
                                                        remoteItem21x1B.getIdentifier(),
@@ -1199,13 +1200,13 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                       Constants.ROOT_UUID,
                                                       new AccessControlList());
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem21Delete = new ItemState(localItem21, ItemState.DELETED, false, null);
     localLog.add(localItem21Delete);
     ItemState localItem3Rename = new ItemState(localItem3, ItemState.RENAMED, false, null);
     localLog.add(localItem3Rename);
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -1222,7 +1223,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -1244,7 +1245,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testRenameRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                           new InternalQName(null,
@@ -1271,14 +1272,14 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem3Delete = new ItemState(localItem3, ItemState.DELETED, false, null);
     localLog.add(localItem3Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -1295,7 +1296,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -1315,7 +1316,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted, deleted node will be restored
    */
   public void testRenameRemotePriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final NodeData localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                           new InternalQName(null,
@@ -1342,14 +1343,14 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem1Delete = new ItemState(localItem1, ItemState.DELETED, false, null);
     localLog.add(localItem1Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     ItemData remoteProperty1 = new TransientPropertyData(QPath.makeChildPath(remoteItem1.getQPath(),
                                                                              new InternalQName(null,
@@ -1365,9 +1366,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                       false,
                                                       null);
     remoteLog.add(remoteItem1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
-    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    PlainChangesLog exportLog = new PlainChangesLogImpl("sessionId");
     ItemState localItem1Add = new ItemState(localItem1, ItemState.ADDED, false, null);
     exportLog.add(localItem1Add);
     ItemState localProp1Add = new ItemState(remoteProperty1, ItemState.ADDED, false, null);
@@ -1394,7 +1395,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: local changes will be restored, remote changes will be applied
    */
   public void testUpdateRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     localItem21x2B = new TransientNodeData(QPath.makeChildPath(localItem2.getQPath(),
                                                                new InternalQName(null, "item21"),
@@ -1444,9 +1445,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -1463,7 +1464,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -1486,7 +1487,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted to new path
    */
   public void testUpdateRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
@@ -1503,7 +1504,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     // remote property (as prop of local item 11)
     ItemData remoteProperty111 = new TransientPropertyData(QPath.makeChildPath(localItem21x2A.getQPath(),
@@ -1516,11 +1517,11 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                            false);
     ((TransientPropertyData) remoteProperty111).setValue(new TransientValueData(111));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     ItemState Item111Update = new ItemState(remoteProperty111, ItemState.UPDATED, false, null);
     remoteLog.add(Item111Update);
 
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(Item111Update, income, local);
@@ -1543,7 +1544,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testUpdateRemotePriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localProperty111 = new TransientPropertyData(QPath.makeChildPath(localItem21x1B.getQPath(),
                                                                               new InternalQName(null,
@@ -1555,9 +1556,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           false);
     ItemState localItem111Update = new ItemState(localProperty111, ItemState.UPDATED, false, null);
     localLog.add(localItem111Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -1574,7 +1575,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
@@ -1594,7 +1595,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted to new path
    */
   public void testUpdateRemotePriority4() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localProperty21 = new TransientPropertyData(QPath.makeChildPath(localItem2.getQPath(),
                                                                              new InternalQName(null,
@@ -1606,9 +1607,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false);
     ItemState localItem111Update = new ItemState(localProperty21, ItemState.UPDATED, false, null);
     localLog.add(localItem111Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     ItemData remoteProperty21 = new TransientPropertyData(QPath.makeChildPath(remoteItem2.getQPath(),
                                                                               new InternalQName(null,
                                                                                                 "testProperty111")),
@@ -1619,7 +1620,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                           false);
     ItemState remoteItem21Update = new ItemState(remoteProperty21, ItemState.UPDATED, false, null);
     remoteLog.add(localItem111Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21Update, income, local);
@@ -1637,7 +1638,7 @@ public class UpdateMergerTest extends BaseMergerTest {
    * Expect: local changes will be restored, remote changes will be applied
    */
   public void testUpdateRemotePriority5() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemData localItem2x2B = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                        new InternalQName(null,
@@ -1721,9 +1722,9 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                        false,
                                                        null);
     localLog.add(localItem2x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog remoteLog = new PlainChangesLogImpl();
+    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21x2Remove = new ItemState(remoteItem21x2B,
                                                          ItemState.DELETED,
@@ -1740,7 +1741,7 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     remoteLog.add(remoteItem21x1Update);
-    income.addLog(remoteLog);
+    income.addLog(new TransactionChangesLog(remoteLog));
 
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);

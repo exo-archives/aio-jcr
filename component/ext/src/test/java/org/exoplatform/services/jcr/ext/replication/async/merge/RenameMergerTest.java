@@ -20,6 +20,7 @@ import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -115,13 +116,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem11.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem111Add = new ItemState(localItem111, ItemState.ADDED, false, null);
     localLog.add(localItem111Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -133,7 +134,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -187,13 +188,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                        remoteItem2.getIdentifier(),
                                                        new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21Add = new ItemState(localItem21, ItemState.ADDED, false, null);
     localLog.add(localItem21Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -205,7 +206,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -247,13 +248,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem2.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem3Add = new ItemState(localItem3, ItemState.ADDED, false, null);
     localLog.add(localItem3Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -265,7 +266,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -364,13 +365,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem11.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem111Delete = new ItemState(localItem111, ItemState.DELETED, false, null);
     localLog.add(localItem111Delete);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem111Deleted = new ItemState(remoteItem111,
                                                          ItemState.DELETED,
@@ -392,7 +393,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     incomeLog.add(remoteItem211Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem111Deleted, income, local);
@@ -440,13 +441,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem2.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem2Delete = new ItemState(localItem2, ItemState.DELETED, false, null);
     localLog.add(localItem2Delete);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -458,7 +459,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -475,7 +476,7 @@ public class RenameMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testUpdateLocalPriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
@@ -492,7 +493,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     final NodeData remoteItem21 = new TransientNodeData(localItem21x2B.getQPath(),
                                                         localItem21x2A.getIdentifier(),
@@ -517,7 +518,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                        Constants.ROOT_UUID,
                                                        new AccessControlList());
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21Deleted = new ItemState(remoteItem21,
                                                         ItemState.DELETED,
@@ -526,7 +527,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Deleted);
     final ItemState remoteItem3Renamed = new ItemState(remoteItem3, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem3Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem21Deleted, income, local);
@@ -544,7 +545,7 @@ public class RenameMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testUpdateLocalPriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
@@ -561,7 +562,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     final NodeData remoteItem21 = new TransientNodeData(localItem21x2B.getQPath(),
                                                         localItem21x2A.getIdentifier(),
@@ -599,7 +600,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                        Constants.ROOT_UUID,
                                                        new AccessControlList());
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem211Deleted = new ItemState(remoteItem211,
                                                          ItemState.DELETED,
@@ -608,7 +609,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem211Deleted);
     final ItemState remoteItem3Renamed = new ItemState(remoteItem3, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem3Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem211Deleted, income, local);
@@ -628,7 +629,7 @@ public class RenameMergerTest extends BaseMergerTest {
    * Expect: remote changes will be ignored
    */
   public void testUpdateLocalPriority3() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
@@ -645,7 +646,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     final NodeData remoteItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                            new InternalQName(null,
@@ -670,7 +671,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                          localItem21x2A.getIdentifier(),
                                                          new AccessControlList());
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem3Delete = new ItemState(remoteItem3, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem3Delete);
@@ -679,7 +680,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem211Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem3Delete, income, local);
@@ -747,23 +748,23 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         localItem3.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
     localLog.add(localItem11Delete);
     ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     ItemState remoteItem11Delete = new ItemState(remoteItem11, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem11Delete);
     ItemState remoteItem31Rename = new ItemState(remoteItem31, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem31Rename);
 
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
@@ -832,21 +833,21 @@ public class RenameMergerTest extends BaseMergerTest {
                                                          localItem11.getIdentifier(),
                                                          new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
     localLog.add(localItem11Delete);
     ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem31Delete);
     ItemState remoteItem111Rename = new ItemState(remoteItem111, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem111Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
@@ -912,21 +913,21 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         localItem1.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
     localLog.add(localItem11Delete);
     ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem31Delete);
     ItemState remoteItem21Rename = new ItemState(remoteItem21, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem21Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
@@ -992,15 +993,15 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         localItem1.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem31Delete);
     ItemState remoteItem21Rename = new ItemState(remoteItem21, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem21Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(true, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
@@ -1057,13 +1058,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem11.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem111Add = new ItemState(localItem111, ItemState.ADDED, false, null);
     localLog.add(localItem111Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -1077,7 +1078,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Renamed);
     final ItemState remoteItem211Add = new ItemState(remoteItem211, ItemState.ADDED, false, null);
     incomeLog.add(remoteItem211Add);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -1139,13 +1140,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                        remoteItem2.getIdentifier(),
                                                        new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21Add = new ItemState(localItem21, ItemState.ADDED, false, null);
     localLog.add(localItem21Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -1157,7 +1158,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -1206,13 +1207,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem2.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem3Add = new ItemState(localItem3, ItemState.ADDED, false, null);
     localLog.add(localItem3Add);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -1224,7 +1225,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Deleted, income, local);
@@ -1283,13 +1284,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem111.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem111Delete = new ItemState(localItem111, ItemState.DELETED, false, null);
     localLog.add(localItem111Delete);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem111Deleted = new ItemState(remoteItem111,
                                                          ItemState.DELETED,
@@ -1301,7 +1302,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                          false,
                                                          null);
     incomeLog.add(remoteItem211Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
 
@@ -1347,13 +1348,13 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem2.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem2Delete = new ItemState(localItem2, ItemState.DELETED, false, null);
     localLog.add(localItem2Delete);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -1365,9 +1366,9 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
-    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    PlainChangesLog exportLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem2Add = new ItemState(localItem2, ItemState.ADDED, false, null);
     exportLog.add(localItem2Add);
     final ItemState remoteItem21Add = new ItemState(remoteItem21, ItemState.ADDED, false, null);
@@ -1419,9 +1420,9 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         remoteItem2.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem11Deleted = new ItemState(remoteItem11,
                                                         ItemState.DELETED,
@@ -1433,9 +1434,9 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem21Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
-    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    PlainChangesLog exportLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem2Add = new ItemState(localItem2, ItemState.ADDED, false, null);
     exportLog.add(localItem2Add);
     final ItemState remoteItem21Add = new ItemState(remoteItem21, ItemState.ADDED, false, null);
@@ -1511,23 +1512,23 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         localItem3.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
     localLog.add(localItem11Delete);
     ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
 
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     ItemState remoteItem11Delete = new ItemState(remoteItem11, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem11Delete);
     ItemState remoteItem31Rename = new ItemState(remoteItem31, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem31Rename);
 
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
@@ -1601,15 +1602,15 @@ public class RenameMergerTest extends BaseMergerTest {
                                                          localItem11.getIdentifier(),
                                                          new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
     localLog.add(localItem11Delete);
     final ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem31Delete);
@@ -1618,9 +1619,9 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem111Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
-    PlainChangesLog exportLog = new PlainChangesLogImpl();
+    PlainChangesLog exportLog = new PlainChangesLogImpl("sessionId");
     final ItemState localItem11Add = new ItemState(localItem11, ItemState.ADDED, false, null);
     exportLog.add(localItem11Add);
     final ItemState localItem111Add = new ItemState(remoteItem111, ItemState.ADDED, false, null);
@@ -1697,21 +1698,21 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         localItem1.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     ItemState localItem11Delete = new ItemState(localItem11, ItemState.DELETED, false, null);
     localLog.add(localItem11Delete);
     ItemState localItem21Rename = new ItemState(localItem21, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem31Delete);
     ItemState remoteItem21Rename = new ItemState(remoteItem21, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem21Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
@@ -1781,15 +1782,15 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         localItem1.getIdentifier(),
                                                         new AccessControlList());
 
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     ItemState remoteItem31Delete = new ItemState(remoteItem31, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem31Delete);
     ItemState remoteItem21Rename = new ItemState(remoteItem21, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem21Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem31Delete, income, local);
@@ -1809,7 +1810,7 @@ public class RenameMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testUpdateRemotePriority() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
@@ -1826,7 +1827,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     final NodeData remoteItem21 = new TransientNodeData(localItem21x2B.getQPath(),
                                                         localItem21x2A.getIdentifier(),
@@ -1851,7 +1852,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                        Constants.ROOT_UUID,
                                                        new AccessControlList());
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem21Deleted = new ItemState(remoteItem21,
                                                         ItemState.DELETED,
@@ -1860,7 +1861,7 @@ public class RenameMergerTest extends BaseMergerTest {
     incomeLog.add(remoteItem21Deleted);
     final ItemState remoteItem3Renamed = new ItemState(remoteItem3, ItemState.RENAMED, false, null);
     incomeLog.add(remoteItem3Renamed);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem21Deleted, income, local);
@@ -1891,7 +1892,7 @@ public class RenameMergerTest extends BaseMergerTest {
    * Expect: remote changes will be accepted
    */
   public void testUpdateRemotePriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl();
+    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState localItem21x2Remove = new ItemState(localItem21x2B,
                                                         ItemState.DELETED,
@@ -1908,7 +1909,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     localLog.add(localItem21x1Update);
-    local.addLog(localLog);
+    local.addLog(new TransactionChangesLog(localLog));
 
     final NodeData remoteItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                            new InternalQName(null,
@@ -1935,7 +1936,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                          localItem21x2A.getIdentifier(),
                                                          new AccessControlList());
 
-    PlainChangesLog incomeLog = new PlainChangesLogImpl();
+    PlainChangesLog incomeLog = new PlainChangesLogImpl("sessionId");
 
     final ItemState remoteItem3Delete = new ItemState(remoteItem3, ItemState.DELETED, false, null);
     incomeLog.add(remoteItem3Delete);
@@ -1944,7 +1945,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                         false,
                                                         null);
     incomeLog.add(remoteItem211Rename);
-    income.addLog(incomeLog);
+    income.addLog(new TransactionChangesLog(incomeLog));
 
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem3Delete, income, local);
