@@ -49,6 +49,7 @@ public class TesterRemoteExporter implements RemoteExporter {
    * 
    */
   public TesterRemoteExporter(PlainChangesLog changes) {
+    this.changes = changes;
   }
 
   /**
@@ -76,11 +77,8 @@ public class TesterRemoteExporter implements RemoteExporter {
        Thread.sleep(100);
       }catch(InterruptedException e){
       }
-      File file = new File("/exportStor", Long.toString(timestamp));
+      File file =  File.createTempFile("exportStor", Long.toString(timestamp));
       
-      if (file.exists()){
-        throw new IOException("File already exists");
-      }
       String crc = ""; // crc is ignored
       ChangesFile chfile  = new ChangesFile(file, crc, timestamp);
 
@@ -92,6 +90,8 @@ public class TesterRemoteExporter implements RemoteExporter {
         out.writeObject(it.next());
       }
       out.close();
+      chfile.finishWrite();
+      
       chs = new ItemStatesStorage<ItemState>(chfile);
     } catch (IOException e) {
       throw new RemoteExportException(e);
