@@ -711,11 +711,11 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                       Constants.ROOT_UUID,
                                                       new AccessControlList());
 
-    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem21Delete = new ItemState(localItem21, ItemState.DELETED, false, null);
     localLog.add(localItem21Delete);
     ItemState localItem3Rename = new ItemState(localItem3, ItemState.RENAMED, false, null);
     localLog.add(localItem3Rename);
+    local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
@@ -778,12 +778,12 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem3Delete = new ItemState(localItem3, ItemState.DELETED, false, null);
     localLog.add(localItem3Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
+    local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
@@ -849,12 +849,13 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem1Delete = new ItemState(localItem1, ItemState.DELETED, false, null);
     localLog.add(localItem1Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
+
+    local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
@@ -1200,11 +1201,11 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                       Constants.ROOT_UUID,
                                                       new AccessControlList());
 
-    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem21Delete = new ItemState(localItem21, ItemState.DELETED, false, null);
     localLog.add(localItem21Delete);
     ItemState localItem3Rename = new ItemState(localItem3, ItemState.RENAMED, false, null);
     localLog.add(localItem3Rename);
+    local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
@@ -1272,12 +1273,13 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem3Delete = new ItemState(localItem3, ItemState.DELETED, false, null);
     localLog.add(localItem3Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
+
+    local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
@@ -1343,12 +1345,13 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                         remoteItem21x1B.getIdentifier(),
                                                         new AccessControlList());
 
-    local.addLog(new TransactionChangesLog(localLog));
     ItemState localItem1Delete = new ItemState(localItem1, ItemState.DELETED, false, null);
     localLog.add(localItem1Delete);
 
     ItemState localItem21Rename = new ItemState(localItem211, ItemState.RENAMED, false, null);
     localLog.add(localItem21Rename);
+
+    local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 

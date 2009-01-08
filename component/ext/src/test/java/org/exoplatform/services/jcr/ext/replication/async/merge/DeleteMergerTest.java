@@ -900,7 +900,7 @@ public class DeleteMergerTest extends BaseMergerTest {
    * 
    * Remote: Del N1
    * 
-   * Expect: income changes will be accepted.
+   * Expect: income changes will be ignored.
    */
   public void testAddNodeRemotePriority3() throws Exception {
     PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
@@ -917,18 +917,14 @@ public class DeleteMergerTest extends BaseMergerTest {
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
-    final ItemState remoteItem11Change = new ItemState(remoteItem11, ItemState.ADDED, false, null);
-    remoteLog.add(remoteItem11Change);
+    remoteLog.add(remoteItem1Change);
     income.addLog(new TransactionChangesLog(remoteLog));
 
     DeleteMerger deleteMerger = new DeleteMerger(false, new TesterRemoteExporter(), null, null);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Change, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 4);
-    assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
-
-    assertTrue("Remote DELETE state expected ", hasState(result, remoteItem1Change, true));
-    assertTrue("Remote ADD state expected ", hasState(result, remoteItem11Change, true));
+    assertEquals("Wrong changes count ", result.size(), 3);
+    assertTrue("Remote ADD state expected ", hasState(result, remoteItem1Change, true));
     assertTrue("Local DELETE state expected ", hasState(result, new ItemState(localItem112,
                                                                               ItemState.DELETED,
                                                                               false,
