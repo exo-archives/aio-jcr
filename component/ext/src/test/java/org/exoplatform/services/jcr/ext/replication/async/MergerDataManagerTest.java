@@ -1,6 +1,3 @@
-/**
- * 
- */
 /*
  * Copyright (C) 2003-2008 eXo Platform SAS.
  *
@@ -19,7 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.io.IOException;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -39,11 +41,13 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManagerTestWrapper;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -56,7 +60,7 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: TestMergerDataManager.java 111 2008-11-11 11:11:11Z $
  */
-public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPersistenceListener {
+public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPersistenceListener {
 
   private final int                         HIGH_PRIORITY = 100;
 
@@ -302,6 +306,152 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
     // high priority changes: add child
     node = root4.getNode("item1");
     node.addNode("item11");
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 4. Add Item on low priority to a deleted parent on high priority (conflict)
+   * 
+   * Expected (low priority) : apply income changes
+   * 
+   * Expected (high priority) : ignore income changes
+   */
+  public void testAddRemotePriority4() throws Exception {
+    // high priority changes: add node
+    Node node = root4.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: remove parent
+    node = root3.getNode("item1");
+    node.addNode("item11");
+
+    // high priority changes: add child
+    node = root4.getNode("item1");
+    node.remove();
+
+    membersChanges.clear();
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 5. Add Item to node on high priority moved parent on low priority (conflict)
+   * 
+   * Expected (low priority) : remove parent on new (move) destination, restore parent from high
+   * priority side
+   * 
+   * Expected (high priority) : ignore income changes
+   */
+  public void testAddLocalPriority5() throws Exception {
+    // low priority changes: add node
+    Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: move node
+    session3.move("/item1", "/item2");
+
+    // high priority changes: add child
+    node = root4.getNode("item1");
+    node.addNode("item11");
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 5. Add Item to node on low priority moved parent on high priority (conflict)
+   * 
+   * Expected (low priority) : remove parent on new (move) destination, restore parent from high
+   * priority side
+   * 
+   * Expected (high priority) : ignore income changes
+   */
+  public void testAddRemotePriority5() throws Exception {
+    // low priority changes: add node
+    Node node = root3.addNode("item1");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: add child
+    node = root3.getNode("item1");
+    node.addNode("item11");
+
+    // high priority changes: move node
+    session4.move("/item1", "/item2");
 
     membersChanges.clear();
 
@@ -593,10 +743,10 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
    * 
    * @param log
    * @param priority
-   * @throws IOException 
    */
-  protected void addChangesToChangesStorage(TransactionChangesLog cLog, int priority) throws IOException {
-    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(new Member(null, priority));
+  protected void addChangesToChangesStorage(TransactionChangesLog cLog, int priority) throws Exception {
+    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(new Member(null,
+                                                                                             priority));
     changes.addLog(cLog);
     membersChanges.add(changes);
   }
@@ -620,6 +770,52 @@ public class TestMergerDataManager extends BaseStandaloneTest implements ItemsPe
     }
 
     dm.save(new TransactionChangesLog(resLog));
+  }
+
+  /**
+   * exportNode.
+   * 
+   * @param node
+   * @throws Exception
+   */
+  protected PlainChangesLog exportNodeFromHighPriority(Node node) throws Exception {
+    NodeData d = (NodeData) ((NodeImpl) node).getData();
+
+    File chLogFile = File.createTempFile("chLog", "");
+    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(chLogFile));
+
+    ItemDataExportVisitor vis = new ItemDataExportVisitor(out,
+                                                          d,
+                                                          ((SessionImpl) session4).getWorkspace()
+                                                                                  .getNodeTypesHolder(),
+                                                          ((SessionImpl) session4).getTransientNodesManager());
+
+    d.accept(vis);
+    out.close();
+
+    return new PlainChangesLogImpl(getItemStatesFromChLog(chLogFile), session4.getId());
+  }
+
+  /**
+   * getItemStatesFromChLog.
+   * 
+   * @param f
+   * @return
+   * @throws Exception
+   */
+  protected List<ItemState> getItemStatesFromChLog(File f) throws Exception {
+
+    ObjectInputStream in = new ObjectInputStream(new FileInputStream(f));
+    ItemState elem;
+    List<ItemState> list = new ArrayList<ItemState>();
+    try {
+      while ((elem = (ItemState) in.readObject()) != null) {
+        list.add(elem);
+      }
+    } catch (EOFException e) {
+
+    }
+    return list;
   }
 
   /**

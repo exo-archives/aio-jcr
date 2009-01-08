@@ -18,10 +18,8 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
@@ -155,10 +153,12 @@ public class RenameMerger implements ChangesMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (localData.getQPath().isDescendantOf(incomeData.getQPath())
-              || localData.getQPath().equals(incomeData.getQPath())
-              || localData.getQPath().isDescendantOf(nextIncomeState.getData().getQPath())
-              || localData.getQPath().equals(nextIncomeState.getData().getQPath())) {
+          if (incomeData.isNode()
+              && ((localData.getQPath().isDescendantOf(incomeData.getQPath())
+                  || localData.getQPath().equals(incomeData.getQPath())
+                  || localData.getQPath().isDescendantOf(nextIncomeState.getData().getQPath()) || localData.getQPath()
+                                                                                                           .equals(nextIncomeState.getData()
+                                                                                                                                  .getQPath())))) {
 
             // add DELETE state
             Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
@@ -181,17 +181,52 @@ public class RenameMerger implements ChangesMerger {
             }
 
             // add all state from income changes
-            if (!itemChangeProcessed) {
-              resultState.add(incomeState);
-              resultState.add(nextIncomeState);
-            }
-
-            for (ItemState st : income.getDescendantsChanges(nextIncomeState.getData().getQPath(),
-                                                             false))
+            for (ItemState st : income.getChanges(incomeState.getData().getQPath()))
+              resultState.add(st);
+            for (ItemState st : income.getChanges(nextIncomeState.getData().getQPath()))
               resultState.add(st);
 
             itemChangeProcessed = true;
+          } else if (!incomeData.isNode()
+              && ((localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath())
+                  || localData.getQPath().equals(incomeData.getQPath().makeParentPath())
+                  || localData.getQPath().isDescendantOf(nextIncomeState.getData()
+                                                                        .getQPath()
+                                                                        .makeParentPath()) || localData.getQPath()
+                                                                                                       .equals(nextIncomeState.getData()
+                                                                                                                              .getQPath()
+                                                                                                                              .makeParentPath())))) {
+            // add DELETE state
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              if (local.findLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              itemsArray[i].isEventFire(),
+                                              itemsArray[i].getData().getQPath()));
+              }
+            }
+            if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
+              resultState.add(new ItemState(localData,
+                                            ItemState.DELETED,
+                                            localState.isEventFire(),
+                                            localData.getQPath()));
+            }
+
+            // add all state from income changes
+            for (ItemState st : income.getChanges(incomeState.getData().getQPath().makeParentPath()))
+              resultState.add(st);
+            for (ItemState st : income.getChanges(nextIncomeState.getData()
+                                                                 .getQPath()
+                                                                 .makeParentPath()))
+              resultState.add(st);
+
+            return resultState;
           }
+
           break;
         case ItemState.UPDATED:
           break;
@@ -212,7 +247,7 @@ public class RenameMerger implements ChangesMerger {
 
               // set new data
               NodeData node = (NodeData) incomeData;
-              
+
               TransientNodeData item = new TransientNodeData(qPath,
                                                              node.getIdentifier(),
                                                              node.getPersistedVersion(),
@@ -221,7 +256,7 @@ public class RenameMerger implements ChangesMerger {
                                                              node.getOrderNumber(),
                                                              node.getParentIdentifier(),
                                                              node.getACL());
-              
+
               incomeState = new ItemState(item, ItemState.DELETED, incomeState.isEventFire(), qPath);
               resultState.add(incomeState);
               resultState.add(nextIncomeState);
@@ -241,7 +276,7 @@ public class RenameMerger implements ChangesMerger {
 
               // set new data
               NodeData node = (NodeData) nextIncomeState.getData();
-              
+
               TransientNodeData item = new TransientNodeData(qPath,
                                                              node.getIdentifier(),
                                                              node.getPersistedVersion(),
@@ -250,7 +285,7 @@ public class RenameMerger implements ChangesMerger {
                                                              node.getOrderNumber(),
                                                              node.getParentIdentifier(),
                                                              node.getACL());
-              
+
               nextIncomeState = new ItemState(item,
                                               ItemState.RENAMED,
                                               nextIncomeState.isEventFire(),

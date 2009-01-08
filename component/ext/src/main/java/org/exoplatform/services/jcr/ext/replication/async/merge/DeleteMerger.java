@@ -234,12 +234,16 @@ public class DeleteMerger implements ChangesMerger {
             }
 
             // apply income changes for all subtree
-            resultState.add(itemChange);
-
-            for (ItemState st : income.getDescendantsChanges(incomeData.getQPath(), false))
+            for (ItemState st : income.getChanges(incomeData.getQPath()))
               resultState.add(st);
 
             return resultState;
+          } else if (!incomeData.isNode()
+              && income.hasParentDeleteState(incomeState)
+              && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
+                                                                                                          .equals(incomeData.getQPath()
+                                                                                                                            .makeParentPath()))) {
+            return resultEmptyState;
           }
           break;
         case ItemState.DELETED:
