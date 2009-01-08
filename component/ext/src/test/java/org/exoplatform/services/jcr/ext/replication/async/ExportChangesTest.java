@@ -35,7 +35,7 @@ import org.jgroups.stack.IpAddress;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: TestExportChanges.java 111 2008-11-11 11:11:11Z serg $
  */
-public class TestExportChanges extends BaseStandaloneTest {
+public class ExportChangesTest extends BaseStandaloneTest {
 
   private static final String CH_CONFIG = "TCP(oob_thread_pool.queue_max_size=100;"
                                             + "thread_naming_pattern=cl;"
@@ -96,7 +96,6 @@ public class TestExportChanges extends BaseStandaloneTest {
   public void testGetExport() throws Exception {
 
     // create node
-
     NodeImpl n = (NodeImpl) root.addNode("testNode", "nt:unstructured");
 
     NodeData d = (NodeData) n.getData();

@@ -46,7 +46,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
  * Created by The eXo Platform SAS Author : Karpenko Sergiy 
  *  karpenko.sergiy@gmail.com.
  */
-public class TestItemDataExportVisitor extends BaseStandaloneTest {
+public class ItemDataExportVisitorTest extends BaseStandaloneTest {
 
   static int suf = 0;
   

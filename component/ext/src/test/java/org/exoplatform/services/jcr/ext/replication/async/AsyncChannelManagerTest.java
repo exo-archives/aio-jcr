@@ -36,7 +36,7 @@ import org.jgroups.stack.IpAddress;
 /**
  * Created by The eXo Platform SAS Author : Karpenko Sergiy karpenko.sergiy@gmail.com.
  */
-public class TestAsyncChannelManager extends BaseStandaloneTest {
+public class AsyncChannelManagerTest extends BaseStandaloneTest {
 
   protected abstract class TestPacketListener implements AsyncPacketListener {
     abstract boolean isTested();
