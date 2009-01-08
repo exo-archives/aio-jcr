@@ -16,16 +16,20 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.Iterator;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportResponce;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
@@ -45,7 +49,6 @@ public class TesterRemoteExporter implements RemoteExporter {
    * 
    */
   public TesterRemoteExporter(PlainChangesLog changes) {
-    this.changes = changes;
   }
 
   /**
@@ -60,9 +63,36 @@ public class TesterRemoteExporter implements RemoteExporter {
    * {@inheritDoc}
    */
   public ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException {
-    TesterChangesStorage<ItemState> chs = new TesterChangesStorage<ItemState>(new Member(null, -1));
+    
+    ChangesStorage<ItemState> chs = null;
+    
+  
     try {
-      chs.addLog(new TransactionChangesLog(changes));
+      
+      long timestamp = System.currentTimeMillis();
+      try{
+        
+       //TODO CHANGE ChangesFile naming system!!!!!! 
+       Thread.sleep(100);
+      }catch(InterruptedException e){
+      }
+      File file = new File("/exportStor", Long.toString(timestamp));
+      
+      if (file.exists()){
+        throw new IOException("File already exists");
+      }
+      String crc = ""; // crc is ignored
+      ChangesFile chfile  = new ChangesFile(file, crc, timestamp);
+
+      ObjectOutputStream out = new ObjectOutputStream(chfile.getOutputStream());
+      
+      Iterator<ItemState> it = changes.getAllStates().iterator();
+      
+      while(it.hasNext()){
+        out.writeObject(it.next());
+      }
+      out.close();
+      chs = new ItemStatesStorage<ItemState>(chfile);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }
