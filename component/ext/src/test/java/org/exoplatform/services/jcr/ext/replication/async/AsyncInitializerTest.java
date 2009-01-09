@@ -285,6 +285,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
       // ok. 
     }
     
+    assertNull(startEventSubscriber1.members);
+    assertNull(startEventSubscriber2.members);
+    
     // wait timeout
     Thread.sleep(memberWaitTimeout + 5000);
     
@@ -295,6 +298,121 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
       // ok. 
     }
     
+  }
+  
+  public void testFourMembers_one_NotConnected() throws Exception {
+
+    String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
+
+    AsyncChannelManager channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel3 = new AsyncChannelManager(chConfig, CH_NAME);
+
+    // first member parameters
+    int memberPriority_1 = 50;
+    List<Integer> otherParticipantsPriority_1 = new ArrayList<Integer>();
+    otherParticipantsPriority_1.add(100);
+    otherParticipantsPriority_1.add(30);
+    otherParticipantsPriority_1.add(20);
+
+    // second member parameters
+    int memberPriority_2 = 100;
+    List<Integer> otherParticipantsPriority_2 = new ArrayList<Integer>();
+    otherParticipantsPriority_2.add(50);
+    otherParticipantsPriority_2.add(30);
+    otherParticipantsPriority_2.add(20);
+    
+    // third member parameters
+    int memberPriority_3 = 30;
+    List<Integer> otherParticipantsPriority_3 = new ArrayList<Integer>();
+    otherParticipantsPriority_3.add(50);
+    otherParticipantsPriority_3.add(100);
+    otherParticipantsPriority_3.add(20);
+
+    int memberWaitTimeout = 10000; // 10 sec.
+    boolean cancelMemberNotConnected = true;
+
+    AsyncInitializer initializer1 = new AsyncInitializer(channel1,
+                                                         memberPriority_1,
+                                                         otherParticipantsPriority_1,
+                                                         memberWaitTimeout,
+                                                         cancelMemberNotConnected);
+
+    AsyncInitializer initializer2 = new AsyncInitializer(channel2,
+                                                         memberPriority_2,
+                                                         otherParticipantsPriority_2,
+                                                         memberWaitTimeout,
+                                                         cancelMemberNotConnected);
+    
+    AsyncInitializer initializer3 = new AsyncInitializer(channel3,
+                                                         memberPriority_3,
+                                                         otherParticipantsPriority_3,
+                                                         memberWaitTimeout,
+                                                         cancelMemberNotConnected);
+
+    channel1.addStateListener(initializer1);
+    channel2.addStateListener(initializer2);
+    channel3.addStateListener(initializer3);
+    
+    StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
+    initializer1.addMembersListener(startEventSubscriber1);
+    
+    StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
+    initializer2.addMembersListener(startEventSubscriber2);
+    
+    StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(false);
+    initializer3.addMembersListener(startEventSubscriber3);
+    
+    // connect to channel
+    channel3.connect();
+    channel1.connect();
+    channel2.connect();
+    
+ // wait timeout
+    Thread.sleep(memberWaitTimeout + 5000);
+    
+    assertNull(startEventSubscriber1.members);
+    assertNull(startEventSubscriber2.members);
+    assertNull(startEventSubscriber3.members);
+
+    
+    // disconnect from channel
+    try {
+      channel3.disconnect();
+      fail("JChannel will be 'null'.");
+    } catch (NullPointerException e) {
+      // ok. 
+    }
+    
+    assertNull(startEventSubscriber1.members);
+    assertNull(startEventSubscriber2.members);
+    assertNull(startEventSubscriber3.members);
+    
+    // wait timeout
+    Thread.sleep(memberWaitTimeout + 5000);
+    
+    try {
+      channel1.disconnect();
+      fail("JChannel will be 'null'.");
+    } catch (NullPointerException e) {
+      // ok. 
+    }
+    
+    assertNull(startEventSubscriber1.members);
+    assertNull(startEventSubscriber2.members);
+    assertNull(startEventSubscriber3.members);
+    
+    // wait timeout
+    Thread.sleep(memberWaitTimeout + 5000);
+    
+    try {
+      channel3.disconnect();
+      fail("JChannel will be 'null'.");
+    } catch (NullPointerException e) {
+      // ok. 
+    }
+
+
   }
   
   private class StartEventSubscriber implements RemoteEventListener {
