@@ -95,4 +95,9 @@ public class ItemDefinitionData {
     return protectedItem;
   }
 
+  @Override
+  public String toString() {
+    return name.getAsString();
+  }
+
 }

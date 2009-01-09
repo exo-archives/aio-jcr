@@ -28,6 +28,7 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
+import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -51,7 +52,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class PropertyDefinitionComparator {
+public class PropertyDefinitionComparator extends DefinitionComparator {
   /**
    * Class logger.
    */
@@ -77,9 +78,9 @@ public class PropertyDefinitionComparator {
     this.persister = persister;
   }
 
-  public PlainChangesLog processPropertyDefinitionChanges(NodeTypeData registeredNodeType,
-                                                          PropertyDefinitionData[] ancestorDefinition,
-                                                          PropertyDefinitionData[] recipientDefinition) throws RepositoryException {
+  public PlainChangesLog compare(NodeTypeData registeredNodeType,
+                                 PropertyDefinitionData[] ancestorDefinition,
+                                 PropertyDefinitionData[] recipientDefinition) throws RepositoryException {
 
     List<PropertyDefinitionData> sameDefinitionData = new ArrayList<PropertyDefinitionData>();
     List<List<PropertyDefinitionData>> changedDefinitionData = new ArrayList<List<PropertyDefinitionData>>();
@@ -100,15 +101,213 @@ public class PropertyDefinitionComparator {
     validateRemoved(registeredNodeType, removedDefinitionData);
 
     // new property definition
-    validateAdded(newDefinitionData);
+    validateAdded(registeredNodeType, newDefinitionData, recipientDefinition);
 
     Set<String> nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+    // changed
+    validateChanged(registeredNodeType, changedDefinitionData, nodes, recipientDefinition);
+
     //
     doAdd(newDefinitionData, changesLog, nodes, registeredNodeType);
-    // changed
-    doChanged(registeredNodeType, changedDefinitionData, nodes);
     return changesLog;
 
+  }
+
+  /**
+   * @param registeredNodeType
+   * @param recipientDefinitionData
+   * @param allRecipientDefinition
+   * @throws RepositoryException
+   * @throws ConstraintViolationException
+   */
+  private void checkIsMultiple(NodeTypeData registeredNodeType,
+                               PropertyDefinitionData recipientDefinitionData,
+                               ItemDefinitionData[] allRecipientDefinition) throws RepositoryException,
+                                                                           ConstraintViolationException {
+    Set<String> nodes2;
+    if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+      nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+    } else {
+      nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
+                                            new InternalQName[] { recipientDefinitionData.getName() },
+                                            new InternalQName[] {});
+    }
+    for (String uuid : nodes2) {
+      NodeData nodeData = (NodeData) persister.getItemData(uuid);
+      if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+        List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
+        for (PropertyData propertyData : propertyDatas) {
+          // skip mixin and primary type
+          if (isResidualMatch(propertyData.getQPath().getName(), allRecipientDefinition)) {
+            if (propertyData.getValues().size() > 1) {
+              throw new ConstraintViolationException("Can't change property definition "
+                  + recipientDefinitionData.getName().getAsString()
+                  + " to isMultiple = false because property "
+                  + propertyData.getQPath().getAsString() + " contains more then one value");
+            }
+          }
+        }
+      } else {
+        PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
+                                                                         new QPathEntry(recipientDefinitionData.getName(),
+                                                                                        0));
+        if (propertyData.getValues().size() > 1) {
+          throw new ConstraintViolationException("Can't change property definition "
+              + recipientDefinitionData.getName().getAsString()
+              + " to isMultiple = false because property " + propertyData.getQPath().getAsString()
+              + " contains more then one value");
+        }
+
+      }
+    }
+  }
+
+  /**
+   * @param registeredNodeType
+   * @param nodes
+   * @param recipientDefinitionData
+   * @throws RepositoryException
+   */
+  private void checkMandatory(NodeTypeData registeredNodeType,
+                              Set<String> nodes,
+                              PropertyDefinitionData recipientDefinitionData) throws RepositoryException {
+    if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())
+        && recipientDefinitionData.isMandatory())
+      throw new ConstraintViolationException("Invalid property definition "
+          + recipientDefinitionData.getName() + ". Residual definition can't be mandatory");
+    Set<String> nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
+                                                      new InternalQName[] {},
+                                                      new InternalQName[] { recipientDefinitionData.getName() });
+    if (nodes2.size() > 0) {
+      String message = "Can not change " + recipientDefinitionData.getName().getAsString()
+          + " property definition from mandatory=false to mandatory = true , because "
+          + " the following nodes ";
+      for (String uuids : nodes) {
+        message += uuids + " ";
+      }
+      message += "  doesn't have these properties ";
+
+      throw new RepositoryException(message);
+    }
+  }
+
+  /**
+   * @param registeredNodeType
+   * @param nodes
+   * @param recipientDefinitionData
+   * @throws RepositoryException
+   */
+  private void checkProtected(NodeTypeData registeredNodeType,
+                              Set<String> nodes,
+                              PropertyDefinitionData recipientDefinitionData) throws RepositoryException {
+    if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())
+        && recipientDefinitionData.isMandatory())
+      throw new ConstraintViolationException("Invalid property definition "
+          + recipientDefinitionData.getName() + ". Residual definition can't be protected");
+
+    Set<String> nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
+                                                      new InternalQName[] {},
+                                                      new InternalQName[] { recipientDefinitionData.getName() });
+    if (nodes2.size() > 0) {
+      String message = "Can not change " + recipientDefinitionData.getName().getAsString()
+          + " property definition from Protected=false to Protected = true , because "
+          + " the following nodes ";
+      for (String uuids : nodes) {
+        message += uuids + " ";
+      }
+      message += "  doesn't have these properties ";
+
+      throw new RepositoryException(message);
+    }
+  }
+
+  /**
+   * @param registeredNodeType
+   * @param recipientDefinitionData
+   * @param allRecipientDefinition
+   * @throws RepositoryException
+   */
+  private void checkRequiredType(NodeTypeData registeredNodeType,
+                                 PropertyDefinitionData recipientDefinitionData,
+                                 PropertyDefinitionData[] allRecipientDefinition) throws RepositoryException {
+    Set<String> nodes2;
+    if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+      nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+    } else {
+      nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
+                                            new InternalQName[] { recipientDefinitionData.getName() },
+                                            new InternalQName[] {});
+    }
+    for (String uuid : nodes2) {
+      NodeData nodeData = (NodeData) persister.getItemData(uuid);
+      if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+        List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
+        for (PropertyData propertyData : propertyDatas) {
+          // skip mixin and primary type
+          if (isResidualMatch(propertyData.getQPath().getName(), allRecipientDefinition)) {
+            if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
+              throw new RepositoryException("Can not change  requiredType to "
+                  + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
+                  + " in " + recipientDefinitionData.getName().getAsString() + "  because "
+                  + propertyData.getQPath().getAsString() + " have "
+                  + ExtendedPropertyType.nameFromValue(propertyData.getType()));
+
+            }
+          }
+        }
+
+      } else {
+        PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
+                                                                         new QPathEntry(recipientDefinitionData.getName(),
+                                                                                        0));
+        if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
+          throw new RepositoryException("Can not change  requiredType to "
+              + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
+              + " in " + recipientDefinitionData.getName().getAsString() + "  because "
+              + propertyData.getQPath().getAsString() + " have "
+              + ExtendedPropertyType.nameFromValue(propertyData.getType()));
+        }
+      }
+
+    }
+  }
+
+  /**
+   * @param registeredNodeType
+   * @param recipientDefinitionData
+   * @param allRecipientDefinition
+   * @throws RepositoryException
+   * @throws ConstraintViolationException
+   */
+  private void checkValueConstraints(NodeTypeData registeredNodeType,
+                                     PropertyDefinitionData recipientDefinitionData,
+                                     ItemDefinitionData[] allRecipientDefinition) throws RepositoryException,
+                                                                                 ConstraintViolationException {
+    Set<String> nodes2;
+    if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+      nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
+    } else {
+      nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
+                                            new InternalQName[] { recipientDefinitionData.getName() },
+                                            new InternalQName[] {});
+    }
+    for (String uuid : nodes2) {
+      NodeData nodeData = (NodeData) persister.getItemData(uuid);
+      if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
+        List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
+        for (PropertyData propertyData : propertyDatas) {
+          // skip mixin and primary type
+          if (isResidualMatch(propertyData.getQPath().getName(), allRecipientDefinition)) {
+            checkValueConstraints(recipientDefinitionData, propertyData);
+          }
+        }
+      } else {
+        PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
+                                                                         new QPathEntry(recipientDefinitionData.getName(),
+                                                                                        0));
+        checkValueConstraints(recipientDefinitionData, propertyData);
+      }
+    }
   }
 
   private void checkValueConstraints(PropertyDefinitionData def, PropertyData propertyData) throws ConstraintViolationException,
@@ -169,174 +368,6 @@ public class PropertyDefinitionComparator {
   }
 
   /**
-   * @param registeredNodeType
-   * @param changedDefinitionData
-   * @param nodes
-   * @throws RepositoryException
-   */
-  private void doChanged(NodeTypeData registeredNodeType,
-                         List<List<PropertyDefinitionData>> changedDefinitionData,
-                         Set<String> nodes) throws RepositoryException {
-    for (List<PropertyDefinitionData> list : changedDefinitionData) {
-      PropertyDefinitionData ancestorDefinitionData = list.get(0);
-      PropertyDefinitionData recipientDefinitionData = list.get(1);
-      // change from mandatory=false to mandatory = true
-      // TODO residual
-      if (!ancestorDefinitionData.isMandatory() && recipientDefinitionData.isMandatory()) {
-        Set<String> nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
-                                                          new InternalQName[] {},
-                                                          new InternalQName[] { recipientDefinitionData.getName() });
-        if (nodes2.size() > 0) {
-          String message = "Can not change " + recipientDefinitionData.getName().getAsString()
-              + " property definition from mandatory=false to mandatory = true , because "
-              + " the following nodes ";
-          for (String uuids : nodes) {
-            message += uuids + " ";
-          }
-          message += "  doesn't have these properties ";
-
-          throw new RepositoryException(message);
-        }
-
-      }
-      // change from Protected=false to Protected = true
-      if (!ancestorDefinitionData.isProtected() && recipientDefinitionData.isProtected()) {
-        // TODO residual
-        Set<String> nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
-                                                          new InternalQName[] {},
-                                                          new InternalQName[] { recipientDefinitionData.getName() });
-        if (nodes2.size() > 0) {
-          String message = "Can not change " + recipientDefinitionData.getName().getAsString()
-              + " property definition from Protected=false to Protected = true , because "
-              + " the following nodes ";
-          for (String uuids : nodes) {
-            message += uuids + " ";
-          }
-          message += "  doesn't have these properties ";
-
-          throw new RepositoryException(message);
-        }
-      }
-      // Required type change
-      if (ancestorDefinitionData.getRequiredType() != recipientDefinitionData.getRequiredType()
-          && recipientDefinitionData.getRequiredType() != PropertyType.UNDEFINED) {
-        Set<String> nodes2;
-        if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
-          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
-        } else {
-          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
-                                                new InternalQName[] { recipientDefinitionData.getName() },
-                                                new InternalQName[] {});
-        }
-        for (String uuid : nodes2) {
-          NodeData nodeData = (NodeData) persister.getItemData(uuid);
-          if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
-            List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
-            for (PropertyData propertyData : propertyDatas) {
-              // skip mixin and primary type
-              if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
-                  && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
-                if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
-                  throw new RepositoryException("Can not change  requiredType to "
-                      + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
-                      + " in " + recipientDefinitionData.getName().getAsString() + "  because "
-                      + propertyData.getQPath().getAsString() + " have "
-                      + ExtendedPropertyType.nameFromValue(propertyData.getType()));
-
-                }
-              }
-            }
-
-          } else {
-            PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
-                                                                             new QPathEntry(recipientDefinitionData.getName(),
-                                                                                            0));
-            if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
-              throw new RepositoryException("Can not change  requiredType to "
-                  + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
-                  + " in " + recipientDefinitionData.getName().getAsString() + "  because "
-                  + propertyData.getQPath().getAsString() + " have "
-                  + ExtendedPropertyType.nameFromValue(propertyData.getType()));
-            }
-          }
-
-        }
-      }
-      // ValueConstraints
-      if (!Arrays.deepEquals(ancestorDefinitionData.getValueConstraints(),
-                             recipientDefinitionData.getValueConstraints())) {
-        Set<String> nodes2;
-        if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
-          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
-        } else {
-          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
-                                                new InternalQName[] { recipientDefinitionData.getName() },
-                                                new InternalQName[] {});
-        }
-        for (String uuid : nodes2) {
-          NodeData nodeData = (NodeData) persister.getItemData(uuid);
-          if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
-            List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
-            for (PropertyData propertyData : propertyDatas) {
-              // skip mixin and primary type
-              if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
-                  && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
-                checkValueConstraints(recipientDefinitionData, propertyData);
-              }
-            }
-          } else {
-            PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
-                                                                             new QPathEntry(recipientDefinitionData.getName(),
-                                                                                            0));
-            checkValueConstraints(recipientDefinitionData, propertyData);
-          }
-        }
-      }
-      // multiple change
-      if (ancestorDefinitionData.isMultiple() && !recipientDefinitionData.isMultiple()) {
-        Set<String> nodes2;
-        if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
-          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
-        } else {
-          nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
-                                                new InternalQName[] { recipientDefinitionData.getName() },
-                                                new InternalQName[] {});
-        }
-        for (String uuid : nodes2) {
-          NodeData nodeData = (NodeData) persister.getItemData(uuid);
-          if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
-            List<PropertyData> propertyDatas = persister.getChildPropertiesData(nodeData);
-            for (PropertyData propertyData : propertyDatas) {
-              // skip mixin and primary type
-              if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
-                  && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
-                if (propertyData.getValues().size() > 1) {
-                  throw new ConstraintViolationException("Can't change property definition "
-                      + recipientDefinitionData.getName().getAsString()
-                      + " to isMultiple = false because property "
-                      + propertyData.getQPath().getAsString() + " contains more then one value");
-                }
-              }
-            }
-          } else {
-            PropertyData propertyData = (PropertyData) persister.getItemData(nodeData,
-                                                                             new QPathEntry(recipientDefinitionData.getName(),
-                                                                                            0));
-            if (propertyData.getValues().size() > 1) {
-              throw new ConstraintViolationException("Can't change property definition "
-                  + recipientDefinitionData.getName().getAsString()
-                  + " to isMultiple = false because property "
-                  + propertyData.getQPath().getAsString() + " contains more then one value");
-            }
-
-          }
-        }
-      }
-
-    }
-  }
-
-  /**
    * @param ancestorDefinition
    * @param recipientDefinition
    * @param sameDefinitionData
@@ -372,7 +403,7 @@ public class PropertyDefinitionComparator {
     for (int i = 0; i < ancestorDefinition.length; i++) {
       boolean isRemoved = true;
       for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
+        if (recipientDefinition[j].getName().equals(ancestorDefinition[i].getName())) {
           isRemoved = false;
           break;
         }
@@ -383,17 +414,25 @@ public class PropertyDefinitionComparator {
   }
 
   /**
+   * @param registeredNodeType
    * @param newDefinitionData
    * @param removedDefinitionData
    * @param toAddList
    * @throws RepositoryException
    */
-  private void validateAdded(List<PropertyDefinitionData> newDefinitionData) throws RepositoryException {
+  private void validateAdded(NodeTypeData registeredNodeType,
+                             List<PropertyDefinitionData> newDefinitionData,
+                             PropertyDefinitionData[] allRecipientDefinition) throws RepositoryException {
     if (newDefinitionData.size() > 0) {
-
       for (PropertyDefinitionData propertyDefinitionData : newDefinitionData) {
         if (propertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
-          // TODO add residual check existed for all constraint
+          // Required type change
+          checkRequiredType(registeredNodeType, propertyDefinitionData, allRecipientDefinition);
+          // ValueConstraints
+          checkValueConstraints(registeredNodeType, propertyDefinitionData, allRecipientDefinition);
+          // multiple change
+          checkIsMultiple(registeredNodeType, propertyDefinitionData, allRecipientDefinition);
+
         } else {
           if (propertyDefinitionData.isMandatory() || propertyDefinitionData.isAutoCreated()) {
             if (propertyDefinitionData.getDefaultValues().length == 0)
@@ -403,6 +442,47 @@ public class PropertyDefinitionComparator {
           }
         }
       }
+    }
+  }
+
+  /**
+   * @param registeredNodeType
+   * @param changedDefinitionData
+   * @param nodes
+   * @param allRecipientDefinition
+   * @throws RepositoryException
+   */
+  private void validateChanged(NodeTypeData registeredNodeType,
+                               List<List<PropertyDefinitionData>> changedDefinitionData,
+                               Set<String> nodes,
+                               PropertyDefinitionData[] allRecipientDefinition) throws RepositoryException {
+    for (List<PropertyDefinitionData> list : changedDefinitionData) {
+      PropertyDefinitionData ancestorDefinitionData = list.get(0);
+      PropertyDefinitionData recipientDefinitionData = list.get(1);
+      // change from mandatory=false to mandatory = true
+      if (!ancestorDefinitionData.isMandatory() && recipientDefinitionData.isMandatory()) {
+        checkMandatory(registeredNodeType, nodes, recipientDefinitionData);
+
+      }
+      // change from Protected=false to Protected = true
+      if (!ancestorDefinitionData.isProtected() && recipientDefinitionData.isProtected()) {
+        checkProtected(registeredNodeType, nodes, recipientDefinitionData);
+      }
+      // Required type change
+      if (ancestorDefinitionData.getRequiredType() != recipientDefinitionData.getRequiredType()
+          && recipientDefinitionData.getRequiredType() != PropertyType.UNDEFINED) {
+        checkRequiredType(registeredNodeType, recipientDefinitionData, allRecipientDefinition);
+      }
+      // ValueConstraints
+      if (!Arrays.deepEquals(ancestorDefinitionData.getValueConstraints(),
+                             recipientDefinitionData.getValueConstraints())) {
+        checkValueConstraints(registeredNodeType, recipientDefinitionData, allRecipientDefinition);
+      }
+      // multiple change
+      if (ancestorDefinitionData.isMultiple() && !recipientDefinitionData.isMultiple()) {
+        checkIsMultiple(registeredNodeType, recipientDefinitionData, allRecipientDefinition);
+      }
+
     }
   }
 
