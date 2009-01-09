@@ -27,20 +27,16 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -77,21 +73,21 @@ import org.exoplatform.services.jcr.webdav.util.NodeTypeUtil;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.rest.ExtHttpHeaders;
-import org.exoplatform.services.rest.ext.method.webdav.CHECKOUT;
-import org.exoplatform.services.rest.ext.method.webdav.COPY;
-import org.exoplatform.services.rest.ext.method.webdav.LOCK;
-import org.exoplatform.services.rest.ext.method.webdav.MKCOL;
-import org.exoplatform.services.rest.ext.method.webdav.MOVE;
-import org.exoplatform.services.rest.ext.method.webdav.OPTIONS;
-import org.exoplatform.services.rest.ext.method.webdav.ORDERPATCH;
-import org.exoplatform.services.rest.ext.method.webdav.PROPFIND;
-import org.exoplatform.services.rest.ext.method.webdav.PROPPATCH;
-import org.exoplatform.services.rest.ext.method.webdav.REPORT;
-import org.exoplatform.services.rest.ext.method.webdav.SEARCH;
-import org.exoplatform.services.rest.ext.method.webdav.UNCHECKOUT;
-import org.exoplatform.services.rest.ext.method.webdav.UNLOCK;
-import org.exoplatform.services.rest.ext.method.webdav.VERSIONCONTROL;
-import org.exoplatform.services.rest.impl.ResourceBinder;
+import org.exoplatform.services.rest.ext.webdav.method.CHECKIN;
+import org.exoplatform.services.rest.ext.webdav.method.CHECKOUT;
+import org.exoplatform.services.rest.ext.webdav.method.COPY;
+import org.exoplatform.services.rest.ext.webdav.method.LOCK;
+import org.exoplatform.services.rest.ext.webdav.method.MKCOL;
+import org.exoplatform.services.rest.ext.webdav.method.MOVE;
+import org.exoplatform.services.rest.ext.webdav.method.OPTIONS;
+import org.exoplatform.services.rest.ext.webdav.method.ORDERPATCH;
+import org.exoplatform.services.rest.ext.webdav.method.PROPFIND;
+import org.exoplatform.services.rest.ext.webdav.method.PROPPATCH;
+import org.exoplatform.services.rest.ext.webdav.method.REPORT;
+import org.exoplatform.services.rest.ext.webdav.method.SEARCH;
+import org.exoplatform.services.rest.ext.webdav.method.UNCHECKOUT;
+import org.exoplatform.services.rest.ext.webdav.method.UNLOCK;
+import org.exoplatform.services.rest.ext.webdav.method.VERSIONCONTROL;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
 /**
@@ -206,7 +202,7 @@ public class WebDavServiceImpl implements WebDavService, ResourceContainer {
 
   }
 
-  @CHECKOUT
+  @CHECKIN
   @Path("/{repoName}/{repoPath:.*}/")
   public Response checkin(@PathParam("repoName") String repoName,
                           @PathParam("repoPath") String repoPath,
