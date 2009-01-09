@@ -59,11 +59,6 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
     assertEquals(et, res.getString());
   }
   
-  public void testBinaryValue(){
-    
-    
-  }
-  
   public void testBLOBValue() throws Exception{
     File f = this.createBLOBTempFile(1024);
     
@@ -94,9 +89,12 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
     byte[] chBuf = new byte[bufsize];
     int el=0;
     int cl=0;
-    while((el=etalon.read(etBuf))!=-1 && (cl=check.read(chBuf))!=-1){
+    while((el=etalon.read(etBuf))!=-1) {
+      cl=check.read(chBuf);
       assertEquals(el,cl);
+      assertTrue(java.util.Arrays.equals(etBuf, chBuf));
     }
+    assertEquals(-1,check.read(chBuf));
     
   }
 }

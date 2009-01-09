@@ -179,7 +179,7 @@ public class ReplicableValueData extends TransientValueData {
 
     long length = in.readLong();
 
-    if (length > DEF_MAX_BUF_SIZE) {
+    if (length > maxBufferSize) {
       // store data as file
       
       //TODO where store spool file
@@ -194,6 +194,7 @@ public class ReplicableValueData extends TransientValueData {
       while((l=in.read(buf))!=-1){
         sfout.write(buf, 0, l );
       }
+      sfout.close();
       
       this.spoolFile = sf;
       
