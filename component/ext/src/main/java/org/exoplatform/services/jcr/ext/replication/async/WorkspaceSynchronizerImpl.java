@@ -20,13 +20,17 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -40,6 +44,159 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
+  
+  class WraperList<T extends ItemState> implements List<ItemState>{
+
+    private ChangesStorage<ItemState> storage;
+    public WraperList(ChangesStorage<ItemState> storage){
+      this.storage = storage;
+    }
+    
+    public boolean add(ItemState o) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public void add(int index, ItemState element) {
+      // TODO Auto-generated method stub
+    }
+
+    public boolean addAll(Collection<? extends ItemState> c) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public boolean addAll(int index, Collection<? extends ItemState> c) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public void clear() {
+      // TODO Auto-generated method stub
+    }
+
+    public boolean contains(Object o) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public boolean containsAll(Collection<?> c) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public ItemState get(int index) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public int indexOf(Object o) {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+
+    public boolean isEmpty() {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public Iterator<ItemState> iterator() {
+      try{
+        return this.storage.getChanges();
+      }catch(IOException e){
+        //TODO
+        return null;
+      }
+    }
+
+    public int lastIndexOf(Object o) {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+
+    public ListIterator<ItemState> listIterator() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public ListIterator<ItemState> listIterator(int index) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public boolean remove(Object o) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public ItemState remove(int index) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public boolean removeAll(Collection<?> c) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public boolean retainAll(Collection<?> c) {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
+    public ItemState set(int index, ItemState element) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public int size() {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+
+    public List<ItemState> subList(int fromIndex, int toIndex) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public Object[] toArray() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public <T> T[] toArray(T[] a) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+    
+  }
+  
+  
+  class WraperChangesLog implements ItemStateChangesLog{
+
+    private ChangesStorage<ItemState> storage;
+    public WraperChangesLog(ChangesStorage<ItemState> synchronizedChanges){
+      storage = synchronizedChanges;
+    }
+    
+    public String dump() {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    public List<ItemState> getAllStates() {
+      return new WraperList<ItemState>(storage);
+    }
+
+    public int getSize() {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+    
+  }
+  
+  
+  
 
   private static final Log              LOG = ExoLogger.getLogger("ext.WorkspaceSynchronizerImpl");
 
@@ -66,15 +223,18 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    */
   public void save(ChangesStorage<ItemState> synchronizedChanges) {
     // TODO save to Workspace data manager
+    
+    
+    
 
     LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
 
-    PlainChangesLogImpl changes = new PlainChangesLogImpl();
+    ItemStateChangesLog changes = new WraperChangesLog(synchronizedChanges);
 
     // TODO for demo
     try {
-      for (Iterator<ItemState> iter = synchronizedChanges.getChanges(); iter.hasNext();)
-        changes.add(iter.next());
+      //for (Iterator<ItemState> iter = synchronizedChanges.getChanges(); iter.hasNext();)
+        //changes.add(iter.next());
 
       workspace.save(changes);
     } catch (InvalidItemStateException e) {
@@ -86,10 +246,10 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     } catch (RepositoryException e) {
       // TODO message fix
       LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    } catch (IOException e) {
+    }// catch (IOException e) {
       // TODO message fix
-      LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    }
+     // LOG.info("WorkspaceSynchronizer.save error " + e, e);
+    //}
   }
 
 }

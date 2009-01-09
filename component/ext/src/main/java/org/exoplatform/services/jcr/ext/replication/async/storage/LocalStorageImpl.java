@@ -135,12 +135,10 @@ public class LocalStorageImpl implements LocalStorage {
           destlist.add(nItem);
         }
       }
-      // create new palin changeslog
+      // create new plain changeslog
       result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId(), plog.getEventType()));
     }
-
     return result;
-
   }
 
 }
