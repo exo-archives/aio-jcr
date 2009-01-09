@@ -115,44 +115,102 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
 
     NodeData parent = curParent();
 
-    InternalQName qname = null;
+    int destIndex; // index for path
+    int destOrderNum; // order number
 
-    List<NodeData> existedChilds = dataManager.getChildNodesData(parent);
-    int newIndex = 1;
+    InternalQName qname;
     if (level == 0) {
       qname = destNodeName;
-      // [PN] 12.01.07 Calculate SNS index for dest root
-      for (NodeData child : existedChilds) {
-        if (child.getQPath().getName().equals(qname)) {
-          newIndex++; // next sibling index
+      
+      List<NodeData> destChilds = dataManager.getChildNodesData(parent);
+      List<NodeData> srcChilds;
+      
+      destIndex = 1;
+      destOrderNum = destChilds.size() - 1;
+      
+      if (parent.getIdentifier().equals(node.getParentIdentifier())) {
+        // move to another dest
+        srcChilds = destChilds;
+      } else {
+        // move of SNSes on same parent
+        // find index and orederNum on destination
+        for (NodeData dchild : destChilds) {
+          if (dchild.getQPath().getName().equals(qname))
+            destIndex++;
+        }
+        // TODO ordernumber same for two last childs TestSameNameSiblingsMove.testMoveToDiffLocation()
+        
+        // fix SNSes on source
+        NodeData srcParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
+        if (srcParent == null)
+          throw new RepositoryException("FATAL: parent Node not for "
+              + node.getQPath().getAsString() + ", parent id: " + node.getParentIdentifier());
+        
+        srcChilds = dataManager.getChildNodesData(srcParent);
+      }
+
+      int srcOrderNum = 0;
+      int srcIndex = 1;
+      
+      // Calculate SNS index on source
+      for (int i = 0; i < srcChilds.size(); i++) {
+        NodeData child = srcChilds.get(i);
+        if (!child.getIdentifier().equals(node.getIdentifier())) {
+          if (child.getQPath().getName().equals(qname)) {
+            QPath siblingPath = QPath.makeChildPath(parent.getQPath(),
+                                                    child.getQPath().getName(),
+                                                    srcIndex);
+            TransientNodeData sibling = new TransientNodeData(siblingPath,
+                                                              child.getIdentifier(),
+                                                              child.getPersistedVersion() + 1,
+                                                              child.getPrimaryTypeName(),
+                                                              child.getMixinTypeNames(),
+                                                              srcOrderNum, // orderNum
+                                                              child.getParentIdentifier(),
+                                                              child.getACL());
+            itemAddStates.add(new ItemState(sibling,
+                                            ItemState.UPDATED,
+                                            true,
+                                            ancestorToSave,
+                                            false,
+                                            true));
+
+            srcIndex++;
+          }
+
+          srcOrderNum++;
         }
       }
+      
+      if (srcChilds == destChilds) {
+        destIndex = srcIndex;
+        destOrderNum = srcOrderNum;
+      } 
+
+      // TODO Remove it. Calc order number if parent supports orderable nodes...
+      // If ordering is supported by the node type of the parent node of the new location, then the
+      // newly moved node is appended to the end of the child node list.
+      // if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(),
+      // parent.getMixinTypeNames()))
+      // orderNum = existedChilds.size() - 1;
+      // else
+      // orderNum = node.getOrderNumber();
     } else {
       qname = node.getQPath().getName();
-      newIndex = node.getQPath().getIndex();
+      destIndex = node.getQPath().getIndex();
+      destOrderNum = node.getOrderNumber();
     }
-
-    // [PN] 05.01.07 Calc order number if parent supports orderable nodes...
-    // If ordering is supported by the node type of the parent node of the new location, then the
-    // newly moved node is appended to the end of the child node list.
-    int orderNum = 0;
-    if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(),
-                                                 parent.getMixinTypeNames())) {
-      if (existedChilds.size() > 0)
-        orderNum = existedChilds.get(existedChilds.size() - 1).getOrderNumber() + 1;
-    } else
-      orderNum = node.getOrderNumber(); // has no matter
 
     String id = keepIdentifiers ? node.getIdentifier() : IdGenerator.generate();
 
-    QPath qpath = QPath.makeChildPath(parent.getQPath(), qname, newIndex);
+    QPath qpath = QPath.makeChildPath(parent.getQPath(), qname, destIndex);
 
     TransientNodeData newNode = new TransientNodeData(qpath,
                                                       id,
                                                       -1,
                                                       node.getPrimaryTypeName(),
                                                       node.getMixinTypeNames(),
-                                                      orderNum,
+                                                      destOrderNum,
                                                       parent.getIdentifier(),
                                                       node.getACL());
 
