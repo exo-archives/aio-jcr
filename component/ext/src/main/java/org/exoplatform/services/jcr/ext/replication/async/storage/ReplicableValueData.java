@@ -42,16 +42,16 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  */
 public class ReplicableValueData extends TransientValueData {
 
-  private static final int DEF_MAX_BUF_SIZE = 2048;//2kb
- 
+  private static final int DEF_MAX_BUF_SIZE = 2048; // 2kb
+
   public ReplicableValueData(int orderNumber,
-                            byte[] bytes,
-                            InputStream stream,
-                            File spoolFile,
-                            FileCleaner fileCleaner,
-                            int maxBufferSize,
-                            File tempDirectory,
-                            boolean deleteSpoolFile) throws IOException {
+                             byte[] bytes,
+                             InputStream stream,
+                             File spoolFile,
+                             FileCleaner fileCleaner,
+                             int maxBufferSize,
+                             File tempDirectory,
+                             boolean deleteSpoolFile) throws IOException {
 
     super(orderNumber,
           bytes,
@@ -61,10 +61,10 @@ public class ReplicableValueData extends TransientValueData {
           maxBufferSize,
           tempDirectory,
           deleteSpoolFile);
-    
-    }
 
-  public  ReplicableValueData(InputStream stream) {
+  }
+
+  public ReplicableValueData(InputStream stream) {
     super(stream);
   }
 
@@ -73,7 +73,7 @@ public class ReplicableValueData extends TransientValueData {
    * 
    * @param value
    */
-  public  ReplicableValueData(String value) {
+  public ReplicableValueData(String value) {
     super(value);
   }
 
@@ -82,7 +82,7 @@ public class ReplicableValueData extends TransientValueData {
    * 
    * @param value
    */
-  public  ReplicableValueData(boolean value) {
+  public ReplicableValueData(boolean value) {
     super(value);
   }
 
@@ -91,7 +91,7 @@ public class ReplicableValueData extends TransientValueData {
    * 
    * @param value
    */
-  public  ReplicableValueData(Calendar value) {
+  public ReplicableValueData(Calendar value) {
     super(value);
   }
 
@@ -100,7 +100,7 @@ public class ReplicableValueData extends TransientValueData {
    * 
    * @param value
    */
-  public  ReplicableValueData(double value) {
+  public ReplicableValueData(double value) {
     super(value);
   }
 
@@ -118,7 +118,7 @@ public class ReplicableValueData extends TransientValueData {
    * 
    * @param value
    */
-  public  ReplicableValueData(InternalQName value) {
+  public ReplicableValueData(InternalQName value) {
     super(value);
   }
 
@@ -127,7 +127,7 @@ public class ReplicableValueData extends TransientValueData {
    * 
    * @param value
    */
-  public  ReplicableValueData(QPath value) {
+  public ReplicableValueData(QPath value) {
     super(value);
   }
 
@@ -145,13 +145,13 @@ public class ReplicableValueData extends TransientValueData {
    * 
    * @param value
    */
-  public  ReplicableValueData(AccessControlEntry value) {
+  public ReplicableValueData(AccessControlEntry value) {
     super(value);
   }
 
   public ReplicableValueData() {
   }
-  
+
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(orderNumber);
     out.writeInt(maxBufferSize);
@@ -174,35 +174,42 @@ public class ReplicableValueData extends TransientValueData {
   }
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    orderNumber = in.readInt();
-    maxBufferSize = in.readInt();
+    this.orderNumber = in.readInt();
+    this.maxBufferSize = in.readInt();
 
     long length = in.readLong();
 
     if (length > maxBufferSize) {
       // store data as file
-      
-      //TODO where store spool file
+
+      // TODO where store spool file
       SpoolFile sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
       FileOutputStream sfout = new FileOutputStream(sf);
-      
+
       byte[] buf = new byte[DEF_MAX_BUF_SIZE];
 
       sf.acquire(this);
-      
-      int l=0;
-      while((l=in.read(buf))!=-1){
-        sfout.write(buf, 0, l );
+
+      int l = 0;
+      for (; length >= DEF_MAX_BUF_SIZE; length -= DEF_MAX_BUF_SIZE) {
+        in.readFully(buf);
+        sfout.write(buf);
       }
+
+      if (length > 0) {
+        buf = new byte[(int)length];
+        in.readFully(buf);
+        sfout.write(buf);
+      }
+      
       sfout.close();
-      
+
       this.spoolFile = sf;
-      
+
     } else {
       // store data as bytearray
-      data = new byte[(int) length];
-      for (int i = 0; i < data.length; i++)
-        data[i] = in.readByte();
+      this.data = new byte[(int) length];
+      in.readFully(data);
     }
   }
 }
