@@ -152,6 +152,29 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return resultStates;
   }
 
+  // merge
+  public List<ItemState> getRenameSequence(ItemState startState) {
+    List<ItemState> resultStates = new ArrayList<ItemState>();
+
+    List<ItemState> allStates = getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        resultStates.add(startState);
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          resultStates.add(item);
+          if (item.getState() == ItemState.RENAMED
+              && item.getData().getIdentifier().equals(startState.getData().getIdentifier())) {
+            return resultStates;
+          }
+        }
+        break;
+      }
+    }
+
+    return resultStates;
+  }
+
   public ItemState getItemState(NodeData parentData, QPathEntry name) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
@@ -266,7 +289,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   }
 
   // merger
-  public boolean hasParentDeleteState(ItemState startState) throws IOException {
+  public boolean hasParentDeleteState(ItemState startState) {
     List<ItemState> allStates = getAllStates();
 
     for (int i = 0; i < allStates.size(); i++) {
@@ -278,6 +301,23 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
             return true;
           }
         }
+      }
+    }
+
+    return false;
+  }
+
+  // merger
+  /**
+   */
+  public boolean hasState(ItemState itemState) {
+    List<ItemState> allStates = getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      ItemState item = allStates.get(i);
+      if (item.getData().getQPath().equals(itemState.getData().getQPath())
+          && item.equals(itemState)) {
+        return true;
       }
     }
 
