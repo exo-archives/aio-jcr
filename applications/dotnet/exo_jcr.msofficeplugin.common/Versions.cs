@@ -182,7 +182,7 @@ namespace exo_jcr.msofficeplugin.common
                  currentFileName = this.application.getActiveDocumentName();
             }
             catch (Exception exc) {
-                MessageBox.Show("There is no active file.", "Error");
+                MessageBox.Show("There is no active file to compare.", "Error");
                 this.Close();
                 return;
             }
