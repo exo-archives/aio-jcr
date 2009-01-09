@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.ByteArrayInputStream;
+import java.io.Externalizable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,16 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Calendar;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
-import org.exoplatform.services.jcr.access.AccessControlEntry;
-import org.exoplatform.services.jcr.datamodel.Identifier;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.JCRDateFormat;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
+import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date:
@@ -40,122 +39,42 @@ import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ReplicableValueData.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ReplicableValueData extends TransientValueData {
+public class ReplicableValueData implements ValueData, Externalizable {
 
-  private static final int DEF_MAX_BUF_SIZE = 2048; // 2kb
+  protected static final Log LOG              = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
-  public ReplicableValueData(int orderNumber,
-                             byte[] bytes,
-                             InputStream stream,
-                             File spoolFile,
-                             FileCleaner fileCleaner,
-                             int maxBufferSize,
-                             File tempDirectory,
-                             boolean deleteSpoolFile) throws IOException {
+  private static final int   DEF_MAX_BUF_SIZE = 2048;                                       // 2kb
 
-    super(orderNumber,
-          bytes,
-          stream,
-          spoolFile,
-          fileCleaner,
-          maxBufferSize,
-          tempDirectory,
-          deleteSpoolFile);
+  private int                orderNumber;
 
+  private byte[]             data;
+
+  private File               spoolFile;
+
+  public ReplicableValueData(File file, int order) throws IOException {
+    this.orderNumber = order;
+    this.spoolFile = file;
+    if (spoolFile != null) {
+      if (spoolFile instanceof SpoolFile)
+        ((SpoolFile) spoolFile).acquire(this);
+    }
+    this.data = null;
   }
 
-  public ReplicableValueData(InputStream stream) {
-    super(stream);
-  }
-
-  /**
-   * Constructor for String value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(String value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for boolean value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(boolean value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for Calendar value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(Calendar value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for double value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(double value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for long value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(long value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for Name value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(InternalQName value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for Path value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(QPath value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for Reference value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(Identifier value) {
-    super(value);
-  }
-
-  /**
-   * Constructor for Permission value data
-   * 
-   * @param value
-   */
-  public ReplicableValueData(AccessControlEntry value) {
-    super(value);
+  public ReplicableValueData(byte[] data, int order) {
+    this.orderNumber = order;
+    this.spoolFile = null;
+    this.data = data;
   }
 
   public ReplicableValueData() {
-    super();
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(orderNumber);
-    out.writeInt(maxBufferSize);
+
+    // TODO maxBufferSize ?
+    // out.writeInt(maxBufferSize);
 
     // write data
     if (this.isByteArray()) {
@@ -166,7 +85,7 @@ public class ReplicableValueData extends TransientValueData {
       long length = this.spoolFile.length();
       out.writeLong(length);
       InputStream in = new FileInputStream(spoolFile);
-      byte[] buf = new byte[length > maxBufferSize ? maxBufferSize : (int) length];
+      byte[] buf = new byte[length > DEF_MAX_BUF_SIZE  ? DEF_MAX_BUF_SIZE : (int) length];
       int l = 0;
       while ((l = in.read(buf)) != -1) {
         out.write(buf, 0, l);
@@ -176,33 +95,34 @@ public class ReplicableValueData extends TransientValueData {
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     this.orderNumber = in.readInt();
-    this.maxBufferSize = in.readInt();
+    // TODO maxBufferSize ?
+    // this.maxBufferSize = in.readInt();
 
     long length = in.readLong();
 
-    if (length > maxBufferSize) {
+    if (length > DEF_MAX_BUF_SIZE) {
       // store data as file
 
       // TODO where store spool file
-      SpoolFile sf = SpoolFile.createTempFile("jcrvd", null, tempDirectory);
+      SpoolFile sf = new SpoolFile( File.createTempFile("repValDat", null).getAbsolutePath());
       FileOutputStream sfout = new FileOutputStream(sf);
 
       byte[] buf = new byte[DEF_MAX_BUF_SIZE];
 
       sf.acquire(this);
 
-      //int l = 0;
+      // int l = 0;
       for (; length >= DEF_MAX_BUF_SIZE; length -= DEF_MAX_BUF_SIZE) {
         in.readFully(buf);
         sfout.write(buf);
       }
 
       if (length > 0) {
-        buf = new byte[(int)length];
+        buf = new byte[(int) length];
         in.readFully(buf);
         sfout.write(buf);
       }
-      
+
       sfout.close();
 
       this.spoolFile = sf;
@@ -212,5 +132,58 @@ public class ReplicableValueData extends TransientValueData {
       this.data = new byte[(int) length];
       in.readFully(data);
     }
+  }
+
+  public byte[] getAsByteArray() throws IllegalStateException, IOException {
+    if (data != null) {
+      return data;
+    } else if (spoolFile != null) {
+      FileChannel fch = new FileInputStream(spoolFile).getChannel();
+
+      if (LOG.isDebugEnabled() && fch.size() > DEF_MAX_BUF_SIZE)
+        LOG.warn("Potential lack of memory due to call getAsByteArray() on stream data exceeded "
+            + fch.size() + " bytes");
+
+      try {
+        ByteBuffer bb = ByteBuffer.allocate((int) fch.size());
+        fch.read(bb);
+        if (bb.hasArray()) {
+          return bb.array();
+        } else {
+          // impossible code in most cases, as we use heap backed buffer
+          byte[] tmpb = new byte[bb.capacity()];
+          bb.get(tmpb);
+          return tmpb;
+        }
+      } finally {
+        fch.close();
+      }
+    } else
+      throw new NullPointerException("Null Stream data ");
+  }
+
+  public InputStream getAsStream() throws IOException {
+    if (data != null) {
+      return new ByteArrayInputStream(data);
+    } else if (spoolFile != null) {
+      return new FileInputStream(spoolFile);
+    } else
+      throw new NullPointerException("Null Stream data ");
+  }
+
+  public long getLength() {
+    return (isByteArray() ? data.length : spoolFile.length());
+  }
+
+  public int getOrderNumber() {
+    return orderNumber;
+  }
+
+  public boolean isByteArray() {
+    return (data != null);
+  }
+
+  public void setOrderNumber(int orderNum) {
+    this.orderNumber = orderNum;
   }
 }

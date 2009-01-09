@@ -32,13 +32,8 @@ import java.util.List;
 import java.util.Random;
 
 import org.exoplatform.services.jcr.access.AccessControlEntry;
-import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.datamodel.ItemData;
-import org.exoplatform.services.jcr.datamodel.PropertyData;
-import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 
 /**
@@ -56,7 +51,7 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
   public void testStoreStringValue() throws Exception {
     String et = "hello";
 
-    ReplicableValueData val = new ReplicableValueData(et);
+    ReplicableValueData val = new ReplicableValueData(et.getBytes(), 12);
 
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
 
@@ -69,13 +64,13 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
 
     ReplicableValueData res = (ReplicableValueData) in.readObject();
 
-    assertEquals(et, res.getString());
+    assertTrue(java.util.Arrays.equals(et.getBytes(), res.getAsByteArray()));
   }
 
   public void testBLOBValue() throws Exception {
+    
     File f = this.createBLOBTempFile(1024);
-
-    ReplicableValueData val = new ReplicableValueData(new FileInputStream(f));
+    ReplicableValueData val = new ReplicableValueData(f, 10);
 
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
 
@@ -102,34 +97,34 @@ public class ReplicableValuDataTest extends BaseStandaloneTest {
     Random random = new Random();
     byte[] bytes = new byte[2475];
     random.nextBytes(bytes);
-    list.add(new ReplicableValueData(new ByteArrayInputStream(bytes)));
+    list.add(new ReplicableValueData(bytes,10));
     
     String str = "hello";
-    list.add(new ReplicableValueData(str));
+    list.add(new ReplicableValueData(str.getBytes() , 4));
 
-    boolean bool = true;
-    list.add(new ReplicableValueData(bool));
+    //boolean bool = true;
+    //list.add(new ReplicableValueData(bool));
 
     Calendar c = Calendar.getInstance();
-    list.add(new ReplicableValueData(c));
+    list.add(new ReplicableValueData(c.toString().getBytes(),1));
 
-    double d = 4.15;
-    list.add(new ReplicableValueData(d));
+    //double d = 4.15;
+    //list.add(new ReplicableValueData(d));
 
-    long l = 4468672;
-    list.add(new ReplicableValueData(l));
+    //long l = 4468672;
+    //list.add(new ReplicableValueData(l));
 
     InternalQName name = new InternalQName("jcr", "system");
-    list.add(new ReplicableValueData(name));
+    list.add(new ReplicableValueData(name.toString().getBytes(),5));
 
 //    QPath path = QPath.parse("/node");
  //   list.add(new ReplicableValueData(path));
 
-    Identifier id = new Identifier("some_id");
-    list.add(new ReplicableValueData(id));
+   // Identifier id = new Identifier("some_id");
+    //list.add(new ReplicableValueData(id));
 
-    AccessControlEntry ac = new AccessControlEntry("identity", "permission");
-    list.add(new ReplicableValueData(ac));
+    //AccessControlEntry ac = new AccessControlEntry("identity", "permission");
+   // list.add(new ReplicableValueData(ac));
 
     // serialize it
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
