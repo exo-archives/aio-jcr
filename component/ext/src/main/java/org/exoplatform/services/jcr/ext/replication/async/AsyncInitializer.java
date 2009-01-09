@@ -115,7 +115,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         firstMemberWaiter = new FirstMemberWaiter();
         firstMemberWaiter.start();
       }
-    } else if (previousMemmbers.size() > event.getMembers().size()) {
+    } else if (event.getMembers().size() > previousMemmbers.size()) {
 
       // Will be created memberWaiter
       if (event.getMembers().size() == 2) {
@@ -128,9 +128,10 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       }
 
       // check if all member was connected
+
       if (event.getMembers().size() == (otherParticipantsPriority.size() + 1)) {
         if (isCoordinator) {
-          memberWaiter.stop();
+          memberWaiter.cancel();
           memberWaiter = null;
 
           List<Member> members = new ArrayList<Member>(event.getMembers());
@@ -156,14 +157,14 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         memberWaiter.start();
 
       } else if (event.isCoordinator() == true && isCoordinator == true) {
-        memberWaiter.stop();
+        memberWaiter.cancel();
         memberWaiter = null;
       }
 
     }
 
     if (event.getMembers().size() > 1 && firstMemberWaiter != null) {
-      firstMemberWaiter.stop();
+      firstMemberWaiter.cancel();
       firstMemberWaiter = null;
     }
 
@@ -178,6 +179,9 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    *          list of members
    */
   private void doStart(List<Member> members) {
+    // TODO remove log
+    log.info("onSart " + members.get(0).getName());
+
     if (isCoordinator)
       for (RemoteEventListener rl : listeners)
         rl.onStart(members);
@@ -189,11 +193,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   }
 
   public void receive(AbstractPacket packet, Member srcAddress) {
-    
+
     switch (packet.getType()) {
     case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
       log.info("SYNCHRONIZATION_CANCEL");
-      
+
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
@@ -203,7 +207,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
     case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
       log.info("SYNCHRONIZATION_MERGE");
-      
+
       Member member = new Member(srcAddress.getAddress(),
                                  ((MergePacket) packet).getTransmitterPriority());
 
@@ -226,9 +230,9 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
-    // not interested 
+    // not interested
   }
-  
+
   /**
    * {@inheritDoc}
    */
@@ -241,22 +245,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    */
   public void onStop() {
     log.info("AsyncInitializer.onStop");
-    
-    channelManager.disconnect();
-  }
 
-  /**
-   * Will be initialized connection to JChannel.
-   * 
-   * @throws CannotInitilizeConnectionsException
-   *           Will be generated the CannotInitilizeConnectionsException.
-   */
-  private void initChannel() throws CannotInitilizeConnectionsException {
-    try {
-      channelManager.connect();
-    } catch (ReplicationException e) {
-      throw new CannotInitilizeConnectionsException("Cannot initilize connections", e);
-    }
+    channelManager.disconnect();
   }
 
   /**
@@ -264,27 +254,36 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * 
    */
   private class LastMemberWaiter extends Thread {
+    protected volatile boolean run = true;
 
     @Override
     public void run() {
       try {
         Thread.sleep(memberWaitTimeout);
 
-        if (previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
-            && previousMemmbers.size() > 1 && cancelMemberNotConnected) {
-          List<Member> members = new ArrayList<Member>(previousMemmbers);
-          members.remove(localMember);
+          if (run 
+              && previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
+              && previousMemmbers.size() > 1 && !cancelMemberNotConnected) {
+            List<Member> members = new ArrayList<Member>(previousMemmbers);
+            members.remove(localMember);
 
-          doStart(members);
-        } else {
-          channelManager.disconnect();
-          doCancel(null);
-        }
+            doStart(members);
+          } else if (run) { 
+            channelManager.disconnect();
+            doCancel(null);
+          }
 
       } catch (Exception e) {
-        // TODO: handle exception
+        log.error("LastMemberWaiter is interrupted : " + e, e);
       }
+    }
 
+    /**
+     * Cancel run thread.
+     * 
+     */
+    public void cancel() {
+      run = false;
     }
   }
 
@@ -292,26 +291,20 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * FirstMemberWaiter - all member work.
    * 
    */
-  private class FirstMemberWaiter extends Thread {
+  private class FirstMemberWaiter extends LastMemberWaiter  {
 
     @Override
     public void run() {
       try {
         Thread.sleep(memberWaitTimeout);
 
-        if (previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
-            && previousMemmbers.size() > 1 && cancelMemberNotConnected) {
-          List<Member> members = new ArrayList<Member>(previousMemmbers);
-          members.remove(localMember);
-
-          doStart(members);
-        } else {
+        if (run && previousMemmbers.size() == 1) {
           channelManager.disconnect();
           doCancel(null);
         }
 
-      } catch (Exception e) {
-        // TODO: handle exception
+      } catch (InterruptedException e) {
+        log.error("FirstMemberWaiter is interrupted : " + e, e);
       }
 
     }
