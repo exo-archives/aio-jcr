@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.ReplicationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -30,9 +29,8 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketT
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.CannotInitilizeConnectionsException;
-import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -153,10 +151,13 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       if (event.isCoordinator() == true && isCoordinator == false) {
         isCoordinator = event.isCoordinator();
 
+        //TODO remove log
+        log.info("Create new LastMemberWaiter()");
+        
         memberWaiter = new LastMemberWaiter();
         memberWaiter.start();
 
-      } else if (event.isCoordinator() == true && isCoordinator == true) {
+      } else if (event.isCoordinator() == true && isCoordinator == true && memberWaiter != null) {
         memberWaiter.cancel();
         memberWaiter = null;
       }
@@ -261,17 +262,19 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       try {
         Thread.sleep(memberWaitTimeout);
 
-          if (run 
-              && previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
-              && previousMemmbers.size() > 1 && !cancelMemberNotConnected) {
-            List<Member> members = new ArrayList<Member>(previousMemmbers);
-            members.remove(localMember);
+        if (run && previousMemmbers.size() < (otherParticipantsPriority.size() + 1)
+            && previousMemmbers.size() > 1 && !cancelMemberNotConnected) {
+          List<Member> members = new ArrayList<Member>(previousMemmbers);
+          members.remove(localMember);
 
-            doStart(members);
-          } else if (run) { 
-            channelManager.disconnect();
-            doCancel(null);
-          }
+          doStart(members);
+        } else if (run) {
+          //TODO remove log
+          log.info("LastMemberWaiter : " + "channelManager.disconnect()");
+          
+          channelManager.disconnect();
+          doCancel(null);
+        }
 
       } catch (Exception e) {
         log.error("LastMemberWaiter is interrupted : " + e, e);
@@ -291,7 +294,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * FirstMemberWaiter - all member work.
    * 
    */
-  private class FirstMemberWaiter extends LastMemberWaiter  {
+  private class FirstMemberWaiter extends LastMemberWaiter {
 
     @Override
     public void run() {
