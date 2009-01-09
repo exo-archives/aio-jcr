@@ -150,6 +150,7 @@ public class ReplicableValueData extends TransientValueData {
   }
 
   public ReplicableValueData() {
+    super();
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
@@ -190,7 +191,7 @@ public class ReplicableValueData extends TransientValueData {
 
       sf.acquire(this);
 
-      int l = 0;
+      //int l = 0;
       for (; length >= DEF_MAX_BUF_SIZE; length -= DEF_MAX_BUF_SIZE) {
         in.readFully(buf);
         sfout.write(buf);

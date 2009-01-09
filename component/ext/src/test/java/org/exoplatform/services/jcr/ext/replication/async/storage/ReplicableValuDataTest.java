@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -23,78 +25,162 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
+import org.exoplatform.services.jcr.access.AccessControlEntry;
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.Identifier;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
+import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 
-
 /**
- * Created by The eXo Platform SAS.
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
- * <br/>Date: 
- *
- * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a> 
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ReplicableValuDataTest.java 111 2008-11-11 11:11:11Z serg $
  */
 public class ReplicableValuDataTest extends BaseStandaloneTest {
-  
+
   private static final String TEST_PREFIX = "pref";
+
   private static final String TEST_SUFFIX = "suf";
-  
-  public void testStoreStringValue() throws Exception{
+
+  public void testStoreStringValue() throws Exception {
     String et = "hello";
-    
+
     ReplicableValueData val = new ReplicableValueData(et);
-    
+
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
-    
+
     ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-    
+
     out.writeObject(val);
     out.close();
-    
+
     ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
-    
-    ReplicableValueData res = (ReplicableValueData)in.readObject();
-    
+
+    ReplicableValueData res = (ReplicableValueData) in.readObject();
+
     assertEquals(et, res.getString());
   }
-  
-  public void testBLOBValue() throws Exception{
+
+  public void testBLOBValue() throws Exception {
     File f = this.createBLOBTempFile(1024);
-    
+
     ReplicableValueData val = new ReplicableValueData(new FileInputStream(f));
-    
+
     File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
-    
+
     ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
-    
+
     out.writeObject(val);
     out.close();
-    
+
     ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
-    
-    ReplicableValueData res = (ReplicableValueData)in.readObject();
-    
-    
-    
+
+    ReplicableValueData res = (ReplicableValueData) in.readObject();
 
     checkStreams(new FileInputStream(f), res.getAsStream());
-    
+
   }
-  
-  public void checkStreams(InputStream etalon, InputStream check) throws IOException{
+
+  public void testValuesList() throws Exception {
+
+    // create values
+    List<ReplicableValueData> list = new ArrayList<ReplicableValueData>();
+
+   
+
+    Random random = new Random();
+    byte[] bytes = new byte[2475];
+    random.nextBytes(bytes);
+    list.add(new ReplicableValueData(new ByteArrayInputStream(bytes)));
     
-    int bufsize = 1024; 
+    String str = "hello";
+    list.add(new ReplicableValueData(str));
+
+    boolean bool = true;
+    list.add(new ReplicableValueData(bool));
+
+    Calendar c = Calendar.getInstance();
+    list.add(new ReplicableValueData(c));
+
+    double d = 4.15;
+    list.add(new ReplicableValueData(d));
+
+    long l = 4468672;
+    list.add(new ReplicableValueData(l));
+
+    InternalQName name = new InternalQName("jcr", "system");
+    list.add(new ReplicableValueData(name));
+
+//    QPath path = QPath.parse("/node");
+ //   list.add(new ReplicableValueData(path));
+
+    Identifier id = new Identifier("some_id");
+    list.add(new ReplicableValueData(id));
+
+    AccessControlEntry ac = new AccessControlEntry("identity", "permission");
+    list.add(new ReplicableValueData(ac));
+
+    // serialize it
+    File file = File.createTempFile(TEST_PREFIX, TEST_SUFFIX);
+
+    ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+
+    Iterator<ReplicableValueData> it = list.iterator();
+    while (it.hasNext()) {
+      out.writeObject(it.next());
+    }
+    out.close();
+
+    // read objects
+    ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+
+    List<ReplicableValueData> res = new ArrayList<ReplicableValueData>();
+    try {
+      ReplicableValueData val ;
+      while((val = (ReplicableValueData) in.readObject())!=null){
+        res.add(val);
+      }
+    } catch (EOFException e) {
+      // do nothing
+    } finally {
+      in.close();
+    }
+
+    // check lists
+    assertEquals(list.size(), res.size());
+
+    for (int i = 0; i < list.size(); i++) {
+
+      assertTrue(java.util.Arrays.equals(list.get(i).getAsByteArray(), res.get(i).getAsByteArray()));
+
+    }
+  }
+
+  public void checkStreams(InputStream etalon, InputStream check) throws IOException {
+
+    int bufsize = 1024;
     byte[] etBuf = new byte[bufsize];
     byte[] chBuf = new byte[bufsize];
-    int el=0;
-    int cl=0;
-    while((el=etalon.read(etBuf))!=-1) {
-      cl=check.read(chBuf);
-      assertEquals(el,cl);
+    int el = 0;
+    int cl = 0;
+    while ((el = etalon.read(etBuf)) != -1) {
+      cl = check.read(chBuf);
+      assertEquals(el, cl);
       assertTrue(java.util.Arrays.equals(etBuf, chBuf));
     }
-    assertEquals(-1,check.read(chBuf));
-    
+    assertEquals(-1, check.read(chBuf));
+
   }
+
 }
