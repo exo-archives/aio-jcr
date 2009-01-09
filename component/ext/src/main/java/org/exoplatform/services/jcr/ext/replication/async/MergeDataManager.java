@@ -167,6 +167,14 @@ public class MergeDataManager {
 
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
+                if (synchronizedChanges.hasState(new ItemState(nextIncomeChange.getData(),
+                                                               ItemState.ADDED,
+                                                               nextIncomeChange.isEventFire(),
+                                                               nextIncomeChange.getData()
+                                                                               .getQPath()))) {
+                  continue;
+                }
+
                 synchronizedChanges.addAll(renameMerger.merge(incomeChange, income, local));
                 // UPDATE
               } else if (nextIncomeChange != null

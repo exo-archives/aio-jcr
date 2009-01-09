@@ -317,7 +317,7 @@ public class DeleteMerger implements ChangesMerger {
 
           // RENAMED sequences
           if (nextState != null && nextState.getState() == ItemState.RENAMED) {
-            if (incomeData.isNode() && incomeData.getQPath().equals(localData.getQPath())) {
+            if (incomeData.getQPath().equals(localData.getQPath())) {
               resultState.add(new ItemState(nextState.getData(),
                                             ItemState.DELETED,
                                             nextState.isEventFire(),
@@ -325,7 +325,7 @@ public class DeleteMerger implements ChangesMerger {
               itemChangeProcessed = true;
               break;
             } else if (!incomeData.isNode()
-                && localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
+                && localData.getIdentifier().equals(incomeData.getParentIdentifier()) && !income.hasParentDeleteState(incomeState)) {
               resultState.add(new ItemState(nextState.getData(),
                                             ItemState.DELETED,
                                             nextState.isEventFire(),
@@ -336,6 +336,7 @@ public class DeleteMerger implements ChangesMerger {
               itemChangeProcessed = true;
               break;
             }
+
             break;
           }
 
