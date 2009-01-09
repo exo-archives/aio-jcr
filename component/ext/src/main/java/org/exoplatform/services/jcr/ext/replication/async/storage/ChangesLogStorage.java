@@ -42,7 +42,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T> {
 
-  protected static final Log      LOG = ExoLogger.getLogger("jcr.ChangesLogStorage");
+  protected static final Log        LOG = ExoLogger.getLogger("jcr.ChangesLogStorage");
 
   protected final List<ChangesFile> storage;
 
@@ -208,7 +208,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   public boolean hasState(ItemState state) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (it.next().equals(state)) {
+      if (it.next().hasState(state)) {
         return true;
       }
     }
@@ -324,6 +324,17 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
 
     return false;
+  }
+
+  public List<T> getRenameSequence(ItemState startState) throws IOException {
+    List<T> list = new ArrayList<T>();
+
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+
+    while (it.hasNext()) {
+      list.addAll((List<T>) it.next().getRenameSequence(startState));
+    }
+    return list;
   }
 
 }

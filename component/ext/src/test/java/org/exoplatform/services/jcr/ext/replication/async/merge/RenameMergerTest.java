@@ -1533,11 +1533,19 @@ public class RenameMergerTest extends BaseMergerTest {
     RenameMerger renameMerger = new RenameMerger(false, null, null, null);
     ChangesStorage<ItemState> result = renameMerger.merge(remoteItem11Delete, income, local);
 
-    assertEquals("Wrong changes count ", result.size(), 2);
+    assertEquals("Wrong changes count ", result.size(), 4);
     assertTrue("Delete state expected: ", hasState(result, new ItemState(localItem21,
                                                                          ItemState.DELETED,
                                                                          false,
                                                                          null), true));
+
+    assertTrue("Delete state expected: ", hasState(result, new ItemState(localItem11,
+                                                                         ItemState.ADDED,
+                                                                         false,
+                                                                         null), true));
+
+    assertTrue("Delete state expected: ", hasState(result, remoteItem11Delete, true));
+
     assertTrue("Delete state expected: ", hasState(result, remoteItem31Rename, true));
   }
 

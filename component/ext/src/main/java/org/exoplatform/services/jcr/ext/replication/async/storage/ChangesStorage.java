@@ -194,4 +194,14 @@ public interface ChangesStorage<T extends ItemState> {
    * @return List of ItemState
    */
   List<T> getUpdateSequence(ItemState startState) throws IOException;
+
+  /**
+   * getRenameSequence.
+   * 
+   * @param startState
+   *          ItemState
+   * @return List of ItemState
+   */
+  List<T> getRenameSequence(ItemState startState) throws IOException;
+
 }

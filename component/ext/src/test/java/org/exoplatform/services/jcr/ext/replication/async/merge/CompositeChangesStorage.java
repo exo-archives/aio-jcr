@@ -178,4 +178,8 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
   public boolean hasParentDeleteState(ItemState startState) throws IOException {
     return chlog.hasParentDeleteState(startState);
   }
+
+  public List<ItemState> getRenameSequence(ItemState startState) throws IOException {
+    return chlog.getRenameSequence(startState);
+  }
 }

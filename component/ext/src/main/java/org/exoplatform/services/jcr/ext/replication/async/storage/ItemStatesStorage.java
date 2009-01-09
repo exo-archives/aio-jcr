@@ -273,7 +273,8 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
-      if (it.next().equals(state)) {
+      T item = it.next();
+      if (item.getData().getQPath().equals(state.getData().getQPath()) && item.equals(state)) {
         return true;
       }
     }
@@ -409,5 +410,27 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     }
 
     return false;
+  }
+
+  public List<T> getRenameSequence(ItemState startState) throws IOException {
+    List<T> resultStates = new ArrayList<T>();
+
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      T state = it.next();
+      if (state.equals(startState)) {
+        resultStates.add(state);
+        while (it.hasNext()) {
+          T inState = it.next();
+          resultStates.add(inState);
+
+          if (inState.getState() == ItemState.RENAMED
+              && inState.getData().getIdentifier().equals(startState.getData().getIdentifier())) {
+            return resultStates;
+          }
+        }
+      }
+    }
+    return resultStates;
   }
 }
