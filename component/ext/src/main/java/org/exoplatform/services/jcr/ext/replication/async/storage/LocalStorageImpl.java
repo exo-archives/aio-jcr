@@ -74,6 +74,7 @@ public class LocalStorageImpl implements LocalStorage {
   public void onSaveItems(ItemStateChangesLog itemStates) {
     try {
       ChangesFile file = createChangesFile();
+      
       ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
 
       TransactionChangesLog log = filterChangesLog((TransactionChangesLog) itemStates);

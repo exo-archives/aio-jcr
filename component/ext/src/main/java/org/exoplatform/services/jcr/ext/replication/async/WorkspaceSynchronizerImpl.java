@@ -195,9 +195,6 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     
   }
   
-  
-  
-
   private static final Log              LOG = ExoLogger.getLogger("ext.WorkspaceSynchronizerImpl");
 
   protected final LocalStorage          storage;

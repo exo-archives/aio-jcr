@@ -77,7 +77,8 @@ public class ChangesFile {
     this.timeStamp = timeStamp;
 
     // create file in directory
-    file = File.createTempFile(PREFIX, SUFIX, new File(directory));
+    File dir = new File(directory);
+    file = new File( dir, Long.toString(timeStamp));
   }
 
   /**
