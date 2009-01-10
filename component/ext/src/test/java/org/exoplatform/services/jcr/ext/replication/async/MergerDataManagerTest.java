@@ -969,9 +969,12 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    */
   public void testDelete7_1() throws Exception {
     // low priority changes: add node
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
-    node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
     node.addMixin("mix:referenceable");
 
     session3.save();
@@ -987,7 +990,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     assertTrue(isWorkspacesEquals());
 
     // low priority changes: delete node
-    root3.getNode("item1").remove();
+    root3.getNode("item1").getNode("item11").remove();
 
     // high priority changes: move parent
     root4.orderBefore("item1[2]", "item1");
@@ -1014,9 +1017,12 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    */
   public void testDelete7_2() throws Exception {
     // low priority changes: add node
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
-    node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
     node.addMixin("mix:referenceable");
 
     session3.save();
@@ -1035,7 +1041,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     root3.orderBefore("item1[2]", "item1");
 
     // high priority changes: move parent
-    root4.getNode("item1").remove();
+    root4.getNode("item1").getNode("item11").remove();
 
     membersChanges.clear();
 
@@ -2088,6 +2094,8 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     root4.getNode("item1").orderBefore("item11[2]", "item11");
 
     membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
     session3.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
     session4.save();

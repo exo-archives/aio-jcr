@@ -146,6 +146,8 @@ public class MergeDataManager {
                                                      dataManager,
                                                      ntManager);
 
+        ItemState prevState = null; // needed to skip unnecessary renamed states
+
         for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
 
@@ -167,6 +169,13 @@ public class MergeDataManager {
 
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
+
+                // process only first item of rename sequence
+                /*  if (prevState != null && prevState.getState() == ItemState.DELETED) {
+                    continue;
+                  }
+                */
+
                 if (synchronizedChanges.hasState(new ItemState(nextIncomeChange.getData(),
                                                                ItemState.ADDED,
                                                                nextIncomeChange.isEventFire(),
@@ -176,6 +185,7 @@ public class MergeDataManager {
                 }
 
                 synchronizedChanges.addAll(renameMerger.merge(incomeChange, income, local));
+
                 // UPDATE
               } else if (nextIncomeChange != null
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
@@ -192,6 +202,9 @@ public class MergeDataManager {
           case ItemState.MIXIN_CHANGED:
             break;
           }
+
+          // TODO create item state without data
+          prevState = incomeChange;
         }
 
         first = synchronizedChanges;

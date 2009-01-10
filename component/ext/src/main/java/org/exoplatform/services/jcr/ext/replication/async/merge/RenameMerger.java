@@ -237,11 +237,63 @@ public class RenameMerger implements ChangesMerger {
           ItemState nextLocalState = local.getNextItemState(localState);
 
           // Update sequences
-          if (nextLocalState != null && incomeData.isNode()
-              && nextLocalState.getState() == ItemState.UPDATED) {
-            // updated node was renamed
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
-                                                                      incomeData.getIdentifier());
+                                                                      incomeData.getParentIdentifier());
+            if (!incomeData.isNode() && nextItem != null) {
+              List<ItemState> rename = income.getRenameSequence(incomeState);
+
+              QPath qPath = QPath.makeChildPath(nextItem.getData().getQPath().makeAncestorPath(1),
+                                                incomeData.getQPath().getEntries()[incomeData.getQPath()
+                                                                                             .getEntries().length - 1]);
+              for (ItemState st : rename) {
+                if (st.getState() == ItemState.DELETED) {
+                  if (st.getData().isNode()) {
+                    NodeData node = (NodeData) st.getData();
+                    TransientNodeData item = new TransientNodeData(qPath,
+                                                                   node.getIdentifier(),
+                                                                   node.getPersistedVersion(),
+                                                                   node.getPrimaryTypeName(),
+                                                                   node.getMixinTypeNames(),
+                                                                   node.getOrderNumber(),
+                                                                   node.getParentIdentifier(),
+                                                                   node.getACL());
+                    incomeState = new ItemState(item,
+                                                st.getState(),
+                                                st.isEventFire(),
+                                                qPath,
+                                                st.isInternallyCreated(),
+                                                st.isPersisted());
+                    resultState.add(incomeState);
+                  } else {
+                    PropertyData prop = (PropertyData) st.getData();
+                    TransientPropertyData item = new TransientPropertyData(qPath,
+                                                                           prop.getIdentifier(),
+                                                                           prop.getPersistedVersion(),
+                                                                           prop.getType(),
+                                                                           prop.getParentIdentifier(),
+                                                                           prop.isMultiValued());
+
+                    item.setValues(prop.getValues());
+                    incomeState = new ItemState(item,
+                                                st.getState(),
+                                                st.isEventFire(),
+                                                qPath,
+                                                st.isInternallyCreated(),
+                                                st.isPersisted());
+                    resultState.add(incomeState);
+                  }
+                } else {
+                  resultState.add(st);
+                }
+              }
+              return resultState;
+            }
+
+            // updated node was renamed
+            nextItem = local.getNextItemStateByUUIDOnUpdate(localState, incomeData.getIdentifier());
+
             if (nextItem != null) {
               // set new name
               QPath qPath = QPath.makeChildPath(nextItem.getData().getQPath().makeAncestorPath(1),
