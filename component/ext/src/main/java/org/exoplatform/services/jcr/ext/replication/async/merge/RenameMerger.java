@@ -381,20 +381,18 @@ public class RenameMerger implements ChangesMerger {
               break;
 
               // move to same location
-            } else if ((incomeData.isNode() && nextLocalState.getData()
-                                                             .getQPath()
-                                                             .isDescendantOf(nextIncomeState.getData()
-                                                                                            .getQPath()))
+            } else if ((incomeData.isNode() && (nextLocalState.getData()
+                                                              .getQPath()
+                                                              .isDescendantOf(nextIncomeState.getData()
+                                                                                             .getQPath()) || nextLocalState.getData()
+                                                                                                                           .getQPath()
+                                                                                                                           .equals(nextIncomeState.getData()
+                                                                                                                                                  .getQPath())))
                 || (!incomeData.isNode() && nextLocalState.getData()
                                                           .getQPath()
                                                           .isDescendantOf(nextIncomeState.getData()
                                                                                          .getQPath()
                                                                                          .makeParentPath()))) {
-
-              /*nextLocalState.getData()
-              .getQPath()
-              .isDescendantOf(nextIncomeState.getData().getQPath())
-              || */
 
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {

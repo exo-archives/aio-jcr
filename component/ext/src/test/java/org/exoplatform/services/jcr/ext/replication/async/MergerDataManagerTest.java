@@ -1706,6 +1706,589 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
   }
 
   /**
+   * 2. update Item on low priority already update on high priority (same path, conflict)
+   */
+  public void testUpdate2_x() throws Exception {
+    // low priority changes: add same name items
+    Node node1_1 = root3.addNode("item1");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = root3.addNode("item1");
+    node1_2.addMixin("mix:referenceable");
+    Node node1_3 = root3.addNode("item1");
+    node1_3.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.orderBefore("item1[2]", "item1");
+
+    // high priority changes: update
+    root4.orderBefore("item1[3]", "item1");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 3. update Item on low priority already deleted on high priority (conflict)
+   */
+  public void testUpdate3_1() throws Exception {
+    // low priority changes: add same name items
+    Node node1_1 = root3.addNode("item1");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = root3.addNode("item1");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.orderBefore("item1[2]", "item1");
+
+    // high priority changes: remove
+    root4.getNode("item1").remove();
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 3. update Item on high priority already deleted on low priority (conflict)
+   */
+  public void testUpdate3_2() throws Exception {
+    // low priority changes: add same name items
+    Node node1_1 = root3.addNode("item1");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = root3.addNode("item1");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: remove
+    root3.getNode("item1").remove();
+
+    // high priority changes: update
+    root4.orderBefore("item1[2]", "item1");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 4. update Node on low priority already moved on high priority (conflict)
+   */
+  public void testUpdate4_1() throws Exception {
+    // low priority changes: add same name items
+    Node node1_1 = root3.addNode("item1");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = root3.addNode("item1");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.orderBefore("item1[2]", "item1");
+
+    // high priority changes: move
+    session4.move("/item1", "/item2");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 4. update Node on high priority already moved on low priority (conflict)
+   */
+  public void testUpdate4_2() throws Exception {
+    // low priority changes: add same name items
+    Node node1_1 = root3.addNode("item1");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = root3.addNode("item1");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    session3.move("/item1", "/item2");
+
+    // high priority changes: move
+    root4.orderBefore("item1[2]", "item1");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 5. update Item on low priority a deleted parent on high priority (conflict)
+   */
+  public void testUpdate5_1() throws Exception {
+    // low priority changes: add same name items
+    Node node = root3.addNode("item1");
+
+    Node node1_1 = node.addNode("item11");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = node.addNode("item11");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.getNode("item1").orderBefore("item11[2]", "item11");
+
+    // high priority changes: move parent
+    root4.getNode("item1").remove();
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 5. update Item on high priority a deleted parent on low priority (conflict)
+   */
+  public void testUpdate5_2() throws Exception {
+    // low priority changes: add same name items
+    Node node = root3.addNode("item1");
+
+    Node node1_1 = node.addNode("item11");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = node.addNode("item11");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: move parent
+    root3.getNode("item1").remove();
+
+    // high priority changes: update
+    root4.getNode("item1").orderBefore("item11[2]", "item11");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 6. update Item on low priority moved parent on high priority (conflict)
+   */
+  public void testUpdate6_1() throws Exception {
+    // low priority changes: add same name items
+    Node node = root3.addNode("item1");
+
+    Node node1_1 = node.addNode("item11");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = node.addNode("item11");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.getNode("item1").orderBefore("item11[2]", "item11");
+
+    // high priority changes: move parent
+    session4.move("/item1", "/item2");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 6. update Item on high priority moved parent on low priority (conflict)
+   */
+  public void testUpdate6_2() throws Exception {
+    // low priority changes: add same name items
+    Node node = root3.addNode("item1");
+
+    Node node1_1 = node.addNode("item11");
+    node1_1.addMixin("mix:referenceable");
+    Node node1_2 = node.addNode("item11");
+    node1_2.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: move parent
+    session3.move("/item1", "/item2");
+
+    // high priority changes: update
+    root4.getNode("item1").orderBefore("item11[2]", "item11");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 7. update Item on low priority updated parent on high priority(same-name-sibling parent order
+   * only, conflict)
+   */
+  public void testUpdate7_1() throws Exception {
+    // low priority changes: add same name items
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
+    Node node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
+    node.addMixin("mix:referenceable");
+    node = node1.addNode("item11");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.getNode("item1").orderBefore("item11[2]", "item11");
+
+    // high priority changes: move parent
+    root4.orderBefore("item1[2]", "item1");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 7. update Item on high priority updated parent on low priority(same-name-sibling parent order
+   * only, conflict)
+   */
+  public void testUpdate7_2() throws Exception {
+    // low priority changes: add same name items
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
+    Node node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
+    node.addMixin("mix:referenceable");
+    node = node1.addNode("item11");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.orderBefore("item1[2]", "item1");
+
+    // high priority changes: move parent
+    root4.getNode("item1").orderBefore("item11[2]", "item11");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 8. update parent on low priority moved node on high priority
+   */
+  public void testUpdate8_1() throws Exception {
+    // low priority changes: add same name items
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
+    Node node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.orderBefore("item1[2]", "item1");
+
+    // high priority changes: move parent
+    session4.move("/item1/item11", "/item2");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 8. update parent on high priority moved node on low priority
+   */
+  public void testUpdate8_2() throws Exception {
+    // low priority changes: add same name items
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
+    Node node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
+    node.addMixin("mix:referenceable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    session3.move("/item1/item11", "/item2");
+
+    // high priority changes: move parent
+    root4.orderBefore("item1[2]", "item1");
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
    * CompareWorkspaces.
    */
   protected boolean isWorkspacesEquals() throws Exception {
