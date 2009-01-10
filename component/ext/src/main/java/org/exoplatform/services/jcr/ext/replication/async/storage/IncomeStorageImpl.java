@@ -55,6 +55,7 @@ public class IncomeStorageImpl implements IncomeStorage {
     // get member directory
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
 
+    dir.mkdirs();
    /* File memberInfo = new File(dir, MEMBER_INFO_FILE_NAME);
     if (!memberInfo.exists()) {
       // store member info
