@@ -241,6 +241,7 @@ public class RenameMerger implements ChangesMerger {
 
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       incomeData.getParentIdentifier());
+
             if (!incomeData.isNode() && nextItem != null) {
               List<ItemState> rename = income.getRenameSequence(incomeState);
 
@@ -294,7 +295,7 @@ public class RenameMerger implements ChangesMerger {
             // updated node was renamed
             nextItem = local.getNextItemStateByUUIDOnUpdate(localState, incomeData.getIdentifier());
 
-            if (nextItem != null) {
+            if (incomeData.isNode() && nextItem != null) {
               // set new name
               QPath qPath = QPath.makeChildPath(nextItem.getData().getQPath().makeAncestorPath(1),
                                                 incomeData.getQPath().getEntries()[incomeData.getQPath()
@@ -315,8 +316,7 @@ public class RenameMerger implements ChangesMerger {
               incomeState = new ItemState(item, ItemState.DELETED, incomeState.isEventFire(), qPath);
               resultState.add(incomeState);
               resultState.add(nextIncomeState);
-              itemChangeProcessed = true;
-              break;
+              return resultState;
             }
 
             nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
@@ -369,11 +369,6 @@ public class RenameMerger implements ChangesMerger {
                                                                              .makeParentPath()
                                                                              .equals(localData.getQPath()
                                                                                               .makeParentPath()))) {
-
-              /*              if (nextIncomeState.getData().getQPath().equals(nextLocalState.getData().getQPath())) {
-                              return resultEmptyState;
-                            }
-              */
 
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {

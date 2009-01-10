@@ -1198,7 +1198,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     // low priority changes: add two nodes
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
-    node = root3.addNode("item2");
+    node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
 
     session3.save();
@@ -1242,7 +1242,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     // low priority changes: add two nodes
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
-    node = root3.addNode("item2");
+    node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
 
     session3.save();

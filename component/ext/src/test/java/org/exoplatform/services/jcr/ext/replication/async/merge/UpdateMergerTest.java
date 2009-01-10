@@ -1188,6 +1188,16 @@ public class UpdateMergerTest extends BaseMergerTest {
                                                        remoteItem2.getIdentifier(),
                                                        new AccessControlList());
 
+    final NodeData localItem21_2 = new TransientNodeData(remoteItem21x2B.getQPath(),
+                                                         remoteItem21x2B.getIdentifier(),
+                                                         0,
+                                                         new InternalQName(Constants.NS_NT_URI,
+                                                                           "unstructured"),
+                                                         new InternalQName[0],
+                                                         1,
+                                                         remoteItem2.getIdentifier(),
+                                                         new AccessControlList());
+
     final NodeData localItem3 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                           new InternalQName(null,
                                                                                             "item3"),
@@ -1229,8 +1239,8 @@ public class UpdateMergerTest extends BaseMergerTest {
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
     assertEquals(result.size(), 5);
+    assertTrue(hasState(result, new ItemState(localItem21_2, ItemState.ADDED, false, null), true));
     assertTrue(hasState(result, new ItemState(localItem3, ItemState.DELETED, false, null), true));
-    assertTrue(hasState(result, new ItemState(localItem3, ItemState.ADDED, false, null), true));
     assertTrue(hasState(result, remoteItem21x2Remove, true));
     assertTrue(hasState(result, remoteItem21x1Update, true));
     assertTrue(hasState(result, remoteItem21Update, true));

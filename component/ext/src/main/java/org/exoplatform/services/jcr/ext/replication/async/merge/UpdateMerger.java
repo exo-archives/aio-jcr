@@ -326,7 +326,9 @@ public class UpdateMerger implements ChangesMerger {
 
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            if (localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
+
+            if (!incomeData.isNode()
+                && localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
               // delete node on new place
               resultState.add(new ItemState(nextLocalState.getData(),
                                             ItemState.DELETED,
@@ -336,17 +338,85 @@ public class UpdateMerger implements ChangesMerger {
               resultState.addAll(exporter.exportItem(localData.getIdentifier()));
 
               itemChangeProcessed = true;
-            } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
-              // delete node on new place
-              resultState.add(new ItemState(nextLocalState.getData(),
-                                            ItemState.DELETED,
-                                            nextLocalState.isEventFire(),
-                                            nextLocalState.getData().getQPath()));
-              // restore node (same data)
-              resultState.add(new ItemState(nextLocalState.getData(),
-                                            ItemState.ADDED,
-                                            localState.isEventFire(),
-                                            localData.getQPath()));
+            } else if ((localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
+                                                                                    localData.getIdentifier()) != null)
+                || (!localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
+                                                                                 localData.getParentIdentifier()) != null)) {
+
+              List<ItemState> rename = local.getRenameSequence(localState);
+              List<ItemState> update = income.getUpdateSequence(incomeState);
+              for (int i = rename.size() - 1; i >= 0; i--) {
+                ItemState item = rename.get(i);
+                if (item.getState() == ItemState.RENAMED) { // generate delete state for new place
+                  resultState.add(new ItemState(item.getData(),
+                                                ItemState.DELETED,
+                                                item.isEventFire(),
+                                                item.getData().getQPath()));
+                } else if (item.getState() == ItemState.DELETED) { // generate add state for old
+                  // place
+                  if (item.getData().isNode()) {
+                    QPath name = QPath.makeChildPath(item.getData().getQPath().makeParentPath(),
+                                                     item.getData().getQPath().getEntries()[item.getData()
+                                                                                                .getQPath()
+                                                                                                .getEntries().length - 1],
+                                                     update.size());
+
+                    NodeData node = (NodeData) item.getData();
+                    TransientNodeData nodeData = new TransientNodeData(name,
+                                                                       node.getIdentifier(),
+                                                                       node.getPersistedVersion(),
+                                                                       node.getPrimaryTypeName(),
+                                                                       node.getMixinTypeNames(),
+                                                                       node.getOrderNumber(),
+                                                                       node.getParentIdentifier(),
+                                                                       node.getACL());
+
+                    resultState.add(new ItemState(nodeData,
+                                                  ItemState.ADDED,
+                                                  item.isEventFire(),
+                                                  name));
+
+                  } else {
+                    QPath name = QPath.makeChildPath(QPath.makeChildPath(item.getData()
+                                                                             .getQPath()
+                                                                             .makeParentPath()
+                                                                             .makeParentPath(),
+                                                                         item.getData()
+                                                                             .getQPath()
+                                                                             .makeParentPath()
+                                                                             .getEntries()[item.getData()
+                                                                                               .getQPath()
+                                                                                               .makeParentPath()
+                                                                                               .getEntries().length - 1],
+                                                                         update.size()),
+                                                     item.getData().getQPath().getEntries()[item.getData()
+                                                                                                .getQPath()
+                                                                                                .getEntries().length - 1]);
+
+                    PropertyData prop = (PropertyData) item.getData();
+                    TransientPropertyData propData = new TransientPropertyData(name,
+                                                                               prop.getIdentifier(),
+                                                                               prop.getPersistedVersion(),
+                                                                               prop.getType(),
+                                                                               prop.getParentIdentifier(),
+                                                                               prop.isMultiValued());
+                    propData.setValues(((PropertyData) rename.get(rename.size() - i - 1).getData()).getValues());
+                    resultState.add(new ItemState(propData,
+                                                  ItemState.ADDED,
+                                                  item.isEventFire(),
+                                                  name));
+                  }
+                }
+              }
+
+              // apply income changes
+              resultState.add(incomeState);
+              if (nextIncomeState != null) {
+                for (ItemState st : update)
+                  resultState.add(st);
+              }
+
+              return resultState;
             }
             break;
           }
