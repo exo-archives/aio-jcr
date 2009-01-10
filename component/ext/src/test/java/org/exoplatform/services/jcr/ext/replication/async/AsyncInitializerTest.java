@@ -220,7 +220,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     }
   }
   
-  public void testThreeMembers_one_NotConnected() throws Exception {
+    public void testThreeMembers_one_NotConnected() throws Exception {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 

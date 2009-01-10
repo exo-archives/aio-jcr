@@ -238,7 +238,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * {@inheritDoc}
    */
   public void onCancel() {
-    // TODO Auto-generated method stub
+    log.info("AsyncInitializer.onCancel");
+    channelManager.disconnect();
   }
 
   /**
@@ -257,7 +258,9 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
   private class LastMemberWaiter extends Thread {
     protected volatile boolean run = true;
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void run() {
       try {
         Thread.sleep(memberWaitTimeout);
@@ -296,7 +299,9 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    */
   private class FirstMemberWaiter extends LastMemberWaiter {
 
-    @Override
+    /**
+     * {@inheritDoc}
+     */
     public void run() {
       try {
         Thread.sleep(memberWaitTimeout);
