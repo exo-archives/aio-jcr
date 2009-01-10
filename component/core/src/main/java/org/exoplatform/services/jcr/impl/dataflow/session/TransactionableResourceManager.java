@@ -72,7 +72,7 @@ public class TransactionableResourceManager {
             XASessionImpl xaSession = siter.next().get();
             if (xaSession == null || !xaSession.isLive())
               siter.remove();
-          } catch(ConcurrentModificationException e) {
+          } catch (ConcurrentModificationException e) {
             e.printStackTrace();
             System.err.println("same user >>> " + e); // TODO
           }
