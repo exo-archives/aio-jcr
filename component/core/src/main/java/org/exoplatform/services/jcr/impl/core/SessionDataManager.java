@@ -720,13 +720,14 @@ public class SessionDataManager implements ItemDataConsumer {
 
     srcData.accept(initializer);
 
+    // TODO remove it!
     // in case of remane of same-name siblings there are a set of SNSes in changes log with broken
     // index chain.
     // to fix that we are making the reindex of SNSes
     // List<ItemState> reindex = reindexSameNameSiblings(srcData, this);
     // changesLog.addAll(reindex);
 
-    changesLog.addAll(initializer.getAllStates()); // log.info(changesLog.dump())
+    changesLog.addAll(initializer.getAllStates());
 
     reloadPool(srcData);
   }

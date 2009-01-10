@@ -47,7 +47,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
   /**
    * The list of added item states
    */
-  protected List<ItemState>     itemDeletedStates = new ArrayList<ItemState>();
+  protected List<ItemState>     deleteStates = new ArrayList<ItemState>();
 
   /**
    * Destination node name
@@ -62,8 +62,8 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
   /**
    * The list of added item states
    */
-  protected List<ItemState>     itemAddStates     = new ArrayList<ItemState>();
-
+  protected List<ItemState>     addStates     = new ArrayList<ItemState>();
+  
   /**
    * The variable shows necessity of preservation <code>Identifier</code>, not generate new one, at
    * transformation of <code>Item</code>.
@@ -121,16 +121,20 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
     InternalQName qname;
     if (level == 0) {
       qname = destNodeName;
-      
+
       List<NodeData> destChilds = dataManager.getChildNodesData(parent);
       List<NodeData> srcChilds;
-      
+      NodeData srcParent;
+
       destIndex = 1;
-      destOrderNum = destChilds.size() - 1;
-      
+      destOrderNum = destChilds.size() > 0
+          ? destChilds.get(destChilds.size() - 1).getOrderNumber() + 1
+          : 0;
+
       if (parent.getIdentifier().equals(node.getParentIdentifier())) {
         // move to another dest
         srcChilds = destChilds;
+        srcParent = parent;
       } else {
         // move of SNSes on same parent
         // find index and orederNum on destination
@@ -138,28 +142,26 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
           if (dchild.getQPath().getName().equals(qname))
             destIndex++;
         }
-        // TODO ordernumber same for two last childs TestSameNameSiblingsMove.testMoveToDiffLocation()
         
-        // fix SNSes on source
-        NodeData srcParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
+        // for fix SNSes on source
+        srcParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
         if (srcParent == null)
           throw new RepositoryException("FATAL: parent Node not for "
               + node.getQPath().getAsString() + ", parent id: " + node.getParentIdentifier());
-        
+
         srcChilds = dataManager.getChildNodesData(srcParent);
       }
 
       int srcOrderNum = 0;
       int srcIndex = 1;
-      
+
       // Calculate SNS index on source
       for (int i = 0; i < srcChilds.size(); i++) {
         NodeData child = srcChilds.get(i);
         if (!child.getIdentifier().equals(node.getIdentifier())) {
           if (child.getQPath().getName().equals(qname)) {
-            QPath siblingPath = QPath.makeChildPath(parent.getQPath(),
-                                                    child.getQPath().getName(),
-                                                    srcIndex);
+            QPath siblingPath = QPath.makeChildPath(srcParent.getQPath(), child.getQPath()
+                                                                               .getName(), srcIndex);
             TransientNodeData sibling = new TransientNodeData(siblingPath,
                                                               child.getIdentifier(),
                                                               child.getPersistedVersion() + 1,
@@ -168,7 +170,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
                                                               srcOrderNum, // orderNum
                                                               child.getParentIdentifier(),
                                                               child.getACL());
-            itemAddStates.add(new ItemState(sibling,
+            addStates.add(new ItemState(sibling,
                                             ItemState.UPDATED,
                                             true,
                                             ancestorToSave,
@@ -181,20 +183,11 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
           srcOrderNum++;
         }
       }
-      
+
       if (srcChilds == destChilds) {
         destIndex = srcIndex;
         destOrderNum = srcOrderNum;
-      } 
-
-      // TODO Remove it. Calc order number if parent supports orderable nodes...
-      // If ordering is supported by the node type of the parent node of the new location, then the
-      // newly moved node is appended to the end of the child node list.
-      // if (ntManager.isOrderableChildNodesSupported(parent.getPrimaryTypeName(),
-      // parent.getMixinTypeNames()))
-      // orderNum = existedChilds.size() - 1;
-      // else
-      // orderNum = node.getOrderNumber();
+      }
     } else {
       qname = node.getQPath().getName();
       destIndex = node.getQPath().getIndex();
@@ -218,13 +211,13 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
 
     // ancestorToSave is a parent node
     // if level == 0 set internal createt as false for validating on save
-    itemAddStates.add(new ItemState(newNode,
+    addStates.add(new ItemState(newNode,
                                     ItemState.RENAMED,
                                     level == 0,
                                     ancestorToSave,
                                     false,
                                     level == 0));
-    itemDeletedStates.add(new ItemState(node,
+    deleteStates.add(new ItemState(node,
                                         ItemState.DELETED,
                                         level == 0,
                                         ancestorToSave,
@@ -261,7 +254,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
                                                                   property.isMultiValued());
 
     newProperty.setValues(values);
-    itemAddStates.add(new ItemState(newProperty,
+    addStates.add(new ItemState(newProperty,
                                     ItemState.RENAMED,
                                     false,
                                     ancestorToSave,
@@ -271,7 +264,7 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
     // get last from super.entering(property, level)
     // ItemState copy = itemAddStates.get(itemAddStates.size() - 1);
 
-    itemDeletedStates.add(new ItemState(property,
+    deleteStates.add(new ItemState(property,
                                         ItemState.DELETED,
                                         false,
                                         ancestorToSave,
@@ -290,9 +283,9 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
    */
   public List<ItemState> getItemDeletedStates(boolean isInverse) {
     if (isInverse) {
-      Collections.reverse(itemDeletedStates);
+      Collections.reverse(deleteStates);
     }
-    return itemDeletedStates;
+    return deleteStates;
   }
 
   /**
@@ -315,6 +308,6 @@ public class ItemDataMoveVisitor extends ItemDataTraversingVisitor {
    * Returns the list of item add states
    */
   public List<ItemState> getItemAddStates() {
-    return itemAddStates;
+    return addStates;
   }
 }
