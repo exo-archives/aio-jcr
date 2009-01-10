@@ -28,7 +28,7 @@ import javax.jcr.version.VersionException;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.datamodel.Identifier;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -98,7 +98,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
    * @throws RepositoryException
    */
   public VersionHistoryDataHelper(NodeData versionable,
-                                  PlainChangesLogImpl changes,
+                                  PlainChangesLog changes,
                                   ItemDataConsumer dataManager,
                                   NodeTypeDataManager ntManager) throws RepositoryException {
 
@@ -121,7 +121,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
    * @throws RepositoryException
    */
   public VersionHistoryDataHelper(NodeData versionable,
-                                  PlainChangesLogImpl changes,
+                                  PlainChangesLog changes,
                                   ItemDataConsumer dataManager,
                                   NodeTypeDataManager ntManager,
                                   String versionHistoryIdentifier,
@@ -236,7 +236,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     return null;
   }
 
-  private TransientNodeData init(NodeData versionable, PlainChangesLogImpl changes) throws RepositoryException {
+  private TransientNodeData init(NodeData versionable, PlainChangesLog changes) throws RepositoryException {
 
     // ----- VERSION STORAGE nodes -----
     // ----- version history -----
@@ -245,7 +245,7 @@ public class VersionHistoryDataHelper extends TransientNodeData {
     NodeData versionStorageData = (NodeData) dataManager.getItemData(rootItem,
                                                                      new QPathEntry(Constants.JCR_VERSIONSTORAGE,
                                                                                     1)); // Constants
-                                                                                         // .
+    // .
     // JCR_VERSION_STORAGE_PATH
 
     InternalQName vhName = new InternalQName(null, versionHistoryIdentifier);

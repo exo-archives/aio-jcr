@@ -187,7 +187,7 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
       }
       message += "  doesn't have these properties ";
 
-      throw new RepositoryException(message);
+      throw new ConstraintViolationException(message);
     }
   }
 
@@ -217,7 +217,7 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
       }
       message += "  doesn't have these properties ";
 
-      throw new RepositoryException(message);
+      throw new ConstraintViolationException(message);
     }
   }
 
@@ -261,7 +261,7 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
                                                                          new QPathEntry(recipientDefinitionData.getName(),
                                                                                         0));
         if (propertyData.getType() != recipientDefinitionData.getRequiredType()) {
-          throw new RepositoryException("Can not change  requiredType to "
+          throw new ConstraintViolationException("Can not change  requiredType to "
               + ExtendedPropertyType.nameFromValue(recipientDefinitionData.getRequiredType())
               + " in " + recipientDefinitionData.getName().getAsString() + "  because "
               + propertyData.getQPath().getAsString() + " have "
@@ -434,10 +434,12 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
           checkIsMultiple(registeredNodeType, propertyDefinitionData, allRecipientDefinition);
 
         } else {
-          if (propertyDefinitionData.isMandatory() || propertyDefinitionData.isAutoCreated()) {
+          // if (propertyDefinitionData.isMandatory() ||
+          // propertyDefinitionData.isAutoCreated()) {
+          if (propertyDefinitionData.isAutoCreated()) {
             if (propertyDefinitionData.getDefaultValues().length == 0)
-              throw new RepositoryException("No default values defined for "
-                  + propertyDefinitionData.getName());
+              throw new ConstraintViolationException("No default values defined for "
+                  + propertyDefinitionData.getName().getAsString());
 
           }
         }
@@ -505,9 +507,11 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
           for (PropertyData propertyData : childs) {
             if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
                 && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
-              throw new RepositoryException("Can't remove residual property definition for "
-                  + registeredNodeType.getName().getAsString() + " node type, because node "
-                  + nodeData.getQPath().getAsString() + " contains property "
+              throw new ConstraintViolationException("Can't remove residual property definition for "
+                  + registeredNodeType.getName().getAsString()
+                  + " node type, because node "
+                  + nodeData.getQPath().getAsString()
+                  + " contains property "
                   + propertyData.getQPath().getName().getAsString());
             }
           }
@@ -523,7 +527,7 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
           for (String uuids : nodes) {
             message += uuids + " ";
           }
-          throw new RepositoryException(message);
+          throw new ConstraintViolationException(message);
 
         }
       }

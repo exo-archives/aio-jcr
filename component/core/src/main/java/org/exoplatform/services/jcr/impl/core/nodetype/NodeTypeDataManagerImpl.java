@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.core.nodetype;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -1216,7 +1217,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    */
   private void makeMixVesionableChanges(NodeData parent,
                                         ItemDataConsumer dataManager,
-                                        PlainChangesLogImpl changes) throws RepositoryException {
+                                        PlainChangesLog changes) throws RepositoryException {
     new VersionHistoryDataHelper(parent, changes, dataManager, this);
   }
 
@@ -1282,6 +1283,37 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     }
     PlainChangesLog changesLog = new PlainChangesLogImpl();
 
+    Set<String> nodes = getNodes(recipientDefinition.getName());
+    // check add mix:versionable super
+    if (isNodeType(Constants.MIX_VERSIONABLE, recipientDefinition.getDeclaredSupertypeNames())
+        && !isNodeType(Constants.MIX_VERSIONABLE, ancestorDefinition.getDeclaredSupertypeNames())) {
+
+      for (String uuid : nodes) {
+        ItemData item = persister.getDataManager().getItemData(uuid);
+        if (item != null && item.isNode()) {
+          makeMixVesionableChanges(((NodeData) item), persister.getDataManager(), changesLog);
+        }
+      }
+    } else if (!isNodeType(Constants.MIX_VERSIONABLE,
+                           recipientDefinition.getDeclaredSupertypeNames())
+        && isNodeType(Constants.MIX_VERSIONABLE, ancestorDefinition.getDeclaredSupertypeNames())) {
+      if (nodes.size() > 0) {
+        StringBuffer buffer = new StringBuffer();
+        buffer.append("Fail to change ");
+        buffer.append(recipientDefinition.getName().getAsString());
+        buffer.append(" node type from mix:versionable = true  to mix:versionable = false");
+        buffer.append(" because the folowing node exists: ");
+        for (String uuid : nodes) {
+          ItemData item = persister.getDataManager().getItemData(uuid);
+          if (item != null && item.isNode()) {
+            buffer.append(item.getQPath().getAsString());
+            buffer.append(" ");
+          }
+        }
+        throw new ConstraintViolationException(buffer.toString());
+      }
+    }
+
     // T-O-D-O super names
     //
     // TODO primaryItemName
@@ -1300,12 +1332,24 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     changesLog.addAll(propertyDefinitionComparator.compare(recipientDefinition,
                                                            getAllPropertyDefinitions(ancestorDefinition),
                                                            getAllPropertyDefinitions(recipientDefinition))
+
                                                   .getAllStates());
+
+    // mixin changed
+    if (!Arrays.deepEquals(recipientDefinition.getDeclaredSupertypeNames(),
+                           ancestorDefinition.getDeclaredSupertypeNames())) {
+      for (String uuid : nodes) {
+        ItemData item = persister.getDataManager().getItemData(uuid);
+        if (item != null && item.isNode()) {
+          changesLog.add(new ItemState(item, ItemState.MIXIN_CHANGED, false, null));
+        }
+      }
+    }
 
     // TODO hasOrderableChildNodes
     // TODO mixin
     if (ancestorDefinition.isMixin() != recipientDefinition.isMixin()) {
-      Set<String> nodes = getNodes(recipientDefinition.getName());
+
       if (nodes.size() > 0) {
         StringBuffer buffer = new StringBuffer();
         buffer.append("Fail to change ");
@@ -1330,5 +1374,4 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     changesLog.addAll(internalRegister(recipientDefinition, false).getAllStates());
     persister.saveChanges(changesLog);
   }
-
 }
