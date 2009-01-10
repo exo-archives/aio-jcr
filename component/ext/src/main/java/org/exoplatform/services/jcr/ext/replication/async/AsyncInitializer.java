@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -51,7 +52,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
   private final int                        memberWaitTimeout;
 
-  private final int                        ownPriority;
+  private final int                        priority;
 
   private final boolean                    cancelMemberNotConnected;
 
@@ -68,11 +69,33 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
   private Member                           localMember;
 
-  private LastMemberWaiter                 memberWaiter;
+  private LastMemberWaiter                 lastMemberWaiter;
 
   private FirstMemberWaiter                firstMemberWaiter;
 
+  private volatile boolean                 hasCancel;
+
+  private ChannelCloser                    closer;
+
   protected final Set<RemoteEventListener> listeners = new LinkedHashSet<RemoteEventListener>();
+  
+  /**
+   * ChannelCloser.
+   *   Will be disconnected form JChannel. 
+   */
+  private class ChannelCloser extends Thread {
+    /**
+     * {@inheritDoc}
+     */
+    public void run() {
+      try {
+        Thread.sleep(1000);
+        channelManager.disconnect();
+      } catch (Exception e) {
+        log.error("Cannot disconnect from JChannel", e);
+      }
+    }
+  }
 
   /**
    * AsyncInitializer constructor.
@@ -86,10 +109,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
                    int memberWaitTimeout,
                    boolean cancelMemberNotConnected) {
     this.channelManager = channelManager;
-    this.ownPriority = priority;
+    this.priority = priority;
     this.memberWaitTimeout = memberWaitTimeout;
     this.otherParticipantsPriority = otherParticipantsPriority;
     this.cancelMemberNotConnected = cancelMemberNotConnected;
+    this.hasCancel = false;
   }
 
   public void addMembersListener(RemoteEventListener listener) {
@@ -120,8 +144,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
         if (event.isCoordinator()) {
           isCoordinator = event.isCoordinator();
 
-          memberWaiter = new LastMemberWaiter();
-          memberWaiter.start();
+          lastMemberWaiter = new LastMemberWaiter();
+          lastMemberWaiter.start();
         }
       }
 
@@ -129,8 +153,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
       if (event.getMembers().size() == (otherParticipantsPriority.size() + 1)) {
         if (isCoordinator) {
-          memberWaiter.cancel();
-          memberWaiter = null;
+          lastMemberWaiter.cancel();
+          lastMemberWaiter = null;
 
           List<Member> members = new ArrayList<Member>(event.getMembers());
           members.remove(event.getLocalMember());
@@ -148,18 +172,18 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
       // Check if disconnected the previous coordinator.
 
-      if (event.isCoordinator() == true && isCoordinator == false) {
+      if (event.isCoordinator() == true && isCoordinator == false && !hasCancel) {
         isCoordinator = event.isCoordinator();
 
-        //TODO remove log
+        // TODO remove log
         log.info("Create new LastMemberWaiter()");
-        
-        memberWaiter = new LastMemberWaiter();
-        memberWaiter.start();
 
-      } else if (event.isCoordinator() == true && isCoordinator == true && memberWaiter != null) {
-        memberWaiter.cancel();
-        memberWaiter = null;
+        lastMemberWaiter = new LastMemberWaiter();
+        lastMemberWaiter.start();
+
+      } else if (event.isCoordinator() == true && isCoordinator == true && lastMemberWaiter != null) {
+        lastMemberWaiter.cancel();
+        lastMemberWaiter = null;
       }
 
     }
@@ -203,6 +227,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
                                  ((CancelPacket) packet).getTransmitterPriority());
 
       doCancel(member);
+      onCancel();
     }
       break;
 
@@ -238,8 +263,20 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * {@inheritDoc}
    */
   public void onCancel() {
+
     log.info("AsyncInitializer.onCancel");
-    channelManager.disconnect();
+
+    hasCancel = true;
+    if (lastMemberWaiter != null)
+      lastMemberWaiter.cancel();
+
+    if (firstMemberWaiter != null)
+      firstMemberWaiter.cancel();
+
+    log.info("AsyncInitializer : channelManager.disconnect()");
+    // channelManager.disconnect();
+    closer = new ChannelCloser();
+    closer.start();
   }
 
   /**
@@ -249,6 +286,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     log.info("AsyncInitializer.onStop");
 
     channelManager.disconnect();
+  }
+
+  private void sendCancel() throws IOException {
+    CancelPacket cancelPacket = new CancelPacket(AsyncPacketTypes.SYNCHRONIZATION_CANCEL, priority);
+    channelManager.sendPacket(cancelPacket);
   }
 
   /**
@@ -272,16 +314,23 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
           doStart(members);
         } else if (run) {
-          //TODO remove log
+          try {
+            sendCancel();
+          } catch (IOException e) {
+            log.error("Cannot send 'CANCEL' event.", e);
+          }
+
+          // TODO remove log
           log.info("LastMemberWaiter : " + "channelManager.disconnect()");
-          
+
           channelManager.disconnect();
           doCancel(null);
         }
 
-      } catch (Exception e) {
+      } catch (InterruptedException e) {
         log.error("LastMemberWaiter is interrupted : " + e, e);
       }
+
     }
 
     /**

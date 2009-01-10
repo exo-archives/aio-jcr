@@ -16,28 +16,20 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
 import org.jgroups.ChannelException;
-import org.jgroups.ChannelListener;
 import org.jgroups.JChannel;
 import org.jgroups.MembershipListener;
 import org.jgroups.Message;
-import org.jgroups.MessageListener;
 import org.jgroups.View;
 import org.jgroups.blocks.GroupRequest;
 import org.jgroups.blocks.MessageDispatcher;
@@ -137,6 +129,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * closeChannel. Close the channel.
    */
   public void disconnect() {
+    dispatcher = null;
     channel.close();
     channel = null;
   }
