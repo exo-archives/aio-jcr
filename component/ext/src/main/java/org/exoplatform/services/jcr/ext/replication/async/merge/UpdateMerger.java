@@ -161,7 +161,12 @@ public class UpdateMerger implements ChangesMerger {
                                                                   node.getOrderNumber(),
                                                                   node.getParentIdentifier(),
                                                                   node.getACL());
-                resultState.add(new ItemState(newNode, item.getState(), item.isEventFire(), name));
+                resultState.add(new ItemState(newNode,
+                                              item.getState(),
+                                              item.isEventFire(),
+                                              name,
+                                              item.isInternallyCreated(),
+                                              item.isPersisted()));
               }
               itemChangeProcessed = true;
               break;
@@ -283,7 +288,12 @@ public class UpdateMerger implements ChangesMerger {
                                                                   node.getOrderNumber(),
                                                                   node.getParentIdentifier(),
                                                                   node.getACL());
-                resultState.add(new ItemState(newNode, item.getState(), item.isEventFire(), name));
+                resultState.add(new ItemState(newNode,
+                                              item.getState(),
+                                              item.isEventFire(),
+                                              name,
+                                              item.isInternallyCreated(),
+                                              item.isPersisted()));
               }
               itemChangeProcessed = true;
               break;
