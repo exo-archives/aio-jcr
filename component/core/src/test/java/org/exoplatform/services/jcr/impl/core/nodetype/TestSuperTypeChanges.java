@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.nodetype.ConstraintViolationException;
 
 import org.apache.commons.logging.Log;
@@ -27,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -114,5 +117,88 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
     testNode = root.addNode("testNode", testNValue.getName());
     session.save();
     assertFalse(testNode.isNodeType("mix:versionable"));
+  }
+
+  public void testSplitNT() throws Exception {
+    NodeTypeValue testNValue = new NodeTypeValue();
+
+    List<String> superType = new ArrayList<String>();
+    superType.add("nt:base");
+    testNValue.setName("exo:SplitNT");
+    testNValue.setPrimaryItemName("");
+    testNValue.setDeclaredSupertypeNames(superType);
+    List<PropertyDefinitionValue> props = new ArrayList<PropertyDefinitionValue>();
+
+    props.add(new PropertyDefinitionValue("jcr:mimeType1",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.STRING,
+                                          new ArrayList<String>()));
+    props.add(new PropertyDefinitionValue("jcr:mimeType2",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.STRING,
+                                          new ArrayList<String>()));
+
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    Node tNode = root.addNode("test", testNValue.getName());
+    tNode.setProperty("jcr:mimeType1", "plain/text");
+    tNode.setProperty("jcr:mimeType2", "plain/html");
+    session.save();
+    Property property = tNode.getProperty("jcr:mimeType1");
+    assertEquals("plain/text", property.getString());
+    session.save();
+
+    NodeTypeValue testNValue2 = new NodeTypeValue();
+    List<String> superType2 = new ArrayList<String>();
+    superType2.add("nt:base");
+    testNValue2.setName("exo:SplitNT2");
+    testNValue2.setPrimaryItemName("");
+    testNValue2.setDeclaredSupertypeNames(superType);
+    List<PropertyDefinitionValue> props2 = new ArrayList<PropertyDefinitionValue>();
+
+    props2.add(new PropertyDefinitionValue("jcr:mimeType2",
+                                           false,
+                                           false,
+                                           1,
+                                           false,
+                                           new ArrayList<String>(),
+                                           false,
+                                           PropertyType.STRING,
+                                           new ArrayList<String>()));
+
+    testNValue2.setDeclaredPropertyDefinitionValues(props);
+
+    nodeTypeManager.registerNodeType(testNValue2, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    superType = new ArrayList<String>();
+    superType.add("nt:base");
+    superType.add(testNValue2.getName());
+    testNValue.setDeclaredSupertypeNames(superType);
+
+    props = new ArrayList<PropertyDefinitionValue>();
+
+    props.add(new PropertyDefinitionValue("jcr:mimeType1",
+                                          false,
+                                          false,
+                                          1,
+                                          false,
+                                          new ArrayList<String>(),
+                                          false,
+                                          PropertyType.STRING,
+                                          new ArrayList<String>()));
+    testNValue.setDeclaredPropertyDefinitionValues(props);
+    nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
+
   }
 }
