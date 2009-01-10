@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -66,12 +67,19 @@ public class LocalStorageTest  extends BaseStandaloneTest {
   
   public void testCreateRestoreStorage() throws Exception{
     
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+    
     NodeImpl n = (NodeImpl)root.addNode("testNode");
     n.setProperty("prop1", "dfdasfsdf");   
     n.setProperty("secondProp", "ohohoh");
     root.save();
     
-    TransactionChangesLog log = createChangesLog((NodeData)n.getData());
+    List<TransactionChangesLog> chs = pl.pushChanges();
+    
+    File dir = new File(STORAGE_DIR);
+    dir.mkdirs();
+    
+    TransactionChangesLog log = chs.get(0);
     
     // create storage
     LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath());

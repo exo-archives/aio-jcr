@@ -52,6 +52,9 @@ public class LocalStorageImpl implements LocalStorage {
     this.storagePath = storagePath;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public ChangesStorage<ItemState> getLocalChanges() {
     File incomStorage = new File(storagePath);
 
@@ -71,6 +74,9 @@ public class LocalStorageImpl implements LocalStorage {
     return changeStorage;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void onSaveItems(ItemStateChangesLog itemStates) {
     try {
       ChangesFile file = createChangesFile();

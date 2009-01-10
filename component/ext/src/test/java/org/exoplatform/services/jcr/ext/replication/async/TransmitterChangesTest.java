@@ -22,16 +22,9 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
-import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -42,7 +35,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestTransmitterChanges.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class TransmitterChangesTest extends AbstractTrasportTest implements ItemsPersistenceListener {
+public class TransmitterChangesTest extends AbstractTrasportTest {
   
   private static Log                       log       = ExoLogger.getLogger("ext.TestTransmitterChanges");
   
@@ -52,8 +45,6 @@ public class TransmitterChangesTest extends AbstractTrasportTest implements Item
   
   private static final String         bindAddress = "192.168.0.3"; 
   
-  private List<TransactionChangesLog> tclList   = new ArrayList<TransactionChangesLog>();
-
   public void tearDown() throws Exception {
     super.tearDown();
   }
@@ -64,23 +55,17 @@ public class TransmitterChangesTest extends AbstractTrasportTest implements Item
    * @throws Exception
    */
   public void testSendChanges() throws Exception {
-
-    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
-                                                                           .getName());
-    CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
-
-    dm.addItemPersistenceListener(this);
-
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+    
     // create node
-
     for (int i = 0; i < 10; i++)
       root.addNode("testNode_" + i, "nt:unstructured");
-
+    
     root.save();
 
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
-    for (TransactionChangesLog tcl : tclList) {
+    for (TransactionChangesLog tcl : pl.pushChanges()) {
       ChangesFile cf = new ChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
                                                                      .getTimeInMillis());
 
@@ -104,12 +89,6 @@ public class TransmitterChangesTest extends AbstractTrasportTest implements Item
     transmitter.sendChanges(cfList,memberList);
     
     transmitter.sendMerge();
-  }
-
-  public void onSaveItems(ItemStateChangesLog itemStates) {
-    log.info("onSaveItems");
-    
-    tclList.add((TransactionChangesLog) itemStates);
   }
 
 }

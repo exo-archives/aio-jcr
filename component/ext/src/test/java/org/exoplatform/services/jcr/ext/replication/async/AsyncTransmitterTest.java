@@ -61,13 +61,13 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: TestAsyncTransmitter.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsPersistenceListener {
+public class AsyncTransmitterTest extends AbstractTrasportTest {
 
   private static Log                  log                = ExoLogger.getLogger("ext.TestAsyncTransmitter");
 
-  private List<TransactionChangesLog> srcChangesLogList  = new ArrayList<TransactionChangesLog>();
+//  private List<TransactionChangesLog> srcChangesLogList  = new ArrayList<TransactionChangesLog>();
 
-  private List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
+//  private List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
 
   private static final String         CH_NAME            = "AsyncRepCh_Test";
 
@@ -76,12 +76,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsP
   private CountDownLatch              latch;
 
   public void testSendChanges() throws Exception {
-    // add persistence listener
-    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
-                                                                           .getName());
-    CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
-    dm.addItemPersistenceListener(this);
-
+    
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+    
     // create nodes
     Node testNode = root.addNode("test_node_l3").addNode("test_node_l2");
     for (int j = 0; j < 3; j++) {
@@ -93,6 +90,8 @@ public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsP
     // create ChangesFile-s
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
+    List<TransactionChangesLog> srcChangesLogList = pl.pushChanges();
+    
     for (TransactionChangesLog tcl : srcChangesLogList) {
       ChangesFile cf = new ChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
                                                                      .getTimeInMillis());
@@ -137,6 +136,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsP
     assertEquals(cfList.size(), destCfList.size());
 
     // deserialize
+    List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
     for (ChangesFile changesFile : destCfList) {
       ObjectInputStream ois = new ObjectInputStream(changesFile.getDataStream());
       TransactionChangesLog tcLog = (TransactionChangesLog) ois.readObject();
@@ -358,12 +358,6 @@ public class AsyncTransmitterTest extends AbstractTrasportTest implements ItemsP
     // compare
     assertEquals(getExportReceiver.getExportPacket.getNodeId(), nodeId);
     assertEquals(getExportReceiver.getExportPacket.getType(), AsyncPacketTypes.GET_EXPORT_CHAHGESLOG);
-  }
-  
-
-  public void onSaveItems(ItemStateChangesLog itemStates) {
-    log.info("onSaveItems");
-    srcChangesLogList.add((TransactionChangesLog) itemStates);
   }
 
   private class ChangesPacketReceiver implements AsyncPacketListener {
