@@ -91,8 +91,14 @@ public class LocalStorageImpl implements LocalStorage {
     return new ChangesFile("", System.currentTimeMillis(), storagePath);
   }
 
+  /**
+   * Change all TransientValueData to ReplicableValueData.
+   *
+   * @param log local TransactionChangesLog
+   * @return TransactionChangesLog with ValueData replaced.
+   * @throws IOException if error occurs
+   */
   private TransactionChangesLog filterChangesLog(TransactionChangesLog log) throws IOException {
-    // Change all TransientValueData to ReplicableValueData
     ChangesLogIterator chIt = log.getLogIterator();
 
     TransactionChangesLog result = new TransactionChangesLog();
@@ -106,7 +112,7 @@ public class LocalStorageImpl implements LocalStorage {
 
         ItemState item = srcIt.next();
 
-        if (item.isNode() == true) {
+        if (item.isNode()) {
           // skip nodes
           destlist.add(item);
         } else {
