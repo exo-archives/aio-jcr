@@ -1099,15 +1099,33 @@ public class GroovyScript2RestLoader implements Startable {
     }
   }
 
+  /**
+   * Script list, used for pass script list as JSON.
+   */
   private class ScriptList {
 
+    /**
+     * The list of scripts.
+     */
     private List<String> list;
 
+    /**
+     * 
+     * Returns the list of scripts.
+     *
+     * @return the list of scripts.
+     */
     public List<String> getList() {
       return list;
     }
 
-    public ScriptList(List<String> scriptList) throws Exception {
+    /**
+     * 
+     * ScriptList  constructor.
+     *
+     * @param the list of scripts
+     */
+    public ScriptList(List<String> scriptList) {
       this.list = scriptList;
     }
 
