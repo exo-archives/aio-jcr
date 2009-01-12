@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -159,7 +160,7 @@ public class GroovyScript2RestLoader implements Startable {
    * @param repositoryService See {@link RepositoryService}
    * @param sessionProviderService See {@link SessionProviderService}
    * @param configurationManager for solve resource loading issue in common way
-   * @param handler 
+   * @param handler
    * @param params initialized parameters
    */
   public GroovyScript2RestLoader(ResourceBinder binder,
@@ -186,7 +187,7 @@ public class GroovyScript2RestLoader implements Startable {
    * @param sessionProviderService See {@link SessionProviderService}
    * @param configurationManager for solve resource loading issue in common way
    * @param registryService See {@link RegistryService}
-   * @param handler  
+   * @param handler
    * @param params initialized parameters
    */
   public GroovyScript2RestLoader(ResourceBinder binder,
@@ -334,7 +335,7 @@ public class GroovyScript2RestLoader implements Startable {
 
     try {
 
-      // Deploy auto-load scripts and start Observation Listeners.  
+      // Deploy auto-load scripts and start Observation Listeners.
       String repositoryName = observationListenerConfiguration.getRepository();
       List<String> workspaceNames = observationListenerConfiguration.getWorkspaces();
 
@@ -363,8 +364,12 @@ public class GroovyScript2RestLoader implements Startable {
 
         session.getWorkspace()
                .getObservationManager()
-               .addEventListener(new GroovyScript2RestUpdateListener(repositoryName, workspaceName, this, session),
-                                 Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED | Event.PROPERTY_REMOVED,
+               .addEventListener(new GroovyScript2RestUpdateListener(repositoryName,
+                                                                     workspaceName,
+                                                                     this,
+                                                                     session),
+                                 Event.PROPERTY_ADDED | Event.PROPERTY_CHANGED
+                                     | Event.PROPERTY_REMOVED,
                                  "/",
                                  true,
                                  null,
@@ -410,7 +415,7 @@ public class GroovyScript2RestLoader implements Startable {
    * parameters for correct order of start components.
    */
   @SuppressWarnings("unused")
-  private Handler                           handler;
+  private Handler handler;
 
   /**
    * Add scripts that specified in configuration.
@@ -466,7 +471,7 @@ public class GroovyScript2RestLoader implements Startable {
       }
     }
   }
-  
+
   /**
    * Create JCR node.
    * 
@@ -703,10 +708,11 @@ public class GroovyScript2RestLoader implements Startable {
 
   /**
    * This method is useful for clients that send scripts as file in
-   * 'multipart/*' request body. <br/> NOTE even we use iterator item should be
-   * only one, rule one address - one script. This method is created just for
-   * comfort loading script from HTML form. NOT use this script for uploading
-   * few files in body of 'multipart/form-data' or other type of multipart.
+   * 'multipart/*' request body. <br/>
+   * NOTE even we use iterator item should be only one, rule one address - one
+   * script. This method is created just for comfort loading script from HTML
+   * form. NOT use this script for uploading few files in body of
+   * 'multipart/form-data' or other type of multipart.
    * 
    * @param items iterator {@link FileItem}
    * @param uriInfo see {@link UriInfo}
@@ -719,10 +725,10 @@ public class GroovyScript2RestLoader implements Startable {
   @Consumes( { "multipart/*" })
   @Path("{path:.*}/add")
   public Response addScript(Iterator<FileItem> items,
-                             @Context UriInfo uriInfo,
-                             @PathParam("repository") String repository,
-                             @PathParam("workspace") String workspace,
-                             @PathParam("path") String path) {
+                            @Context UriInfo uriInfo,
+                            @PathParam("repository") String repository,
+                            @PathParam("workspace") String workspace,
+                            @PathParam("path") String path) {
     Session ses = null;
     try {
       ses = sessionProviderService.getSessionProvider(null)
@@ -756,10 +762,11 @@ public class GroovyScript2RestLoader implements Startable {
 
   /**
    * This method is useful for clients that send scripts as file in
-   * 'multipart/*' request body. <br/> NOTE even we use iterator item should be
-   * only one, rule one address - one script. This method is created just for
-   * comfort loading script from HTML form. NOT use this script for uploading
-   * few files in body of 'multipart/form-data' or other type of multipart.
+   * 'multipart/*' request body. <br/>
+   * NOTE even we use iterator item should be only one, rule one address - one
+   * script. This method is created just for comfort loading script from HTML
+   * form. NOT use this script for uploading few files in body of
+   * 'multipart/form-data' or other type of multipart.
    * 
    * @param items iterator {@link FileItem}
    * @param uriInfo see {@link UriInfo}
@@ -900,8 +907,8 @@ public class GroovyScript2RestLoader implements Startable {
    * @param workspace workspace name
    * @param path JCR path to node that contains script
    * @param state value for property exo:autoload, if it is not specified then
-   *          'true' will be used as default. <br /> Example:
-   *          .../scripts/groovy/test1.groovy/load is the same to
+   *          'true' will be used as default. <br />
+   *          Example: .../scripts/groovy/test1.groovy/load is the same to
    *          .../scripts/groovy/test1.groovy/load?state=true
    */
   @GET
@@ -965,6 +972,64 @@ public class GroovyScript2RestLoader implements Startable {
   }
 
   /**
+   * Returns the list of all groovy-scripts found in workspace.
+   * 
+   * @param repository Repository name.
+   * @param workspace Workspace name.
+   * @param name Additional search parameter. If not emtpy method returns the
+   *          list of script names matching wildcard else returns all the
+   *          scripts found in workspace.
+   * @return
+   */
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  @Path("/list")
+  public ScriptList list(@PathParam("repository") String repository,
+                         @PathParam("workspace") String workspace,
+                         @QueryParam("name") String name) {
+
+    Session ses = null;
+    try {
+
+      ses = sessionProviderService.getSessionProvider(null)
+                                  .getSession(workspace,
+                                              repositoryService.getRepository(repository));
+
+      String xpath = "//element(*, exo:groovyResourceContainer)";
+
+      Query query = ses.getWorkspace().getQueryManager().createQuery(xpath, Query.XPATH);
+      QueryResult result = query.execute();
+      NodeIterator nodeIterator = result.getNodes();
+
+      ArrayList<String> scriptList = new ArrayList<String>();
+
+      if (name == null) {
+        while (nodeIterator.hasNext()) {
+          Node node = nodeIterator.nextNode();
+          scriptList.add(node.getParent().getPath());
+        }
+      } else {
+        while (nodeIterator.hasNext()) {
+          Node node = nodeIterator.nextNode();
+          String scriptName = getName(node.getParent().getPath());
+          Pattern pattern = Pattern.compile(".*" + name + ".*");
+
+          if (pattern.matcher(scriptName).matches()) {
+            scriptList.add(node.getParent().getPath());
+          }
+        }
+      }
+      return new ScriptList(scriptList);
+
+    } catch (Exception e) {
+      throw new WebApplicationException(e);
+    } finally {
+      if (ses != null)
+        ses.logout();
+    }
+  }
+
+  /**
    * Extract path to node's parent from full path.
    * 
    * @param fullPath full path to node
@@ -985,14 +1050,14 @@ public class GroovyScript2RestLoader implements Startable {
     int sl = fullPath.lastIndexOf('/');
     return sl > 0 ? fullPath.substring(sl + 1) : fullPath;
   }
-  
+
   /**
    * Script metadata, used for pass script metada as JSON.
    */
   public static class ScriptMetadata {
-    
+
     /**
-     * Is script autoload. 
+     * Is script autoload.
      */
     private final boolean autoload;
 
@@ -1002,7 +1067,7 @@ public class GroovyScript2RestLoader implements Startable {
     private final String  mediaType;
 
     /**
-     * Last modified date. 
+     * Last modified date.
      */
     private final long    lastModified;
 
@@ -1034,4 +1099,17 @@ public class GroovyScript2RestLoader implements Startable {
     }
   }
 
+  private class ScriptList {
+
+    private List<String> list;
+
+    public List<String> getList() {
+      return list;
+    }
+
+    public ScriptList(List<String> scriptList) throws Exception {
+      this.list = scriptList;
+    }
+
+  }
 }
