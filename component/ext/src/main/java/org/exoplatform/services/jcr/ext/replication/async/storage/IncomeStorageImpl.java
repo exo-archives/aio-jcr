@@ -93,6 +93,7 @@ public class IncomeStorageImpl implements IncomeStorage {
         changeStorages.add(storage);
       } catch (NumberFormatException e) {
         // This is not int-named file. Skip it.
+        // We can do that as we don't create such file(s)
         LOG.warn("Illegal named file in storage - " + childnames[i]); 
       }
     }
