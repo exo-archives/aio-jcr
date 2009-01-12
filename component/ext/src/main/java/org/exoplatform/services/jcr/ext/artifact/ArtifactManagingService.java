@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import javax.jcr.RepositoryException;
 
@@ -127,4 +128,31 @@ public interface ArtifactManagingService {
   void exportArtifacts(SessionProvider sp, FolderDescriptor parentFolder, File folder) throws RepositoryException,
                                                                                       FileNotFoundException;
 
+  /**
+   * Returns acess control list for the specified artifact
+   * 
+   * @param sp
+   *          the session provider
+   * @param artifact
+   *          the artifact which ACL we need to get
+   * @throws RepositoryException
+   */
+  List getPermission (SessionProvider sp, Descriptor artifact) throws RepositoryException;
+
+  /**
+   * Changes acess permissions for the specified artifact ang given identity
+   * 
+   * @param sp
+   *          the session provider
+   * @param artifact
+   *          the artifact which will be changed
+   *  @param identity
+   *          identity for addin/removing permissions 
+   *  @param permissions
+   *          array of permissions to set/remove
+   *  @param delete
+   *                    
+   * @throws RepositoryException
+   */
+  void changePermission (SessionProvider sp, Descriptor artifact, String identity, String[] permissions, boolean delete ) throws RepositoryException;
 }

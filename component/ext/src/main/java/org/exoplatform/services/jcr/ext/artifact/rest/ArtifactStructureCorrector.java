@@ -29,9 +29,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -43,7 +40,10 @@ import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
 import org.exoplatform.services.jcr.ext.artifact.CRCGenerator;
 import org.exoplatform.services.jcr.ext.common.SessionProvider;
 import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.rest.HTTPMethod;
+import org.exoplatform.services.rest.Response;
+import org.exoplatform.services.rest.URITemplate;
+import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Credential;
@@ -52,10 +52,10 @@ import org.exoplatform.services.security.UsernameCredential;
 
 /**
  * Created by The eXo Platform SARL Author : Volodymyr Krasnikov
- * volodymyr.krasnikov@exoplatform.com.ua 29.10.2007
+ * volodymyr.krasnikov@exoplatform.com.ua 29 Жов 2007
  */
 public class ArtifactStructureCorrector implements ResourceContainer {
-  private static final Log  log = ExoLogger.getLogger(ArtifactStructureCorrector.class);
+  private static final Log  LOGGER = ExoLogger.getLogger(ArtifactStructureCorrector.class);
 
   private RepositoryService repoService;
 
@@ -71,15 +71,13 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
     this.repoService = repoService;
 
-    if (initParams == null) {
+    if (initParams == null)
       throw new RepositoryConfigurationException("Init parameters expected !!!");
-    }
 
     PropertiesParam props = initParams.getPropertiesParam("artifact.workspace");
 
-    if (props == null) {
+    if (props == null)
       throw new RepositoryConfigurationException("Property parameters 'locations' expected");
-    }
 
     repoWorkspaceName = props.getProperty("workspace");
     rootNodePath = props.getProperty("rootNode");
@@ -92,12 +90,12 @@ public class ArtifactStructureCorrector implements ResourceContainer {
 
   }
 
-  @GET
-  @Path("/corrector/")
+  @HTTPMethod("GET")
+  @URITemplate("/corrector/")
   public Response correctStructure() throws RepositoryException {
     new Thread(new ChecksumGenerator(currentSession(sessionProvider)),
                "Correct jcr struct, Append checksums to artifacts").start();
-    return Response.ok().build();
+    return Response.Builder.ok().build();
   }
 
   private Session currentSession(SessionProvider sp) throws RepositoryException {
@@ -112,24 +110,25 @@ public class ArtifactStructureCorrector implements ResourceContainer {
     }
 
     public void run() {
-
-      log.info("Maven artifact checksums Updater started");
+      if (LOGGER.isDebugEnabled())
+        LOGGER.debug("======> Maven artifact checksums Updater started");
 
       try {
         Node rootNode = (Node) session.getItem(rootNodePath);
 
-        jcrSpaning(rootNode);
+        _jcrSpaning(rootNode);
 
       } catch (PathNotFoundException e) {
-        log.error("Cannot get target node", e);
+        LOGGER.error("Cannot get target node", e);
       } catch (RepositoryException e) {
-        log.error("General repository exception", e);
+        LOGGER.error("General repository exception", e);
       }
 
-      log.info("Maven artifact checksums Updater finished!");
+      if (LOGGER.isDebugEnabled())
+        LOGGER.debug("======> Maven artifact checksums Updater finished!");
     }
 
-    private void jcrSpaning(Node current_root) throws RepositoryException {
+    private void _jcrSpaning(Node current_root) throws RepositoryException {
       String algorithm = "sha1";
 
       // detect all resources that needs for checksums accompanied
@@ -137,9 +136,8 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         Node node = nodeIterator.nextNode();
 
         if (!node.isNodeType("nt:file")) { // not a resource
-          jcrSpaning(node);
+          _jcrSpaning(node);
         } else {
-
           String path = node.getPath();
           String ext = FilenameUtils.getExtension(path);
           if (!ext.equalsIgnoreCase(algorithm)) {
@@ -154,7 +152,7 @@ public class ArtifactStructureCorrector implements ResourceContainer {
               addChecksumNode(resource_node);
 
             } catch (ItemExistsException e) {
-              log.info("There is checksum for : " + node.getName());
+              LOGGER.info("There is checksum for : " + node.getName());
             }
           }
 
@@ -172,9 +170,10 @@ public class ArtifactStructureCorrector implements ResourceContainer {
       Property data = content.getProperty("jcr:data");
       String algorithm = "SHA1";
       try {
+
         String checksum = CRCGenerator.getChecksum(data.getStream(), algorithm);
 
-        log.info("Generate checksum for : " + src.getName());
+        LOGGER.info("Generate checksum for : " + src.getName());
 
         Node checkNode = parent.addNode(src.getName() + "." + algorithm.toLowerCase(), "nt:file");
 
@@ -189,11 +188,13 @@ public class ArtifactStructureCorrector implements ResourceContainer {
         IOUtils.closeQuietly(checksum_is);
 
       } catch (NoSuchAlgorithmException e) {
-        log.error("Cannot eval checksum with this algorithm", e);
+        LOGGER.error("Cannot eval checksum with this algorithm", e);
       } catch (IOException e) {
-        log.error("Streams exception while eval checksums", e);
+        LOGGER.error("Streams exception while eval checksums", e);
       }
 
     }
+
   }
+
 }
