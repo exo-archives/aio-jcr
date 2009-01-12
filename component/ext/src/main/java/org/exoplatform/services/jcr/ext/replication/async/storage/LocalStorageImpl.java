@@ -44,9 +44,11 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class LocalStorageImpl implements LocalStorage {
 
-  protected static final Log LOG = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  protected static final Log LOG    = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
   protected final String     storagePath;
+
+  private List<String>       errors = null;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -80,7 +82,7 @@ public class LocalStorageImpl implements LocalStorage {
   public void onSaveItems(ItemStateChangesLog itemStates) {
     try {
       ChangesFile file = createChangesFile();
-      
+
       ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
 
       TransactionChangesLog log = filterChangesLog((TransactionChangesLog) itemStates);
@@ -89,17 +91,24 @@ public class LocalStorageImpl implements LocalStorage {
       out.close();
       file.finishWrite();
     } catch (IOException e) {
-      LOG.error("" + e, e); // TODO
+      LOG.error("" + e, e);
+      this.reportException(e);
     }
   }
 
+  /**
+   * Creates ChangesFile in storage directory.
+   * 
+   * @return ChangesFile object
+   * @throws IOException
+   */
   private ChangesFile createChangesFile() throws IOException {
     return new ChangesFile("", System.currentTimeMillis(), storagePath);
   }
 
   /**
    * Change all TransientValueData to ReplicableValueData.
-   *
+   * 
    * @param log local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
    * @throws IOException if error occurs
@@ -152,6 +161,24 @@ public class LocalStorageImpl implements LocalStorage {
       result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId(), plog.getEventType()));
     }
     return result;
+  }
+
+  /**
+   * Add exception in exception messages list.
+   * 
+   * @param e Exception
+   */
+  protected void reportException(Exception e) {
+    if (errors == null)
+      errors = new ArrayList<String>();
+    errors.add(e.getMessage());
+  }
+
+  /**
+   * Return list of exception messages, or null if there is no exceptions.
+   */
+  public List<String> getExceptionMessages() {
+    return errors;
   }
 
 }
