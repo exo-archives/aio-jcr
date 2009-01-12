@@ -192,7 +192,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param value
    */
   public TransientValueData(InternalQName value) {
-    this(value.getAsString().getBytes(), 0);
+    this(stringToBytes(value.getAsString()), 0);
   }
 
   /**
@@ -201,7 +201,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param value
    */
   public TransientValueData(QPath value) {
-    this(value.getAsString().getBytes(), 0);
+    this(stringToBytes(value.getAsString()), 0);
   }
 
   /**
@@ -219,7 +219,7 @@ public class TransientValueData extends AbstractValueData implements Externaliza
    * @param value
    */
   public TransientValueData(AccessControlEntry value) {
-    this(value.getAsString().getBytes(), 0);
+    this(stringToBytes(value.getAsString()), 0);
   }
 
   /*
