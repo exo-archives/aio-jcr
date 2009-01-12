@@ -310,13 +310,13 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   // merger
   /**
    */
-  public boolean hasState(ItemState itemState) {
+  public boolean hasState(ItemState itemState, boolean equalPath) {
     List<ItemState> allStates = getAllStates();
 
     for (int i = 0; i < allStates.size(); i++) {
       ItemState item = allStates.get(i);
-      if (item.getData().getQPath().equals(itemState.getData().getQPath())
-          && item.equals(itemState)) {
+      if (item.equals(itemState)
+          && (!equalPath || item.getData().getQPath().equals(itemState.getData().getQPath()))) {
         return true;
       }
     }
