@@ -203,7 +203,7 @@ public class MergeDataManager {
             }
             break;
           case ItemState.MIXIN_CHANGED:
-            // synchronizedChanges.addAll(mixinMerger.merge(incomeChange, income, local));
+            synchronizedChanges.addAll(mixinMerger.merge(incomeChange, income, local));
             break;
           }
         }

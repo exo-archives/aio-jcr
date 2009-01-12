@@ -95,6 +95,9 @@ public class MixinMerger implements ChangesMerger {
       ItemState localState = liter.next();
 
       if (isLocalPriority()) { // localPriority
+        // TODO
+        itemChangeProcessed = true;
+
         switch (localState.getState()) {
         case ItemState.ADDED:
           break;
