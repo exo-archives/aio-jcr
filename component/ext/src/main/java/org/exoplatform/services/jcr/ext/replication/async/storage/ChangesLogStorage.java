@@ -216,16 +216,25 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return false;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Iterator<T> getChanges() throws IOException {
     return new MultiFileIterator<T>(storage);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public ChangesFile[] getChangesFile() {
     ChangesFile[] files = new ChangesFile[storage.size()];
     storage.toArray(files);
     return files;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();

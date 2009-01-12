@@ -44,14 +44,15 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
-  
-  class WraperList<T extends ItemState> implements List<ItemState>{
+
+  class ItemStateIterableList<T extends ItemState> implements List<ItemState> {
 
     private ChangesStorage<ItemState> storage;
-    public WraperList(ChangesStorage<ItemState> storage){
+
+    public ItemStateIterableList(ChangesStorage<ItemState> storage) {
       this.storage = storage;
     }
-    
+
     public boolean add(ItemState o) {
       // TODO Auto-generated method stub
       return false;
@@ -101,10 +102,10 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public Iterator<ItemState> iterator() {
-      try{
+      try {
         return this.storage.getChanges();
-      }catch(IOException e){
-        //TODO
+      } catch (IOException e) {
+        // TODO
         return null;
       }
     }
@@ -168,33 +169,33 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
       // TODO Auto-generated method stub
       return null;
     }
-    
+
   }
-  
-  
-  class WraperChangesLog implements ItemStateChangesLog{
+
+  class SynchronizingChangesLog implements ItemStateChangesLog {
 
     private ChangesStorage<ItemState> storage;
-    public WraperChangesLog(ChangesStorage<ItemState> synchronizedChanges){
+
+    public SynchronizingChangesLog(ChangesStorage<ItemState> synchronizedChanges) {
       storage = synchronizedChanges;
     }
-    
+
     public String dump() {
       // TODO Auto-generated method stub
       return null;
     }
 
     public List<ItemState> getAllStates() {
-      return new WraperList<ItemState>(storage);
+      return new ItemStateIterableList<ItemState>(storage);
     }
 
     public int getSize() {
       // TODO Auto-generated method stub
       return 0;
     }
-    
+
   }
-  
+
   private static final Log              LOG = ExoLogger.getLogger("ext.WorkspaceSynchronizerImpl");
 
   protected final LocalStorage          storage;
@@ -220,18 +221,15 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    */
   public void save(ChangesStorage<ItemState> synchronizedChanges) {
     // TODO save to Workspace data manager
-    
-    
-    
 
     LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
 
-    ItemStateChangesLog changes = new WraperChangesLog(synchronizedChanges);
+    ItemStateChangesLog changes = new SynchronizingChangesLog(synchronizedChanges);
 
     // TODO for demo
     try {
-      //for (Iterator<ItemState> iter = synchronizedChanges.getChanges(); iter.hasNext();)
-        //changes.add(iter.next());
+      // for (Iterator<ItemState> iter = synchronizedChanges.getChanges(); iter.hasNext();)
+      // changes.add(iter.next());
 
       workspace.save(changes);
     } catch (InvalidItemStateException e) {
@@ -244,9 +242,9 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
       // TODO message fix
       LOG.info("WorkspaceSynchronizer.save error " + e, e);
     }// catch (IOException e) {
-      // TODO message fix
-     // LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    //}
+    // TODO message fix
+    // LOG.info("WorkspaceSynchronizer.save error " + e, e);
+    // }
   }
 
 }

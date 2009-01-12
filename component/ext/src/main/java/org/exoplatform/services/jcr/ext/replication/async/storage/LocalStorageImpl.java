@@ -91,7 +91,7 @@ public class LocalStorageImpl implements LocalStorage {
       out.close();
       file.finishWrite();
     } catch (IOException e) {
-      LOG.error("" + e, e);
+      LOG.error("On save items error " + e, e);
       this.reportException(e);
     }
   }
