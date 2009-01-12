@@ -14,6 +14,16 @@
               <property name="max-buffer-size" value="200k" />
               <property name="swap-directory" value="../temp/swap/system" />
             </properties>
+            <value-storages>
+              <value-storage id="1" class="org.exoplatform.services.jcr.impl.storage.value.fs.TreeFileValueStorage">
+                <properties>
+                  <property name="path" value="../temp/values/system" />
+                </properties>
+                <filters>
+                  <filter property-type="Binary" />
+                </filters>
+              </value-storage>
+            </value-storages>
           </container>
           <initializer>
             <properties>
