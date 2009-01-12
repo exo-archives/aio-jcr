@@ -49,7 +49,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   /**
    * Logger.
    */
-  private static Log                              log         = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  private static final Log                        LOG         = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   /**
    * Map with CRC key and RandomAccess File
@@ -71,9 +71,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   protected final int                             localPriority;
 
   protected final int                             membersCount;
-  
+
   protected MergeWorker                           mergeWorker = null;
-  
+
   private volatile boolean                        localEventSendChanges;
 
   /**
@@ -96,13 +96,13 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         doDoneMerge();
 
       } catch (RepositoryException e) {
-        log.error("Merge error " + e, e);
+        LOG.error("Merge error " + e, e);
         doCancel();
       } catch (RemoteExportException e) {
-        log.error("Merge error " + e, e);
+        LOG.error("Merge error " + e, e);
         doCancel();
       } catch (IOException e) {
-        log.error("Merge error " + e, e);
+        LOG.error("Merge error " + e, e);
         doCancel();
       }
     }
@@ -133,9 +133,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       }
 
       // merge
-      log.info("start merge");
+      LOG.info("start merge");
       result = mergeManager.merge(membersChanges.iterator());
-      log.info("done merge");
+      LOG.info("done merge");
     }
 
   }
@@ -192,7 +192,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         // Fire event to Publisher to send own changes out
         doSendChanges();
 
-        log.info("BINARY_CHANGESLOG_FIRST_PACKET");
+        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET");
 
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
 
@@ -207,14 +207,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         break;
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-        log.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
+        LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
 
         cf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp())).getChangesFile();
         cf.writeData(packet.getBuffer(), packet.getOffset());
         break;
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-        log.info("BINARY_CHANGESLOG_LAST_PACKET");
+        LOG.info("BINARY_CHANGESLOG_LAST_PACKET");
 
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         incomeStorrage.addMemberChanges(mcf.getMember(), mcf.changesFile);
@@ -228,6 +228,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
           if (counter.isTotalTransfer())
             if (isAllTransfered())
+              // if all changes here, doMerge
               doStartMerge();
 
         } else {
@@ -235,13 +236,11 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
           counterMap.put(packet.getTransmitterPriority(), counter);
         }
 
-        // TODO if all changes here, doMerge
-
         break;
 
       }
     } catch (IOException e) {
-      log.error("Cannot save changes " + e, e);
+      LOG.error("Cannot save changes " + e, e);
 
       // local cancel, incl. merge.
       // and remote cancel.
@@ -265,25 +264,25 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       mergeWorker = new MergeWorker();
       mergeWorker.start();
     } else
-      log.error("Error, merge process laready activated.");
+      LOG.error("Error, merge process laready activated.");
   }
-  
+
   /**
    * doSendChanges.
    * 
-   *   Fire event to Publisher to send own changes out.
+   * Fire event to Publisher to send own changes out.
    */
   private void doSendChanges() {
     if (localEventSendChanges != true) {
       localEventSendChanges = true;
-      
+
       for (LocalEventListener syncl : listeners)
         syncl.onStart(transmitter.getOtherMembers());
-    } 
+    }
   }
 
   protected void doCancel() {
-    log.error("Do CANCEL");
+    LOG.error("Do CANCEL");
 
     mergeCancel();
 
@@ -294,17 +293,17 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     try {
       transmitter.sendCancel();
     } catch (IOException ioe) {
-      log.error("Cannot send 'Cancel'" + ioe, ioe);
+      LOG.error("Cannot send 'Cancel'" + ioe, ioe);
     }
   }
 
   protected void doDoneMerge() {
-    log.info("Do DONE");
+    LOG.info("Do DONE");
 
     try {
       transmitter.sendMerge();
     } catch (IOException ioe) {
-      log.error("Cannot send 'Cancel'" + ioe, ioe);
+      LOG.error("Cannot send 'Cancel'" + ioe, ioe);
     }
   }
 
@@ -312,13 +311,13 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    * {@inheritDoc}
    */
   public void onCancel() {
-    log.info("On 'CANCEL'");
+    LOG.info("On CANCEL");
     mergeCancel();
 
     try {
       incomeStorrage.clean();
     } catch (IOException e) {
-      log.error("Cannot clean income storage ", e);
+      LOG.error("Cannot clean income storage ", e);
     }
   }
 
@@ -327,9 +326,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       try {
         mergeWorker.cancel();
       } catch (RepositoryException e) {
-        log.error("Error of merge process cancelation " + e, e);
+        LOG.error("Error of merge process cancelation " + e, e);
       } catch (RemoteExportException e) {
-        log.error("Error of merge process cancelation " + e, e);
+        LOG.error("Error of merge process cancelation " + e, e);
       }
   }
 
@@ -338,20 +337,20 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    */
   public void onMerge(Member member) {
 
-    log.info("ChangesSubscriber.onMerge member " + member.getName());
+    LOG.info("ChangesSubscriber.onMerge member " + member.getName());
 
     if (doneList == null)
       doneList = new ArrayList<Integer>();
 
     doneList.add(member.getPriority());
 
-    log.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount="
+    LOG.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount="
         + membersCount);
 
     if (doneList.size() + 1 == membersCount) {
       workspace.save(mergeWorker.result);
 
-      log.info("Fire LocalEventListener.onStop");
+      LOG.info("Fire LocalEventListener.onStop");
 
       for (LocalEventListener ll : listeners)
         ll.onStop();
@@ -375,7 +374,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    */
   public void onStop() {
     // TODO Auto-generated method stub
-    log.info("On 'STOP'");
+    LOG.info("On STOP");
   }
 
   private class Key {
