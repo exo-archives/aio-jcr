@@ -44,14 +44,15 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class LocalStorageImpl implements LocalStorage {
 
-  protected static final Log LOG    = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  protected static final Log LOG = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
   protected final String     storagePath;
 
-  private List<String>       errors = null;
+  private final List<String> errors;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
+    this.errors = new ArrayList<String>();
   }
 
   /**
@@ -61,7 +62,7 @@ public class LocalStorageImpl implements LocalStorage {
     File incomStorage = new File(storagePath);
 
     String[] fileNames = incomStorage.list();
-    // Sort names in ascending mode
+    // TODO Sort names in ascending mode
     java.util.Arrays.sort(fileNames);
 
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
@@ -109,11 +110,9 @@ public class LocalStorageImpl implements LocalStorage {
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log
-   *          local TransactionChangesLog
+   * @param log local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException
-   *           if error occurs
+   * @throws IOException if error occurs
    */
   private TransactionChangesLog filterChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -168,12 +167,9 @@ public class LocalStorageImpl implements LocalStorage {
   /**
    * Add exception in exception messages list.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Exception e) {
-    if (errors == null)
-      errors = new ArrayList<String>();
     errors.add(e.getMessage());
   }
 
@@ -181,7 +177,8 @@ public class LocalStorageImpl implements LocalStorage {
    * {@inheritDoc}
    */
   public String[] getErrors() {
-    return errors != null ? errors.toArray(new String[errors.size()]) : new String[] {};
+    // TODO clean error list ( or not?)
+    return errors.toArray(new String[errors.size()]);
   }
 
 }

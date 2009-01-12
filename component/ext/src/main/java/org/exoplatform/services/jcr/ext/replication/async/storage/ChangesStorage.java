@@ -68,14 +68,14 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @return Collection
    */
-  Iterator<T> getChanges() throws IOException;
+  Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * Return changes (ItemState) count.
    * 
    * @return int
    */
-  int size() throws IOException;
+  int size() throws IOException, ClassCastException, ClassNotFoundException;
 
   // ***********************************************
 
@@ -107,7 +107,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @param item
    * @return
    */
-  T getNextItemState(ItemState item) throws IOException;
+  T getNextItemState(ItemState item) throws IOException, ClassCastException, ClassNotFoundException;
 
   // =========== custom ==============
 
@@ -118,7 +118,7 @@ public interface ChangesStorage<T extends ItemState> {
    *          QPath
    * @return int with ItemState state value
    */
-  int findLastState(QPath itemPath) throws IOException;
+  int findLastState(QPath itemPath) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * Tell if state presents in storage.
@@ -129,7 +129,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
-  boolean hasState(ItemState state, boolean equalPath) throws IOException;
+  boolean hasState(ItemState state, boolean equalPath) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * getNextItemStateByIndexOnUpdate.
@@ -140,7 +140,7 @@ public interface ChangesStorage<T extends ItemState> {
    *          int
    * @return ItemState
    */
-  T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException;
+  T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * TODO can we rely on sequence on log?
@@ -151,7 +151,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @param UUID
    * @return
    */
-  T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException;
+  T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * findParentDeleteState.
@@ -160,7 +160,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @return
    * @throws IOException
    */
-  boolean hasParentDeleteState(ItemState startState) throws IOException;
+  boolean hasParentDeleteState(ItemState startState) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * TODO
@@ -173,7 +173,7 @@ public interface ChangesStorage<T extends ItemState> {
    *          - ???
    * @return Collection of ItemState
    */
-  Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException;
+  Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * TODO
@@ -184,7 +184,7 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @return Collection of ItemState
    */
-  Collection<T> getChanges(QPath rootPath) throws IOException;
+  Collection<T> getChanges(QPath rootPath) throws IOException, ClassCastException, ClassNotFoundException ;
 
   /**
    * getUpdateSequence.
@@ -193,7 +193,7 @@ public interface ChangesStorage<T extends ItemState> {
    *          ItemState
    * @return List of ItemState
    */
-  List<T> getUpdateSequence(ItemState startState) throws IOException;
+  List<T> getUpdateSequence(ItemState startState) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * getRenameSequence.
@@ -202,6 +202,6 @@ public interface ChangesStorage<T extends ItemState> {
    *          ItemState
    * @return List of ItemState
    */
-  List<T> getRenameSequence(ItemState startState) throws IOException;
+  List<T> getRenameSequence(ItemState startState) throws IOException, ClassCastException, ClassNotFoundException;
 
 }

@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.log.ExoLogger;
@@ -41,7 +41,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @version $Id: WorkspaceSynchronizerImpl.java 26634 2009-01-12 10:17:36Z
+ *          pnedonosko $
  */
 public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
@@ -54,120 +55,103 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public boolean add(ItemState o) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public void add(int index, ItemState element) {
-      // TODO Auto-generated method stub
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean addAll(Collection<? extends ItemState> c) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean addAll(int index, Collection<? extends ItemState> c) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public void clear() {
-      // TODO Auto-generated method stub
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean contains(Object o) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean containsAll(Collection<?> c) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public ItemState get(int index) {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public int indexOf(Object o) {
-      // TODO Auto-generated method stub
-      return 0;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean isEmpty() {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public Iterator<ItemState> iterator() {
       try {
         return this.storage.getChanges();
       } catch (IOException e) {
-        // TODO
-        return null;
+        throw new ChangesLogReadException(e.getMessage());
+      } catch (ClassCastException e) {
+        throw new ChangesLogReadException(e.getMessage());
+      } catch (ClassNotFoundException e) {
+        throw new ChangesLogReadException(e.getMessage());
       }
     }
 
     public int lastIndexOf(Object o) {
-      // TODO Auto-generated method stub
-      return 0;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public ListIterator<ItemState> listIterator() {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public ListIterator<ItemState> listIterator(int index) {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean remove(Object o) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public ItemState remove(int index) {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean removeAll(Collection<?> c) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public boolean retainAll(Collection<?> c) {
-      // TODO Auto-generated method stub
-      return false;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public ItemState set(int index, ItemState element) {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public int size() {
-      // TODO Auto-generated method stub
-      return 0;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public List<ItemState> subList(int fromIndex, int toIndex) {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public Object[] toArray() {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public <T> T[] toArray(T[] a) {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
   }
@@ -181,8 +165,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public String dump() {
-      // TODO Auto-generated method stub
-      return null;
+      throw new RuntimeException("Remove not allowed!");
     }
 
     public List<ItemState> getAllStates() {
@@ -190,8 +173,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public int getSize() {
-      // TODO Auto-generated method stub
-      return 0;
+      throw new RuntimeException("Remove not allowed!");
     }
 
   }
@@ -220,18 +202,13 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    * {@inheritDoc}
    */
   public void save(ChangesStorage<ItemState> synchronizedChanges) {
-    // TODO save to Workspace data manager
-
     LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
-
     ItemStateChangesLog changes = new SynchronizingChangesLog(synchronizedChanges);
-
-    // TODO for demo
     try {
-      // for (Iterator<ItemState> iter = synchronizedChanges.getChanges(); iter.hasNext();)
-      // changes.add(iter.next());
-
       workspace.save(changes);
+    } catch (ChangesLogReadException e) {
+      // TODO message fix
+      LOG.info("WorkspaceSynchronizer.save error " + e, e);
     } catch (InvalidItemStateException e) {
       // TODO message fix
       LOG.info("WorkspaceSynchronizer.save error " + e, e);
@@ -241,10 +218,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     } catch (RepositoryException e) {
       // TODO message fix
       LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    }// catch (IOException e) {
-    // TODO message fix
-    // LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    // }
+    }
   }
 
 }

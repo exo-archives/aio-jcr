@@ -17,11 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +34,9 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class IncomeStorageImpl implements IncomeStorage {
 
-  protected static final Log                LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
-  
-  protected final String        storagePath;
+  protected static final Log LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
-  //protected final static String MEMBER_INFO_FILE_NAME = "member_info";
+  protected final String     storagePath;
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -56,13 +50,6 @@ public class IncomeStorageImpl implements IncomeStorage {
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
 
     dir.mkdirs();
-   /* File memberInfo = new File(dir, MEMBER_INFO_FILE_NAME);
-    if (!memberInfo.exists()) {
-      // store member info
-      ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(memberInfo));
-      out.writeObject(member);
-      out.close();
-    }*/
 
     // move changes file to member directory
     changes.moveTo(dir);
@@ -87,27 +74,12 @@ public class IncomeStorageImpl implements IncomeStorage {
     for (int i = 0; i < childnames.length; i++) {
       try {
 
-        int memberPriority = Integer.parseInt(childnames[i]); // also check - is member folder;
-
+        int memberPriority = Integer.parseInt(childnames[i]); // also check - is
+                                                              // member folder;
         File memberDir = new File(incomStorage, childnames[i]);
-      /*  File memberInfo = new File(memberDir, MEMBER_INFO_FILE_NAME);
-        Member member = null;
-        if (memberInfo.exists()) {
-          // read member info
-          ObjectInputStream in = new ObjectInputStream(new FileInputStream(memberInfo));
-          try {
-            member = (Member) in.readObject();
-          } catch (ClassNotFoundException e) {
-            LOG.error("" + e, e); // TODO
-          } finally {
-            in.close();
-          }
-        } else {
-          LOG.error("member info doesnt exist "); // TODO
-        }*/
 
         String[] fileNames = memberDir.list();
-        // Sort names in ascending mode
+        //TODO Sort names in ascending mode
         java.util.Arrays.sort(fileNames);
 
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
@@ -115,11 +87,13 @@ public class IncomeStorageImpl implements IncomeStorage {
           File ch = new File(memberDir, fileNames[j]);
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
-        ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles, new Member(null, memberPriority));
+        ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles,
+                                                                                new Member(null,
+                                                                                           memberPriority));
         changeStorages.add(storage);
       } catch (NumberFormatException e) {
         // This is not int-named file. Skip it.
-        LOG.error("" + e, e); // TODO
+        LOG.warn("Illegal named file in storage - " + childnames[i]); 
       }
     }
     return changeStorages;
