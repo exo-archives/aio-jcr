@@ -40,6 +40,11 @@ public interface LocalStorage extends ItemsPersistenceListener {
    */
   ChangesStorage<ItemState> getLocalChanges();
   
-  List<String> getExceptionMessages();
+  /**
+   * Return list of error messages. Can be 0.
+   *
+   * @return array of String, returns zero-length array if no errors occurred. 
+   */
+  String[] getErrors();
   
 }

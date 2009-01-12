@@ -109,9 +109,11 @@ public class LocalStorageImpl implements LocalStorage {
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
   private TransactionChangesLog filterChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -166,7 +168,8 @@ public class LocalStorageImpl implements LocalStorage {
   /**
    * Add exception in exception messages list.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     if (errors == null)
@@ -175,10 +178,10 @@ public class LocalStorageImpl implements LocalStorage {
   }
 
   /**
-   * Return list of exception messages, or null if there is no exceptions.
+   * {@inheritDoc}
    */
-  public List<String> getExceptionMessages() {
-    return errors;
+  public String[] getErrors() {
+    return errors != null ? errors.toArray(new String[errors.size()]) : new String[] {};
   }
 
 }
