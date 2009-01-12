@@ -36,7 +36,6 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.access.AccessManager;
 import org.exoplatform.services.jcr.access.PermissionType;
@@ -717,19 +716,21 @@ public class SessionDataManager implements ItemDataConsumer {
     }
   }
 
-  public void rename(NodeData itemDataFrom, ItemDataMoveVisitor initializer) throws RepositoryException {
+  public void rename(NodeData srcData, ItemDataMoveVisitor initializer) throws RepositoryException {
 
-    itemDataFrom.accept(initializer);
+    srcData.accept(initializer);
 
-    changesLog.addAll(initializer.getAllStates());
-
+    // TODO remove it!
     // in case of remane of same-name siblings there are a set of SNSes in
     // changes log with broken
     // index chain.
     // to fix that we are making the reindex of SNSes
-    changesLog.addAll(reindexSameNameSiblings(itemDataFrom, this));
+    // List<ItemState> reindex = reindexSameNameSiblings(srcData, this);
+    // changesLog.addAll(reindex);
 
-    reloadPool(itemDataFrom);
+    changesLog.addAll(initializer.getAllStates());
+
+    reloadPool(srcData);
   }
 
   /**
@@ -808,8 +809,6 @@ public class SessionDataManager implements ItemDataConsumer {
     }
 
     // 6 sort items to delete
-    // log.info(new SessionChangesLog(deletes,
-    // changesLog.getSessionId()).dump());
     Collections.sort(deletes, new PathSorter());
 
     if (!fireEvent)
@@ -918,18 +917,16 @@ public class SessionDataManager implements ItemDataConsumer {
                                                                                                     .getName(),
                                                                                                cause.getQPath()
                                                                                                     .getIndex() + 1));
-    while (nextSibling != null) {
+    String reindexedId = null;
+    // repeat till next sibling exists and it's not a caused Node (deleted or moved to) or just
+    // reindexed
+    while (nextSibling != null && !nextSibling.getIdentifier().equals(cause.getIdentifier())
+        && !nextSibling.getIdentifier().equals(reindexedId)) {
       // update with new index
       NodeData reindexed = nextSibling.cloneAsSibling(nextSibling.getQPath().getIndex() - 1);
+      reindexedId = reindexed.getIdentifier();
 
-      ItemState nodeDeletedState = new ItemState(nextSibling.clone(),
-                                                 ItemState.DELETED,
-                                                 false,
-                                                 null,
-                                                 false,
-                                                 false);
       ItemState reindexedState = ItemState.createUpdatedState(reindexed);
-      changes.add(nodeDeletedState);
       changes.add(reindexedState);
 
       // reload pooled implies... it's actual for session and workspace scope

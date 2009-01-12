@@ -1538,19 +1538,18 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         } else if (state.isDeleted()) {
           remove(item);
         } else if (state.isRenamed()) {
-          // MOVE operation (DESTENATION changes, same as ADDED), states for
-          // whole subtree!
+          // MOVE operation (DESTENATION changes, same as ADDED), states for whole subtree!
           // RENAME goes before DELETE
           put(item);
         } else if (state.isUpdated()) {
-          // UPDATE occurs on reordered (no subtree!) and merged nodes (for each
-          // merged-updated)
+          // UPDATE occurs on reordered (no subtree!) and merged nodes (for each merged-updated)
           if (item.isNode() && i > 0) {
-            // play only for orderBefore, UPDATE goes after DELETE(NP)
+            // play only for reorder, UPDATE goes after DELETE of same path item
             // we have to unload node and its parent child nodes to be loaded
             // back from the persistence
             ItemState prevState = itemStates.get(i - 1);
-            if (prevState.isDeleted() && !prevState.isPersisted())
+            if (prevState.isDeleted() && 
+                prevState.getData().getParentIdentifier().equals(item.getParentIdentifier()))
               removeSiblings((NodeData) item);
           }
           put(item);

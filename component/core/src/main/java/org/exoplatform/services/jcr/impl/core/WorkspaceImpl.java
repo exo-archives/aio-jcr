@@ -479,15 +479,16 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     srcNode.getData().accept(initializer);
 
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
-    changes.addAll(initializer.getItemDeletedStates(true));
+    //changes.addAll(initializer.getItemDeletedStates(true));
+    changes.addAll(initializer.getAllStates());
 
+    // TODO remove it!
     // Reindex same-name siblings on the parent after deletion
-    changes.addAll(session.getTransientNodesManager()
-                          .reindexSameNameSiblings(srcNode.nodeData(),
-                                                   session.getTransientNodesManager()
-                                                          .getTransactManager()));
-
-    changes.addAll(initializer.getItemAddStates());
+//    changes.addAll(session.getTransientNodesManager()
+//                          .reindexSameNameSiblings(srcNode.nodeData(),
+//                                                   session.getTransientNodesManager()
+//                                                          .getTransactManager()));
+//    changes.addAll(initializer.getItemAddStates());
 
     session.getTransientNodesManager().getTransactManager().save(changes);
   }

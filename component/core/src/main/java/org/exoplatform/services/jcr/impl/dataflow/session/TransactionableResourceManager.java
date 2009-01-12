@@ -73,7 +73,7 @@ public class TransactionableResourceManager {
               // userSession + ", thread " + Thread.currentThread()); // TODO
               siter.remove();
             }
-          } catch (ConcurrentModificationException e) {
+          } catch(ConcurrentModificationException e) {
             e.printStackTrace();
             System.err.println("same user >>> " + e); // TODO
           }
