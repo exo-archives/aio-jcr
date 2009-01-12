@@ -77,10 +77,12 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
   /**
    * {@inheritDoc}
    */
-  public boolean hasState(ItemState state) throws IOException {
+  public boolean hasState(ItemState state, boolean equalPath) throws IOException {
     for (ItemState st : chlog.getAllStates()) {
-      if (st.equals(state))
+      if (st.equals(state)
+          && (!equalPath || st.getData().getQPath().equals(state.getData().getQPath()))) {
         return true;
+      }
     }
     return false;
   }

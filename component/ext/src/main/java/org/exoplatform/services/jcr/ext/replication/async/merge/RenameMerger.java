@@ -100,12 +100,21 @@ public class RenameMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (localData.getQPath().isDescendantOf(incomeData.getQPath())
-              || localData.getQPath().equals(incomeData.getQPath())
-              || localData.getQPath().isDescendantOf(nextIncomeState.getData().getQPath())
-              || localData.getQPath().equals(nextIncomeState.getData().getQPath())) {
+          QPath incomePath = incomeData.isNode()
+              ? incomeData.getQPath()
+              : incomeData.getQPath().makeParentPath();
+
+          QPath nextIncomePath = incomeData.isNode()
+              ? nextIncomeState.getData().getQPath()
+              : nextIncomeState.getData().getQPath().makeParentPath();
+
+          if ((localData.getQPath().isDescendantOf(incomePath)
+              || localData.getQPath().equals(incomePath)
+              || localData.getQPath().isDescendantOf(nextIncomePath) || localData.getQPath()
+                                                                                 .equals(nextIncomePath))) {
             return resultEmptyState;
           }
+
           break;
         case ItemState.UPDATED:
           break;
@@ -245,12 +254,11 @@ public class RenameMerger implements ChangesMerger {
             if (!incomeData.isNode() && nextItem != null) {
               List<ItemState> rename = income.getRenameSequence(incomeState);
 
-              QPath qPath = QPath.makeChildPath(nextItem.getData().getQPath().makeAncestorPath(1),
-                                                incomeData.getQPath().getEntries()[incomeData.getQPath()
-                                                                                             .getEntries().length - 1]);
               for (ItemState st : rename) {
                 if (st.getState() == ItemState.DELETED) {
                   if (st.getData().isNode()) {
+                    QPath qPath = nextItem.getData().getQPath();
+
                     NodeData node = (NodeData) st.getData();
                     TransientNodeData item = new TransientNodeData(qPath,
                                                                    node.getIdentifier(),
@@ -268,6 +276,11 @@ public class RenameMerger implements ChangesMerger {
                                                 st.isPersisted());
                     resultState.add(incomeState);
                   } else {
+                    QPath qPath = QPath.makeChildPath(nextItem.getData().getQPath(),
+                                                      st.getData().getQPath().getEntries()[st.getData()
+                                                                                             .getQPath()
+                                                                                             .getEntries().length - 1]);
+
                     PropertyData prop = (PropertyData) st.getData();
                     TransientPropertyData item = new TransientPropertyData(qPath,
                                                                            prop.getIdentifier(),
@@ -531,8 +544,8 @@ public class RenameMerger implements ChangesMerger {
 
     // apply income changes if not processed
     if (!itemChangeProcessed) {
-      resultState.add(incomeState);
-      resultState.add(nextIncomeState);
+      for (ItemState st : income.getRenameSequence(incomeState))
+        resultState.add(st);
     }
 
     return resultState;

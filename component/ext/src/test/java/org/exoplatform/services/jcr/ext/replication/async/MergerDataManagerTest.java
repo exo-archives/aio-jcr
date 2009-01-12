@@ -1545,11 +1545,13 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    */
   public void testRename8_1() throws Exception {
     // low priority changes: add two nodes
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
-    node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
     node.addMixin("mix:referenceable");
-    node = node.addNode("item11");
 
     session3.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
@@ -1591,11 +1593,13 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    */
   public void testRename8_2() throws Exception {
     // low priority changes: add two nodes
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:referenceable");
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
-    node = root3.addNode("item1");
+
+    node = node1.addNode("item11");
     node.addMixin("mix:referenceable");
-    node = node.addNode("item11");
 
     session3.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
@@ -1821,6 +1825,8 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
 
     assertTrue(isWorkspacesEquals());
 
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
     // low priority changes: remove
     root3.getNode("item1").remove();
 
@@ -1828,6 +1834,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     root4.orderBefore("item1[2]", "item1");
 
     membersChanges.clear();
+
     session3.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
     session4.save();
@@ -1996,6 +2003,8 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     saveResultedChanges(res4, "ws4");
 
     assertTrue(isWorkspacesEquals());
+
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low priority changes: move parent
     root3.getNode("item1").remove();

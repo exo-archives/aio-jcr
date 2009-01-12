@@ -232,8 +232,10 @@ public class UpdateMerger implements ChangesMerger {
             if (incomeData.isNode() && nextItem != null) {
               // restore original order
               List<ItemState> localUpdateSequence = new ArrayList<ItemState>();
+
               localUpdateSequence.add(localState);
               localUpdateSequence.addAll(local.getUpdateSequence(localState));
+
               for (int i = localUpdateSequence.size() - 1; i >= 0; i--) {
                 ItemState item = localUpdateSequence.get(i);
                 NodeData node = (NodeData) item.getData();
@@ -256,7 +258,6 @@ public class UpdateMerger implements ChangesMerger {
                                                                     node.getOrderNumber(),
                                                                     node.getParentIdentifier(),
                                                                     node.getACL());
-                  // generate update state from delete state (in one case)
                   resultState.add(new ItemState(newItem,
                                                 ItemState.UPDATED,
                                                 item.isEventFire(),

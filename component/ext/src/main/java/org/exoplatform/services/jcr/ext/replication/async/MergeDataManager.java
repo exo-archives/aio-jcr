@@ -146,13 +146,11 @@ public class MergeDataManager {
                                                      dataManager,
                                                      ntManager);
 
-        ItemState prevState = null; // needed to skip unnecessary renamed states
-
         for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
 
           // skip already processed itemstate
-          if (synchronizedChanges.hasState(incomeChange)) {
+          if (synchronizedChanges.hasState(incomeChange, true)) {
             continue;
           }
 
@@ -170,17 +168,14 @@ public class MergeDataManager {
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
 
-                // process only first item of rename sequence
-                /*  if (prevState != null && prevState.getState() == ItemState.DELETED) {
-                    continue;
-                  }
-                */
-
+                // TODO
+                // skip processed itemstates
                 if (synchronizedChanges.hasState(new ItemState(nextIncomeChange.getData(),
                                                                ItemState.ADDED,
                                                                nextIncomeChange.isEventFire(),
                                                                nextIncomeChange.getData()
-                                                                               .getQPath()))) {
+                                                                               .getQPath()), true)
+                /*|| synchronizedChanges.hasState(incomeChange, false)*/) {
                   continue;
                 }
 
@@ -191,6 +186,7 @@ public class MergeDataManager {
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
                 synchronizedChanges.addAll(udpateMerger.merge(incomeChange, income, local));
               } else {
+                // TODO
                 log.error("Unknown DELETE sequence");
               }
             }
@@ -202,9 +198,6 @@ public class MergeDataManager {
           case ItemState.MIXIN_CHANGED:
             break;
           }
-
-          // TODO create item state without data
-          prevState = incomeChange;
         }
 
         first = synchronizedChanges;

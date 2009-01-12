@@ -269,12 +269,13 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public boolean hasState(ItemState state) throws IOException {
+  public boolean hasState(ItemState state, boolean equalPath) throws IOException {
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
       T item = it.next();
-      if (item.getData().getQPath().equals(state.getData().getQPath()) && item.equals(state)) {
+      if (item.equals(state)
+          && (!equalPath || item.getData().getQPath().equals(state.getData().getQPath()))) {
         return true;
       }
     }

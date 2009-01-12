@@ -205,10 +205,10 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public boolean hasState(ItemState state) throws IOException {
+  public boolean hasState(ItemState state, boolean equalPath) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (it.next().hasState(state)) {
+      if (it.next().hasState(state, equalPath)) {
         return true;
       }
     }
