@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -201,23 +202,16 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
   /**
    * {@inheritDoc}
    */
-  public void save(ChangesStorage<ItemState> synchronizedChanges) {
+  public void save(ChangesStorage<ItemState> synchronizedChanges) throws SynchronizationException,
+                                                                 InvalidItemStateException,
+                                                                 UnsupportedOperationException,
+                                                                 RepositoryException {
     LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
     ItemStateChangesLog changes = new SynchronizingChangesLog(synchronizedChanges);
     try {
       workspace.save(changes);
     } catch (ChangesLogReadException e) {
-      // TODO message fix
-      LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    } catch (InvalidItemStateException e) {
-      // TODO message fix
-      LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    } catch (UnsupportedOperationException e) {
-      // TODO message fix
-      LOG.info("WorkspaceSynchronizer.save error " + e, e);
-    } catch (RepositoryException e) {
-      // TODO message fix
-      LOG.info("WorkspaceSynchronizer.save error " + e, e);
+      throw new SynchronizationException(e);
     }
   }
 

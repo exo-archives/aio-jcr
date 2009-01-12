@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
@@ -32,6 +33,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
@@ -348,7 +350,21 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         + membersCount);
 
     if (doneList.size() + 1 == membersCount) {
-      workspace.save(mergeWorker.result);
+      try {
+        workspace.save(mergeWorker.result);
+      } catch (InvalidItemStateException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (UnsupportedOperationException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (RepositoryException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (SynchronizationException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 
       LOG.info("Fire LocalEventListener.onStop");
 

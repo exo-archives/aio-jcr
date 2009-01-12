@@ -91,11 +91,11 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        throw new ItemStateReadException(e.getMessage());
+        throw new ChangesLogReadException(e.getMessage());
       } catch (ClassNotFoundException e) {
-        throw new ItemStateReadException(e.getMessage());
+        throw new ChangesLogReadException(e.getMessage());
       } catch (ClassCastException e) {
-        throw new ItemStateReadException(e.getMessage());
+        throw new ChangesLogReadException(e.getMessage());
       }
       return retVal;
     }

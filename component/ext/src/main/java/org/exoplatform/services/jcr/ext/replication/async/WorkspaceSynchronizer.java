@@ -16,8 +16,12 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import javax.jcr.InvalidItemStateException;
+import javax.jcr.RepositoryException;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 
 /**
  * Created by The eXo Platform SAS.
@@ -38,8 +42,12 @@ public interface WorkspaceSynchronizer {
   
   /**
    * Save synchronized changes to a local workspace.
-   *
+   * 
+   * @throws SynchronizationException 
+   * @throws RepositoryException 
+   * @throws UnsupportedOperationException 
+   * @throws InvalidItemStateException 
    */
-  void save(ChangesStorage<ItemState> synchronizedChanges);
+  void save(ChangesStorage<ItemState> synchronizedChanges) throws InvalidItemStateException, UnsupportedOperationException, RepositoryException, SynchronizationException;
 
 }
