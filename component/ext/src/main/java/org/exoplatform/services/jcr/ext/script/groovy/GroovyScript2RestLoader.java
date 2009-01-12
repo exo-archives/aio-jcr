@@ -839,24 +839,22 @@ public class GroovyScript2RestLoader implements Startable {
    * @return groovy script's meta-information
    */
   @GET
-  @Produces( { MediaType.APPLICATION_FORM_URLENCODED })
+  @Produces( { MediaType.APPLICATION_JSON })
   @Path("{path:.*}")
-  public MultivaluedMap<String, String> getScriptMetadata(@PathParam("repository") String repository,
-                                                          @PathParam("workspace") String workspace,
-                                                          @PathParam("path") String path) {
+  public ScriptMetadata getScriptMetadata(@PathParam("repository") String repository,
+                                          @PathParam("workspace") String workspace,
+                                          @PathParam("path") String path) {
     Session ses = null;
     try {
       ses = sessionProviderService.getSessionProvider(null)
                                   .getSession(workspace,
                                               repositoryService.getRepository(repository));
-      MultivaluedMap<String, String> meta = new MultivaluedMapImpl();
       Node script = ((Node) ses.getItem("/" + path)).getNode("jcr:content");
-      meta.putSingle("exo:autoload", script.getProperty("exo:autoload").getString());
-      meta.putSingle("jcr:mimeType", script.getProperty("jcr:mimeType").getString());
-      meta.putSingle("jcr:lastModified", script.getProperty("jcr:lastModified")
-                                               .getDate()
-                                               .getTimeInMillis()
-          + "");
+      ScriptMetadata meta = new ScriptMetadata(script.getProperty("exo:autoload").getBoolean(),
+                                               script.getProperty("jcr:mimeType").getString(),
+                                               script.getProperty("jcr:lastModified")
+                                                     .getDate()
+                                                     .getTimeInMillis());
       return meta;
     } catch (Exception e) {
       throw new WebApplicationException(e);
@@ -986,6 +984,54 @@ public class GroovyScript2RestLoader implements Startable {
   private static String getName(String fullPath) {
     int sl = fullPath.lastIndexOf('/');
     return sl > 0 ? fullPath.substring(sl + 1) : fullPath;
+  }
+  
+  /**
+   * Script metadata, used for pass script metada as JSON.
+   */
+  public static class ScriptMetadata {
+    
+    /**
+     * Is script autoload. 
+     */
+    private final boolean autoload;
+
+    /**
+     * Script media type (script/groovy).
+     */
+    private final String  mediaType;
+
+    /**
+     * Last modified date. 
+     */
+    private final long    lastModified;
+
+    public ScriptMetadata(boolean autoload, String mediaType, long lastModified) {
+      this.autoload = autoload;
+      this.mediaType = mediaType;
+      this.lastModified = lastModified;
+    }
+
+    /**
+     * @return {@link #autoload}
+     */
+    public boolean getAutoload() {
+      return autoload;
+    }
+
+    /**
+     * @return {@link #mediaType}
+     */
+    public String getMediaType() {
+      return mediaType;
+    }
+
+    /**
+     * @return {@link #lastModified}
+     */
+    public long getLastModified() {
+      return lastModified;
+    }
   }
 
 }
