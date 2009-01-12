@@ -17,13 +17,17 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -33,6 +37,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -121,8 +126,6 @@ public class LocalStorageTest  extends BaseStandaloneTest {
   
   private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
 
-    
-
     while(expected.hasNext()){
       
       assertTrue(expected.hasNext());
@@ -154,7 +157,6 @@ public class LocalStorageTest  extends BaseStandaloneTest {
           // check is received property values ReplicableValueData
           assertTrue(elemValDat.get(j) instanceof ReplicableValueData);
         }
-       
       }
     }
   }
@@ -171,4 +173,61 @@ public class LocalStorageTest  extends BaseStandaloneTest {
     }
   }
 
+  
+  public void testRegisteredLocalStorage() throws Exception{
+    
+    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace().getName())
+                                                                                        .getComponent(PersistentDataManager.class);
+    
+    File dir = new File(STORAGE_DIR+"2");
+    dir.mkdirs();
+    LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath());
+    dataManager.addItemPersistenceListener(storage);
+    
+    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
+    n1.setProperty("prop1", "dfdasfsdf");
+    n1.setProperty("secondProp", "ohohoh");
+    root.save();
+    
+    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+    n2.setProperty("prop1", "dfdasfsdfSecond");
+    n2.setProperty("secondProp", "ohohohSecond");
+    root.save();
+
+    NodeImpl n3 = (NodeImpl) root.addNode("testNodeThird");
+    n3.setProperty("prop1", "dfdasfsdfThird");
+    n3.setProperty("secondProp", "ohohoh Third");
+    root.save();
+    
+    assertEquals(0,storage.getErrors().length);
+
+    TransactionChangesLog log1 = createChangesLog((NodeData) n1.getData());
+
+    TransactionChangesLog log2 = createChangesLog((NodeData) n2.getData());
+
+    TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
+
+    // create storage
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    
+    
+    assertEquals(log1.getSize()+log2.getSize()+log3.getSize(), ch.size());
+
+    // check results
+    /*Iterator<ItemState> states = ch.get(0).getChanges();
+    Iterator<ItemState> expectedStates = log2.getAllStates().iterator();
+    checkIterator(expectedStates, states);
+
+    states = ch.get(1).getChanges();
+    expectedStates = log1.getAllStates().iterator();
+    checkIterator(expectedStates, states);
+
+    states = ch.get(2).getChanges();
+    expectedStates = log3.getAllStates().iterator();
+    checkIterator(expectedStates, states);
+*/
+    
+    
+  }
+       
 }

@@ -104,6 +104,11 @@ public class LocalStorageImpl implements LocalStorage {
    * @throws IOException
    */
   private ChangesFile createChangesFile() throws IOException {
+    try{
+      Thread.sleep(100);
+    }catch(InterruptedException e){
+      // do nothing
+    }
     return new ChangesFile("", System.currentTimeMillis(), storagePath);
   }
 
