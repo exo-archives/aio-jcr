@@ -1009,10 +1009,10 @@ public class GroovyScript2RestLoader implements Startable {
           scriptList.add(node.getParent().getPath());
         }
       } else {
-        while (nodeIterator.hasNext()) {
+        while (nodeIterator.hasNext()) {          
           Node node = nodeIterator.nextNode();
           String scriptName = getName(node.getParent().getPath());
-          Pattern pattern = Pattern.compile(".*" + name + ".*");
+          Pattern pattern = Pattern.compile(name.replace("*", ".*"));
 
           if (pattern.matcher(scriptName).matches()) {
             scriptList.add(node.getParent().getPath());
@@ -1102,7 +1102,7 @@ public class GroovyScript2RestLoader implements Startable {
   /**
    * Script list, used for pass script list as JSON.
    */
-  private class ScriptList {
+  public static class ScriptList {
 
     /**
      * The list of scripts.
