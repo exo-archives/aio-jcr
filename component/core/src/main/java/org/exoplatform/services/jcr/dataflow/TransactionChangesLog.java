@@ -136,6 +136,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     List<ItemState> allStates = getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       if (allStates.get(i).equals(startState)) {
+        resultStates.add(startState);
         for (int j = i + 1; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getState() == ItemState.UPDATED
@@ -289,25 +290,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   }
 
   // merger
-  public boolean hasParentDeleteState(ItemState startState) {
-    List<ItemState> allStates = getAllStates();
-
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() == ItemState.DELETED
-              && item.getData().getIdentifier().equals(startState.getData().getParentIdentifier())) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  // merger
   /**
    */
   public boolean hasState(ItemState itemState, boolean equalPath) {
@@ -318,6 +300,40 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
       if (item.equals(itemState)
           && (!equalPath || item.getData().getQPath().equals(itemState.getData().getQPath()))) {
         return true;
+      }
+    }
+
+    return false;
+  }
+
+  public boolean hasNextState(ItemState startState, String identifier, int state) {
+    List<ItemState> allStates = getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() == state && item.getData().getIdentifier().equals(identifier)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public boolean hasNextState(ItemState startState, QPath path, int state) {
+    List<ItemState> allStates = getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() == state && item.getData().getQPath().equals(path)) {
+            return true;
+          }
+        }
       }
     }
 
