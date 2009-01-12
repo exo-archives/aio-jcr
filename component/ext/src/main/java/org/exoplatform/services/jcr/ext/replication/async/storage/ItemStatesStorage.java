@@ -269,7 +269,9 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public boolean hasState(ItemState state, boolean equalPath) throws IOException, ClassCastException, ClassNotFoundException {
+  public boolean hasState(ItemState state, boolean equalPath) throws IOException,
+                                                             ClassCastException,
+                                                             ClassNotFoundException {
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
@@ -404,27 +406,6 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     return resultStates;
   }
 
-  public boolean hasParentDeleteState(ItemState startState) throws IOException,
-                                                           ClassCastException,
-                                                           ClassNotFoundException {
-    Iterator<T> it = getChanges();
-    while (it.hasNext()) {
-      T state = it.next();
-      if (state.equals(startState)) {
-        while (it.hasNext()) {
-          T inState = it.next();
-          if (inState.getState() == ItemState.DELETED
-              && inState.getData().getIdentifier().equals(startState.getData()
-                                                                    .getParentIdentifier())) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
   public List<T> getRenameSequence(ItemState startState) throws IOException,
                                                         ClassCastException,
                                                         ClassNotFoundException {
@@ -447,5 +428,41 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
       }
     }
     return resultStates;
+  }
+
+  public boolean hasNextState(ItemState startState, String identifier, int state) throws IOException,
+                                                                                 ClassCastException,
+                                                                                 ClassNotFoundException {
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      if (it.next().equals(startState)) {
+        while (it.hasNext()) {
+          T inState = it.next();
+          if (inState.getState() == state && inState.getData().getIdentifier().equals(identifier)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  public boolean hasNextState(ItemState startState, QPath path, int state) throws IOException,
+                                                                          ClassCastException,
+                                                                          ClassNotFoundException {
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      if (it.next().equals(startState)) {
+        while (it.hasNext()) {
+          T inState = it.next();
+          if (inState.getState() == state && inState.getData().getQPath().equals(path)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }

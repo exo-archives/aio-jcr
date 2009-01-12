@@ -29,6 +29,7 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.DeleteMerger;
+import org.exoplatform.services.jcr.ext.replication.async.merge.MixinMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.RenameMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.UpdateMerger;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -100,10 +101,14 @@ public class MergeDataManager {
    * @throws RepositoryException
    * @throws RemoteExportException
    * @throws IOException
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    */
   public ChangesStorage<ItemState> merge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
                                                                                             RemoteExportException,
-                                                                                            IOException {
+                                                                                            IOException,
+                                                                                            ClassCastException,
+                                                                                            ClassNotFoundException {
 
     try {
 
@@ -145,6 +150,7 @@ public class MergeDataManager {
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
+        MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
 
         for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
@@ -187,7 +193,7 @@ public class MergeDataManager {
                 synchronizedChanges.addAll(udpateMerger.merge(incomeChange, income, local));
               } else {
                 // TODO
-                log.error("Unknown DELETE sequence");
+                throw new RuntimeException("Unknown DELETE sequence");
               }
             }
             break;
@@ -195,7 +201,9 @@ public class MergeDataManager {
             if (!incomeChange.getData().isNode()) {
               synchronizedChanges.addAll(udpateMerger.merge(incomeChange, income, local));
             }
+            break;
           case ItemState.MIXIN_CHANGED:
+            // synchronizedChanges.addAll(mixinMerger.merge(incomeChange, income, local));
             break;
           }
         }

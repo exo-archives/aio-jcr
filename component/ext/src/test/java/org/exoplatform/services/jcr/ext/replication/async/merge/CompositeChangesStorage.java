@@ -173,15 +173,31 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
     return null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public Collection<ItemState> getChanges(QPath rootPath) throws IOException {
     return chlog.getChanges(rootPath);
   }
 
-  public boolean hasParentDeleteState(ItemState startState) throws IOException {
-    return chlog.hasParentDeleteState(startState);
-  }
-
+  /**
+   * {@inheritDoc}
+   */
   public List<ItemState> getRenameSequence(ItemState startState) throws IOException {
     return chlog.getRenameSequence(startState);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasNextState(ItemState startState, String identifier, int state) throws IOException {
+    return chlog.hasNextState(startState, identifier, state);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasNextState(ItemState startState, QPath path, int state) throws IOException {
+    return chlog.hasNextState(startState, path, state);
   }
 }

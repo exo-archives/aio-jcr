@@ -308,6 +308,17 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return null;
   }
 
+  public List<T> getRenameSequence(ItemState startState) throws IOException {
+    List<T> list = new ArrayList<T>();
+
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+
+    while (it.hasNext()) {
+      list.addAll((List<T>) it.next().getRenameSequence(startState));
+    }
+    return list;
+  }
+
   public List<T> getUpdateSequence(ItemState startState) throws IOException {
     List<T> list = new ArrayList<T>();
 
@@ -340,10 +351,10 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return list;
   }
 
-  public boolean hasParentDeleteState(ItemState startState) throws IOException {
+  public boolean hasNextState(ItemState startState, String identifier, int state) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (it.next().hasParentDeleteState(startState)) {
+      if (it.next().hasNextState(startState, identifier, state)) {
         return true;
       }
     }
@@ -351,15 +362,15 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return false;
   }
 
-  public List<T> getRenameSequence(ItemState startState) throws IOException {
-    List<T> list = new ArrayList<T>();
-
+  public boolean hasNextState(ItemState startState, QPath path, int state) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
-
     while (it.hasNext()) {
-      list.addAll((List<T>) it.next().getRenameSequence(startState));
+      if (it.next().hasNextState(startState, path, state)) {
+        return true;
+      }
     }
-    return list;
+
+    return false;
   }
 
 }

@@ -59,11 +59,16 @@ public interface ChangesMerger {
    * @throws RemoteExportException
    *           TODO
    * @throws IOException
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    */
   ChangesStorage<ItemState> merge(ItemState itemChange,
-                        ChangesStorage<ItemState> income,
-                        ChangesStorage<ItemState> local) throws IllegalPathException,
-                                                    RepositoryException,
-                                                    RemoteExportException, IOException;
+                                  ChangesStorage<ItemState> income,
+                                  ChangesStorage<ItemState> local) throws IllegalPathException,
+                                                                  RepositoryException,
+                                                                  RemoteExportException,
+                                                                  IOException,
+                                                                  ClassCastException,
+                                                                  ClassNotFoundException;
 
 }

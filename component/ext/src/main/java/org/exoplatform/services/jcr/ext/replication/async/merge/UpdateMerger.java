@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -80,12 +79,16 @@ public class UpdateMerger implements ChangesMerger {
    * {@inheritDoc}
    * 
    * @throws RepositoryException
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
                                          ChangesStorage<ItemState> local) throws RepositoryException,
                                                                          RemoteExportException,
-                                                                         IOException {
+                                                                         IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is UPDATE state
@@ -144,9 +147,7 @@ public class UpdateMerger implements ChangesMerger {
                                                             incomeState.getData()
                                                                        .getParentIdentifier());
             if (incomeData.isNode() && nextItem != null) {
-              List<ItemState> incomeUpdateSequence = new ArrayList<ItemState>();
-              incomeUpdateSequence.add(incomeState);
-              incomeUpdateSequence.addAll(income.getUpdateSequence(incomeState));
+              List<ItemState> incomeUpdateSequence = income.getUpdateSequence(incomeState);
               for (ItemState item : incomeUpdateSequence) {
                 NodeData node = (NodeData) item.getData();
                 QPath name = QPath.makeChildPath(localData.getQPath(),
@@ -231,11 +232,7 @@ public class UpdateMerger implements ChangesMerger {
                                                                                  .getIdentifier());
             if (incomeData.isNode() && nextItem != null) {
               // restore original order
-              List<ItemState> localUpdateSequence = new ArrayList<ItemState>();
-
-              localUpdateSequence.add(localState);
-              localUpdateSequence.addAll(local.getUpdateSequence(localState));
-
+              List<ItemState> localUpdateSequence = local.getUpdateSequence(localState);
               for (int i = localUpdateSequence.size() - 1; i >= 0; i--) {
                 ItemState item = localUpdateSequence.get(i);
                 NodeData node = (NodeData) item.getData();
@@ -272,9 +269,7 @@ public class UpdateMerger implements ChangesMerger {
                                                             incomeState.getData()
                                                                        .getParentIdentifier());
             if (incomeData.isNode() && nextItem != null) {
-              List<ItemState> incomeUpdateSequence = new ArrayList<ItemState>();
-              incomeUpdateSequence.add(incomeState);
-              incomeUpdateSequence.addAll(income.getUpdateSequence(incomeState));
+              List<ItemState> incomeUpdateSequence = income.getUpdateSequence(incomeState);
               for (ItemState item : incomeUpdateSequence) {
                 NodeData node = (NodeData) item.getData();
                 QPath name = QPath.makeChildPath(localData.getQPath(),
@@ -360,7 +355,7 @@ public class UpdateMerger implements ChangesMerger {
                                                      item.getData().getQPath().getEntries()[item.getData()
                                                                                                 .getQPath()
                                                                                                 .getEntries().length - 1],
-                                                     update.size());
+                                                     update.size() - 1);
 
                     NodeData node = (NodeData) item.getData();
                     TransientNodeData nodeData = new TransientNodeData(name,
@@ -411,7 +406,6 @@ public class UpdateMerger implements ChangesMerger {
               }
 
               // apply income changes
-              resultState.add(incomeState);
               if (nextIncomeState != null) {
                 for (ItemState st : update)
                   resultState.add(st);
@@ -455,10 +449,13 @@ public class UpdateMerger implements ChangesMerger {
 
     // apply income changes if not processed
     if (!itemChangeProcessed) {
-      resultState.add(incomeState);
       if (nextIncomeState != null) {
-        for (ItemState st : income.getUpdateSequence(incomeState))
-          resultState.add(st);
+        if (incomeState.getData().isNode()) {
+          for (ItemState st : income.getUpdateSequence(incomeState))
+            resultState.add(st);
+        }
+      } else {
+        resultState.add(incomeState);
       }
     }
 

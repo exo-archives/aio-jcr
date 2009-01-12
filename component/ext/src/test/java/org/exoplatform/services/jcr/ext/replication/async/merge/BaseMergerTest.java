@@ -567,11 +567,13 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected void tearDown() throws Exception {
     local.delete();
     income.delete();
-    
+
     super.tearDown();
   }
 
-  protected ItemState findStateByPath(ChangesStorage<ItemState> changes, QPath path) throws IOException {
+  protected ItemState findStateByPath(ChangesStorage<ItemState> changes, QPath path) throws IOException,
+                                                                                    ClassCastException,
+                                                                                    ClassNotFoundException {
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getQPath().equals(path))
@@ -581,7 +583,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
     return null;
   }
 
-  protected ItemState findStateById(ChangesStorage<ItemState> changes, String id) throws IOException {
+  protected ItemState findStateById(ChangesStorage<ItemState> changes, String id) throws IOException,
+                                                                                 ClassCastException,
+                                                                                 ClassNotFoundException {
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getIdentifier().equals(id))
@@ -593,7 +597,9 @@ public class BaseMergerTest extends BaseStandaloneTest {
 
   protected boolean hasState(ChangesStorage<ItemState> changes,
                              ItemState expected,
-                             boolean respectId) throws IOException {
+                             boolean respectId) throws IOException,
+                                               ClassCastException,
+                                               ClassNotFoundException {
     for (Iterator<ItemState> iter = changes.getChanges(); iter.hasNext();) {
       ItemState st = iter.next();
       if (st.getData().getQPath().equals(expected.getData().getQPath())

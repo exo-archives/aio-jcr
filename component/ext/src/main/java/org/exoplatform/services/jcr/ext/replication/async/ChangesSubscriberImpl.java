@@ -29,6 +29,7 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -106,6 +107,12 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       } catch (IOException e) {
         LOG.error("Merge error " + e, e);
         doCancel();
+      } catch (ClassCastException e) {
+        LOG.error("Merge error " + e, e);
+        e.printStackTrace();
+      } catch (ClassNotFoundException e) {
+        LOG.error("Merge error " + e, e);
+        e.printStackTrace();
       }
     }
 
@@ -120,7 +127,11 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       mergeManager.cancel();
     }
 
-    private void runMerge() throws RepositoryException, RemoteExportException, IOException {
+    private void runMerge() throws RepositoryException,
+                           RemoteExportException,
+                           IOException,
+                           ClassCastException,
+                           ClassNotFoundException {
       // add local changes to the list
       List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {

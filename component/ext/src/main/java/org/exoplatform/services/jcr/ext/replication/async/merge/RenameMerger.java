@@ -76,11 +76,16 @@ public class RenameMerger implements ChangesMerger {
 
   /**
    * {@inheritDoc}
+   * 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
                                          ChangesStorage<ItemState> local) throws RemoteExportException,
-                                                                         IOException {
+                                                                         IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
@@ -516,7 +521,10 @@ public class RenameMerger implements ChangesMerger {
 
               return resultState;
             }
-          } else if (!incomeData.isNode() && income.hasParentDeleteState(incomeState)) {
+          } else if (!incomeData.isNode()
+              && income.hasNextState(incomeState,
+                                     incomeState.getData().getParentIdentifier(),
+                                     ItemState.DELETED)) {
             if ((localData.isNode() && incomeData.getQPath().equals(localData.getQPath()))
                 || (!localData.isNode() && incomeData.getQPath()
                                                      .isDescendantOf(localData.getQPath()

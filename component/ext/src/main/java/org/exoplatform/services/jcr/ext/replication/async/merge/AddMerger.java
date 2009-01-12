@@ -80,12 +80,16 @@ public class AddMerger implements ChangesMerger {
    * {@inheritDoc}
    * 
    * @throws RepositoryException
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
                                          ChangesStorage<ItemState> local) throws RepositoryException,
                                                                          RemoteExportException,
-                                                                         IOException {
+                                                                         IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException {
 
     boolean itemChangeProcessed = false;
 

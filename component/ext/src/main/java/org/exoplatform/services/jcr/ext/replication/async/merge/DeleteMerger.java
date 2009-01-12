@@ -81,12 +81,16 @@ public class DeleteMerger implements ChangesMerger {
    * 
    * @throws RepositoryException
    * @throws IOException
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
                                          ChangesStorage<ItemState> local) throws RepositoryException,
                                                                          RemoteExportException,
-                                                                         IOException {
+                                                                         IOException,
+                                                                         ClassCastException,
+                                                                         ClassNotFoundException {
 
     boolean itemChangeProcessed = false;
 
@@ -109,7 +113,9 @@ public class DeleteMerger implements ChangesMerger {
                                                                                          .equals(incomeData.getQPath()))) {
             return resultEmptyState;
           } else if (!incomeData.isNode()
-              && income.hasParentDeleteState(incomeState)
+              && income.hasNextState(incomeState,
+                                     incomeState.getData().getParentIdentifier(),
+                                     ItemState.DELETED)
               && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
                                                                                                           .equals(incomeData.getQPath()
                                                                                                                             .makeParentPath()))) {
@@ -239,7 +245,9 @@ public class DeleteMerger implements ChangesMerger {
 
             return resultState;
           } else if (!incomeData.isNode()
-              && income.hasParentDeleteState(incomeState)
+              && income.hasNextState(incomeState,
+                                     incomeState.getData().getParentIdentifier(),
+                                     ItemState.DELETED)
               && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
                                                                                                           .equals(incomeData.getQPath()
                                                                                                                             .makeParentPath()))) {
@@ -325,7 +333,10 @@ public class DeleteMerger implements ChangesMerger {
               itemChangeProcessed = true;
               break;
             } else if (!incomeData.isNode()
-                && localData.getIdentifier().equals(incomeData.getParentIdentifier()) && !income.hasParentDeleteState(incomeState)) {
+                && localData.getIdentifier().equals(incomeData.getParentIdentifier())
+                && !income.hasNextState(incomeState,
+                                        incomeState.getData().getParentIdentifier(),
+                                        ItemState.DELETED)) {
               resultState.add(new ItemState(nextState.getData(),
                                             ItemState.DELETED,
                                             nextState.isEventFire(),
