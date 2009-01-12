@@ -22,8 +22,6 @@ import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
 
-import sun.management.FileSystem;
-
 /**
  * Acts as an argument for the {@link QueryHandler} to keep the interface
  * stable. This class provides access to the environment where the query handler
@@ -70,9 +68,9 @@ public class QueryHandlerContext {
   /**
    * Creates a new context instance.
    * 
-   * @param fs a {@link FileSystem} this <code>QueryHandler</code> may use to
-   *          store its index. If no <code>FileSystem</code> has been configured
-   *          <code>fs</code> is <code>null</code>.
+   * @param fs a this <code>QueryHandler</code> may use to store its index. If
+   *          no <code>FileSystem</code> has been configured <code>fs</code> is
+   *          <code>null</code>.
    * @param stateMgr provides persistent item states.
    * @param rootId the id of the root node.
    * @param ntRegistry the node type registry.

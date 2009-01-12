@@ -28,7 +28,6 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
-import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
 import org.exoplatform.services.jcr.dataflow.DataManager;
@@ -52,30 +51,24 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class PropertyDefinitionComparator extends DefinitionComparator {
+public class PropertyDefinitionComparator extends AbstractDefinitionComparator<PropertyDefinitionData> {
   /**
    * Class logger.
    */
-  private static final Log              LOG = ExoLogger.getLogger(PropertyDefinitionComparator.class);
+  private static final Log      LOG = ExoLogger.getLogger(PropertyDefinitionComparator.class);
 
-  private final LocationFactory         locationFactory;
-
-  protected final DataManager           persister;
-
-  private final NodeTypeDataManagerImpl nodeTypeDataManager;
+  private final LocationFactory locationFactory;
 
   /**
    * @param nodeTypeDataManager
    * @param persister
-   * @param valueFactory
+   * @param locationFactory
    */
   public PropertyDefinitionComparator(NodeTypeDataManagerImpl nodeTypeDataManager,
-                                      LocationFactory locationFactory,
-                                      DataManager persister) {
-    super();
-    this.nodeTypeDataManager = nodeTypeDataManager;
+                                      DataManager persister,
+                                      LocationFactory locationFactory) {
+    super(nodeTypeDataManager, persister);
     this.locationFactory = locationFactory;
-    this.persister = persister;
   }
 
   public PlainChangesLog compare(NodeTypeData registeredNodeType,
@@ -83,7 +76,8 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
                                  PropertyDefinitionData[] recipientDefinition) throws RepositoryException {
 
     List<PropertyDefinitionData> sameDefinitionData = new ArrayList<PropertyDefinitionData>();
-    List<List<PropertyDefinitionData>> changedDefinitionData = new ArrayList<List<PropertyDefinitionData>>();
+
+    List<RelatedDefinition<PropertyDefinitionData>> changedDefinitionData = new ArrayList<RelatedDefinition<PropertyDefinitionData>>();
     List<PropertyDefinitionData> newDefinitionData = new ArrayList<PropertyDefinitionData>();
     List<PropertyDefinitionData> removedDefinitionData = new ArrayList<PropertyDefinitionData>();
     init(ancestorDefinition,
@@ -122,8 +116,8 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
    */
   private void checkIsMultiple(NodeTypeData registeredNodeType,
                                PropertyDefinitionData recipientDefinitionData,
-                               ItemDefinitionData[] allRecipientDefinition) throws RepositoryException,
-                                                                           ConstraintViolationException {
+                               PropertyDefinitionData[] allRecipientDefinition) throws RepositoryException,
+                                                                               ConstraintViolationException {
     Set<String> nodes2;
     if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
       nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
@@ -281,8 +275,8 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
    */
   private void checkValueConstraints(NodeTypeData registeredNodeType,
                                      PropertyDefinitionData recipientDefinitionData,
-                                     ItemDefinitionData[] allRecipientDefinition) throws RepositoryException,
-                                                                                 ConstraintViolationException {
+                                     PropertyDefinitionData[] allRecipientDefinition) throws RepositoryException,
+                                                                                     ConstraintViolationException {
     Set<String> nodes2;
     if (Constants.JCR_ANY_NAME.equals(recipientDefinitionData.getName())) {
       nodes2 = nodeTypeDataManager.getNodes(registeredNodeType.getName());
@@ -367,51 +361,54 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
     }
   }
 
-  /**
-   * @param ancestorDefinition
-   * @param recipientDefinition
-   * @param sameDefinitionData
-   * @param changedDefinitionData
-   * @param newDefinitionData
-   * @param removedDefinitionData
-   */
-  private void init(PropertyDefinitionData[] ancestorDefinition,
-                    PropertyDefinitionData[] recipientDefinition,
-                    List<PropertyDefinitionData> sameDefinitionData,
-                    List<List<PropertyDefinitionData>> changedDefinitionData,
-                    List<PropertyDefinitionData> newDefinitionData,
-                    List<PropertyDefinitionData> removedDefinitionData) {
-    for (int i = 0; i < recipientDefinition.length; i++) {
-      boolean isNew = true;
-      for (int j = 0; j < ancestorDefinition.length; j++) {
-        if (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName())) {
-          isNew = false;
-          if (recipientDefinition[i].equals(ancestorDefinition[j]))
-            sameDefinitionData.add(recipientDefinition[i]);
-          else {
-            // TODO make better structure
-            List<PropertyDefinitionData> list = new ArrayList<PropertyDefinitionData>();
-            list.add(ancestorDefinition[j]);
-            list.add(recipientDefinition[i]);
-            changedDefinitionData.add(list);
-          }
-        }
-      }
-      if (isNew)
-        newDefinitionData.add(recipientDefinition[i]);
-    }
-    for (int i = 0; i < ancestorDefinition.length; i++) {
-      boolean isRemoved = true;
-      for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
-        if (recipientDefinition[j].getName().equals(ancestorDefinition[i].getName())) {
-          isRemoved = false;
-          break;
-        }
-      }
-      if (isRemoved)
-        removedDefinitionData.add(ancestorDefinition[i]);
-    }
-  }
+  // /**
+  // * @param ancestorDefinition
+  // * @param recipientDefinition
+  // * @param sameDefinitionData
+  // * @param changedDefinitionData
+  // * @param newDefinitionData
+  // * @param removedDefinitionData
+  // */
+  // private void init(PropertyDefinitionData[] ancestorDefinition,
+  // PropertyDefinitionData[] recipientDefinition,
+  // List<PropertyDefinitionData> sameDefinitionData,
+  // List<RelatedDefinition<PropertyDefinitionData>> changedDefinitionData,
+  // List<PropertyDefinitionData> newDefinitionData,
+  // List<PropertyDefinitionData> removedDefinitionData) {
+  // for (int i = 0; i < recipientDefinition.length; i++) {
+  // boolean isNew = true;
+  // for (int j = 0; j < ancestorDefinition.length; j++) {
+  // if
+  // (recipientDefinition[i].getName().equals(ancestorDefinition[j].getName()))
+  // {
+  // isNew = false;
+  // if (recipientDefinition[i].equals(ancestorDefinition[j]))
+  // sameDefinitionData.add(recipientDefinition[i]);
+  // else {
+  // RelatedDefinition<PropertyDefinitionData> relatedDefinition = new
+  // RelatedDefinition<PropertyDefinitionData>(ancestorDefinition[j],
+  // recipientDefinition[i]);
+  // changedDefinitionData.add(relatedDefinition);
+  // }
+  // }
+  // }
+  // if (isNew)
+  // newDefinitionData.add(recipientDefinition[i]);
+  // }
+  // for (int i = 0; i < ancestorDefinition.length; i++) {
+  // boolean isRemoved = true;
+  // for (int j = 0; j < recipientDefinition.length && isRemoved; j++) {
+  // if
+  // (recipientDefinition[j].getName().equals(ancestorDefinition[i].getName()))
+  // {
+  // isRemoved = false;
+  // break;
+  // }
+  // }
+  // if (isRemoved)
+  // removedDefinitionData.add(ancestorDefinition[i]);
+  // }
+  // }
 
   /**
    * @param registeredNodeType
@@ -455,12 +452,12 @@ public class PropertyDefinitionComparator extends DefinitionComparator {
    * @throws RepositoryException
    */
   private void validateChanged(NodeTypeData registeredNodeType,
-                               List<List<PropertyDefinitionData>> changedDefinitionData,
+                               List<RelatedDefinition<PropertyDefinitionData>> changedDefinitionData,
                                Set<String> nodes,
                                PropertyDefinitionData[] allRecipientDefinition) throws RepositoryException {
-    for (List<PropertyDefinitionData> list : changedDefinitionData) {
-      PropertyDefinitionData ancestorDefinitionData = list.get(0);
-      PropertyDefinitionData recipientDefinitionData = list.get(1);
+    for (RelatedDefinition<PropertyDefinitionData> relatedDefinitions : changedDefinitionData) {
+      PropertyDefinitionData ancestorDefinitionData = relatedDefinitions.getAncestorDefinition();
+      PropertyDefinitionData recipientDefinitionData = relatedDefinitions.getRecepientDefinition();
       // change from mandatory=false to mandatory = true
       if (!ancestorDefinitionData.isMandatory() && recipientDefinitionData.isMandatory()) {
         checkMandatory(registeredNodeType, nodes, recipientDefinitionData);

@@ -1327,8 +1327,8 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
     // TODO properties defs
     PropertyDefinitionComparator propertyDefinitionComparator = new PropertyDefinitionComparator(this,
-                                                                                                 locationFactory,
-                                                                                                 persister.getDataManager());
+                                                                                                 persister.getDataManager(),
+                                                                                                 locationFactory);
     changesLog.addAll(propertyDefinitionComparator.compare(recipientDefinition,
                                                            getAllPropertyDefinitions(ancestorDefinition),
                                                            getAllPropertyDefinitions(recipientDefinition))

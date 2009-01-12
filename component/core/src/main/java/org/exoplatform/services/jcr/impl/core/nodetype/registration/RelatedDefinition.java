@@ -16,9 +16,9 @@
  */
 package org.exoplatform.services.jcr.impl.core.nodetype.registration;
 
-import org.exoplatform.services.jcr.core.nodetype.ItemDefinitionData;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
-import org.exoplatform.services.jcr.impl.Constants;
+import org.apache.commons.logging.Log;
+
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -26,21 +26,31 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class DefinitionComparator {
+public class RelatedDefinition<T> {
+  /**
+   * Class logger.
+   */
+  private static final Log LOG = ExoLogger.getLogger(RelatedDefinition.class);
 
-  public DefinitionComparator() {
+  private final T          ancestorDefinition;
+
+  private final T          recepientDefinition;
+
+  /**
+   * @param ancestorDefinition
+   * @param recepientDefinition
+   */
+  public RelatedDefinition(T ancestorDefinition, T recepientDefinition) {
     super();
+    this.ancestorDefinition = ancestorDefinition;
+    this.recepientDefinition = recepientDefinition;
   }
 
-  protected boolean isResidualMatch(InternalQName itemName, ItemDefinitionData[] recipientDefinition) {
-    boolean containsResidual = false;
-    for (int i = 0; i < recipientDefinition.length; i++) {
-      if (itemName.equals(recipientDefinition[i].getName()))
-        return false;
-      else if (Constants.JCR_ANY_NAME.equals(recipientDefinition[i].getName()))
-        containsResidual = true;
-    }
-    return containsResidual;
+  public T getAncestorDefinition() {
+    return ancestorDefinition;
   }
 
+  public T getRecepientDefinition() {
+    return recepientDefinition;
+  }
 }
