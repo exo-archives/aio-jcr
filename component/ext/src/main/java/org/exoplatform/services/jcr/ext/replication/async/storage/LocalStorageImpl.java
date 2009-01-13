@@ -104,7 +104,7 @@ public class LocalStorageImpl implements LocalStorage {
 
       ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
 
-      TransactionChangesLog log = filterChangesLog((TransactionChangesLog) itemStates);
+      TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
 
       out.writeObject(log);
       out.close();
@@ -137,7 +137,7 @@ public class LocalStorageImpl implements LocalStorage {
    * @return TransactionChangesLog with ValueData replaced.
    * @throws IOException if error occurs
    */
-  private TransactionChangesLog filterChangesLog(TransactionChangesLog log) throws IOException {
+  private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
 
     TransactionChangesLog result = new TransactionChangesLog();
