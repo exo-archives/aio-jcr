@@ -341,6 +341,18 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
     return getNodes(nodeType, new InternalQName[0], new InternalQName[0]);
   }
 
+  // /**
+  // * Return
+  // *
+  // * @param nodeType
+  // * @return
+  // * @throws RepositoryException
+  // * @throws IOException
+  // */
+  // public Set<String> getNodes(String uri) throws RepositoryException {
+  //
+  // }
+
   /**
    * Return
    * 
@@ -886,6 +898,14 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
   }
 
   /**
+   * @param nodeTypeName
+   * @return
+   */
+  public Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName) {
+    return hierarchy.getDescendantNodeTypes(nodeTypeName);
+  }
+
+  /**
    * Validate NodeTypeData and return new instance or throw an exception. The
    * new instance will be a guarany of valid NodeType. Check according the
    * JSR-170/JSR-283 spec.
@@ -902,7 +922,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
    * @throws RepositoryException
    */
   protected NodeTypeData validateNodeType(NodeTypeData nodeType) throws RepositoryException {
-    // TODO possible remove
+    // possible remove
     InternalQName name = nodeType.getName();
     InternalQName primaryItemName = nodeType.getPrimaryItemName();
     boolean mixin = nodeType.isMixin();
@@ -1314,10 +1334,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       }
     }
 
-    // T-O-D-O super names
-    //
-    // TODO primaryItemName
-    // TODO child nodes
+    // child nodes
     NodeDefinitionComparator nodeDefinitionComparator = new NodeDefinitionComparator(this,
                                                                                      persister.getDataManager());
     changesLog.addAll(nodeDefinitionComparator.compare(recipientDefinition,
@@ -1325,7 +1342,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
                                                        getAllChildNodeDefinitions(recipientDefinition))
                                               .getAllStates());
 
-    // TODO properties defs
+    // properties defs
     PropertyDefinitionComparator propertyDefinitionComparator = new PropertyDefinitionComparator(this,
                                                                                                  persister.getDataManager(),
                                                                                                  locationFactory);
@@ -1346,8 +1363,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
       }
     }
 
-    // TODO hasOrderableChildNodes
-    // TODO mixin
+    // mixin
     if (ancestorDefinition.isMixin() != recipientDefinition.isMixin()) {
 
       if (nodes.size() > 0) {

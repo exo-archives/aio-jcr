@@ -16,28 +16,33 @@
  */
 package org.exoplatform.services.jcr.api.namespaces;
 
+import java.util.Set;
+
 import javax.jcr.NamespaceException;
-import javax.jcr.NamespaceRegistry;
+import javax.jcr.Node;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.lang.ArrayUtils;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
  * @version $Id: TestNamespaceRegistry.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public class TestNamespaceRegistry extends JcrAPIBaseTest {
 
-  protected NamespaceRegistry namespaceRegistry;
+  protected NamespaceRegistryImpl namespaceRegistry;
 
   public void initRepository() throws RepositoryException {
     workspace = session.getWorkspace();
-    namespaceRegistry = workspace.getNamespaceRegistry();
+    namespaceRegistry = (NamespaceRegistryImpl) workspace.getNamespaceRegistry();
     try {
       namespaceRegistry.getURI("newMapping");
     } catch (NamespaceException e) {
@@ -156,20 +161,19 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest {
 
     // [PN] Unregisteration of node types its not supported in eXo JCR.
     // (see http://jira.exoplatform.org/browse/JCR-43)
-    // namespaceRegistry.unregisterNamespace("newMapping");
-    // try {
-    // root.addNode("newMapping:test1", "nt:unstructured");
-    // root.save();
-    // fail("exception should have been thrown");
-    // } catch (RepositoryException e) {
-    // }
-    //    
-    //    
-    // try {
-    // assertNull(namespaceRegistry.getURI("newMapping"));
-    // fail("exception should have been thrown");
-    // } catch (NamespaceException e) {
-    // }
+    namespaceRegistry.unregisterNamespace("newMapping");
+    try {
+      root.addNode("newMapping:test1", "nt:unstructured");
+      root.save();
+      fail("exception should have been thrown");
+    } catch (RepositoryException e) {
+    }
+
+    try {
+      assertNull(namespaceRegistry.getURI("newMapping"));
+      fail("exception should have been thrown");
+    } catch (NamespaceException e) {
+    }
 
   }
 
@@ -177,15 +181,78 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest {
 
     // (see http://jira.exoplatform.org/browse/JCR-43)
 
-    // namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
-    // namespaceRegistry.registerNamespace("newMapping2", "http://dumb.uri/jcr");
-    // try {
-    // assertNull(namespaceRegistry.getURI("newMapping"));
-    // fail("exception should have been thrown");
-    // } catch (NamespaceException e) {
-    // }
-    // assertNotNull(namespaceRegistry.getURI("newMapping2"));
-    // assertEquals("http://dumb.uri/jcr", namespaceRegistry.getURI("newMapping2"));
+    namespaceRegistry.registerNamespace("newMapping", "http://dumb.uri/jcr");
+    namespaceRegistry.registerNamespace("newMapping2", "http://dumb.uri/jcr");
+    try {
+      assertNull(namespaceRegistry.getURI("newMapping"));
+      fail("exception should have been thrown");
+    } catch (NamespaceException e) {
+    }
+    assertNotNull(namespaceRegistry.getURI("newMapping2"));
+    assertEquals("http://dumb.uri/jcr", namespaceRegistry.getURI("newMapping2"));
+  }
+
+  public void testQueryNsPropName() throws Exception {
+    namespaceRegistry.registerNamespace("testuri", "http://testquery.uri/www");
+    namespaceRegistry.registerNamespace("blahtesturi", "http://blahtesturi.uri/www");
+    Node test1 = root.addNode("NodeName1");
+    test1.setProperty("testuriprop", "v1");
+    Node test2 = root.addNode("nodeName2");
+    test2.setProperty("testuri:prop", "v2");
+    Node test3 = root.addNode("nodeName3");
+    test3.setProperty("blahtesturi:prop", "v2");
+    test3.setProperty("blahtesturi", "v2");
+    session.save();
+
+    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    assertEquals(1, nodes.size());
+    assertFalse(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
+    assertFalse(nodes.contains(((NodeImpl) test3).getData().getIdentifier()));
+    assertTrue(nodes.contains(((NodeImpl) test2).getData().getIdentifier()));
+  }
+
+  public void testQueryNsNodeName() throws Exception {
+    Node test1 = root.addNode("testuri:testNodeName");
+    Node test2 = root.addNode("testuriNodeName1");
+    Node test3 = root.addNode("blahtesturiNodeName1");
+    session.save();
+
+    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    assertEquals(1, nodes.size());
+    assertTrue(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
+    assertFalse(nodes.contains(((NodeImpl) test2).getData().getIdentifier()));
+    assertFalse(nodes.contains(((NodeImpl) test3).getData().getIdentifier()));
+
+  }
+
+  public void testQueryNsNodePathValue() throws Exception {
+    Node test1 = root.addNode("NodeName1");
+    test1.setProperty("tprop", valueFactory.createValue("/rr/testuri:node/", PropertyType.PATH));
+    Node test2 = root.addNode("nodeName2");
+    test2.setProperty("prop", "v2");
+    session.save();
+
+    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    assertEquals(1, nodes.size());
+    assertTrue(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
+    assertFalse(nodes.contains(((NodeImpl) test2).getData().getIdentifier()));
+  }
+
+  public void testQueryNsNodeNameValue() throws Exception {
+    Node test1 = root.addNode("NodeName1");
+    test1.setProperty("tprop", valueFactory.createValue("testuri:node", PropertyType.NAME));
+    Node test2 = root.addNode("nodeName2");
+    test2.setProperty("prop", "v2");
+
+    Node test3 = root.addNode("nodeName2");
+    test3.setProperty("prop", "blablatesturi:v2");
+    session.save();
+
+    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    assertEquals(1, nodes.size());
+    assertTrue(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
+    assertFalse(nodes.contains(((NodeImpl) test2).getData().getIdentifier()));
+    assertFalse(nodes.contains(((NodeImpl) test3).getData().getIdentifier()));
   }
 
 }

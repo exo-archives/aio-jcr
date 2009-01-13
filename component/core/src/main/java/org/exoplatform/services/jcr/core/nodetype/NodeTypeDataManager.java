@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.core.nodetype;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
@@ -98,6 +99,12 @@ public interface NodeTypeDataManager {
   boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
                                         InternalQName parentNodeType,
                                         InternalQName[] parentMixinNames);
+
+  /**
+   * @param nodeTypeName
+   * @return
+   */
+  public Set<InternalQName> getDescendantNodeTypes(final InternalQName nodeTypeName);
 
   // query
 

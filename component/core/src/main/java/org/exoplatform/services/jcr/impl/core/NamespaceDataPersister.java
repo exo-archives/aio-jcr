@@ -27,6 +27,7 @@ import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.access.AccessControlEntry;
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.core.ExtendedPropertyType;
@@ -35,12 +36,15 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
-import org.exoplatform.services.jcr.datamodel.IllegalNameException;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientItemData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -51,8 +55,10 @@ import org.exoplatform.services.log.ExoLogger;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
- * @version $Id: NamespaceDataPersister.java 13962 2008-05-07 16:00:48Z pnedonosko $
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
+ *         Azarenkov</a>
+ * @version $Id: NamespaceDataPersister.java 13962 2008-05-07 16:00:48Z
+ *          pnedonosko $
  */
 
 public class NamespaceDataPersister {
@@ -76,6 +82,10 @@ public class NamespaceDataPersister {
     } catch (RepositoryException e) {
       log.warn("Namespace storage (/jcr:system/exo:namespaces node) is not initialized");
     }
+  }
+
+  DataManager getDataManager() {
+    return dataManager;
   }
 
   /**
@@ -148,10 +158,10 @@ public class NamespaceDataPersister {
     while (i.hasNext()) {
       String nsKey = i.next();
       if (nsKey != null) {
-        if(log.isDebugEnabled())
+        if (log.isDebugEnabled())
           log.debug("Namespace " + nsKey + " " + namespaces.get(nsKey));
         addNamespace(nsKey, namespaces.get(nsKey));
-        if(log.isDebugEnabled())
+        if (log.isDebugEnabled())
           log.debug("Namespace " + nsKey + " is initialized.");
       } else {
         log.warn("Namespace is " + nsKey + " " + namespaces.get(nsKey));
@@ -160,10 +170,9 @@ public class NamespaceDataPersister {
     saveChanges();
   }
 
-  
   /**
    * Add new namespace.
-   *
+   * 
    * @param prefix NS prefix
    * @param uri NS URI
    * @throws RepositoryException Repository error
@@ -204,16 +213,24 @@ public class NamespaceDataPersister {
 
   }
 
-  void removeNamespace(String prefix) throws IllegalNameException {
+  public void removeNamespace(String prefix) throws RepositoryException {
+
     if (!isInialized()) {
       log.warn("Namespace storage (/jcr:system/exo:namespaces node) is not initialized");
       return;
     }
+    PlainChangesLogImpl plainChangesLogImpl = new PlainChangesLogImpl();
+    ItemData prefData = dataManager.getItemData(nsRoot,
+                                                new QPathEntry(new InternalQName("", prefix), 0));
 
-    TransientNodeData nsNode = TransientNodeData.createNodeData(nsRoot,
-                                                                InternalQName.parse(prefix),
-                                                                Constants.EXO_NAMESPACE);
-    changesLog.add(ItemState.createDeletedState(nsNode));
+    if (prefData != null && prefData.isNode()) {
+      List<PropertyData> childs = dataManager.getChildPropertiesData((NodeData) prefData);
+      for (PropertyData propertyData : childs) {
+        plainChangesLogImpl.add(ItemState.createDeletedState(copyPropertyData(propertyData), true));
+      }
+    }
+    plainChangesLogImpl.add(ItemState.createDeletedState(prefData, true));
+    dataManager.save(new TransactionChangesLog(plainChangesLogImpl));
   }
 
   void loadNamespaces(Map<String, String> namespacesMap, Map<String, String> urisMap) throws RepositoryException {
@@ -244,10 +261,10 @@ public class NamespaceDataPersister {
           String exoPrefix = ValueDataConvertor.readString(nsr.getPropertyValue(Constants.EXO_PREFIX));
           namespacesMap.put(exoPrefix, exoUri);
           urisMap.put(exoUri, exoPrefix);
-          
-          if(log.isDebugEnabled())
+
+          if (log.isDebugEnabled())
             log.debug("Namespace " + exoPrefix + " is loaded");
-        } catch(IOException e) {
+        } catch (IOException e) {
           throw new RepositoryException("Namespace load error " + e, e);
         }
       }
@@ -272,4 +289,35 @@ public class NamespaceDataPersister {
     return nsRoot != null;
   }
 
+  /**
+   * Copy <code>PropertyData prop<code> to new TransientItemData
+   * 
+   * @param prop
+   * @return
+   * @throws RepositoryException
+   */
+  private TransientItemData copyPropertyData(PropertyData prop) throws RepositoryException {
+
+    if (prop == null)
+      return null;
+
+    // make a copy
+    TransientPropertyData newData = new TransientPropertyData(prop.getQPath(),
+                                                              prop.getIdentifier(),
+                                                              prop.getPersistedVersion(),
+                                                              prop.getType(),
+                                                              prop.getParentIdentifier(),
+                                                              prop.isMultiValued());
+
+    List<ValueData> values = null;
+    // null is possible for deleting items
+    if (prop.getValues() != null) {
+      values = new ArrayList<ValueData>();
+      for (ValueData val : prop.getValues()) {
+        values.add(((AbstractValueData) val).createTransientCopy());
+      }
+    }
+    newData.setValues(values);
+    return newData;
+  }
 }

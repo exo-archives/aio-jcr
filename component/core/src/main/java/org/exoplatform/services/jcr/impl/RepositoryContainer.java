@@ -96,7 +96,6 @@ public class RepositoryContainer extends ExoContainer {
 
   private final String                  mbeanContext;
 
-
   /**
    * RepositoryContainer constructor.
    * 
@@ -116,8 +115,9 @@ public class RepositoryContainer extends ExoContainer {
 
     this.config = config;
     this.mbeanServer = createMBeanServer("jcrrep" + getName() + "mx");
-    final String parentContext = parent.getMBeanContext(); 
-    this.mbeanContext = (parentContext == null ? "" : parentContext + ",") + "repository=" + getName();
+    final String parentContext = parent.getMBeanContext();
+    this.mbeanContext = (parentContext == null ? "" : parentContext + ",") + "repository="
+        + getName();
 
     registerComponents();
   }
@@ -138,7 +138,7 @@ public class RepositoryContainer extends ExoContainer {
   public String getMBeanContext() {
     return mbeanContext;
   }
-  
+
   /**
    * @return Returns the name.
    */
@@ -369,16 +369,19 @@ public class RepositoryContainer extends ExoContainer {
     List<WorkspaceEntry> wsEntries = config.getWorkspaceEntries();
 
     NodeTypeDataManager typeManager = (NodeTypeDataManager) this.getComponentInstanceOfType(NodeTypeDataManager.class);
+    NamespaceRegistryImpl namespaceRegistry = (NamespaceRegistryImpl) this.getComponentInstanceOfType(NamespaceRegistry.class);
 
     for (WorkspaceEntry ws : wsEntries) {
       initWorkspace(ws);
       WorkspaceContainer workspaceContainer = getWorkspaceContainer(ws.getName());
       SearchManager searchManager = (SearchManager) workspaceContainer.getComponentInstanceOfType(SearchManager.class);
       typeManager.addQueryHandler(searchManager.getHandler());
+      namespaceRegistry.addQueryHandler(searchManager.getHandler());
     }
 
     SystemSearchManagerHolder searchManager = (SystemSearchManagerHolder) this.getComponentInstanceOfType(SystemSearchManagerHolder.class);
     typeManager.addQueryHandler(searchManager.get().getHandler());
+    namespaceRegistry.addQueryHandler(searchManager.get().getHandler());
 
   }
 

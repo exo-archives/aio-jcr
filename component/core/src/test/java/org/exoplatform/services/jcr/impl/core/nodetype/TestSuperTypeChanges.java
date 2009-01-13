@@ -199,6 +199,6 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
                                           new ArrayList<String>()));
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
-
   }
+
 }
