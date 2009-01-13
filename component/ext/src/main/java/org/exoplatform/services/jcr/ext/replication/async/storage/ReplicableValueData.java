@@ -70,10 +70,17 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
     this.data = data;
   }
 
+  /**
+   * ReplicableValueData  constructor.
+   *
+   */
   public ReplicableValueData() {
     super(0);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(orderNumber);
 
@@ -97,6 +104,9 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     this.orderNumber = in.readInt();
     // TODO maxBufferSize ?
@@ -138,6 +148,9 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public byte[] getAsByteArray() throws IllegalStateException, IOException {
     if (data != null) {
       return data;
@@ -166,6 +179,9 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       throw new NullPointerException("Null Stream data ");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public InputStream getAsStream() throws IOException {
     if (data != null) {
       return new ByteArrayInputStream(data);
@@ -175,14 +191,23 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       throw new NullPointerException("Null Stream data ");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public long getLength() {
     return (isByteArray() ? data.length : spoolFile.length());
   }
 
+  /**
+   * {@inheritDoc}
+   */
   public boolean isByteArray() {
     return (data != null);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public TransientValueData createTransientCopy() throws RepositoryException {
     try {
