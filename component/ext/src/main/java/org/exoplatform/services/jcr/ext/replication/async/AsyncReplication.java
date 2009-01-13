@@ -21,7 +21,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,38 +55,38 @@ import org.picocontainer.Startable;
  */
 public class AsyncReplication implements Startable {
 
-  private static Log                                           log                = ExoLogger.getLogger("ext.AsyncReplication");
+  private static Log                                       log                = ExoLogger.getLogger("ext.AsyncReplication");
 
   /**
    * The template for ip-address in configuration.
    */
-  private static final String                                  IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
+  private static final String                              IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
 
-  protected final RepositoryService                            repoService;
+  protected final RepositoryService                        repoService;
 
-  protected final AsyncChannelManager                          channel;
+  protected final AsyncChannelManager                      channel;
 
-  protected final IncomeStorage                                incomeStorage;
+  protected final LinkedHashMap<StorageKey, IncomeStorage> mapIncomeStorages;
 
-  protected final LinkedHashMap<LocalStorageKey, LocalStorage> mapLocalStorages;
+  protected final LinkedHashMap<StorageKey, LocalStorage>  mapLocalStorages;
 
-  protected final int                                          priority;
+  protected final int                                      priority;
 
-  protected final List<Integer>                                otherParticipantsPriority;
+  protected final List<Integer>                            otherParticipantsPriority;
 
-  protected Set<AsyncWorker>                                   currentWorkers;
+  protected Set<AsyncWorker>                               currentWorkers;
 
-  protected final String                                       bindIPAddress;
+  protected final String                                   bindIPAddress;
 
-  protected final String                                       channelConfig;
+  protected final String                                   channelConfig;
 
-  protected final String                                       channelName;
+  protected final String                                   channelName;
 
-  protected final int                                          waitAllMembersTimeout;
+  protected final int                                      waitAllMembersTimeout;
 
-  protected final String                                       mergeTempDir;
+  protected final String                                   mergeTempDir;
 
-  protected final String[]                                     repositoryNames;
+  protected final String[]                                 repositoryNames;
 
   class AsyncWorker extends Thread {
 
@@ -117,7 +116,8 @@ public class AsyncReplication implements Startable {
 
     AsyncWorker(PersistentDataManager dataManager,
                 NodeTypeDataManager ntManager,
-                LocalStorage localStorage) {
+                LocalStorage localStorage,
+                IncomeStorage incomeStorage) {
 
       this.dataManager = dataManager;
 
@@ -191,12 +191,12 @@ public class AsyncReplication implements Startable {
    * Will be used as key for mapLocalStorages.
    * 
    */
-  private class LocalStorageKey {
+  private class StorageKey {
     private final String repositoryName;
 
     private final String workspaceName;
 
-    public LocalStorageKey(String repositoryName, String workspaceName) {
+    public StorageKey(String repositoryName, String workspaceName) {
       this.repositoryName = repositoryName;
       this.workspaceName = workspaceName;
     }
@@ -205,7 +205,7 @@ public class AsyncReplication implements Startable {
      * {@inheritDoc}
      */
     public boolean equals(Object o) {
-      LocalStorageKey k = (LocalStorageKey) o;
+      StorageKey k = (StorageKey) o;
 
       return repositoryName.equals(k.repositoryName) && workspaceName.equals(k.workspaceName);
     }
@@ -262,15 +262,31 @@ public class AsyncReplication implements Startable {
 
     this.channel = new AsyncChannelManager(channelConfig, channelName);
 
+    // create IncomlStorages
     File incomeDir = new File(storagePath + "/income");
     incomeDir.mkdirs();
-    this.incomeStorage = new IncomeStorageImpl(incomeDir.getAbsolutePath());
+
+    mapIncomeStorages = new LinkedHashMap<StorageKey, IncomeStorage>();
+
+    for (String repositoryName : repositoryNames) {
+      ManageableRepository repository = repoService.getRepository(repositoryName);
+
+      for (String wsName : repository.getWorkspaceNames()) {
+        File incomeDirPerWorkspace = new File(incomeDir.getAbsolutePath() + File.separator
+            + repositoryName + File.separator + wsName);
+        incomeDirPerWorkspace.mkdirs();
+
+        IncomeStorage incomeStorage = new IncomeStorageImpl(incomeDirPerWorkspace.getAbsolutePath());
+
+        mapIncomeStorages.put(new StorageKey(repositoryName, wsName), incomeStorage);
+      }
+    }
 
     // create LocalStorages
     File localDir = new File(storagePath + "/local");
     localDir.mkdirs();
 
-    mapLocalStorages = new LinkedHashMap<LocalStorageKey, LocalStorage>();
+    mapLocalStorages = new LinkedHashMap<StorageKey, LocalStorage>();
 
     for (String repositoryName : repositoryNames) {
       ManageableRepository repository = repoService.getRepository(repositoryName);
@@ -282,9 +298,8 @@ public class AsyncReplication implements Startable {
 
         LocalStorage localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath());
 
-        mapLocalStorages.put(new LocalStorageKey(repositoryName, wsName), localStorage);
+        mapLocalStorages.put(new StorageKey(repositoryName, wsName), localStorage);
       }
-
     }
 
     File mergeTempDir = new File(storagePath + "/merge-temp");
@@ -305,27 +320,27 @@ public class AsyncReplication implements Startable {
 
     if (currentWorkers.size() <= 0) {
       if (repositoryNames != null && repositoryNames.length > 0) {
-        //check errors on LocalSorage.
-        //TODO will be skip only one workspace or one repository.
-        //Now will be skiped all repositorys.
-        
+        // check errors on LocalSorage.
+        // TODO will be skip only one workspace or one repository.
+        // Now will be skiped all repositorys.
+
         boolean hasLocalSorageError = false;
-        
-        for(String repositoryName : repositoryNames) {
+
+        for (String repositoryName : repositoryNames) {
           ManageableRepository repository = repoService.getRepository(repositoryName);
           for (String wsName : repository.getWorkspaceNames()) {
-            LocalStorage localStorage = mapLocalStorages.get(new LocalStorageKey(repositoryName, wsName));
-            String [] storageError = localStorage.getErrors();
+            LocalStorage localStorage = mapLocalStorages.get(new StorageKey(repositoryName, wsName));
+            String[] storageError = localStorage.getErrors();
             if (storageError.length > 0) {
               hasLocalSorageError = true;
-              
+
               log.error("The local storage '" + repositoryName + "@" + wsName + "' have error : ");
               for (String error : storageError)
                 log.error(error);
             }
           }
         }
-            
+
         if (!hasLocalSorageError)
           for (String repoName : repositoryNames)
             synchronize(repoName);
@@ -359,9 +374,10 @@ public class AsyncReplication implements Startable {
         NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
         PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
-        LocalStorage localStorage = mapLocalStorages.get(new LocalStorageKey(repoName, wsName));
+        LocalStorage localStorage = mapLocalStorages.get(new StorageKey(repoName, wsName));
+        IncomeStorage incomeStorage = mapIncomeStorages.get(new StorageKey(repoName, wsName));
 
-        AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage);
+        AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage);
         synchWorker.start();
 
         currentWorkers.add(synchWorker);
@@ -385,7 +401,7 @@ public class AsyncReplication implements Startable {
           WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
 
           PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-          dm.addItemPersistenceListener(mapLocalStorages.get(new LocalStorageKey(repoName, wsName)));
+          dm.addItemPersistenceListener(mapLocalStorages.get(new StorageKey(repoName, wsName)));
         }
 
         repos[i] = repository;
