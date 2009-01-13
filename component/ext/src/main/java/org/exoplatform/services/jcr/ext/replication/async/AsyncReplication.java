@@ -20,6 +20,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -311,21 +312,12 @@ public class AsyncReplication implements Startable {
   }
 
   /**
-   * Tell if synchronization process is active.
-   *
-   * @return boolean flag, true if synchronization process is active
-   */
-  public boolean isActive() {
-    return currentWorkers.size() > 0;
-  }
-
-  /**
    * Initialize synchronization process. Process will use the service configuration.
    * 
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
-  public void synchronize() throws RepositoryException, RepositoryConfigurationException {
+  public void synchronize() throws RepositoryException, RepositoryConfigurationException, IOException {
 
     if (currentWorkers.size() <= 0) {
       if (repositoryNames != null && repositoryNames.length > 0) {
@@ -339,10 +331,7 @@ public class AsyncReplication implements Startable {
           ManageableRepository repository = repoService.getRepository(repositoryName);
           for (String wsName : repository.getWorkspaceNames()) {
             LocalStorage localStorage = mapLocalStorages.get(new StorageKey(repositoryName, wsName));
-            
-            //TODO wrap it
             String[] storageError = localStorage.getErrors();
-            
             if (storageError.length > 0) {
               hasLocalSorageError = true;
 
@@ -357,11 +346,11 @@ public class AsyncReplication implements Startable {
           for (String repoName : repositoryNames)
             synchronize(repoName);
         else
-          log.error("Synchronization not started synchronization. Loacal storage have errors. Check log for details.");
+          log.error("[ERROR] Asynchronous replication service was not started synchronization. Loacal storage have errors.");
       } else
-        log.error("Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
+        log.error("[ERROR] Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
     } else
-      log.error("Asynchronous replication service already active. Wait for current synchronization finish.");
+      log.error("[ERROR] Asynchronous replication service already active. Wait for current synchronization finish.");
   }
 
   /**
@@ -420,8 +409,8 @@ public class AsyncReplication implements Startable {
       }
 
       // run test
-      // log.info("run synchronize");
-      // this.synchronize();
+      log.info("run synchronize");
+      this.synchronize();
     } catch (Throwable e) {
       log.error("Asynchronous replication start fails" + e, e);
       throw new RuntimeException("Asynchronous replication start fails " + e, e);

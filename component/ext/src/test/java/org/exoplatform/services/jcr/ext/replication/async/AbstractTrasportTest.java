@@ -65,7 +65,7 @@ public abstract class AbstractTrasportTest extends BaseStandaloneTest implements
                                                        + ":MPING("
                                                        + "timeout=2000;"
                                                        + "num_initial_members=8;"
-                                                       + "mcast_port=34526;"
+                                                       + "mcast_port=44526;"
                                                        + "mcast_addr=224.0.0.1)"
                                                        + ":FD("
                                                        + "timeout=2000;"
