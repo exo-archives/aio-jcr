@@ -1000,16 +1000,26 @@ public class GroovyScript2RestLoader implements Startable {
 
       ArrayList<String> scriptList = new ArrayList<String>();
 
-      if (name == null) {
+      if (name == null || "".equals(name)) {
         while (nodeIterator.hasNext()) {
           Node node = nodeIterator.nextNode();
           scriptList.add(node.getParent().getPath());
         }
       } else {
+        StringBuffer p = new StringBuffer();
+        for (int i = 0; i < name.length(); i++) {
+          char c = name.charAt(i);
+          if (c == '*' || c == '?')
+            p.append('.');
+          if (".()[]^$|".indexOf(c) != -1)
+            p.append('\\');
+          p.append(c);
+        }
+
+        Pattern pattern = Pattern.compile(p.toString(), Pattern.CASE_INSENSITIVE);
         while (nodeIterator.hasNext()) {          
           Node node = nodeIterator.nextNode();
           String scriptName = getName(node.getParent().getPath());
-          Pattern pattern = Pattern.compile(name.replace("*", ".*"));
 
           if (pattern.matcher(scriptName).matches()) {
             scriptList.add(node.getParent().getPath());
@@ -1025,7 +1035,7 @@ public class GroovyScript2RestLoader implements Startable {
         ses.logout();
     }
   }
-
+  
   /**
    * Extract path to node's parent from full path.
    * 
