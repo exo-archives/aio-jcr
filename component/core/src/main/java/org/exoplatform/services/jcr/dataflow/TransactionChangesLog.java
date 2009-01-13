@@ -311,7 +311,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
     for (int i = 0; i < allStates.size(); i++) {
       if (allStates.get(i).equals(startState)) {
-        for (int j = i + 1; j < allStates.size(); j++) {
+        for (int j = i; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getState() == state && item.getData().getIdentifier().equals(identifier)) {
             return true;
@@ -328,7 +328,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
     for (int i = 0; i < allStates.size(); i++) {
       if (allStates.get(i).equals(startState)) {
-        for (int j = i + 1; j < allStates.size(); j++) {
+        for (int j = i; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getState() == state && item.getData().getQPath().equals(path)) {
             return true;
@@ -366,17 +366,21 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    * @return
    */
   // merge
-  public Collection<ItemState> getDescendantsChanges(QPath rootPath,
-                                                     boolean onlyNodes,
+  public Collection<ItemState> getDescendantsChanges(ItemState startState,
+                                                     QPath rootPath,
                                                      boolean unique) {
-    // List<ItemState> list = new ArrayList<ItemState>();
     HashMap<Object, ItemState> index = new HashMap<Object, ItemState>();
 
-    for (ItemState itemState : getAllStates()) {
-      ItemData item = itemState.getData();
-      if ((!onlyNodes || item.isNode()) && itemState.getData().getQPath().isDescendantOf(rootPath)) {
-        if (!unique || index.get(item.getQPath()) == null) {
-          index.put(item.getQPath(), itemState);
+    List<ItemState> allStates = getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getData().getQPath().isDescendantOf(rootPath)) {
+            if (!unique || index.get(item.getData().getQPath()) == null) {
+              index.put(item.getData().getQPath(), item);
+            }
+          }
         }
       }
     }
@@ -393,13 +397,19 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
    * @return
    * @throws IOException
    */
-  public Collection<ItemState> getChanges(QPath rootPath) throws IOException {
+  public Collection<ItemState> getChanges(ItemState startState, QPath rootPath) throws IOException {
     List<ItemState> list = new ArrayList<ItemState>();
 
-    for (ItemState itemState : getAllStates()) {
-      if (itemState.getData().getQPath().isDescendantOf(rootPath)
-          || itemState.getData().getQPath().equals(rootPath)) {
-        list.add(itemState);
+    List<ItemState> allStates = getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).equals(startState)) {
+        for (int j = i; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getData().getQPath().isDescendantOf(rootPath)
+              || item.getData().getQPath().equals(rootPath)) {
+            list.add(item);
+          }
+        }
       }
     }
 
