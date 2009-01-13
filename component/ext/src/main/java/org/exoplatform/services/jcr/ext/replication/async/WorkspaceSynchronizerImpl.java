@@ -32,18 +32,20 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
+import org.exoplatform.services.jcr.util.IdGenerator;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id: WorkspaceSynchronizerImpl.java 26634 2009-01-12 10:17:36Z
- *          pnedonosko $
+ * @version $Id$
  */
 public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
@@ -157,16 +159,26 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
 
   }
 
-  class SynchronizingChangesLog implements ItemStateChangesLog {
+  class SynchronizingChangesLog implements PlainChangesLog {
 
-    private ChangesStorage<ItemState> storage;
+    private final ChangesStorage<ItemState> storage;
+    
+    private final String sessionId;
 
     public SynchronizingChangesLog(ChangesStorage<ItemState> synchronizedChanges) {
-      storage = synchronizedChanges;
+      this.storage = synchronizedChanges;
+      this.sessionId = IdGenerator.generate();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getSessionId() {
+      return sessionId;
     }
 
     public String dump() {
-      throw new RuntimeException("Not implemented!");
+      return "Not implemented!";
     }
 
     public List<ItemState> getAllStates() {
@@ -177,6 +189,33 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
       throw new RuntimeException("Not implemented!");
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public PlainChangesLog add(ItemState state) {
+      throw new RuntimeException("Not implemented!");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public PlainChangesLog addAll(List<ItemState> states) {
+      throw new RuntimeException("Not implemented!");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void clear() {
+      throw new RuntimeException("Not implemented!");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getEventType() {
+      throw new RuntimeException("Not implemented!");
+    }
   }
 
   private static final Log              LOG = ExoLogger.getLogger("ext.WorkspaceSynchronizerImpl");
@@ -195,7 +234,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    * 
    * @return ChangesStorage
    */
-  public ChangesStorage<ItemState> getLocalChanges() throws IOException{
+  public ChangesStorage<ItemState> getLocalChanges() throws IOException {
     return storage.getLocalChanges();
   }
 
@@ -207,7 +246,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                  UnsupportedOperationException,
                                                                  RepositoryException {
     LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
-    ItemStateChangesLog changes = new SynchronizingChangesLog(synchronizedChanges);
+    ItemStateChangesLog changes = new TransactionChangesLog(new SynchronizingChangesLog(synchronizedChanges));
     try {
       workspace.save(changes);
     } catch (ChangesLogReadException e) {

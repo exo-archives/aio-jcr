@@ -52,6 +52,11 @@ import org.exoplatform.services.log.ExoLogger;
 public class LocalStorageImpl implements LocalStorage {
 
   protected static final Log    LOG            = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  
+  /**
+   * Stuff for PlainChangesLogImpl.writeExternal.
+   */
+  private static final String EXTERNALIZATION_SYSTEM_ID = "".intern();
 
   protected static final String ERROR_FILENAME = "errors";
 
@@ -136,7 +141,8 @@ public class LocalStorageImpl implements LocalStorage {
     ChangesLogIterator chIt = log.getLogIterator();
 
     TransactionChangesLog result = new TransactionChangesLog();
-
+    result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for PlainChangesLogImpl.writeExternal
+    
     while (chIt.hasNextLog()) {
       PlainChangesLog plog = chIt.nextLog();
 

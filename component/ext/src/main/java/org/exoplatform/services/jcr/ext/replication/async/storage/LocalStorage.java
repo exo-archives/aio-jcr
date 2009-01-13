@@ -24,14 +24,16 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Stores changes from local workspace. Used by <code>WorkspaceSynchronizer</code>. 
+ * <br/>Stores changes from local workspace. Used by <code>WorkspaceSynchronizer</code>.
  * 
  * <br/>Date: 24.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
 public interface LocalStorage extends ItemsPersistenceListener {
+
+  static final String ASYNC_SYSTEM_ID = "ASYNC_SYSTEM_ID";
 
   /**
    * Return Local changes persisted to a <code>ChangesStorage</code>.
@@ -39,13 +41,13 @@ public interface LocalStorage extends ItemsPersistenceListener {
    * @return ChangesStorage
    */
   ChangesStorage<ItemState> getLocalChanges() throws IOException;
-  
+
   /**
    * Return list of error messages. Can be 0.
-   *
-   * @return array of String, returns zero-length array if no errors occurred. 
-   * @throws IOException 
+   * 
+   * @return array of String, returns zero-length array if no errors occurred.
+   * @throws IOException
    */
   String[] getErrors() throws IOException;
-  
+
 }
