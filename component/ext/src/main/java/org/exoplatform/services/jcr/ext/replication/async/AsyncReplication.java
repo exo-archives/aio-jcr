@@ -288,6 +288,63 @@ public class AsyncReplication implements Startable {
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
   }
 
+  public AsyncReplication(RepositoryService repoService, 
+                          List<String> repositoryNames,
+                          int priority,
+                          String bindIPAddress,
+                          String channelConfig,
+                          String channelName,
+                          int waitAllMembersTimeout,
+                          String storagePath,
+                          List<Integer> otherParticipantsPriority) throws RepositoryException,
+      RepositoryConfigurationException {
+
+    this.repoService = repoService;
+
+    if (repositoryNames.size() == 0)
+      throw new RuntimeException("repositories not specified");
+    
+    this.repositoryNames = repositoryNames.toArray(new String[repositoryNames.size()]);
+
+    // initialize replication parameters;
+    this.priority = priority;
+    this.bindIPAddress = bindIPAddress;
+    this.channelConfig = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
+
+    this.channelName = channelName;
+    
+    this.waitAllMembersTimeout = waitAllMembersTimeout * 1000;
+
+    // TODO restore previous state if it's restart
+    // handle local restoration or cleanups of unfinished or breaked work
+
+    // Ready to begin...
+
+    this.otherParticipantsPriority = new ArrayList<Integer>(otherParticipantsPriority);
+
+    this.channel = new AsyncChannelManager(channelConfig, channelName);
+
+    this.currentWorkers = new LinkedHashSet<AsyncWorker>();
+
+    this.incomeStorages = new LinkedHashMap<StorageKey, IncomeStorage>();
+
+    this.localStorages = new LinkedHashMap<StorageKey, LocalStorage>();
+
+    // create IncomlStorages
+    File incomeDir = new File(storagePath + "/income");
+    incomeDir.mkdirs();
+    this.incomeStorageDir = incomeDir.getAbsolutePath();
+
+    // create LocalStorages
+    File localDir = new File(storagePath + "/local");
+    localDir.mkdirs();
+    this.localStorageDir = localDir.getAbsolutePath();
+
+    File mergeTempDir = new File(storagePath + "/merge-temp");
+    mergeTempDir.mkdirs();
+    this.mergeTempDir = mergeTempDir.getAbsolutePath();
+  }
+
   /**
    * Tell if synchronization process active.
    * 
