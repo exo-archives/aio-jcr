@@ -192,13 +192,11 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @param rootPath
    *          - QPath
-   * @param unique
-   *          - ???
    * @return Collection of ItemState
    */
-  Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException,
-                                                                     ClassCastException,
-                                                                     ClassNotFoundException;
+  Collection<T> getDescendantsChanges(ItemState startState, QPath rootPath, boolean unique) throws IOException,
+                                                                                           ClassCastException,
+                                                                                           ClassNotFoundException;
 
   /**
    * TODO
@@ -209,9 +207,9 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @return Collection of ItemState
    */
-  Collection<T> getChanges(QPath rootPath) throws IOException,
-                                          ClassCastException,
-                                          ClassNotFoundException;
+  Collection<T> getChanges(ItemState startState, QPath rootPath) throws IOException,
+                                                                ClassCastException,
+                                                                ClassNotFoundException;
 
   /**
    * getUpdateSequence.

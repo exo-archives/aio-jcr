@@ -211,6 +211,12 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
+          if ((!localData.isNode())
+              && ((incomeData.isNode() && incomeData.getQPath()
+                                                    .isDescendantOf(localData.getQPath())) || (!incomeData.isNode() && incomeData.getQPath()
+                                                                                                                                 .equals(localData.getQPath())))) {
+            return resultEmptyState;
+          }
           break;
         case ItemState.RENAMED:
           break;
@@ -226,7 +232,8 @@ public class DeleteMerger implements ChangesMerger {
                                                                                          .equals(incomeData.getQPath()))) {
 
             // add Delete state
-            Collection<ItemState> itemsCollection = local.getDescendantsChanges(incomeData.getQPath(),
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localState,
+                                                                                incomeData.getQPath(),
                                                                                 true);
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
@@ -240,7 +247,7 @@ public class DeleteMerger implements ChangesMerger {
             }
 
             // apply income changes for all subtree
-            for (ItemState st : income.getChanges(incomeData.getQPath()))
+            for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
               resultState.add(st);
 
             return resultState;
@@ -251,7 +258,26 @@ public class DeleteMerger implements ChangesMerger {
               && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
                                                                                                           .equals(incomeData.getQPath()
                                                                                                                             .makeParentPath()))) {
-            return resultEmptyState;
+            // add Delete state
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localState,
+                                                                                incomeData.getQPath(),
+                                                                                true);
+            ItemState itemsArray[];
+            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
+            for (int i = itemsArray.length - 1; i >= 0; i--) {
+              if (local.findLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(itemsArray[i].getData(),
+                                              ItemState.DELETED,
+                                              itemsArray[i].isEventFire(),
+                                              itemsArray[i].getData().getQPath()));
+              }
+            }
+
+            // apply income changes for all subtree
+            for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
+              resultState.add(st);
+
+            return resultState;
           }
           break;
         case ItemState.DELETED:

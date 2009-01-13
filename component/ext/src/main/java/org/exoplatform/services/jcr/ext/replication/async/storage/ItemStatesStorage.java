@@ -287,27 +287,6 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public Collection<T> getDescendantsChanges(QPath rootPath, boolean unique) throws IOException,
-                                                                            ClassCastException,
-                                                                            ClassNotFoundException {
-    // List<ItemState> list = new ArrayList<ItemState>();
-    HashMap<Object, T> index = new HashMap<Object, T>();
-    Iterator<T> it = getChanges();
-
-    while (it.hasNext()) {
-      T item = it.next();
-      if (item.getData().getQPath().isDescendantOf(rootPath)) {
-        if (!unique || index.get(item.getData().getQPath()) == null) {
-          index.put(item.getData().getQPath(), item);
-        }
-      }
-    }
-    return index.values();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException,
                                                                                ClassCastException,
                                                                                ClassNotFoundException {
@@ -390,19 +369,57 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public Collection<T> getChanges(QPath rootPath) throws IOException,
-                                                 ClassCastException,
-                                                 ClassNotFoundException {
+  public Collection<T> getDescendantsChanges(ItemState startState, QPath rootPath, boolean unique) throws IOException,
+                                                                                                  ClassCastException,
+                                                                                                  ClassNotFoundException {
+    HashMap<Object, T> index = new HashMap<Object, T>();
+    Iterator<T> it = getChanges();
+
+    while (it.hasNext()) {
+      T item = it.next();
+      if (item.equals(startState)) {
+        boolean checkStartState = false;
+        while (it.hasNext()) {
+          T instate = checkStartState ? it.next() : item;
+          checkStartState = true;
+
+          if (instate.getData().getQPath().isDescendantOf(rootPath)) {
+            if (!unique || index.get(instate.getData().getQPath()) == null) {
+              index.put(instate.getData().getQPath(), instate);
+            }
+          }
+        }
+      }
+    }
+
+    return index.values();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Collection<T> getChanges(ItemState startState, QPath rootPath) throws IOException,
+                                                                       ClassCastException,
+                                                                       ClassNotFoundException {
     List<T> resultStates = new ArrayList<T>();
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
       T item = it.next();
-      if (item.getData().getQPath().isDescendantOf(rootPath)
-          || item.getData().getQPath().equals(rootPath)) {
-        resultStates.add(item);
+      if (item.equals(startState)) {
+        boolean checkStartState = false;
+        while (it.hasNext()) {
+          T instate = checkStartState ? it.next() : item;
+          checkStartState = true;
+
+          if (instate.getData().getQPath().isDescendantOf(rootPath)
+              || instate.getData().getQPath().equals(rootPath)) {
+            resultStates.add(instate);
+          }
+        }
       }
     }
+
     return resultStates;
   }
 
@@ -435,10 +452,14 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
                                                                                  ClassNotFoundException {
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
-      if (it.next().equals(startState)) {
+      T item = it.next();
+      if (item.equals(startState)) {
+        boolean checkStartState = false;
         while (it.hasNext()) {
-          T inState = it.next();
-          if (inState.getState() == state && inState.getData().getIdentifier().equals(identifier)) {
+          T inItem = checkStartState ? it.next() : item;
+          checkStartState = true;
+
+          if (inItem.getState() == state && inItem.getData().getIdentifier().equals(identifier)) {
             return true;
           }
         }
@@ -453,10 +474,14 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
                                                                           ClassNotFoundException {
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
-      if (it.next().equals(startState)) {
+      T item = it.next();
+      if (item.equals(startState)) {
+        boolean checkStartState = false;
         while (it.hasNext()) {
-          T inState = it.next();
-          if (inState.getState() == state && inState.getData().getQPath().equals(path)) {
+          T inItem = checkStartState ? it.next() : item;
+          checkStartState = true;
+
+          if (inItem.getState() == state && inItem.getData().getQPath().equals(path)) {
             return true;
           }
         }

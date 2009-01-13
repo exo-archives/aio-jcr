@@ -104,8 +104,10 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
   /**
    * {@inheritDoc}
    */
-  public Collection<ItemState> getDescendantsChanges(QPath rootPath, boolean unique) {
-    return chlog.getDescendantsChanges(rootPath, false, unique);
+  public Collection<ItemState> getDescendantsChanges(ItemState startState,
+                                                     QPath rootPath,
+                                                     boolean unique) {
+    return chlog.getDescendantsChanges(startState, rootPath, unique);
   }
 
   /**
@@ -176,8 +178,8 @@ public class CompositeChangesStorage<T extends ItemState> implements ChangesStor
   /**
    * {@inheritDoc}
    */
-  public Collection<ItemState> getChanges(QPath rootPath) throws IOException {
-    return chlog.getChanges(rootPath);
+  public Collection<ItemState> getChanges(ItemState startState, QPath rootPath) throws IOException {
+    return chlog.getChanges(startState, rootPath);
   }
 
   /**

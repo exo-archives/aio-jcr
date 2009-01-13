@@ -985,7 +985,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     UpdateMerger updateMerger = new UpdateMerger(false, null, null, null);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove, income, local);
     assertEquals(result.size(), 4);
-    assertTrue(hasState(result, new ItemState(localItem21, ItemState.ADDED, false, null), true));
+    assertTrue(hasState(result, new ItemState(remoteItem21x2B, ItemState.ADDED, false, null), true));
     assertTrue(hasState(result, remoteItem21x2Remove, true));
     assertTrue(hasState(result, remoteItem21x1Update, true));
     assertTrue(hasState(result, remoteItem21Update, true));

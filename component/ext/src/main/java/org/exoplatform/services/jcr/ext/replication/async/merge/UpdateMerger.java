@@ -324,16 +324,56 @@ public class UpdateMerger implements ChangesMerger {
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
             if (!incomeData.isNode()
-                && localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
-              // delete node on new place
-              resultState.add(new ItemState(nextLocalState.getData(),
-                                            ItemState.DELETED,
-                                            nextLocalState.isEventFire(),
-                                            nextLocalState.getData().getQPath()));
-              // restore parent
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+                && ((localData.isNode() && (incomeData.getQPath()
+                                                      .isDescendantOf(localData.getQPath()) || incomeData.getQPath()
+                                                                                                         .equals(localData.getQPath()))) || (!localData.isNode() && incomeData.getQPath()
+                                                                                                                                                                              .isDescendantOf(localData.getQPath()
+                                                                                                                                                                                                       .makeParentPath())))) {
+              List<ItemState> rename = local.getRenameSequence(localState);
+              for (int i = rename.size() - 1; i >= 0; i--) {
+                ItemState item = rename.get(i);
+                if (item.getState() == ItemState.RENAMED) { // generate delete state for new place
+                  resultState.add(new ItemState(item.getData(),
+                                                ItemState.DELETED,
+                                                item.isEventFire(),
+                                                item.getData().getQPath()));
+                } else if (item.getState() == ItemState.DELETED) { // generate add state for old
+                  if (item.getData().isNode()) {
+                    resultState.add(new ItemState(item.getData(),
+                                                  ItemState.ADDED,
+                                                  item.isEventFire(),
+                                                  item.getData().getQPath()));
 
-              itemChangeProcessed = true;
+                  } else {
+                    PropertyData prop = (PropertyData) item.getData();
+                    TransientPropertyData propData = new TransientPropertyData(prop.getQPath(),
+                                                                               prop.getIdentifier(),
+                                                                               prop.getPersistedVersion(),
+                                                                               prop.getType(),
+                                                                               prop.getParentIdentifier(),
+                                                                               prop.isMultiValued());
+                    propData.setValues(((PropertyData) rename.get(rename.size() - i - 1).getData()).getValues());
+                    resultState.add(new ItemState(propData,
+                                                  ItemState.ADDED,
+                                                  item.isEventFire(),
+                                                  propData.getQPath()));
+                  }
+                }
+              }
+              resultState.add(incomeState);
+              return resultState;
+
+              /*} else if (!incomeData.isNode()
+                  && localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
+                // delete node on new place
+                resultState.add(new ItemState(nextLocalState.getData(),
+                                              ItemState.DELETED,
+                                              nextLocalState.isEventFire(),
+                                              nextLocalState.getData().getQPath()));
+                // restore parent
+                resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+
+                itemChangeProcessed = true;*/
             } else if ((localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
                                                                                     localData.getIdentifier()) != null)
                 || (!localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
@@ -423,7 +463,7 @@ public class UpdateMerger implements ChangesMerger {
               itemChangeProcessed = true;
             } else if (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null) {
               // generate ADD state from DELETE
-              resultState.add(new ItemState(localData,
+              resultState.add(new ItemState(incomeData,
                                             ItemState.ADDED,
                                             localState.isEventFire(),
                                             localData.getQPath()));
@@ -431,7 +471,7 @@ public class UpdateMerger implements ChangesMerger {
           } else {
             if (localData.getIdentifier().equals(incomeData.getIdentifier())) {
               // generate ADD state from DELETE
-              resultState.add(new ItemState(localData,
+              resultState.add(new ItemState(incomeData,
                                             ItemState.ADDED,
                                             localState.isEventFire(),
                                             localData.getQPath()));

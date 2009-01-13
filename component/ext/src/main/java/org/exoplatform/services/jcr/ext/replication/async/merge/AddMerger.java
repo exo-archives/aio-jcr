@@ -230,8 +230,6 @@ public class AddMerger implements ChangesMerger {
         switch (localState.getState()) {
         case ItemState.ADDED:
           if (incomeData.getQPath().equals(localData.getQPath())) {
-            // income.findParentAdd
-
             // try to add property and node with same name
             if (incomeData.isNode() != localData.isNode()) {
               InternalQName propertyName = !incomeData.isNode()
@@ -248,7 +246,8 @@ public class AddMerger implements ChangesMerger {
             }
 
             // add DELETE state
-            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localData.getQPath(),
+            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localState,
+                                                                                localData.getQPath(),
                                                                                 true);
             ItemState itemsArray[];
             itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
@@ -268,7 +267,7 @@ public class AddMerger implements ChangesMerger {
             }
 
             // add all state from income changes
-            for (ItemState st : income.getChanges(incomeData.getQPath()))
+            for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
               resultState.add(st);
 
             return resultState;
@@ -353,7 +352,8 @@ public class AddMerger implements ChangesMerger {
                 || incomeData.getQPath().equals(nextState.getData().getQPath())) {
 
               // add DELETE state
-              Collection<ItemState> itemsCollection = local.getDescendantsChanges(nextState.getData()
+              Collection<ItemState> itemsCollection = local.getDescendantsChanges(nextState,
+                                                                                  nextState.getData()
                                                                                            .getQPath(),
                                                                                   true);
               ItemState itemsArray[];
