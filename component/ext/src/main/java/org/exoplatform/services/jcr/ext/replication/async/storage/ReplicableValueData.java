@@ -28,8 +28,11 @@ import java.io.ObjectOutput;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import javax.jcr.RepositoryException;
+
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.impl.dataflow.AbstractValueData;
+import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.impl.util.io.SpoolFile;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -39,20 +42,20 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ReplicableValueData.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ReplicableValueData implements ValueData, Externalizable {
+public class ReplicableValueData extends AbstractValueData implements Externalizable {
 
   protected static final Log LOG              = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
   private static final int   DEF_MAX_BUF_SIZE = 2048;                                       // 2kb
 
-  private int                orderNumber;
+  // private int orderNumber;
 
   private byte[]             data;
 
   private File               spoolFile;
 
   public ReplicableValueData(File file, int order) throws IOException {
-    this.orderNumber = order;
+    super(order);
     this.spoolFile = file;
     if (spoolFile != null) {
       if (spoolFile instanceof SpoolFile)
@@ -62,12 +65,13 @@ public class ReplicableValueData implements ValueData, Externalizable {
   }
 
   public ReplicableValueData(byte[] data, int order) {
-    this.orderNumber = order;
+    super(order);
     this.spoolFile = null;
     this.data = data;
   }
 
   public ReplicableValueData() {
+    super(0);
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
@@ -85,7 +89,7 @@ public class ReplicableValueData implements ValueData, Externalizable {
       long length = this.spoolFile.length();
       out.writeLong(length);
       InputStream in = new FileInputStream(spoolFile);
-      byte[] buf = new byte[length > DEF_MAX_BUF_SIZE  ? DEF_MAX_BUF_SIZE : (int) length];
+      byte[] buf = new byte[length > DEF_MAX_BUF_SIZE ? DEF_MAX_BUF_SIZE : (int) length];
       int l = 0;
       while ((l = in.read(buf)) != -1) {
         out.write(buf, 0, l);
@@ -104,7 +108,7 @@ public class ReplicableValueData implements ValueData, Externalizable {
       // store data as file
 
       // TODO where store spool file
-      SpoolFile sf = new SpoolFile( File.createTempFile("repValDat", null).getAbsolutePath());
+      SpoolFile sf = new SpoolFile(File.createTempFile("repValDat", null).getAbsolutePath());
       FileOutputStream sfout = new FileOutputStream(sf);
 
       byte[] buf = new byte[DEF_MAX_BUF_SIZE];
@@ -175,15 +179,25 @@ public class ReplicableValueData implements ValueData, Externalizable {
     return (isByteArray() ? data.length : spoolFile.length());
   }
 
-  public int getOrderNumber() {
-    return orderNumber;
-  }
-
   public boolean isByteArray() {
     return (data != null);
   }
 
-  public void setOrderNumber(int orderNum) {
-    this.orderNumber = orderNum;
+  @Override
+  public TransientValueData createTransientCopy() throws RepositoryException {
+    try {
+      // array
+      if (isByteArray()) {
+        // bytes, make a copy of real data
+        byte[] newBytes = new byte[data.length];
+        System.arraycopy(data, 0, newBytes, 0, newBytes.length);
+        return new TransientValueData(orderNumber, newBytes, null, null, null, -1, null, false);
+      } else {
+        // file
+        return new TransientValueData(orderNumber, null, null, spoolFile, null, -1, null, false);
+      }
+    } catch (IOException e) {
+      throw new RepositoryException(e);
+    }
   }
 }
