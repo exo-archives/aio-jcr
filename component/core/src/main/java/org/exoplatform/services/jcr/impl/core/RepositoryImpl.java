@@ -33,10 +33,7 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 
-import org.picocontainer.ComponentAdapter;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.access.AuthenticationPolicy;
 import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
@@ -46,12 +43,12 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.impl.RepositoryContainer;
 import org.exoplatform.services.jcr.impl.WorkspaceContainer;
-import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.jcr.impl.dataflow.session.TransactionableDataManager;
 import org.exoplatform.services.jcr.impl.xml.ExportImportFactory;
 import org.exoplatform.services.jcr.impl.xml.importing.ContentImporter;
@@ -59,6 +56,7 @@ import org.exoplatform.services.jcr.impl.xml.importing.StreamImporter;
 import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.security.ConversationState;
+import org.picocontainer.ComponentAdapter;
 
 /**
  * Created by The eXo Platform SAS.<br/> Implementation of javax.jcr.Repository
@@ -135,9 +133,12 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * RepositoryImpl constructor.
    * 
-   * @param container Repository container
-   * @throws RepositoryException error of initialization
-   * @throws RepositoryConfigurationException error of configuration
+   * @param container
+   *          Repository container
+   * @throws RepositoryException
+   *           error of initialization
+   * @throws RepositoryConfigurationException
+   *           error of configuration
    */
   public RepositoryImpl(RepositoryContainer container) throws RepositoryException,
       RepositoryConfigurationException {
@@ -155,8 +156,8 @@ public class RepositoryImpl implements ManageableRepository {
    * {@inheritDoc}
    */
   public void addItemPersistenceListener(String workspaceName, ItemsPersistenceListener listener) {
-    WorkspacePersistentDataManager pmanager = (WorkspacePersistentDataManager) repositoryContainer.getWorkspaceContainer(workspaceName)
-                                                                                                  .getComponentInstanceOfType(WorkspacePersistentDataManager.class);
+    PersistentDataManager pmanager = (PersistentDataManager) repositoryContainer.getWorkspaceContainer(workspaceName)
+                                                                                .getComponentInstanceOfType(PersistentDataManager.class);
 
     pmanager.addItemPersistenceListener(listener);
   }
@@ -191,19 +192,17 @@ public class RepositoryImpl implements ManageableRepository {
   }
 
   /**
-   * Creation contains three steps. First
-   * <code>configWorkspace(WorkspaceEntry wsConfig)</code> - registration a new
-   * configuration in RepositoryContainer and create WorkspaceContainer. Second,
-   * the main step, is
-   * <code>initWorkspace(String workspaceName, String rootNodeType)</code> -
-   * initializing workspace by name and root nodetype. Third, final step,
-   * starting all components of workspace. Before creation workspace <b>must be
-   * configured</b>
+   * Creation contains three steps. First <code>configWorkspace(WorkspaceEntry wsConfig)</code> -
+   * registration a new configuration in RepositoryContainer and create WorkspaceContainer. Second,
+   * the main step, is <code>initWorkspace(String workspaceName, String rootNodeType)</code> -
+   * initializing workspace by name and root nodetype. Third, final step, starting all components of
+   * workspace. Before creation workspace <b>must be configured</b>
    * 
    * @see org.exoplatform.services.jcr.core.RepositoryImpl#configWorkspace(org.exoplatform.services.jcr.config.WorkspaceEntry
    *      )
    * @see org.exoplatform.services.jcr.core.RepositoryImpl#initWorkspace(java.lang.String,java.lang.String)
-   * @param workspaceName - Creates a new Workspace with the specified name
+   * @param workspaceName
+   *          - Creates a new Workspace with the specified name
    * @throws RepositoryException
    */
   public void createWorkspace(String workspaceName) throws RepositoryException {
@@ -402,8 +401,10 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * Internal Remove Workspace.
    * 
-   * @param workspaceName workspace name
-   * @throws RepositoryException error of remove
+   * @param workspaceName
+   *          workspace name
+   * @throws RepositoryException
+   *           error of remove
    */
   public void internalRemoveWorkspace(String workspaceName) throws RepositoryException {
     WorkspaceContainer workspaceContainer = null;
@@ -484,12 +485,17 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * Internal login.
    * 
-   * @param state ConversationState
-   * @param workspaceName workspace name
+   * @param state
+   *          ConversationState
+   * @param workspaceName
+   *          workspace name
    * @return SessionImpl
-   * @throws LoginException error of logic
-   * @throws NoSuchWorkspaceException if no workspace found with name
-   * @throws RepositoryException Repository error
+   * @throws LoginException
+   *           error of logic
+   * @throws NoSuchWorkspaceException
+   *           if no workspace found with name
+   * @throws RepositoryException
+   *           Repository error
    */
   SessionImpl internalLogin(ConversationState state, String workspaceName) throws LoginException,
                                                                           NoSuchWorkspaceException,
@@ -564,7 +570,8 @@ public class RepositoryImpl implements ManageableRepository {
   /**
    * Set all repository workspaces ReadOnly status.
    * 
-   * @param wsStatus ReadOnly workspace status
+   * @param wsStatus
+   *          ReadOnly workspace status
    */
   private void setAllWorkspacesReadOnly(boolean wsStatus) {
     WorkspaceContainerFacade wsFacade;

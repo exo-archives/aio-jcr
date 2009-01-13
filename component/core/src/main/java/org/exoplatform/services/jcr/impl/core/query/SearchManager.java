@@ -34,10 +34,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
@@ -56,6 +53,7 @@ import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
 
 /**
  * Acts as a global entry point to execute queries and index nodes.
@@ -206,7 +204,10 @@ public class SearchManager implements Startable, ItemsPersistenceListener {
     final Set<String> addedNodes = new HashSet<String>();
 
     final Map<String, List<ItemState>> updatedNodes = new HashMap<String, List<ItemState>>();
-    for (ItemState itemState : changesLog.getAllStates()) {
+    
+    for (Iterator<ItemState> iter = changesLog.getAllStates().iterator(); iter.hasNext();) {
+      ItemState itemState = iter.next();
+      
       if (!isExcluded(itemState)) {
         String uuid = itemState.isNode() ? itemState.getData().getIdentifier()
                                         : itemState.getData().getParentIdentifier();

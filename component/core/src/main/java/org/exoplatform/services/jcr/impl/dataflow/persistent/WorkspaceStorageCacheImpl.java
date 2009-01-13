@@ -580,10 +580,8 @@ public class WorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     if (!enabled)
       return;
 
-    List<ItemState> itemStates = changesLog.getAllStates();
-
-    for (int i = 0; i < itemStates.size(); i++) {
-      ItemState state = itemStates.get(i);
+    for (Iterator<ItemState> iter = changesLog.getAllStates().iterator(); iter.hasNext();) {
+      ItemState state = iter.next();
       ItemData data = state.getData();
       if (log.isDebugEnabled())
         log.debug(name + ", onSaveItems() " + ItemState.nameFromValue(state.getState()) + " "

@@ -53,14 +53,10 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
   public TransactionChangesLog(PlainChangesLog changesLog) {
     changesLogs = new ArrayList<PlainChangesLog>();
     changesLogs.add(changesLog);
-    // this.systemId = changesLog.getSessionId();
   }
 
-  /*
-   * (non-Javadoc)
-   * @see
-   * org.exoplatform.services.jcr.dataflow.CompositeChangesLog#addLog(org.exoplatform.services.jcr
-   * .dataflow.PlainChangesLog)
+  /**
+   * {@inheritDoc}
    */
   public void addLog(PlainChangesLog log) {
     changesLogs.add(log);
@@ -103,17 +99,17 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return size;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#getSystemId()
+  /**
+   * {@inheritDoc}
    */
   public String getSystemId() {
     return systemId;
   }
 
-  /*
-   * (non-Javadoc)
-   * @see org.exoplatform.services.jcr.dataflow.ItemStateChangesLog#setSystemId(java.lang.String)
+  /**
+   * setSystemId.
+   *
+   * @param systemId
    */
   public void setSystemId(String systemId) {
     this.systemId = systemId;

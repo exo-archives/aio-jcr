@@ -121,7 +121,7 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
   /**
    * Cache implementaion logger.
    */
-  protected static final Log                                  LOG                                 = ExoLogger.getLogger("jcr.LinkedWorkspaceStorageCacheImpl");
+  protected static final Log                            LOG                                 = ExoLogger.getLogger("jcr.LinkedWorkspaceStorageCacheImpl");
 
   /**
    * Cache C.
@@ -949,7 +949,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildProperties(final NodeData parentData, final List<PropertyData> childItems) {
-    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
+      // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -999,7 +1000,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildPropertiesList(final NodeData parentData, final List<PropertyData> childItems) {
-    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
+      // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1039,7 +1041,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
    * {@inheritDoc}
    */
   public void addChildNodes(final NodeData parentData, final List<NodeData> childItems) {
-    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData != null && childItems != null
+    if (enabled && parentData != null && childItems != null) { // TODO don't check parentData !=
+      // null && childItems != null
 
       String logInfo = null;
       if (LOG.isDebugEnabled()) {
@@ -1521,12 +1524,10 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
     if (!enabled)
       return;
 
-    final List<ItemState> itemStates = changesLog.getAllStates();// log.info(changesLog.dump())
-    // log.info(dump())
-
-    for (int i = 0; i < itemStates.size(); i++) {
-      final ItemState state = itemStates.get(i);
-      final ItemData item = state.getData();
+    ItemState prevState = null;
+    for (Iterator<ItemState> iter = changesLog.getAllStates().iterator(); iter.hasNext();) {
+      ItemState state = iter.next();
+      ItemData item = state.getData();
       if (LOG.isDebugEnabled())
         LOG.debug(name + ", onSaveItems() " + ItemState.nameFromValue(state.getState()) + " "
             + item.getQPath().getAsString() + " " + item.getIdentifier() + " parent:"
@@ -1543,13 +1544,12 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
           put(item);
         } else if (state.isUpdated()) {
           // UPDATE occurs on reordered (no subtree!) and merged nodes (for each merged-updated)
-          if (item.isNode() && i > 0) {
+          if (item.isNode() && prevState != null) {
             // play only for reorder, UPDATE goes after DELETE of same path item
             // we have to unload node and its parent child nodes to be loaded
             // back from the persistence
-            ItemState prevState = itemStates.get(i - 1);
-            if (prevState.isDeleted() && 
-                prevState.getData().getParentIdentifier().equals(item.getParentIdentifier()))
+            if (prevState.isDeleted()
+                && prevState.getData().getParentIdentifier().equals(item.getParentIdentifier()))
               removeSiblings((NodeData) item);
           }
           put(item);
@@ -1561,6 +1561,8 @@ public class LinkedWorkspaceStorageCacheImpl implements WorkspaceStorageCache {
         LOG.error(name + ", Error process onSaveItems action for item data: "
             + (item != null ? item.getQPath().getAsString() : "[null]"), e);
       }
+
+      prevState = state;
     }
   }
 
