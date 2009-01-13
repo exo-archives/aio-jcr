@@ -814,7 +814,7 @@ public class GroovyScript2RestLoader implements Startable {
    */
   @GET
   @Produces( { "script/groovy" })
-  @Path("{path:.*}")
+  @Path("{path:.*}/src")
   public InputStream getScript(@PathParam("repository") String repository,
                                @PathParam("workspace") String workspace,
                                @PathParam("path") String path) {
@@ -844,7 +844,7 @@ public class GroovyScript2RestLoader implements Startable {
    */
   @GET
   @Produces( { MediaType.APPLICATION_JSON })
-  @Path("{path:.*}")
+  @Path("{path:.*}/meta")
   public ScriptMetadata getScriptMetadata(@PathParam("repository") String repository,
                                           @PathParam("workspace") String workspace,
                                           @PathParam("path") String path) {
