@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.log.ExoLogger;
@@ -192,11 +193,13 @@ public class LocalStorageImpl implements LocalStorage {
         errorOut = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(storagePath,
                                                                                            ERROR_FILENAME),
                                                                                   true),
-                                                             "UTF-8"));
+                                                             Constants.DEFAULT_ENCODING));
       }
-      errorOut.write(e.getMessage());
+      errorOut.write(e.getMessage()+"\n");
+      errorOut.flush();
     } catch (IOException ex) {
       // TODO do nothing?
+      LOG.warn("Exception on write to error storage file: ", ex);
     }
   }
 
@@ -217,7 +220,7 @@ public class LocalStorageImpl implements LocalStorage {
 
       // Open reader
       BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(err),
-                                                                   "UTF-8"));
+                                                                   Constants.DEFAULT_ENCODING));
       String s;
       while ((s = br.readLine()) != null) {
         list.add(s);

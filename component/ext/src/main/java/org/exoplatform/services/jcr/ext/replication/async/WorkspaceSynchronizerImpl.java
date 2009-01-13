@@ -56,43 +56,43 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public boolean add(ItemState o) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public void add(int index, ItemState element) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean addAll(Collection<? extends ItemState> c) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean addAll(int index, Collection<? extends ItemState> c) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public void clear() {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean contains(Object o) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean containsAll(Collection<?> c) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public ItemState get(int index) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public int indexOf(Object o) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean isEmpty() {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public Iterator<ItemState> iterator() {
@@ -108,51 +108,51 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public int lastIndexOf(Object o) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public ListIterator<ItemState> listIterator() {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public ListIterator<ItemState> listIterator(int index) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean remove(Object o) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public ItemState remove(int index) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean removeAll(Collection<?> c) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public boolean retainAll(Collection<?> c) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public ItemState set(int index, ItemState element) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public int size() {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public List<ItemState> subList(int fromIndex, int toIndex) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public Object[] toArray() {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public <T> T[] toArray(T[] a) {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
   }
@@ -166,7 +166,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public String dump() {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
     public List<ItemState> getAllStates() {
@@ -174,7 +174,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
     }
 
     public int getSize() {
-      throw new RuntimeException("Remove not allowed!");
+      throw new RuntimeException("Not implemented!");
     }
 
   }
