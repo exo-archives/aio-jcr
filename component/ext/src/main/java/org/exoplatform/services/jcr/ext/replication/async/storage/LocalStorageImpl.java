@@ -56,12 +56,10 @@ public class LocalStorageImpl implements LocalStorage {
 
   protected final String        storagePath;
 
-  // private final List<String> errors;
   private BufferedWriter        errorOut       = null;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
-    // this.errors = new ArrayList<String>();
   }
 
   /**
@@ -85,7 +83,6 @@ public class LocalStorageImpl implements LocalStorage {
       }
     }
 
-    // TODO make correct Member object creation
     ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
                                                                                   new Member(null,
                                                                                              0));
@@ -226,12 +223,8 @@ public class LocalStorageImpl implements LocalStorage {
         list.add(s);
       }
       br.close();
-
-      return null;
+      return list.toArray(new String[list.size()]);
     }
-
-    // TODO clean error list ( or not?)
-    // return errors.toArray(new String[errors.size()]);
   }
 
 }
