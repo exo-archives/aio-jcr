@@ -18,10 +18,13 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 19.12.2008
@@ -214,4 +217,19 @@ public class ChangesFile {
     File dest = new File(dir, Long.toString(getTimeStamp()));
     file.renameTo(dest);
   }
+  
+  public static FilenameFilter getFilenameFilter(){
+    
+    return new FilenameFilter(){
+      private final static String FILENAME_REGEX = "[0-9]+"; 
+      private final Pattern PATTERN = Pattern.compile(FILENAME_REGEX);
+      
+      public boolean accept(File dir, String name) {
+        Matcher m = PATTERN.matcher(name);
+        return m.matches();
+      }
+    };
+  }
+  
+  
 }

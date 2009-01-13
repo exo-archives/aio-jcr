@@ -16,7 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
-import java.util.List;
+import java.io.IOException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
@@ -38,7 +38,7 @@ public interface LocalStorage extends ItemsPersistenceListener {
    * 
    * @return ChangesStorage
    */
-  ChangesStorage<ItemState> getLocalChanges();
+  ChangesStorage<ItemState> getLocalChanges() throws IOException;
   
   /**
    * Return list of error messages. Can be 0.

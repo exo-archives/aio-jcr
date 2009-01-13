@@ -195,7 +195,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
    * 
    * @return ChangesStorage
    */
-  public ChangesStorage<ItemState> getLocalChanges() {
+  public ChangesStorage<ItemState> getLocalChanges() throws IOException{
     return storage.getLocalChanges();
   }
 

@@ -44,11 +44,13 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class LocalStorageImpl implements LocalStorage {
 
-  protected static final Log LOG = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  protected static final Log    LOG            = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
-  protected final String     storagePath;
+  protected static final String ERROR_FILENAME = "errors";
 
-  private final List<String> errors;
+  protected final String        storagePath;
+
+  private final List<String>    errors;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -58,18 +60,24 @@ public class LocalStorageImpl implements LocalStorage {
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> getLocalChanges() {
+  public ChangesStorage<ItemState> getLocalChanges() throws IOException {
     File incomStorage = new File(storagePath);
 
-    String[] fileNames = incomStorage.list();
+    String[] fileNames = incomStorage.list(ChangesFile.getFilenameFilter());
+
     // TODO Sort names in ascending mode
     java.util.Arrays.sort(fileNames);
 
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
     for (int j = 0; j < fileNames.length; j++) {
-      File ch = new File(incomStorage, fileNames[j]);
-      chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+      try {
+        File ch = new File(incomStorage, fileNames[j]);
+        chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+      } catch (NumberFormatException e) {
+        throw new IOException(e.getMessage());
+      }
     }
+
     // TODO make correct Member object creation
     ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
                                                                                   new Member(null,
@@ -104,9 +112,9 @@ public class LocalStorageImpl implements LocalStorage {
    * @throws IOException
    */
   private ChangesFile createChangesFile() throws IOException {
-    try{
+    try {
       Thread.sleep(100);
-    }catch(InterruptedException e){
+    } catch (InterruptedException e) {
       // do nothing
     }
     return new ChangesFile("", System.currentTimeMillis(), storagePath);
@@ -170,18 +178,26 @@ public class LocalStorageImpl implements LocalStorage {
   }
 
   /**
-   * Add exception in exception messages list.
+   * Add exception in exception storage.
    * 
    * @param e Exception
    */
   protected void reportException(Exception e) {
-    errors.add(e.getMessage());
+   // File err = new File(storagePath, ERROR_FILENAME);
   }
 
   /**
    * {@inheritDoc}
    */
   public String[] getErrors() {
+    /*File err = new File(storagePath, ERROR_FILENAME);
+    if (!err.exists()){
+      return new String[0];
+    }else{
+      FileReader 
+      
+    }*/
+    
     // TODO clean error list ( or not?)
     return errors.toArray(new String[errors.size()]);
   }

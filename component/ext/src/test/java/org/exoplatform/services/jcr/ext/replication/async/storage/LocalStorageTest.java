@@ -226,8 +226,5 @@ public class LocalStorageTest  extends BaseStandaloneTest {
     expectedStates = log3.getAllStates().iterator();
     checkIterator(expectedStates, states);
 */
-    
-    
   }
-       
 }

@@ -75,11 +75,12 @@ public class IncomeStorageImpl implements IncomeStorage {
       try {
 
         int memberPriority = Integer.parseInt(childnames[i]); // also check - is
-                                                              // member folder;
+        // member folder;
         File memberDir = new File(incomStorage, childnames[i]);
 
-        String[] fileNames = memberDir.list();
-        //TODO Sort names in ascending mode
+        String[] fileNames = memberDir.list(ChangesFile.getFilenameFilter());
+
+        // TODO Sort names in ascending mode
         java.util.Arrays.sort(fileNames);
 
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
@@ -92,9 +93,8 @@ public class IncomeStorageImpl implements IncomeStorage {
                                                                                            memberPriority));
         changeStorages.add(storage);
       } catch (NumberFormatException e) {
-        // This is not int-named file. Skip it.
-        // We can do that as we don't create such file(s)
-        LOG.warn("Illegal named file in storage - " + childnames[i]); 
+        // This is not int-named file. Fatal.
+        throw new IOException(e.getMessage());
       }
     }
     return changeStorages;

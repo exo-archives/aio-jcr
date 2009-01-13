@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.io.IOException;
+
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
@@ -37,8 +39,9 @@ public interface WorkspaceSynchronizer {
    * Get Local changes.
    *
    * @return ChangesStorage
+   * @throws IOException 
    */
-  ChangesStorage<ItemState> getLocalChanges();
+  ChangesStorage<ItemState> getLocalChanges() throws IOException;
   
   /**
    * Save synchronized changes to a local workspace.
