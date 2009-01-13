@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -21,19 +21,19 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 30.12.2008
+ * <br/>Date: 13.01.2009
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface PersistentDataManager extends DataManager {
+public interface ItemsPersistenceListenerFilter {
 
-  void addItemPersistenceListener(ItemsPersistenceListener listener);
-  
-  void removeItemPersistenceListener(ItemsPersistenceListener listener);
-  
-  void addItemPersistenceListenerFilter(ItemsPersistenceListenerFilter filter);
-  
-  void removeItemPersistenceListenerFilter(ItemsPersistenceListenerFilter filter);
+  /**
+   * Return acceptance flag for given listener.
+   *
+   * @param listener
+   * @return boolean, true if listener accepted, false otherwise
+   */
+  boolean accept(ItemsPersistenceListener listener);
   
 }

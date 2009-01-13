@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.impl.dataflow.persistent;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
+import org.exoplatform.services.jcr.dataflow.ItemsPersistenceListenerFilter;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -54,22 +56,24 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
   /**
    * Logger.
    */
-  protected final Log                            log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
+  protected final Log                                  log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
 
   /**
    * Workspace data container (persistent storage).
    */
-  protected WorkspaceDataContainer         dataContainer;
+  protected WorkspaceDataContainer                     dataContainer;
 
   /**
    * System workspace data container (persistent storage).
    */
-  protected WorkspaceDataContainer         systemDataContainer;
+  protected WorkspaceDataContainer                     systemDataContainer;
 
   /**
    * Persistent level listeners.
    */
-  protected List<ItemsPersistenceListener> listeners;
+  protected final List<ItemsPersistenceListener>       listeners;
+
+  protected final List<ItemsPersistenceListenerFilter> liestenerFilters;
 
   /**
    * WorkspacePersistentDataManager constructor.
@@ -83,6 +87,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
                                         SystemDataContainerHolder systemDataContainerHolder) {
     this.dataContainer = dataContainer;
     this.listeners = new ArrayList<ItemsPersistenceListener>();
+    this.liestenerFilters = new ArrayList<ItemsPersistenceListenerFilter>();
     this.systemDataContainer = systemDataContainerHolder.getContainer();
   }
 
@@ -96,14 +101,15 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
       throw new ReadOnlyWorkspaceException("Workspace container '" + dataContainer.getName()
           + "' is read-only.");
 
-    final List<ItemState> changes = changesLog.getAllStates();
     final Set<QPath> addedNodes = new HashSet<QPath>();
 
     WorkspaceStorageConnection thisConnection = null;
     WorkspaceStorageConnection systemConnection = null;
-    try {
 
-      for (ItemState itemState : changes) {
+    try {
+      for (Iterator<ItemState> iter = changesLog.getAllStates().iterator(); iter.hasNext();) {
+        ItemState itemState = iter.next();
+
         if (!itemState.isPersisted())
           continue;
 
@@ -409,14 +415,43 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
    */
   public void addItemPersistenceListener(ItemsPersistenceListener listener) {
     listeners.add(listener);
-    log.info("Workspace Data manager of '" + this.dataContainer.getName()
-        + "' registered listener: " + listener);
+    log.info("Workspace '" + this.dataContainer.getName() + "' listener registered: " + listener);
   }
-  
+
   public void removeItemPersistenceListener(ItemsPersistenceListener listener) {
     listeners.remove(listener);
-    log.info("Workspace Data manager of '" + this.dataContainer.getName()
-        + "' unregistered listener: " + listener);
+    log.info("Workspace '" + this.dataContainer.getName() + "' listener unregistered: " + listener);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void addItemPersistenceListenerFilter(ItemsPersistenceListenerFilter filter) {
+    this.liestenerFilters.add(filter);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void removeItemPersistenceListenerFilter(ItemsPersistenceListenerFilter filter) {
+    this.liestenerFilters.remove(filter);
+  }
+
+  /**
+   * Check if the listener can be accepted. If at least one filter doesn't accept the listener it
+   * returns false, true otherwise.
+   * 
+   * @param listener
+   *          ItemsPersistenceListener
+   * @return boolean, true if accepted, false otherwise.
+   */
+  protected boolean isListenerAccepted(ItemsPersistenceListener listener) {
+    for (ItemsPersistenceListenerFilter f : liestenerFilters) {
+      if (!f.accept(listener))
+        return false;
+    }
+
+    return true;
   }
 
   /**
@@ -426,14 +461,16 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
    */
   protected void notifySaveItems(ItemStateChangesLog changesLog) {
     for (ItemsPersistenceListener listener : listeners) {
-      listener.onSaveItems(changesLog);
+      if (isListenerAccepted(listener))
+        listener.onSaveItems(changesLog);
     }
   }
 
   /**
    * Tell if the path is jcr:system descendant.
-   *
-   * @param path path to check
+   * 
+   * @param path
+   *          path to check
    * @return boolean result, true if yes - it's jcr:system tree path
    */
   private boolean isSystemDescendant(QPath path) {
