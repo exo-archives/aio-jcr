@@ -44,7 +44,8 @@ public interface LocalStorage extends ItemsPersistenceListener {
    * Return list of error messages. Can be 0.
    *
    * @return array of String, returns zero-length array if no errors occurred. 
+   * @throws IOException 
    */
-  String[] getErrors();
+  String[] getErrors() throws IOException;
   
 }

@@ -16,9 +16,15 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,11 +56,12 @@ public class LocalStorageImpl implements LocalStorage {
 
   protected final String        storagePath;
 
-  private final List<String>    errors;
+  // private final List<String> errors;
+  private BufferedWriter        errorOut       = null;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
-    this.errors = new ArrayList<String>();
+    // this.errors = new ArrayList<String>();
   }
 
   /**
@@ -183,23 +190,48 @@ public class LocalStorageImpl implements LocalStorage {
    * @param e Exception
    */
   protected void reportException(Exception e) {
-   // File err = new File(storagePath, ERROR_FILENAME);
+    try {
+      if (this.errorOut == null) {
+        errorOut = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(storagePath,
+                                                                                           ERROR_FILENAME),
+                                                                                  true),
+                                                             "UTF-8"));
+      }
+      errorOut.write(e.getMessage());
+    } catch (IOException ex) {
+      // TODO do nothing?
+    }
   }
 
   /**
    * {@inheritDoc}
    */
-  public String[] getErrors() {
-    /*File err = new File(storagePath, ERROR_FILENAME);
-    if (!err.exists()){
+  public String[] getErrors() throws IOException {
+
+    File err = new File(storagePath, ERROR_FILENAME);
+    if (!err.exists()) {
       return new String[0];
-    }else{
-      FileReader 
-      
-    }*/
-    
+    } else {
+      List<String> list = new ArrayList<String>();
+
+      // Close writer
+      if (this.errorOut != null)
+        errorOut.close();
+
+      // Open reader
+      BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(err),
+                                                                   "UTF-8"));
+      String s;
+      while ((s = br.readLine()) != null) {
+        list.add(s);
+      }
+      br.close();
+
+      return null;
+    }
+
     // TODO clean error list ( or not?)
-    return errors.toArray(new String[errors.size()]);
+    // return errors.toArray(new String[errors.size()]);
   }
 
 }

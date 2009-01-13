@@ -339,7 +339,10 @@ public class AsyncReplication implements Startable {
           ManageableRepository repository = repoService.getRepository(repositoryName);
           for (String wsName : repository.getWorkspaceNames()) {
             LocalStorage localStorage = mapLocalStorages.get(new StorageKey(repositoryName, wsName));
+            
+            //TODO wrap it
             String[] storageError = localStorage.getErrors();
+            
             if (storageError.length > 0) {
               hasLocalSorageError = true;
 
