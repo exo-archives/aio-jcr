@@ -143,7 +143,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    * 5. After synchronization ends check if files exist, if content of files same as original.
    */
   public void testDemoUsecase1() throws Exception {
-    Node node = root4.addNode("item1");
+    root4.addNode("item1");
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
     session4.save();
@@ -194,7 +194,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    * server1
    */
   public void testDemoUsecase2() throws Exception {
-    Node node = root4.addNode("item1");
+    root4.addNode("item1");
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
     session4.save();
@@ -485,6 +485,377 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
 
     // high
     root4.getNode("item1").setProperty("fileA", "dataNew");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Demo usecase 12 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
+   * servers
+   */
+  public void testDemoUsecase12() throws Exception {
+    Node node = root4.addNode("item1");
+    node.setProperty("fileA", "data");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    // high
+    root4.getNode("item1").setProperty("fileA", "dataNew");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Demo usecase 13 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
+   * servers
+   */
+  public void testDemoUsecase13() throws Exception {
+    Node node = root4.addNode("item1");
+    node.setProperty("fileA", "data");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    // low
+    root3.getNode("item1").setProperty("fileA", "dataNew");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Demo usecase 14 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt content equals to edited on server 1 on both
+   * servers
+   */
+  public void testDemoUsecase14() throws Exception {
+    Node node = root4.addNode("item1");
+    node.setProperty("fileA", "data");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    // low
+    root3.getNode("item1").setProperty("fileA", "dataLow");
+
+    // high
+    root4.getNode("item1").setProperty("fileA", "dataHigh");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Demo usecase 15 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Delete file /fileA.txt on server 1
+   * 
+   * 3. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt not exists on both server
+   */
+  public void testDemoUsecase15() throws Exception {
+    Node node = root4.addNode("item1");
+    node.setProperty("fileA", "data");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    // low
+    root3.getNode("item1").setProperty("fileA", "dataLow");
+
+    // high
+    root4.getNode("item1").getProperty("fileA").remove();
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Demo usecase 16 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Delete file /fileA.txt on server 2
+   * 
+   * 3. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt not exists on both server
+   */
+  public void testDemoUsecase16() throws Exception {
+    Node node = root4.addNode("item1");
+    node.setProperty("fileA", "data");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    // low
+    root3.getNode("item1").getProperty("fileA").remove();
+
+    // high
+    root4.getNode("item1").setProperty("fileA", "dataLow");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Demo usecase 17 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt and folder /folder1 on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Move file /fileA.txt to /folder1/fileAA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
+   * edited
+   */
+  public void testDemoUsecase17() throws Exception {
+    Node node = root4.addNode("item1");
+    node.setProperty("fileA", "data");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    // low
+    session3.move("/item1", "/item2");
+
+    // high
+    root4.getNode("item1").setProperty("fileA", "dataLow");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Demo usecase 18 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt and folder /folder1 on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Move file /fileA.txt to /folder1/fileAA.txt on server 1
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
+   * edited
+   */
+  public void testDemoUsecase18() throws Exception {
+    Node node = root4.addNode("item1");
+    node.setProperty("fileA", "data");
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    membersChanges.clear();
+    exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
+    // low
+    root3.getNode("item1").setProperty("fileA", "dataLow");
+
+    // high
+    session4.move("/item1", "/item2");
 
     session3.save();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);

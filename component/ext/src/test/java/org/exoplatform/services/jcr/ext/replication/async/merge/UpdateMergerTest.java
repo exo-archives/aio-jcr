@@ -1332,7 +1332,7 @@ public class UpdateMergerTest extends BaseMergerTest {
 
     final NodeData localItem1 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
                                                                           new InternalQName(null,
-                                                                                            "item1"),
+                                                                                            "testItem1"),
                                                                           1),
                                                       IdGenerator.generate(),
                                                       0,
@@ -1394,8 +1394,8 @@ public class UpdateMergerTest extends BaseMergerTest {
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update, income, local);
     assertEquals(result.size(), 3);
     assertTrue(hasState(result, new ItemState(localItem211, ItemState.DELETED, false, null), true));
-    assertTrue(hasState(result, localItem1Add, true));
-    assertTrue(hasState(result, localProp1Add, true));
+    assertTrue(hasState(result, new ItemState(localItem1, ItemState.ADDED, false, null), true));
+    assertTrue(hasState(result, remoteItem1Update, true));
   }
 
   /**

@@ -324,11 +324,11 @@ public class UpdateMerger implements ChangesMerger {
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
             if (!incomeData.isNode()
-                && ((localData.isNode() && (incomeData.getQPath()
-                                                      .isDescendantOf(localData.getQPath()) || incomeData.getQPath()
-                                                                                                         .equals(localData.getQPath()))) || (!localData.isNode() && incomeData.getQPath()
-                                                                                                                                                                              .isDescendantOf(localData.getQPath()
-                                                                                                                                                                                                       .makeParentPath())))) {
+                && ((localData.isNode() && incomeData.getQPath()
+                                                     .isDescendantOf(localData.getQPath())) || (!localData.isNode() && incomeData.getQPath()
+                                                                                                                                 .isDescendantOf(localData.getQPath()
+                                                                                                                                                          .makeParentPath())))) {
+
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
@@ -363,17 +363,6 @@ public class UpdateMerger implements ChangesMerger {
               resultState.add(incomeState);
               return resultState;
 
-              /*} else if (!incomeData.isNode()
-                  && localData.getIdentifier().equals(incomeData.getParentIdentifier())) {
-                // delete node on new place
-                resultState.add(new ItemState(nextLocalState.getData(),
-                                              ItemState.DELETED,
-                                              nextLocalState.isEventFire(),
-                                              nextLocalState.getData().getQPath()));
-                // restore parent
-                resultState.addAll(exporter.exportItem(localData.getIdentifier()));
-
-                itemChangeProcessed = true;*/
             } else if ((localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
                                                                                     localData.getIdentifier()) != null)
                 || (!localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
