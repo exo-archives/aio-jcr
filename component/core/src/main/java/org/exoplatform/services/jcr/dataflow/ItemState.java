@@ -22,6 +22,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.log.ExoLogger;
@@ -206,6 +207,24 @@ public class ItemState implements Externalizable {
     }
 
     return false;
+  }
+
+  /**
+   * Is two item states are same. Added for merger.
+   * 
+   * isSame.
+   * 
+   * @param src
+   * @param dst
+   * @return
+   */
+  public static boolean isSame(ItemState src, ItemState dst) {
+    if (src == dst)
+      return true;
+
+    return src.getData().getIdentifier().hashCode() == dst.getData().getIdentifier().hashCode()
+        && src.getData().getQPath().hashCode() == dst.getData().getQPath().hashCode()
+        && src.getState() == dst.getState();
   }
 
   /**
