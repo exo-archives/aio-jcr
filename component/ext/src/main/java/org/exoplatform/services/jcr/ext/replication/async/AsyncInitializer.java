@@ -122,7 +122,6 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
     this.memberWaitTimeout = memberWaitTimeout;
     this.otherParticipantsPriority = otherParticipantsPriority;
     this.cancelMemberNotConnected = cancelMemberNotConnected;
-    this.stopped = false;
   }
 
   public void addRemoteListener(RemoteEventListener listener) {
@@ -138,7 +137,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    */
   public void onStateChanged(AsyncStateEvent event) {
     
-    if (stopped) {
+    if (hasStop()) {
       log.warn("Channel state changed but initializer was stopped " + event);
       return;
     }
@@ -188,7 +187,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
       // Check if disconnected the previous coordinator.
 
-      if (event.isCoordinator() && !isCoordinator && !stopped) {
+      if (event.isCoordinator() && !isCoordinator && !hasStop()) {
         isCoordinator = event.isCoordinator();
 
         // TODO remove log
@@ -248,7 +247,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
   public void receive(AbstractPacket packet, Member srcAddress) {
     
-    if (stopped) {
+    if (hasStop()) {
       log.warn("Changes received but initializer was stopped " + srcAddress);
       return;
     }
@@ -260,7 +259,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
-      this.stopped = true;
+      this.stopped();
 
       close();
 
@@ -302,7 +301,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
   public void onCancel() {
     log.info("AsyncInitializer.onCancel");
 
-    this.stopped = true;
+    this.stopped();
 
     close();
   }
@@ -313,7 +312,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
   public void onStop() {
     log.info("AsyncInitializer.onStop");
 
-    this.stopped = true;
+    this.stopped();
     
     close();
   }
