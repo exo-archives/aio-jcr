@@ -156,7 +156,7 @@ public class MergeDataManager {
           ItemState incomeChange = changes.next();
 
           // skip already processed itemstate
-          if (synchronizedChanges.hasState(incomeChange, true)) {
+          if (synchronizedChanges.hasState(incomeChange)) {
             continue;
           }
 
@@ -182,7 +182,7 @@ public class MergeDataManager {
                                                                ItemState.ADDED,
                                                                nextIncomeChange.isEventFire(),
                                                                nextIncomeChange.getData()
-                                                                               .getQPath()), true)
+                                                                               .getQPath()))
                 /*|| synchronizedChanges.hasState(incomeChange, false)*/) {
                   continue;
                 }

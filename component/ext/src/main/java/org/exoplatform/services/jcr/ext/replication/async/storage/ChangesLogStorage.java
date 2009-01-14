@@ -227,20 +227,13 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public boolean hasState(ItemState state, boolean equalPath) throws IOException,
-                                                             ClassCastException,
-                                                             ClassNotFoundException {
+  public boolean hasState(ItemState state) throws IOException,
+                                          ClassCastException,
+                                          ClassNotFoundException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-
-      List<ItemState> allStates = it.next().getAllStates();
-
-      for (int i = 0; i < allStates.size(); i++) {
-        ItemState item = allStates.get(i);
-        if (item.equals(state)
-            && (!equalPath || item.getData().getQPath().equals(state.getData().getQPath()))) {
-          return true;
-        }
+      if (hasStateFromLog(it.next(), state)) {
+        return true;
       }
     }
     return false;
@@ -597,13 +590,12 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
    * @param equalPath
    * @return
    */
-  private boolean hasStateFromLog(TransactionChangesLog log, ItemState itemState, boolean equalPath) {
+  private boolean hasStateFromLog(TransactionChangesLog log, ItemState itemState) {
     List<ItemState> allStates = log.getAllStates();
 
     for (int i = 0; i < allStates.size(); i++) {
-      ItemState item = allStates.get(i);
-      if (item.equals(itemState)
-          && (!equalPath || item.getData().getQPath().equals(itemState.getData().getQPath()))) {
+      ItemState inState = allStates.get(i);
+      if (ItemState.isSame(inState, itemState)) {
         return true;
       }
     }
@@ -665,5 +657,4 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     }
     return false;
   }
-
 }

@@ -131,9 +131,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
-  boolean hasState(ItemState state, boolean equalPath) throws IOException,
-                                                      ClassCastException,
-                                                      ClassNotFoundException;
+  boolean hasState(ItemState state) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
    * Tell if state presents in storage after specified.
