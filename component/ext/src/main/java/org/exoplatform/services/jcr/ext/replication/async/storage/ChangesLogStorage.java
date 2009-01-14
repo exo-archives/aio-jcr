@@ -205,23 +205,16 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   }
 
   public int findLastState(QPath itemPath) throws IOException {
-    // reverse changes files
-    List<ChangesFile> revlst = new ArrayList<ChangesFile>();
-    for (int i = storage.size() - 1; i >= 0; i--) {
-      revlst.add(storage.get(i));
-    }
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
 
-    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(revlst);
+    int result = -1;
     while (it.hasNext()) {
-      TransactionChangesLog log = it.next();
-      List<ItemState> allStates = log.getAllStates();
-      for (int i = allStates.size() - 1; i >= 0; i--) {
-        ItemState itemState = allStates.get(i);
-        if (itemState.getData().getQPath().equals(itemPath))
-          return itemState.getState();
+      int curResult = findLastStateFromLog(it.next(), itemPath);
+      if (curResult != -1) {
+        result = curResult;
       }
     }
-    return -1;
+    return result;
   }
 
   /**
@@ -390,20 +383,188 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
   /**
    * @param log
+   * @param fromState
+   * @return
+   */
+  private ItemState findNextItemStateFromLog(TransactionChangesLog log,
+                                             ItemState fromState,
+                                             String identifier) {
+    ItemState resultState = null;
+
+    List<ItemState> allStates = log.getAllStates();
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState itemState = allStates.get(i);
+
+      if (ItemState.isSame(itemState, fromState)) {
+        break;
+      } else if (itemState.getData().getIdentifier().equals(identifier)) {
+        resultState = itemState;
+      }
+    }
+    return resultState;
+  }
+
+  /**
+   * findLastStateFromLog.
+   * 
+   * @param itemPath
+   * @return
+   */
+  private int findLastStateFromLog(TransactionChangesLog log, QPath itemPath) {
+    List<ItemState> allStates = log.getAllStates();
+
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState item = allStates.get(i);
+      if (item.getData().getQPath().equals(itemPath)) {
+        return item.getState();
+      }
+    }
+
+    return -1;
+  }
+
+  /**
+   * 
+   * @param log
+   * @param itemState
+   * @param equalPath
+   * @return
+   */
+  private boolean hasStateFromLog(TransactionChangesLog log, ItemState itemState) {
+    List<ItemState> allStates = log.getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (ItemState.isSame(allStates.get(i), itemState)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param log
    * @param startState
+   * @param identifier
+   * @param state
+   * @return
+   */
+  private boolean hasNextStateFromLog(TransactionChangesLog log,
+                                      ItemState fromState,
+                                      String identifier,
+                                      QPath path,
+                                      int state) {
+    List<ItemState> allStates = log.getAllStates();
+
+    for (int i = allStates.size() - 1; i >= 0; i--) {
+      ItemState item = allStates.get(i);
+      if (ItemState.isSame(item, fromState)) {
+        return false;
+      } else if (ItemState.isSame(item, identifier, path, state)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * hasPrevStateFromLog.
+   * 
+   * @param log
+   * @param lastState
+   * @param identifier
+   * @param state
+   * @return
+   */
+  private boolean hasPrevStateFromLog(TransactionChangesLog log,
+                                      ItemState toState,
+                                      String identifier,
+                                      QPath path,
+                                      int state) {
+    List<ItemState> allStates = log.getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      ItemState item = allStates.get(i);
+      if (ItemState.isSame(item, toState)) {
+        return false;
+      } else if (ItemState.isSame(item, identifier, path, state)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * @param log
+   * @param fromState
+   * @param prevIndex
+   * @return
+   */
+  private ItemState getNextItemStateByIndexOnUpdateFromLog(TransactionChangesLog log,
+                                                           ItemState fromState,
+                                                           int prevIndex) {
+    List<ItemState> allStates = log.getAllStates();
+    ItemState lastState = null;
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (ItemState.isSame(allStates.get(i), fromState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() != ItemState.UPDATED) {
+            return lastState;
+          } else if (fromState.getData().getQPath().getIndex() != prevIndex
+              && item.getData().getQPath().getIndex() == prevIndex + 1) {
+            return item;
+          }
+          lastState = item;
+        }
+      }
+    }
+    return lastState;
+  }
+
+  /**
+   * 
+   * @param log
+   * @param fromState
+   * @param UUID
+   * @return
+   */
+  private ItemState getNextItemStateByUUIDOnUpdateFromLog(TransactionChangesLog log,
+                                                          ItemState fromState,
+                                                          String UUID) {
+    List<ItemState> allStates = log.getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (ItemState.isSame(allStates.get(i), fromState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() != ItemState.UPDATED) {
+            return null;
+          } else if (item.getData().getIdentifier().equals(UUID)) {
+            return item;
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * @param log
+   * @param firstState
    * @param rootPath
    * @param unique
    * @return
    */
   private Collection<ItemState> getDescendantsChangesFromLog(TransactionChangesLog log,
-                                                             ItemState startState,
+                                                             ItemState firstState,
                                                              QPath rootPath,
                                                              boolean unique) {
     HashMap<Object, ItemState> index = new HashMap<Object, ItemState>();
 
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
+      if (ItemState.isSame(allStates.get(i), firstState)) {
         for (int j = i; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getData().getQPath().isDescendantOf(rootPath)) {
@@ -420,142 +581,6 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   }
 
   /**
-   * @param log
-   * @param startState
-   * @return
-   */
-  private ItemState findNextItemStateFromLog(TransactionChangesLog log,
-                                             ItemState startState,
-                                             String identifier) {
-    ItemState resultState = null;
-
-    List<ItemState> allStates = log.getAllStates();
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState itemState = allStates.get(i);
-
-      if (itemState.getData().getIdentifier().equals(identifier)) {
-        if (itemState.equals(startState)) {
-          break;
-        }
-        resultState = itemState;
-      }
-    }
-    return resultState;
-  }
-
-  /**
-   * @param log
-   * @param startState
-   * @param prevIndex
-   * @return
-   */
-  private ItemState getNextItemStateByIndexOnUpdateFromLog(TransactionChangesLog log,
-                                                           ItemState startState,
-                                                           int prevIndex) {
-    List<ItemState> allStates = log.getAllStates();
-    ItemState lastState = null;
-
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() != ItemState.UPDATED) {
-            return lastState;
-          } else if (startState.getData().getQPath().getIndex() != prevIndex
-              && item.getData().getQPath().getIndex() == prevIndex + 1) {
-            return item;
-          }
-          lastState = item;
-        }
-      }
-    }
-    return lastState;
-  }
-
-  /**
-   * 
-   * @param log
-   * @param startState
-   * @param UUID
-   * @return
-   */
-  private ItemState getNextItemStateByUUIDOnUpdateFromLog(TransactionChangesLog log,
-                                                          ItemState startState,
-                                                          String UUID) {
-    List<ItemState> allStates = log.getAllStates();
-
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() != ItemState.UPDATED) {
-            return null;
-          } else if (item.getData().getIdentifier().equals(UUID)) {
-            return item;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  /**
-   * 
-   * @param log
-   * @param startState
-   * @return
-   */
-  private List<ItemState> getRenameSequenceFromLog(TransactionChangesLog log, ItemState startState) {
-    List<ItemState> resultStates = new ArrayList<ItemState>();
-
-    List<ItemState> allStates = log.getAllStates();
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        resultStates.add(startState);
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          resultStates.add(item);
-          if (item.getState() == ItemState.RENAMED
-              && item.getData().getIdentifier().equals(startState.getData().getIdentifier())) {
-            return resultStates;
-          }
-        }
-        break;
-      }
-    }
-
-    return resultStates;
-  }
-
-  /**
-   * 
-   * @param log
-   * @param startState
-   * @return
-   */
-  private List<ItemState> getUpdateSequenceFromLog(TransactionChangesLog log, ItemState startState) {
-    List<ItemState> resultStates = new ArrayList<ItemState>();
-
-    List<ItemState> allStates = log.getAllStates();
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        resultStates.add(startState);
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() == ItemState.UPDATED
-              && item.getData().getQPath().getName().equals(startState.getData()
-                                                                      .getQPath()
-                                                                      .getName())) {
-            resultStates.add(item);
-          }
-        }
-        break;
-      }
-    }
-    return resultStates;
-  }
-
-  /**
    * Return changes from log by start state and root path.
    * 
    * @param rootPath
@@ -563,13 +588,13 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
    * @throws IOException
    */
   private Collection<ItemState> getChangesFromLog(TransactionChangesLog log,
-                                                  ItemState startState,
+                                                  ItemState firstState,
                                                   QPath rootPath) throws IOException {
     List<ItemState> list = new ArrayList<ItemState>();
 
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
+      if (ItemState.isSame(allStates.get(i), firstState)) {
         for (int j = i; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getData().getQPath().isDescendantOf(rootPath)
@@ -586,75 +611,56 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * 
    * @param log
-   * @param itemState
-   * @param equalPath
+   * @param firstState
    * @return
    */
-  private boolean hasStateFromLog(TransactionChangesLog log, ItemState itemState) {
-    List<ItemState> allStates = log.getAllStates();
+  private List<ItemState> getUpdateSequenceFromLog(TransactionChangesLog log, ItemState firstState) {
+    List<ItemState> resultStates = new ArrayList<ItemState>();
 
+    List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      ItemState inState = allStates.get(i);
-      if (ItemState.isSame(inState, itemState)) {
-        return true;
+      if (ItemState.isSame(allStates.get(i), firstState)) {
+        resultStates.add(firstState);
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getState() == ItemState.UPDATED
+              && item.getData().getQPath().getName().equals(firstState.getData()
+                                                                     .getQPath()
+                                                                     .getName())) {
+            resultStates.add(item);
+          }
+        }
+        break;
       }
     }
-    return false;
+    return resultStates;
   }
 
   /**
    * 
    * @param log
    * @param startState
-   * @param identifier
-   * @param state
    * @return
    */
-  private boolean hasNextStateFromLog(TransactionChangesLog log,
-                                      ItemState startState,
-                                      String identifier,
-                                      QPath path,
-                                      int state) {
-    List<ItemState> allStates = log.getAllStates();
+  private List<ItemState> getRenameSequenceFromLog(TransactionChangesLog log, ItemState startState) {
+    List<ItemState> resultStates = new ArrayList<ItemState>();
 
+    List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
+      if (ItemState.isSame(allStates.get(i), startState)) {
+        resultStates.add(startState);
         for (int j = i + 1; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
-          if (item.getState() == state && item.getData().getIdentifier().equals(identifier)
-              && item.getData().getQPath().equals(path)) {
-            return true;
+          resultStates.add(item);
+          if (item.getState() == ItemState.RENAMED
+              && item.getData().getIdentifier().equals(startState.getData().getIdentifier())) {
+            return resultStates;
           }
         }
+        break;
       }
     }
-    return false;
-  }
 
-  /**
-   * hasPrevStateFromLog.
-   * 
-   * @param log
-   * @param endState
-   * @param identifier
-   * @param state
-   * @return
-   */
-  private boolean hasPrevStateFromLog(TransactionChangesLog log,
-                                      ItemState endState,
-                                      String identifier,
-                                      QPath path,
-                                      int state) {
-    List<ItemState> allStates = log.getAllStates();
-    for (int i = 0; i < allStates.size(); i++) {
-      ItemState item = allStates.get(i);
-      if (item.equals(endState)) {
-        return false;
-      } else if (item.getState() == state && item.getData().getIdentifier().equals(identifier)
-          && item.getData().getIdentifier().equals(path)) {
-        return true;
-      }
-    }
-    return false;
+    return resultStates;
   }
 }
