@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -16,27 +16,38 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import java.util.List;
+
+import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 25.12.2008
+ * <br/>Date: 14.01.2009
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-/**
- * LocalEventListener.
- * 
- */
-public interface LocalEventListener extends SynchronizationEventListener {
+public interface SynchronizationEventListener {
 
   /**
-   * Fire synchronization done (stop local system).
+   * On sycnhronization Start event action. <br/> operations.
    * <ul>
-   * <li>Publisher will stop work, run local storage rotation and set Repository RW state.</li>
-   * <li>Subscriber will stop work, run finalyzation (storage clean).</li>
+   * <li>Publisher will start send changes.</li>
+   * <li>Subscriber will prepare the storage for memebers changes.</li>
    * </ul>
    * 
    */
-  void onStop();
+  void onStart(List<Member> members);
+
+  /**
+   * On sycnhronization Cancel event action. <br/> operations.
+   * <ul>
+   * <li>Publisher will not send more changes.</li>
+   * <li>Subscriber will stops changes receive process or stops the merge of received changes. Then
+   * all income changes will be deleted.</li>
+   * </ul>
+   */
+  void onCancel();
+
 }
