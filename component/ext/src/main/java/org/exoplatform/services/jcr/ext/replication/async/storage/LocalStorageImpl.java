@@ -144,7 +144,8 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     ChangesLogIterator chIt = log.getLogIterator();
 
     TransactionChangesLog result = new TransactionChangesLog();
-    result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for PlainChangesLogImpl.writeExternal
+    result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for
+    // PlainChangesLogImpl.writeExternal
 
     while (chIt.hasNextLog()) {
       PlainChangesLog plog = chIt.nextLog();
@@ -164,12 +165,24 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
           List<ValueData> destVals = new ArrayList<ValueData>();
 
           while (valIt.hasNext()) {
-            TransientValueData val = (TransientValueData) valIt.next();
+
+            ValueData val = valIt.next();
             ReplicableValueData dest;
-            if (val.isByteArray()) {
-              dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
+            if (val instanceof ReplicableValueData) {
+              dest = (ReplicableValueData) val;
             } else {
-              dest = new ReplicableValueData(val.getSpoolFile(), val.getOrderNumber());
+
+              if (val.isByteArray()) {
+                dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
+              } else {
+                if (val instanceof TransientValueData) {
+                  dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
+                                                 val.getOrderNumber());
+                } else {
+                  // create new dataFile
+                  dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
+                }
+              }
             }
             destVals.add(dest);
           }

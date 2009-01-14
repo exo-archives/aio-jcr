@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -76,6 +77,39 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
    */
   public ReplicableValueData() {
     super(0);
+  }
+
+  /**
+   * Creates Replicable value data from InputStream.
+   * 
+   * @param inputStream data
+   * @param orderNumber
+   * @throws IOException
+   */
+  public ReplicableValueData(InputStream inputStream, int orderNumber) throws IOException{
+    super(orderNumber);
+    //create spool file
+    byte[] tmpBuff = new byte[2048];
+    int read = 0;
+    int len = 0;
+    SpoolFile sf = null;
+    sf = new SpoolFile(File.createTempFile("repValDat", null).getAbsolutePath());
+    sf.acquire(this);
+
+    OutputStream sfout = new FileOutputStream(sf);
+    
+    while ((read = inputStream.read(tmpBuff)) >= 0) {
+        // spool to temp file
+        sfout.write(tmpBuff, 0, read);
+        len += read;
+    }
+
+    // spooled to file
+    sfout.close();
+    this.spoolFile = sf;
+    this.data = null;
+    
+    
   }
 
   /**
