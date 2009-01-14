@@ -122,9 +122,10 @@ public class AsyncReplication implements Startable {
     AsyncWorker(PersistentDataManager dataManager,
                 NodeTypeDataManager ntManager,
                 LocalStorage localStorage,
-                IncomeStorage incomeStorage) {
+                IncomeStorage incomeStorage,
+                String chanelNameSufix) {
 
-      this.channel = new AsyncChannelManager(channelConfig, channelName);
+      this.channel = new AsyncChannelManager(channelConfig, channelName +"_" + chanelNameSufix);
       
       this.dataManager = dataManager;
 
@@ -443,7 +444,7 @@ public class AsyncReplication implements Startable {
         LocalStorage localStorage = localStorages.get(new StorageKey(repoName, wsName));
         IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, wsName));
 
-        AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage);
+        AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName + "_" + wsName);
         synchWorker.start();
 
         currentWorkers.add(synchWorker);
@@ -475,7 +476,7 @@ public class AsyncReplication implements Startable {
       LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
       IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-      AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage);
+      AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName + "_" + workspaceName);
       synchWorker.start();
 
       currentWorkers.add(synchWorker);
