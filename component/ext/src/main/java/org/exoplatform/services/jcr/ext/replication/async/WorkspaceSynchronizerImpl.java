@@ -162,8 +162,8 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
   class SynchronizingChangesLog implements PlainChangesLog {
 
     private final ChangesStorage<ItemState> storage;
-    
-    private final String sessionId;
+
+    private final String                    sessionId;
 
     public SynchronizingChangesLog(ChangesStorage<ItemState> synchronizedChanges) {
       this.storage = synchronizedChanges;
@@ -246,11 +246,19 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                  UnsupportedOperationException,
                                                                  RepositoryException {
     LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
+    
     ItemStateChangesLog changes = new TransactionChangesLog(new SynchronizingChangesLog(synchronizedChanges));
+
+    OnSynchronizationWorkspaceListenersFilter apiFilter = new OnSynchronizationWorkspaceListenersFilter();
+    workspace.addItemPersistenceListenerFilter(apiFilter);
+    
     try {
       workspace.save(changes);
     } catch (ChangesLogReadException e) {
-      throw new SynchronizationException(e);
+      throw new SynchronizationException("Error of merge result read on save " + e, e);
+    } finally {
+      
+      workspace.removeItemPersistenceListenerFilter(apiFilter);
     }
   }
 
