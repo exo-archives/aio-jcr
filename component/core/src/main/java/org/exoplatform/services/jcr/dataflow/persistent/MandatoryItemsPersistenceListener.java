@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2007 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,27 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.dataflow;
-
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListenerFilter;
+package org.exoplatform.services.jcr.dataflow.persistent;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Date: 30.12.2008
+ * <br/>Implementations of this interface are mandatory for notification in PersistentDataManager save.
+ * I.e. such implementations cannot be filtered by ItemsPersistenceListenerFilter.
+ * 
+ * <br/>Date: 14.01.2009.
  *
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public interface PersistentDataManager extends DataManager {
+public interface MandatoryItemsPersistenceListener extends ItemsPersistenceListener {
 
-  void addItemPersistenceListener(ItemsPersistenceListener listener);
-  
-  void removeItemPersistenceListener(ItemsPersistenceListener listener);
-  
-  void addItemPersistenceListenerFilter(ItemsPersistenceListenerFilter filter);
-  
-  void removeItemPersistenceListenerFilter(ItemsPersistenceListenerFilter filter);
-  
 }

@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
  * @version $Id: WorkspaceStorageCache.java 13869 2008-05-05 08:40:10Z pnedonosko $
  */
-public interface WorkspaceStorageCache extends ItemsPersistenceListener {
+public interface WorkspaceStorageCache extends MandatoryItemsPersistenceListener {
 
   public static final String MAX_SIZE_PARAMETER_NAME  = "max-size";
 

@@ -29,9 +29,10 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-import org.exoplatform.services.jcr.dataflow.ItemsPersistenceListenerFilter;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListenerFilter;
+import org.exoplatform.services.jcr.dataflow.persistent.MandatoryItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -46,7 +47,8 @@ import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.<br>
- * Workspace-level data manager
+ * Workspace-level data manager. Connects persistence layer with <code>WorkspaceDataContainer</code>
+ * instance. Provides read and save operations. Handles listeners on save operation.
  * 
  * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: WorkspacePersistentDataManager.java 13366 2008-04-17 09:12:24Z pnedonosko $
@@ -56,24 +58,33 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
   /**
    * Logger.
    */
-  protected final Log                                  log = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
+  protected static final Log                              LOG = ExoLogger.getLogger("jcr.WorkspacePersistentDataManager");
 
   /**
    * Workspace data container (persistent storage).
    */
-  protected WorkspaceDataContainer                     dataContainer;
+  protected WorkspaceDataContainer                        dataContainer;
 
   /**
    * System workspace data container (persistent storage).
    */
-  protected WorkspaceDataContainer                     systemDataContainer;
+  protected WorkspaceDataContainer                        systemDataContainer;
 
   /**
-   * Persistent level listeners.
+   * Persistent level listeners. This listeners can be filtered by filters from
+   * <code>liestenerFilters</code> list.
    */
-  protected final List<ItemsPersistenceListener>       listeners;
+  protected final List<ItemsPersistenceListener>          listeners;
 
-  protected final List<ItemsPersistenceListenerFilter> liestenerFilters;
+  /**
+   * Mandatory persistent level listeners.
+   */
+  protected final List<MandatoryItemsPersistenceListener> mandatoryListeners;
+
+  /**
+   * Persistent level liesteners filters.
+   */
+  protected final List<ItemsPersistenceListenerFilter>    liestenerFilters;
 
   /**
    * WorkspacePersistentDataManager constructor.
@@ -87,6 +98,7 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
                                         SystemDataContainerHolder systemDataContainerHolder) {
     this.dataContainer = dataContainer;
     this.listeners = new ArrayList<ItemsPersistenceListener>();
+    this.mandatoryListeners = new ArrayList<MandatoryItemsPersistenceListener>();
     this.liestenerFilters = new ArrayList<ItemsPersistenceListenerFilter>();
     this.systemDataContainer = systemDataContainerHolder.getContainer();
   }
@@ -170,8 +182,8 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
           doRename(data, conn, addedNodes);
         }
 
-        if (log.isDebugEnabled())
-          log.debug(ItemState.nameFromValue(itemState.getState()) + " "
+        if (LOG.isDebugEnabled())
+          LOG.debug(ItemState.nameFromValue(itemState.getState()) + " "
               + (System.currentTimeMillis() - start) + "ms, " + data.getQPath().getAsString());
       }
       if (thisConnection != null)
@@ -414,13 +426,21 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
    * @param listener
    */
   public void addItemPersistenceListener(ItemsPersistenceListener listener) {
-    listeners.add(listener);
-    log.info("Workspace '" + this.dataContainer.getName() + "' listener registered: " + listener);
+    if (listener instanceof MandatoryItemsPersistenceListener)
+      mandatoryListeners.add((MandatoryItemsPersistenceListener) listener);
+    else
+      listeners.add(listener);
+
+    LOG.info("Workspace '" + this.dataContainer.getName() + "' listener registered: " + listener);
   }
 
   public void removeItemPersistenceListener(ItemsPersistenceListener listener) {
-    listeners.remove(listener);
-    log.info("Workspace '" + this.dataContainer.getName() + "' listener unregistered: " + listener);
+    if (listener instanceof MandatoryItemsPersistenceListener)
+      mandatoryListeners.remove(listener);
+    else
+      listeners.remove(listener);
+
+    LOG.info("Workspace '" + this.dataContainer.getName() + "' listener unregistered: " + listener);
   }
 
   /**
@@ -458,8 +478,12 @@ public abstract class WorkspacePersistentDataManager implements PersistentDataMa
    * Notify all listeners about current changes log persistent state.
    * 
    * @param changesLog
+   *          ItemStateChangesLog
    */
   protected void notifySaveItems(ItemStateChangesLog changesLog) {
+    for (MandatoryItemsPersistenceListener mlistener : mandatoryListeners)
+      mlistener.onSaveItems(changesLog);
+
     for (ItemsPersistenceListener listener : listeners) {
       if (isListenerAccepted(listener))
         listener.onSaveItems(changesLog);

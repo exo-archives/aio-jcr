@@ -14,9 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.dataflow;
+package org.exoplatform.services.jcr.dataflow.persistent;
 
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 
 /**
  * Created by The eXo Platform SAS.
@@ -29,7 +28,7 @@ import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener
 public interface ItemsPersistenceListenerFilter {
 
   /**
-   * Return acceptance flag for given listener.
+   * Return acceptance flag for the given listener.
    *
    * @param listener
    * @return boolean, true if listener accepted, false otherwise

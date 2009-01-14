@@ -43,7 +43,7 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemDataConsumer;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
-import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
+import org.exoplatform.services.jcr.dataflow.persistent.MandatoryItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -58,7 +58,7 @@ import org.picocontainer.Startable;
 /**
  * Acts as a global entry point to execute queries and index nodes.
  */
-public class SearchManager implements Startable, ItemsPersistenceListener {
+public class SearchManager implements Startable, MandatoryItemsPersistenceListener {
 
   /**
    * Logger instance for this class

@@ -207,7 +207,7 @@ public class CacheableWorkspaceDataManager extends WorkspacePersistentDataManage
       try {
         this.ready.await();
       } catch (InterruptedException e) {
-        log.warn("Can't wait for same request process. " + e, e);
+        LOG.warn("Can't wait for same request process. " + e, e);
       }
     }
 
