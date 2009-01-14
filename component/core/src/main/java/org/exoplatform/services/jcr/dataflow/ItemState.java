@@ -228,6 +228,20 @@ public class ItemState implements Externalizable {
   }
 
   /**
+   * Is two item states are same. Added for merger.
+   * 
+   * isSame.
+   * 
+   * @param src
+   * @param dst
+   * @return
+   */
+  public static boolean isSame(ItemState src, String dstIdentifier, QPath dstPath, int dstState) {
+    return src.getData().getIdentifier().hashCode() == dstIdentifier.hashCode()
+        && src.getData().getQPath().hashCode() == dstPath.hashCode() && src.getState() == dstState;
+  }
+
+  /**
    * creates ADDED item state shortcut for new ItemState(data, ADDED, true, true, null)
    * 
    * @param data
