@@ -21,14 +21,11 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 
 /**
@@ -108,7 +105,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
 
   /**
    * setSystemId.
-   *
+   * 
    * @param systemId
    */
   public void setSystemId(String systemId) {
@@ -125,53 +122,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     return null;
   }
 
-  // merge
-  public List<ItemState> getUpdateSequence(ItemState startState) {
-    List<ItemState> resultStates = new ArrayList<ItemState>();
-
-    List<ItemState> allStates = getAllStates();
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        resultStates.add(startState);
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() == ItemState.UPDATED
-              && item.getData().getQPath().getName().equals(startState.getData()
-                                                                      .getQPath()
-                                                                      .getName())) {
-            resultStates.add(item);
-          }
-        }
-        break;
-      }
-    }
-
-    return resultStates;
-  }
-
-  // merge
-  public List<ItemState> getRenameSequence(ItemState startState) {
-    List<ItemState> resultStates = new ArrayList<ItemState>();
-
-    List<ItemState> allStates = getAllStates();
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        resultStates.add(startState);
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          resultStates.add(item);
-          if (item.getState() == ItemState.RENAMED
-              && item.getData().getIdentifier().equals(startState.getData().getIdentifier())) {
-            return resultStates;
-          }
-        }
-        break;
-      }
-    }
-
-    return resultStates;
-  }
-
   public ItemState getItemState(NodeData parentData, QPathEntry name) {
     List<ItemState> allStates = getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
@@ -181,235 +131,6 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
         return state;
     }
     return null;
-  }
-
-  /**
-   * 
-   * getPreviousState.
-   * 
-   * @param item
-   * @return
-   */
-  @Deprecated
-  public ItemState getPreviousItemState(ItemState item) {
-    ItemState resultState = null;
-
-    for (ItemState itemState : getAllStates()) {
-      if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
-        if (itemState.equals(item)) {
-          break;
-        }
-        resultState = itemState;
-      }
-    }
-
-    return resultState;
-  }
-
-  @Deprecated
-  public ItemState getPreviousItemStateByQPath(ItemState startState, QPath path) {
-    List<ItemState> allStates = getAllStates();
-
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i - 1; j >= 0; j--) {
-          ItemState item = allStates.get(j);
-          if (item.getData().getQPath().equals(path)) {
-            return item;
-          }
-        }
-      }
-    }
-
-    return null;
-  }
-
-  // merge
-  public ItemState getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) {
-    List<ItemState> allStates = getAllStates();
-
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() != ItemState.UPDATED) {
-            return null;
-          } else if (item.getData().getIdentifier().equals(UUID)) {
-            return item;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  // merge
-  public ItemState getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) {
-    List<ItemState> allStates = getAllStates();
-    ItemState lastState = null;
-
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i + 1; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() != ItemState.UPDATED) {
-            return lastState;
-          } else if (startState.getData().getQPath().getIndex() != prevIndex
-              && item.getData().getQPath().getIndex() == prevIndex + 1) {
-            return item;
-          }
-          lastState = item;
-        }
-      }
-    }
-
-    return lastState;
-  }
-
-  // merge
-  public ItemState getNextItemState(ItemState item) {
-    ItemState resultState = null;
-
-    List<ItemState> allStates = getAllStates();
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState itemState = allStates.get(i);
-
-      if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
-        if (itemState.equals(item)) {
-          break;
-        }
-        resultState = itemState;
-      }
-    }
-
-    return resultState;
-  }
-
-  // merger
-  /**
-   */
-  public boolean hasState(ItemState itemState, boolean equalPath) {
-    List<ItemState> allStates = getAllStates();
-
-    for (int i = 0; i < allStates.size(); i++) {
-      ItemState item = allStates.get(i);
-      if (item.equals(itemState)
-          && (!equalPath || item.getData().getQPath().equals(itemState.getData().getQPath()))) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  public boolean hasNextState(ItemState startState, String identifier, int state) {
-    List<ItemState> allStates = getAllStates();
-
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() == state && item.getData().getIdentifier().equals(identifier)) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  public boolean hasNextState(ItemState startState, QPath path, int state) {
-    List<ItemState> allStates = getAllStates();
-
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() == state && item.getData().getQPath().equals(path)) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * getLastState.
-   * 
-   * @param itemPath
-   * @return
-   */
-  // merge
-  public int getLastState(QPath itemPath) {
-    List<ItemState> allStates = getAllStates();
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState itemState = allStates.get(i);
-      if (itemState.getData().getQPath().equals(itemPath))
-        return itemState.getState();
-    }
-    return ItemState.UNCHANGED;
-  }
-
-  /**
-   * getDescendantsChanges.
-   * 
-   * @param rootPath
-   * @param onlyNodes
-   * @param unique
-   * @return
-   */
-  // merge
-  public Collection<ItemState> getDescendantsChanges(ItemState startState,
-                                                     QPath rootPath,
-                                                     boolean unique) {
-    HashMap<Object, ItemState> index = new HashMap<Object, ItemState>();
-
-    List<ItemState> allStates = getAllStates();
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getData().getQPath().isDescendantOf(rootPath)) {
-            if (!unique || index.get(item.getData().getQPath()) == null) {
-              index.put(item.getData().getQPath(), item);
-            }
-          }
-        }
-      }
-    }
-
-    // TODO check order
-    return index.values();
-  }
-
-  // merger
-  /**
-   * getChanges.
-   * 
-   * @param rootPath
-   * @return
-   * @throws IOException
-   */
-  public Collection<ItemState> getChanges(ItemState startState, QPath rootPath) throws IOException {
-    List<ItemState> list = new ArrayList<ItemState>();
-
-    List<ItemState> allStates = getAllStates();
-    for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getData().getQPath().isDescendantOf(rootPath)
-              || item.getData().getQPath().equals(rootPath)) {
-            list.add(item);
-          }
-        }
-      }
-    }
-
-    return list;
   }
 
   public List<ItemState> getChildrenChanges(String rootIdentifier, boolean forNodes) {
