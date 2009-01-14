@@ -90,6 +90,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     public void run() {
       try {
         Thread.sleep(1000);
+        log.info("ChannelCloser : channelManager.disconnect()");
         channelManager.disconnect();
       } catch (Exception e) {
         log.error("Cannot disconnect from JChannel", e);
@@ -226,8 +227,8 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
+      close();
       doCancel(member);
-      onCancel();
     }
       break;
 
@@ -263,20 +264,9 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
    * {@inheritDoc}
    */
   public void onCancel() {
-
     log.info("AsyncInitializer.onCancel");
 
-    hasCancel = true;
-    if (lastMemberWaiter != null)
-      lastMemberWaiter.cancel();
-
-    if (firstMemberWaiter != null)
-      firstMemberWaiter.cancel();
-
-    log.info("AsyncInitializer : channelManager.disconnect()");
-    // channelManager.disconnect();
-    closer = new ChannelCloser();
-    closer.start();
+    close();
   }
 
   /**
@@ -286,6 +276,18 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     log.info("AsyncInitializer.onStop");
 
     channelManager.disconnect();
+  }
+  
+  private void close() {
+    hasCancel = true;
+    if (lastMemberWaiter != null)
+      lastMemberWaiter.cancel();
+
+    if (firstMemberWaiter != null)
+      firstMemberWaiter.cancel();
+
+    closer = new ChannelCloser();
+    closer.start();
   }
 
   private void sendCancel() throws IOException {

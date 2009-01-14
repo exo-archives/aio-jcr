@@ -159,11 +159,10 @@ public class AsyncReplication implements Startable {
       subscriber.addLocalListener(publisher);
       subscriber.addLocalListener(exportServer);
       
-      int waitTimeout = 60000; // TODO
       initializer = new AsyncInitializer(channel,
                                          priority,
                                          otherParticipantsPriority,
-                                         waitTimeout,
+                                         waitAllMembersTimeout,
                                          true);
       initializer.addRemoteListener(subscriber);
       initializer.addRemoteListener(publisher);
