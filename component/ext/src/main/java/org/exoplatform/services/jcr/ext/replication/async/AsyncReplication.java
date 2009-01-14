@@ -130,57 +130,69 @@ public class AsyncReplication implements Startable {
 
       this.localStorage = localStorage;
 
-      transmitter = new AsyncTransmitterImpl(channel, priority);
+      this.transmitter = new AsyncTransmitterImpl(channel, priority);
 
-      synchronyzer = new WorkspaceSynchronizerImpl(dataManager, localStorage);
+      this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, localStorage);
 
-      publisher = new ChangesPublisherImpl(transmitter, localStorage);
+      this.publisher = new ChangesPublisherImpl(this.transmitter, localStorage);
 
-      exportServer = new RemoteExportServerImpl(transmitter, dataManager, ntManager);
-      publisher.addLocalListener(exportServer);
+      this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
+      this.publisher.addLocalListener(this.exportServer);
       
-      receiver = new AsyncReceiverImpl(channel, exportServer);
+      this.receiver = new AsyncReceiverImpl(channel, this.exportServer);
 
-      exporter = new RemoteExporterImpl(transmitter, receiver);
-      channel.addPacketListener(receiver);
+      this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
+      channel.addPacketListener(this.receiver);
 
-      mergeManager = new MergeDataManager(exporter, dataManager, ntManager, priority, mergeTempDir);
+      this.mergeManager = new MergeDataManager(this.exporter, dataManager, ntManager, priority, mergeTempDir);
 
-      subscriber = new ChangesSubscriberImpl(synchronyzer,
-                                             mergeManager,
-                                             incomeStorage,
-                                             transmitter,
-                                             priority,
-                                             otherParticipantsPriority.size() + 1);
-      publisher.addLocalListener(subscriber);
+      this.subscriber = new ChangesSubscriberImpl(this.synchronyzer,
+                                                  this.mergeManager,
+                                                  incomeStorage,
+                                                  this.transmitter,
+                                                  priority,
+                                                  otherParticipantsPriority.size() + 1);
+      this.publisher.addLocalListener(this.subscriber);
       
-      receiver.setChangesSubscriber(subscriber);
+      this.receiver.setChangesSubscriber(this.subscriber);
       
-      subscriber.addLocalListener(publisher);
-      subscriber.addLocalListener(exportServer);
+      this.subscriber.addLocalListener(publisher);
+      this.subscriber.addLocalListener(exportServer);
       
-      initializer = new AsyncInitializer(channel,
+      this.initializer = new AsyncInitializer(channel,
                                          priority,
                                          otherParticipantsPriority,
                                          waitAllMembersTimeout,
                                          true);
-      initializer.addRemoteListener(subscriber);
-      initializer.addRemoteListener(publisher);
-      initializer.addRemoteListener(exportServer);
+      this.initializer.addRemoteListener(this.subscriber);
+      this.initializer.addRemoteListener(this.publisher);
+      this.initializer.addRemoteListener(this.exportServer);
       
-      subscriber.addLocalListener(initializer);
+      this.subscriber.addLocalListener(this.initializer);
       
-      channel.addPacketListener(initializer);
+      channel.addPacketListener(this.initializer);
     }
 
     private void doSynchronize() throws ReplicationException {
       channel.connect();
     }
     
-    private void doFinalyze() {
-      // channel.disconnect(); TODO do we need it here?
+    private void doFinalyze() {     
+      this.receiver.setChangesSubscriber(null);
       
+      this.publisher.removeLocalListener(this.exportServer);
+      this.publisher.removeLocalListener(this.subscriber);
       
+      this.subscriber.removeLocalListener(this.publisher);
+      this.subscriber.removeLocalListener(this.exportServer);
+      this.subscriber.removeLocalListener(this.initializer);
+      
+      this.initializer.removeRemoteListener(this.subscriber);
+      this.initializer.removeRemoteListener(this.publisher);
+      this.initializer.removeRemoteListener(this.exportServer);
+      
+      channel.removePacketListener(this.initializer);
+      // channel.disconnect(); TODO do we need it here?      
     }
 
     /**
@@ -193,6 +205,8 @@ public class AsyncReplication implements Startable {
       } catch (ReplicationException e) {
         log.error("Synchronization error " + e, e);
       } finally {
+        doFinalyze();
+        
         currentWorkers.remove(this); // remove itself
       }
     }

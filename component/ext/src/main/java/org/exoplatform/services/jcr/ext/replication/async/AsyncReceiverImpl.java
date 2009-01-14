@@ -40,8 +40,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class AsyncReceiverImpl implements AsyncReceiver {
 
-  protected static final Log                LOG = ExoLogger.getLogger("jcr.AsyncReceiverImpl");
-  
+  protected static final Log         LOG = ExoLogger.getLogger("jcr.AsyncReceiverImpl");
+
   protected final RemoteExportServer exportServer;
 
   protected ChangesSubscriber        changesSubscriber;
@@ -59,7 +59,12 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    */
   protected void onChanges(ChangesPacket packet, Member member) {
     LOG.info("AsyncReceiver.onChanges, member " + member.getName() + ", packet " + packet);
-    changesSubscriber.onChanges(packet, member);
+
+    if (changesSubscriber != null)
+      changesSubscriber.onChanges(packet, member);
+    else
+      LOG.warn("Subscriber is not set. Changes from member " + member.getName()
+          + " will be ignored. ");
   }
 
   protected void onGetExport(AbstractPacket packet, Member srcAddress) {
