@@ -111,7 +111,6 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
    */
   public void onDisconnectMembers(List<Member> member) {
     // TODO Auto-generated method stub
-
   }
 
   /**
@@ -119,7 +118,6 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
    */
   public void onMerge(Member member) {
     // TODO Auto-generated method stub
-
   }
 
   /**
