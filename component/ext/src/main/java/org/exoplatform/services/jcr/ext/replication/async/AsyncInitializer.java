@@ -44,8 +44,13 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class AsyncInitializer extends SynchronizationStop implements AsyncPacketListener, AsyncStateListener,
-    LocalEventListener {
+public class AsyncInitializer extends SynchronizationStop implements AsyncPacketListener,
+    AsyncStateListener, LocalEventListener {
+
+  /**
+   * CHANNEL_CLOSE_TIMEOUT in milliseconds.
+   */
+  private static final long                CHANNEL_CLOSE_TIMEOUT   = 1000;
 
   /**
    * The apache logger.
@@ -75,7 +80,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
   private FirstMemberWaiter                firstMemberWaiter;
 
-//  private volatile boolean                 stopped;
+  // private volatile boolean stopped;
 
   private ChannelCloser                    closer;
 
@@ -87,19 +92,21 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    * ChannelCloser. Will be disconnected form JChannel.
    */
   private class ChannelCloser extends Thread {
+
+    private final long timeout;
+
+    ChannelCloser(long timeout) {
+      this.timeout = timeout;
+    }
+
     /**
      * {@inheritDoc}
      */
     public void run() {
       try {
-        Thread.sleep(1000);
-        log.info("ChannelCloser : channelManager.disconnect()");
-        channelManager.disconnect();
+        Thread.sleep(timeout);
 
-        if (doneLatch != null)
-          doneLatch.countDown();
-        else
-          log.error("Synchronization is not initialized properly or already stopped (latch not exists).");
+        close();
       } catch (Exception e) {
         log.error("Cannot disconnect from JChannel", e);
       }
@@ -136,12 +143,12 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    * {@inheritDoc}
    */
   public void onStateChanged(AsyncStateEvent event) {
-    
+
     if (hasStop()) {
       log.warn("Channel state changed but initializer was stopped " + event);
       return;
     }
-    
+
     if (event.getMembers().size() == 1) {
       // first member (this service) connected to the channel
 
@@ -216,7 +223,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
   /**
    * Wait till synchronization process will be stopped.
-   *
+   * 
    * @throws InterruptedException
    */
   public void waitStop() throws InterruptedException {
@@ -246,12 +253,12 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
   }
 
   public void receive(AbstractPacket packet, Member srcAddress) {
-    
+
     if (hasStop()) {
       log.warn("Changes received but initializer was stopped " + srcAddress);
       return;
     }
-    
+
     switch (packet.getType()) {
     case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
       log.info("SYNCHRONIZATION_CANCEL");
@@ -259,9 +266,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
-      this.stopped();
-
-      close();
+      doStop(CHANNEL_CLOSE_TIMEOUT);
 
       doCancel(member);
     }
@@ -301,9 +306,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
   public void onCancel() {
     log.info("AsyncInitializer.onCancel");
 
-    this.stopped();
-
-    close();
+    doStop();
   }
 
   /**
@@ -312,20 +315,53 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
   public void onStop() {
     log.info("AsyncInitializer.onStop");
 
-    this.stopped();
-    
-    close();
+    doStop();
   }
 
+  /**
+   * Close channel, release wait latch.
+   * 
+   */
   private void close() {
+    log.info("ChannelCloser : channelManager.disconnect()");
+    channelManager.disconnect();
+
+    if (doneLatch != null)
+      doneLatch.countDown();
+    else
+      log.error("Synchronization is not initialized properly or already stopped (latch not exists).");
+  }
+
+  /**
+   * Stop work.
+   * 
+   */
+  private void doStop() {
+    doStop(0);
+  }
+
+  /**
+   * Stop work after timeout in another thread.
+   * 
+   * @param timeout
+   *          long
+   */
+  private void doStop(long timeout) {
+    this.stopped();
+
     if (lastMemberWaiter != null)
       lastMemberWaiter.cancel();
 
     if (firstMemberWaiter != null)
       firstMemberWaiter.cancel();
 
-    closer = new ChannelCloser();
-    closer.start();
+    if (timeout > 1) {
+      // TODO don't use global
+      closer = new ChannelCloser(timeout);
+      closer.start();
+    } else {
+      close();
+    }
   }
 
   private void sendCancel() throws IOException {
@@ -363,7 +399,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
           // TODO remove log
           log.info("LastMemberWaiter : " + "channelManager.disconnect()");
 
-          channelManager.disconnect();
+          stop();
           doCancel(null);
         }
 
@@ -396,7 +432,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
         Thread.sleep(memberWaitTimeout);
 
         if (run && previousMemmbers.size() == 1) {
-          channelManager.disconnect();
+          stop();
           doCancel(null);
         }
 
