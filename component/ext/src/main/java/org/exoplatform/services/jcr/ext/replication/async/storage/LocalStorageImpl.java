@@ -52,14 +52,19 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
-  protected static final Log    LOG                       = ExoLogger.getLogger("jcr.LocalStorageImpl");
+  protected static final Log    LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
+
+  /**
+   * Stuff for TransactionChangesLog.writeExternal.
+   */
+  private static final String   EXTERNALIZATION_SYSTEM_ID  = "".intern();
 
   /**
    * Stuff for PlainChangesLogImpl.writeExternal.
    */
-  private static final String   EXTERNALIZATION_SYSTEM_ID = "".intern();
+  private static final String   EXTERNALIZATION_SESSION_ID = "".intern();
 
-  protected static final String ERROR_FILENAME            = "errors";
+  protected static final String ERROR_FILENAME             = "errors";
 
   protected static final String MAIN_DIRNAME              = "primary";
 
@@ -67,7 +72,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
   protected final String        storagePath;
 
-  private BufferedWriter        errorOut                  = null;
+  private BufferedWriter        errorOut                   = null;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -214,7 +219,9 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
         }
       }
       // create new plain changeslog
-      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId(), plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+          ? EXTERNALIZATION_SESSION_ID
+          : plog.getSessionId(), plog.getEventType()));
     }
     return result;
   }

@@ -177,10 +177,6 @@ public class AsyncReplication implements Startable {
       channel.addPacketListener(this.initializer);
     }
 
-    private void doSynchronize() throws ReplicationException {
-      channel.connect();
-    }
-
     private void doFinalyze() {
       this.receiver.setChangesSubscriber(null);
 
@@ -205,7 +201,8 @@ public class AsyncReplication implements Startable {
     @Override
     public void run() {
       try {
-        doSynchronize();
+        channel.connect();
+        this.initializer.waitStop();
       } catch (ReplicationException e) {
         log.error("Synchronization error " + e, e);
       } finally {
@@ -376,7 +373,8 @@ public class AsyncReplication implements Startable {
    * @return boolean, true if synchronization process active
    */
   public boolean isActive() {
-    return currentWorkers.size() <= 0;
+    //return currentWorkers.size() > 0;
+    return channel.getChannel() != null;
   }
 
   /**
