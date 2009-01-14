@@ -42,12 +42,17 @@ import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 12.12.2008
+ * Created by The eXo Platform SAS.
+ * 
+ * <br/>Handles request on remote export.
+ * 
+ * <br/>Date: 12.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class RemoteExportServerImpl implements RemoteExportServer, LocalEventListener {
+public class RemoteExportServerImpl implements RemoteExportServer, LocalEventListener,
+    RemoteEventListener {
 
   protected static final Log          LOG     = ExoLogger.getLogger("jcr.RemoteExportServerImpl");
 
@@ -58,6 +63,8 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   protected final NodeTypeDataManager ntManager;
 
   protected final Set<ExportWorker>   workers = new LinkedHashSet<ExportWorker>();
+
+  protected boolean                   stopped = false;
 
   class ExportWorker extends Thread {
     final Member member;
@@ -170,17 +177,21 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
    * {@inheritDoc}
    */
   public void sendExport(RemoteExportRequest event) {
-    ExportWorker export = new ExportWorker(event.getMember(), event.getNodeId());
-    export.start();
+    if (this.stopped) {
+      LOG.warn("Export server stopped. Cannot handle SEND EXPORT request for Node Id "
+          + event.getNodeId() + ". Request from " + event.getMember().getName());
+    } else {
+      ExportWorker export = new ExportWorker(event.getMember(), event.getNodeId());
+      export.start();
 
-    workers.add(export);
+      workers.add(export);
+    }
   }
 
   /**
    * {@inheritDoc}
    */
   public void onCancel() {
-
     for (ExportWorker worker : workers) {
       worker.interrupt();
       LOG.info("Interrupt export for member " + worker.member.getName());
@@ -202,6 +213,14 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   /**
    * {@inheritDoc}
    */
+  public void onStop() {
+    // set flag
+    this.stopped = true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public void onMerge(Member member) {
     // not interested
   }
@@ -213,13 +232,4 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
     // not interested
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public void onStop() {
-    // TODO Auto-generated method stub
-    
-  }
-
-  
 }

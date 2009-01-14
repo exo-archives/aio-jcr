@@ -94,10 +94,10 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel2.addStateListener(initializer2);
     
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(false);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
     
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
     
     latch = new CountDownLatch(1);
     
@@ -171,13 +171,13 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel3.addStateListener(initializer3);
     
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
     
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
     
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(false);
-    initializer3.addMembersListener(startEventSubscriber3);
+    initializer3.addRemoteListener(startEventSubscriber3);
     
     latch = new CountDownLatch(1);
     
@@ -227,7 +227,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel1.addStateListener(initializer1);
     
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
     
     // connect to channel
     channel1.connect();
@@ -283,10 +283,10 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel2.addPacketListener(initializer2);
 
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
 
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(false);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
 
     // connect to channel
     channel2.connect();
@@ -369,13 +369,13 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel3.addPacketListener(initializer3);
 
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
 
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
 
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(false);
-    initializer3.addMembersListener(startEventSubscriber3);
+    initializer3.addRemoteListener(startEventSubscriber3);
 
     // connect to channel
     channel3.connect();
@@ -438,10 +438,10 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel2.addStateListener(initializer2);
     
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
     
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(false);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
     
     latch = new CountDownLatch(1);
     
@@ -525,13 +525,13 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel3.addPacketListener(initializer3);
 
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(false);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
 
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
 
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(true);
-    initializer3.addMembersListener(startEventSubscriber3);
+    initializer3.addRemoteListener(startEventSubscriber3);
 
     // connect to channel
     channel3.connect();
@@ -621,13 +621,13 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel3.addPacketListener(initializer3);
 
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(false);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
 
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
 
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(true);
-    initializer3.addMembersListener(startEventSubscriber3);
+    initializer3.addRemoteListener(startEventSubscriber3);
 
     System.out.println("1 : " + startEventSubscriber1.toString());
     System.out.println("2 : " + startEventSubscriber2.toString());
@@ -721,13 +721,13 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
     channel3.addStateListener(initializer3);
 
     StartEventSubscriber startEventSubscriber1 = new StartEventSubscriber(true);
-    initializer1.addMembersListener(startEventSubscriber1);
+    initializer1.addRemoteListener(startEventSubscriber1);
 
     StartEventSubscriber startEventSubscriber2 = new StartEventSubscriber(true);
-    initializer2.addMembersListener(startEventSubscriber2);
+    initializer2.addRemoteListener(startEventSubscriber2);
 
     StartEventSubscriber startEventSubscriber3 = new StartEventSubscriber(false);
-    initializer3.addMembersListener(startEventSubscriber3);
+    initializer3.addRemoteListener(startEventSubscriber3);
 
     latch = new CountDownLatch(1);
 

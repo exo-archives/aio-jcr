@@ -137,7 +137,8 @@ public class AsyncReplication implements Startable {
       publisher = new ChangesPublisherImpl(transmitter, localStorage);
 
       exportServer = new RemoteExportServerImpl(transmitter, dataManager, ntManager);
-
+      publisher.addLocalListener(exportServer);
+      
       receiver = new AsyncReceiverImpl(channel, exportServer);
 
       exporter = new RemoteExporterImpl(transmitter, receiver);
@@ -153,7 +154,7 @@ public class AsyncReplication implements Startable {
                                              otherParticipantsPriority.size() + 1);
 
       publisher.addLocalListener(subscriber);
-
+      
       receiver.setChangesSubscriber(subscriber);
 
       int waitTimeout = 60000; // TODO
@@ -162,13 +163,15 @@ public class AsyncReplication implements Startable {
                                          otherParticipantsPriority,
                                          waitTimeout,
                                          true);
-      initializer.addMembersListener(publisher);
-      initializer.addMembersListener(subscriber);
+      initializer.addRemoteListener(publisher);
+      initializer.addRemoteListener(subscriber);
+      initializer.addRemoteListener(exportServer);
 
       channel.addPacketListener(initializer);
 
-      subscriber.addLocalListener(publisher);
-      subscriber.addLocalListener(initializer);
+      subscriber.addLocalListener(publisher); 
+      subscriber.addLocalListener(exportServer); 
+      subscriber.addLocalListener(initializer); 
     }
 
     private void doSynchronize() throws ReplicationException {

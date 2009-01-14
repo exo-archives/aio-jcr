@@ -24,17 +24,16 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-/**
- * LocalEventListener.
- * 
- */
 public interface LocalEventListener extends SynchronizationEventListener {
 
   /**
    * Fire synchronization done (stop local system).
    * <ul>
-   * <li>Publisher will stop work, run local storage rotation and set Repository RW state.</li>
-   * <li>Subscriber will stop work, run finalyzation (storage clean).</li>
+   * <li>Publisher will stop data send.</li>
+   * <li>LocalStorage will run storage rotation.</li>
+   * <li>Subscriber will stop messages receive, stop merge if was started.</li>
+   * <li>IncomeStorage will run storage clean.</li>
+   * <li>AsyncInitializer will close channel.</li>
    * </ul>
    * 
    */

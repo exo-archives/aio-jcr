@@ -116,11 +116,11 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     this.hasCancel = false;
   }
 
-  public void addMembersListener(RemoteEventListener listener) {
+  public void addRemoteListener(RemoteEventListener listener) {
     listeners.add(listener);
   }
 
-  public void removeMembersListener(RemoteEventListener listener) {
+  public void removeRemoteListener(RemoteEventListener listener) {
     listeners.remove(listener);
   }
 
