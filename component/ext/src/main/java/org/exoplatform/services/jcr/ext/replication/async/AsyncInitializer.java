@@ -215,8 +215,15 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
     previousMemmbers = event.getMembers();
   }
 
-  public void waitStop() {
-
+  /**
+   * Wait till synchronization process will be stopped.
+   *
+   * @throws InterruptedException
+   */
+  public void waitStop() throws InterruptedException {
+    doneLatch = new CountDownLatch(1);
+    doneLatch.await();
+    doneLatch = null;
   }
 
   /**

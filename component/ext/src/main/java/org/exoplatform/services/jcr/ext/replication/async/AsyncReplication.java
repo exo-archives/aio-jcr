@@ -207,6 +207,8 @@ public class AsyncReplication implements Startable {
         this.initializer.waitStop();
       } catch (ReplicationException e) {
         log.error("Synchronization error " + e, e);
+      } catch (InterruptedException e) {
+        log.error("Synchronization process interrupted " + e, e);
       } finally {
         doFinalyze();
 
