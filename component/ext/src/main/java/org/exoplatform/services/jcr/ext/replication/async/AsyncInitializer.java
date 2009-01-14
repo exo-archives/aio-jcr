@@ -44,7 +44,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener,
+public class AsyncInitializer extends SynchronizationStop implements AsyncPacketListener, AsyncStateListener,
     LocalEventListener {
 
   /**
@@ -75,7 +75,7 @@ public class AsyncInitializer implements AsyncPacketListener, AsyncStateListener
 
   private FirstMemberWaiter                firstMemberWaiter;
 
-  private volatile boolean                 stopped;
+//  private volatile boolean                 stopped;
 
   private ChannelCloser                    closer;
 

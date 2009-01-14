@@ -32,7 +32,7 @@ public abstract class SynchronizationStop {
     return stopped;
   }
   
-  public void stop() {
+  public void stopped() {
     stopped = true;
   }
 }
