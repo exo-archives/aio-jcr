@@ -85,7 +85,7 @@ public class Member implements Externalizable{
    */
   @Override
   public String toString() {
-    return this.toString() + " [" + getName() + "]";
+    return super.toString() + " [" + getName() + "]";
   }
 
   /**

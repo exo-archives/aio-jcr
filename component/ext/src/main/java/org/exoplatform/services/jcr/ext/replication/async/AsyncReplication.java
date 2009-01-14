@@ -177,6 +177,7 @@ public class AsyncReplication implements Startable {
 
       this.subscriber.addLocalListener(this.initializer);
 
+      this.channel.addStateListener(this.initializer);
       this.channel.addPacketListener(this.initializer);
     }
 
@@ -195,6 +196,7 @@ public class AsyncReplication implements Startable {
       this.initializer.removeRemoteListener(this.exportServer);
 
       this.channel.removePacketListener(this.initializer);
+      this.channel.removeStateListener(this.initializer);
     }
 
     /**
@@ -203,7 +205,7 @@ public class AsyncReplication implements Startable {
     @Override
     public void run() {
       try {
-        channel.connect();
+        this.channel.connect();
         this.initializer.waitStop();
       } catch (ReplicationException e) {
         log.error("Synchronization error " + e, e);

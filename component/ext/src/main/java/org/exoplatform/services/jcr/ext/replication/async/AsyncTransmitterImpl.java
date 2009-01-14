@@ -46,7 +46,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * Logger.
    */
-  private static Log                  log = ExoLogger.getLogger("ext.AsyncTransmitterImpl");
+  private static final Log            LOG = ExoLogger.getLogger("ext.AsyncTransmitterImpl");
 
   protected final AsyncChannelManager channel;
 
@@ -60,13 +60,12 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(List<ChangesFile> changes, List<Member> subscribers) throws IOException {
+  public void sendChanges(ChangesFile[] changes, List<Member> subscribers) throws IOException {
     try {
-      for (int i = 0; i < changes.size(); i++) {
-        this.sendChangesLogFile(subscribers, changes.get(i), priority, changes.size());
-      }
+      for (ChangesFile cf : changes)
+        this.sendChangesLogFile(subscribers, cf, priority, changes.length);
     } catch (IOException e) {
-      log.error("Cannot send changes", e);
+      LOG.error("Cannot send changes", e);
       throw e;
     }
   }
@@ -79,7 +78,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     try {
       channel.sendPacket(packet, address);
     } catch (IOException e) {
-      log.error("Cannot send export data", e);
+      LOG.error("Cannot send export data", e);
       throw e;
     }
   }
@@ -94,7 +93,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     try {
       sendExportChangesLogFile(destAddress, changes, 1);
     } catch (IOException e) {
-      log.error("Cannot send export data", e);
+      LOG.error("Cannot send export data", e);
       sendError("Cannot send export data. Internal error ossurs.", destAddress);
       throw e;
     }
@@ -108,7 +107,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       ErrorPacket packet = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, error);
       channel.sendPacket(packet, destAddress);
     } catch (IOException e) {
-      log.error("Cannot send export data", e);
+      LOG.error("Cannot send export data", e);
       throw e;
     }
   }
@@ -157,23 +156,23 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                     ChangesFile clFile,
                                     int transmitterPriority,
                                     int totalFiles) throws IOException {
-    if (log.isDebugEnabled())
-      log.debug("Begin send : " + clFile.getChecksum());
+    if (LOG.isDebugEnabled())
+      LOG.debug("Begin send : " + clFile.getChecksum());
 
     InputStream in = clFile.getDataStream();
 
-    byte[] buf = new byte[AbstractPacket.MAX_PACKET_SIZE];
+    byte[] buff = new byte[AbstractPacket.MAX_PACKET_SIZE];
     int len;
     long offset = 0;
     AbstractPacket packet;
 
     // Send first packet in all cases. If InputStream is empty too.
-    len = in.read(buf);
+    len = in.read(buff);
     if (len < AbstractPacket.MAX_PACKET_SIZE) {
       // cut buffer to original size;
       byte[] b = new byte[len];
-      System.arraycopy(buf, 0, b, 0, len);
-      buf = b;
+      System.arraycopy(buff, 0, b, 0, len);
+      buff = b;
     }
 
     packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
@@ -182,19 +181,20 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                clFile.getTimeStamp(),
                                totalFiles,
                                offset,
-                               buf);
+                               buff);
     channel.sendPacket(packet, destinationAddresses);
-    offset += len;
-    if (log.isDebugEnabled())
-      log.debug("Send PacType [BINARY_CHANGESLOG_FIRST_PACKET] --> " + offset);
 
-    while ((len = in.read(buf)) > 0) {
+    offset += len;
+    if (LOG.isDebugEnabled())
+      LOG.debug("Send PacType [BINARY_CHANGESLOG_FIRST_PACKET] --> " + offset);
+
+    while ((len = in.read(buff)) > 0) {
 
       if (len < AbstractPacket.MAX_PACKET_SIZE) {
         byte[] b = new byte[len];
         // cut buffer to original size;
-        System.arraycopy(buf, 0, b, 0, len);
-        buf = b;
+        System.arraycopy(buff, 0, b, 0, len);
+        buff = b;
       }
 
       packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
@@ -203,13 +203,13 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                  clFile.getTimeStamp(),
                                  totalFiles,
                                  offset,
-                                 buf);
+                                 buff);
 
       channel.sendPacket(packet, destinationAddresses);
 
       offset += len;
-      if (log.isDebugEnabled())
-        log.debug("Send PacType [BINARY_CHANGESLOG_MIDDLE_PACKET] --> " + offset);
+      if (LOG.isDebugEnabled())
+        LOG.debug("Send PacType [BINARY_CHANGESLOG_MIDDLE_PACKET] --> " + offset);
     }
 
     // Send last packet
@@ -220,16 +220,15 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                totalFiles,
                                offset,
                                new byte[0]);
-    if (log.isDebugEnabled())
-      log.debug("Send PacType [BINARY_CHANGESLOG_LAST_PACKET] --> " + offset);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Send PacType [BINARY_CHANGESLOG_LAST_PACKET] --> " + offset);
 
     channel.sendPacket(packet, destinationAddresses);
 
     in.close();
 
-    if (log.isDebugEnabled())
-      log.debug("End send : " + clFile.getChecksum());
-
+    if (LOG.isDebugEnabled())
+      LOG.debug("End send : " + clFile.getChecksum());
   }
 
   /**
@@ -243,8 +242,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   protected void sendExportChangesLogFile(Member destinationAddress,
                                           ChangesFile clFile,
                                           int totalFiles) throws IOException {
-    if (log.isDebugEnabled())
-      log.debug("Begin send : " + clFile.getChecksum());
+    if (LOG.isDebugEnabled())
+      LOG.debug("Begin send : " + clFile.getChecksum());
 
     List<Member> destinationAddresses = new ArrayList<Member>();
     destinationAddresses.add(destinationAddress);
@@ -273,8 +272,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                      buf);
     channel.sendPacket(packet, destinationAddresses);
     offset += len;
-    if (log.isDebugEnabled())
-      log.debug("Send PacType [EXPORT_CHANGES_FIRST_PACKET] --> " + offset);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Send PacType [EXPORT_CHANGES_FIRST_PACKET] --> " + offset);
 
     while ((len = in.read(buf)) > 0) {
 
@@ -295,8 +294,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       channel.sendPacket(packet, destinationAddresses);
 
       offset += len;
-      if (log.isDebugEnabled())
-        log.debug("Send PacType [EXPORT_CHANGES_MIDDLE_PACKET] --> " + offset);
+      if (LOG.isDebugEnabled())
+        LOG.debug("Send PacType [EXPORT_CHANGES_MIDDLE_PACKET] --> " + offset);
     }
 
     // Send last packet
@@ -306,15 +305,15 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                      totalFiles,
                                      offset,
                                      new byte[0]);
-    if (log.isDebugEnabled())
-      log.debug("Send PacType [EXPORT_CHANGES_LAST_PACKET] --> " + offset);
+    if (LOG.isDebugEnabled())
+      LOG.debug("Send PacType [EXPORT_CHANGES_LAST_PACKET] --> " + offset);
 
     channel.sendPacket(packet, destinationAddresses);
 
     in.close();
 
-    if (log.isDebugEnabled())
-      log.debug("End send : " + clFile.getChecksum());
+    if (LOG.isDebugEnabled())
+      LOG.debug("End send : " + clFile.getChecksum());
   }
 
   public List<Member> getOtherMembers() {

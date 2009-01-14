@@ -66,9 +66,9 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
   protected static final String ERROR_FILENAME             = "errors";
 
-  protected static final String MAIN_DIRNAME              = "primary";
+  protected static final String MAIN_DIRNAME               = "primary";
 
-  protected static final String BACK_DIRNAME              = "back";
+  protected static final String BACK_DIRNAME               = "back";
 
   protected final String        storagePath;
 
@@ -84,23 +84,28 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    * {@inheritDoc}
    */
   public ChangesStorage<ItemState> getLocalChanges() throws IOException {
+    // TODO incomStorage
     File incomStorage = new File(storagePath, MAIN_DIRNAME);
-    
+
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
-    if (incomStorage.exists()) {
-      String[] fileNames = incomStorage.list(ChangesFile.getFilenameFilter());
 
-      // TODO Sort names in ascending mode
-      
-      java.util.Arrays.sort(fileNames);
+    String[] fileNames = incomStorage.list(ChangesFile.getFilenameFilter());
 
-      for (int j = 0; j < fileNames.length; j++) {
-        try {
-          File ch = new File(incomStorage, fileNames[j]);
-          chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
-        } catch (NumberFormatException e) {
-          throw new IOException(e.getMessage());
-        }
+    if (fileNames.length == 0) {
+      // write empty log to have at least one file to send/compare 
+      onSaveItems(new TransactionChangesLog());
+      fileNames = incomStorage.list(ChangesFile.getFilenameFilter());
+    }
+    
+    // TODO Sort names in ascending mode
+    java.util.Arrays.sort(fileNames);
+
+    for (int j = 0; j < fileNames.length; j++) {
+      try {
+        File ch = new File(incomStorage, fileNames[j]);
+        chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+      } catch (NumberFormatException e) {
+        throw new IOException(e.getMessage());
       }
     }
 
@@ -138,27 +143,29 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    */
   private ChangesFile createChangesFile() throws IOException {
     try {
-      Thread.sleep(100);
+      Thread.sleep(100); // TODO ???
     } catch (InterruptedException e) {
       // do nothing
     }
-    
+
     File secondDir = new File(storagePath, BACK_DIRNAME);
-    if(secondDir.exists()){
+    if (secondDir.exists()) {
       return new ChangesFile("", System.currentTimeMillis(), secondDir.getAbsolutePath());
-    }else{
+    } else {
       File primeDir = new File(storagePath, MAIN_DIRNAME);
       primeDir.mkdir();
-      return new ChangesFile("", System.currentTimeMillis(), primeDir.getAbsolutePath());  
+      return new ChangesFile("", System.currentTimeMillis(), primeDir.getAbsolutePath());
     }
   }
 
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -229,7 +236,8 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -283,16 +291,16 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     // delete files in primary dir
     File primeDir = new File(storagePath, MAIN_DIRNAME);
     if (primeDir.exists()) {
-        File[] files = primeDir.listFiles();
-        for (File f : files) {
-          f.delete();
-       }
+      File[] files = primeDir.listFiles();
+      for (File f : files) {
+        f.delete();
+      }
     }
-    
+
     primeDir.delete();
-    
+
     File secondDir = new File(storagePath, MAIN_DIRNAME);
-    if(secondDir.exists()){
+    if (secondDir.exists()) {
       secondDir.renameTo(primeDir);
     }
   }
@@ -303,18 +311,18 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
   public void onCancel() {
     // merge detached and current storages in one (rename detached to a
     // current now, till we use READ-ONLY)
-    
+
     File primeDir = new File(storagePath, MAIN_DIRNAME);
-    
+
     File secondDir = new File(storagePath, MAIN_DIRNAME);
-    if(secondDir.exists()){
+    if (secondDir.exists()) {
       File[] files = primeDir.listFiles();
       for (File f : files) {
-        File fileDest = new File(primeDir,f.getName());
+        File fileDest = new File(primeDir, f.getName());
         f.renameTo(fileDest);
-     }
+      }
     }
-    
+
   }
 
   /**

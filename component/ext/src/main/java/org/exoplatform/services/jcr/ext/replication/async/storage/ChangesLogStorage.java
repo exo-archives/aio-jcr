@@ -115,7 +115,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
     private Iterator<C>             currentChangesLog;
 
-    private int                     currentFileIndex;
+    private int                     currentFileIndex = 0;
 
     public MultiFileIterator(List<ChangesFile> store) throws IOException,
         ClassCastException,

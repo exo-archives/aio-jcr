@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.locks.Lock;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
@@ -50,12 +49,12 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
   /**
    * CHANNEL_CLOSE_TIMEOUT in milliseconds.
    */
-  private static final long                CHANNEL_CLOSE_TIMEOUT   = 1000;
+  private static final long                CHANNEL_CLOSE_TIMEOUT = 1000;
 
   /**
    * The apache logger.
    */
-  private static Log                       log              = ExoLogger.getLogger("ext.AsyncInitializer");
+  private static Log                       log                   = ExoLogger.getLogger("ext.AsyncInitializer");
 
   private final int                        memberWaitTimeout;
 
@@ -72,7 +71,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
   private AsyncChannelManager              channelManager;
 
-  private List<Member>                     previousMemmbers = new ArrayList<Member>();
+  private List<Member>                     previousMemmbers      = new ArrayList<Member>();
 
   private Member                           localMember;
 
@@ -84,9 +83,9 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
   private ChannelCloser                    closer;
 
-  private CountDownLatch                   doneLatch        = null;
+  private CountDownLatch                   doneLatch             = null;
 
-  protected final Set<RemoteEventListener> listeners        = new LinkedHashSet<RemoteEventListener>();
+  protected final Set<RemoteEventListener> listeners             = new LinkedHashSet<RemoteEventListener>();
 
   /**
    * ChannelCloser. Will be disconnected form JChannel.
@@ -117,7 +116,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    * AsyncInitializer constructor.
    * 
    * @param priority
-   *          TODO
+   *          int
    */
   AsyncInitializer(AsyncChannelManager channelManager,
                    int priority,
@@ -144,19 +143,24 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    */
   public void onStateChanged(AsyncStateEvent event) {
 
+    log.info("onStateChanged " + event);
+
     if (hasStop()) {
       log.warn("Channel state changed but initializer was stopped " + event);
       return;
     }
 
-    if (event.getMembers().size() == 1) {
+    if (previousMemmbers == null && event.getMembers().size() == 1) {
       // first member (this service) connected to the channel
+      log.info("onStateChanged - first member (this service) connected to the channel ");
 
       // Start first timeout (member is not connected)
       firstMemberWaiter = new FirstMemberWaiter();
       firstMemberWaiter.start();
     } else if (event.getMembers().size() > previousMemmbers.size()) {
       // new member connected to the channel
+      log.info("onStateChanged - new member connected to the channel " + event.getMembers().size()
+          + " > " + previousMemmbers.size());
 
       boolean hasAll = event.getMembers().size() == (otherParticipantsPriority.size() + 1);
 
@@ -185,6 +189,8 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
     } else if (event.getMembers().size() < previousMemmbers.size()) {
       // one or more members were disconnected from the channel
+      log.info("onStateChanged - one or more members were disconnected from the channel "
+          + event.getMembers().size() + " < " + previousMemmbers.size());
 
       List<Member> disconnectedMembers = new ArrayList<Member>(previousMemmbers);
       disconnectedMembers.removeAll(event.getMembers());
@@ -254,6 +260,8 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
   public void receive(AbstractPacket packet, Member srcAddress) {
 
+    log.info("receive data from " + srcAddress);
+    
     if (hasStop()) {
       log.warn("Changes received but initializer was stopped " + srcAddress);
       return;
@@ -304,7 +312,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    * {@inheritDoc}
    */
   public void onCancel() {
-    log.info("AsyncInitializer.onCancel");
+    log.info("onCancel");
 
     doStop();
   }
@@ -313,7 +321,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    * {@inheritDoc}
    */
   public void onStop() {
-    log.info("AsyncInitializer.onStop");
+    log.info("onStop");
 
     doStop();
   }
@@ -323,7 +331,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    * 
    */
   private void close() {
-    log.info("ChannelCloser : channelManager.disconnect()");
+    log.info("close");
     channelManager.disconnect();
 
     if (doneLatch != null)

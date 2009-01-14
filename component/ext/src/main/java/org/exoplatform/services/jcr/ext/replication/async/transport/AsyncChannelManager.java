@@ -242,7 +242,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {
-    List<Address> addresses = new ArrayList<Address>(channel.getView().getMembers()); 
+    List<Address> addresses = new ArrayList<Address>(channel.getView().getMembers()); // TODO NPE
     addresses.remove(channel.getLocalAddress());
     
     List<Member> list = new ArrayList<Member>();
@@ -269,7 +269,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public Object handle(Message message) {
 
-    LOG.info("handle " + message);
+    LOG.info("Handle message " + message);
     
     Member member = new Member(message.getSrc());
     
@@ -282,10 +282,10 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
       return new String("Success !");
     } catch (IOException e) {
-      LOG.error("", e); // TODO
+      LOG.error("Message handler error " + e, e);
       return e.getMessage();
     } catch (ClassNotFoundException e) {
-      LOG.error("", e); // TODO
+      LOG.error("Message handler error " + e, e);
       return e.getMessage();
     }    
   }
@@ -313,7 +313,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    */
   public void viewAccepted(View view) {
     
-    LOG.info("viewAccepted " + view.printDetails());
+    LOG.info("View accepted " + view.printDetails());
     
     ArrayList<Member> members = new ArrayList<Member>();
 

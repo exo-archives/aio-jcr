@@ -197,15 +197,16 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   }
 
   public void onChanges(ChangesPacket packet, Member member) {
-
+    
+    LOG.info("onChanges " + member.getName());
+    
     try {
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-
+        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET");
+        
         // Fire event to Publisher to send own changes out
         doSendChanges();
-
-        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET");
 
         Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
 

@@ -44,7 +44,7 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
   /**
    * Logger.
    */
-  private static Log                      log       = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  private static final Log                LOG       = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   protected final AsyncTransmitter        transmitter;
 
@@ -69,23 +69,11 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
      */
     public void run() {
       try {
-        runSendChanges();
+        transmitter.sendChanges(storage.getLocalChanges().getChangesFile(), subscribers);
       } catch (IOException e) {
-        log.error("Cannot send changes " + e, e);
+        LOG.error("Cannot send changes " + e, e);
         doCancel();
       }
-    }
-
-    private void runSendChanges() throws IOException {
-      ChangesStorage<ItemState> local = storage.getLocalChanges();
-
-      ChangesFile[] files = local.getChangesFile();
-
-      List<ChangesFile> filesList = new ArrayList<ChangesFile>(files.length);
-      for (ChangesFile cf : files)
-        filesList.add(cf);
-
-      transmitter.sendChanges(filesList, subscribers);
     }
   }
 
@@ -124,7 +112,9 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
-    sendChanges(members); 
+    LOG.info("onStart " + members.size() + " " + members);
+
+    sendChanges(members);
   }
 
   /**
@@ -141,12 +131,12 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
         // Stop publisher.
         publisherWorker.join();
       } catch (InterruptedException e) {
-        log.error("Error of publisher process cancelation " + e, e);
+        LOG.error("Error of publisher process cancelation " + e, e);
       }
   }
 
   protected void doCancel() {
-    log.error("Do CANCEL");
+    LOG.error("Do CANCEL");
 
     for (LocalEventListener syncl : listeners)
       // inform all interested
@@ -155,7 +145,7 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
     try {
       transmitter.sendCancel();
     } catch (IOException ioe) {
-      log.error("Cannot send 'Cancel' " + ioe, ioe);
+      LOG.error("Cannot send 'Cancel' " + ioe, ioe);
     }
   }
 

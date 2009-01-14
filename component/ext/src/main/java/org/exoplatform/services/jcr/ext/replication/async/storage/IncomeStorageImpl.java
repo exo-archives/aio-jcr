@@ -94,9 +94,19 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
                                                                                 new Member(null,
                                                                                            memberPriority));
         changeStorages.add(storage);
-      } catch (NumberFormatException e) {
+      } catch (final NumberFormatException e) {
         // This is not int-named file. Fatal.
-        throw new IOException(e.getMessage());
+        throw new IOException("Cannot read file name: " + e.getMessage()) {
+
+          /**
+           * {@inheritDoc}
+           */
+          @Override
+          public Throwable getCause() {
+            return e;
+          }
+          
+        };
       }
     }
     return changeStorages;

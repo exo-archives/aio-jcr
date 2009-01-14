@@ -39,7 +39,7 @@ public interface AsyncTransmitter {
    * @param subscribers
    * @throws IOException
    */
-  void sendChanges(List<ChangesFile> changes, List<Member> subscribers) throws IOException;
+  void sendChanges(ChangesFile[] changes, List<Member> subscribers) throws IOException;
 
   /**
    * Send Get Export request.
