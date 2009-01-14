@@ -17,48 +17,116 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+
+import javax.jcr.Node;
+
+import org.exoplatform.services.jcr.core.CredentialsImpl;
+import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 13.01.2009
- *
- * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: ChangesSubscriberTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public class ChangesSubscriberTest extends AbstractTrasportTest {
-  
-  private static final String CH_NAME     = "AsyncRepCh_Test";
+
+  private static final String CH_NAME     = "AsyncRepCh_Test_ChangesSubscriberTest";
 
   private static final String bindAddress = "127.0.0.1";
 
   public void testOnStartLocalEvent() throws Exception {
+    // generate test Data
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+
+    // create node
+    for (int i = 0; i < 10; i++)
+      root.addNode("testNode_" + i, "nt:unstructured");
+
+    root.save();
+
+    List<ChangesFile> cfList = new ArrayList<ChangesFile>();
+
+    for (TransactionChangesLog tcl : pl.pushChanges()) {
+      ChangesFile cf = new ChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
+                                                                     .getTimeInMillis());
+
+      ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
+
+      oos.writeObject(tcl);
+      oos.flush();
+
+      cfList.add(cf);
+    }
+    
+    // Initialization AsyncReplication (ChangesSubscriber).
+
     List<String> repositoryNames = new ArrayList<String>();
     repositoryNames.add(repository.getName());
-    
-    int priority = 50;
+
+    int priority1 = 50;
+    int priority2 = 100;
     int waitAllMemberTimeout = 60; // 60 seconds.
-    
+
     File storage = new File("../target/temp/storage/" + System.currentTimeMillis());
     storage.mkdirs();
-    
+
     List<Integer> otherParticipantsPriority = new ArrayList<Integer>();
-    otherParticipantsPriority.add(100);
-    
+    otherParticipantsPriority.add(priority2);
+
     AsyncReplication asyncReplication = new AsyncReplication(repositoryService,
                                                              repositoryNames,
-                                                             priority,
+                                                             priority1,
                                                              bindAddress,
-                                                             CH_CONFIG, 
+                                                             CH_CONFIG,
                                                              CH_NAME,
                                                              waitAllMemberTimeout,
                                                              storage.getAbsolutePath(),
                                                              otherParticipantsPriority);
-    
+
     asyncReplication.start();
     
-    asyncReplication.synchronize();
+    CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
+    SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
+    
+    // Synchronize on workspace 'ws1'.    
+    asyncReplication.synchronize(repository.getName(), sessionWS1.getWorkspace().getName());
+    
+    Thread.sleep(10000);
+
+    // send changes
+    String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
+
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME);
+    channel.addStateListener(this);
+
+    AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority2);
+
+    channel.connect();
+
+    transmitter.sendChanges(cfList, memberList);
+
+    transmitter.sendMerge();
+    
+    // Wait end of synchronization.
+    Thread.sleep(30000);
+    
+    //compare data
+    Node srcNode = session.getRootNode();
+    Node destNode = sessionWS1.getRootNode();
+    
+    // create node
+    for (int i = 0; i < 10; i++) 
+      assertEquals(srcNode.getNode("testNode_" + i).getName(), destNode.getNode("testNode_" + i).getName());
+    
   }
 }

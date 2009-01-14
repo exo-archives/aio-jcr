@@ -138,13 +138,17 @@ public class AsyncReplication implements Startable {
 
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
       this.publisher.addLocalListener(this.exportServer);
-      
+
       this.receiver = new AsyncReceiverImpl(channel, this.exportServer);
 
       this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
       channel.addPacketListener(this.receiver);
 
-      this.mergeManager = new MergeDataManager(this.exporter, dataManager, ntManager, priority, mergeTempDir);
+      this.mergeManager = new MergeDataManager(this.exporter,
+                                               dataManager,
+                                               ntManager,
+                                               priority,
+                                               mergeTempDir);
 
       this.subscriber = new ChangesSubscriberImpl(this.synchronyzer,
                                                   this.mergeManager,
@@ -153,46 +157,46 @@ public class AsyncReplication implements Startable {
                                                   priority,
                                                   otherParticipantsPriority.size() + 1);
       this.publisher.addLocalListener(this.subscriber);
-      
+
       this.receiver.setChangesSubscriber(this.subscriber);
-      
+
       this.subscriber.addLocalListener(publisher);
       this.subscriber.addLocalListener(exportServer);
-      
+
       this.initializer = new AsyncInitializer(channel,
-                                         priority,
-                                         otherParticipantsPriority,
-                                         waitAllMembersTimeout,
-                                         true);
+                                              priority,
+                                              otherParticipantsPriority,
+                                              waitAllMembersTimeout,
+                                              true);
       this.initializer.addRemoteListener(this.subscriber);
       this.initializer.addRemoteListener(this.publisher);
       this.initializer.addRemoteListener(this.exportServer);
-      
+
       this.subscriber.addLocalListener(this.initializer);
-      
+
       channel.addPacketListener(this.initializer);
     }
 
     private void doSynchronize() throws ReplicationException {
       channel.connect();
     }
-    
-    private void doFinalyze() {     
+
+    private void doFinalyze() {
       this.receiver.setChangesSubscriber(null);
-      
+
       this.publisher.removeLocalListener(this.exportServer);
       this.publisher.removeLocalListener(this.subscriber);
-      
+
       this.subscriber.removeLocalListener(this.publisher);
       this.subscriber.removeLocalListener(this.exportServer);
       this.subscriber.removeLocalListener(this.initializer);
-      
+
       this.initializer.removeRemoteListener(this.subscriber);
       this.initializer.removeRemoteListener(this.publisher);
       this.initializer.removeRemoteListener(this.exportServer);
-      
+
       channel.removePacketListener(this.initializer);
-      // channel.disconnect(); TODO do we need it here?      
+      // channel.disconnect(); TODO do we need it here?
     }
 
     /**
@@ -206,7 +210,7 @@ public class AsyncReplication implements Startable {
         log.error("Synchronization error " + e, e);
       } finally {
         doFinalyze();
-        
+
         currentWorkers.remove(this); // remove itself
       }
     }
@@ -309,7 +313,7 @@ public class AsyncReplication implements Startable {
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
   }
 
-  public AsyncReplication(RepositoryService repoService, 
+  public AsyncReplication(RepositoryService repoService,
                           List<String> repositoryNames,
                           int priority,
                           String bindIPAddress,
@@ -324,7 +328,7 @@ public class AsyncReplication implements Startable {
 
     if (repositoryNames.size() == 0)
       throw new RuntimeException("repositories not specified");
-    
+
     this.repositoryNames = repositoryNames.toArray(new String[repositoryNames.size()]);
 
     // initialize replication parameters;
@@ -333,7 +337,7 @@ public class AsyncReplication implements Startable {
     this.channelConfig = channelConfig.replaceAll(IP_ADRESS_TEMPLATE, bindIPAddress);
 
     this.channelName = channelName;
-    
+
     this.waitAllMembersTimeout = waitAllMembersTimeout * 1000;
 
     // TODO restore previous state if it's restart
@@ -343,7 +347,7 @@ public class AsyncReplication implements Startable {
 
     this.otherParticipantsPriority = new ArrayList<Integer>(otherParticipantsPriority);
 
-    this.channel = new AsyncChannelManager(channelConfig, channelName);
+    this.channel = new AsyncChannelManager(this.channelConfig, channelName);
 
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
 
@@ -450,6 +454,37 @@ public class AsyncReplication implements Startable {
 
         currentWorkers.add(synchWorker);
       }
+    } else
+      log.error("[ERROR] Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
+  }
+
+  /**
+   * Initialize synchronization process on specific repository. Process will use the service
+   * configuration.
+   * 
+   * @param repoName
+   *          String repository name
+   * @throws RepositoryConfigurationException
+   * @throws RepositoryException
+   */
+  protected void synchronize(String repoName, String workspaceName) throws RepositoryException,
+                                                                 RepositoryConfigurationException {
+    // TODO check AsyncWorker is run on this workspace;
+    if (repositoryNames != null && repositoryNames.length > 0) {
+      ManageableRepository repository = repoService.getRepository(repoName);
+
+      WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(workspaceName);
+
+      NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
+      PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+
+      LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
+      IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
+
+      AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage);
+      synchWorker.start();
+
+      currentWorkers.add(synchWorker);
     } else
       log.error("[ERROR] Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
   }
