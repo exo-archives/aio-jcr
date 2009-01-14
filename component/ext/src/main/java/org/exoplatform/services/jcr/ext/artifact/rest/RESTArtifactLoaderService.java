@@ -190,9 +190,6 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       ExtendedNode node = (ExtendedNode)ses.getRootNode().getNode(resourcePath);
 
       if (isFile(node)){
-        if (download == null)
-        return getArtifactInfo(node, mavenPath);
-        else
          return downloadArtifact(node);
       }
       else {
@@ -354,8 +351,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                                                                                                       null);
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath + node.getName()
-                                                                : mavenPath + "/" + node.getName());
+              xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath + node.getName() + "?info"
+                                                                : mavenPath + "/" + node.getName() + "?info");
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -374,8 +371,8 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             } else {
               xsw.writeStartElement("td");
               xsw.writeStartElement("a");
-              xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath + node.getName()
-                                                                : mavenPath + "/" + node.getName());
+              xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath + node.getName() + "?view"
+                                                                : mavenPath + "/" + node.getName()+ "?view");
               xsw.writeCharacters(node.getName());
               xsw.writeEndElement(); // a
               xsw.writeEndElement(); // td
@@ -514,7 +511,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       xsw.writeEmptyElement("br");
       xsw.writeCharacters("Download:  ");
       xsw.writeStartElement("a");
-      xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length()-1) + "?download" : mavenPath  + "?download");
+      xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length()-1)  : mavenPath );
        xsw.writeCharacters("Link");
        xsw.writeEndElement(); // a
 
