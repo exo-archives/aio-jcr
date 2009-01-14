@@ -457,13 +457,9 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
                                                                                              ClassNotFoundException {
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
-      T item = it.next();
-      if (item.equals(startState)) {
-        boolean checkStartState = false;
+      if (it.next().equals(startState)) {
         while (it.hasNext()) {
-          T inItem = checkStartState ? it.next() : item;
-          checkStartState = true;
-
+          T inItem = it.next();
           if (inItem.getState() == state && inItem.getData().getIdentifier().equals(identifier)
               && inItem.getData().getQPath().equals(path)) {
             return true;

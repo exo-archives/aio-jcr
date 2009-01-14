@@ -619,7 +619,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
     for (int i = 0; i < allStates.size(); i++) {
       if (allStates.get(i).equals(startState)) {
-        for (int j = i; j < allStates.size(); j++) {
+        for (int j = i + 1; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getState() == state && item.getData().getIdentifier().equals(identifier)
               && item.getData().getQPath().equals(path)) {
