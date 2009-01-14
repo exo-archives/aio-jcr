@@ -56,11 +56,11 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   protected final Member            member;
 
   /**
-   * Iterator that goes throw all files in storage and returns
-   * TransactionChangesLog objects.
+   * Iterator that goes throw all files in storage and returns TransactionChangesLog objects.
    * 
    * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
-   * @param <L> extender of TransactionChangesLog
+   * @param <L>
+   *          extender of TransactionChangesLog
    */
   class ChangesLogsIterator<L extends TransactionChangesLog> implements Iterator<L> {
 
@@ -291,13 +291,13 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return member;
   }
 
-  public T getNextItemState(ItemState item) throws IOException {
+  public T findNextItemState(ItemState startState, String identifier) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
     while (it.hasNext()) {
 
-      result = (T) getNextItemStateFromLog(it.next(), item);
-      
+      result = (T) findNextItemStateFromLog(it.next(), startState, identifier);
+
       if (result != null)
         return result;
     }
@@ -368,10 +368,10 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return list;
   }
 
-  public boolean hasNextState(ItemState startState, String identifier, int state) throws IOException {
+  public boolean hasNextState(ItemState startState, String identifier, QPath path, int state) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (hasNextStateFromLog(it.next(), startState, identifier, state)) {
+      if (hasNextStateFromLog(it.next(), startState, identifier, path, state)) {
         return true;
       }
     }
@@ -379,10 +379,15 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return false;
   }
 
-  public boolean hasNextState(ItemState startState, QPath path, int state) throws IOException {
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasPrevState(ItemState endState, String identifier, QPath path, int state) throws IOException,
+                                                                                           ClassCastException,
+                                                                                           ClassNotFoundException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (hasNextStateFromLog(it.next(), startState, path, state)) {
+      if (hasPrevStateFromLog(it.next(), endState, identifier, path, state)) {
         return true;
       }
     }
@@ -423,18 +428,20 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
   /**
    * @param log
-   * @param item
+   * @param startState
    * @return
    */
-  private ItemState getNextItemStateFromLog(TransactionChangesLog log, ItemState item) {
+  private ItemState findNextItemStateFromLog(TransactionChangesLog log,
+                                             ItemState startState,
+                                             String identifier) {
     ItemState resultState = null;
 
     List<ItemState> allStates = log.getAllStates();
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState itemState = allStates.get(i);
 
-      if (itemState.getData().getIdentifier().equals(item.getData().getIdentifier())) {
-        if (itemState.equals(item)) {
+      if (itemState.getData().getIdentifier().equals(identifier)) {
+        if (itemState.equals(startState)) {
           break;
         }
         resultState = itemState;
@@ -614,6 +621,7 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   private boolean hasNextStateFromLog(TransactionChangesLog log,
                                       ItemState startState,
                                       String identifier,
+                                      QPath path,
                                       int state) {
     List<ItemState> allStates = log.getAllStates();
 
@@ -621,7 +629,8 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
       if (allStates.get(i).equals(startState)) {
         for (int j = i; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
-          if (item.getState() == state && item.getData().getIdentifier().equals(identifier)) {
+          if (item.getState() == state && item.getData().getIdentifier().equals(identifier)
+              && item.getData().getQPath().equals(path)) {
             return true;
           }
         }
@@ -631,27 +640,27 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   }
 
   /**
+   * hasPrevStateFromLog.
    * 
    * @param log
-   * @param startState
-   * @param path
+   * @param endState
+   * @param identifier
    * @param state
    * @return
    */
-  private boolean hasNextStateFromLog(TransactionChangesLog log,
-                                      ItemState startState,
+  private boolean hasPrevStateFromLog(TransactionChangesLog log,
+                                      ItemState endState,
+                                      String identifier,
                                       QPath path,
                                       int state) {
     List<ItemState> allStates = log.getAllStates();
-
     for (int i = 0; i < allStates.size(); i++) {
-      if (allStates.get(i).equals(startState)) {
-        for (int j = i; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
-          if (item.getState() == state && item.getData().getQPath().equals(path)) {
-            return true;
-          }
-        }
+      ItemState item = allStates.get(i);
+      if (item.equals(endState)) {
+        return false;
+      } else if (item.getState() == state && item.getData().getIdentifier().equals(identifier)
+          && item.getData().getIdentifier().equals(path)) {
+        return true;
       }
     }
     return false;

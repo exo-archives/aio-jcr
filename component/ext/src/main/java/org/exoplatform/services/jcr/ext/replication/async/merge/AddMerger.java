@@ -129,7 +129,7 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.getNextItemState(localState);
+          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
@@ -282,7 +282,7 @@ public class AddMerger implements ChangesMerger {
         case ItemState.UPDATED:
           break;
         case ItemState.DELETED:
-          ItemState nextState = local.getNextItemState(localState);
+          ItemState nextState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {

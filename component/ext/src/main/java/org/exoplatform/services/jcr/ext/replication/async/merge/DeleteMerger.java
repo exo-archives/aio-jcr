@@ -115,6 +115,7 @@ public class DeleteMerger implements ChangesMerger {
           } else if (!incomeData.isNode()
               && income.hasNextState(incomeState,
                                      incomeState.getData().getParentIdentifier(),
+                                     incomeState.getData().getQPath().makeParentPath(),
                                      ItemState.DELETED)
               && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
                                                                                                           .equals(incomeData.getQPath()
@@ -123,7 +124,7 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          ItemState nextState = local.getNextItemState(localState);
+          ItemState nextState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
@@ -254,6 +255,7 @@ public class DeleteMerger implements ChangesMerger {
           } else if (!incomeData.isNode()
               && income.hasNextState(incomeState,
                                      incomeState.getData().getParentIdentifier(),
+                                     incomeState.getData().getQPath().makeParentPath(),
                                      ItemState.DELETED)
               && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
                                                                                                           .equals(incomeData.getQPath()
@@ -281,7 +283,7 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          ItemState nextState = local.getNextItemState(localState);
+          ItemState nextState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
@@ -362,6 +364,7 @@ public class DeleteMerger implements ChangesMerger {
                 && localData.getIdentifier().equals(incomeData.getParentIdentifier())
                 && !income.hasNextState(incomeState,
                                         incomeState.getData().getParentIdentifier(),
+                                        incomeState.getData().getQPath().makeParentPath(),
                                         ItemState.DELETED)) {
               resultState.add(new ItemState(nextState.getData(),
                                             ItemState.DELETED,

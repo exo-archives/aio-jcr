@@ -95,7 +95,7 @@ public class UpdateMerger implements ChangesMerger {
     ItemState incomeState = itemChange;
     ItemState nextIncomeState = null;
     if (incomeState.getData().isNode()) {
-      nextIncomeState = income.getNextItemState(incomeState);
+      nextIncomeState = income.findNextItemState(incomeState, incomeState.getData().getIdentifier());
     }
 
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
@@ -113,7 +113,7 @@ public class UpdateMerger implements ChangesMerger {
         case ItemState.ADDED:
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.getNextItemState(localState);
+          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // RENAME
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
@@ -223,7 +223,7 @@ public class UpdateMerger implements ChangesMerger {
         case ItemState.UPDATED:
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.getNextItemState(localState);
+          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {

@@ -90,7 +90,8 @@ public class RenameMerger implements ChangesMerger {
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
     ItemState incomeState = itemChange;
-    ItemState nextIncomeState = income.getNextItemState(incomeState);
+    ItemState nextIncomeState = income.findNextItemState(incomeState, incomeState.getData()
+                                                                                 .getIdentifier());
 
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
     // path
@@ -122,7 +123,7 @@ public class RenameMerger implements ChangesMerger {
 
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.getNextItemState(localState);
+          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
@@ -278,7 +279,7 @@ public class RenameMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.getNextItemState(localState);
+          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
@@ -552,6 +553,7 @@ public class RenameMerger implements ChangesMerger {
           } else if (!incomeData.isNode()
               && income.hasNextState(incomeState,
                                      incomeState.getData().getParentIdentifier(),
+                                     incomeState.getData().getQPath().makeParentPath(),
                                      ItemState.DELETED)) {
             if ((localData.isNode() && incomeData.getQPath().equals(localData.getQPath()))
                 || (!localData.isNode() && incomeData.getQPath()
@@ -562,7 +564,10 @@ public class RenameMerger implements ChangesMerger {
               for (int i = 0; i <= rename.size() - 1; i++) {
                 ItemState item = rename.get(i);
                 if (item.getState() == ItemState.DELETED) {
-                  if (!local.hasNextState(localState, item.getData().getQPath(), ItemState.DELETED)) {
+                  if (!local.hasNextState(localState,
+                                          item.getData().getIdentifier(),
+                                          item.getData().getQPath(),
+                                          ItemState.DELETED)) {
                     resultState.add(new ItemState(item.getData(),
                                                   ItemState.DELETED,
                                                   item.isEventFire(),

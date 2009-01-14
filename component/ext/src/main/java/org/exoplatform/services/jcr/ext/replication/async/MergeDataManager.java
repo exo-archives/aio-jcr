@@ -169,7 +169,9 @@ public class MergeDataManager {
             if (incomeChange.isPersisted()) {
               synchronizedChanges.addAll(deleteMerger.merge(incomeChange, income, local));
             } else {
-              ItemState nextIncomeChange = income.getNextItemState(incomeChange);
+              ItemState nextIncomeChange = income.findNextItemState(incomeChange,
+                                                                    incomeChange.getData()
+                                                                                .getIdentifier());
 
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {

@@ -99,16 +99,6 @@ public interface ChangesStorage<T extends ItemState> {
    */
   T getItemState(NodeData parentData, QPathEntry name);
 
-  /**
-   * TODO can we rely on sequence on log?
-   * 
-   * getNextItemState.
-   * 
-   * @param item
-   * @return
-   */
-  T getNextItemState(ItemState item) throws IOException, ClassCastException, ClassNotFoundException;
-
   // =========== custom ==============
 
   /**
@@ -119,6 +109,18 @@ public interface ChangesStorage<T extends ItemState> {
    * @return int with ItemState state value
    */
   int findLastState(QPath itemPath) throws IOException, ClassCastException, ClassNotFoundException;
+
+  /**
+   * TODO can we rely on sequence on log?
+   * 
+   * getNextItemState.
+   * 
+   * @param item
+   * @return
+   */
+  T findNextItemState(ItemState startState, String identifier) throws IOException,
+                                                              ClassCastException,
+                                                              ClassNotFoundException;
 
   /**
    * Tell if state presents in storage.
@@ -142,12 +144,12 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
-  public boolean hasNextState(ItemState startState, String identifier, int state) throws IOException,
-                                                                                 ClassCastException,
-                                                                                 ClassNotFoundException;
+  public boolean hasNextState(ItemState startState, String identifier, QPath path, int state) throws IOException,
+                                                                                             ClassCastException,
+                                                                                             ClassNotFoundException;
 
   /**
-   * Tell if state presents in storage after specified.
+   * Tell if state presents in storage before specified.
    * 
    * @param state
    *          ItemState
@@ -155,9 +157,9 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
-  public boolean hasNextState(ItemState startState, QPath path, int state) throws IOException,
-                                                                          ClassCastException,
-                                                                          ClassNotFoundException;
+  public boolean hasPrevState(ItemState endState, String identifier, QPath path, int state) throws IOException,
+                                                                                           ClassCastException,
+                                                                                           ClassNotFoundException;
 
   /**
    * getNextItemStateByIndexOnUpdate.
