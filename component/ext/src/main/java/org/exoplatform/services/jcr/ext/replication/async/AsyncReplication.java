@@ -152,30 +152,36 @@ public class AsyncReplication implements Startable {
                                              transmitter,
                                              priority,
                                              otherParticipantsPriority.size() + 1);
-
       publisher.addLocalListener(subscriber);
       
       receiver.setChangesSubscriber(subscriber);
-
+      
+      subscriber.addLocalListener(publisher);
+      subscriber.addLocalListener(exportServer);
+      
       int waitTimeout = 60000; // TODO
       initializer = new AsyncInitializer(channel,
                                          priority,
                                          otherParticipantsPriority,
                                          waitTimeout,
                                          true);
-      initializer.addRemoteListener(publisher);
       initializer.addRemoteListener(subscriber);
+      initializer.addRemoteListener(publisher);
       initializer.addRemoteListener(exportServer);
-
+      
+      subscriber.addLocalListener(initializer);
+      
       channel.addPacketListener(initializer);
-
-      subscriber.addLocalListener(publisher); 
-      subscriber.addLocalListener(exportServer); 
-      subscriber.addLocalListener(initializer); 
     }
 
     private void doSynchronize() throws ReplicationException {
       channel.connect();
+    }
+    
+    private void doFinalyze() {
+      // channel.disconnect(); TODO do we need it here?
+      
+      
     }
 
     /**
@@ -186,8 +192,7 @@ public class AsyncReplication implements Startable {
       try {
         doSynchronize();
       } catch (ReplicationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.error("Synchronization error " + e, e);
       } finally {
         currentWorkers.remove(this); // remove itself
       }
