@@ -28,28 +28,44 @@
     </c:when>
     
     <c:otherwise>
-			  <h2 class="info">Selected:</h2>
-			  <h2 class="info">Repository:&nbsp;
-			  	<span class="infoText"><c:out value="${browser.repository.configuration.name}"/>
-				  		<form method="post" name="repository" action="repository.jsp" >
-				  			<input name="submit" type="submit" value="change">
-				  		</form>
-				  </span>		
-			  </h2>
-			  <h2 class="info">Workspace:&nbsp;
-			  <span class="infoText"><c:out value="${browser.session.workspace.name}"/>
-				  <form action="workspace.jsp" method="post" name="workspace">
-				    <input name="submit" type="submit" value="change">
-				  </form>
-			  </span>
-			  </h2><h2>&nbsp;
-			  <span class="infoText">
-				  <form action="../user/index.jsp" method="post" name="browse">
-				    <input name="submit" type="submit" value="browse!">
-				  </form>
-			  </span>
-			  </h2>
-	
+	  <h2 class="info">Selected:</h2>
+	  <h2 class="info">Repository:&nbsp;
+	  	<span class="infoText"><c:out value="${browser.repository.configuration.name}"/>
+          <form method="post" name="repository" action="repository.jsp" >
+            <input name="submit" type="submit" value="change">
+          </form>
+          <c:choose>
+            <c:when test="${browser.asynchronousReplicationPresent}">
+              <c:choose>
+                <c:when test="${browser.asynchronousReplicationActive}">
+                  <form method="post" name="synchronize" action=".">
+                    <input name="submit" type="submit" value="synchronizing" disabled="disabled">
+                  </form>
+                </c:when>
+                <c:otherwise>
+                  <form method="post" name="synchronize" action=".">
+                    <input name="submit" type="submit" value="synchronize">
+                    <input name="synchronize" type="hidden" value="run">
+                  </form>
+                </c:otherwise>
+              </c:choose>
+            </c:when>
+          </c:choose>
+        </span>		
+	  </h2>
+	  <h2 class="info">Workspace:&nbsp;
+	  <span class="infoText"><c:out value="${browser.session.workspace.name}"/>
+		  <form action="workspace.jsp" method="post" name="workspace">
+		    <input name="submit" type="submit" value="change">
+		  </form>
+	  </span>
+	  </h2><h2>&nbsp;
+	  <span class="infoText">
+		  <form action="../user/index.jsp" method="post" name="browse">
+		    <input name="submit" type="submit" value="browse!">
+		  </form>
+	  </span>
+	  </h2>
     </c:otherwise>
   </c:choose>
   
