@@ -23,6 +23,7 @@ import java.io.PipedOutputStream;
 import java.util.Date;
 
 import javax.jcr.Node;
+import org.exoplatform.services.jcr.core.ExtendedNode;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -47,6 +48,7 @@ import org.exoplatform.services.rest.OutputTransformer;
 import org.exoplatform.services.rest.ResourceDispatcher;
 import org.exoplatform.services.rest.Response;
 import org.exoplatform.services.rest.URIParam;
+import org.exoplatform.services.rest.QueryParam;
 import org.exoplatform.services.rest.URITemplate;
 import org.exoplatform.services.rest.container.ResourceContainer;
 import org.exoplatform.services.rest.transformer.PassthroughOutputTransformer;
@@ -171,11 +173,12 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   // Response.Builder.errorMessage set StringOutputTransformer.
   @OutputTransformer(PassthroughOutputTransformer.class)
   public Response getResource(@URIParam("path") String mavenPath,
-                              final @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String base) {
+                              final @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String base,
+                              final @QueryParam ("Download")  String download) {
 
     String resourcePath = mavenRoot + mavenPath; // JCR resource
     mavenPath = base + getClass().getAnnotation(URITemplate.class).value() + mavenPath;
-
+    
     try {
 
       Session ses = getSession(sessionProviderService.getSessionProvider(null));
@@ -184,12 +187,17 @@ public class RESTArtifactLoaderService implements ResourceContainer {
             + "SessionProvider is null and prepared session is null.");
       }
 
-      Node node = ses.getRootNode().getNode(resourcePath);
+      ExtendedNode node = (ExtendedNode)ses.getRootNode().getNode(resourcePath);
 
-      if (isFile(node))
-        return downloadArtifact(node);
-      else
+      if (isFile(node)){
+        if (download == null)
+        return getArtifactInfo(node, mavenPath);
+        else
+         return downloadArtifact(node);
+      }
+      else {
         return browseRepository(node, mavenPath);
+      }
 
     } catch (PathNotFoundException e) {
       if (LOG.isDebugEnabled())
@@ -221,7 +229,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   // Response.Builder.errorMessage set StringOutputTransformer.
   @OutputTransformer(PassthroughOutputTransformer.class)
   public Response getRootNodeList(final @ContextParam(ResourceDispatcher.CONTEXT_PARAM_BASE_URI) String base) {
-    return getResource("", base);
+    return getResource("", base, null);
   }
 
   /**
@@ -286,7 +294,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           xsw.writeStartElement("head");
           xsw.writeStartElement("style");
           xsw.writeAttribute("type", "text/css");
-          xsw.writeCharacters("a {text-decoration: none; color: #10409C;}"
+          xsw.writeCharacters("a {text-decoration: none; color: #10409C; }"
               + "a:hover {text-decoration: underline;}" + ".centered { text-align: center; }"
               + ".underlined { border-bottom : 1px solid #cccccc; }\n");
           xsw.writeEndElement(); // style
@@ -434,10 +442,116 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                                         .contentLenght(contentLength)
                                         .lastModified(new Date(lastModified))
                                         .entity(entity, contentType)
+                                        .header("Content-Disposition", "attachment; filename="+node.getName())
                                         .transformer(new PassthroughOutputTransformer())
                                         .build();
 
     return response;
   }
+  
+  
+  
+  
+  
+  /**
+   * Get  JCR node information.
+   * 
+   * @param node the node.
+   * @return @see {@link Response}.
+   * @throws Exception if any errors occurs.
+   */
+  private Response getArtifactInfo(Node node, final String  mavenPath) throws Exception {
+    NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
+                                                                                            null);
+    
+    
+    
+    final PipedOutputStream po = new PipedOutputStream();
+    final PipedInputStream pi = new PipedInputStream(po);
+    
+    
+    long lastModified = nodeRepresentation.getLastModified();
+    String contentType = nodeRepresentation.getMediaType();
+    long contentLength = nodeRepresentation.getContentLenght();
+    InputStream entity = nodeRepresentation.getInputStream();
+    
+    try {
+      
+      XMLOutputFactory factory = XMLOutputFactory.newInstance();
+      factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
+      XMLStreamWriter xsw = factory.createXMLStreamWriter(po, Constants.DEFAULT_ENCODING);
+      xsw.writeStartDocument(Constants.DEFAULT_ENCODING, "1.0");
+      xsw.writeDTD("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" "
+          + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">");
+      xsw.writeCharacters("\n");
+      xsw.writeStartElement("html");
+      xsw.writeDefaultNamespace(XHTML_NS);
+      xsw.writeStartElement("head");
+      xsw.writeStartElement("style");
+      xsw.writeAttribute("type", "text/css");
+      xsw.writeCharacters("a {text-decoration: none; color: #10409C;}"
+          + "a:hover {text-decoration: underline;}" + ".centered { text-align: center; }"
+          + ".underlined { border-bottom : 1px solid #cccccc; }\n");
+      xsw.writeEndElement(); // style
+      xsw.writeStartElement("title");
+      xsw.writeCharacters("Maven2 Artifact Information");
+      xsw.writeEndElement(); // title
+      xsw.writeEndElement(); // head
+      xsw.writeStartElement("body");
+      
+      
+      xsw.writeStartElement("b");
+      xsw.writeCharacters("Artifact Information :");
+      xsw.writeEndElement();
+      xsw.writeEmptyElement("br");
+      
+      xsw.writeCharacters("Name:  " + node.getName());
+      xsw.writeEmptyElement("br");
+      
+      xsw.writeCharacters("Size:  " + contentLength);
+      xsw.writeEmptyElement("br");
+      xsw.writeCharacters("Last modified:  " + new Date(lastModified).toString());
+      xsw.writeEmptyElement("br");
+      xsw.writeCharacters("Download:  ");
+      xsw.writeStartElement("a");
+      xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length()-1) + "?download" : mavenPath  + "?download");
+       xsw.writeCharacters("Link");
+       xsw.writeEndElement(); // a
+
+       xsw.writeEmptyElement("br");
+       xsw.writeStartElement("a");
+       xsw.writeAttribute("href", mavenPath.endsWith("/") ? mavenPath.substring(0, mavenPath.length()-1).substring(0, mavenPath.lastIndexOf("/"))  : mavenPath.substring(0, mavenPath.lastIndexOf("/"))) ;
+       xsw.writeCharacters("Back to browsing");
+       xsw.writeEndElement(); // a
+
+       
+      xsw.writeEmptyElement("br");
+      
+      
+      xsw.writeEndElement(); // body
+      xsw.writeEndElement(); // html
+
+
+    } catch (XMLStreamException xmle) {
+      xmle.printStackTrace();
+    } catch (RepositoryException re) {
+      re.printStackTrace();
+    } finally {
+      try {
+        po.flush();
+        po.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    
+    }
+    
+    return Response.Builder.ok().entity(pi, "text/html").build();
+    
+  }
+
+  
+  
+  
 
 }
