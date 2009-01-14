@@ -212,9 +212,9 @@ public class DeleteMerger implements ChangesMerger {
           break;
         case ItemState.UPDATED:
           if ((!localData.isNode())
-              && ((incomeData.isNode() && incomeData.getQPath()
-                                                    .isDescendantOf(localData.getQPath())) || (!incomeData.isNode() && incomeData.getQPath()
-                                                                                                                                 .equals(localData.getQPath())))) {
+              && ((incomeData.isNode() && localData.getQPath()
+                                                   .isDescendantOf(incomeData.getQPath())) || (!incomeData.isNode() && localData.getQPath()
+                                                                                                                                .equals(incomeData.getQPath())))) {
             return resultEmptyState;
           }
           break;

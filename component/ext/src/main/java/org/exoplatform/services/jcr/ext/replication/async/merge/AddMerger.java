@@ -220,6 +220,12 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
+          if (!localData.isNode()
+              && ((incomeData.isNode() && localData.getQPath()
+                                                   .isDescendantOf(incomeData.getQPath())) || (!incomeData.isNode() && localData.getQPath()
+                                                                                                                                .equals(incomeData.getQPath())))) {
+            return resultEmptyState;
+          }
           break;
         case ItemState.RENAMED:
           break;

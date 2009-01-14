@@ -121,16 +121,6 @@ public class RenameMerger implements ChangesMerger {
           }
 
           break;
-        case ItemState.UPDATED:
-          if (!localData.isNode()
-              && ((incomeData.isNode() && localData.getQPath()
-                                                   .isDescendantOf(incomeData.getQPath())) || (!incomeData.isNode() && localData.getQPath()
-                                                                                                                                .isDescendantOf(incomeData.getQPath()
-                                                                                                                                                          .makeParentPath())))) {
-            return resultEmptyState;
-
-          }
-          break;
         case ItemState.DELETED:
           ItemState nextLocalState = local.getNextItemState(localState);
 
@@ -168,6 +158,16 @@ public class RenameMerger implements ChangesMerger {
               || nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())
               || nextIncomeState.getData().getQPath().equals(localData.getQPath())) {
             return resultEmptyState;
+          }
+          break;
+        case ItemState.UPDATED:
+          if (!localData.isNode()
+              && ((incomeData.isNode() && localData.getQPath()
+                                                   .isDescendantOf(incomeData.getQPath())) || (!incomeData.isNode() && localData.getQPath()
+                                                                                                                                .isDescendantOf(incomeData.getQPath()
+                                                                                                                                                          .makeParentPath())))) {
+            return resultEmptyState;
+
           }
           break;
         case ItemState.RENAMED:

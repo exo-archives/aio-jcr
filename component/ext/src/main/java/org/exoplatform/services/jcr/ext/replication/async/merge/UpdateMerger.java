@@ -112,11 +112,6 @@ public class UpdateMerger implements ChangesMerger {
         switch (localState.getState()) {
         case ItemState.ADDED:
           break;
-        case ItemState.UPDATED:
-          if (!incomeData.isNode() && incomeData.getIdentifier().equals(localData.getIdentifier())) {
-            return resultEmptyState;
-          }
-          break;
         case ItemState.DELETED:
           ItemState nextLocalState = local.getNextItemState(localState);
 
@@ -208,6 +203,12 @@ public class UpdateMerger implements ChangesMerger {
             if (incomeData.getIdentifier().equals(localData.getIdentifier())) {
               return resultEmptyState;
             }
+          }
+          break;
+        case ItemState.UPDATED:
+          if (!incomeData.isNode() && !localData.isNode()
+              && incomeData.getIdentifier().equals(localData.getIdentifier())) {
+            return resultEmptyState;
           }
           break;
         case ItemState.RENAMED:

@@ -134,7 +134,7 @@ public interface ChangesStorage<T extends ItemState> {
                                                       ClassNotFoundException;
 
   /**
-   * Tell if state presents in storage.
+   * Tell if state presents in storage after specified.
    * 
    * @param state
    *          ItemState
@@ -147,7 +147,7 @@ public interface ChangesStorage<T extends ItemState> {
                                                                                  ClassNotFoundException;
 
   /**
-   * Tell if state presents in storage.
+   * Tell if state presents in storage after specified.
    * 
    * @param state
    *          ItemState
