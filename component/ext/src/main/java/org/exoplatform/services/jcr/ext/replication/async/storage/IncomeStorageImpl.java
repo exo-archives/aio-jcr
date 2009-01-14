@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
+import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -32,7 +34,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class IncomeStorageImpl implements IncomeStorage {
+public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, RemoteEventListener {
 
   protected static final Log LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
@@ -106,6 +108,41 @@ public class IncomeStorageImpl implements IncomeStorage {
     for (File file : storage.listFiles()) {
       file.delete();
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onDisconnectMembers(List<Member> member) {
+    // TODO delete disconnected members changes
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onCancel() {
+    // TODO clean storage
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onStart(List<Member> members) {
+    // TODO prepare storage (clean)
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onStop() {
+    // TODO clean storage
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onMerge(Member member) {
+    // not interested
   }
 
 }

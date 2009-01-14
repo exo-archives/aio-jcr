@@ -37,6 +37,7 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ValueData;
+import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -49,20 +50,20 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class LocalStorageImpl implements LocalStorage {
+public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
-  protected static final Log    LOG            = ExoLogger.getLogger("jcr.LocalStorageImpl");
-  
+  protected static final Log    LOG                       = ExoLogger.getLogger("jcr.LocalStorageImpl");
+
   /**
    * Stuff for PlainChangesLogImpl.writeExternal.
    */
-  private static final String EXTERNALIZATION_SYSTEM_ID = "".intern();
+  private static final String   EXTERNALIZATION_SYSTEM_ID = "".intern();
 
-  protected static final String ERROR_FILENAME = "errors";
+  protected static final String ERROR_FILENAME            = "errors";
 
   protected final String        storagePath;
 
-  private BufferedWriter        errorOut       = null;
+  private BufferedWriter        errorOut                  = null;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -133,16 +134,18 @@ public class LocalStorageImpl implements LocalStorage {
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
 
     TransactionChangesLog result = new TransactionChangesLog();
     result.setSystemId(EXTERNALIZATION_SYSTEM_ID); // for PlainChangesLogImpl.writeExternal
-    
+
     while (chIt.hasNextLog()) {
       PlainChangesLog plog = chIt.nextLog();
 
@@ -191,7 +194,8 @@ public class LocalStorageImpl implements LocalStorage {
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -201,7 +205,7 @@ public class LocalStorageImpl implements LocalStorage {
                                                                                   true),
                                                              Constants.DEFAULT_ENCODING));
       }
-      errorOut.write(e.getMessage()+"\n");
+      errorOut.write(e.getMessage() + "\n");
       errorOut.flush();
     } catch (IOException ex) {
       // TODO do nothing?
@@ -234,6 +238,28 @@ public class LocalStorageImpl implements LocalStorage {
       br.close();
       return list.toArray(new String[list.size()]);
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onStop() {
+    // TODO rotate storage (archive detached)
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onCancel() {
+    // TODO merge detached and current storages in one (rename detached to a current now, till we
+    // use READ-ONLY)
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void onStart(List<Member> members) {
+    // TODO detach current storage and create new current
   }
 
 }
