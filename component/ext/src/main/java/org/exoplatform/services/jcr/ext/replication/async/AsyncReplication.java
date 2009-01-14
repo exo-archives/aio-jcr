@@ -65,8 +65,6 @@ public class AsyncReplication implements Startable {
 
   protected final RepositoryService                        repoService;
 
-  protected final AsyncChannelManager                      channel;
-
   protected final LinkedHashMap<StorageKey, IncomeStorage> incomeStorages;
 
   protected final LinkedHashMap<StorageKey, LocalStorage>  localStorages;
@@ -94,6 +92,8 @@ public class AsyncReplication implements Startable {
   protected final String[]                                 repositoryNames;
 
   class AsyncWorker extends Thread {
+
+    protected final AsyncChannelManager       channel;
 
     protected final AsyncInitializer          initializer;
 
@@ -124,13 +124,15 @@ public class AsyncReplication implements Startable {
                 LocalStorage localStorage,
                 IncomeStorage incomeStorage) {
 
+      this.channel = new AsyncChannelManager(channelConfig, channelName);
+      
       this.dataManager = dataManager;
 
       this.ntManager = ntManager;
 
       this.localStorage = localStorage;
 
-      this.transmitter = new AsyncTransmitterImpl(channel, priority);
+      this.transmitter = new AsyncTransmitterImpl(this.channel, priority);
 
       this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, localStorage);
 
@@ -139,10 +141,10 @@ public class AsyncReplication implements Startable {
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
       this.publisher.addLocalListener(this.exportServer);
 
-      this.receiver = new AsyncReceiverImpl(channel, this.exportServer);
+      this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer);
 
       this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
-      channel.addPacketListener(this.receiver);
+      this.channel.addPacketListener(this.receiver);
 
       this.mergeManager = new MergeDataManager(this.exporter,
                                                dataManager,
@@ -163,7 +165,7 @@ public class AsyncReplication implements Startable {
       this.subscriber.addLocalListener(publisher);
       this.subscriber.addLocalListener(exportServer);
 
-      this.initializer = new AsyncInitializer(channel,
+      this.initializer = new AsyncInitializer(this.channel,
                                               priority,
                                               otherParticipantsPriority,
                                               waitAllMembersTimeout,
@@ -174,7 +176,7 @@ public class AsyncReplication implements Startable {
 
       this.subscriber.addLocalListener(this.initializer);
 
-      channel.addPacketListener(this.initializer);
+      this.channel.addPacketListener(this.initializer);
     }
 
     private void doFinalyze() {
@@ -191,8 +193,7 @@ public class AsyncReplication implements Startable {
       this.initializer.removeRemoteListener(this.publisher);
       this.initializer.removeRemoteListener(this.exportServer);
 
-      channel.removePacketListener(this.initializer);
-      // channel.disconnect(); TODO do we need it here?
+      this.channel.removePacketListener(this.initializer);
     }
 
     /**
@@ -287,8 +288,6 @@ public class AsyncReplication implements Startable {
     for (String sPriority : saOtherParticipantsPriority)
       otherParticipantsPriority.add(Integer.valueOf(sPriority));
 
-    this.channel = new AsyncChannelManager(channelConfig, channelName);
-
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
 
     this.incomeStorages = new LinkedHashMap<StorageKey, IncomeStorage>();
@@ -344,8 +343,6 @@ public class AsyncReplication implements Startable {
 
     this.otherParticipantsPriority = new ArrayList<Integer>(otherParticipantsPriority);
 
-    this.channel = new AsyncChannelManager(this.channelConfig, channelName);
-
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
 
     this.incomeStorages = new LinkedHashMap<StorageKey, IncomeStorage>();
@@ -373,8 +370,7 @@ public class AsyncReplication implements Startable {
    * @return boolean, true if synchronization process active
    */
   public boolean isActive() {
-    //return currentWorkers.size() > 0;
-    return channel.getChannel() != null;
+    return currentWorkers.size() > 0;
   }
 
   /**
@@ -466,7 +462,7 @@ public class AsyncReplication implements Startable {
    * @throws RepositoryException
    */
   protected void synchronize(String repoName, String workspaceName) throws RepositoryException,
-                                                                 RepositoryConfigurationException {
+                                                                   RepositoryConfigurationException {
     // TODO check AsyncWorker is run on this workspace;
     if (repositoryNames != null && repositoryNames.length > 0) {
       ManageableRepository repository = repoService.getRepository(repoName);
