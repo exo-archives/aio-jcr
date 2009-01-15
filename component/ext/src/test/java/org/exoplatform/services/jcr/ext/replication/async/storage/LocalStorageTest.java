@@ -117,42 +117,6 @@ public class LocalStorageTest extends BaseStandaloneTest {
     return res;
   }
 
-  private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
-
-    while (expected.hasNext()) {
-
-      assertTrue(changes.hasNext());
-      ItemState expect = expected.next();
-      ItemState elem = changes.next();
-
-      assertEquals(expect.getState(), elem.getState());
-      // assertEquals(expect.getAncestorToSave(), elem.getAncestorToSave());
-      ItemData expData = expect.getData();
-      ItemData elemData = elem.getData();
-      assertEquals(expData.getQPath(), elemData.getQPath());
-      assertEquals(expData.isNode(), elemData.isNode());
-      assertEquals(expData.getIdentifier(), elemData.getIdentifier());
-      assertEquals(expData.getParentIdentifier(), elemData.getParentIdentifier());
-
-      if (!expData.isNode()) {
-        PropertyData expProp = (PropertyData) expData;
-        PropertyData elemProp = (PropertyData) elemData;
-        assertEquals(expProp.getType(), elemProp.getType());
-        assertEquals(expProp.isMultiValued(), elemProp.isMultiValued());
-
-        List<ValueData> expValDat = expProp.getValues();
-        List<ValueData> elemValDat = elemProp.getValues();
-        assertEquals(expValDat.size(), elemValDat.size());
-        for (int j = 0; j < expValDat.size(); j++) {
-          assertTrue(java.util.Arrays.equals(expValDat.get(j).getAsByteArray(),
-                                             elemValDat.get(j).getAsByteArray()));
-
-          // check is received property values ReplicableValueData
-          assertTrue(elemValDat.get(j) instanceof ReplicableValueData);
-        }
-      }
-    }
-  }
 
   private void deleteDir(File file) {
     if (file != null) {
@@ -292,4 +256,42 @@ public class LocalStorageTest extends BaseStandaloneTest {
     int i =0; 
   }
 
+  private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
+
+    while (expected.hasNext()) {
+
+      assertTrue(changes.hasNext());
+      ItemState expect = expected.next();
+      ItemState elem = changes.next();
+
+      assertEquals(expect.getState(), elem.getState());
+      // assertEquals(expect.getAncestorToSave(), elem.getAncestorToSave());
+      ItemData expData = expect.getData();
+      ItemData elemData = elem.getData();
+      assertEquals(expData.getQPath(), elemData.getQPath());
+      assertEquals(expData.isNode(), elemData.isNode());
+      assertEquals(expData.getIdentifier(), elemData.getIdentifier());
+      assertEquals(expData.getParentIdentifier(), elemData.getParentIdentifier());
+
+      if (!expData.isNode()) {
+        PropertyData expProp = (PropertyData) expData;
+        PropertyData elemProp = (PropertyData) elemData;
+        assertEquals(expProp.getType(), elemProp.getType());
+        assertEquals(expProp.isMultiValued(), elemProp.isMultiValued());
+
+        List<ValueData> expValDat = expProp.getValues();
+        List<ValueData> elemValDat = elemProp.getValues();
+        assertEquals(expValDat.size(), elemValDat.size());
+        for (int j = 0; j < expValDat.size(); j++) {
+          assertTrue(java.util.Arrays.equals(expValDat.get(j).getAsByteArray(),
+                                             elemValDat.get(j).getAsByteArray()));
+
+          // check is received property values ReplicableValueData
+          assertTrue(elemValDat.get(j) instanceof ReplicableValueData);
+        }
+      }
+    }
+  }
+
+  
 }

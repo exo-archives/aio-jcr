@@ -123,19 +123,22 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    * {@inheritDoc}
    */
   public void onSaveItems(ItemStateChangesLog itemStates) {
-    try {
-      ChangesFile file = createChangesFile();
 
-      ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
+    if (!(itemStates instanceof SynchronizerChangesLog)) {
+      try {
+        ChangesFile file = createChangesFile();
 
-      TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
+        ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
 
-      out.writeObject(log);
-      out.close();
-      file.finishWrite();
-    } catch (IOException e) {
-      LOG.error("On save items error " + e, e);
-      this.reportException(e);
+        TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
+
+        out.writeObject(log);
+        out.close();
+        file.finishWrite();
+      } catch (IOException e) {
+        LOG.error("On save items error " + e, e);
+        this.reportException(e);
+      }
     }
   }
 
@@ -297,7 +300,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
     if (secondDir.exists()) {
 
-      File[] files = primeDir.listFiles();
+      File[] files = secondDir.listFiles();
       for (File f : files) {
         File fileDest = new File(primeDir, f.getName());
         f.renameTo(fileDest);
@@ -319,6 +322,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
         File fileDest = new File(primeDir, f.getName());
         f.renameTo(fileDest);
       }
+      secondDir.delete();
     }
   }
 
