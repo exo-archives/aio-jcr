@@ -49,10 +49,11 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
     // create node
-    for (int i = 0; i < 10; i++)
-      root.addNode("testNode_" + i, "nt:unstructured");
-
-    root.save();
+    for (int j = 0; j < 10; j++) {
+      for (int i = 0; i < 10; i++)
+        root.addNode("testNode_" + j + "_" + i, "nt:unstructured");
+      root.save();
+    }
 
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
@@ -67,7 +68,7 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
       cfList.add(cf);
     }
-    
+
     // Initialization AsyncReplication (ChangesSubscriber).
 
     List<String> repositoryNames = new ArrayList<String>();
@@ -94,19 +95,20 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
                                                              otherParticipantsPriority);
 
     asyncReplication.start();
-    
+
     CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
     SessionImpl sessionWS1 = (SessionImpl) repository.login(credentials, "ws1");
-    
-    // Synchronize on workspace 'ws1'.    
+
+    // Synchronize on workspace 'ws1'.
     asyncReplication.synchronize(repository.getName(), sessionWS1.getWorkspace().getName());
-    
+
     Thread.sleep(10000);
 
     // send changes
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_" + repository.getName() + "_" + sessionWS1.getWorkspace().getName());
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_"
+        + repository.getName() + "_" + sessionWS1.getWorkspace().getName());
     channel.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority2);
@@ -116,17 +118,19 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), memberList);
 
     transmitter.sendMerge();
-    
+
     // Wait end of synchronization.
     Thread.sleep(30000);
-    
-    //compare data
+
+    // compare data
     Node srcNode = session.getRootNode();
     Node destNode = sessionWS1.getRootNode();
-    
+
     // create node
-    for (int i = 0; i < 10; i++) 
-      assertEquals(srcNode.getNode("testNode_" + i).getName(), destNode.getNode("testNode_" + i).getName());
-    
+    for (int j = 0; j < 10; j++)
+      for (int i = 0; i < 10; i++)
+        assertEquals(srcNode.getNode("testNode_" + j + "_" + i).getName(), destNode.getNode("testNode_" + j + "_" + i)
+                                                                         .getName());
+
   }
 }
