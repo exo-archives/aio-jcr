@@ -72,22 +72,26 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
   protected final String        storagePath;
 
+  private final int             priority;
+
   private BufferedWriter        errorOut                   = null;
 
   private File                  primeDir;
 
   private File                  secondDir;
-  
+
   /**
    * This unique index used as name for ChangesFiles.
    */
-  private volatile long index = 0;
+  private volatile long         index                      = 0;
 
-  public LocalStorageImpl(String storagePath) {
+  public LocalStorageImpl(String storagePath, int priority) {
     this.storagePath = storagePath;
-    primeDir = new File(storagePath, MAIN_DIRNAME);
-    primeDir.mkdirs();
-    secondDir = new File(storagePath, BACK_DIRNAME);
+    this.priority = priority;
+
+    this.primeDir = new File(storagePath, MAIN_DIRNAME);
+    this.primeDir.mkdirs();
+    this.secondDir = new File(storagePath, BACK_DIRNAME);
   }
 
   /**
@@ -119,8 +123,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     }
 
     ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                  new Member(null,
-                                                                                             0));
+                                                                                  new Member(priority));
     return changeStorage;
   }
 
@@ -165,9 +168,11 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -228,10 +233,9 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
         }
       }
       // create new plain changeslog
-      result.addLog(new PlainChangesLogImpl(destlist,
-                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                       : plog.getSessionId(),
-                                            plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+          ? EXTERNALIZATION_SESSION_ID
+          : plog.getSessionId(), plog.getEventType()));
     }
     return result;
   }
@@ -239,7 +243,8 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -269,7 +274,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
       List<String> list = new ArrayList<String>();
 
       // Close writer
-      if (this.errorOut != null){
+      if (this.errorOut != null) {
         errorOut.close();
         errorOut = null;
       }
@@ -334,12 +339,12 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     secondDir.mkdir();
   }
 
-  public void finalize() throws IOException{
+  public void finalize() throws IOException {
     // Close writer
-    if (this.errorOut != null){
+    if (this.errorOut != null) {
       errorOut.close();
       errorOut = null;
     }
   }
-  
+
 }

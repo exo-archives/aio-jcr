@@ -205,39 +205,40 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
   public void onChanges(ChangesPacket packet, Member member) {
 
-    LOG.info("onChanges " + member.getName());
-
     try {
       switch (packet.getType()) {
-      case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET");
+      case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
+        Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
+
+        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + mem.getName());
 
         // Fire event to Publisher to send own changes out
         doSendChanges();
 
-        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp(), member);
-
+        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp(), mem);
         cf.writeData(packet.getBuffer(), packet.getOffset());
 
-        packet.getFileCount(); // TODO remeber whole packets count for this member
+        // packet.getFileCount(); // TODO remeber whole packets count for this member
 
         incomChanges.put(new Key(packet.getCRC(), packet.getTimeStamp()),
                          new MemberChangesFile(cf, member));
         break;
-
-      case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-        LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET");
-
-        cf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp())).getChangesFile();
-        cf.writeData(packet.getBuffer(), packet.getOffset());
-        break;
-
-      case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-        LOG.info("BINARY_CHANGESLOG_LAST_PACKET");
-        
+      }
+      case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
-        mcf.changesFile.finishWrite();
-        incomeStorrage.addMemberChanges(mcf.getMember(), mcf.changesFile);
+
+        LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + mcf.getMember().getName());
+
+        mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
+        break;
+      }
+      case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
+        MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
+
+        LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + mcf.getMember().getName());
+
+        mcf.getChangesFile().finishWrite();
+        incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
 
         if (counterMap == null)
           counterMap = new LinkedHashMap<Integer, Counter>();
@@ -256,10 +257,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
           doStartMerge();
 
         break;
-
+      }
       }
     } catch (IOException e) {
-      LOG.error("Cannot save changes " + e, e);
+      LOG.error("Cannot save changes from member " + member.getAddress() + ". Error: " + e, e);
 
       // local cancel, incl. merge.
       // and remote cancel.
@@ -327,17 +328,17 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       LOG.error("Cannot send 'Cancel'" + ioe, ioe);
     }
   }
-  
+
   /**
    * Add 'done' to list.
-   *
+   * 
    * @param priority
    *          the value of priority.
    */
   private void addDone(int priority) {
     if (doneList == null)
       doneList = new ArrayList<Integer>();
-    
+
     doneList.add(priority);
   }
 

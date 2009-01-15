@@ -3143,8 +3143,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    * @param priority
    */
   protected void addChangesToChangesStorage(TransactionChangesLog log, int priority) throws Exception {
-    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(new Member(null,
-                                                                                             priority));
+    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(new Member(priority));
     changes.addLog(log);
     membersChanges.add(changes);
   }

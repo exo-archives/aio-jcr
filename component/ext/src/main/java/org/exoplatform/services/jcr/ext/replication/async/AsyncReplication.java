@@ -318,7 +318,11 @@ public class AsyncReplication implements Startable {
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
   }
 
-  public AsyncReplication(RepositoryService repoService,
+  /**
+   * AsyncReplication  constructor for TESTS!.
+   *
+   */
+  AsyncReplication(RepositoryService repoService,
                           List<String> repositoryNames,
                           int priority,
                           String bindIPAddress,
@@ -510,7 +514,7 @@ public class AsyncReplication implements Startable {
               + File.separator + wsName);
           localDirPerWorkspace.mkdirs();
 
-          LocalStorage localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath());
+          LocalStorage localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(), this.priority);
 
           localStorages.put(new StorageKey(repositoryName, wsName), localStorage);
         }

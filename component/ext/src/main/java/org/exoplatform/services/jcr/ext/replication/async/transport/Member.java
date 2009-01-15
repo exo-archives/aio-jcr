@@ -51,6 +51,11 @@ public class Member implements Externalizable{
     this.priority = -1;
   }
 
+  public Member(int priority) {
+    this.address = null;
+    this.priority = priority;
+  }
+  
   public Member(Address address, int priority) {
     this.address = address;
     this.priority = priority;
@@ -110,7 +115,7 @@ public class Member implements Externalizable{
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
-    out.writeInt(this.priority);
+    out.writeInt(priority);
     out.writeObject(address);
   }
 

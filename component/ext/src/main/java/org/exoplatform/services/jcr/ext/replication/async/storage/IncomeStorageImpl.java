@@ -40,7 +40,7 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
   protected static final Log LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
   protected final String     storagePath;
-  
+
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
   }
@@ -50,14 +50,14 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
    */
   public void addMemberChanges(Member member, ChangesFile changes) throws IOException {
     // TODO check if CRC is valid for received file
-    
-    // get member directory
-  //  File dir = new File(storagePath, Integer.toString(member.getPriority()));
 
-  //  dir.mkdirs();
+    // get member directory
+    // File dir = new File(storagePath, Integer.toString(member.getPriority()));
+
+    // dir.mkdirs();
 
     // move changes file to member directory
-  //  if(!changes.moveTo(dir)) throw new IOException("Can't move file.");
+    // if(!changes.moveTo(dir)) throw new IOException("Can't move file.");
   }
 
   /**
@@ -87,7 +87,7 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
     });
 
     List<ChangesStorage<ItemState>> changeStorages = new ArrayList<ChangesStorage<ItemState>>();
-    for (File memberDir: memberDirs) {
+    for (File memberDir : memberDirs) {
       try {
         int memberPriority = Integer.parseInt(memberDir.getName()); // also check - is
         // member folder;
@@ -103,8 +103,7 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
         ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                new Member(null,
-                                                                                           memberPriority));
+                                                                                new Member(memberPriority));
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {
         // This is not int-named file. Fatal.
