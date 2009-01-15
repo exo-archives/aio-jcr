@@ -303,16 +303,16 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     LOG.error("Do CANCEL");
 
     mergeCancel();
-
-    for (LocalEventListener syncl : listeners)
-      // inform all interested
-      syncl.onCancel(); // local done - null
-
+    
     try {
       transmitter.sendCancel();
     } catch (IOException ioe) {
       LOG.error("Cannot send 'Cancel'" + ioe, ioe);
     }
+
+    for (LocalEventListener syncl : listeners)
+      // inform all interested
+      syncl.onCancel(); // local done - null
   }
 
   protected void doDoneMerge() {

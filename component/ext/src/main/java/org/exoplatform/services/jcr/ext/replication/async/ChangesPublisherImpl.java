@@ -23,9 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
@@ -138,15 +135,15 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
   protected void doCancel() {
     LOG.error("Do CANCEL");
 
-    for (LocalEventListener syncl : listeners)
-      // inform all interested
-      syncl.onCancel(); // local done - null
-
     try {
       transmitter.sendCancel();
     } catch (IOException ioe) {
       LOG.error("Cannot send 'Cancel' " + ioe, ioe);
     }
+    
+    for (LocalEventListener syncl : listeners)
+      // inform all interested
+      syncl.onCancel(); 
   }
 
   /**

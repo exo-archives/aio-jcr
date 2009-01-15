@@ -44,7 +44,7 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
   private static final String bindAddress = "127.0.0.1";
 
-  public void testOnStartLocalEvent() throws Exception {
+  public void testAcceptChanges() throws Exception {
     // generate test Data
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
@@ -121,6 +121,9 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
     // Wait end of synchronization.
     Thread.sleep(30000);
+    
+    // disconnect from cahnel
+    channel.disconnect();
 
     // compare data
     Node srcNode = session.getRootNode();
