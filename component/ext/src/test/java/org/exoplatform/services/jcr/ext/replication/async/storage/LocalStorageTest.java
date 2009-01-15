@@ -218,7 +218,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    File dir = new File(STORAGE_DIR );//+ "StartStop"
+    File dir = new File(STORAGE_DIR + "StartStop");//
     dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
@@ -237,9 +237,9 @@ public class LocalStorageTest extends BaseStandaloneTest {
    
     
     assertEquals(0, storage.getErrors().length);
-    pl.pushChanges().get(0);
+    
     //check current data
-    TransactionChangesLog log1 = pl.getCurrentLogList().get(0);//createChangesLog((NodeData) n1.getData());
+    TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
     this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
 
@@ -247,13 +247,11 @@ public class LocalStorageTest extends BaseStandaloneTest {
     storage.onStop();
     
     assertEquals(0, storage.getErrors().length);
-    pl.pushChanges().get(1);
+    
     //check current data
     TransactionChangesLog log2 = pl.pushChanges().get(1);//createChangesLog((NodeData) n1.getData());
     ch = storage.getLocalChanges();
     this.checkIterator(log2.getAllStates().iterator(), ch.getChanges());
-    
-    int i =0; 
   }
 
   private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
