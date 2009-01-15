@@ -236,8 +236,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
         LOG.info("BINARY_CHANGESLOG_LAST_PACKET");
-
+        
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
+        mcf.changesFile.finishWrite();
         incomeStorrage.addMemberChanges(mcf.getMember(), mcf.changesFile);
 
         if (counterMap == null)
