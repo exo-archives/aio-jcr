@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class AsyncInitializer extends SynchronizationLifeСycle implements AsyncPacketListener,
+public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncPacketListener,
     AsyncStateListener, LocalEventListener {
 
   /**
