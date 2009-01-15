@@ -159,48 +159,6 @@ public class LocalStorageTest extends BaseStandaloneTest {
     assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
   }
 
-  /**
-   * Test reporting and reading from file errors process.
-   * 
-   * @throws Exception
-   */
-  public void testGetErrors() throws Exception {
-
-    class TestLocalStorage extends LocalStorageImpl {
-      public TestLocalStorage(String path) {
-        super(path);
-      }
-
-      public void report(Exception e) {
-        this.reportException(e);
-      }
-    }
-
-    LocalStorage storage = new TestLocalStorage(dir.getAbsolutePath());
-
-    Exception first = new IOException("hello");
-    ((TestLocalStorage) storage).report(first);
-    Exception second = new RepositoryException("repo");
-    ((TestLocalStorage) storage).report(second);
-    Exception third = new Exception("third");
-    ((TestLocalStorage) storage).report(third);
-
-    storage = null;
-
-    storage = new LocalStorageImpl(dir.getAbsolutePath());
-
-    // check exception
-    String[] errs = storage.getErrors();
-    storage=null;
-    
-    assertEquals(3, errs.length);
-
-    assertEquals(first.getMessage(), errs[0]);
-    assertEquals(second.getMessage(), errs[1]);
-    assertEquals(third.getMessage(), errs[2]);
-    
-    Thread.sleep(100);
-  }
 
   /**
    * Test OnStart and OnStop commands.
@@ -307,6 +265,50 @@ public class LocalStorageTest extends BaseStandaloneTest {
     
     dataManager.removeItemPersistenceListener(storage);
   }
+  
+  /**
+   * Test reporting and reading from file errors process.
+   * 
+   * @throws Exception
+   */
+  public void testGetErrors() throws Exception {
+
+    class TestLocalStorage extends LocalStorageImpl {
+      public TestLocalStorage(String path) {
+        super(path);
+      }
+
+      public void report(Exception e) {
+        this.reportException(e);
+      }
+    }
+
+    LocalStorage storage = new TestLocalStorage(dir.getAbsolutePath());
+
+    Exception first = new IOException("hello");
+    ((TestLocalStorage) storage).report(first);
+    Exception second = new RepositoryException("repo");
+    ((TestLocalStorage) storage).report(second);
+    Exception third = new Exception("third");
+    ((TestLocalStorage) storage).report(third);
+
+    storage = null;
+
+    storage = new LocalStorageImpl(dir.getAbsolutePath());
+
+    // check exception
+    String[] errs = storage.getErrors();
+    storage=null;
+    
+    assertEquals(3, errs.length);
+
+    assertEquals(first.getMessage(), errs[0]);
+    assertEquals(second.getMessage(), errs[1]);
+    assertEquals(third.getMessage(), errs[2]);
+    
+    Thread.sleep(100);
+  }
+
 
   private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
 
