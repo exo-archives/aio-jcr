@@ -23,7 +23,11 @@ import java.io.PipedOutputStream;
 import java.util.Date;
 
 import javax.jcr.Node;
+
+import org.exoplatform.services.jcr.access.SystemIdentity;
 import org.exoplatform.services.jcr.core.ExtendedNode;
+
+import javax.jcr.AccessDeniedException;
 import javax.jcr.NodeIterator;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -179,10 +183,10 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
     String resourcePath = mavenRoot + mavenPath; // JCR resource
     mavenPath = base + getClass().getAnnotation(URITemplate.class).value() + mavenPath;
-
+    Session ses = null;
     try {
 
-      Session ses = getSession(sessionProviderService.getSessionProvider(null));
+      ses = getSession(sessionProviderService.getSessionProvider(null));
       if (ses == null) {
         throw new RepositoryException("Access to JCR Repository denied. "
             + "SessionProvider is null and prepared session is null.");
@@ -208,6 +212,11 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                              .errorMessage(e.getMessage())
                              .mediaType("text/plain")
                              .build();
+    } catch (AccessDeniedException e) {
+      if (ses.getUserID().equals(SystemIdentity.ANONIM))
+        return Response.Builder.withStatus(401).header("WWW-Authenticate",
+                                                       "Basic realm=\"exo-domain\"").build();
+      return Response.Builder.forbidden().build();
     } catch (Exception e) {
       e.printStackTrace();
       return Response.Builder.serverError()
