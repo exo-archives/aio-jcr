@@ -119,9 +119,11 @@ public class UpdateMerger implements ChangesMerger {
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
             if (incomeData.isNode()
                 && (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null)) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             } else if (!incomeData.isNode()
                 && incomeData.getParentIdentifier().equals(localData.getIdentifier())) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
             break;
@@ -134,6 +136,7 @@ public class UpdateMerger implements ChangesMerger {
                                                                       incomeState.getData()
                                                                                  .getIdentifier());
             if (incomeData.isNode() && nextItem != null) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
 
@@ -197,10 +200,12 @@ public class UpdateMerger implements ChangesMerger {
           if (localData.isNode()) {
             if (income.getNextItemStateByUUIDOnUpdate(incomeState, localState.getData()
                                                                              .getIdentifier()) != null) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
           } else {
             if (incomeData.getIdentifier().equals(localData.getIdentifier())) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
           }
@@ -208,6 +213,7 @@ public class UpdateMerger implements ChangesMerger {
         case ItemState.UPDATED:
           if (!incomeData.isNode() && !localData.isNode()
               && incomeData.getIdentifier().equals(localData.getIdentifier())) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           }
           break;

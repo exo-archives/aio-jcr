@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -109,52 +108,69 @@ public class AddMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          /*          if (localData.isNode()) {
-                      if (incomeData.isNode()) {
-                        if (isAddNodeConflict(income, localState, incomeState)) {
-                          skippedList.add(incomeData.getQPath());
-                          return resultEmptyState;
-                        }
-                      } else {
-                        if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                          skippedList.add(incomeData.getQPath());
-                          return resultEmptyState;
-                        }
-                      }
-                    } else {
-                      if (incomeData.isNode()) {
+          if (localData.isNode()) {
+            if (incomeData.isNode()) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(localData.getQPath())
+                  || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+                skippedList.add(incomeData.getQPath());
+                return resultEmptyState;
+              }
+            } else {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+                skippedList.add(incomeData.getQPath());
+                return resultEmptyState;
+              }
 
-                      } else {
+              // try to add property and node with same name
+              if ((incomeData.getQPath().equals(localData.getQPath()))) {
+                InternalQName propertyName = !incomeData.isNode()
+                    ? incomeData.getQPath().getName()
+                    : localData.getQPath().getName();
+                String parentIdentifier = !incomeData.isNode()
+                    ? incomeData.getParentIdentifier()
+                    : localData.getParentIdentifier();
 
-                      }
-                    }
-                    break;
-          */
-          if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-            skippedList.add(incomeData.getQPath());
-            return resultEmptyState;
-          } else if ((incomeData.getQPath().equals(localData.getQPath()))) {
-            if (incomeData.isNode() == localData.isNode()) {
-              skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+                if (!isPropertyAllowed(propertyName,
+                                       (NodeData) dataManager.getItemData(parentIdentifier))) {
+                  skippedList.add(incomeData.getQPath());
+                  return resultEmptyState;
+                }
+              }
             }
+          } else {
+            if (incomeData.isNode()) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath().makeParentPath())
+                  || incomeData.getQPath().equals(localData.getQPath().makeParentPath())
+                  || localData.getQPath().makeParentPath().isDescendantOf(incomeData.getQPath())) {
+                skippedList.add(incomeData.getQPath());
+                return resultEmptyState;
+              }
 
-            // try to add property and node with same name
-            InternalQName propertyName = !incomeData.isNode()
-                ? incomeData.getQPath().getName()
-                : localData.getQPath().getName();
-            String parentIdentifier = !incomeData.isNode()
-                ? incomeData.getParentIdentifier()
-                : localData.getParentIdentifier();
+              // try to add property and node with same name
+              if ((incomeData.getQPath().equals(localData.getQPath()))) {
+                InternalQName propertyName = !incomeData.isNode()
+                    ? incomeData.getQPath().getName()
+                    : localData.getQPath().getName();
+                String parentIdentifier = !incomeData.isNode()
+                    ? incomeData.getParentIdentifier()
+                    : localData.getParentIdentifier();
 
-            if (!isPropertyAllowed(propertyName,
-                                   (NodeData) dataManager.getItemData(parentIdentifier))) {
-              skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+                if (!isPropertyAllowed(propertyName,
+                                       (NodeData) dataManager.getItemData(parentIdentifier))) {
+                  skippedList.add(incomeData.getQPath());
+                  return resultEmptyState;
+                }
+              }
+
+            } else {
+              if (incomeData.getQPath().equals(localData.getQPath())) {
+                skippedList.add(incomeData.getQPath());
+                return resultEmptyState;
+              }
             }
           }
           break;
-
         case ItemState.DELETED:
           ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
@@ -249,26 +265,16 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
-          if (!localData.isNode()) { // update single property
+          if (!localData.isNode()) { // update locally single property
             if (incomeData.isNode()) {
               if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
                 return resultEmptyState;
               }
             } else {
-              if (income.findPrevState(incomeState,
-                                       incomeData.getParentIdentifier(),
-                                       incomeData.getQPath().makeParentPath(),
-                                       ItemState.ADDED) != null) { // node was added previously
-                if (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath())) {
-                  skippedList.add(incomeData.getQPath());
-                  return resultEmptyState;
-                }
-              } else {
-                if (localData.getQPath().equals(incomeData.getQPath())) {
-                  skippedList.add(incomeData.getQPath());
-                  return resultEmptyState;
-                }
+              if (localData.getQPath().equals(incomeData.getQPath())) {
+                skippedList.add(incomeData.getQPath());
+                return resultEmptyState;
               }
             }
           }
@@ -473,28 +479,6 @@ public class AddMerger implements ChangesMerger {
                                                                      parent.getPrimaryTypeName(),
                                                                      parent.getMixinTypeNames());
     return pdef != null;
-  }
-
-  private boolean isAddNodeConflict(ChangesStorage<ItemState> income,
-                                    ItemState localState,
-                                    ItemState incomeState) throws PathNotFoundException,
-                                                          ClassCastException,
-                                                          IOException,
-                                                          ClassNotFoundException {
-
-    if (incomeState.getData().getQPath().isDescendantOf(localState.getData().getQPath())
-        || incomeState.getData().getQPath().equals(localState.getData().getQPath())
-        || localState.getData().getQPath().isDescendantOf(incomeState.getData().getQPath())) {
-      return true;
-    }
-
-    QPath ancestor = QPath.getCommonAncestorPath(localState.getData().getQPath(),
-                                                 incomeState.getData().getQPath());
-    if (income.findPrevState(incomeState, ancestor, ItemState.ADDED) != null) {
-      return true;
-    }
-
-    return false;
   }
 
 }

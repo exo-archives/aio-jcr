@@ -134,6 +134,21 @@ public interface ChangesStorage<T extends ItemState> {
   boolean hasState(ItemState state) throws IOException, ClassCastException, ClassNotFoundException;
 
   /**
+   * Tell if state presents in storage.
+   * 
+   * @param identifier
+   * @param path
+   * @param state
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
+  boolean hasState(String identifier, QPath path, int state) throws IOException,
+                                                            ClassCastException,
+                                                            ClassNotFoundException;
+
+  /**
    * Tell if state presents in storage after specified.
    * 
    * @param state

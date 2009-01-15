@@ -235,6 +235,19 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
+  public boolean hasState(String identifier, QPath path, int state) {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    while (it.hasNext()) {
+      if (hasStateFromLog(it.next(), identifier, path, state)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     return new MultiFileIterator<T>(storage);
   }
@@ -452,6 +465,29 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
     for (int i = 0; i < allStates.size(); i++) {
       if (ItemState.isSame(allStates.get(i), itemState)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * hasStateFromLog.
+   * 
+   * @param log
+   * @param identifier
+   * @param path
+   * @param state
+   * @return
+   */
+  private boolean hasStateFromLog(TransactionChangesLog log,
+                                  String identifier,
+                                  QPath path,
+                                  int state) {
+    List<ItemState> allStates = log.getAllStates();
+
+    for (int i = 0; i < allStates.size(); i++) {
+      if (ItemState.isSame(allStates.get(i), identifier, path, state)) {
         return true;
       }
     }

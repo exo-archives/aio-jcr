@@ -287,6 +287,22 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
+  public boolean hasState(String identifier, QPath path, int state) throws IOException,
+                                                                   ClassCastException,
+                                                                   ClassNotFoundException {
+    Iterator<T> it = getChanges();
+
+    while (it.hasNext()) {
+      if (ItemState.isSame(it.next(), identifier, path, state)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException,
                                                                                        ClassCastException,
                                                                                        ClassNotFoundException {

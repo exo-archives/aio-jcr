@@ -202,14 +202,10 @@ public class MergeDataManager {
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
 
-                // TODO
                 // skip processed itemstates
-                if (synchronizedChanges.hasState(new ItemState(nextIncomeChange.getData(),
-                                                               ItemState.ADDED,
-                                                               nextIncomeChange.isEventFire(),
-                                                               nextIncomeChange.getData()
-                                                                               .getQPath()))
-                /*|| synchronizedChanges.hasState(incomeChange, false)*/) {
+                if (synchronizedChanges.hasState(nextIncomeChange.getData().getIdentifier(),
+                                                 nextIncomeChange.getData().getQPath(),
+                                                 ItemState.ADDED)) {
                   continue;
                 }
 
