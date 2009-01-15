@@ -208,14 +208,12 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     try {
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
-        Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
-
-        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + mem.getName());
+        LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + member.getName());
 
         // Fire event to Publisher to send own changes out
         doSendChanges();
 
-        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp(), mem);
+        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp(), member);
         cf.writeData(packet.getBuffer(), packet.getOffset());
 
         // packet.getFileCount(); // TODO remeber whole packets count for this member
@@ -225,18 +223,16 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         break;
       }
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
+        LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
+        
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
-
-        LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + mcf.getMember().getName());
-
         mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
         break;
       }
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
+        LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + member.getName());
+        
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
-
-        LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + mcf.getMember().getName());
-
         mcf.getChangesFile().finishWrite();
         incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());
 

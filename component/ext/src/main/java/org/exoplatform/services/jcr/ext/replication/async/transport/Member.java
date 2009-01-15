@@ -31,31 +31,45 @@ import org.jgroups.Address;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: Member.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public class Member implements Externalizable{
+public class Member implements Externalizable {
 
   private Address address;
 
   private int     priority;
 
-  public Member(){
+  public Member() {
   }
-  
+
   /**
-   * Member constructor.
+   * Member constructor for <code>AsyncInitializer</code>.
    * 
    * @param address
-   *          address of member
+   *          Address (JGroups)
    */
   public Member(Address address) {
     this.address = address;
     this.priority = -1;
   }
 
+  /**
+   * Member constructor for <code>LocalStorage</code> and <code>IncomeStorage</code>.
+   * 
+   * @param priority
+   *          int
+   */
   public Member(int priority) {
     this.address = null;
     this.priority = priority;
   }
-  
+
+  /**
+   * Member constructor for <code>Subscriber</code>.
+   * 
+   * @param address
+   *          Address (JGroups)
+   * @param priority
+   *          int
+   */
   public Member(Address address, int priority) {
     this.address = address;
     this.priority = priority;
@@ -70,7 +84,7 @@ public class Member implements Externalizable{
    * @see {@link Member.getAddress()}
    */
   public String getName() {
-    return this.priority + ". " + this.address;
+    return this.priority + (this.address != null ?  " (" + this.address + ")" : "");
   }
 
   /**
@@ -111,7 +125,7 @@ public class Member implements Externalizable{
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     priority = in.readInt();
-    address = (Address)in.readObject();
+    address = (Address) in.readObject();
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {
