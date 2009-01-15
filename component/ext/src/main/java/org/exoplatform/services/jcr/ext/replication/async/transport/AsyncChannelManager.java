@@ -84,7 +84,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * Channel connection sate listeners.
    */
-  private List<ConnectionListener>  connectionListeners;
+  private final List<ConnectionListener>  connectionListeners;
 
   /**
    * ChannelManager constructor.
@@ -99,6 +99,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     this.channelName = channelName;
     this.packetListeners = new ArrayList<AsyncPacketListener>();
     this.stateListeners = new ArrayList<AsyncStateListener>();
+    this.connectionListeners = new ArrayList<ConnectionListener>();
   }
 
   /**
