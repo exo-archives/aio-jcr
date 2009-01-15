@@ -854,7 +854,11 @@ public class GroovyScript2RestLoader implements Startable {
                                   .getSession(workspace,
                                               repositoryService.getRepository(repository));
       Node script = ((Node) ses.getItem("/" + path)).getNode("jcr:content");
+      String unifiedNodePath = new UnifiedNodeReference(repository, workspace, script.getPath()).getURL()
+                                                                                                .toString();
+
       ScriptMetadata meta = new ScriptMetadata(script.getProperty("exo:autoload").getBoolean(),
+                                               isLoaded(unifiedNodePath),
                                                script.getProperty("jcr:mimeType").getString(),
                                                script.getProperty("jcr:lastModified")
                                                      .getDate()
@@ -1007,6 +1011,8 @@ public class GroovyScript2RestLoader implements Startable {
         }
       } else {
         StringBuffer p = new StringBuffer();
+        // add '.*' pattern at the start
+        p.append(".*");
         for (int i = 0; i < name.length(); i++) {
           char c = name.charAt(i);
           if (c == '*' || c == '?')
@@ -1015,14 +1021,16 @@ public class GroovyScript2RestLoader implements Startable {
             p.append('\\');
           p.append(c);
         }
+        // add '.*' pattern at he end
+        p.append(".*");
 
         Pattern pattern = Pattern.compile(p.toString(), Pattern.CASE_INSENSITIVE);
         while (nodeIterator.hasNext()) {          
           Node node = nodeIterator.nextNode();
-          String scriptName = getName(node.getParent().getPath());
+          String scriptName = node.getParent().getPath();
 
           if (pattern.matcher(scriptName).matches()) {
-            scriptList.add(node.getParent().getPath());
+            scriptList.add(scriptName);
           }
         }
       }
@@ -1055,7 +1063,7 @@ public class GroovyScript2RestLoader implements Startable {
    */
   private static String getName(String fullPath) {
     int sl = fullPath.lastIndexOf('/');
-    return sl > 0 ? fullPath.substring(sl + 1) : fullPath;
+    return sl >= 0 ? fullPath.substring(sl + 1) : fullPath;
   }
 
   /**
@@ -1069,6 +1077,11 @@ public class GroovyScript2RestLoader implements Startable {
     private final boolean autoload;
 
     /**
+     * Is script loaded.
+     */
+    private final boolean load;
+
+    /**
      * Script media type (script/groovy).
      */
     private final String  mediaType;
@@ -1078,8 +1091,9 @@ public class GroovyScript2RestLoader implements Startable {
      */
     private final long    lastModified;
 
-    public ScriptMetadata(boolean autoload, String mediaType, long lastModified) {
+    public ScriptMetadata(boolean autoload, boolean load, String mediaType, long lastModified) {
       this.autoload = autoload;
+      this.load = load;
       this.mediaType = mediaType;
       this.lastModified = lastModified;
     }
@@ -1089,6 +1103,13 @@ public class GroovyScript2RestLoader implements Startable {
      */
     public boolean getAutoload() {
       return autoload;
+    }
+
+    /**
+     * @return {@link #load}
+     */
+    public boolean getLoad() {
+      return load;
     }
 
     /**
