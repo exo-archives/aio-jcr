@@ -171,7 +171,11 @@
             <include>**/replication/async/**/*.java</include>
             <include>**/organization/Test*.java</include -->
 			
-			<include>**/replication/async/**/TestTransmitterChanges.java</include>
+			<include>**/replication/async/**/ChangesSubscriberTest.java</include>
+			<!-- include>**/replication/async/**/ChangesPublisherTest.java</include>
+			<include>**/replication/async/**/AsyncTransmitterTest.java</include>
+			<include>**/replication/async/**/AsyncReceiverTest.java</include>
+			<include>**/replication/async/**/AsyncInitializerTest.java</include -->
           </includes>
           <excludes>
             <exclude>**/*$*</exclude>

@@ -215,8 +215,6 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         // Fire event to Publisher to send own changes out
         doSendChanges();
 
-        Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
-
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
 
         cf.writeData(packet.getBuffer(), packet.getOffset());
@@ -224,7 +222,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         packet.getFileCount(); // TODO remeber whole packets count for this member
 
         incomChanges.put(new Key(packet.getCRC(), packet.getTimeStamp()),
-                         new MemberChangesFile(cf, mem));
+                         new MemberChangesFile(cf, member));
         break;
 
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:

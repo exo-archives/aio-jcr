@@ -148,7 +148,6 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * closeChannel. Close the channel.
    */
   public void disconnect() {
-    dispatcher.setMembershipListener(null);
     dispatcher = null;
     channel.close();
     channel = null;

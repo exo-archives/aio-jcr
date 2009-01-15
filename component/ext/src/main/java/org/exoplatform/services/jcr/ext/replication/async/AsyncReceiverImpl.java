@@ -58,10 +58,12 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * @param packet
    */
   protected void onChanges(ChangesPacket packet, Member member) {
-    LOG.info("AsyncReceiver.onChanges, member " + member.getName() + ", packet " + packet);
+    Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
+    
+    LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet " + packet);
 
     if (changesSubscriber != null)
-      changesSubscriber.onChanges(packet, member);
+      changesSubscriber.onChanges(packet, mem);
     else
       LOG.warn("Subscriber is not set. Changes from member " + member.getName()
           + " will be ignored. ");

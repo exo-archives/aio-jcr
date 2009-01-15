@@ -176,7 +176,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     }
 
     packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET,
-                               priority,
+                               transmitterPriority,
                                clFile.getChecksum(),
                                clFile.getTimeStamp(),
                                totalFiles,
@@ -198,7 +198,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
       }
 
       packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET,
-                                 priority,
+                                 transmitterPriority,
                                  clFile.getChecksum(),
                                  clFile.getTimeStamp(),
                                  totalFiles,
@@ -214,7 +214,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
 
     // Send last packet
     packet = new ChangesPacket(AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET,
-                               priority,
+                               transmitterPriority,
                                clFile.getChecksum(),
                                clFile.getTimeStamp(),
                                totalFiles,
