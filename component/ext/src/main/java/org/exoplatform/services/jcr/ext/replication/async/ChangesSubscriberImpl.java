@@ -134,6 +134,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
                            IOException,
                            ClassCastException,
                            ClassNotFoundException {
+      
+      LOG.error("run merge " + this);
+      
       // add local changes to the list
       List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
@@ -148,9 +151,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       }
 
       // merge
-      LOG.info("start merge");
+      LOG.info("start merge " + this);
       result = mergeManager.merge(membersChanges.iterator());
-      LOG.info("done merge");
+      LOG.info("done merge " + this);
     }
 
   }
@@ -199,14 +202,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   }
 
   public void onChanges(ChangesPacket packet, Member member) {
-    
+
     LOG.info("onChanges " + member.getName());
-    
+
     try {
       switch (packet.getType()) {
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
         LOG.info("BINARY_CHANGESLOG_FIRST_PACKET");
-        
+
         // Fire event to Publisher to send own changes out
         doSendChanges();
 
@@ -238,7 +241,6 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         if (counterMap == null)
           counterMap = new LinkedHashMap<Integer, Counter>();
 
-
         Counter counter;
         if (counterMap.containsKey(packet.getTransmitterPriority())) {
           counter = counterMap.get(packet.getTransmitterPriority());
@@ -249,9 +251,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         }
 
         // if all changes here, doStartMerge
-        if (counter.isTotalTransfer())
-          if (isAllTransfered())
-            doStartMerge();
+        if (counter.isTotalTransfer() && isAllTransfered())
+          doStartMerge();
 
         break;
 
@@ -315,7 +316,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   }
 
   protected void doDoneMerge() {
-    LOG.info("Do DONE");
+    LOG.info("Do DONE MERGE");
     // add local done;
     doneList.add(localPriority);
 

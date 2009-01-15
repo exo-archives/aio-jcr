@@ -20,10 +20,6 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
@@ -32,13 +28,13 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorageChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
-import org.exoplatform.services.jcr.util.IdGenerator;
+import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizerChangesLog;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -48,175 +44,6 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id$
  */
 public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
-
-  class ItemStateIterableList<T extends ItemState> implements List<ItemState> {
-
-    private ChangesStorage<ItemState> storage;
-
-    public ItemStateIterableList(ChangesStorage<ItemState> storage) {
-      this.storage = storage;
-    }
-
-    public boolean add(ItemState o) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public void add(int index, ItemState element) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean addAll(Collection<? extends ItemState> c) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean addAll(int index, Collection<? extends ItemState> c) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public void clear() {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean contains(Object o) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean containsAll(Collection<?> c) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public ItemState get(int index) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public int indexOf(Object o) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean isEmpty() {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public Iterator<ItemState> iterator() {
-      try {
-        return this.storage.getChanges();
-      } catch (IOException e) {
-        throw new ChangesLogReadException(e.getMessage());
-      } catch (ClassCastException e) {
-        throw new ChangesLogReadException(e.getMessage());
-      } catch (ClassNotFoundException e) {
-        throw new ChangesLogReadException(e.getMessage());
-      }
-    }
-
-    public int lastIndexOf(Object o) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public ListIterator<ItemState> listIterator() {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public ListIterator<ItemState> listIterator(int index) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean remove(Object o) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public ItemState remove(int index) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean removeAll(Collection<?> c) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public boolean retainAll(Collection<?> c) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public ItemState set(int index, ItemState element) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public int size() {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public List<ItemState> subList(int fromIndex, int toIndex) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public Object[] toArray() {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    public <T> T[] toArray(T[] a) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-  }
-
-  class SynchronizingChangesLog implements PlainChangesLog {
-
-    private final ChangesStorage<ItemState> storage;
-
-    private final String                    sessionId;
-
-    public SynchronizingChangesLog(ChangesStorage<ItemState> synchronizedChanges) {
-      this.storage = synchronizedChanges;
-      this.sessionId = IdGenerator.generate();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getSessionId() {
-      return sessionId;
-    }
-
-    public String dump() {
-      return "Not implemented!";
-    }
-
-    public List<ItemState> getAllStates() {
-      return new ItemStateIterableList<ItemState>(storage);
-    }
-
-    public int getSize() {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public PlainChangesLog add(ItemState state) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public PlainChangesLog addAll(List<ItemState> states) {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void clear() {
-      throw new RuntimeException("Not implemented!");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getEventType() {
-      throw new RuntimeException("Not implemented!");
-    }
-  }
 
   private static final Log              LOG = ExoLogger.getLogger("ext.WorkspaceSynchronizerImpl");
 
@@ -247,13 +74,11 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                  RepositoryException {
     LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
     
-    ItemStateChangesLog changes = new TransactionChangesLog(new SynchronizingChangesLog(synchronizedChanges));
-
     OnSynchronizationWorkspaceListenersFilter apiFilter = new OnSynchronizationWorkspaceListenersFilter();
     workspace.addItemPersistenceListenerFilter(apiFilter);
     
     try {
-      workspace.save(changes);
+      workspace.save(new SynchronizerChangesLog(synchronizedChanges));
     } catch (ChangesLogReadException e) {
       throw new SynchronizationException("Error of merge result read on save " + e, e);
     } finally {
