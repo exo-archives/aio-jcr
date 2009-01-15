@@ -191,13 +191,15 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // check exception
     String[] errs = storage.getErrors();
+    storage=null;
+    
     assertEquals(3, errs.length);
 
     assertEquals(first.getMessage(), errs[0]);
     assertEquals(second.getMessage(), errs[1]);
     assertEquals(third.getMessage(), errs[2]);
     
-    storage=null;
+    Thread.sleep(100);
   }
 
   /**
@@ -228,7 +230,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     n2.setProperty("secondProp", "ohohohSecond");
     root.save();
 
-   // assertEquals(0, storage.getErrors().length);
+    assertEquals(0, storage.getErrors().length);
 
     // check current data
     TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
@@ -237,7 +239,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage.onStop();
 
-   // assertEquals(0, storage.getErrors().length);
+    assertEquals(0, storage.getErrors().length);
 
     // check current data
     TransactionChangesLog log2 = pl.pushChanges().get(1);// createChangesLog((NodeData)
@@ -277,7 +279,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     n2.setProperty("secondProp", "ohohohSecond");
     root.save();
 
-   // assertEquals(0, storage.getErrors().length);
+    assertEquals(0, storage.getErrors().length);
 
     // check current data
     TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
@@ -286,7 +288,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage.onCancel();
 
-    //assertEquals(0, storage.getErrors().length);
+    assertEquals(0, storage.getErrors().length);
 
     
     
@@ -300,7 +302,6 @@ public class LocalStorageTest extends BaseStandaloneTest {
       log2.addLog(chIt.nextLog());
     }
     
-    // n1.getData());
     ch = storage.getLocalChanges();
     checkIterator(log2.getAllStates().iterator(), ch.getChanges());
     

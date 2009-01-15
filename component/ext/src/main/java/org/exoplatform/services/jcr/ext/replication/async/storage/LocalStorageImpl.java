@@ -334,4 +334,12 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     secondDir.mkdir();
   }
 
+  public void finalize() throws IOException{
+    // Close writer
+    if (this.errorOut != null){
+      errorOut.close();
+      errorOut = null;
+    }
+  }
+  
 }

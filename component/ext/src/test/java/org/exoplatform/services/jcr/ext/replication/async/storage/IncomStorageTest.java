@@ -187,6 +187,85 @@ public class IncomStorageTest extends BaseStandaloneTest {
     return res;
   }
 
+  /**
+   * There may be any files in storage. But only correct named must use.
+   * 
+   * @throws Exception
+   */
+  public void testWrongNamedFilesInStorage() throws Exception {
+
+    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
+    n1.setProperty("prop1", "dfdasfsdf");
+    n1.setProperty("secondProp", "ohohoh");
+
+    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+    n2.setProperty("prop1", "dfdasfsdfSecond");
+    n2.setProperty("secondProp", "ohohohSecond");
+
+    NodeImpl n3 = (NodeImpl) root.addNode("testNodeThird");
+    n3.setProperty("prop1", "dfdasfsdfThird");
+    n3.setProperty("secondProp", "ohohoh Third");
+
+    root.save();
+
+    TransactionChangesLog log1 = createChangesLog((NodeData) n1.getData());
+
+    TransactionChangesLog log2 = createChangesLog((NodeData) n2.getData());
+
+    TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
+
+    // create storage
+    IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
+    
+    File difFile = new File(dir,"blabla");
+    assertTrue(difFile.createNewFile());
+
+    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis());
+    ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
+    out.writeObject(log1);
+    out.close();
+    cf.finishWrite();
+    storage.addMemberChanges(new Member(null, 20), cf);
+
+    cf = storage.createChangesFile("", System.currentTimeMillis());
+    out = new ObjectOutputStream(cf.getOutputStream());
+    out.writeObject(log2);
+    out.close();
+    cf.finishWrite();
+    storage.addMemberChanges(new Member(null, 10), cf);
+    File subDifFile = new File(dir,"10/subfile");
+    assertTrue(subDifFile.createNewFile());
+    
+
+    cf = storage.createChangesFile("", System.currentTimeMillis());
+    out = new ObjectOutputStream(cf.getOutputStream());
+    out.writeObject(log3);
+    out.close();
+    cf.finishWrite();
+    storage.addMemberChanges(new Member(null, 45), cf);
+
+    // delete storage object
+    storage = null;
+
+    // create new storage object on old context
+    storage = new IncomeStorageImpl(dir.getAbsolutePath());
+    List<ChangesStorage<ItemState>> ch = storage.getChanges();
+    assertEquals(3, ch.size());
+
+    // check results
+    Iterator<ItemState> states = ch.get(0).getChanges();
+    Iterator<ItemState> expectedStates = log2.getAllStates().iterator();
+    checkIterator(expectedStates, states);
+
+    states = ch.get(1).getChanges();
+    expectedStates = log1.getAllStates().iterator();
+    checkIterator(expectedStates, states);
+
+    states = ch.get(2).getChanges();
+    expectedStates = log3.getAllStates().iterator();
+    checkIterator(expectedStates, states);
+  }
+
   private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
     while (expected.hasNext()) {
 
