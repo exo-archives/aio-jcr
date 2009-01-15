@@ -61,7 +61,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class AsyncTransmitterTest extends AbstractTrasportTest {
 
-  private static Log                  log                = ExoLogger.getLogger("ext.TestAsyncTransmitter");
+  private static Log                  log                = ExoLogger.getLogger("ext.AsyncTransmitterTest");
 
 //  private List<TransactionChangesLog> srcChangesLogList  = new ArrayList<TransactionChangesLog>();
 
@@ -285,12 +285,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     // compare
     assertEquals(mergeReceiver.mergePacket.getTransmitterPriority(), 100);
     assertEquals(mergeReceiver.mergePacket.getType(), AsyncPacketTypes.SYNCHRONIZATION_MERGE);
-  }/*public void onStateChanged(AsyncStateEvent event) {
-  log.info("onStateChanged");
-
-  memberList = new ArrayList<Member>(event.getMembers());
-  memberList.remove(event.getLocalMember());
-}*/
+  }
   
   public void testSendExportError() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);

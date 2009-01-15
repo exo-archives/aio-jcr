@@ -69,7 +69,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
   protected HashMap<Integer, Counter>             counterMap;
 
-  protected List<Integer>                         doneList;
+  protected volatile List<Integer>                doneList;
 
   protected final int                             localPriority;
 
@@ -333,6 +333,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
    * Add 'done' to list.
    *
    * @param priority
+   *          the value of priority.
    */
   private void addDone(int priority) {
     if (doneList == null)

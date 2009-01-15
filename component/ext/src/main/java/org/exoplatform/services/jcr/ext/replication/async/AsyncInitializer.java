@@ -43,7 +43,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class AsyncInitializer extends SynchronizationStop implements AsyncPacketListener,
+public class AsyncInitializer extends SynchronizationLifeСycle implements AsyncPacketListener,
     AsyncStateListener, LocalEventListener {
 
   /**
@@ -145,7 +145,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
     log.info("onStateChanged " + event);
 
-    if (hasStop()) {
+    if (isStopped()) {
       log.warn("Channel state changed but initializer was stopped " + event);
       return;
     }
@@ -200,7 +200,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
       // Check if disconnected the previous coordinator.
 
-      if (event.isCoordinator() && !isCoordinator && !hasStop()) {
+      if (event.isCoordinator() && !isCoordinator && !isStopped()) {
         isCoordinator = event.isCoordinator();
 
         // TODO remove log
@@ -262,7 +262,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
 
     log.info("receive data from " + srcAddress);
     
-    if (hasStop()) {
+    if (isStopped()) {
       log.warn("Changes received but initializer was stopped " + srcAddress);
       return;
     }
@@ -355,7 +355,7 @@ public class AsyncInitializer extends SynchronizationStop implements AsyncPacket
    *          long
    */
   private void doStop(long timeout) {
-    this.stopped();
+    this.stop();
 
     if (lastMemberWaiter != null)
       lastMemberWaiter.cancel();

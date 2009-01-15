@@ -25,14 +25,14 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a> 
  * @version $Id: SynchronizationStop.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public abstract class SynchronizationStop {
+public abstract class SynchronizationLifeСycle {
   private volatile boolean stopped = false;
 
-  public boolean hasStop() {
+  public boolean isStopped() {
     return stopped;
   }
   
-  public void stopped() {
+  public void stop() {
     stopped = true;
   }
 }

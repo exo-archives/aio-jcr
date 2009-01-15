@@ -125,8 +125,8 @@ public class AsyncReplication implements Startable {
                 IncomeStorage incomeStorage,
                 String chanelNameSufix) {
 
-      this.channel = new AsyncChannelManager(channelConfig, channelName +"_" + chanelNameSufix);
-      
+      this.channel = new AsyncChannelManager(channelConfig, channelName + "_" + chanelNameSufix);
+
       this.dataManager = dataManager;
 
       this.ntManager = ntManager;
@@ -439,19 +439,7 @@ public class AsyncReplication implements Startable {
     if (repositoryNames != null && repositoryNames.length > 0) {
       ManageableRepository repository = repoService.getRepository(repoName);
       for (String wsName : repository.getWorkspaceNames()) {
-
-        WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(wsName);
-
-        NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
-        PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
-
-        LocalStorage localStorage = localStorages.get(new StorageKey(repoName, wsName));
-        IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, wsName));
-
-        AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName + "_" + wsName);
-        synchWorker.start();
-
-        currentWorkers.add(synchWorker);
+        synchronize(repoName, wsName);
       }
     } else
       log.error("[ERROR] Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
@@ -480,7 +468,8 @@ public class AsyncReplication implements Startable {
       LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
       IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-      AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName + "_" + workspaceName);
+      AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName
+          + "_" + workspaceName);
       synchWorker.start();
 
       currentWorkers.add(synchWorker);
