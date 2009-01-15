@@ -155,4 +155,6 @@ public interface ArtifactManagingService {
    * @throws RepositoryException
    */
   void changePermission (SessionProvider sp, Descriptor artifact, String identity, String[] permissions, boolean delete ) throws RepositoryException;
+  
+   List getListErrors ();
 }
