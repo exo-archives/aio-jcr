@@ -77,6 +77,8 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
   private File                  primeDir;
 
   private File                  secondDir;
+  
+  private volatile long index = 0;
 
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -149,16 +151,11 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    * @throws IOException
    */
   private ChangesFile createChangesFile() throws IOException {
-    try {
-      Thread.sleep(100); // TODO ???
-    } catch (InterruptedException e) {
-      // do nothing
-    }
     if (secondDir.exists()) {
-      return new ChangesFile("", System.currentTimeMillis(), secondDir.getAbsolutePath());
+      return new ChangesFile("", index++, secondDir.getAbsolutePath());
     } else {
       primeDir.mkdir();
-      return new ChangesFile("", System.currentTimeMillis(), primeDir.getAbsolutePath());
+      return new ChangesFile("", index++, primeDir.getAbsolutePath());
     }
   }
 

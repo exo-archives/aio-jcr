@@ -49,6 +49,8 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
    * {@inheritDoc}
    */
   public void addMemberChanges(Member member, ChangesFile changes) throws IOException {
+    // TODO check if CRC is valid for received file
+    
     // get member directory
     File dir = new File(storagePath, Integer.toString(member.getPriority()));
 
