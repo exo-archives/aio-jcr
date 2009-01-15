@@ -192,9 +192,9 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
       if (isFile(node)) {
         if (view != null && view.equalsIgnoreCase("true"))
-          return downloadArtifact(node);
-        else
           return getArtifactInfo(node, mavenPath, gadget);
+        else
+          return downloadArtifact(node);
       } else {
         return browseRepository(node, mavenPath, gadget);
       }
@@ -340,7 +340,7 @@ public class RESTArtifactLoaderService implements ResourceContainer {
           String parent = mavenPath.substring(0, mavenPath.lastIndexOf('/'));
           xsw.writeStartElement("td");
           xsw.writeStartElement("a");
-          xsw.writeAttribute("href", parent);
+          xsw.writeAttribute("href", parent + "?view=true&gadget=" + gadget);
           xsw.writeCharacters("..");
           xsw.writeEndElement(); // a
           xsw.writeEndElement(); // td
