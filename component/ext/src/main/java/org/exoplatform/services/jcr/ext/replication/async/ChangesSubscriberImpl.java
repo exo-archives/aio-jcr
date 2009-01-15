@@ -333,12 +333,6 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   public void onCancel() {
     LOG.info("On CANCEL");
     mergeCancel();
-
-    try {
-      incomeStorrage.clean();
-    } catch (IOException e) {
-      LOG.error("Cannot clean income storage ", e);
-    }
   }
 
   private void mergeCancel() {
