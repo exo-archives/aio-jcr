@@ -75,13 +75,13 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis());
+    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log);
     out.close();
     cf.finishWrite();
 
-    storage.addMemberChanges(new Member(null, 20), cf);
+    //storage.addMemberChanges(new Member(null, 20), cf);
 
     // delete storage object
     storage = null;
@@ -124,26 +124,26 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis());
+    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
     cf.finishWrite();
-    storage.addMemberChanges(new Member(null, 20), cf);
+  //  storage.addMemberChanges(new Member(null, 20), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis());
+    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 10));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log2);
     out.close();
     cf.finishWrite();
-    storage.addMemberChanges(new Member(null, 10), cf);
+    //storage.addMemberChanges(new Member(null, 10), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis());
+    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 45));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log3);
     out.close();
     cf.finishWrite();
-    storage.addMemberChanges(new Member(null, 45), cf);
+    //storage.addMemberChanges(new Member(null, 45), cf);
 
     // delete storage object
     storage = null;
@@ -220,29 +220,29 @@ public class IncomStorageTest extends BaseStandaloneTest {
     File difFile = new File(dir,"blabla");
     assertTrue(difFile.createNewFile());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis());
+    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
     cf.finishWrite();
-    storage.addMemberChanges(new Member(null, 20), cf);
+    //storage.addMemberChanges(new Member(null, 20), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis());
+    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 10));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log2);
     out.close();
     cf.finishWrite();
-    storage.addMemberChanges(new Member(null, 10), cf);
+    //storage.addMemberChanges(new Member(null, 10), cf);
     File subDifFile = new File(dir,"10/subfile");
     assertTrue(subDifFile.createNewFile());
     
 
-    cf = storage.createChangesFile("", System.currentTimeMillis());
+    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 45));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log3);
     out.close();
     cf.finishWrite();
-    storage.addMemberChanges(new Member(null, 45), cf);
+   // storage.addMemberChanges(new Member(null, 45), cf);
 
     // delete storage object
     storage = null;

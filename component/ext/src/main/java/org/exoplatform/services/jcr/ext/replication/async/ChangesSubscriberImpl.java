@@ -215,7 +215,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         // Fire event to Publisher to send own changes out
         doSendChanges();
 
-        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp());
+        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp(), mem);
 
         cf.writeData(packet.getBuffer(), packet.getOffset());
 

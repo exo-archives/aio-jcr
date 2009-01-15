@@ -78,6 +78,9 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
   private File                  secondDir;
   
+  /**
+   * This unique index used as name for ChangesFiles.
+   */
   private volatile long index = 0;
 
   public LocalStorageImpl(String storagePath) {

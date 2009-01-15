@@ -40,7 +40,7 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
   protected static final Log LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
   protected final String     storagePath;
-
+  
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
   }
@@ -52,19 +52,21 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
     // TODO check if CRC is valid for received file
     
     // get member directory
-    File dir = new File(storagePath, Integer.toString(member.getPriority()));
+  //  File dir = new File(storagePath, Integer.toString(member.getPriority()));
 
-    dir.mkdirs();
+  //  dir.mkdirs();
 
     // move changes file to member directory
-    if(!changes.moveTo(dir)) throw new IOException("Can't move file.");
+  //  if(!changes.moveTo(dir)) throw new IOException("Can't move file.");
   }
 
   /**
    * {@inheritDoc}
    */
-  public ChangesFile createChangesFile(String crc, long timeStamp) throws IOException {
-    return new ChangesFile(crc, timeStamp, storagePath);
+  public ChangesFile createChangesFile(String crc, long timeStamp, Member member) throws IOException {
+    File dir = new File(storagePath, Integer.toString(member.getPriority()));
+    dir.mkdirs();
+    return new ChangesFile(crc, timeStamp, dir.getAbsolutePath());
   }
 
   /**
