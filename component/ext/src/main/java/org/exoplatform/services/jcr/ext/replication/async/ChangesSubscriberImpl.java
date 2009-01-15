@@ -236,19 +236,20 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         if (counterMap == null)
           counterMap = new LinkedHashMap<Integer, Counter>();
 
+
+        Counter counter;
         if (counterMap.containsKey(packet.getTransmitterPriority())) {
-          Counter counter = counterMap.get(packet.getTransmitterPriority());
+          counter = counterMap.get(packet.getTransmitterPriority());
           counter.countUp();
-
-          if (counter.isTotalTransfer())
-            if (isAllTransfered())
-              // if all changes here, doMerge
-              doStartMerge();
-
         } else {
-          Counter counter = new Counter((int) packet.getFileCount(), 1);
+          counter = new Counter((int) packet.getFileCount(), 1);
           counterMap.put(packet.getTransmitterPriority(), counter);
         }
+
+        // if all changes here, doStartMerge
+        if (counter.isTotalTransfer())
+          if (isAllTransfered())
+            doStartMerge();
 
         break;
 

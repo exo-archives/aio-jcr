@@ -106,14 +106,14 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     // send changes
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME);
+    AsyncChannelManager channel = new AsyncChannelManager(chConfig, CH_NAME + "_" + repository.getName() + "_" + sessionWS1.getWorkspace().getName());
     channel.addStateListener(this);
 
     AsyncTransmitter transmitter = new AsyncTransmitterImpl(channel, priority2);
 
     channel.connect();
 
-    transmitter.sendChanges(cfList, memberList);
+    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), memberList);
 
     transmitter.sendMerge();
     

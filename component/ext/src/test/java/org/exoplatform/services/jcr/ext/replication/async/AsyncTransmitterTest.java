@@ -119,7 +119,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     latch = new CountDownLatch(cfList.size());
 
-    transmitter.sendChanges(cfList, memberList);
+    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), memberList);
 
     // wait receive
     latch.await();

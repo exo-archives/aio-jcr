@@ -86,7 +86,7 @@ public class TransmitterChangesTest extends AbstractTrasportTest {
 
     channel.connect();
     
-    transmitter.sendChanges(cfList,memberList);
+    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]),memberList);
     
     transmitter.sendMerge();
   }
