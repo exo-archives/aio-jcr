@@ -85,10 +85,10 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   protected final Set<LocalEventListener>         listeners   = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
-    
-    private final Log                        workerLog         = ExoLogger.getLogger("ext.MergeWorker");
 
-    ChangesStorage<ItemState> result = null;
+    private final Log         workerLog = ExoLogger.getLogger("ext.MergeWorker");
+
+    ChangesStorage<ItemState> result    = null;
 
     /**
      * {@inheritDoc}
@@ -99,7 +99,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         runMerge();
 
         doDoneMerge();
-        
+
         save();
 
       } catch (RepositoryException e) {
@@ -136,9 +136,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
                            IOException,
                            ClassCastException,
                            ClassNotFoundException {
-      
+
       LOG.error("run merge " + this);
-      
+
       // add local changes to the list
       List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
@@ -305,7 +305,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     LOG.error("Do CANCEL");
 
     mergeCancel();
-    
+
     try {
       transmitter.sendCancel();
     } catch (IOException ioe) {
@@ -320,6 +320,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   protected void doDoneMerge() {
     LOG.info("Do DONE MERGE");
     // add local done;
+    if (doneList == null)
+      doneList = new ArrayList<Integer>();
     doneList.add(localPriority);
 
     try {
@@ -363,9 +365,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     LOG.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount="
         + membersCount);
 
-    this.save();    
+    this.save();
   }
-  
+
   private void save() {
     if (doneList.size() == membersCount) {
       try {
