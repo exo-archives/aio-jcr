@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,15 +71,22 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
   public List<ChangesStorage<ItemState>> getChanges() throws IOException {
 
     File incomStorage = new File(storagePath);
-    String[] childnames = incomStorage.list();
+    File[] memberDirs = incomStorage.listFiles(new FilenameFilter() {
+
+      public boolean accept(File dir, String name) {
+        File fdir = new File(dir, name);
+        if (fdir.isDirectory()) {
+          return true;
+        }
+        return false;
+      }
+    });
 
     List<ChangesStorage<ItemState>> changeStorages = new ArrayList<ChangesStorage<ItemState>>();
-    for (int i = 0; i < childnames.length; i++) {
+    for (File memberDir: memberDirs) {
       try {
-
-        int memberPriority = Integer.parseInt(childnames[i]); // also check - is
+        int memberPriority = Integer.parseInt(memberDir.getName()); // also check - is
         // member folder;
-        File memberDir = new File(incomStorage, childnames[i]);
 
         String[] fileNames = memberDir.list(ChangesFile.getFilenameFilter());
 
@@ -105,7 +113,7 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
           public Throwable getCause() {
             return e;
           }
-          
+
         };
       }
     }
