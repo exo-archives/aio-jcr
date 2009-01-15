@@ -32,7 +32,7 @@ public abstract class SynchronizationLifeCycle {
     return stopped;
   }
   
-  public void stop() {
+  public void doStop() {
     stopped = true;
   }
 }

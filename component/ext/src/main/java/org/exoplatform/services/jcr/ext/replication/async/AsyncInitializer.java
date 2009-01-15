@@ -274,7 +274,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
-      stop(CHANNEL_CLOSE_TIMEOUT);
+      doStop(CHANNEL_CLOSE_TIMEOUT);
 
       doCancel(member);
     }
@@ -314,7 +314,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onCancel() {
     log.info("onCancel");
 
-    stop();
+    doStop();
   }
 
   /**
@@ -323,7 +323,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onStop() {
     log.info("onStop");
 
-    stop();
+    doStop();
   }
 
   /**
@@ -344,8 +344,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * Stop work.
    * 
    */
-  public void stop() {
-    stop(0);
+  public void doStop() {
+    doStop(0);
   }
 
   /**
@@ -354,8 +354,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * @param timeout
    *          long
    */
-  private void stop(long timeout) {
-    super.stop();
+  private void doStop(long timeout) {
+    super.doStop();
 
     if (lastMemberWaiter != null)
       lastMemberWaiter.cancel();
@@ -407,14 +407,13 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
           // TODO remove log
           log.info("LastMemberWaiter : " + "channelManager.disconnect()");
 
-          stop();
+          doStop();
           doCancel(null);
         }
 
       } catch (InterruptedException e) {
         log.error("LastMemberWaiter is interrupted : " + e, e);
       }
-
     }
 
     /**
@@ -440,7 +439,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         Thread.sleep(memberWaitTimeout);
 
         if (run && previousMemmbers.size() == 1) {
-          stop();
+          doStop();
           doCancel(null);
         }
 
