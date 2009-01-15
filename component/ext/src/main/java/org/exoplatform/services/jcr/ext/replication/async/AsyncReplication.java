@@ -91,7 +91,7 @@ public class AsyncReplication implements Startable {
 
   protected final String[]                                 repositoryNames;
 
-  class AsyncWorker extends Thread {
+  class AsyncWorker implements ConnectionListener {
 
     protected final AsyncChannelManager       channel;
 
@@ -179,6 +179,15 @@ public class AsyncReplication implements Startable {
 
       this.channel.addStateListener(this.initializer);
       this.channel.addPacketListener(this.initializer);
+      
+      this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public void onDisconnect() {
+      doFinalyze();
     }
 
     private void doFinalyze() {
@@ -197,27 +206,22 @@ public class AsyncReplication implements Startable {
 
       this.channel.removePacketListener(this.initializer);
       this.channel.removeStateListener(this.initializer);
+
+      currentWorkers.remove(this); // remove itself
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
     public void run() {
       try {
         this.channel.connect();
-        this.initializer.waitStop();
+        //this.initializer.waitStop();
       } catch (ReplicationException e) {
-        log.error("Synchronization error " + e, e);
-      } catch (InterruptedException e) {
-        log.error("Synchronization process interrupted " + e, e);
-      } finally {
+        log.error("Synchronization start error " + e, e);
         doFinalyze();
-
-        currentWorkers.remove(this); // remove itself
       }
     }
-
   }
 
   /**
@@ -432,7 +436,7 @@ public class AsyncReplication implements Startable {
    * @throws RepositoryConfigurationException
    * @throws RepositoryException
    */
-  private void synchronize(String repoName) throws RepositoryException,
+  protected void synchronize(String repoName) throws RepositoryException,
                                            RepositoryConfigurationException {
 
     // TODO check AsyncWorker is run on this repository;
@@ -470,7 +474,7 @@ public class AsyncReplication implements Startable {
 
       AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName
           + "_" + workspaceName);
-      synchWorker.start();
+      synchWorker.run();
 
       currentWorkers.add(synchWorker);
     } else

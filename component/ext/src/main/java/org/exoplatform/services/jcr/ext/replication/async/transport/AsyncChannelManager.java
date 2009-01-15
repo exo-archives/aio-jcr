@@ -23,6 +23,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
+import org.exoplatform.services.jcr.ext.replication.async.ConnectionListener;
 import org.exoplatform.services.log.ExoLogger;
 import org.jgroups.Address;
 import org.jgroups.Channel;
@@ -71,11 +72,19 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   private final String              channelName;
 
   /**
-   * packetListeners. The packet listeners.
+   * Packet listeners.
    */
   private List<AsyncPacketListener> packetListeners;
 
+  /**
+   * Channel state listeners.
+   */
   private List<AsyncStateListener>  stateListeners;
+  
+  /**
+   * Channel connection sate listeners.
+   */
+  private List<ConnectionListener>  connectionListeners;
 
   /**
    * ChannelManager constructor.
@@ -132,6 +141,10 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     dispatcher = null;
     channel.close();
     channel = null;
+    
+    for (ConnectionListener cl : connectionListeners) {
+      cl.onDisconnect();
+    }
   }
 
   /**
@@ -168,6 +181,19 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     this.stateListeners.remove(listener);
   }
 
+  /**
+   * Add connection sate listener.
+   *
+   * @param listener ConnectionListener
+   */
+  public void addConnectionListener(ConnectionListener listener) {
+    this.connectionListeners.add(listener);
+  }
+
+  public void removeConnectionListener(ConnectionListener listener) {
+    this.connectionListeners.remove(listener);
+  }
+  
   /**
    * getDispatcher.
    * 

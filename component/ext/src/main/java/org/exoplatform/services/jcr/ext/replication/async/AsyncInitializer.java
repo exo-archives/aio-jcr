@@ -274,7 +274,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       Member member = new Member(srcAddress.getAddress(),
                                  ((CancelPacket) packet).getTransmitterPriority());
 
-      doStop(CHANNEL_CLOSE_TIMEOUT);
+      stop(CHANNEL_CLOSE_TIMEOUT);
 
       doCancel(member);
     }
@@ -314,7 +314,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onCancel() {
     log.info("onCancel");
 
-    doStop();
+    stop();
   }
 
   /**
@@ -323,7 +323,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onStop() {
     log.info("onStop");
 
-    doStop();
+    stop();
   }
 
   /**
@@ -344,8 +344,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * Stop work.
    * 
    */
-  private void doStop() {
-    doStop(0);
+  public void stop() {
+    stop(0);
   }
 
   /**
@@ -354,8 +354,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * @param timeout
    *          long
    */
-  private void doStop(long timeout) {
-    this.stop();
+  private void stop(long timeout) {
+    super.stop();
 
     if (lastMemberWaiter != null)
       lastMemberWaiter.cancel();
