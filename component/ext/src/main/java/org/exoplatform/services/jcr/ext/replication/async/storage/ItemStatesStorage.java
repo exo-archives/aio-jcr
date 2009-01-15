@@ -304,6 +304,10 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
     return false;
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   */
   public boolean hasPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
                                                                                           ClassCastException,
                                                                                           ClassNotFoundException {
@@ -313,6 +317,26 @@ public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T>
       if (ItemState.isSame(item, toState)) {
         return false;
       } else if (ItemState.isSame(item, identifier, path, state)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * 
+   * {@inheritDoc}
+   */
+  public boolean hasPrevState(ItemState toState, QPath path, int state) throws IOException,
+                                                                       ClassCastException,
+                                                                       ClassNotFoundException {
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      T item = it.next();
+      if (ItemState.isSame(item, toState)) {
+        return false;
+      } else if (item.getState() == state && item.getData().getQPath().equals(path)) {
         return true;
       }
     }

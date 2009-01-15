@@ -160,6 +160,19 @@ public interface ChangesStorage<T extends ItemState> {
                                                                                           ClassNotFoundException;
 
   /**
+   * Tell if state presents in storage before specified.
+   * 
+   * @param state
+   *          ItemState
+   * @return boolean
+   * @throws IOException
+   *           if error
+   */
+  public boolean hasPrevState(ItemState toState, QPath path, int state) throws IOException,
+                                                                       ClassCastException,
+                                                                       ClassNotFoundException;
+
+  /**
    * getNextItemStateByIndexOnUpdate.
    * 
    * @param fromState

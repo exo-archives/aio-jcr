@@ -251,14 +251,14 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public Collection<T> getDescendantsChanges(ItemState startState, QPath rootPath, boolean unique) throws IOException {
+  public Collection<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
     while (it.hasNext()) {
 
       list.addAll((Collection<T>) getDescendantsChangesFromLog(it.next(),
-                                                               startState,
+                                                               firstState,
                                                                rootPath,
                                                                unique));
     }
@@ -277,12 +277,12 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return member;
   }
 
-  public T findNextItemState(ItemState startState, String identifier) throws IOException {
+  public T findNextItemState(ItemState fromState, String identifier) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
     while (it.hasNext()) {
 
-      result = (T) findNextItemStateFromLog(it.next(), startState, identifier);
+      result = (T) findNextItemStateFromLog(it.next(), fromState, identifier);
 
       if (result != null)
         return result;
@@ -290,22 +290,22 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return null;
   }
 
-  public T getNextItemStateByIndexOnUpdate(ItemState startState, int prevIndex) throws IOException {
+  public T getNextItemStateByIndexOnUpdate(ItemState fromState, int prevIndex) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
     while (it.hasNext()) {
-      result = (T) getNextItemStateByIndexOnUpdateFromLog(it.next(), startState, prevIndex);
+      result = (T) getNextItemStateByIndexOnUpdateFromLog(it.next(), fromState, prevIndex);
       if (result != null)
         return result;
     }
     return null;
   }
 
-  public T getNextItemStateByUUIDOnUpdate(ItemState startState, String UUID) throws IOException {
+  public T getNextItemStateByUUIDOnUpdate(ItemState fromState, String UUID) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
     while (it.hasNext()) {
-      result = (T) getNextItemStateByUUIDOnUpdateFromLog(it.next(), startState, UUID);
+      result = (T) getNextItemStateByUUIDOnUpdateFromLog(it.next(), fromState, UUID);
       if (result != null)
         return result;
     }
@@ -323,13 +323,13 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return list;
   }
 
-  public List<T> getUpdateSequence(ItemState startState) throws IOException {
+  public List<T> getUpdateSequence(ItemState firstState) throws IOException {
     List<T> list = new ArrayList<T>();
 
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
 
     while (it.hasNext()) {
-      list.addAll((List<T>) getUpdateSequenceFromLog(it.next(), startState));
+      list.addAll((List<T>) getUpdateSequenceFromLog(it.next(), firstState));
     }
     return list;
   }
@@ -344,20 +344,20 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return size;
   }
 
-  public Collection<T> getChanges(ItemState startState, QPath rootPath) throws IOException {
+  public Collection<T> getChanges(ItemState firstState, QPath rootPath) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
     while (it.hasNext()) {
-      list.addAll((Collection<T>) getChangesFromLog(it.next(), startState, rootPath));
+      list.addAll((Collection<T>) getChangesFromLog(it.next(), firstState, rootPath));
     }
     return list;
   }
 
-  public boolean hasNextState(ItemState startState, String identifier, QPath path, int state) throws IOException {
+  public boolean hasNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (hasNextStateFromLog(it.next(), startState, identifier, path, state)) {
+      if (hasNextStateFromLog(it.next(), fromState, identifier, path, state)) {
         return true;
       }
     }
@@ -368,12 +368,28 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
   /**
    * {@inheritDoc}
    */
-  public boolean hasPrevState(ItemState endState, String identifier, QPath path, int state) throws IOException,
-                                                                                           ClassCastException,
-                                                                                           ClassNotFoundException {
+  public boolean hasPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
+                                                                                          ClassCastException,
+                                                                                          ClassNotFoundException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (hasPrevStateFromLog(it.next(), endState, identifier, path, state)) {
+      if (hasPrevStateFromLog(it.next(), toState, identifier, path, state)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public boolean hasPrevState(ItemState toState, QPath path, int state) throws IOException,
+                                                                       ClassCastException,
+                                                                       ClassNotFoundException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    while (it.hasNext()) {
+      if (hasPrevStateFromLog(it.next(), toState, path, state)) {
         return true;
       }
     }
@@ -487,6 +503,30 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
       if (ItemState.isSame(item, toState)) {
         return false;
       } else if (ItemState.isSame(item, identifier, path, state)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * hasPrevStateFromLog.
+   * 
+   * @param log
+   * @param lastState
+   * @param state
+   * @return
+   */
+  private boolean hasPrevStateFromLog(TransactionChangesLog log,
+                                      ItemState toState,
+                                      QPath path,
+                                      int state) {
+    List<ItemState> allStates = log.getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      ItemState item = allStates.get(i);
+      if (ItemState.isSame(item, toState)) {
+        return false;
+      } else if (item.getState() == state && item.getData().getQPath().equals(path)) {
         return true;
       }
     }
@@ -625,8 +665,8 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
           ItemState item = allStates.get(j);
           if (item.getState() == ItemState.UPDATED
               && item.getData().getQPath().getName().equals(firstState.getData()
-                                                                     .getQPath()
-                                                                     .getName())) {
+                                                                      .getQPath()
+                                                                      .getName())) {
             resultStates.add(item);
           }
         }
@@ -663,4 +703,5 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
 
     return resultStates;
   }
+
 }
