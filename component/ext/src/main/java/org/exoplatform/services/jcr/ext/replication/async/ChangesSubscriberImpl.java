@@ -85,6 +85,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   protected final Set<LocalEventListener>         listeners   = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
+    
+    private final Log                        workerLog         = ExoLogger.getLogger("ext.MergeWorker");
 
     ChangesStorage<ItemState> result = null;
 
@@ -101,20 +103,20 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         save();
 
       } catch (RepositoryException e) {
-        LOG.error("Merge error " + e, e);
+        workerLog.error("Merge error " + e, e);
         doCancel();
       } catch (RemoteExportException e) {
-        LOG.error("Merge error " + e, e);
+        workerLog.error("Merge error " + e, e);
         doCancel();
       } catch (IOException e) {
-        LOG.error("Merge error " + e, e);
+        workerLog.error("Merge error " + e, e);
         doCancel();
       } catch (ClassCastException e) {
-        LOG.error("Merge error " + e, e);
-        e.printStackTrace();
+        workerLog.error("Merge error " + e, e);
+        doCancel();
       } catch (ClassNotFoundException e) {
-        LOG.error("Merge error " + e, e);
-        e.printStackTrace();
+        workerLog.error("Merge error " + e, e);
+        doCancel();
       }
     }
 
@@ -151,9 +153,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       }
 
       // merge
-      LOG.info("start merge " + this);
+      workerLog.info("start merge " + this);
       result = mergeManager.merge(membersChanges.iterator());
-      LOG.info("done merge " + this);
+      workerLog.info("done merge " + this);
     }
 
   }
