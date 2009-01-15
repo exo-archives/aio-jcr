@@ -97,6 +97,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         runMerge();
 
         doDoneMerge();
+        
+        save();
 
       } catch (RepositoryException e) {
         LOG.error("Merge error " + e, e);
@@ -314,6 +316,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
   protected void doDoneMerge() {
     LOG.info("Do DONE");
+    // add local done;
+    doneList.add(localPriority);
 
     try {
       transmitter.sendMerge();
@@ -362,7 +366,11 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     LOG.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount="
         + membersCount);
 
-    if (doneList.size() + 1 == membersCount) {
+    this.save();    
+  }
+  
+  private void save() {
+    if (doneList.size() == membersCount) {
       try {
         workspace.save(mergeWorker.result);
       } catch (InvalidItemStateException e) {
