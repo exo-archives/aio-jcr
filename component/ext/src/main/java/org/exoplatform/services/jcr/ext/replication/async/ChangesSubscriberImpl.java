@@ -320,15 +320,25 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
   protected void doDoneMerge() {
     LOG.info("Do DONE MERGE");
     // add local done;
-    if (doneList == null)
-      doneList = new ArrayList<Integer>();
-    doneList.add(localPriority);
+    addDone(localPriority);
 
     try {
       transmitter.sendMerge();
     } catch (IOException ioe) {
       LOG.error("Cannot send 'Cancel'" + ioe, ioe);
     }
+  }
+  
+  /**
+   * Add 'done' to list.
+   *
+   * @param priority
+   */
+  private void addDone(int priority) {
+    if (doneList == null)
+      doneList = new ArrayList<Integer>();
+    
+    doneList.add(priority);
   }
 
   /**
@@ -357,10 +367,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
 
     LOG.info("ChangesSubscriber.onMerge member " + member.getName());
 
-    if (doneList == null)
-      doneList = new ArrayList<Integer>();
-
-    doneList.add(member.getPriority());
+    addDone(member.getPriority());
 
     LOG.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount="
         + membersCount);
