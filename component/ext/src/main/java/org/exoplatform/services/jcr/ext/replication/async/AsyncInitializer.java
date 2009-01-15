@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
@@ -144,7 +143,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       return;
     }
 
-    if (previousMemmbers == null && event.getMembers().size() == 1) {
+    if (previousMemmbers.size() == 0 && event.getMembers().size() == 1) {
       // first member (this service) connected to the channel
       log.info("onStateChanged - first member (this service) connected to the channel ");
 

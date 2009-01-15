@@ -62,8 +62,10 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    channel1 = new AsyncChannelManager(chConfig, CH_NAME);
-    channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    String cName = CH_NAME + "_testTwoMembers";
+    
+    channel1 = new AsyncChannelManager(chConfig, cName);
+    channel2 = new AsyncChannelManager(chConfig, cName);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -123,9 +125,11 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    channel1 = new AsyncChannelManager(chConfig, CH_NAME);
-    channel2 = new AsyncChannelManager(chConfig, CH_NAME);
-    channel3 = new AsyncChannelManager(chConfig, CH_NAME);
+    String cName = CH_NAME + "_testThreeMembers";
+    
+    channel1 = new AsyncChannelManager(chConfig, cName);
+    channel2 = new AsyncChannelManager(chConfig, cName);
+    channel3 = new AsyncChannelManager(chConfig, cName);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -208,7 +212,9 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    channel1 = new AsyncChannelManager(chConfig, CH_NAME);
+    String cName = CH_NAME + "_testTwoMembers_one_NotConnected";
+    
+    channel1 = new AsyncChannelManager(chConfig, cName);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -245,9 +251,11 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
   public void testThreeMembers_one_NotConnected() throws Exception {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
-
-    channel1 = new AsyncChannelManager(chConfig, CH_NAME);
-    channel2 = new AsyncChannelManager(chConfig, CH_NAME);
+    
+    String cName = CH_NAME + "_testThreeMembers_one_NotConnected";
+    
+    channel1 = new AsyncChannelManager(chConfig, cName);
+    channel2 = new AsyncChannelManager(chConfig, cName);
 
     // first member parameters
     int memberPriority_1 = 50;
@@ -314,9 +322,11 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
 
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
-    channel1 = new AsyncChannelManager(chConfig, CH_NAME);
-    channel2 = new AsyncChannelManager(chConfig, CH_NAME);
-    channel3 = new AsyncChannelManager(chConfig, CH_NAME);
+    String cName = CH_NAME + "_testFourMembers_one_NotConnected";
+    
+    channel1 = new AsyncChannelManager(chConfig, cName);
+    channel2 = new AsyncChannelManager(chConfig, cName);
+    channel3 = new AsyncChannelManager(chConfig, cName);
 
     // first member parameters
     int memberPriority_1 = 50;
