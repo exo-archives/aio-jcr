@@ -551,10 +551,10 @@ public class RenameMerger implements ChangesMerger {
               return resultState;
             }
           } else if (!incomeData.isNode()
-              && income.hasNextState(incomeState,
-                                     incomeState.getData().getParentIdentifier(),
-                                     incomeState.getData().getQPath().makeParentPath(),
-                                     ItemState.DELETED)) {
+              && income.findNextState(incomeState,
+                                      incomeState.getData().getParentIdentifier(),
+                                      incomeState.getData().getQPath().makeParentPath(),
+                                      ItemState.DELETED) != null) {
             if ((localData.isNode() && incomeData.getQPath().equals(localData.getQPath()))
                 || (!localData.isNode() && incomeData.getQPath()
                                                      .isDescendantOf(localData.getQPath()
@@ -564,10 +564,10 @@ public class RenameMerger implements ChangesMerger {
               for (int i = 0; i <= rename.size() - 1; i++) {
                 ItemState item = rename.get(i);
                 if (item.getState() == ItemState.DELETED) {
-                  if (!local.hasNextState(localState,
+                  if (local.findNextState(localState,
                                           item.getData().getIdentifier(),
                                           item.getData().getQPath(),
-                                          ItemState.DELETED)
+                                          ItemState.DELETED) == null
                       && !ItemState.isSame(localState,
                                            item.getData().getIdentifier(),
                                            item.getData().getQPath(),

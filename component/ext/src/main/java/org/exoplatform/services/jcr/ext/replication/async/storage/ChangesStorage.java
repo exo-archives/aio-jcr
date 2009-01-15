@@ -142,9 +142,9 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
-  public boolean hasNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException,
-                                                                                            ClassCastException,
-                                                                                            ClassNotFoundException;
+  public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException,
+                                                                                       ClassCastException,
+                                                                                       ClassNotFoundException;
 
   /**
    * Tell if state presents in storage before specified.
@@ -155,9 +155,9 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
-  public boolean hasPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
-                                                                                          ClassCastException,
-                                                                                          ClassNotFoundException;
+  public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
+                                                                                     ClassCastException,
+                                                                                     ClassNotFoundException;
 
   /**
    * Tell if state presents in storage before specified.
@@ -168,9 +168,9 @@ public interface ChangesStorage<T extends ItemState> {
    * @throws IOException
    *           if error
    */
-  public boolean hasPrevState(ItemState toState, QPath path, int state) throws IOException,
-                                                                       ClassCastException,
-                                                                       ClassNotFoundException;
+  public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
+                                                                  ClassCastException,
+                                                                  ClassNotFoundException;
 
   /**
    * getNextItemStateByIndexOnUpdate.

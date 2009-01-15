@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -128,6 +129,7 @@ public class AddMerger implements ChangesMerger {
             }
           }
           break;
+
         case ItemState.DELETED:
           ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
@@ -220,11 +222,25 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.UPDATED:
-          if (!localData.isNode()
-              && ((incomeData.isNode() && localData.getQPath()
-                                                   .isDescendantOf(incomeData.getQPath())) || (!incomeData.isNode() && localData.getQPath()
-                                                                                                                                .equals(incomeData.getQPath())))) {
-            return resultEmptyState;
+          if (!localData.isNode()) { // update single property
+            if (incomeData.isNode()) {
+              if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+                return resultEmptyState;
+              }
+            } else {
+              if (income.findPrevState(incomeState,
+                                       incomeData.getParentIdentifier(),
+                                       incomeData.getQPath().makeParentPath(),
+                                       ItemState.ADDED) != null) { // node was added previously
+                if (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath())) {
+                  return resultEmptyState;
+                }
+              } else {
+                if (localData.getQPath().equals(incomeData.getQPath())) {
+                  return resultEmptyState;
+                }
+              }
+            }
           }
           break;
         case ItemState.RENAMED:
@@ -428,4 +444,27 @@ public class AddMerger implements ChangesMerger {
                                                                      parent.getMixinTypeNames());
     return pdef != null;
   }
+
+  private boolean isAddNodeConflict(ChangesStorage<ItemState> income,
+                                    ItemState localState,
+                                    ItemState incomeState) throws PathNotFoundException,
+                                                          ClassCastException,
+                                                          IOException,
+                                                          ClassNotFoundException {
+
+    if (incomeState.getData().getQPath().isDescendantOf(localState.getData().getQPath())
+        || incomeState.getData().getQPath().equals(localState.getData().getQPath())
+        || localState.getData().getQPath().isDescendantOf(incomeState.getData().getQPath())) {
+      return true;
+    }
+
+    QPath ancestor = QPath.getCommonAncestorPath(localState.getData().getQPath(),
+                                                 incomeState.getData().getQPath());
+    if (income.findPrevState(incomeState, ancestor, ItemState.ADDED) != null) {
+      return true;
+    }
+
+    return false;
+  }
+
 }

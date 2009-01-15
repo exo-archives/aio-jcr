@@ -256,7 +256,6 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     List<T> list = new ArrayList<T>();
 
     while (it.hasNext()) {
-
       list.addAll((Collection<T>) getDescendantsChangesFromLog(it.next(),
                                                                firstState,
                                                                rootPath,
@@ -354,47 +353,49 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     return list;
   }
 
-  public boolean hasNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException {
+  public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException {
+    T result = null;
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (hasNextStateFromLog(it.next(), fromState, identifier, path, state)) {
-        return true;
+      result = (T) findNextStateFromLog(it.next(), fromState, identifier, path, state);
+      if (result != null) {
+        return result;
       }
     }
 
-    return false;
+    return null;
   }
 
   /**
    * {@inheritDoc}
    */
-  public boolean hasPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
-                                                                                          ClassCastException,
-                                                                                          ClassNotFoundException {
+  public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException {
+    T result = null;
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (hasPrevStateFromLog(it.next(), toState, identifier, path, state)) {
-        return true;
+      result = (T) findPrevStateFromLog(it.next(), toState, identifier, path, state);
+      if (result != null) {
+        return result;
       }
     }
 
-    return false;
+    return null;
   }
 
   /**
    * {@inheritDoc}
    */
-  public boolean hasPrevState(ItemState toState, QPath path, int state) throws IOException,
-                                                                       ClassCastException,
-                                                                       ClassNotFoundException {
+  public T findPrevState(ItemState toState, QPath path, int state) throws IOException {
+    T result = null;
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      if (hasPrevStateFromLog(it.next(), toState, path, state)) {
-        return true;
+      result = (T) findPrevStateFromLog(it.next(), toState, path, state);
+      if (result != null) {
+        return result;
       }
     }
 
-    return false;
+    return null;
   }
 
   /**
@@ -465,22 +466,22 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
    * @param state
    * @return
    */
-  private boolean hasNextStateFromLog(TransactionChangesLog log,
-                                      ItemState fromState,
-                                      String identifier,
-                                      QPath path,
-                                      int state) {
+  private ItemState findNextStateFromLog(TransactionChangesLog log,
+                                         ItemState fromState,
+                                         String identifier,
+                                         QPath path,
+                                         int state) {
     List<ItemState> allStates = log.getAllStates();
 
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState item = allStates.get(i);
       if (ItemState.isSame(item, fromState)) {
-        return false;
+        return null;
       } else if (ItemState.isSame(item, identifier, path, state)) {
-        return true;
+        return item;
       }
     }
-    return false;
+    return null;
   }
 
   /**
@@ -492,21 +493,21 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
    * @param state
    * @return
    */
-  private boolean hasPrevStateFromLog(TransactionChangesLog log,
-                                      ItemState toState,
-                                      String identifier,
-                                      QPath path,
-                                      int state) {
+  private ItemState findPrevStateFromLog(TransactionChangesLog log,
+                                         ItemState toState,
+                                         String identifier,
+                                         QPath path,
+                                         int state) {
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       ItemState item = allStates.get(i);
       if (ItemState.isSame(item, toState)) {
-        return false;
+        return null;
       } else if (ItemState.isSame(item, identifier, path, state)) {
-        return true;
+        return item;
       }
     }
-    return false;
+    return null;
   }
 
   /**
@@ -517,20 +518,20 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
    * @param state
    * @return
    */
-  private boolean hasPrevStateFromLog(TransactionChangesLog log,
-                                      ItemState toState,
-                                      QPath path,
-                                      int state) {
+  private ItemState findPrevStateFromLog(TransactionChangesLog log,
+                                         ItemState toState,
+                                         QPath path,
+                                         int state) {
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       ItemState item = allStates.get(i);
       if (ItemState.isSame(item, toState)) {
-        return false;
+        return null;
       } else if (item.getState() == state && item.getData().getQPath().equals(path)) {
-        return true;
+        return item;
       }
     }
-    return false;
+    return null;
   }
 
   /**
