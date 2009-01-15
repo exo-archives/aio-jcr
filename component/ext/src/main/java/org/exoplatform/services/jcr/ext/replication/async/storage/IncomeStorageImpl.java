@@ -131,21 +131,48 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
    * {@inheritDoc}
    */
   public void onCancel() {
-    // TODO clean storage
+    // clean storage
+    File dir = new File(storagePath);
+    if (dir.exists()) {
+      deleteStorage(dir);
+    }
+
   }
 
   /**
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
-    // TODO prepare storage (clean)
+    // prepare storage (clean)
+    File dir = new File(storagePath);
+    if (dir.exists()) {
+      deleteStorage(dir);
+    }
+
   }
 
   /**
    * {@inheritDoc}
    */
   public void onStop() {
-    // TODO clean storage
+    // clean storage
+    File dir = new File(storagePath);
+    if (dir.exists()) {
+      deleteStorage(dir);
+    }
+
+  }
+
+  private void deleteStorage(File file) {
+    if (file != null) {
+      if (file.isDirectory()) {
+        File[] files = file.listFiles();
+        for (File f : files) {
+          deleteStorage(f);
+        }
+      }
+      file.delete();
+    }
   }
 
   /**

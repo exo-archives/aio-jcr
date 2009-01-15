@@ -64,6 +64,11 @@ public class TesterItemsPersistenceListener implements ItemsPersistenceListener 
     return logsList;
   }
 
+  public List<TransactionChangesLog> getCurrentLogList() {
+    return logsList;
+  }
+
+  
   /**
    * {@inheritDoc}
    */

@@ -121,7 +121,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     while (expected.hasNext()) {
 
-      assertTrue(expected.hasNext());
+      assertTrue(changes.hasNext());
       ItemState expect = expected.next();
       ItemState elem = changes.next();
 
@@ -200,11 +200,15 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
+    dataManager.removeItemPersistenceListener(storage);
+    
     // create storage
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
 
     assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
 
+    
+    
   }
 
   public void testGetErrors() throws Exception {
@@ -241,6 +245,51 @@ public class LocalStorageTest extends BaseStandaloneTest {
     assertEquals(first.getMessage(), errs[0]);
     assertEquals(second.getMessage(), errs[1]);
     assertEquals(third.getMessage(), errs[2]);
+  }
+
+  public void testStartStop() throws Exception {
+
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
+                                                                                                                                              .getName())
+                                                                                                                .getComponent(PersistentDataManager.class);
+
+    File dir = new File(STORAGE_DIR + "StartStop");
+    dir.mkdirs();
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    dataManager.addItemPersistenceListener(storage);
+
+    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
+    n1.setProperty("prop1", "dfdasfsdf");
+    n1.setProperty("secondProp", "ohohoh");
+    root.save();
+    
+    storage.onStart(null);
+
+    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+    n2.setProperty("prop1", "dfdasfsdfSecond");
+    n2.setProperty("secondProp", "ohohohSecond");
+    root.save();
+   
+    
+    assertEquals(0, storage.getErrors().length);
+    pl.pushChanges().get(0);
+    //check current data
+    TransactionChangesLog log1 = pl.getCurrentLogList().get(0);//createChangesLog((NodeData) n1.getData());
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
+
+    
+    storage.onStop();
+    
+    assertEquals(0, storage.getErrors().length);
+    pl.pushChanges().get(1);
+    //check current data
+    TransactionChangesLog log2 = pl.pushChanges().get(1);//createChangesLog((NodeData) n1.getData());
+    ch = storage.getLocalChanges();
+    this.checkIterator(log2.getAllStates().iterator(), ch.getChanges());
+    
+    int i =0; 
   }
 
 }
