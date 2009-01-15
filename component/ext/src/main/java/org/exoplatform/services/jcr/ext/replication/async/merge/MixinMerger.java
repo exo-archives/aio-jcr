@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -28,6 +29,7 @@ import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
@@ -78,18 +80,18 @@ public class MixinMerger implements ChangesMerger {
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local) throws RepositoryException,
-                                                                         RemoteExportException,
-                                                                         IOException,
-                                                                         ClassCastException,
-                                                                         ClassNotFoundException {
+                                         ChangesStorage<ItemState> local,
+                                         String mergeTempDir,
+                                         List<QPath> skippedList) throws RepositoryException,
+                                                                 RemoteExportException,
+                                                                 IOException,
+                                                                 ClassCastException,
+                                                                 ClassNotFoundException {
 
     boolean itemChangeProcessed = false;
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();

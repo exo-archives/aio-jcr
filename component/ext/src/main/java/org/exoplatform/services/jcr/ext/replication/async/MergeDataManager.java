@@ -18,7 +18,9 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -27,6 +29,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.merge.AddMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.DeleteMerger;
 import org.exoplatform.services.jcr.ext.replication.async.merge.MixinMerger;
@@ -125,6 +128,8 @@ public class MergeDataManager {
         synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                 second.getMember()));
 
+        List<QPath> skippedList = new ArrayList<QPath>();
+
         boolean isLocalPriority = localPriority >= second.getMember().getPriority();
         if (isLocalPriority) {
           income = first;
@@ -160,14 +165,35 @@ public class MergeDataManager {
             continue;
           }
 
+          // skip subtree changes
+          boolean skip = false;
+          for (int i = 0; i < skippedList.size(); i++) {
+            if (incomeChange.getData().getQPath().equals(skippedList.get(i))
+                || incomeChange.getData().getQPath().isDescendantOf(skippedList.get(i))) {
+              skip = true;
+              break;
+            }
+          }
+          if (skip) {
+            continue;
+          }
+
           switch (incomeChange.getState()) {
           case ItemState.ADDED:
-            synchronizedChanges.addAll(addMerger.merge(incomeChange, income, local));
+            synchronizedChanges.addAll(addMerger.merge(incomeChange,
+                                                       income,
+                                                       local,
+                                                       storageDir,
+                                                       skippedList));
             break;
           case ItemState.DELETED:
             // DELETE
             if (incomeChange.isPersisted()) {
-              synchronizedChanges.addAll(deleteMerger.merge(incomeChange, income, local));
+              synchronizedChanges.addAll(deleteMerger.merge(incomeChange,
+                                                            income,
+                                                            local,
+                                                            storageDir,
+                                                            skippedList));
             } else {
               ItemState nextIncomeChange = income.findNextItemState(incomeChange,
                                                                     incomeChange.getData()
@@ -187,12 +213,20 @@ public class MergeDataManager {
                   continue;
                 }
 
-                synchronizedChanges.addAll(renameMerger.merge(incomeChange, income, local));
+                synchronizedChanges.addAll(renameMerger.merge(incomeChange,
+                                                              income,
+                                                              local,
+                                                              storageDir,
+                                                              skippedList));
 
                 // UPDATE
               } else if (nextIncomeChange != null
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
-                synchronizedChanges.addAll(udpateMerger.merge(incomeChange, income, local));
+                synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
+                                                              income,
+                                                              local,
+                                                              storageDir,
+                                                              skippedList));
               } else {
                 // TODO
                 throw new RuntimeException("Unknown DELETE sequence");
@@ -201,11 +235,19 @@ public class MergeDataManager {
             break;
           case ItemState.UPDATED:
             if (!incomeChange.getData().isNode()) {
-              synchronizedChanges.addAll(udpateMerger.merge(incomeChange, income, local));
+              synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
+                                                            income,
+                                                            local,
+                                                            storageDir,
+                                                            skippedList));
             }
             break;
           case ItemState.MIXIN_CHANGED:
-            synchronizedChanges.addAll(mixinMerger.merge(incomeChange, income, local));
+            synchronizedChanges.addAll(mixinMerger.merge(incomeChange,
+                                                         income,
+                                                         local,
+                                                         storageDir,
+                                                         skippedList));
             break;
           }
         }

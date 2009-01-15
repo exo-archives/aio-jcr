@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 
@@ -86,19 +87,19 @@ public class DeleteMerger implements ChangesMerger {
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local) throws RepositoryException,
-                                                                         RemoteExportException,
-                                                                         IOException,
-                                                                         ClassCastException,
-                                                                         ClassNotFoundException {
+                                         ChangesStorage<ItemState> local,
+                                         String mergeTempDir,
+                                         List<QPath> skippedList) throws RepositoryException,
+                                                                 RemoteExportException,
+                                                                 IOException,
+                                                                 ClassCastException,
+                                                                 ClassNotFoundException {
 
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -111,6 +112,7 @@ public class DeleteMerger implements ChangesMerger {
           if (incomeData.isNode()
               && (localData.getQPath().isDescendantOf(incomeData.getQPath()) || localData.getQPath()
                                                                                          .equals(incomeData.getQPath()))) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           } else if (!incomeData.isNode()
               && income.findNextState(incomeState,
@@ -120,6 +122,7 @@ public class DeleteMerger implements ChangesMerger {
               && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
                                                                                                           .equals(incomeData.getQPath()
                                                                                                                             .makeParentPath()))) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           }
           break;
@@ -198,6 +201,7 @@ public class DeleteMerger implements ChangesMerger {
                 || incomeData.getQPath().equals(localData.getQPath())
                 || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
                 || incomeData.getQPath().equals(nextState.getData().getQPath())) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
             break;
@@ -208,6 +212,7 @@ public class DeleteMerger implements ChangesMerger {
             break;
           } else if (incomeData.getQPath().isDescendantOf(localData.getQPath())
               || incomeData.getQPath().equals(localData.getQPath())) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           }
           break;
@@ -216,6 +221,7 @@ public class DeleteMerger implements ChangesMerger {
               && ((incomeData.isNode() && localData.getQPath()
                                                    .isDescendantOf(incomeData.getQPath())) || (!incomeData.isNode() && localData.getQPath()
                                                                                                                                 .equals(incomeData.getQPath())))) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           }
           break;

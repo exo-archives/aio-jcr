@@ -82,10 +82,12 @@ public class RenameMerger implements ChangesMerger {
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local) throws RemoteExportException,
-                                                                         IOException,
-                                                                         ClassCastException,
-                                                                         ClassNotFoundException {
+                                         ChangesStorage<ItemState> local,
+                                         String mergeTempDir,
+                                         List<QPath> skippedList) throws RemoteExportException,
+                                                                 IOException,
+                                                                 ClassCastException,
+                                                                 ClassNotFoundException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
@@ -93,10 +95,8 @@ public class RenameMerger implements ChangesMerger {
     ItemState nextIncomeState = income.findNextItemState(incomeState, incomeState.getData()
                                                                                  .getIdentifier());
 
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -118,6 +118,7 @@ public class RenameMerger implements ChangesMerger {
               || localData.getQPath().equals(incomePath)
               || localData.getQPath().isDescendantOf(nextIncomePath) || localData.getQPath()
                                                                                  .equals(nextIncomePath))) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           }
 
@@ -135,6 +136,7 @@ public class RenameMerger implements ChangesMerger {
                 || (local.getNextItemStateByUUIDOnUpdate(localState,
                                                          nextIncomeState.getData()
                                                                         .getParentIdentifier()) != null)) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
             break;
@@ -149,6 +151,7 @@ public class RenameMerger implements ChangesMerger {
                 || nextIncomeState.getData().getQPath().isDescendantOf(nextLocalState.getData()
                                                                                      .getQPath())
                 || nextIncomeState.getData().getQPath().equals(nextLocalState.getData().getQPath())) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
             break;
@@ -158,6 +161,7 @@ public class RenameMerger implements ChangesMerger {
           if (incomeData.getQPath().equals(localData.getQPath())
               || nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())
               || nextIncomeState.getData().getQPath().equals(localData.getQPath())) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           }
           break;
@@ -167,6 +171,7 @@ public class RenameMerger implements ChangesMerger {
                                                    .isDescendantOf(incomeData.getQPath())) || (!incomeData.isNode() && localData.getQPath()
                                                                                                                                 .isDescendantOf(incomeData.getQPath()
                                                                                                                                                           .makeParentPath())))) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
 
           }

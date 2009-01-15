@@ -17,11 +17,13 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.IllegalPathException;
+import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 
@@ -64,11 +66,13 @@ public interface ChangesMerger {
    */
   ChangesStorage<ItemState> merge(ItemState itemChange,
                                   ChangesStorage<ItemState> income,
-                                  ChangesStorage<ItemState> local) throws IllegalPathException,
-                                                                  RepositoryException,
-                                                                  RemoteExportException,
-                                                                  IOException,
-                                                                  ClassCastException,
-                                                                  ClassNotFoundException;
+                                  ChangesStorage<ItemState> local,
+                                  String mergeTempDir,
+                                  List<QPath> skippedList) throws IllegalPathException,
+                                                          RepositoryException,
+                                                          RemoteExportException,
+                                                          IOException,
+                                                          ClassCastException,
+                                                          ClassNotFoundException;
 
 }

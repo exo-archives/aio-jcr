@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
@@ -86,19 +87,19 @@ public class AddMerger implements ChangesMerger {
    */
   public ChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local) throws RepositoryException,
-                                                                         RemoteExportException,
-                                                                         IOException,
-                                                                         ClassCastException,
-                                                                         ClassNotFoundException {
+                                         ChangesStorage<ItemState> local,
+                                         String mergeTempDir,
+                                         List<QPath> skippedList) throws RepositoryException,
+                                                                 RemoteExportException,
+                                                                 IOException,
+                                                                 ClassCastException,
+                                                                 ClassNotFoundException {
 
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File("./target")); // TODO
-    // path
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
@@ -108,10 +109,33 @@ public class AddMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
+          /*          if (localData.isNode()) {
+                      if (incomeData.isNode()) {
+                        if (isAddNodeConflict(income, localState, incomeState)) {
+                          skippedList.add(incomeData.getQPath());
+                          return resultEmptyState;
+                        }
+                      } else {
+                        if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+                          skippedList.add(incomeData.getQPath());
+                          return resultEmptyState;
+                        }
+                      }
+                    } else {
+                      if (incomeData.isNode()) {
+
+                      } else {
+
+                      }
+                    }
+                    break;
+          */
           if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+            skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           } else if ((incomeData.getQPath().equals(localData.getQPath()))) {
             if (incomeData.isNode() == localData.isNode()) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
 
@@ -125,6 +149,7 @@ public class AddMerger implements ChangesMerger {
 
             if (!isPropertyAllowed(propertyName,
                                    (NodeData) dataManager.getItemData(parentIdentifier))) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
           }
@@ -208,6 +233,7 @@ public class AddMerger implements ChangesMerger {
                 || incomeData.getQPath().equals(localData.getQPath())
                 || incomeData.getQPath().isDescendantOf(nextLocalState.getData().getQPath())
                 || incomeData.getQPath().equals(nextLocalState.getData().getQPath())) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
             break;
@@ -217,6 +243,7 @@ public class AddMerger implements ChangesMerger {
           if (localData.isNode()) {
             if ((incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
                                                                                          .equals(localData.getQPath()))) {
+              skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
           }
@@ -225,6 +252,7 @@ public class AddMerger implements ChangesMerger {
           if (!localData.isNode()) { // update single property
             if (incomeData.isNode()) {
               if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+                skippedList.add(incomeData.getQPath());
                 return resultEmptyState;
               }
             } else {
@@ -233,10 +261,12 @@ public class AddMerger implements ChangesMerger {
                                        incomeData.getQPath().makeParentPath(),
                                        ItemState.ADDED) != null) { // node was added previously
                 if (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath())) {
+                  skippedList.add(incomeData.getQPath());
                   return resultEmptyState;
                 }
               } else {
                 if (localData.getQPath().equals(incomeData.getQPath())) {
+                  skippedList.add(incomeData.getQPath());
                   return resultEmptyState;
                 }
               }

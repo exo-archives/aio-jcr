@@ -107,7 +107,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -140,7 +145,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -176,7 +186,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -206,7 +221,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 2);
 
@@ -256,7 +276,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 
@@ -294,7 +319,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 8);
 
@@ -351,7 +381,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem12Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -378,7 +413,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem12Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem12Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote Add state expected ", hasState(result, remoteItem12Change, true));
@@ -423,7 +463,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -468,7 +513,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem1Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 4);
 
@@ -513,7 +563,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -546,7 +601,12 @@ public class AddMergerTest extends BaseMergerTest {
     exportLog.add(remoteItem121Change);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     // should restore parent /localItem1/item12
     // and add /localItem1/item12/item121
@@ -634,7 +694,12 @@ public class AddMergerTest extends BaseMergerTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
 
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem11Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 0);
   }
 
@@ -708,7 +773,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -784,7 +854,12 @@ public class AddMergerTest extends BaseMergerTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
 
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem3Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem3Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem3Add, true));
   }
@@ -860,7 +935,12 @@ public class AddMergerTest extends BaseMergerTest {
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
 
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem111Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 0);
 
   }
@@ -940,7 +1020,12 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
 
     // 1. usecase test
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem11Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem11Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 3);
     assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem21,
                                                                               ItemState.DELETED,
@@ -1052,7 +1137,12 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
 
     // 1. usecase test
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem111Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem111Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 3);
     assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem21,
                                                                               ItemState.DELETED,
@@ -1135,7 +1225,12 @@ public class AddMergerTest extends BaseMergerTest {
     exportLog.add(remoteItem21Add);
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Local Delete state expected ", hasState(result, new ItemState(localItem21,
@@ -1220,7 +1315,12 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(exportLog), null, null);
 
     // 3. usecase test
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem3Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem3Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem3Add, true));
   }
@@ -1273,7 +1373,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem112Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1328,7 +1433,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem112Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem112Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1396,7 +1506,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem212Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem212Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1484,7 +1599,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2121Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2121Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1572,7 +1692,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem212Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem212Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
 
@@ -1669,12 +1794,18 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21x21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21x21Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
 
     // check not conflicted node
-    result = addMerger.merge(remoteItem21x22Add, income, local);
+    result = addMerger.merge(remoteItem21x22Add, income, local, "./target", new ArrayList<QPath>());
+    ;
     assertEquals("Wrong changes count ", result.size(), 1);
 
     // find by reordered path
@@ -1768,7 +1899,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21x21Add, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem21x21Add,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 2);
 
@@ -1816,7 +1952,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
@@ -1849,7 +1990,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem121Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote parent restore expected ", hasState(result, remoteItem121Change, true));
@@ -1881,7 +2027,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(true, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 0);
   }
@@ -1906,7 +2057,12 @@ public class AddMergerTest extends BaseMergerTest {
     income.addLog(new TransactionChangesLog(remoteLog));
 
     AddMerger addMerger = new AddMerger(false, new TesterRemoteExporter(), null, null);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteItem2Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 2);
 
@@ -1955,7 +2111,12 @@ public class AddMergerTest extends BaseMergerTest {
                                         new TesterRemoteExporter(),
                                         new TesterDataManager(items),
                                         nodeTypeDataManager);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote ADD state expected ", hasState(result, remoteProperty1Change, true));
@@ -1993,7 +2154,12 @@ public class AddMergerTest extends BaseMergerTest {
                                         new TesterRemoteExporter(),
                                         new TesterDataManager(items),
                                         nodeTypeDataManager);
-    ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change, income, local);
+    ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change,
+                                                       income,
+                                                       local,
+                                                       "./target",
+                                                       new ArrayList<QPath>());
+    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote Add state expected ", hasState(result, remoteProperty1Change, true));
