@@ -213,9 +213,9 @@ public class ChangesFile {
     return file.delete();
   }
 
-  public void moveTo(File dir) throws IOException {
+  public boolean moveTo(File dir) throws IOException {
     File dest = new File(dir, Long.toString(getTimeStamp()));
-    file.renameTo(dest);
+    return file.renameTo(dest);
   }
   
   public static FilenameFilter getFilenameFilter(){

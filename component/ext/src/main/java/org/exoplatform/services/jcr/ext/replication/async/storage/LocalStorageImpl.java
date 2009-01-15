@@ -269,8 +269,10 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
       List<String> list = new ArrayList<String>();
 
       // Close writer
-      if (this.errorOut != null)
+      if (this.errorOut != null){
         errorOut.close();
+        errorOut = null;
+      }
 
       // Open reader
       BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(err),
@@ -280,6 +282,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
         list.add(s);
       }
       br.close();
+      br = null;
       return list.toArray(new String[list.size()]);
     }
   }
@@ -299,13 +302,11 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     }
 
     if (secondDir.exists()) {
-
       File[] files = secondDir.listFiles();
       for (File f : files) {
         File fileDest = new File(primeDir, f.getName());
         f.renameTo(fileDest);
       }
-
       secondDir.delete();
     }
   }

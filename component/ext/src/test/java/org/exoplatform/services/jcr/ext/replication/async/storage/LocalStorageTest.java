@@ -25,6 +25,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -64,6 +65,23 @@ public class LocalStorageTest extends BaseStandaloneTest {
     super.tearDown();
   }
 
+  private void deleteDir(File file) {
+    if (file != null) {
+      if (file.isDirectory()) {
+        File[] files = file.listFiles();
+        for (File f : files) {
+          deleteDir(f);
+        }
+      }
+      file.delete();
+    }
+  }
+
+  /**
+   * Check LocalStorage creation and manually cnageslog addition.
+   * 
+   * @throws Exception
+   */
   public void testCreateRestoreStorage() throws Exception {
 
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
@@ -74,9 +92,6 @@ public class LocalStorageTest extends BaseStandaloneTest {
     root.save();
 
     List<TransactionChangesLog> chs = pl.pushChanges();
-
-    File dir = new File(STORAGE_DIR);
-    dir.mkdirs();
 
     TransactionChangesLog log = chs.get(0);
 
@@ -97,46 +112,18 @@ public class LocalStorageTest extends BaseStandaloneTest {
     checkIterator(expectedStates, states);
   }
 
-  public TransactionChangesLog createChangesLog(NodeData root) throws RepositoryException {
-    SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
-
-    List<ItemState> expl = new ArrayList<ItemState>();
-
-    ItemState is1 = new ItemState(root, ItemState.ADDED, false, root.getQPath());
-    expl.add(is1);
-
-    for (PropertyData data : dataManager.getChildPropertiesData(root)) {
-      ItemState is = new ItemState(data, ItemState.ADDED, false, root.getQPath());
-      expl.add(is);
-    }
-
-    PlainChangesLog log = new PlainChangesLogImpl(expl, session.getId(), ExtendedEvent.SAVE);
-
-    TransactionChangesLog res = new TransactionChangesLog();
-    res.addLog(log);
-    return res;
-  }
-
-
-  private void deleteDir(File file) {
-    if (file != null) {
-      if (file.isDirectory()) {
-        File[] files = file.listFiles();
-        for (File f : files) {
-          deleteDir(f);
-        }
-      }
-      file.delete();
-    }
-  }
-
+  /**
+   * Register LocalStorage as listener to dataManager and check arrived
+   * changeslogs.
+   * 
+   * @throws Exception
+   */
   public void testRegisteredLocalStorage() throws Exception {
 
     PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    File dir = new File(STORAGE_DIR);
     dir.mkdirs();
     LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
@@ -165,16 +152,18 @@ public class LocalStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
     dataManager.removeItemPersistenceListener(storage);
-    
+
     // create storage
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
 
     assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
-
-    
-    
   }
 
+  /**
+   * Test reporting and reading from file errors process.
+   * 
+   * @throws Exception
+   */
   public void testGetErrors() throws Exception {
 
     class TestLocalStorage extends LocalStorageImpl {
@@ -187,8 +176,6 @@ public class LocalStorageTest extends BaseStandaloneTest {
       }
     }
 
-    File dir = new File(STORAGE_DIR);
-    dir.mkdirs();
     LocalStorage storage = new TestLocalStorage(dir.getAbsolutePath());
 
     Exception first = new IOException("hello");
@@ -209,17 +196,23 @@ public class LocalStorageTest extends BaseStandaloneTest {
     assertEquals(first.getMessage(), errs[0]);
     assertEquals(second.getMessage(), errs[1]);
     assertEquals(third.getMessage(), errs[2]);
+    
+    storage=null;
   }
 
+  /**
+   * Test OnStart and OnStop commands.
+   * 
+   * @throws Exception
+   */
   public void testStartStop() throws Exception {
-
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
     PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    File dir = new File(STORAGE_DIR + "StartStop");//
-    dir.mkdirs();
+    //File dir = new File(STORAGE_DIR+"startstop");
+    //dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
@@ -227,31 +220,91 @@ public class LocalStorageTest extends BaseStandaloneTest {
     n1.setProperty("prop1", "dfdasfsdf");
     n1.setProperty("secondProp", "ohohoh");
     root.save();
-    
+
     storage.onStart(null);
 
     NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
     n2.setProperty("prop1", "dfdasfsdfSecond");
     n2.setProperty("secondProp", "ohohohSecond");
     root.save();
-   
-    
-    assertEquals(0, storage.getErrors().length);
-    
-    //check current data
+
+   // assertEquals(0, storage.getErrors().length);
+
+    // check current data
     TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
     this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
 
-    
     storage.onStop();
-    
-    assertEquals(0, storage.getErrors().length);
-    
-    //check current data
-    TransactionChangesLog log2 = pl.pushChanges().get(1);//createChangesLog((NodeData) n1.getData());
+
+   // assertEquals(0, storage.getErrors().length);
+
+    // check current data
+    TransactionChangesLog log2 = pl.pushChanges().get(1);// createChangesLog((NodeData)
+    // n1.getData());
     ch = storage.getLocalChanges();
     this.checkIterator(log2.getAllStates().iterator(), ch.getChanges());
+    
+    dataManager.removeItemPersistenceListener(storage);
+  }
+
+  /**
+   * Test OnCancel command.
+   * 
+   * @throws Exception
+   */
+  public void testCancel() throws Exception {
+    
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
+                                                                                                                                              .getName())
+                                                                                                                .getComponent(PersistentDataManager.class);
+
+    //File dir = new File(STORAGE_DIR + "cancel");
+    //dir.mkdirs();
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    dataManager.addItemPersistenceListener(storage);
+
+    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
+    n1.setProperty("prop1", "dfdasfsdf");
+    n1.setProperty("secondProp", "ohohoh");
+    root.save();
+
+    storage.onStart(null);
+
+    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+    n2.setProperty("prop1", "dfdasfsdfSecond");
+    n2.setProperty("secondProp", "ohohohSecond");
+    root.save();
+
+   // assertEquals(0, storage.getErrors().length);
+
+    // check current data
+    TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+    this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
+
+    storage.onCancel();
+
+    //assertEquals(0, storage.getErrors().length);
+
+    
+    
+    // check current data
+    List<TransactionChangesLog> list = pl.pushChanges();
+    
+    TransactionChangesLog log2 = list.get(0);
+    ChangesLogIterator chIt = list.get(1).getLogIterator();
+    
+    while(chIt.hasNextLog()){
+      log2.addLog(chIt.nextLog());
+    }
+    
+    // n1.getData());
+    ch = storage.getLocalChanges();
+    checkIterator(log2.getAllStates().iterator(), ch.getChanges());
+    
+    dataManager.removeItemPersistenceListener(storage);
   }
 
   private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
@@ -290,8 +343,27 @@ public class LocalStorageTest extends BaseStandaloneTest {
       }
     }
     assertFalse(changes.hasNext());
-    
+
   }
 
-  
+  public TransactionChangesLog createChangesLog(NodeData root) throws RepositoryException {
+    SessionDataManager dataManager = ((SessionImpl) session).getTransientNodesManager();
+
+    List<ItemState> expl = new ArrayList<ItemState>();
+
+    ItemState is1 = new ItemState(root, ItemState.ADDED, false, root.getQPath());
+    expl.add(is1);
+
+    for (PropertyData data : dataManager.getChildPropertiesData(root)) {
+      ItemState is = new ItemState(data, ItemState.ADDED, false, root.getQPath());
+      expl.add(is);
+    }
+
+    PlainChangesLog log = new PlainChangesLogImpl(expl, session.getId(), ExtendedEvent.SAVE);
+
+    TransactionChangesLog res = new TransactionChangesLog();
+    res.addLog(log);
+    return res;
+  }
+
 }

@@ -55,7 +55,7 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
     dir.mkdirs();
 
     // move changes file to member directory
-    changes.moveTo(dir);
+    if(!changes.moveTo(dir)) throw new IOException("Can't move file.");
   }
 
   /**
