@@ -108,11 +108,12 @@ public final class ArtifactDescriptor implements Descriptor {
   }
 
   private static String validMavenVersion(String version) {
-    CharSet charSet = CharSet.getInstance("A-Za-z");
-    int pos = version.indexOf("-");
-    char next_ch = version.charAt(pos + 1);
-    if ((pos > 0) && (charSet.contains(next_ch)))
-      version = version.substring(0, pos);
+    // Not necessary checking, -SNAPSHOT will be ignoreg if uncomment;
+//    CharSet charSet = CharSet.getInstance("A-Za-z");
+//    int pos = version.indexOf("-");
+//    char next_ch = version.charAt(pos + 1);
+//    if ((pos > 0) && (charSet.contains(next_ch)))
+//      version = version.substring(0, pos);
 
     return version;
   }
