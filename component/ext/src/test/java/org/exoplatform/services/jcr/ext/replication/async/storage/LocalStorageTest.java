@@ -96,14 +96,14 @@ public class LocalStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log = chs.get(0);
 
     // create storage
-    LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath(),100);
     storage.onSaveItems(log);
 
     // delete storage object
     storage = null;
 
     // create new storage object on old context
-    storage = new LocalStorageImpl(dir.getAbsolutePath());
+    storage = new LocalStorageImpl(dir.getAbsolutePath(),100);
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
     Iterator<ItemState> states = ch.getChanges();
     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
@@ -125,7 +125,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                 .getComponent(PersistentDataManager.class);
 
     dir.mkdirs();
-    LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath(),40);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -173,7 +173,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     //File dir = new File(STORAGE_DIR+"startstop");
     //dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),40);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -222,7 +222,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     //File dir = new File(STORAGE_DIR + "cancel");
     //dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),60);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -274,8 +274,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
   public void testGetErrors() throws Exception {
 
     class TestLocalStorage extends LocalStorageImpl {
-      public TestLocalStorage(String path) {
-        super(path);
+      public TestLocalStorage(String path,int pr) {
+        super(path, pr);
       }
 
       public void report(Exception e) {
@@ -283,7 +283,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
       }
     }
 
-    LocalStorage storage = new TestLocalStorage(dir.getAbsolutePath());
+    LocalStorage storage = new TestLocalStorage(dir.getAbsolutePath(),70);
 
     Exception first = new IOException("hello");
     ((TestLocalStorage) storage).report(first);
@@ -294,7 +294,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage = null;
 
-    storage = new LocalStorageImpl(dir.getAbsolutePath());
+    storage = new LocalStorageImpl(dir.getAbsolutePath(),70);
 
     // check exception
     String[] errs = storage.getErrors();

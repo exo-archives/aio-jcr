@@ -74,8 +74,6 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
 
   private final int             priority;
 
-  private BufferedWriter        errorOut                   = null;
-
   private File                  primeDir;
 
   private File                  secondDir;
@@ -94,6 +92,12 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     this.secondDir = new File(storagePath, BACK_DIRNAME);
   }
 
+  public LocalStorageImpl(String storagePath, int priority, long index) {
+    this(storagePath, priority);
+    this.index = index;
+  }
+
+  
   /**
    * {@inheritDoc}
    */
@@ -248,16 +252,17 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    */
   protected void reportException(Exception e) {
     try {
-      if (this.errorOut == null) {
-        errorOut = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(storagePath,
+      BufferedWriter errorOut = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(new File(storagePath,
                                                                                            ERROR_FILENAME),
                                                                                   true),
                                                              Constants.DEFAULT_ENCODING));
-      }
+      
       errorOut.write(e.getMessage() + "\n");
       errorOut.flush();
+      errorOut.close();
+ 
     } catch (IOException ex) {
-      // TODO do nothing?
+      // do nothing
       LOG.warn("Exception on write to error storage file: ", ex);
     }
   }
@@ -274,10 +279,10 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
       List<String> list = new ArrayList<String>();
 
       // Close writer
-      if (this.errorOut != null) {
-        errorOut.close();
-        errorOut = null;
-      }
+      // if (this.errorOut != null){
+      //   errorOut.close();
+      //   errorOut = null;
+      // }
 
       // Open reader
       BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(err),
@@ -287,7 +292,6 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
         list.add(s);
       }
       br.close();
-      br = null;
       return list.toArray(new String[list.size()]);
     }
   }
@@ -337,14 +341,6 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    */
   public void onStart(List<Member> members) {
     secondDir.mkdir();
-  }
-
-  public void finalize() throws IOException {
-    // Close writer
-    if (this.errorOut != null) {
-      errorOut.close();
-      errorOut = null;
-    }
   }
 
 }
