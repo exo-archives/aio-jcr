@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
-import org.exoplatform.services.jcr.ext.replication.async.WorkspaceSynchronizerImpl.ItemStateIterableList;
 import org.exoplatform.services.jcr.util.IdGenerator;
 
 /**
