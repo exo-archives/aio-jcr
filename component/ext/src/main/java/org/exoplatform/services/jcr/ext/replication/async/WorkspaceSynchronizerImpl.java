@@ -72,7 +72,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                  InvalidItemStateException,
                                                                  UnsupportedOperationException,
                                                                  RepositoryException {
-    LOG.info("WorkspaceSynchronizer.save " + synchronizedChanges.getMember());
+    LOG.info("save");
     
     OnSynchronizationWorkspaceListenersFilter apiFilter = new OnSynchronizationWorkspaceListenersFilter();
     workspace.addItemPersistenceListenerFilter(apiFilter);
