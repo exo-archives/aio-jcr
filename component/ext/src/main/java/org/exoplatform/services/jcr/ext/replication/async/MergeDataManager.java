@@ -228,7 +228,7 @@ public class MergeDataManager {
               } else {
                 throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."
                     + "[path="
-                    + incomeChange.getData().getQPath()
+                    + incomeChange.getData().getQPath().getAsString()
                     + "][identifier="
                     + incomeChange.getData().getIdentifier()
                     + "][parentIdentifier="
