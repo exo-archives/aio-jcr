@@ -102,6 +102,9 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
           File ch = new File(memberDir, fileNames[j]);
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
+        
+        LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
+        
         ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles,
                                                                                 new Member(memberPriority));
         changeStorages.add(storage);
