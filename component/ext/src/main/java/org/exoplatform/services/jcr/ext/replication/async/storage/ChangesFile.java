@@ -219,7 +219,7 @@ public class ChangesFile {
     return file.renameTo(dest);
   }
   
-  public static FilenameFilter getFilenameFilter(){
+ /* public static FilenameFilter getFilenameFilter(){
     
     return new FilenameFilter(){
       private final static String FILENAME_REGEX = "[0-9]+"; 
@@ -232,9 +232,9 @@ public class ChangesFile {
         return !file.isDirectory();
       }
     };
-  }
+  }*/
   
-  public static Comparator<String> getFilenameComparator(){
+ /* public static Comparator<String> getFilenameComparator(){
     
     return  new Comparator<String>(){
 
@@ -252,6 +252,6 @@ public class ChangesFile {
       }
     };
   }
-  
+  */
   
 }

@@ -61,7 +61,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
   }
 
   public void tearDown() throws Exception {
-  //  deleteDir(dir);
+    deleteDir(dir);
     super.tearDown();
   }
 

@@ -93,9 +93,9 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
         int memberPriority = Integer.parseInt(memberDir.getName()); // also check - is
         // member folder;
 
-        String[] fileNames = memberDir.list(ChangesFile.getFilenameFilter());
+        String[] fileNames = memberDir.list(new ChangesFileNameFilter());
 
-        java.util.Arrays.sort(fileNames,ChangesFile.getFilenameComparator());
+        java.util.Arrays.sort(fileNames, new ChangesFileComparator());
 
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
         for (int j = 0; j < fileNames.length; j++) {
