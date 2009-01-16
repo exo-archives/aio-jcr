@@ -226,6 +226,8 @@ public class MergeDataManager {
                                                               storageDir,
                                                               skippedList));
               } else {
+                log.info("Income changes log: " + income.dump());
+                log.info("Local changes log: " + local.dump());
                 throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."
                     + "[path="
                     + incomeChange.getData().getQPath().getAsString()
