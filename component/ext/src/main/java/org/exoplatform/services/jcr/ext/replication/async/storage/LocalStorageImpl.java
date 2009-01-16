@@ -86,23 +86,39 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    * This unique index used as name for ChangesFiles.
    */
   private volatile long         index                      = 0;
+  
+  private volatile long         dirIndex                      = 0;
 
   public LocalStorageImpl(String storagePath, int priority) {
     this.storagePath = storagePath;
     this.priority = priority;
 
-    // this.primeDir = new File(storagePath, MAIN_DIRNAME);
-    // this.primeDir.mkdirs();
-    // this.secondDir = new File(storagePath, BACK_DIRNAME);
-    // create subdir
-    File subdir = new File(storagePath, Long.toString(System.currentTimeMillis()));
-    subdir.mkdirs();
+    // find last index of storage
+    String[] dirs = getSubStorageNames(this.storagePath);
+    
+    if(dirs.length!=0){
+      dirIndex = Long.parseLong(dirs[dirs.length-1])+1;
+      //TODO check is last directory archived. If true create new directory.
+      
+      File lastDir = new File(storagePath, dirs[dirs.length-1]);
+      // get last filename as index
+      String[] fileNames = lastDir.list(ChangesFile.getFilenameFilter());
+      java.util.Arrays.sort(fileNames, ChangesFile.getFilenameComparator());
+      if(fileNames.length!=0){
+        index = Long.parseLong(fileNames[fileNames.length-1]+1);
+      }
+    }else{
+      File subdir = new File(storagePath, Long.toString(dirIndex++));
+      subdir.mkdirs();
+    }
   }
 
+  /*
   public LocalStorageImpl(String storagePath, int priority, long index) {
     this(storagePath, priority);
     this.index = index;
   }
+  */
 
   /**
    * {@inheritDoc}
@@ -363,7 +379,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
    */
   public void onStart(List<Member> members) {
     // create new SubDir
-    File subdir = new File(storagePath, Long.toString(System.currentTimeMillis()));
+    File subdir = new File(storagePath, Long.toString(dirIndex++));
     subdir.mkdirs();
   }
 

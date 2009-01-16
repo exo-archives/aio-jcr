@@ -61,7 +61,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
   }
 
   public void tearDown() throws Exception {
-    deleteDir(dir);
+  //  deleteDir(dir);
     super.tearDown();
   }
 
@@ -126,8 +126,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    File dir = new File(STORAGE_DIR+"ss");
-    dir.mkdirs();
+ //   File dir = new File(STORAGE_DIR+"ss");
+ //   dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),40);
     dataManager.addItemPersistenceListener(storage);
 
@@ -175,8 +175,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    File dir = new File(STORAGE_DIR+"startstop");
-    dir.mkdirs();
+ //   File dir = new File(STORAGE_DIR+"startstop");
+ //   dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),40);
     dataManager.addItemPersistenceListener(storage);
 
@@ -224,7 +224,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
-
+    File dir = new File(STORAGE_DIR+"cancel");
     //File dir = new File(STORAGE_DIR + "cancel");
     //dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),60);
@@ -278,6 +278,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
    */
   public void testGetErrors() throws Exception {
 
+  //  File dir = new File(STORAGE_DIR+"errors");
+  //  dir.mkdirs();
     class TestLocalStorage extends LocalStorageImpl {
       public TestLocalStorage(String path,int pr) {
         super(path, pr);
