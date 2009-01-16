@@ -43,6 +43,7 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
+import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -55,7 +56,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class LocalStorageImpl implements LocalStorage, LocalEventListener, RemoteEventListener {
+public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
+    LocalEventListener, RemoteEventListener {
 
   protected static final Log    LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
 
@@ -87,8 +89,8 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener, Remot
    * This unique index used as name for ChangesFiles.
    */
   private volatile long         index                      = 0;
-  
-  private volatile long         dirIndex                      = 0;
+
+  private volatile long         dirIndex                   = 0;
 
   public LocalStorageImpl(String storagePath, int priority) {
     this.storagePath = storagePath;
@@ -96,30 +98,26 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener, Remot
 
     // find last index of storage
     String[] dirs = getSubStorageNames(this.storagePath);
-    
-    if(dirs.length!=0){
-      dirIndex = Long.parseLong(dirs[dirs.length-1])+1;
-      //TODO check is last directory archived. If true create new directory.
-      
-      File lastDir = new File(storagePath, dirs[dirs.length-1]);
+
+    if (dirs.length != 0) {
+      dirIndex = Long.parseLong(dirs[dirs.length - 1]) + 1;
+      // TODO check is last directory archived. If true create new directory.
+
+      File lastDir = new File(storagePath, dirs[dirs.length - 1]);
       // get last filename as index
       String[] fileNames = lastDir.list(new ChangesFileNameFilter());
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
-      if(fileNames.length!=0){
-        index = Long.parseLong(fileNames[fileNames.length-1]+1);
+      if (fileNames.length != 0) {
+        index = Long.parseLong(fileNames[fileNames.length - 1] + 1);
       }
-    }else{
+    } else {
       File subdir = new File(storagePath, Long.toString(dirIndex++));
       subdir.mkdirs();
     }
-  }
 
-  /*
-  public LocalStorageImpl(String storagePath, int priority, long index) {
-    this(storagePath, priority);
-    this.index = index;
+    // started everytime
+    doStart();
   }
-  */
 
   /**
    * {@inheritDoc}
@@ -132,15 +130,15 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener, Remot
     // get previous directory
     File prevDir = new File(storagePath, dirNames[dirNames.length - 2]);
 
-      String[] fileNames = prevDir.list(new ChangesFileNameFilter());
+    String[] fileNames = prevDir.list(new ChangesFileNameFilter());
 
-      if (fileNames.length == 0) {
-        // write empty log to have at least one file to send/compare
-        onSaveItems(new TransactionChangesLog());
-        fileNames = prevDir.list(new ChangesFileNameFilter());
-      }
+    if (fileNames.length == 0) {
+      // write empty log to have at least one file to send/compare
+      onSaveItems(new TransactionChangesLog());
+      fileNames = prevDir.list(new ChangesFileNameFilter());
+    }
 
-      java.util.Arrays.sort(fileNames, new ChangesFileComparator());
+    java.util.Arrays.sort(fileNames, new ChangesFileComparator());
 
     for (int j = 0; j < fileNames.length; j++) {
       try {

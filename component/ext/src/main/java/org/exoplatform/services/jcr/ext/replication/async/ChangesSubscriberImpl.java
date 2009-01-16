@@ -301,7 +301,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   private void doCancel() {
     LOG.error("Do CANCEL (local)");
 
-    mergeCancel();
+    cancelMerge();
 
     try {
       transmitter.sendCancel();
@@ -334,10 +334,17 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    */
   public void onCancel() {
     LOG.info("On CANCEL");
-    mergeCancel();
+    
+    doStop();
+    
+    cancelMerge();
   }
 
-  private void mergeCancel() {
+  /**
+   * Cancel merge process if the ones exists.
+   *
+   */
+  private void cancelMerge() {
     if (mergeWorker != null)
       try {
         mergeWorker.cancel();

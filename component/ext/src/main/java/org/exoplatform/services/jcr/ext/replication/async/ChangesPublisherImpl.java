@@ -88,7 +88,9 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * {@inheritDoc}
    */
   public void onCancel() {
-    publisherCancel();
+    doStop();
+    
+    cancelWorker();
   }
 
   /**
@@ -128,7 +130,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
     // Publisher will stop work, run local storage rotation and set Repository RW state.
   }
 
-  private void publisherCancel() {
+  private void cancelWorker() {
     if (publisherWorker != null)
       try {
         // Stop publisher.

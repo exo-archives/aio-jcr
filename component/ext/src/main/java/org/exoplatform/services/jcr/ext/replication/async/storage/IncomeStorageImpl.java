@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
+import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -36,7 +37,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, RemoteEventListener {
+public class IncomeStorageImpl extends SynchronizationLifeCycle implements IncomeStorage,
+    LocalEventListener, RemoteEventListener {
 
   protected static final Log LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
@@ -139,9 +141,9 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
    */
   public void onDisconnectMembers(List<Member> members) {
     // Get members directory
-    
+
     Iterator<Member> memIt = members.iterator();
-    while(memIt.hasNext()){
+    while (memIt.hasNext()) {
       File dir = new File(storagePath, Integer.toString(memIt.next().getPriority()));
       deleteStorage(dir);
     }
@@ -151,6 +153,8 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
    * {@inheritDoc}
    */
   public void onCancel() {
+    doStop();
+    
     // clean storage
     File dir = new File(storagePath);
     if (dir.exists()) {
@@ -169,18 +173,20 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
       deleteStorage(dir);
     }
 
+    doStart();
   }
 
   /**
    * {@inheritDoc}
    */
   public void onStop() {
+    doStop();
+    
     // clean storage
     File dir = new File(storagePath);
     if (dir.exists()) {
       deleteStorage(dir);
     }
-
   }
 
   private void deleteStorage(File file) {
