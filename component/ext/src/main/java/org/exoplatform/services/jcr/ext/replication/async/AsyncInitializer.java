@@ -132,6 +132,15 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void removeRemoteListener(RemoteEventListener listener) {
     listeners.remove(listener);
   }
+  
+  /**
+   * Unchnaged copy of listeners set. 
+   *
+   * @return array of RemoteEventListener 
+   */
+  private RemoteEventListener[] listeners() {
+    return listeners.toArray(new RemoteEventListener[listeners.size()]);
+  }
 
   /**
    * {@inheritDoc}
@@ -192,7 +201,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       List<Member> disconnectedMembers = new ArrayList<Member>(previousMemmbers);
       disconnectedMembers.removeAll(event.getMembers());
 
-      for (RemoteEventListener rl : listeners)
+      for (RemoteEventListener rl : listeners())
         rl.onDisconnectMembers(disconnectedMembers);
 
       // Check if disconnected the previous coordinator.
@@ -236,32 +245,30 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     log.info("Do Start, first member " + members.get(0).getName());
 
     if (isCoordinator)
-      for (RemoteEventListener rl : listeners)
+      for (RemoteEventListener rl : listeners())
         rl.onStart(members);
   }
 
   private void doCancel() {
-    for (RemoteEventListener rl : listeners)
+    for (RemoteEventListener rl : listeners())
       rl.onCancel();
   }
   
   private void doMerge(Member member) {
-    for (RemoteEventListener rl : listeners)
+    for (RemoteEventListener rl : listeners())
       rl.onMerge(member);
   }
 
-  public void receive(AbstractPacket packet, Member srcAddress) {
+  public void receive(AbstractPacket packet, Member srcMember) {
 
-    log.info("receive data from " + srcAddress);
-    
     if (isStopped()) {
-      log.warn("Changes received but initializer was stopped " + srcAddress);
+      log.warn("Changes received but initializer was stopped " + srcMember.getName());
       return;
     }
 
     switch (packet.getType()) {
     case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
-      log.info("SYNCHRONIZATION_CANCEL");
+      log.info("SYNCHRONIZATION_CANCEL from " + srcMember.getName());
 
       doStop(CHANNEL_CLOSE_TIMEOUT);
 
@@ -270,9 +277,9 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       break;
 
     case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
-      log.info("SYNCHRONIZATION_MERGE");
+      log.info("SYNCHRONIZATION_MERGE from " + srcMember.getName());
 
-      Member member = new Member(srcAddress.getAddress(),
+      Member member = new Member(srcMember.getAddress(),
                                  ((MergePacket) packet).getTransmitterPriority());
 
       doMerge(member);

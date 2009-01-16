@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -41,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class ItemStatesStorage<T extends ItemState> implements ChangesStorage<T> {
+public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> {
 
   protected static final Log        LOG     = ExoLogger.getLogger("jcr.ItemStatesStorage");
 

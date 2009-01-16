@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -41,7 +40,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesLogStorage.java 111 2008-11-11 11:11:11Z serg $
  */
-public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T> {
+public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStorage<T> {
 
   protected static final Log        LOG = ExoLogger.getLogger("jcr.ChangesLogStorage");
 
@@ -196,6 +195,8 @@ public class ChangesLogStorage<T extends ItemState> implements ChangesStorage<T>
     this.member = member;
   }
 
+  
+  
   /**
    * Delete all ChangesFiles in storage.
    */

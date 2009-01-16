@@ -26,12 +26,9 @@ import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorageChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizerChangesLog;
@@ -72,17 +69,26 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                  InvalidItemStateException,
                                                                  UnsupportedOperationException,
                                                                  RepositoryException {
-    LOG.info("save");
-    
+    // TODO dump
+    try {
+      LOG.info("save \r\n" + synchronizedChanges.dump());
+    } catch (ClassCastException e1) {
+      LOG.error("Changes dump error " + e1);
+    } catch (IOException e1) {
+      LOG.error("Changes dump error " + e1);
+    } catch (ClassNotFoundException e1) {
+      LOG.error("Changes dump error " + e1);
+    }
+
     OnSynchronizationWorkspaceListenersFilter apiFilter = new OnSynchronizationWorkspaceListenersFilter();
     workspace.addItemPersistenceListenerFilter(apiFilter);
-    
+
     try {
       workspace.save(new SynchronizerChangesLog(synchronizedChanges));
     } catch (ChangesLogReadException e) {
       throw new SynchronizationException("Error of merge result read on save " + e, e);
     } finally {
-      
+
       workspace.removeItemPersistenceListenerFilter(apiFilter);
     }
   }

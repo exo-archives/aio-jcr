@@ -50,52 +50,47 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   /**
    * log. the apache logger.
    */
-  private static final Log                          LOG = ExoLogger.getLogger("ext.ChannelManager");
+  private static final Log               LOG = ExoLogger.getLogger("ext.ChannelManager");
 
   /**
    * channel. The JChanel object of JGroups.
    */
-  private JChannel                                  channel;
+  private JChannel                       channel;
 
   /**
    * dispatcher. The MessageDispatcher will be transmitted the Massage.
    */
-  private MessageDispatcher                         dispatcher;
+  private MessageDispatcher              dispatcher;
 
   /**
    * channelConfig. The configuration to JChannel.
    */
-  private final String                              channelConfig;
+  private final String                   channelConfig;
 
   /**
    * channelName. The name to JChannel.
    */
-  private final String                              channelName;
+  private final String                   channelName;
 
   /**
    * Packet listeners.
    */
-  private List<AsyncPacketListener>                 packetListeners;
+  private List<AsyncPacketListener>      packetListeners;
 
   /**
    * Channel state listeners.
    */
-  private List<AsyncStateListener>                  stateListeners;
+  private List<AsyncStateListener>       stateListeners;
 
   /**
    * Channel connection sate listeners.
    */
-  private final List<ConnectionListener>            connectionListeners;
-
-  /**
-   * Packets queue.
-   */
-  private final ConcurrentLinkedQueue<MemberPacket> packetsQueue;
+  private final List<ConnectionListener> connectionListeners;
 
   /**
    * Packets handler.
    */
-  private final PacketHandler                       packetsHandler;
+  private final PacketHandler            packetsHandler;
 
   class MemberPacket {
     final AbstractPacket packet;
@@ -110,7 +105,15 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
   class PacketHandler extends Thread {
 
-    final Object lock = new Object();
+    /**
+     * Wait lock.
+     */
+    private final Object                              lock  = new Object();
+
+    /**
+     * Packets queue.
+     */
+    private final ConcurrentLinkedQueue<MemberPacket> queue = new ConcurrentLinkedQueue<MemberPacket>();
 
     /**
      * {@inheritDoc}
@@ -118,36 +121,53 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     @Override
     public void run() {
       while (true) {
-        synchronized (lock) {
-          try {
+        try {
+          synchronized (lock) {
             lock.wait();
 
-            MemberPacket mp;
-            do {
-              mp = packetsQueue.poll();
-
-              for (AsyncPacketListener handler : packetListeners)
+            MemberPacket mp = queue.poll();
+            while (mp != null) {
+              AsyncPacketListener[] pl = packetListeners.toArray(new AsyncPacketListener[packetListeners.size()]);
+              for (AsyncPacketListener handler : pl)
                 handler.receive(mp.packet, mp.member);
 
-            } while (mp != null);
-          } catch (InterruptedException e) {
-            LOG.error("Packets handler cannot handle the queue. Wait on lock " + e, e);
+              mp = queue.poll();
+            }
+          }
+        } catch (InterruptedException e) {
+          LOG.error("Cannot handle the queue. Wait lock failed " + e, e);
+        } catch (Throwable e) {
+          LOG.error("Cannot handle the queue now. Error " + e, e);
+          try {
+            sleep(5000);
+          } catch (Throwable e1) {
+            LOG.error("Sleep error " + e1);
           }
         }
       }
     }
 
     /**
-     * Check if packets can be handled.
+     * Add packet to the queue.
      * 
+     * @param packet
+     *          AbstractPacket
      * @param member
      *          Member
      */
+    void add(AbstractPacket packet, Member member) {
+      queue.add(new MemberPacket(packet, member));
+    }
+
+    /**
+     * Run handler if channel is ready.
+     * 
+     */
     void handle() {
-      // unlock for a portion of
-      synchronized (lock) {
-        lock.notify();
-      }
+      if (channel.getView() != null && channel.getView().getMembers() != null)
+        synchronized (lock) {
+          lock.notify();
+        }
     }
 
   }
@@ -167,8 +187,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     this.stateListeners = new ArrayList<AsyncStateListener>();
     this.connectionListeners = new ArrayList<ConnectionListener>();
 
-    this.packetsQueue = new ConcurrentLinkedQueue<MemberPacket>();
     this.packetsHandler = new PacketHandler();
+    this.packetsHandler.start();
   }
 
   /**
@@ -368,13 +388,6 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     return channel;
   }
 
-  private void handlePacket(AbstractPacket packet, Member member) {
-    packetsQueue.add(new MemberPacket(packet, member));
-
-    if (channel.getView() != null && channel.getView().getMembers() != null)
-      packetsHandler.handle();
-  }
-
   // ************ RequestHandler **********
 
   /**
@@ -385,8 +398,9 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       LOG.info("Handle message " + message);
 
       try {
-        handlePacket(PacketTransformer.getAsPacket(message.getBuffer()),
-                     new Member(message.getSrc()));
+        packetsHandler.add(PacketTransformer.getAsPacket(message.getBuffer()),
+                           new Member(message.getSrc()));
+        packetsHandler.handle();
 
         return new String("Success");
       } catch (IOException e) {

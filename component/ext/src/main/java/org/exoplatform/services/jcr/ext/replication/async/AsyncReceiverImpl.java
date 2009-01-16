@@ -59,8 +59,9 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    */
   protected void onChanges(ChangesPacket packet, Member member) {
     Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
-    
-    LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet " + packet);
+
+    LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet "
+        + packet.getFileCount() + "," + packet.getTimeStamp());
 
     if (changesSubscriber != null)
       changesSubscriber.onChanges(packet, mem);
@@ -69,9 +70,12 @@ public class AsyncReceiverImpl implements AsyncReceiver {
           + " will be ignored. ");
   }
 
-  protected void onGetExport(AbstractPacket packet, Member srcAddress) {
-    String nodeId = ((GetExportPacket) packet).getNodeId();
-    RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, srcAddress);
+  protected void onGetExport(GetExportPacket packet, Member member) {
+    String nodeId = packet.getNodeId();
+
+    LOG.info("onGetExport member " + member.getName() + ", packet nodeId" + nodeId);
+
+    RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, member);
 
     exportServer.sendExport(remoteGetEvent);
   }
@@ -79,10 +83,11 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void receive(AbstractPacket packet, Member srcAddress) {
+  public void receive(AbstractPacket packet, Member member) {
     switch (packet.getType()) {
     case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
-      onGetExport(packet, srcAddress);
+
+      onGetExport((GetExportPacket) packet, member);
       break;
     case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
@@ -129,15 +134,15 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       break;
 
     case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-      onChanges((ChangesPacket) packet, srcAddress);
+      onChanges((ChangesPacket) packet, member);
       break;
 
     case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-      onChanges((ChangesPacket) packet, srcAddress);
+      onChanges((ChangesPacket) packet, member);
       break;
 
     case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-      onChanges((ChangesPacket) packet, srcAddress);
+      onChanges((ChangesPacket) packet, member);
       break;
 
     }

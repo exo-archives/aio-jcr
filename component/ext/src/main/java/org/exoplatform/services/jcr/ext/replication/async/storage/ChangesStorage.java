@@ -57,6 +57,16 @@ public interface ChangesStorage<T extends ItemState> {
   ChangesFile[] getChangesFile();
 
   /**
+   * Dump all chnages info to the String. For DEBUG purpose.
+   * 
+   * @throws ClassCastException
+   * @throws IOException
+   * @throws ClassNotFoundException
+   * @return String
+   */
+  String dump() throws ClassCastException, IOException, ClassNotFoundException;
+
+  /**
    * Delete this storage.
    * 
    * @throws IOException

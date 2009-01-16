@@ -171,9 +171,9 @@ public class AsyncReplication implements Startable {
                                               otherParticipantsPriority,
                                               waitAllMembersTimeout,
                                               true);
-      this.initializer.addRemoteListener(this.subscriber);
       this.initializer.addRemoteListener(this.publisher);
       this.initializer.addRemoteListener(this.exportServer);
+      this.initializer.addRemoteListener(this.subscriber);
 
       this.subscriber.addLocalListener(this.initializer);
 
