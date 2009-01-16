@@ -127,7 +127,6 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       } else
         return null;
     }
-
   }
 
   /**
@@ -147,6 +146,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     this.member = null;
   }
 
+  /**
+   * ItemStatesStorage constructor for income storage.
+   * 
+   * @param changes list of ChangesFiles
+   */
   public ItemStatesStorage(List<ChangesFile> changes) {
     this.storage.addAll(changes);
     this.member = null;
@@ -155,14 +159,20 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * ItemStatesStorage constructor for income storage.
    * 
-   * @param changes
-   * @param member
+   * @param changes ChagesFiles
+   * @param member owner
    */
   public ItemStatesStorage(ChangesFile changes, Member member) {
     this.storage.add(changes);
     this.member = member;
   }
 
+  /**
+   * ItemStatesStorage constructor for income storage.
+   * 
+   * @param changes list of ChangesFiles
+   * @param member owner
+   */
   public ItemStatesStorage(List<ChangesFile> changes, Member member) {
     this.storage.addAll(changes);
     this.member = member;
@@ -528,5 +538,4 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     }
     return resultStates;
   }
-
 }

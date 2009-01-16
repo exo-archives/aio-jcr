@@ -107,6 +107,11 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     }
   }
 
+  /**
+   * Iterator that goes throw ChangesFiles and return ItemStates.
+   * 
+   * @param <C> ItemState extender
+   */
   class MultiFileIterator<C extends ItemState> implements Iterator<C> {
 
     private final List<ChangesFile> store;
@@ -189,6 +194,12 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     }
   }
 
+  /**
+   * Class constructor.
+   * 
+   * @param storage list of ChangesFiles
+   * @param member owner
+   */
   public ChangesLogStorage(List<ChangesFile> storage, Member member) {
     this.storage = storage;
     this.member = member;

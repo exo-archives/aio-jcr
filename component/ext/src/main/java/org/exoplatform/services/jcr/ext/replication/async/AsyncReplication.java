@@ -193,7 +193,7 @@ public class AsyncReplication implements Startable {
       this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
     }
 
-    /**
+     /**
      * {@inheritDoc}
      */
     public void onDisconnect() {

@@ -31,14 +31,31 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
     EditableChangesStorage<T> {
 
+  /**
+   * ItemStates storage direcory.
+   */
   protected final File         storagePath;
 
+  /**
+   *  Output Stream opened on current ChangesFile.
+   */
   protected ObjectOutputStream stream;
 
+  /**
+   * Current ChangesFile to store changes.
+   */
   protected ChangesFile        currentFile;
   
+  /**
+   * Index used as unique name for ChangesFiles. Incremented each time.
+   */
   private static volatile long index = 0;
 
+  /**
+   * Class constructor.
+   * 
+   * @param storagePath storage Path
+   */
   public EditableItemStatesStorage(File storagePath) {
     this.storagePath = storagePath;
   }
@@ -63,7 +80,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
 
   private void initFile() throws IOException {
     if (currentFile == null) {
-      currentFile = createFile();
+      currentFile = createChangesFile();
       this.storage.add(currentFile);
     }
     if(stream == null){
@@ -82,19 +99,21 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
     }
   }
 
-  private ChangesFile createFile() throws IOException {
+  /**
+   * Creates ChangesFile in ItemStatesStorage.
+   * 
+   * @return created ChangesFile
+   * @throws IOException
+   */
+  private ChangesFile createChangesFile() throws IOException {
     long timestamp = System.currentTimeMillis();
-    try{
-      
-     //TODO CHANGE ChangesFile naming system!!!!!! 
-     Thread.sleep(100);
-    }catch(InterruptedException e){
-    }
-    File file = new File(storagePath, Long.toString(index++)); //timestamp
+    File file = new File(storagePath, Long.toString(index++));
     
     if (file.exists()){
       throw new IOException("File already exists");
     }
+    
+    
     String crc = ""; // crc is ignored
     return new ChangesFile(file, crc, timestamp);
   }

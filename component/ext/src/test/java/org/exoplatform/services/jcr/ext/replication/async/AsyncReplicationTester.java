@@ -27,10 +27,10 @@ import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.AsyncWorker;
-import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.StorageKey;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 
 /**
  * Created by The eXo Platform SAS.
@@ -81,7 +81,7 @@ public class AsyncReplicationTester extends AsyncReplication {
     LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
     IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, channelNameSuffix);
+    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, (LocalStorageImpl)localStorage, (IncomeStorageImpl)incomeStorage, channelNameSuffix);
     synchWorker.run();
 
     currentWorkers.add(synchWorker);
