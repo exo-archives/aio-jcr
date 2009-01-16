@@ -150,16 +150,14 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
    * {@inheritDoc}
    */
   public void addLocalListener(LocalEventListener listener) {
-    // TODO Auto-generated method stub
-
+    listeners.add(listener);
   }
 
   /**
    * {@inheritDoc}
    */
   public void removeLocalListener(LocalEventListener listener) {
-    // TODO Auto-generated method stub
-
+    listeners.remove(listener);
   }
 
 }

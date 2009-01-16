@@ -65,9 +65,9 @@ public class AsyncReplication implements Startable {
 
   protected final RepositoryService                        repoService;
 
-  protected final LinkedHashMap<StorageKey, IncomeStorage> incomeStorages;
+  protected final LinkedHashMap<StorageKey, IncomeStorageImpl> incomeStorages;
 
-  protected final LinkedHashMap<StorageKey, LocalStorage>  localStorages;
+  protected final LinkedHashMap<StorageKey, LocalStorageImpl>  localStorages;
 
   protected final int                                      priority;
 
@@ -117,12 +117,14 @@ public class AsyncReplication implements Startable {
 
     protected final NodeTypeDataManager       ntManager;
 
-    protected final LocalStorage              localStorage;
+    protected final LocalStorageImpl              localStorage;
+    
+    protected final IncomeStorageImpl              incomeStorage;
 
     AsyncWorker(PersistentDataManager dataManager,
                 NodeTypeDataManager ntManager,
-                LocalStorage localStorage,
-                IncomeStorage incomeStorage,
+                LocalStorageImpl localStorage,
+                IncomeStorageImpl incomeStorage,
                 String chanelNameSufix) {
 
       this.channel = new AsyncChannelManager(channelConfig, channelName + "_" + chanelNameSufix);
@@ -132,12 +134,14 @@ public class AsyncReplication implements Startable {
       this.ntManager = ntManager;
 
       this.localStorage = localStorage;
+      
+      this.incomeStorage = incomeStorage; 
 
       this.transmitter = new AsyncTransmitterImpl(this.channel, priority);
 
-      this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, localStorage);
+      this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, this.localStorage);
 
-      this.publisher = new ChangesPublisherImpl(this.transmitter, localStorage);
+      this.publisher = new ChangesPublisherImpl(this.transmitter, this.localStorage);
 
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
       this.publisher.addLocalListener(this.exportServer);
@@ -155,11 +159,13 @@ public class AsyncReplication implements Startable {
 
       this.subscriber = new ChangesSubscriberImpl(this.synchronyzer,
                                                   this.mergeManager,
-                                                  incomeStorage,
+                                                  this.incomeStorage,
                                                   this.transmitter,
                                                   priority,
                                                   otherParticipantsPriority.size() + 1);
       this.publisher.addLocalListener(this.subscriber);
+      this.publisher.addLocalListener(this.localStorage);
+      this.publisher.addLocalListener(this.incomeStorage);
 
       this.receiver.setChangesSubscriber(this.subscriber);
 
@@ -171,10 +177,14 @@ public class AsyncReplication implements Startable {
                                               otherParticipantsPriority,
                                               waitAllMembersTimeout,
                                               true);
+      this.initializer.addRemoteListener(this.localStorage);
+      this.initializer.addRemoteListener(this.incomeStorage);
       this.initializer.addRemoteListener(this.publisher);
       this.initializer.addRemoteListener(this.exportServer);
       this.initializer.addRemoteListener(this.subscriber);
 
+      this.subscriber.addLocalListener(this.localStorage);
+      this.subscriber.addLocalListener(this.incomeStorage);
       this.subscriber.addLocalListener(this.initializer);
 
       this.channel.addStateListener(this.initializer);
@@ -195,14 +205,20 @@ public class AsyncReplication implements Startable {
 
       this.publisher.removeLocalListener(this.exportServer);
       this.publisher.removeLocalListener(this.subscriber);
+      this.publisher.removeLocalListener(this.localStorage);
+      this.publisher.removeLocalListener(this.incomeStorage);
 
       this.subscriber.removeLocalListener(this.publisher);
       this.subscriber.removeLocalListener(this.exportServer);
       this.subscriber.removeLocalListener(this.initializer);
+      this.subscriber.removeLocalListener(this.localStorage);
+      this.subscriber.removeLocalListener(this.incomeStorage);
 
       this.initializer.removeRemoteListener(this.subscriber);
       this.initializer.removeRemoteListener(this.publisher);
       this.initializer.removeRemoteListener(this.exportServer);
+      this.initializer.removeRemoteListener(this.localStorage);
+      this.initializer.removeRemoteListener(this.incomeStorage);
 
       this.channel.removePacketListener(this.initializer);
       this.channel.removeStateListener(this.initializer);
@@ -299,9 +315,9 @@ public class AsyncReplication implements Startable {
 
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
 
-    this.incomeStorages = new LinkedHashMap<StorageKey, IncomeStorage>();
+    this.incomeStorages = new LinkedHashMap<StorageKey, IncomeStorageImpl>();
 
-    this.localStorages = new LinkedHashMap<StorageKey, LocalStorage>();
+    this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
 
     // create IncomlStorages
     File incomeDir = new File(storagePath + "/income");
@@ -358,9 +374,9 @@ public class AsyncReplication implements Startable {
 
     this.currentWorkers = new LinkedHashSet<AsyncWorker>();
 
-    this.incomeStorages = new LinkedHashMap<StorageKey, IncomeStorage>();
+    this.incomeStorages = new LinkedHashMap<StorageKey, IncomeStorageImpl>();
 
-    this.localStorages = new LinkedHashMap<StorageKey, LocalStorage>();
+    this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
 
     // create IncomlStorages
     File incomeDir = new File(storagePath + "/income");
@@ -468,8 +484,8 @@ public class AsyncReplication implements Startable {
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
-    LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
-    IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
+    LocalStorageImpl localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
+    IncomeStorageImpl incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
     AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName + "_"
         + workspaceName);
@@ -493,7 +509,7 @@ public class AsyncReplication implements Startable {
               + File.separator + wsName);
           incomeDirPerWorkspace.mkdirs();
 
-          IncomeStorage incomeStorage = new IncomeStorageImpl(incomeDirPerWorkspace.getAbsolutePath());
+          IncomeStorageImpl incomeStorage = new IncomeStorageImpl(incomeDirPerWorkspace.getAbsolutePath());
 
           incomeStorages.put(new StorageKey(repositoryName, wsName), incomeStorage);
         }
@@ -507,7 +523,7 @@ public class AsyncReplication implements Startable {
               + File.separator + wsName);
           localDirPerWorkspace.mkdirs();
 
-          LocalStorage localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
+          LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
                                                            this.priority);
 
           localStorages.put(new StorageKey(repositoryName, wsName), localStorage);
