@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -234,7 +236,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
-      if (ItemState.isSame(it.next(), fromState)) {
+      if (it.next().isSame(fromState)) {
         while (it.hasNext()) {
           T inState = it.next();
           if (inState.getData().getIdentifier().equals(identifier)) {
@@ -276,7 +278,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
-      if (ItemState.isSame(it.next(), state)) {
+      if (it.next().isSame(state)) {
         return true;
       }
     }
@@ -307,7 +309,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
                                                                                        ClassNotFoundException {
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
-      if (ItemState.isSame(it.next(), fromState)) {
+      if (it.next().isSame(fromState)) {
         while (it.hasNext()) {
           T item = it.next();
           if (ItemState.isSame(item, identifier, path, state)) {
@@ -330,7 +332,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T item = it.next();
-      if (ItemState.isSame(item, toState)) {
+      if (item.isSame(toState)) {
         return null;
       } else if (ItemState.isSame(item, identifier, path, state)) {
         return item;
@@ -350,7 +352,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T item = it.next();
-      if (ItemState.isSame(item, toState)) {
+      if (item.isSame(toState)) {
         return null;
       } else if (item.getState() == state && item.getData().getQPath().equals(path)) {
         return item;
@@ -374,7 +376,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     // TODO check it
     while (it.hasNext()) {
       T state = it.next();
-      if (ItemState.isSame(state, fromState)) {
+      if (state.isSame(fromState)) {
         while (it.hasNext()) {
           T instate = it.next();
           if (instate.getState() != ItemState.UPDATED) {
@@ -401,7 +403,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
 
     // TODO check it
     while (it.hasNext()) {
-      if (ItemState.isSame(it.next(), fromState)) {
+      if (it.next().isSame(fromState)) {
         while (it.hasNext()) {
           T inState = it.next();
           if (inState.getState() != ItemState.UPDATED) {
@@ -421,7 +423,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   public Collection<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
                                                                                                   ClassCastException,
                                                                                                   ClassNotFoundException {
-    HashMap<Object, T> index = new HashMap<Object, T>();
+    HashMap<Object, T> index = new LinkedHashMap<Object, T>();
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
@@ -485,7 +487,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T state = it.next();
-      if (ItemState.isSame(state, firstState)) {
+      if (state.isSame(firstState)) {
         resultStates.add(state);
 
         while (it.hasNext()) {

@@ -225,7 +225,7 @@ public class MergeDataManager {
                                                               skippedList));
               } else {
                 // TODO
-                throw new RuntimeException("Unknown DELETE sequence");
+                throw new RuntimeException("Can not resolve merge. Unknown DELETE sequence");
               }
             }
             break;

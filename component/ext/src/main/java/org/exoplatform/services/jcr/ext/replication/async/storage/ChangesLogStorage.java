@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -195,8 +196,6 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     this.member = member;
   }
 
-  
-  
   /**
    * Delete all ChangesFiles in storage.
    */
@@ -426,7 +425,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState itemState = allStates.get(i);
 
-      if (ItemState.isSame(itemState, fromState)) {
+      if (itemState.isSame(fromState)) {
         break;
       } else if (itemState.getData().getIdentifier().equals(identifier)) {
         resultState = itemState;
@@ -465,7 +464,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     List<ItemState> allStates = log.getAllStates();
 
     for (int i = 0; i < allStates.size(); i++) {
-      if (ItemState.isSame(allStates.get(i), itemState)) {
+      if (allStates.get(i).isSame(itemState)) {
         return true;
       }
     }
@@ -512,7 +511,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     for (int i = allStates.size() - 1; i >= 0; i--) {
       ItemState item = allStates.get(i);
-      if (ItemState.isSame(item, fromState)) {
+      if (item.isSame(fromState)) {
         return null;
       } else if (ItemState.isSame(item, identifier, path, state)) {
         return item;
@@ -538,7 +537,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       ItemState item = allStates.get(i);
-      if (ItemState.isSame(item, toState)) {
+      if (item.isSame(toState)) {
         return null;
       } else if (ItemState.isSame(item, identifier, path, state)) {
         return item;
@@ -562,7 +561,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       ItemState item = allStates.get(i);
-      if (ItemState.isSame(item, toState)) {
+      if (item.isSame(toState)) {
         return null;
       } else if (item.getState() == state && item.getData().getQPath().equals(path)) {
         return item;
@@ -584,7 +583,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     ItemState lastState = null;
 
     for (int i = 0; i < allStates.size(); i++) {
-      if (ItemState.isSame(allStates.get(i), fromState)) {
+      if (allStates.get(i).isSame(fromState)) {
         for (int j = i + 1; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getState() != ItemState.UPDATED) {
@@ -613,7 +612,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     List<ItemState> allStates = log.getAllStates();
 
     for (int i = 0; i < allStates.size(); i++) {
-      if (ItemState.isSame(allStates.get(i), fromState)) {
+      if (allStates.get(i).isSame(fromState)) {
         for (int j = i + 1; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getState() != ItemState.UPDATED) {
@@ -642,7 +641,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      if (ItemState.isSame(allStates.get(i), firstState)) {
+      if (allStates.get(i).isSame(firstState)) {
         for (int j = i; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getData().getQPath().isDescendantOf(rootPath)) {
@@ -672,7 +671,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      if (ItemState.isSame(allStates.get(i), firstState)) {
+      if (allStates.get(i).isSame(firstState)) {
         for (int j = i; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
           if (item.getData().getQPath().isDescendantOf(rootPath)
@@ -697,7 +696,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      if (ItemState.isSame(allStates.get(i), firstState)) {
+      if (allStates.get(i).isSame(firstState)) {
         resultStates.add(firstState);
         for (int j = i + 1; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
@@ -725,7 +724,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
-      if (ItemState.isSame(allStates.get(i), startState)) {
+      if (allStates.get(i).isSame(startState)) {
         resultStates.add(startState);
         for (int j = i + 1; j < allStates.size(); j++) {
           ItemState item = allStates.get(j);
