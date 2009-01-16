@@ -29,7 +29,10 @@ import java.util.Set;
 
 import javax.jcr.RepositoryException;
 
+import org.picocontainer.Startable;
+
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValuesParam;
@@ -40,13 +43,11 @@ import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.ext.replication.ReplicationException;
-import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.log.ExoLogger;
-import org.picocontainer.Startable;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 10.12.2008
@@ -56,40 +57,40 @@ import org.picocontainer.Startable;
  */
 public class AsyncReplication implements Startable {
 
-  private static Log                                       log                = ExoLogger.getLogger("ext.AsyncReplication");
+  private static Log                                           log                = ExoLogger.getLogger("ext.AsyncReplication");
 
   /**
    * The template for ip-address in configuration.
    */
-  private static final String                              IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
+  private static final String                                  IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
 
-  protected final RepositoryService                        repoService;
+  protected final RepositoryService                            repoService;
 
   protected final LinkedHashMap<StorageKey, IncomeStorageImpl> incomeStorages;
 
   protected final LinkedHashMap<StorageKey, LocalStorageImpl>  localStorages;
 
-  protected final int                                      priority;
+  protected final int                                          priority;
 
-  protected final List<Integer>                            otherParticipantsPriority;
+  protected final List<Integer>                                otherParticipantsPriority;
 
-  protected Set<AsyncWorker>                               currentWorkers;
+  protected Set<AsyncWorker>                                   currentWorkers;
 
-  protected final String                                   bindIPAddress;
+  protected final String                                       bindIPAddress;
 
-  protected final String                                   channelConfig;
+  protected final String                                       channelConfig;
 
-  protected final String                                   channelName;
+  protected final String                                       channelName;
 
-  protected final int                                      waitAllMembersTimeout;
+  protected final int                                          waitAllMembersTimeout;
 
-  protected final String                                   mergeTempDir;
+  protected final String                                       mergeTempDir;
 
-  protected final String                                   localStorageDir;
+  protected final String                                       localStorageDir;
 
-  protected final String                                   incomeStorageDir;
+  protected final String                                       incomeStorageDir;
 
-  protected final String[]                                 repositoryNames;
+  protected final String[]                                     repositoryNames;
 
   class AsyncWorker implements ConnectionListener {
 
@@ -117,9 +118,9 @@ public class AsyncReplication implements Startable {
 
     protected final NodeTypeDataManager       ntManager;
 
-    protected final LocalStorageImpl              localStorage;
-    
-    protected final IncomeStorageImpl              incomeStorage;
+    protected final LocalStorageImpl          localStorage;
+
+    protected final IncomeStorageImpl         incomeStorage;
 
     AsyncWorker(PersistentDataManager dataManager,
                 NodeTypeDataManager ntManager,
@@ -134,8 +135,8 @@ public class AsyncReplication implements Startable {
       this.ntManager = ntManager;
 
       this.localStorage = localStorage;
-      
-      this.incomeStorage = incomeStorage; 
+
+      this.incomeStorage = incomeStorage;
 
       this.transmitter = new AsyncTransmitterImpl(this.channel, priority);
 
@@ -186,6 +187,7 @@ public class AsyncReplication implements Startable {
       this.subscriber.addLocalListener(this.localStorage);
       this.subscriber.addLocalListener(this.incomeStorage);
       this.subscriber.addLocalListener(this.initializer);
+      this.subscriber.addLocalListener(this.publisher);
 
       this.channel.addStateListener(this.initializer);
       this.channel.addPacketListener(this.initializer);
@@ -193,7 +195,7 @@ public class AsyncReplication implements Startable {
       this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
     }
 
-     /**
+    /**
      * {@inheritDoc}
      */
     public void onDisconnect() {
@@ -524,7 +526,7 @@ public class AsyncReplication implements Startable {
           localDirPerWorkspace.mkdirs();
 
           LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
-                                                           this.priority);
+                                                               this.priority);
 
           localStorages.put(new StorageKey(repositoryName, wsName), localStorage);
         }

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
@@ -66,6 +67,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
      */
     public void run() {
       try {
+        LOG.info("Loalc chahges : " + storage.getLocalChanges().getChangesFile().length);
         transmitter.sendChanges(storage.getLocalChanges().getChangesFile(), subscribers);
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
@@ -89,7 +91,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    */
   public void onCancel() {
     doStop();
-    
+
     cancelWorker();
   }
 
@@ -112,7 +114,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    */
   public void onStart(List<Member> members) {
     LOG.info("On START (local) " + members.size() + " members");
-    
+
     doStart();
 
     sendChanges(members);
@@ -123,9 +125,9 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    */
   public void onStop() {
     LOG.info("On STOP (local)");
-    
+
     doStop();
-    
+
     // TODO
     // Publisher will stop work, run local storage rotation and set Repository RW state.
   }

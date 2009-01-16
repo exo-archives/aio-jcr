@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
@@ -298,14 +299,10 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   public T findNextItemState(ItemState fromState, String identifier) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
-    while (it.hasNext()) {
-
+    while (result == null || it.hasNext()) {
       result = (T) findNextItemStateFromLog(it.next(), fromState, identifier);
-
-      if (result != null)
-        return result;
     }
-    return null;
+    return result;
   }
 
   public T getNextItemStateByIndexOnUpdate(ItemState fromState, int prevIndex) throws IOException {
@@ -425,19 +422,17 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   private ItemState findNextItemStateFromLog(TransactionChangesLog log,
                                              ItemState fromState,
                                              String identifier) {
-    ItemState resultState = null;
-
     List<ItemState> allStates = log.getAllStates();
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState itemState = allStates.get(i);
-
-      if (itemState.isSame(fromState)) {
-        break;
-      } else if (itemState.getData().getIdentifier().equals(identifier)) {
-        resultState = itemState;
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).isSame(fromState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState itemState = allStates.get(j);
+          if (itemState.getData().getIdentifier().equals(identifier))
+            return itemState;
+        }
       }
     }
-    return resultState;
+    return null;
   }
 
   /**
@@ -640,9 +635,9 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * @return
    */
   private List<T> getDescendantsChangesFromLog(TransactionChangesLog log,
-                                                             ItemState firstState,
-                                                             QPath rootPath,
-                                                             boolean unique) {
+                                               ItemState firstState,
+                                               QPath rootPath,
+                                               boolean unique) {
     LinkedHashMap<Object, T> index = new LinkedHashMap<Object, T>();
 
     List<T> allStates = (List<T>) log.getAllStates();
