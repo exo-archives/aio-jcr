@@ -295,7 +295,8 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener, Remot
                                           item.getState(),
                                           item.isEventFire(),
                                           item.getAncestorToSave(),
-                                          item.isInternallyCreated());
+                                          item.isInternallyCreated(),
+                                          item.isPersisted());
           destlist.add(nItem);
         }
       }
