@@ -132,7 +132,7 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
   /**
    * Add tree of nodes item on low priority, already added on high priority.
    */
-  public void testAddTree() throws Exception {
+  public void testAddSameTree() throws Exception {
     // low priority changes
     Node node = root3.addNode("item1");
     node.setProperty("prop1", "value1");
@@ -143,6 +143,36 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
     node = root4.addNode("item1");
     node.setProperty("prop1", "value1");
     node = node.addNode("item11");
+    node.setProperty("prop11", "value11");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * Add tree of nodes item on low priority, already added on high priority.
+   */
+  public void testAddDiffTree() throws Exception {
+    // low priority changes
+    Node node = root3.addNode("item1");
+    node.setProperty("prop1", "value1");
+    node = node.addNode("item11");
+    node.setProperty("prop11", "value11");
+
+    // high priority changes
+    node = root4.addNode("item2");
+    node.setProperty("prop1", "value1");
+    node = node.addNode("item21");
     node.setProperty("prop11", "value11");
 
     session3.save();

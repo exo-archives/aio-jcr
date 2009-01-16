@@ -117,6 +117,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       } catch (ClassNotFoundException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+      } catch (MergeDataManagerException e) {
+        workerLog.error("Merge error " + e, e);
+        doCancel();
       }
     }
 
@@ -135,7 +138,8 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
                            RemoteExportException,
                            IOException,
                            ClassCastException,
-                           ClassNotFoundException {
+                           ClassNotFoundException,
+                           MergeDataManagerException {
 
       LOG.error("run merge " + this);
 
@@ -213,7 +217,9 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
         // Fire event to Publisher to send own changes out
         doSendChanges();
 
-        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(), packet.getTimeStamp(), member);
+        ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
+                                                          packet.getTimeStamp(),
+                                                          member);
         cf.writeData(packet.getBuffer(), packet.getOffset());
 
         // packet.getFileCount(); // TODO remeber whole packets count for this member
@@ -224,14 +230,14 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
       }
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
         LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
-        
+
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());
         break;
       }
       case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET: {
         LOG.info("BINARY_CHANGESLOG_LAST_PACKET " + member.getName());
-        
+
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         mcf.getChangesFile().finishWrite();
         incomeStorrage.addMemberChanges(mcf.getMember(), mcf.getChangesFile());

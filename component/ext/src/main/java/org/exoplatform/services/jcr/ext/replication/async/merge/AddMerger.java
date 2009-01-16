@@ -94,6 +94,8 @@ public class AddMerger implements ChangesMerger {
                                                                  ClassCastException,
                                                                  ClassNotFoundException {
 
+    // Invalid order number when added two not conflicted nodes
+
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;

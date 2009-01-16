@@ -106,12 +106,14 @@ public class MergeDataManager {
    * @throws IOException
    * @throws ClassNotFoundException
    * @throws ClassCastException
+   * @throws MergeDataManagerException
    */
   public ChangesStorage<ItemState> merge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
                                                                                             RemoteExportException,
                                                                                             IOException,
                                                                                             ClassCastException,
-                                                                                            ClassNotFoundException {
+                                                                                            ClassNotFoundException,
+                                                                                            MergeDataManagerException {
 
     try {
 
@@ -224,8 +226,13 @@ public class MergeDataManager {
                                                               storageDir,
                                                               skippedList));
               } else {
-                // TODO
-                throw new RuntimeException("Can not resolve merge. Unknown DELETE sequence");
+                throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."
+                    + "[path="
+                    + incomeChange.getData().getQPath()
+                    + "][identifier="
+                    + incomeChange.getData().getIdentifier()
+                    + "][parentIdentifier="
+                    + incomeChange.getData().getParentIdentifier() + "]");
               }
             }
             break;
