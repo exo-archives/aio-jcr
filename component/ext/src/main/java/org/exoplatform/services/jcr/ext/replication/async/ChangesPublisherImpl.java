@@ -35,8 +35,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: ChangesPublisherImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListener,
-    LocalEventListener, LocalEventProducer {
+public class ChangesPublisherImpl extends SynchronizationLifeCycle implements ChangesPublisher,
+    RemoteEventListener, LocalEventListener, LocalEventProducer {
 
   /**
    * Logger.
@@ -109,7 +109,9 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
-    LOG.info("onStart " + members.size() + " " + members);
+    LOG.info("On START (local) " + members.size() + " members");
+    
+    doStart();
 
     sendChanges(members);
   }
@@ -118,6 +120,10 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
    * {@inheritDoc}
    */
   public void onStop() {
+    LOG.info("On STOP (local)");
+    
+    doStop();
+    
     // TODO
     // Publisher will stop work, run local storage rotation and set Repository RW state.
   }
@@ -133,17 +139,17 @@ public class ChangesPublisherImpl implements ChangesPublisher, RemoteEventListen
   }
 
   protected void doCancel() {
-    LOG.error("Do CANCEL");
+    LOG.error("Do CANCEL (local)");
 
     try {
       transmitter.sendCancel();
     } catch (IOException ioe) {
       LOG.error("Cannot send 'Cancel' " + ioe, ioe);
     }
-    
+
     for (LocalEventListener syncl : listeners)
       // inform all interested
-      syncl.onCancel(); 
+      syncl.onCancel();
   }
 
   /**

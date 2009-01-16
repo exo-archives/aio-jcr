@@ -26,13 +26,32 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @version $Id: SynchronizationStop.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public abstract class SynchronizationLifeCycle {
-  private volatile boolean stopped = false;
-
+  
+  public static final int INITIALIZED = 0;
+  
+  public static final int STARTED = 1;
+  
+  public static final int STOPPED = 2;
+  
+  private volatile int state = INITIALIZED;
+  
+  public boolean isInitialized() {
+    return state == INITIALIZED;
+  }
+  
   public boolean isStopped() {
-    return stopped;
+    return state == STOPPED;
+  }
+  
+  public boolean isStarted() {
+    return state == STARTED;
   }
   
   public void doStop() {
-    stopped = true;
+    state = STOPPED;
+  }
+  
+  public void doStart() {
+    state = STARTED;
   }
 }
