@@ -372,7 +372,7 @@ public class ChangesSubscriberImpl implements ChangesSubscriber, RemoteEventList
     this.save();
   }
 
-  private void save() {
+  private synchronized void save() {
     if (doneList.size() == membersCount) {
       try {
         workspace.save(mergeWorker.result);

@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -264,15 +263,12 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * {@inheritDoc}
    */
-  public Collection<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException {
+  public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
     while (it.hasNext()) {
-      list.addAll((Collection<T>) getDescendantsChangesFromLog(it.next(),
-                                                               firstState,
-                                                               rootPath,
-                                                               unique));
+      list.addAll(getDescendantsChangesFromLog(it.next(), firstState, rootPath, unique));
     }
     return list;
   }
@@ -356,12 +352,12 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     return size;
   }
 
-  public Collection<T> getChanges(ItemState firstState, QPath rootPath) throws IOException {
+  public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     List<T> list = new ArrayList<T>();
 
     while (it.hasNext()) {
-      list.addAll((Collection<T>) getChangesFromLog(it.next(), firstState, rootPath));
+      list.addAll((List<T>) getChangesFromLog(it.next(), firstState, rootPath));
     }
     return list;
   }
@@ -633,17 +629,17 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * @param unique
    * @return
    */
-  private Collection<ItemState> getDescendantsChangesFromLog(TransactionChangesLog log,
+  private List<T> getDescendantsChangesFromLog(TransactionChangesLog log,
                                                              ItemState firstState,
                                                              QPath rootPath,
                                                              boolean unique) {
-    HashMap<Object, ItemState> index = new HashMap<Object, ItemState>();
+    HashMap<Object, T> index = new HashMap<Object, T>();
 
-    List<ItemState> allStates = log.getAllStates();
+    List<T> allStates = (List<T>) log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       if (allStates.get(i).isSame(firstState)) {
         for (int j = i; j < allStates.size(); j++) {
-          ItemState item = allStates.get(j);
+          T item = allStates.get(j);
           if (item.getData().getQPath().isDescendantOf(rootPath)) {
             if (!unique || index.get(item.getData().getQPath()) == null) {
               index.put(item.getData().getQPath(), item);
@@ -654,7 +650,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     }
 
     // TODO check order
-    return index.values();
+    return new ArrayList<T>(index.values());
   }
 
   /**
@@ -664,9 +660,9 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * @return
    * @throws IOException
    */
-  private Collection<ItemState> getChangesFromLog(TransactionChangesLog log,
-                                                  ItemState firstState,
-                                                  QPath rootPath) throws IOException {
+  private List<ItemState> getChangesFromLog(TransactionChangesLog log,
+                                            ItemState firstState,
+                                            QPath rootPath) throws IOException {
     List<ItemState> list = new ArrayList<ItemState>();
 
     List<ItemState> allStates = log.getAllStates();

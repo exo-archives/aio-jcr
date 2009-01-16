@@ -20,7 +20,6 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -232,7 +231,7 @@ public interface ChangesStorage<T extends ItemState> {
    *          - QPath
    * @return Collection of ItemState
    */
-  Collection<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
+  List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
                                                                                            ClassCastException,
                                                                                            ClassNotFoundException;
 
@@ -245,7 +244,7 @@ public interface ChangesStorage<T extends ItemState> {
    * 
    * @return Collection of ItemState
    */
-  Collection<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
+  List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
                                                                 ClassCastException,
                                                                 ClassNotFoundException;
 

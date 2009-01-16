@@ -192,17 +192,15 @@ public class RenameMerger implements ChangesMerger {
                                                                                                                                   .getQPath())))) {
 
             // add DELETE state
-            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localState,
+            List<ItemState> items = local.getDescendantsChanges(localState,
                                                                                 localData.getQPath(),
                                                                                 true);
-            ItemState itemsArray[];
-            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
-            for (int i = itemsArray.length - 1; i >= 0; i--) {
-              if (local.findLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
-                resultState.add(new ItemState(itemsArray[i].getData(),
+            for (int i = items.size() - 1; i >= 0; i--) {
+              if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
-                                              itemsArray[i].isEventFire(),
-                                              itemsArray[i].getData().getQPath()));
+                                              items.get(i).isEventFire(),
+                                              items.get(i).getData().getQPath()));
               }
             }
             if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {

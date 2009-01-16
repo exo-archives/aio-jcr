@@ -20,7 +20,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -420,7 +419,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * {@inheritDoc}
    */
-  public Collection<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
+  public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
                                                                                                   ClassCastException,
                                                                                                   ClassNotFoundException {
     HashMap<Object, T> index = new LinkedHashMap<Object, T>();
@@ -444,13 +443,13 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       }
     }
 
-    return index.values();
+    return new ArrayList<T>(index.values());
   }
 
   /**
    * {@inheritDoc}
    */
-  public Collection<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
+  public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
                                                                        ClassCastException,
                                                                        ClassNotFoundException {
     List<T> resultStates = new ArrayList<T>();
