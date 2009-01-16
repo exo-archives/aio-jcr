@@ -244,9 +244,12 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     // TODO remove log
     log.info("Do Start, first member " + members.get(0).getName());
 
-    if (isCoordinator)
+    if (isCoordinator) {
       for (RemoteEventListener rl : listeners())
         rl.onStart(members);
+      
+      doStart();
+    }
   }
 
   private void doCancel() {
