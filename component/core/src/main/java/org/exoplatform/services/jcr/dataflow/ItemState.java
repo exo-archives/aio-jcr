@@ -212,19 +212,16 @@ public class ItemState implements Externalizable {
   /**
    * Is two item states are same. Added for merger.
    * 
-   * isSame.
-   * 
-   * @param src
-   * @param dst
+   * @param state
    * @return
    */
-  public static boolean isSame(ItemState src, ItemState dst) {
-    if (src == dst)
+  public boolean isSame(ItemState state) {
+    if (this == state)
       return true;
 
-    return src.getData().getIdentifier().hashCode() == dst.getData().getIdentifier().hashCode()
-        && src.getData().getQPath().hashCode() == dst.getData().getQPath().hashCode()
-        && src.getState() == dst.getState();
+    return this.getData().getIdentifier().hashCode() == state.getData().getIdentifier().hashCode()
+        && this.getData().getQPath().hashCode() == state.getData().getQPath().hashCode()
+        && this.getState() == state.getState();
   }
 
   /**
