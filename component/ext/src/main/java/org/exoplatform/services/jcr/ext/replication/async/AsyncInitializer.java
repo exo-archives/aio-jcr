@@ -190,6 +190,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         List<Member> members = new ArrayList<Member>(event.getMembers());
         members.remove(event.getLocalMember());
 
+        LOG.info("Do START with all memebers");
         doStart(members);
       }
 
@@ -383,10 +384,10 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
           List<Member> members = new ArrayList<Member>(previousMemmbers);
           members.remove(localMember);
 
+          LOG.info("Do START from last member waiter");
           doStart(members);
         } else if (run) {
-          LOG.info("Do CANCEL on last member waiter");
-
+          LOG.info("Do CANCEL from last member waiter");
           try {
             sendCancel();
           } catch (IOException e) {
