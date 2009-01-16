@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -122,8 +123,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
         fileNames = prevDir.list(ChangesFile.getFilenameFilter());
       }
 
-      // TODO Sort names in ascending mode
-      java.util.Arrays.sort(fileNames);
+      java.util.Arrays.sort(fileNames, ChangesFile.getFilenameComparator());
 
       for (int j = 0; j < fileNames.length; j++) {
         try {
@@ -198,8 +198,22 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
       }
     });
 
-    // TODO Sort names in ascending mode
-    java.util.Arrays.sort(dirNames);
+    java.util.Arrays.sort(dirNames, new Comparator<String>(){
+
+      public int compare(String o1, String o2) {
+        
+        long first = Long.parseLong(o1);
+        long second = Long.parseLong(o2);
+        if(first<second){
+         return -1; 
+        }else if(first==second){
+         return 0; 
+        }else{
+         return 1; 
+        }  
+      }
+    });
+    
     return dirNames;
   }
   
@@ -339,7 +353,6 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener {
     
     //get last directory in storage and delete
     String[] dirs = getSubStorageNames(this.storagePath);
-    
     
     File lastDir = new File(storagePath, dirs[dirs.length-1]);
     lastDir.delete();

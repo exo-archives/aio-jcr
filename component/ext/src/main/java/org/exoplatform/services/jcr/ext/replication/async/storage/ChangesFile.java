@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -229,6 +230,25 @@ public class ChangesFile {
         if(!m.matches()) return false;
         File file = new File(dir, name);
         return !file.isDirectory();
+      }
+    };
+  }
+  
+  public static Comparator<String> getFilenameComparator(){
+    
+    return  new Comparator<String>(){
+
+      public int compare(String o1, String o2) {
+        
+        long first =Long.parseLong(o1);
+        long second =Long.parseLong(o2);
+        if(first<second){
+         return -1; 
+        }else if(first==second){
+         return 0; 
+        }else{
+         return 1; 
+        }  
       }
     };
   }
