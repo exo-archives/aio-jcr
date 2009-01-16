@@ -422,7 +422,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
                                                                                                   ClassCastException,
                                                                                                   ClassNotFoundException {
-    HashMap<Object, T> index = new LinkedHashMap<Object, T>();
+    LinkedHashMap<Object, T> index = new LinkedHashMap<Object, T>();
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
