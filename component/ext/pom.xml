@@ -169,8 +169,10 @@
             <include>**/replication/*.java</include>
             <include>**/replication/external/*.java</include>
             <include>**/replication/async/**/*.java</include>
-            <include>**/organization/Test*.java</include>            
-            <include>**/replication/async/**/*Test.java</include>
+            <include>**/organization/Test*.java</include>
+            <!-- include>**/LocalStorageTest.java</include-->
+
+
           </includes>
           <excludes>
             <exclude>**/*$*</exclude>

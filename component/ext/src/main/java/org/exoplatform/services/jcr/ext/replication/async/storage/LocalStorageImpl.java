@@ -360,6 +360,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener, Remot
   public void onStop() {
     // TODO archive primary dir content
     // delete files in primary dir
+    LOG.info("LocalStorageImpl:onStop()");
   }
 
   /**
@@ -369,11 +370,14 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener, Remot
     // TODO merge detached and current storages in one (rename detached to a
     // current now, till we use READ-ONLY)
 
+    LOG.info("LocalStorageImpl:onCancel()");
     // get last directory in storage and delete
     String[] dirs = getSubStorageNames(this.storagePath);
 
     File lastDir = new File(storagePath, dirs[dirs.length - 1]);
     lastDir.delete();
+    
+    
   }
 
   /**
@@ -381,6 +385,7 @@ public class LocalStorageImpl implements LocalStorage, LocalEventListener, Remot
    */
   public void onStart(List<Member> members) {
     // create new SubDir
+    LOG.info("LocalStorageImpl:onStart()" + members.size());
     File subdir = new File(storagePath, Long.toString(dirIndex++));
     subdir.mkdirs();
   }
