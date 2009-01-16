@@ -132,12 +132,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     String[] fileNames = prevDir.list(new ChangesFileNameFilter());
 
-    if (fileNames.length == 0) {
-      // write empty log to have at least one file to send/compare
-      onSaveItems(new TransactionChangesLog());
-      fileNames = prevDir.list(new ChangesFileNameFilter());
-    }
-
     java.util.Arrays.sort(fileNames, new ChangesFileComparator());
 
     for (int j = 0; j < fileNames.length; j++) {
@@ -233,11 +227,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log
-   *          local TransactionChangesLog
+   * @param log local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException
-   *           if error occurs
+   * @throws IOException if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -260,30 +252,34 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
           destlist.add(item);
         } else {
           TransientPropertyData prop = (TransientPropertyData) item.getData();
-          Iterator<ValueData> valIt = prop.getValues().iterator();
+
+          List<ValueData> srcVals = prop.getValues();
           List<ValueData> destVals = new ArrayList<ValueData>();
 
-          while (valIt.hasNext()) {
+          if (srcVals != null) {
+            Iterator<ValueData> valIt = prop.getValues().iterator();
+            while (valIt.hasNext()) {
 
-            ValueData val = valIt.next();
-            ReplicableValueData dest;
-            if (val instanceof ReplicableValueData) {
-              dest = (ReplicableValueData) val;
-            } else {
-
-              if (val.isByteArray()) {
-                dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
+              ValueData val = valIt.next();
+              ReplicableValueData dest;
+              if (val instanceof ReplicableValueData) {
+                dest = (ReplicableValueData) val;
               } else {
-                if (val instanceof TransientValueData) {
-                  dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
-                                                 val.getOrderNumber());
+
+                if (val.isByteArray()) {
+                  dest = new ReplicableValueData(val.getAsByteArray(), val.getOrderNumber());
                 } else {
-                  // create new dataFile
-                  dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
+                  if (val instanceof TransientValueData) {
+                    dest = new ReplicableValueData(((TransientValueData) val).getSpoolFile(),
+                                                   val.getOrderNumber());
+                  } else {
+                    // create new dataFile
+                    dest = new ReplicableValueData(val.getAsStream(), val.getOrderNumber());
+                  }
                 }
               }
+              destVals.add(dest);
             }
-            destVals.add(dest);
           }
           // rewrite values
           prop.setValues(destVals);
@@ -296,12 +292,14 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
                                           item.isInternallyCreated(),
                                           item.isPersisted());
           destlist.add(nItem);
+
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-          ? EXTERNALIZATION_SESSION_ID
-          : plog.getSessionId(), plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist,
+                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                       : plog.getSessionId(),
+                                            plog.getEventType()));
     }
     return result;
   }
@@ -309,8 +307,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -374,18 +371,27 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     File lastDir = new File(storagePath, dirs[dirs.length - 1]);
     lastDir.delete();
-    
-    
+
   }
 
   /**
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
-    // create new SubDir
     LOG.info("On START");
+   
+    //check previous dir
+    String dirs[] = getSubStorageNames(this.storagePath);
+    File prevDir = new File(storagePath, dirs[dirs.length-1]);
+    String[] subfiles = prevDir.list(new ChangesFileNameFilter());
+    if(subfiles.length==0){
+        // write empty log to have at least one file to send/compare
+        onSaveItems(new TransactionChangesLog());
+    }
     File subdir = new File(storagePath, Long.toString(dirIndex++));
     subdir.mkdirs();
+    
+    LOG.info("LocalStorageImpl:onStart()");
   }
 
   /**
