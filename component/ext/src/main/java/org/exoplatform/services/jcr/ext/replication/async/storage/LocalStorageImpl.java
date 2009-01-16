@@ -383,7 +383,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public void onStart(List<Member> members) {
     // create new SubDir
-    LOG.info("LocalStorageImpl:onStart()" + members.size());
+    LOG.info("LocalStorageImpl:onStart()");
     File subdir = new File(storagePath, Long.toString(dirIndex++));
     subdir.mkdirs();
   }
