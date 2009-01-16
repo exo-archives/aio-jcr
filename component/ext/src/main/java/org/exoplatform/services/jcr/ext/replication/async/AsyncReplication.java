@@ -228,7 +228,7 @@ public class AsyncReplication implements Startable {
    * Will be used as key for mapLocalStorages.
    * 
    */
-  private class StorageKey {
+  protected class StorageKey {
     private final String repositoryName;
 
     private final String workspaceName;

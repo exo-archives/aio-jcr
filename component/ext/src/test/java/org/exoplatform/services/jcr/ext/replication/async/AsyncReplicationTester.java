@@ -1,0 +1,89 @@
+/*
+ * Copyright (C) 2003-2009 eXo Platform SAS.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Affero General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see<http://www.gnu.org/licenses/>.
+ */
+package org.exoplatform.services.jcr.ext.replication.async;
+
+import java.util.List;
+
+import javax.jcr.RepositoryException;
+
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.services.jcr.RepositoryService;
+import org.exoplatform.services.jcr.config.RepositoryConfigurationException;
+import org.exoplatform.services.jcr.core.ManageableRepository;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
+import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.AsyncWorker;
+import org.exoplatform.services.jcr.ext.replication.async.AsyncReplication.StorageKey;
+import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
+
+/**
+ * Created by The eXo Platform SAS.
+ * 
+ * <br/>Date: 16.01.2009
+ * 
+ * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
+ * @version $Id: AsyncReplicationTester.java 111 2008-11-11 11:11:11Z rainf0x $
+ */
+public class AsyncReplicationTester extends AsyncReplication {
+
+  public AsyncReplicationTester(RepositoryService repoService, InitParams params) throws RepositoryException,
+      RepositoryConfigurationException {
+    super(repoService, params);
+  }
+
+  public AsyncReplicationTester(RepositoryService repoService,
+                                List<String> repositoryNames,
+                                int priority,
+                                String bindIPAddress,
+                                String channelConfig,
+                                String channelName,
+                                int waitAllMembersTimeout,
+                                String storagePath,
+                                List<Integer> otherParticipantsPriority) throws RepositoryException,
+      RepositoryConfigurationException {
+    super(repoService,
+          repositoryNames,
+          priority,
+          bindIPAddress,
+          channelConfig,
+          channelName,
+          waitAllMembersTimeout,
+          storagePath,
+          otherParticipantsPriority);
+  }
+
+  protected void synchronize(String repoName, String workspaceName, String channelNameSuffix) throws RepositoryException,
+                                                                                             RepositoryConfigurationException {
+
+    ManageableRepository repository = repoService.getRepository(repoName);
+
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(workspaceName);
+
+    NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
+    PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+
+    LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
+    IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
+
+    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, channelNameSuffix);
+    synchWorker.run();
+
+    currentWorkers.add(synchWorker);
+  }
+}

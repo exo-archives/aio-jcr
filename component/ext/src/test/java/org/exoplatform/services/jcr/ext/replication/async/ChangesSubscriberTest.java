@@ -129,7 +129,6 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
     Node srcNode = session.getRootNode();
     Node destNode = sessionWS1.getRootNode();
 
-    // create node
     for (int j = 0; j < 10; j++)
       for (int i = 0; i < 10; i++)
         assertEquals(srcNode.getNode("testNode_" + j + "_" + i).getName(), destNode.getNode("testNode_" + j + "_" + i)
