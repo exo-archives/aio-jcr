@@ -95,7 +95,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       try {
         runMerge();
 
-        LOG.info("Merge done (local)");
         // add local done;
         addMergeDone(localPriority);
 
@@ -150,7 +149,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                            ClassNotFoundException,
                            MergeDataManagerException {
 
-      LOG.error("run merge " + this);
+      LOG.error("run merge");
 
       // add local changes to the list
       List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
@@ -166,9 +165,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       }
 
       // merge
-      workerLog.info("start merge " + this);
+      workerLog.info("start merge of " + (membersChanges.size() - 1) + " members");
       result = mergeManager.merge(membersChanges.iterator());
-      workerLog.info("done merge " + this);
+      workerLog.info("merge done");
     }
 
   }
@@ -223,7 +222,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + member.getName());
 
         // Fire event to Publisher to send own changes out
-        if (!isStarted()) {
+        if (isInitialized()) {
+          LOG.info("On START (remote) from " + member.getName());
+          
           doStart();
 
           for (LocalEventListener syncl : listeners)
