@@ -226,7 +226,9 @@ public class ChangesFile {
       
       public boolean accept(File dir, String name) {
         Matcher m = PATTERN.matcher(name);
-        return m.matches();
+        if(!m.matches()) return false;
+        File file = new File(dir, name);
+        return !file.isDirectory();
       }
     };
   }

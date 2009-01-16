@@ -36,6 +36,8 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   protected ObjectOutputStream stream;
 
   protected ChangesFile        currentFile;
+  
+  private static volatile long index = 0;
 
   public EditableItemStatesStorage(File storagePath) {
     this.storagePath = storagePath;
@@ -88,7 +90,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
      Thread.sleep(100);
     }catch(InterruptedException e){
     }
-    File file = new File(storagePath, Long.toString(timestamp));
+    File file = new File(storagePath, Long.toString(index++)); //timestamp
     
     if (file.exists()){
       throw new IOException("File already exists");

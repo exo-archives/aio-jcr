@@ -96,7 +96,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log = chs.get(0);
 
     // create storage
-    LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath(),100);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),100);
     storage.onSaveItems(log);
 
     // delete storage object
@@ -104,6 +104,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // create new storage object on old context
     storage = new LocalStorageImpl(dir.getAbsolutePath(),100);
+    storage.onStart(null);
+    
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
     Iterator<ItemState> states = ch.getChanges();
     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
@@ -124,8 +126,9 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
+    File dir = new File(STORAGE_DIR+"ss");
     dir.mkdirs();
-    LocalStorage storage = new LocalStorageImpl(dir.getAbsolutePath(),40);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),40);
     dataManager.addItemPersistenceListener(storage);
 
     NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
@@ -152,6 +155,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
     dataManager.removeItemPersistenceListener(storage);
+    storage.onStart(null);
 
     // create storage
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
@@ -171,8 +175,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
-    //File dir = new File(STORAGE_DIR+"startstop");
-    //dir.mkdirs();
+    File dir = new File(STORAGE_DIR+"startstop");
+    dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),40);
     dataManager.addItemPersistenceListener(storage);
 
@@ -197,6 +201,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     storage.onStop();
 
+    storage.onStart(null);
     assertEquals(0, storage.getErrors().length);
 
     // check current data
