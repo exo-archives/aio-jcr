@@ -317,20 +317,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   }
 
   /**
-   * {@inheritDoc}
-   */
-  @Override
-  public void doStop() {
-    LOG.info("Do Stop (local)");
-
-    super.doStop();
-
-    LOG.info("Fire Stop (local)");
-    for (LocalEventListener ll : listeners)
-      ll.onStop();
-  }
-
-  /**
    * Add 'done' to list.
    * 
    * @param priority
@@ -403,6 +389,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
     }
+    
+    LOG.info("Fire Stop (local)");
+    for (LocalEventListener ll : listeners)
+      ll.onStop();
   }
 
   /**
