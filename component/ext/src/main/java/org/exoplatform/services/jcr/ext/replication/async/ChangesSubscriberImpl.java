@@ -76,8 +76,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   protected MergeWorker                           mergeWorker = null;
 
-  private volatile boolean                        localEventSendChanges;
-
   /**
    * Listeners in order of addition.
    */
@@ -108,7 +106,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           LOG.error("Cannot send 'Cancel'" + ioe, ioe);
         }
 
-        save();
+        if (doneList.size() == membersCount) { 
+          save();
+          doStop();
+        }
 
       } catch (RepositoryException e) {
         workerLog.error("Merge error " + e, e);
@@ -204,7 +205,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     this.transmitter = transmitter;
     this.localPriority = localPriority;
     this.membersCount = membersCount;
-    this.localEventSendChanges = false;
   }
 
   public void addLocalListener(LocalEventListener listener) {
@@ -223,8 +223,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + member.getName());
 
         // Fire event to Publisher to send own changes out
-        if (localEventSendChanges != true) {
-          localEventSendChanges = true;
+        if (!isStarted()) {
+          doStart();
 
           for (LocalEventListener syncl : listeners)
             syncl.onStart(transmitter.getOtherMembers());
@@ -310,10 +310,24 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     }
 
     doStop();
-    
+
     for (LocalEventListener syncl : listeners)
       // inform all interested
       syncl.onCancel(); // local done - null
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void doStop() {
+    LOG.info("Do Stop (local)");
+
+    super.doStop();
+
+    LOG.info("Fire Stop (local)");
+    for (LocalEventListener ll : listeners)
+      ll.onStop();
   }
 
   /**
@@ -334,15 +348,15 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    */
   public void onCancel() {
     LOG.info("On CANCEL");
-    
+
     doStop();
-    
+
     cancelMerge();
   }
 
   /**
    * Cancel merge process if the ones exists.
-   *
+   * 
    */
   private void cancelMerge() {
     if (mergeWorker != null)
@@ -360,38 +374,34 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    */
   public void onMerge(Member member) {
 
-    LOG.info("On Merge member " + member.getName());
-
     addMergeDone(member.getPriority());
+    
+    LOG.info("On Merge member " + member.getName() + ", doneList.size=" + doneList.size() + " membersCount="
+      + membersCount);
 
-    LOG.info("ChangesSubscriber.onMerge doneList.size=" + doneList.size() + " membersCount="
-        + membersCount);
-
-    this.save();
+    if (doneList.size() == membersCount) {
+      save();
+      doStop();
+    }
   }
 
   private synchronized void save() {
-    if (doneList.size() == membersCount) {
-      try {
-        workspace.save(mergeWorker.result);
-      } catch (InvalidItemStateException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (UnsupportedOperationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (RepositoryException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (SynchronizationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-
-      LOG.info("Fire LocalEventListener.onStop");
-
-      for (LocalEventListener ll : listeners)
-        ll.onStop();
+    LOG.info("save");
+    
+    try {
+      workspace.save(mergeWorker.result);
+    } catch (InvalidItemStateException e) {
+      // TODO fire Cancel for local modules
+      LOG.error("Save error " + e, e);
+    } catch (UnsupportedOperationException e) {
+      // TODO fire Cancel for local modules
+      LOG.error("Save error " + e, e);
+    } catch (RepositoryException e) {
+      // TODO fire Cancel for local modules
+      LOG.error("Save error " + e, e);
+    } catch (SynchronizationException e) {
+      // TODO fire Cancel for local modules
+      LOG.error("Save error " + e, e);
     }
   }
 
@@ -404,9 +414,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   }
 
   public void onStart(List<Member> members) {
-    // not interested
+    // not interested actually
     LOG.info("On START (local) " + members.size() + " members");
-    
+
     doStart();
   }
 
@@ -416,7 +426,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void onStop() {
     // TODO Auto-generated method stub
     LOG.info("On STOP (local)");
-    
+
     doStop();
   }
 
