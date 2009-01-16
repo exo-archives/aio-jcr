@@ -729,7 +729,7 @@ public class NodeTypeDataManagerImpl implements NodeTypeDataManager {
 
       registerNodeTypes(nts, alreadyExistsBehaviour);
 
-      LOG.info("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
+      LOG.debug("Nodetypes registered from xml definitions (count: " + ntvList.size() + "). "
           + (System.currentTimeMillis() - start) + " ms.");
       return nts;
     } catch (JiBXException e) {
