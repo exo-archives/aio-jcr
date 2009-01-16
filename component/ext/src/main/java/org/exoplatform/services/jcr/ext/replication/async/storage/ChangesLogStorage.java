@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
