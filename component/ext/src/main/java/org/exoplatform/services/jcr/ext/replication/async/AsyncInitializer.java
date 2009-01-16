@@ -53,7 +53,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   /**
    * The apache logger.
    */
-  private static Log                       log                   = ExoLogger.getLogger("ext.AsyncInitializer");
+  private static final Log                 LOG                   = ExoLogger.getLogger("ext.AsyncInitializer");
 
   private final int                        memberWaitTimeout;
 
@@ -102,7 +102,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
         close();
       } catch (Exception e) {
-        log.error("Cannot disconnect from JChannel", e);
+        LOG.error("Cannot disconnect from JChannel", e);
       }
     }
   }
@@ -132,11 +132,11 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void removeRemoteListener(RemoteEventListener listener) {
     listeners.remove(listener);
   }
-  
+
   /**
-   * Unchnaged copy of listeners set. 
-   *
-   * @return array of RemoteEventListener 
+   * Unchnaged copy of listeners set.
+   * 
+   * @return array of RemoteEventListener
    */
   private RemoteEventListener[] listeners() {
     return listeners.toArray(new RemoteEventListener[listeners.size()]);
@@ -148,20 +148,20 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onStateChanged(AsyncStateEvent event) {
 
     if (isStopped()) {
-      log.warn("Channel state changed but initializer was stopped " + event);
+      LOG.warn("Channel state changed but initializer was stopped " + event);
       return;
     }
 
     if (previousMemmbers.size() == 0 && event.getMembers().size() == 1) {
       // first member (this service) connected to the channel
-      log.info("onStateChanged - first member (this service) connected to the channel ");
+      LOG.info("onStateChanged - first member (this service) connected to the channel ");
 
       // Start first timeout (member is not connected)
       firstMemberWaiter = new FirstMemberWaiter();
       firstMemberWaiter.start();
     } else if (event.getMembers().size() > previousMemmbers.size()) {
       // new member connected to the channel
-      log.info("onStateChanged - new member connected to the channel " + event.getMembers().size()
+      LOG.info("onStateChanged - new member connected to the channel " + event.getMembers().size()
           + " > " + previousMemmbers.size());
 
       boolean hasAll = event.getMembers().size() == (otherParticipantsPriority.size() + 1);
@@ -173,8 +173,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         if (!hasAll) {
           lastMemberWaiter = new LastMemberWaiter();
           lastMemberWaiter.start();
-          
-          log.info("onStateChanged - last member waiter started");
+
+          LOG.info("onStateChanged - last member waiter started");
         }
       }
 
@@ -183,8 +183,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         if (lastMemberWaiter != null) {
           lastMemberWaiter.cancel();
           lastMemberWaiter = null;
-          
-          log.info("onStateChanged - last member waiter canceled (has all members)");
+
+          LOG.info("onStateChanged - last member waiter canceled (has all members)");
         }
 
         List<Member> members = new ArrayList<Member>(event.getMembers());
@@ -195,7 +195,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
     } else if (event.getMembers().size() < previousMemmbers.size()) {
       // one or more members were disconnected from the channel
-      log.info("onStateChanged - one or more members were disconnected from the channel "
+      LOG.info("onStateChanged - one or more members were disconnected from the channel "
           + event.getMembers().size() + " < " + previousMemmbers.size());
 
       List<Member> disconnectedMembers = new ArrayList<Member>(previousMemmbers);
@@ -209,7 +209,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         isCoordinator = event.isCoordinator();
 
         // TODO remove log
-        log.info("onStateChanged - coordinator was changed (this), last member waiter started");
+        LOG.info("onStateChanged - coordinator was changed (this), last member waiter started");
 
         lastMemberWaiter = new LastMemberWaiter();
         lastMemberWaiter.start();
@@ -217,12 +217,12 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       } else if (event.isCoordinator() && isCoordinator && lastMemberWaiter != null) {
         lastMemberWaiter.cancel();
         lastMemberWaiter = null;
-        
-        log.info("onStateChanged - last member waiter canceled");
+
+        LOG.info("onStateChanged - last member waiter canceled");
       }
     } else
       // TODO
-      log.info(">>>>> onStateChanged, members ammount is not changed but channel state was changed "
+      LOG.info(">>>>> onStateChanged, members ammount is not changed but channel state was changed "
           + event);
 
     if (event.getMembers().size() > 1 && firstMemberWaiter != null) {
@@ -241,51 +241,42 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    *          list of members
    */
   private void doStart(List<Member> members) {
-    // TODO remove log
-    log.info("Do Start, first member " + members.get(0).getName());
+    LOG.info("Do START (remote) member count " + members.size());
 
     if (isCoordinator) {
       for (RemoteEventListener rl : listeners())
         rl.onStart(members);
-      
+
       doStart();
     }
-  }
-
-  private void doCancel() {
-    for (RemoteEventListener rl : listeners())
-      rl.onCancel();
-  }
-  
-  private void doMerge(Member member) {
-    for (RemoteEventListener rl : listeners())
-      rl.onMerge(member);
   }
 
   public void receive(AbstractPacket packet, Member srcMember) {
 
     if (isStopped()) {
-      log.warn("Changes received but initializer was stopped " + srcMember.getName());
+      LOG.warn("Changes received but initializer was stopped " + srcMember.getName());
       return;
     }
 
     switch (packet.getType()) {
     case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
-      log.info("SYNCHRONIZATION_CANCEL from " + srcMember.getName());
+      LOG.info("Do CANCEL (remote) from " + srcMember.getName());
 
       doStop(CHANNEL_CLOSE_TIMEOUT);
 
-      doCancel();
+      for (RemoteEventListener rl : listeners())
+        rl.onCancel();
     }
       break;
 
     case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
-      log.info("SYNCHRONIZATION_MERGE from " + srcMember.getName());
+      LOG.info("Do MERGE (remote) from " + srcMember.getName());
 
       Member member = new Member(srcMember.getAddress(),
                                  ((MergePacket) packet).getTransmitterPriority());
 
-      doMerge(member);
+      for (RemoteEventListener rl : listeners())
+        rl.onMerge(member);
     }
       break;
     }
@@ -302,6 +293,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
+    LOG.info("On START (local) members count " + members.size());
+
     // not interested actually
     doStart();
   }
@@ -310,7 +303,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * {@inheritDoc}
    */
   public void onCancel() {
-    log.info("onCancel");
+    LOG.info("On CANCEL (local)");
 
     doStop();
   }
@@ -319,7 +312,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * {@inheritDoc}
    */
   public void onStop() {
-    log.info("onStop");
+    LOG.info("On STOP (local)");
 
     doStop();
   }
@@ -329,7 +322,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * 
    */
   private void close() {
-    log.info("close");
+    LOG.info("close");
+
     channelManager.disconnect();
   }
 
@@ -391,20 +385,22 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
           doStart(members);
         } else if (run) {
-          log.info("LastMemberWaiter: cancel and stop");
-          
+          LOG.info("Do CANCEL on last member waiter");
+
           try {
             sendCancel();
           } catch (IOException e) {
-            log.error("Cannot send 'CANCEL' event.", e);
+            LOG.error("Cannot send 'CANCEL' event.", e);
           }
-          
+
           doStop();
-          doCancel();
+
+          for (RemoteEventListener rl : listeners())
+            rl.onCancel();
         }
 
       } catch (InterruptedException e) {
-        log.error("LastMemberWaiter is interrupted : " + e, e);
+        LOG.error("LastMemberWaiter is interrupted : " + e, e);
       }
     }
 
@@ -431,13 +427,16 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         Thread.sleep(memberWaitTimeout);
 
         if (run && previousMemmbers.size() == 1) {
-          log.info("FirstMemberWaiter: cancel and stop");
+          LOG.info("Do CANCEL on first member waiter");
+
           doStop();
-          doCancel();
+
+          for (RemoteEventListener rl : listeners())
+            rl.onCancel();
         }
 
       } catch (InterruptedException e) {
-        log.error("FirstMemberWaiter is interrupted : " + e, e);
+        LOG.error("FirstMemberWaiter is interrupted : " + e, e);
       }
     }
   }

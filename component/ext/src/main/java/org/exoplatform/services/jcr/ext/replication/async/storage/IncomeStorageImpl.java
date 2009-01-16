@@ -153,6 +153,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onCancel() {
+    LOG.info("On CANCEL");
+    
     doStop();
     
     // clean storage
@@ -167,6 +169,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
+    LOG.info("On START");
+    
     // prepare storage (clean)
     File dir = new File(storagePath);
     if (dir.exists()) {
@@ -180,6 +184,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onStop() {
+    LOG.info("On STOP");
+    
     doStop();
     
     // clean storage

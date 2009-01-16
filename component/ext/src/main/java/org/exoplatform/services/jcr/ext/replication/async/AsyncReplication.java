@@ -145,13 +145,11 @@ public class AsyncReplication implements Startable {
       this.publisher = new ChangesPublisherImpl(this.transmitter, this.localStorage);
 
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
-      this.publisher.addLocalListener(this.exportServer);
-
+      
       this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer);
 
       this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
-      this.channel.addPacketListener(this.receiver);
-
+      
       this.mergeManager = new MergeDataManager(this.exporter,
                                                dataManager,
                                                ntManager,
@@ -164,35 +162,37 @@ public class AsyncReplication implements Startable {
                                                   this.transmitter,
                                                   priority,
                                                   otherParticipantsPriority.size() + 1);
-      this.publisher.addLocalListener(this.subscriber);
-      this.publisher.addLocalListener(this.localStorage);
-      this.publisher.addLocalListener(this.incomeStorage);
-
-      this.receiver.setChangesSubscriber(this.subscriber);
-
-      this.subscriber.addLocalListener(publisher);
-      this.subscriber.addLocalListener(exportServer);
-
+            
       this.initializer = new AsyncInitializer(this.channel,
                                               priority,
                                               otherParticipantsPriority,
                                               waitAllMembersTimeout,
                                               true);
+      
+      // listeners
+      this.channel.addPacketListener(this.receiver);
+      this.channel.addPacketListener(this.initializer);
+      this.channel.addStateListener(this.initializer);
+      this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
+      
+      this.receiver.setChangesSubscriber(this.subscriber);
+      
       this.initializer.addRemoteListener(this.localStorage);
       this.initializer.addRemoteListener(this.incomeStorage);
       this.initializer.addRemoteListener(this.publisher);
       this.initializer.addRemoteListener(this.exportServer);
       this.initializer.addRemoteListener(this.subscriber);
 
+      this.publisher.addLocalListener(this.localStorage);
+      this.publisher.addLocalListener(this.incomeStorage);
+      this.publisher.addLocalListener(this.exportServer);
+      this.publisher.addLocalListener(this.subscriber);
+      
       this.subscriber.addLocalListener(this.localStorage);
       this.subscriber.addLocalListener(this.incomeStorage);
-      this.subscriber.addLocalListener(this.initializer);
       this.subscriber.addLocalListener(this.publisher);
-
-      this.channel.addStateListener(this.initializer);
-      this.channel.addPacketListener(this.initializer);
-
-      this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
+      this.subscriber.addLocalListener(this.exportServer);
+      this.subscriber.addLocalListener(this.initializer);
     }
 
     /**

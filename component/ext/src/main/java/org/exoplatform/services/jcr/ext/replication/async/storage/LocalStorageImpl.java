@@ -358,7 +358,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void onStop() {
     // TODO archive primary dir content
     // delete files in primary dir
-    LOG.info("LocalStorageImpl:onStop()");
+    LOG.info("On STOP");
   }
 
   /**
@@ -368,7 +368,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     // TODO merge detached and current storages in one (rename detached to a
     // current now, till we use READ-ONLY)
 
-    LOG.info("LocalStorageImpl:onCancel()");
+    LOG.info("On CANCEL");
     // get last directory in storage and delete
     String[] dirs = getSubStorageNames(this.storagePath);
 
@@ -383,7 +383,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public void onStart(List<Member> members) {
     // create new SubDir
-    LOG.info("LocalStorageImpl:onStart()");
+    LOG.info("On START");
     File subdir = new File(storagePath, Long.toString(dirIndex++));
     subdir.mkdirs();
   }
