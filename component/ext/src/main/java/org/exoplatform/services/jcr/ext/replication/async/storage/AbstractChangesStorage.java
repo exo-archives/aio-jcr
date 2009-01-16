@@ -36,7 +36,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
    */
   public String dump() throws ClassCastException, IOException, ClassNotFoundException {
     StringBuilder str = new StringBuilder();
-    str.append("State\tID\t\t\t\t\tPersist\tEvent\tInternl\tPath\r\n");
+    str.append("\r\nState\tID\t\t\t\t\tPersist\tEvent\tInternl\tPath\r\n");
     
     for (Iterator<T> iter = this.getChanges(); iter.hasNext();) {
       T state = iter.next();
