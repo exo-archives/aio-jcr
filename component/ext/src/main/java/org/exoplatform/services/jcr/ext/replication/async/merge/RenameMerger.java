@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -193,8 +192,8 @@ public class RenameMerger implements ChangesMerger {
 
             // add DELETE state
             List<ItemState> items = local.getDescendantsChanges(localState,
-                                                                                localData.getQPath(),
-                                                                                true);
+                                                                localData.getQPath(),
+                                                                true);
             for (int i = items.size() - 1; i >= 0; i--) {
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(items.get(i).getData(),
@@ -231,17 +230,15 @@ public class RenameMerger implements ChangesMerger {
                                                                                                                               .getQPath()
                                                                                                                               .makeParentPath())))) {
             // add DELETE state
-            Collection<ItemState> itemsCollection = local.getDescendantsChanges(localState,
-                                                                                localData.getQPath(),
-                                                                                true);
-            ItemState itemsArray[];
-            itemsCollection.toArray(itemsArray = new ItemState[itemsCollection.size()]);
-            for (int i = itemsArray.length - 1; i >= 0; i--) {
-              if (local.findLastState(itemsArray[i].getData().getQPath()) != ItemState.DELETED) {
-                resultState.add(new ItemState(itemsArray[i].getData(),
+            List<ItemState> items = local.getDescendantsChanges(localState,
+                                                                localData.getQPath(),
+                                                                true);
+            for (int i = items.size() - 1; i >= 0; i--) {
+              if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+                resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
-                                              itemsArray[i].isEventFire(),
-                                              itemsArray[i].getData().getQPath()));
+                                              items.get(i).isEventFire(),
+                                              items.get(i).getData().getQPath()));
               }
             }
             if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
