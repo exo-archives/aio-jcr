@@ -299,7 +299,8 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * {@inheritDoc}
    */
   public void onStart(List<Member> members) {
-    // not interested
+    // not interested actually
+    doStart();
   }
 
   /**
