@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -94,8 +95,7 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
 
         String[] fileNames = memberDir.list(ChangesFile.getFilenameFilter());
 
-        // TODO Sort names in ascending mode
-        java.util.Arrays.sort(fileNames);
+        java.util.Arrays.sort(fileNames,ChangesFile.getFilenameComparator());
 
         List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
         for (int j = 0; j < fileNames.length; j++) {
@@ -134,8 +134,14 @@ public class IncomeStorageImpl implements IncomeStorage, LocalEventListener, Rem
   /**
    * {@inheritDoc}
    */
-  public void onDisconnectMembers(List<Member> member) {
-    // TODO delete disconnected members changes
+  public void onDisconnectMembers(List<Member> members) {
+    // Get members directory
+    
+    Iterator<Member> memIt = members.iterator();
+    while(memIt.hasNext()){
+      File dir = new File(storagePath, Integer.toString(memIt.next().getPriority()));
+      deleteStorage(dir);
+    }
   }
 
   /**
