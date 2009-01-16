@@ -61,7 +61,8 @@ import org.exoplatform.services.log.ExoLogger;
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov </a>
- * @version $Id: NodeTypeManagerImpl.java 13986 2008-05-08 10:48:43Z pnedonosko $
+ * @version $Id: NodeTypeManagerImpl.java 13986 2008-05-08 10:48:43Z pnedonosko
+ *          $
  */
 public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
@@ -114,9 +115,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
                                 String accessControlPolicy,
                                 NodeTypeDataPersister persister,
                                 Map<InternalQName, ExtendedNodeType> nodeTypes) {
-    this.nodeTypes = nodeTypes != null
-        ? nodeTypes
-        : new LinkedHashMap<InternalQName, ExtendedNodeType>();
+    this.nodeTypes = nodeTypes != null ? nodeTypes
+                                      : new LinkedHashMap<InternalQName, ExtendedNodeType>();
     this.valueFactory = valueFactory;
     this.locationFactory = locationFactory;
     this.namespaceRegistry = namespaceRegistry;
@@ -136,8 +136,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   /**
-   * 6.10.4 Returns the NodeType specified by nodeTypeName. If no node type by that name is
-   * registered, a NoSuchNodeTypeException is thrown.
+   * 6.10.4 Returns the NodeType specified by nodeTypeName. If no node type by
+   * that name is registered, a NoSuchNodeTypeException is thrown.
    */
   public NodeType getNodeType(String nodeTypeName) throws NoSuchNodeTypeException,
                                                   RepositoryException {
@@ -306,8 +306,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available primary node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException
-   *           if an error occurs.
+   * @throws RepositoryException if an error occurs.
    */
   public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -324,8 +323,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
    * Returns an iterator over all available mixin node types.
    * 
    * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException
-   *           if an error occurs.
+   * @throws RepositoryException if an error occurs.
    */
   public NodeTypeIterator getMixinNodeTypes() throws RepositoryException {
     EntityCollection ec = new EntityCollection();
@@ -341,11 +339,10 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Registers node type from object
    * 
-   * @param nodeType
-   *          - the node type object
-   * @param alreadyExistsBehaviour
-   *          - if node type with such a name already exists: IGNORE_IF_EXISTS - does not register
-   *          new node (default) FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
+   * @param nodeType - the node type object
+   * @param alreadyExistsBehaviour - if node type with such a name already
+   *          exists: IGNORE_IF_EXISTS - does not register new node (default)
+   *          FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
    *          replaces registerd type with new one
    * @throws RepositoryException
    */
@@ -371,8 +368,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     if (findNodeType(qname) != null) {
       if (alreadyExistsBehaviour == FAIL_IF_EXISTS) {
         throw new RepositoryException("NodeType " + nodeType.getName() + " is already registered");
-      } else
-        log.warn("NodeType " + nodeType.getName() + " is already registered");
+      } else if (log.isDebugEnabled())
+        log.debug("NodeType " + nodeType.getName() + " is already registered");
       return;
     }
 
@@ -388,11 +385,11 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
         log.warn("Error of storing node type " + nodeType.getName()
             + ". May be node type already registered .", e);
       }
-      if(log.isDebugEnabled())
+      if (log.isDebugEnabled())
         log.debug("NodeType " + nodeType.getName() + " initialized. "
             + (System.currentTimeMillis() - start) + " ms");
     } else {
-      if(log.isDebugEnabled())
+      if (log.isDebugEnabled())
         log.debug("NodeType " + nodeType.getName()
             + " registered but not initialized (storage is not initialized). "
             + (System.currentTimeMillis() - start) + " ms");
@@ -400,14 +397,13 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   /**
-   * Registers node type from class containing the NT definition The class should have constructor
-   * with one parameter NodeTypeManager
+   * Registers node type from class containing the NT definition The class
+   * should have constructor with one parameter NodeTypeManager
    * 
-   * @param nodeTypeType
-   *          - Class containing node type definition
-   * @param alreadyExistsBehaviour
-   *          if node type with such a name already exists: IGNORE_IF_EXISTS - does not register new
-   *          node (default) FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
+   * @param nodeTypeType - Class containing node type definition
+   * @param alreadyExistsBehaviour if node type with such a name already exists:
+   *          IGNORE_IF_EXISTS - does not register new node (default)
+   *          FAIL_IF_EXISTS - throws RepositoryException REPLACE_IF_EXISTS -
    *          replaces registerd type with new one
    * @throws RepositoryException
    */
@@ -617,8 +613,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Add a <code>NodeTypeRegistryListener</code>
    * 
-   * @param listener
-   *          the new listener to be informed on (un)registration of node types
+   * @param listener the new listener to be informed on (un)registration of node
+   *          types
    */
   public void addListener(NodeTypeManagerListener listener) {
     if (!listeners.containsKey(listener)) {
@@ -629,16 +625,16 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * Remove a <code>NodeTypeRegistryListener</code>.
    * 
-   * @param listener
-   *          an existing listener
+   * @param listener an existing listener
    */
   public void removeListener(NodeTypeManagerListener listener) {
     listeners.remove(listener);
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been registered.
-   *
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * registered.
+   * 
    * @param ntName NT name.
    */
   private void notifyRegistered(InternalQName ntName) {
@@ -653,7 +649,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been re-registered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * re-registered.
    * 
    * @param ntName NT name.
    */
@@ -669,7 +666,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   }
 
   /**
-   * Notify the listeners that a node type <code>ntName</code> has been unregistered.
+   * Notify the listeners that a node type <code>ntName</code> has been
+   * unregistered.
    * 
    * @param ntName NT name.
    */
