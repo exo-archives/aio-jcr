@@ -159,6 +159,7 @@ public class MergeDataManager {
                                                      ntManager);
         MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
 
+        //TODO catch ChangesLogReadException from ChangesStorage
         for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
 
@@ -197,6 +198,7 @@ public class MergeDataManager {
                                                             storageDir,
                                                             skippedList));
             } else {
+              //TODO catch ChangesLogReadException from ChangesStorage
               ItemState nextIncomeChange = income.findNextItemState(incomeChange,
                                                                     incomeChange.getData()
                                                                                 .getIdentifier());
@@ -226,7 +228,9 @@ public class MergeDataManager {
                                                               storageDir,
                                                               skippedList));
               } else {
+                //TODO catch ChangesLogReadException from ChangesStorage
                 log.info("Income changes log: " + income.dump());
+                //TODO catch ChangesLogReadException from ChangesStorage
                 log.info("Local changes log: " + local.dump());
 
                 throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."

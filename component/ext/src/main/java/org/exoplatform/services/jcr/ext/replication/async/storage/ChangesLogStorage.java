@@ -341,7 +341,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     return list;
   }
 
-  public List<T> getUpdateSequence(ItemState firstState) throws IOException {
+  public List<T> getUpdateSequence(ItemState firstState) throws IOException{
     List<T> list = new ArrayList<T>();
 
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
