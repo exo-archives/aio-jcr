@@ -58,5 +58,17 @@
             <supertype>exo:file</supertype>
         </supertypes>
     </nodeType>
+
+   <nodeType name="exo:mavencounter" isMixin="true" hasOrderableChildNodes="false" primaryItemName="">
+      <propertyDefinitions>
+      <propertyDefinition name="exo:downloadcounter" requiredType="Long" autoCreated="true"
+        mandatory="true" onParentVersion="COPY" protected="false" multiple="false">
+        <valueConstraints />
+        <defaultValues>
+          <defaultValue>0</defaultValue>
+        </defaultValues>
+      </propertyDefinition>
+    </propertyDefinitions>
+  </nodeType>
         
 </nodeTypes>
