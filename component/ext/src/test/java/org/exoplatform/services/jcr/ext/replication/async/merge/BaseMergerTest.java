@@ -20,6 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.PropertyType;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
@@ -33,6 +35,9 @@ import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
+import org.exoplatform.services.jcr.impl.core.SessionDataManagerTestWrapper;
+import org.exoplatform.services.jcr.impl.core.SessionImpl;
+import org.exoplatform.services.jcr.impl.core.WorkspaceImpl;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -45,6 +50,22 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @version $Id: AddMergerTest.java 25005 2008-12-12 16:33:15Z tolusha $
  */
 public class BaseMergerTest extends BaseStandaloneTest {
+
+  protected SessionImpl                     session3;
+
+  protected WorkspaceImpl                   workspace3;
+
+  protected Node                            root3;
+
+  protected SessionImpl                     session4;
+
+  protected WorkspaceImpl                   workspace4;
+
+  protected Node                            root4;
+
+  protected SessionDataManagerTestWrapper   dataManager3;
+
+  protected SessionDataManagerTestWrapper   dataManager4;
 
   protected NodeTypeDataManager             nodeTypeDataManager;
 
@@ -143,6 +164,18 @@ public class BaseMergerTest extends BaseStandaloneTest {
    */
   public void setUp() throws Exception {
     super.setUp();
+
+    session3 = (SessionImpl) repository.login(credentials, "ws3");
+    workspace3 = session3.getWorkspace();
+    root3 = session3.getRootNode();
+
+    session4 = (SessionImpl) repository.login(credentials, "ws4");
+    workspace4 = session4.getWorkspace();
+    root4 = session4.getRootNode();
+
+    dataManager3 = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
+
+    dataManager4 = new SessionDataManagerTestWrapper(session4.getTransientNodesManager());
 
     nodeTypeDataManager = session.getWorkspace().getNodeTypesHolder();
 
@@ -567,6 +600,42 @@ public class BaseMergerTest extends BaseStandaloneTest {
   protected void tearDown() throws Exception {
     local.delete();
     income.delete();
+
+    // clear ws3
+    if (session3 != null) {
+      try {
+        session3.refresh(false);
+        Node rootNode = session3.getRootNode();
+        if (rootNode.hasNodes()) {
+          for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
+            children.nextNode().remove();
+          }
+          session3.save();
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        session4.logout();
+      }
+    }
+
+    // clear ws4
+    if (session4 != null) {
+      try {
+        session4.refresh(false);
+        Node rootNode = session4.getRootNode();
+        if (rootNode.hasNodes()) {
+          for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
+            children.nextNode().remove();
+          }
+          session4.save();
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      } finally {
+        session4.logout();
+      }
+    }
 
     super.tearDown();
   }

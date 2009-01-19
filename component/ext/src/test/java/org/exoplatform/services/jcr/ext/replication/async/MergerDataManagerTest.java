@@ -42,16 +42,13 @@ import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.dataflow.persistent.ItemsPersistenceListener;
 import org.exoplatform.services.jcr.datamodel.NodeData;
-import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.merge.BaseMergerTest;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
-import org.exoplatform.services.jcr.impl.core.SessionDataManagerTestWrapper;
-import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.WorkspaceImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 
 /**
@@ -60,27 +57,11 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: TestMergerDataManager.java 111 2008-11-11 11:11:11Z $
  */
-public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPersistenceListener {
+public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersistenceListener {
 
   private final int                         HIGH_PRIORITY = 100;
 
   private final int                         LOW_PRIORITY  = 50;
-
-  protected SessionImpl                     session3;
-
-  protected WorkspaceImpl                   workspace3;
-
-  protected Node                            root3;
-
-  protected SessionDataManagerTestWrapper   dataManager3;
-
-  protected SessionImpl                     session4;
-
-  protected WorkspaceImpl                   workspace4;
-
-  protected Node                            root4;
-
-  protected SessionDataManagerTestWrapper   dataManager4;
 
   protected MergeDataManager                mergerLow;
 
@@ -97,16 +78,6 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    */
   public void setUp() throws Exception {
     super.setUp();
-
-    session3 = (SessionImpl) repository.login(credentials, "ws3");
-    workspace3 = session3.getWorkspace();
-    root3 = session3.getRootNode();
-    dataManager3 = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
-
-    session4 = (SessionImpl) repository.login(credentials, "ws4");
-    workspace4 = session4.getWorkspace();
-    root4 = session4.getRootNode();
-    dataManager4 = new SessionDataManagerTestWrapper(session4.getTransientNodesManager());
 
     exporter = new TesterRemoteExporter();
 
@@ -3279,42 +3250,6 @@ public class MergerDataManagerTest extends BaseStandaloneTest implements ItemsPe
    * {@inheritDoc}
    */
   public void tearDown() throws Exception {
-
-    // clear ws3
-    if (session3 != null) {
-      try {
-        session3.refresh(false);
-        Node rootNode = session3.getRootNode();
-        if (rootNode.hasNodes()) {
-          for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
-            children.nextNode().remove();
-          }
-          session3.save();
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        session4.logout();
-      }
-    }
-
-    // clear ws4
-    if (session4 != null) {
-      try {
-        session4.refresh(false);
-        Node rootNode = session4.getRootNode();
-        if (rootNode.hasNodes()) {
-          for (NodeIterator children = rootNode.getNodes(); children.hasNext();) {
-            children.nextNode().remove();
-          }
-          session4.save();
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      } finally {
-        session4.logout();
-      }
-    }
 
     super.tearDown();
   }
