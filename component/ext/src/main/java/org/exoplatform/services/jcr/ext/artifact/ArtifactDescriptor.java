@@ -89,7 +89,7 @@ public final class ArtifactDescriptor implements Descriptor {
 
     
     NodeList groupIdList = doc.getElementsByTagName("groupId");
-    String groupId = groupIdList.item(0).getTextContent();
+    String groupId = groupIdList.item(0).getTextContent().trim();
 
 
     NodeList artifactIdList = doc.getElementsByTagName("artifactId");
@@ -97,12 +97,12 @@ public final class ArtifactDescriptor implements Descriptor {
     String artifactId = "";
     for (int i = 0; i < artifactIdList.getLength(); i++) {
       if (artifactIdList.item(i).getParentNode().getNodeName().equals("project"))
-        artifactId = artifactIdList.item(i).getTextContent();
+        artifactId = artifactIdList.item(i).getTextContent().trim();
     }
     
 
     NodeList versionList = doc.getElementsByTagName("version");
-    String versionId = validMavenVersion(versionList.item(0).getTextContent());
+    String versionId = validMavenVersion(versionList.item(0).getTextContent().trim());
 
     return new ArtifactDescriptor(new FolderDescriptor(groupId), artifactId, versionId);
   }
