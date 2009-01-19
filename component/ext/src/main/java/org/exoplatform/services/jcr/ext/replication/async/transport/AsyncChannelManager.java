@@ -241,6 +241,8 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     channel.close();
     channel = null;
 
+    LOG.info("Disconnect done, fire connection listeners");
+    
     for (ConnectionListener cl : connectionListeners) {
       cl.onDisconnect();
     }

@@ -75,15 +75,15 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
     receiver.setRemoteExportListener(this);
 
     // send request
-    try{
+    try {
       transmitter.sendGetExport(nodetId, member);
-    }catch(IOException e){
+    } catch (IOException e) {
       throw new RemoteExportException(e);
     }
 
     latch = new CountDownLatch(1);
     try {
-        latch.await();
+      latch.await();
     } catch (InterruptedException e) {
       throw new RemoteExportException(e);
     } finally {
@@ -109,8 +109,8 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       if (!MessageDigest.isEqual(dis.getMessageDigest().digest(),
                                  changesFile.getChecksum().getBytes(Constants.DEFAULT_ENCODING))) {
 
-       // TODO checksum don't work. fix it
-       // throw new RemoteExportException("Remote export failed. Received data corrupted.");
+        // TODO checksum don't work. fix it
+        // throw new RemoteExportException("Remote export failed. Received data corrupted.");
       }
 
       // return Iterator based on ChangesFile

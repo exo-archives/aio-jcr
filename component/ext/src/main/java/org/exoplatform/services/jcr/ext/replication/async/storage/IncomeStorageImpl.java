@@ -140,6 +140,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> members) {
+    LOG.info("On DisconnectMembers");
+    
     // Get members directory
 
     Iterator<Member> memIt = members.iterator();

@@ -203,6 +203,8 @@ public class AsyncReplication implements Startable {
     }
 
     private void doFinalyze() {
+      log.info("Do Finalize");
+      
       this.receiver.setChangesSubscriber(null);
 
       this.publisher.removeLocalListener(this.exportServer);
@@ -226,6 +228,8 @@ public class AsyncReplication implements Startable {
       this.channel.removeStateListener(this.initializer);
 
       currentWorkers.remove(this); // remove itself
+      
+      log.info("Done Finalize");
     }
 
     /**

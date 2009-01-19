@@ -156,8 +156,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                     ChangesFile clFile,
                                     int transmitterPriority,
                                     int totalFiles) throws IOException {
-    if (LOG.isDebugEnabled())
-      LOG.debug("Begin send : " + clFile.getChecksum());
+    LOG.info("Begin send : " + clFile.getTimeStamp());
 
     InputStream in = clFile.getDataStream();
 

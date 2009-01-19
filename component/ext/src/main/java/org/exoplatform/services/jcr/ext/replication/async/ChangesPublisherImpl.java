@@ -42,7 +42,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   /**
    * Logger.
    */
-  private static final Log                LOG       = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  private static final Log                LOG       = ExoLogger.getLogger("ext.ChangesPublisherImpl");
 
   protected final AsyncTransmitter        transmitter;
 
@@ -67,7 +67,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
      */
     public void run() {
       try {
-        LOG.info("Loalc chahges : " + storage.getLocalChanges().getChangesFile().length);
+        LOG.info("Local chahges : " + storage.getLocalChanges().getChangesFile().length);
         transmitter.sendChanges(storage.getLocalChanges().getChangesFile(), subscribers);
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
