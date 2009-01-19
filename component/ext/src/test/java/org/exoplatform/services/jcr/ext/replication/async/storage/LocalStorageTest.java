@@ -224,7 +224,6 @@ public class LocalStorageTest extends BaseStandaloneTest {
     PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
-    File dir = new File(STORAGE_DIR+"cancel");
     //File dir = new File(STORAGE_DIR + "cancel");
     //dir.mkdirs();
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),60);
@@ -270,6 +269,40 @@ public class LocalStorageTest extends BaseStandaloneTest {
     
     dataManager.removeItemPersistenceListener(storage);
   }
+  
+  public void testImportEmptyLog() throws Exception{
+    
+    
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(),60);
+    
+    storage.onStart(null);
+
+
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
+//    this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
+
+    storage.onCancel();
+
+  //  assertEquals(0, storage.getErrors().length);
+
+    
+    
+  /*  // check current data
+    List<TransactionChangesLog> list = pl.pushChanges();
+    
+    TransactionChangesLog log2 = list.get(0);
+    ChangesLogIterator chIt = list.get(1).getLogIterator();
+    
+    while(chIt.hasNextLog()){
+      log2.addLog(chIt.nextLog());
+    }
+    
+    ch = storage.getLocalChanges();
+    checkIterator(log2.getAllStates().iterator(), ch.getChanges());
+    
+    dataManager.removeItemPersistenceListener(storage);*/
+  }
+  
   
   /**
    * Test reporting and reading from file errors process.

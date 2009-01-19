@@ -299,7 +299,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   public T findNextItemState(ItemState fromState, String identifier) throws IOException {
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     T result = null;
-    while (result == null || it.hasNext()) {
+    while (result == null && it.hasNext()) {
       result = (T) findNextItemStateFromLog(it.next(), fromState, identifier);
     }
     return result;
