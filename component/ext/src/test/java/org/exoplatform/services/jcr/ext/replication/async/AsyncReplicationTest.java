@@ -167,16 +167,16 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
     Thread.sleep(30000);
 
     // compare data
-    Node srcNode1 = session1.getRootNode().getNode("node _in_db1");
-    Node srcNode2 = session2.getRootNode().getNode("node _in_db1");
+    Node srcNode1 = session1.getRootNode().getNode("node_in_db1");
+    Node srcNode2 = session2.getRootNode().getNode("node_in_db1");
 
     for (int j = 0; j < 10; j++)
       for (int i = 0; i < 10; i++)
         assertEquals(node1.getNode("testNode_" + j + "_" + i).getName(), node2.getNode("testNode_"
             + j + "_" + i).getName());
 
-    srcNode1 = session1.getRootNode().getNode("node _in_db2");
-    srcNode2 = session2.getRootNode().getNode("node _in_db2");
+    srcNode1 = session1.getRootNode().getNode("node_in_db2");
+    srcNode2 = session2.getRootNode().getNode("node_in_db2");
 
     for (int j = 0; j < 10; j++)
       for (int i = 0; i < 10; i++)
