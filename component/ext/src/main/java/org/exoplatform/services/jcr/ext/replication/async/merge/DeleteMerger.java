@@ -24,10 +24,8 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -110,21 +108,22 @@ public class DeleteMerger implements ChangesMerger {
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (incomeData.isNode()
-              && (localData.getQPath().isDescendantOf(incomeData.getQPath()) || localData.getQPath()
-                                                                                         .equals(incomeData.getQPath()))) {
-            skippedList.add(incomeData.getQPath());
-            return resultEmptyState;
-          } else if (!incomeData.isNode()
-              && income.findNextState(incomeState,
-                                      incomeState.getData().getParentIdentifier(),
-                                      incomeState.getData().getQPath().makeParentPath(),
-                                      ItemState.DELETED) != null
-              && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()) || localData.getQPath()
-                                                                                                          .equals(incomeData.getQPath()
-                                                                                                                            .makeParentPath()))) {
-            skippedList.add(incomeData.getQPath());
-            return resultEmptyState;
+          if (incomeData.isNode()) {
+            if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+              skippedList.add(incomeData.getQPath());
+              return resultEmptyState;
+            }
+          } else {
+            if (localData.isNode()) {
+              if ((income.findNextState(incomeState,
+                                        incomeState.getData().getParentIdentifier(),
+                                        incomeState.getData().getQPath().makeParentPath(),
+                                        ItemState.DELETED) != null)
+                  && (localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath()))) {
+                skippedList.add(incomeData.getQPath().makeParentPath());
+                return resultEmptyState;
+              }
+            }
           }
           break;
         case ItemState.DELETED:
@@ -452,19 +451,5 @@ public class DeleteMerger implements ChangesMerger {
     }
 
     return resultState;
-  }
-
-  /**
-   * isPropertyAllowed.
-   * 
-   * @param propertyName
-   * @param parent
-   * @return
-   */
-  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
-    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
-                                                                     parent.getPrimaryTypeName(),
-                                                                     parent.getMixinTypeNames());
-    return pdef != null;
   }
 }

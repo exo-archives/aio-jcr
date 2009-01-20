@@ -161,7 +161,7 @@ public class MergeDataManager {
                                                      ntManager);
         MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
 
-        for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
+        outer: for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
 
           // skip already processed itemstate
@@ -170,16 +170,19 @@ public class MergeDataManager {
           }
 
           // skip subtree changes
-          boolean skip = false;
           for (int i = 0; i < skippedList.size(); i++) {
             if (incomeChange.getData().getQPath().equals(skippedList.get(i))
                 || incomeChange.getData().getQPath().isDescendantOf(skippedList.get(i))) {
-              skip = true;
-              break;
+              continue outer;
             }
           }
-          if (skip) {
-            continue;
+
+          // skip lock properties
+          if (!incomeChange.getData().isNode()) {
+            if (incomeChange.getData().getQPath().getName().getName().equals("lockOwner")
+                || incomeChange.getData().getQPath().getName().getName().equals("lockIsDeep")) {
+              continue;
+            }
           }
 
           switch (incomeChange.getState()) {
@@ -219,7 +222,7 @@ public class MergeDataManager {
                                                               storageDir,
                                                               skippedList));
 
-                // UPDATE
+                // UPDATE node
               } else if (nextIncomeChange != null
                   && nextIncomeChange.getState() == ItemState.UPDATED) {
                 synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
@@ -242,6 +245,7 @@ public class MergeDataManager {
             }
             break;
           case ItemState.UPDATED:
+            // UPDATE property
             if (!incomeChange.getData().isNode()) {
               synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
                                                             income,

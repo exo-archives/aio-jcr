@@ -28,10 +28,7 @@ import java.util.List;
 
 import javax.jcr.InvalidItemStateException;
 import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
-import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
 
@@ -50,7 +47,6 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExpo
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
-import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -180,9 +176,9 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    */
   public void testDemoUsecase1() throws Exception {
     UseCase1 demoUseCase1 = new UseCase1(session3, session4);
-    
+
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    
+
     demoUseCase1.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
@@ -199,7 +195,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     // low
     demoUseCase1.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    
+
     // high
     demoUseCase1.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -231,7 +227,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     UseCase2 demoUseCase2 = new UseCase2(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    
+
     demoUseCase2.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
@@ -248,7 +244,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     // low
     demoUseCase2.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    
+
     // high
     demoUseCase2.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -278,8 +274,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * 6. After synchronization ends check if no files exists on both servers
    */
   public void testDemoUsecase3() throws Exception {
-    UseCase3 demoUseCase3 = new UseCase3(session3, session4); 
-    
+    UseCase3 demoUseCase3 = new UseCase3(session3, session4);
+
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
 
     demoUseCase3.initDataHighPriority();
@@ -298,7 +294,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     // low
     demoUseCase3.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    
+
     // high
     demoUseCase3.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -331,7 +327,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     UseCase4 demoUseCase4 = new UseCase4(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    
+
     demoUseCase4.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
@@ -348,7 +344,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     // low
     demoUseCase4.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    
+
     // high
     demoUseCase4.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -382,7 +378,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     UseCase5 demoUseCase5 = new UseCase5(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    
+
     demoUseCase5.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
@@ -399,7 +395,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     // low
     demoUseCase5.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    
+
     // high
     demoUseCase5.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -450,7 +446,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     // low
     demoUseCase8.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    
+
     // high
     demoUseCase8.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
@@ -3066,6 +3062,41 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res4, "ws4");
 
     assertTrue(isWorkspacesEquals());
+  }
+
+  /**
+   * 1. update parent on high priority moved node on low priority
+   */
+  public void testLock1() throws Exception {
+    // low priority changes: add same name items
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:lockable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // low priority changes: update
+    root3.getNode("item1").lock(false, true);
+
+    membersChanges.clear();
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    assertFalse(res3.getChanges().hasNext());
+    assertFalse(res4.getChanges().hasNext());
   }
 
   /**

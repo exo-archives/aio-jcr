@@ -269,8 +269,6 @@ public class AddMerger implements ChangesMerger {
               skippedList.add(incomeData.getQPath());
               return resultEmptyState;
             }
-          } else {
-
           }
           break;
         case ItemState.UPDATED:
@@ -486,17 +484,6 @@ public class AddMerger implements ChangesMerger {
                                                                      parent.getPrimaryTypeName(),
                                                                      parent.getMixinTypeNames());
     return pdef != null;
-  }
-
-  /**
-   * isPathConflicted.
-   * 
-   * @param src
-   * @param dst
-   * @return
-   */
-  private boolean isPathConflicted(QPath src, QPath dst) {
-    return src.isDescendantOf(dst) || src.equals(dst) || dst.isDescendantOf(src);
   }
 
 }

@@ -22,10 +22,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -637,19 +635,5 @@ public class RenameMerger implements ChangesMerger {
     }
 
     return resultState;
-  }
-
-  /**
-   * isPropertyAllowed.
-   * 
-   * @param propertyName
-   * @param parent
-   * @return
-   */
-  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
-    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
-                                                                     parent.getPrimaryTypeName(),
-                                                                     parent.getMixinTypeNames());
-    return pdef != null;
   }
 }
