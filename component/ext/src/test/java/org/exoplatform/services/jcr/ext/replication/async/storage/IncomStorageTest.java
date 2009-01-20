@@ -17,14 +17,19 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
+import org.exoplatform.services.jcr.core.ManageableRepository;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
@@ -33,6 +38,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
@@ -75,13 +81,13 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 20));
+    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log);
     out.close();
     cf.finishWrite();
 
-    //storage.addMemberChanges(new Member(null, 20), cf);
+    // storage.addMemberChanges(new Member(null, 20), cf);
 
     // delete storage object
     storage = null;
@@ -124,26 +130,26 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 20));
+    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
     cf.finishWrite();
-  //  storage.addMemberChanges(new Member(null, 20), cf);
+    // storage.addMemberChanges(new Member(null, 20), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 10));
+    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 10));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log2);
     out.close();
     cf.finishWrite();
-    //storage.addMemberChanges(new Member(null, 10), cf);
+    // storage.addMemberChanges(new Member(null, 10), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 45));
+    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 45));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log3);
     out.close();
     cf.finishWrite();
-    //storage.addMemberChanges(new Member(null, 45), cf);
+    // storage.addMemberChanges(new Member(null, 45), cf);
 
     // delete storage object
     storage = null;
@@ -216,33 +222,32 @@ public class IncomStorageTest extends BaseStandaloneTest {
 
     // create storage
     IncomeStorage storage = new IncomeStorageImpl(dir.getAbsolutePath());
-    
-    File difFile = new File(dir,"blabla");
+
+    File difFile = new File(dir, "blabla");
     assertTrue(difFile.createNewFile());
 
-    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 20));
+    ChangesFile cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 20));
     ObjectOutputStream out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log1);
     out.close();
     cf.finishWrite();
-    //storage.addMemberChanges(new Member(null, 20), cf);
+    // storage.addMemberChanges(new Member(null, 20), cf);
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 10));
+    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 10));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log2);
     out.close();
     cf.finishWrite();
-    //storage.addMemberChanges(new Member(null, 10), cf);
-    File subDifFile = new File(dir,"10/subfile");
+    // storage.addMemberChanges(new Member(null, 10), cf);
+    File subDifFile = new File(dir, "10/subfile");
     assertTrue(subDifFile.createNewFile());
-    
 
-    cf = storage.createChangesFile("", System.currentTimeMillis(),new Member(null, 45));
+    cf = storage.createChangesFile("", System.currentTimeMillis(), new Member(null, 45));
     out = new ObjectOutputStream(cf.getOutputStream());
     out.writeObject(log3);
     out.close();
     cf.finishWrite();
-   // storage.addMemberChanges(new Member(null, 45), cf);
+    // storage.addMemberChanges(new Member(null, 45), cf);
 
     // delete storage object
     storage = null;
@@ -264,6 +269,81 @@ public class IncomStorageTest extends BaseStandaloneTest {
     states = ch.get(2).getChanges();
     expectedStates = log3.getAllStates().iterator();
     checkIterator(expectedStates, states);
+  }
+
+  public void testLogRandomSave() throws Exception {
+    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
+
+    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
+                                                                                                                                              .getName())
+                                                                                                                .getComponent(PersistentDataManager.class);
+
+    Member member = new Member(null, 34);
+    
+    File lsdir = new File("target/LocalStorageTest");
+    lsdir.mkdirs();
+    LocalStorageImpl locStorage = new LocalStorageImpl(lsdir.getAbsolutePath(), member.getPriority());
+    dataManager.addItemPersistenceListener(locStorage);
+
+    // create node
+    NodeImpl node = (NodeImpl) root.addNode("simpNode");
+    node.setProperty("firstProp", "Hi all");
+    node.setProperty("secondProp", new String[] { "first", "second" });
+    session.save();
+
+    // move node
+    root.addNode("subdir");
+    session.move(node.getPath(), "/subdir/testnode");
+    session.save();
+
+    // rename node
+    Node n = root.getNode("subdir/testnode");
+    n.remove();
+    session.save();
+
+    List<TransactionChangesLog> list = pl.pushChanges();
+    locStorage.onStart(null);
+
+    assertEquals(3, list.size());
+    ChangesFile[] files = locStorage.getLocalChanges().getChangesFile();
+    
+    assertEquals(3, files.length);
+    
+    // store changes in 
+    IncomeStorageImpl inStorage = new IncomeStorageImpl(dir.getAbsolutePath());
+    
+    // store second
+    ChangesFile src = files[1];
+    ChangesFile dest = inStorage.createChangesFile(src.getChecksum(), src.getTimeStamp(), member);
+    copyFormLocalToIncom(src,dest);
+   
+    //store third
+    src = files[2];
+    dest = inStorage.createChangesFile(src.getChecksum(), src.getTimeStamp(), member);
+    copyFormLocalToIncom(src,dest);
+    
+    //store first
+    src = files[0];
+    dest = inStorage.createChangesFile(src.getChecksum(), src.getTimeStamp(), member);
+    copyFormLocalToIncom(src,dest);
+    
+    //check log
+    
+    checkIterator(locStorage.getLocalChanges().getChanges(), inStorage.getChanges().get(0).getChanges());
+    
+  }
+  
+  private  void copyFormLocalToIncom(ChangesFile src, ChangesFile dest) throws Exception{
+    InputStream in = src.getDataStream();
+    byte[] buf = new byte[2048];
+    int length=0;
+    int readed = 0;
+    while((readed = in.read(buf))!=-1){
+      dest.writeData(buf, length);
+      length+=readed;
+    }
+    dest.finishWrite();
+    in.close();
   }
 
   private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
