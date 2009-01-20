@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.AbstractMergeUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
@@ -49,7 +49,7 @@ import org.exoplatform.services.jcr.util.IdGenerator;
  * @author <a href="mailto:anatoliy.bazko@exoplatform.com.ua">Anatoliy Bazko</a>
  * @version $Id: AddMergerTest.java 25005 2008-12-12 16:33:15Z tolusha $
  */
-public class BaseMergerTest extends BaseStandaloneTest {
+public class BaseMergerTest extends AbstractMergeUseCases {
 
   protected SessionImpl                     session3;
 

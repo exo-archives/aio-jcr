@@ -165,6 +165,18 @@ public class AsyncReplicationTest extends AbstractTrasportTest {
                                   "cName_suffix");
 
     Thread.sleep(30000);
+    
+    //print nodes on member 50
+    NodeIterator ni = session1.getRootNode().getNodes();
+    log.info("Nodes on member 50");
+    while (ni.hasNext()) 
+     log.info(ni.nextNode().getName());      
+
+    //print nodes on member 100
+    ni = session2.getRootNode().getNodes();
+    log.info("Nodes on member 100");
+    while (ni.hasNext()) 
+     log.info(ni.nextNode().getName());
 
     // compare data
     Node srcNode1 = session1.getRootNode().getNode("node_in_db1");
