@@ -77,7 +77,7 @@ public class BaseMergerTest extends AbstractMergeUseCases {
 
   protected SessionDataManagerTestWrapper   dataManagerWrapper4;
 
-  protected PersistentDataManager           dm;
+  protected PersistentDataManager           dataManager;
 
   protected NodeTypeDataManager             ntManager;
 
