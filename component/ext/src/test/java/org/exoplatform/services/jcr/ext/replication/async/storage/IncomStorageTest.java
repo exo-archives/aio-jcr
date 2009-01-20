@@ -99,7 +99,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
 
     // check results
-    checkIterator(expectedStates, states);
+    checkIterator(expectedStates, states, true);
 
     n.remove();
     root.save();
@@ -162,15 +162,15 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // check results
     Iterator<ItemState> states = ch.get(0).getChanges();
     Iterator<ItemState> expectedStates = log2.getAllStates().iterator();
-    checkIterator(expectedStates, states);
+    checkIterator(expectedStates, states, true);
 
     states = ch.get(1).getChanges();
     expectedStates = log1.getAllStates().iterator();
-    checkIterator(expectedStates, states);
+    checkIterator(expectedStates, states, true);
 
     states = ch.get(2).getChanges();
     expectedStates = log3.getAllStates().iterator();
-    checkIterator(expectedStates, states);
+    checkIterator(expectedStates, states, true);
   }
 
   public TransactionChangesLog createChangesLog(NodeData root) throws RepositoryException {
@@ -260,15 +260,15 @@ public class IncomStorageTest extends BaseStandaloneTest {
     // check results
     Iterator<ItemState> states = ch.get(0).getChanges();
     Iterator<ItemState> expectedStates = log2.getAllStates().iterator();
-    checkIterator(expectedStates, states);
+    checkIterator(expectedStates, states, true);
 
     states = ch.get(1).getChanges();
     expectedStates = log1.getAllStates().iterator();
-    checkIterator(expectedStates, states);
+    checkIterator(expectedStates, states, true);
 
     states = ch.get(2).getChanges();
     expectedStates = log3.getAllStates().iterator();
-    checkIterator(expectedStates, states);
+    checkIterator(expectedStates, states, true);
   }
 
   public void testLogRandomSave() throws Exception {
@@ -327,10 +327,18 @@ public class IncomStorageTest extends BaseStandaloneTest {
     dest = inStorage.createChangesFile(src.getChecksum(), src.getTimeStamp(), member);
     copyFormLocalToIncom(src,dest);
     
-    //check log
+    //check storage logs
     
-    checkIterator(locStorage.getLocalChanges().getChanges(), inStorage.getChanges().get(0).getChanges());
+    checkIterator(locStorage.getLocalChanges().getChanges(), inStorage.getChanges().get(0).getChanges(), true);
     
+    //check incom storage logs with original logs
+    Iterator<ItemState> inIt = inStorage.getChanges().get(0).getChanges();
+    
+    checkIterator(list.get(0).getAllStates().iterator(),inIt, false);
+    checkIterator(list.get(1).getAllStates().iterator(),inIt, false);
+    checkIterator(list.get(2).getAllStates().iterator(),inIt, false);
+    
+    dataManager.removeItemPersistenceListener(locStorage);
   }
   
   private  void copyFormLocalToIncom(ChangesFile src, ChangesFile dest) throws Exception{
@@ -346,10 +354,10 @@ public class IncomStorageTest extends BaseStandaloneTest {
     in.close();
   }
 
-  private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
+  private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes, boolean checkSize) throws Exception {
     while (expected.hasNext()) {
 
-      assertTrue(expected.hasNext());
+      assertTrue(changes.hasNext());
       ItemState expect = expected.next();
       ItemState elem = changes.next();
 
@@ -376,6 +384,11 @@ public class IncomStorageTest extends BaseStandaloneTest {
                                              elemValDat.get(j).getAsByteArray()));
         }
       }
+    }
+    
+    if(checkSize) {
+      assertFalse(changes.hasNext());
+      
     }
   }
 
