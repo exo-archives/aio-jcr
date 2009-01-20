@@ -326,6 +326,356 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
   }
   
   /**
+   * Demo usecase 9 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Edit /fileA.txt on server 1
+   * 
+   * 3. Rename /fileA.txt to /fileZZ.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if file /fileA.txt only exist son both servers with content
+   * from server 1 (edited)
+   */
+  public class UseCase9 extends BaseMergeUseCase {
+    public UseCase9(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("fileA", "dataNew");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.save();
+    }
+  }
+  
+  /**
+   * Demo usecase 12 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
+   * servers
+   */
+  public class UseCase12 extends BaseMergeUseCase {
+    public UseCase12(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("fileA", "dataNew");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+    }
+  }
+  
+  /**
+   * Demo usecase 13 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt content equals to edited to edited on both
+   * servers
+   */
+  public class UseCase13 extends BaseMergeUseCase {
+    public UseCase13(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").setProperty("fileA", "dataNew");
+      sessionLowPriority.save();
+    }
+  }
+  
+  /**
+   * Demo usecase 14 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt content equals to edited on server 1 on both
+   * servers
+   */
+  public class UseCase14 extends BaseMergeUseCase {
+    public UseCase14(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("fileA", "dataHigh");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").setProperty("fileA", "dataLow");
+      sessionLowPriority.save();
+    }
+  }
+  
+  /**
+   * Demo usecase 15 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Delete file /fileA.txt on server 1
+   * 
+   * 3. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt not exists on both server
+   */
+  public class UseCase15 extends BaseMergeUseCase {
+    public UseCase15(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").getProperty("fileA").remove();
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").setProperty("fileA", "dataLow");
+      sessionLowPriority.save();
+    }
+  }
+  
+  /**
+   * Demo usecase 16 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt on both servers
+   * 
+   * 2. Delete file /fileA.txt on server 2
+   * 
+   * 3. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt not exists on both server
+   */
+  public class UseCase16 extends BaseMergeUseCase {
+    public UseCase16(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("fileA", "dataLow");;
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").getProperty("fileA").remove();
+      sessionLowPriority.save();
+    }
+  }
+  
+  /**
+   * Demo usecase 17 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt and folder /folder1 on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 1
+   * 
+   * 3. Move file /fileA.txt to /folder1/fileAA.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
+   * edited
+   */
+  public class UseCase17 extends BaseMergeUseCase {
+    public UseCase17(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("fileA", "dataLow");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.save();
+    }
+  }
+  
+  /**
+   * Demo usecase 18 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Synchronize for file /fileA.txt and folder /folder1 on both servers
+   * 
+   * 2. Edit text file /fileA.txt on server 2
+   * 
+   * 3. Move file /fileA.txt to /folder1/fileAA.txt on server 1
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if /fileA.txt exists on both server and content equals to
+   * edited
+   */
+  public class UseCase18 extends BaseMergeUseCase {
+    public UseCase18(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.setProperty("fileA", "data");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      sessionHighPriority.move("/item1", "/item2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      sessionLowPriority.getRootNode().getNode("item1").setProperty("fileA", "dataLow");
+      sessionLowPriority.save();
+    }
+  }
+  
+  /**
    * Compare two nodes.
    * 
    * @param src

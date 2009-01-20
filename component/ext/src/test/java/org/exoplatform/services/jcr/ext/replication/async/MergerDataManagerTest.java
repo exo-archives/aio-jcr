@@ -479,11 +479,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * from server 1 (edited)
    */
   public void testDemoUsecase9() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
+    UseCase9 demoUseCase9 = new UseCase9(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    demoUseCase9.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -492,20 +492,17 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase9.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low
-    session3.move("/item1", "/item2");
-
-    // high
-    root4.getNode("item1").setProperty("fileA", "dataNew");
-
-    session3.save();
+    demoUseCase9.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    session4.save();
+    
+    // high
+    demoUseCase9.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -514,7 +511,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase9.checkEquals());
   }
 
   /**
@@ -532,11 +529,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * servers
    */
   public void testDemoUsecase12() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
+    UseCase12 demoCase12 = new UseCase12(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+
+    demoCase12.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -545,16 +542,16 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoCase12.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
-    // high
-    root4.getNode("item1").setProperty("fileA", "dataNew");
-
+    // low
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    // high
+    demoCase12.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -563,7 +560,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoCase12.checkEquals());
   }
 
   /**
@@ -581,11 +578,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * servers
    */
   public void testDemoUsecase13() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
+    UseCase13 demoUseCase13 = new UseCase13(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    demoUseCase13.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -594,16 +591,16 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase13.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low
-    root3.getNode("item1").setProperty("fileA", "dataNew");
-
-    session3.save();
+    demoUseCase13.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    
+    // high
     addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -612,7 +609,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase13.checkEquals());
   }
 
   /**
@@ -632,11 +629,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * servers
    */
   public void testDemoUsecase14() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
+    UseCase14 demoUseCase14 = new UseCase14(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    demoUseCase14.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -645,20 +642,17 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase14.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low
-    root3.getNode("item1").setProperty("fileA", "dataLow");
-
-    // high
-    root4.getNode("item1").setProperty("fileA", "dataHigh");
-
-    session3.save();
+    demoUseCase14.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    session4.save();
+    
+    // high
+    demoUseCase14.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -667,7 +661,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase14.checkEquals());
   }
 
   /**
@@ -686,11 +680,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * 5. After synchronization ends check if /fileA.txt not exists on both server
    */
   public void testDemoUsecase15() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
+    UseCase15 demoUseCase15 = new UseCase15(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    demoUseCase15.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -699,20 +693,17 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase15.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low
-    root3.getNode("item1").setProperty("fileA", "dataLow");
-
-    // high
-    root4.getNode("item1").getProperty("fileA").remove();
-
-    session3.save();
+    demoUseCase15.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    session4.save();
+    
+    // high
+    demoUseCase15.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -721,7 +712,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase15.checkEquals());
   }
 
   /**
@@ -740,11 +731,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * 5. After synchronization ends check if /fileA.txt not exists on both server
    */
   public void testDemoUsecase16() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
-
+    UseCase16 demoCase16 = new UseCase16(session3, session4);
+    
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    demoCase16.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -753,20 +744,17 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoCase16.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low
-    root3.getNode("item1").getProperty("fileA").remove();
-
-    // high
-    root4.getNode("item1").setProperty("fileA", "dataLow");
-
-    session3.save();
+    demoCase16.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    session4.save();
+    
+    // high
+    demoCase16.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -775,7 +763,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoCase16.checkEquals());
   }
 
   /**
@@ -795,11 +783,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * edited
    */
   public void testDemoUsecase17() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
+    UseCase17 demoUseCase17 = new UseCase17(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    demoUseCase17.initDataHighPriority();    
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -808,20 +796,17 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase17.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low
-    session3.move("/item1", "/item2");
-
-    // high
-    root4.getNode("item1").setProperty("fileA", "dataLow");
-
-    session3.save();
+    demoUseCase17.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    session4.save();
+    
+    // high
+    demoUseCase17.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -830,7 +815,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase17.checkEquals());
   }
 
   /**
@@ -850,11 +835,11 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * edited
    */
   public void testDemoUsecase18() throws Exception {
-    Node node = root4.addNode("item1");
-    node.setProperty("fileA", "data");
+    UseCase18 demoUseCase18 = new UseCase18(session3, session4);
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
-    session4.save();
+    
+    demoUseCase18.initDataHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
@@ -863,20 +848,17 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase18.checkEquals());
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
 
     // low
-    root3.getNode("item1").setProperty("fileA", "dataLow");
-
-    // high
-    session4.move("/item1", "/item2");
-
-    session3.save();
+    demoUseCase18.useCaseLowPriority();
     addChangesToChangesStorage(cLog, LOW_PRIORITY);
-    session4.save();
+    
+    // high
+    demoUseCase18.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
     res3 = mergerLow.merge(membersChanges.iterator());
@@ -887,7 +869,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
 
-    assertTrue(isWorkspacesEquals());
+    assertTrue(demoUseCase18.checkEquals());
   }
 
   /**
