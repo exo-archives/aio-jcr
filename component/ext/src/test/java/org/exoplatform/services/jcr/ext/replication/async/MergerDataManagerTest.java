@@ -1064,7 +1064,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     // high priority changes: add child
     node = root4.getNode("item1");
     node = node.addNode("item11");
-    node.addMixin("mix:referenceable");
 
     membersChanges.clear();
     exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));

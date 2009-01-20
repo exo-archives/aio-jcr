@@ -233,6 +233,25 @@ public class DeleteMerger implements ChangesMerger {
         case ItemState.RENAMED:
           break;
         case ItemState.MIXIN_CHANGED:
+          if (incomeData.isNode()) {
+            if (localData.getQPath().equals(incomeData.getQPath())
+                || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+              skippedList.add(incomeData.getQPath());
+              return resultEmptyState;
+            }
+          } else {
+            ItemState parent = income.findNextState(incomeState,
+                                                    incomeData.getParentIdentifier(),
+                                                    incomeData.getQPath().makeParentPath(),
+                                                    ItemState.DELETED);
+            if (parent != null) {
+              if (localData.getQPath().equals(parent.getData().getQPath())
+                  || localData.getQPath().isDescendantOf(parent.getData().getQPath())) {
+                skippedList.add(parent.getData().getQPath());
+                return resultEmptyState;
+              }
+            }
+          }
           break;
         }
       } else { // remote priority
@@ -409,6 +428,19 @@ public class DeleteMerger implements ChangesMerger {
         case ItemState.RENAMED:
           break;
         case ItemState.MIXIN_CHANGED:
+          if (incomeData.isNode()) {
+            if (localData.getQPath().equals(incomeData.getQPath())) {
+              // delete local mixin changes
+              List<ItemState> localMixinSeq = local.getMixinSequence(localState);
+              for (int i = localMixinSeq.size() - 1; i >= 0; i--) {
+                ItemState item = localMixinSeq.get(i);
+                resultState.add(new ItemState(item.getData(),
+                                              ItemState.DELETED,
+                                              item.isEventFire(),
+                                              item.getData().getQPath()));
+              }
+            }
+          }
           break;
         }
       }
