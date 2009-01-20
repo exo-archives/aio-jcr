@@ -36,8 +36,8 @@ import org.exoplatform.services.log.ExoLogger;
 public class MoveCommand {
 
   private static CacheControl cacheControl = new CacheControl();
-  
-  private static Log log = ExoLogger.getLogger(MoveCommand.class);
+
+  private static Log          log          = ExoLogger.getLogger(MoveCommand.class);
 
   // Fix problem with moving under Windows Explorer.
   static {
@@ -46,11 +46,20 @@ public class MoveCommand {
 
   public Response move(Session session, String srcPath, String destPath) {
     try {
+
+      boolean itemExisted = session.itemExists(destPath);
+      if (itemExisted) {
+        session.getItem(destPath).remove();
+      }
+
       session.move(srcPath, destPath);
       session.save();
-      return Response.status(HTTPStatus.NO_CONTENT)
-                             .cacheControl(cacheControl)
-                             .build();
+
+      if (itemExisted) {
+        return Response.status(HTTPStatus.NO_CONTENT).cacheControl(cacheControl).build();
+      } else {
+        return Response.status(HTTPStatus.CREATED).cacheControl(cacheControl).build();
+      }
 
     } catch (LockException exc) {
       return Response.status(HTTPStatus.LOCKED).build();
@@ -72,9 +81,7 @@ public class MoveCommand {
       sourceSession.getItem(srcPath).remove();
       sourceSession.save();
 
-      return Response.status(HTTPStatus.NO_CONTENT)
-                             .cacheControl(cacheControl)
-                             .build();
+      return Response.status(HTTPStatus.NO_CONTENT).cacheControl(cacheControl).build();
 
     } catch (LockException exc) {
       return Response.status(HTTPStatus.LOCKED).build();

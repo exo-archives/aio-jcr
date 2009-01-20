@@ -25,6 +25,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
 import javax.jcr.lock.LockException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
@@ -44,8 +45,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class PropPatchCommand {
-  
-  private static Log log = ExoLogger.getLogger(PropPatchCommand.class);
+
+  private static Log                      log = ExoLogger.getLogger(PropPatchCommand.class);
 
   protected final NullResourceLocksHolder lockHolder;
 
@@ -82,7 +83,11 @@ public class PropPatchCommand {
                                                                    uri,
                                                                    setList,
                                                                    removeList);
-      return Response.status(HTTPStatus.MULTISTATUS).entity(entity).build();
+
+      return Response.status(HTTPStatus.MULTISTATUS)
+                     .entity(entity)
+                     .type(MediaType.TEXT_XML)
+                     .build();
 
     } catch (PathNotFoundException exc) {
       return Response.status(HTTPStatus.NOT_FOUND).build();

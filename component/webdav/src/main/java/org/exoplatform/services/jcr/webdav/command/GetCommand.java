@@ -26,6 +26,7 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.transform.stream.StreamSource;
 
@@ -35,7 +36,6 @@ import org.exoplatform.common.util.HierarchicalProperty;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.jcr.webdav.Range;
-import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.resource.CollectionResource;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
@@ -48,6 +48,7 @@ import org.exoplatform.services.jcr.webdav.util.RangedInputStream;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ExtHttpHeaders;
 import org.exoplatform.services.rest.ext.provider.XSLTStreamingOutput;
 import org.exoplatform.services.xml.transform.impl.trax.TRAXTemplatesServiceImpl;
 import org.exoplatform.services.xml.transform.trax.TRAXTemplatesService;
@@ -63,8 +64,9 @@ public class GetCommand {
   private static Log log = ExoLogger.getLogger(GetCommand.class);
 
   /**
-   * GET content of the resource. Can be return content of the file. The content returns in the XML
-   * type. If version parameter is present, returns the content of the version of the resource.
+   * GET content of the resource. Can be return content of the file. The content
+   * returns in the XML type. If version parameter is present, returns the
+   * content of the version of the resource.
    * 
    * @param session
    * @param path
@@ -115,15 +117,19 @@ public class GetCommand {
 
         // content length is not present
         if (contentLength == 0) {
-          return Response.ok().header(WebDavHeaders.ACCEPT_RANGES, "bytes").entity(istream).build();
+          return Response.ok()
+                         .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
+                         .entity(istream)
+                         .build();
         }
 
         // no ranges request
         if (ranges.size() == 0) {
           return Response.ok()
                          .header(HttpHeaders.CONTENT_LENGTH, Long.toString(contentLength))
-                         .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                         .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
                          .entity(istream)
+                         .type(MediaType.TEXT_HTML_TYPE)
                          .build();
         }
 
@@ -132,7 +138,7 @@ public class GetCommand {
           Range range = ranges.get(0);
           if (!validateRange(range, contentLength))
             return Response.status(HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-                           .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
+                           .header(ExtHttpHeaders.CONTENTRANGE, "bytes */" + contentLength)
                            .build();
 
           long start = range.getStart();
@@ -143,8 +149,8 @@ public class GetCommand {
 
           return Response.status(HTTPStatus.PARTIAL)
                          .header(HttpHeaders.CONTENT_LENGTH, Long.toString(returnedContentLength))
-                         .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
-                         .header(WebDavHeaders.CONTENTRANGE,
+                         .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
+                         .header(ExtHttpHeaders.CONTENTRANGE,
                                  "bytes " + start + "-" + end + "/" + contentLength)
                          .entity(rangedInputStream)
                          .build();
@@ -155,7 +161,7 @@ public class GetCommand {
           Range range = ranges.get(i);
           if (!validateRange(range, contentLength))
             return Response.status(HTTPStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-                           .header(WebDavHeaders.CONTENTRANGE, "bytes */" + contentLength)
+                           .header(ExtHttpHeaders.CONTENTRANGE, "bytes */" + contentLength)
                            .build();
           ranges.set(i, range);
         }
@@ -166,19 +172,18 @@ public class GetCommand {
                                                                                     contentLength);
 
         return Response.status(HTTPStatus.PARTIAL)
-                       .header(WebDavHeaders.ACCEPT_RANGES, "bytes")
+                       .header(ExtHttpHeaders.ACCEPT_RANGES, "bytes")
                        .entity(mByterangesEntity)
                        .build();
       } else {
         // Collection processing;
         resource = new CollectionResource(uri, node, nsContext);
         istream = ((CollectionResource) resource).getContentAsStream(baseURI);
-        
 
         XSLTStreamingOutput entity = new XSLTStreamingOutput("get.method.template",
                                                              new StreamSource(istream));
 
-        return Response.ok(entity, "text/html").build();
+        return Response.ok(entity, MediaType.TEXT_HTML).build();
 
       }
 

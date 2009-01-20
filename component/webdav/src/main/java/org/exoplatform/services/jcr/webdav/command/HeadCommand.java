@@ -22,12 +22,10 @@ import java.net.URI;
 import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.Session;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.common.http.HTTPStatus;
-import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.resource.ResourceUtil;
@@ -35,6 +33,7 @@ import org.exoplatform.services.jcr.webdav.util.PropertyConstants;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ExtHttpHeaders;
 
 /**
  * Created by The eXo Platform SAS. Author : Vitaly Guly <gavrikvetal@gmail.com>
@@ -61,9 +60,9 @@ public class HeadCommand {
         String contentLength = resource.getProperty(PropertyConstants.GETCONTENTLENGTH).getValue();
 
         return Response.ok()
-                               .header(HttpHeaders.LAST_MODIFIED, lastModified)
-                               .header(HttpHeaders.CONTENT_TYPE, contentType)
-                               .header(HttpHeaders.CONTENT_LENGTH, contentLength)
+                               .header(ExtHttpHeaders.LAST_MODIFIED, lastModified)
+                               .header(ExtHttpHeaders.CONTENT_TYPE, contentType)
+                               .header(ExtHttpHeaders.CONTENT_LENGTH, contentLength)
                                .build();
       }
 

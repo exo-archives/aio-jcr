@@ -22,17 +22,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.webdav.Range;
 import org.exoplatform.services.jcr.webdav.WebDavConst;
-import org.exoplatform.services.jcr.webdav.WebDavHeaders;
 import org.exoplatform.services.jcr.webdav.resource.FileResource;
 import org.exoplatform.services.jcr.webdav.resource.Resource;
 import org.exoplatform.services.jcr.webdav.resource.VersionResource;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ExtHttpHeaders;
 
 
 /**
@@ -80,10 +79,10 @@ public class MultipartByterangesEntity implements StreamingOutput {
         print("--" + WebDavConst.BOUNDARY, ostream);
         println(ostream);
         // content-type
-        print(HttpHeaders.CONTENT_TYPE + ": " + contentType_, ostream);
+        print(ExtHttpHeaders.CONTENT_TYPE + ": " + contentType_, ostream);
         println(ostream);
         // current range
-        print(WebDavHeaders.CONTENTRANGE + ": bytes " + range.getStart() + "-" + range.getEnd()
+        print(ExtHttpHeaders.CONTENTRANGE + ": bytes " + range.getStart() + "-" + range.getEnd()
             + "/" + contentLength_, ostream);
         println(ostream);
         println(ostream);

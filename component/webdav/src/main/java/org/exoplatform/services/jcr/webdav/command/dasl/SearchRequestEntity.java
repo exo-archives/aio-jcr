@@ -34,17 +34,23 @@ public class SearchRequestEntity {
   }
 
   public String getQueryLanguage() throws UnsupportedQueryException {
-    if (body.getChild(0).getName().getNamespaceURI().equals("SQL:")
+    if (body.getChild(0).getName().getNamespaceURI().equals("DAV:")
         && body.getChild(0).getName().getLocalPart().equals("sql")) {
       return "sql";
+    } else if (body.getChild(0).getName().getNamespaceURI().equals("DAV:")
+        && body.getChild(0).getName().getLocalPart().equals("xpath")) {
+      return "xpath";
     }
 
     throw new UnsupportedOperationException();
   }
 
   public String getQuery() throws UnsupportedQueryException {
-    if (body.getChild(0).getName().getNamespaceURI().equals("SQL:")
+    if (body.getChild(0).getName().getNamespaceURI().equals("DAV:")
         && body.getChild(0).getName().getLocalPart().equals("sql")) {
+      return body.getChild(0).getValue();
+    } else if (body.getChild(0).getName().getNamespaceURI().equals("DAV:")
+        && body.getChild(0).getName().getLocalPart().equals("xpath")) {
       return body.getChild(0).getValue();
     }
 

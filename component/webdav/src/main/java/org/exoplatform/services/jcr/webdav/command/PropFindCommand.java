@@ -27,7 +27,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
 
@@ -45,6 +45,7 @@ import org.exoplatform.services.jcr.webdav.resource.VersionedFileResource;
 import org.exoplatform.services.jcr.webdav.util.TextUtil;
 import org.exoplatform.services.jcr.webdav.xml.WebDavNamespaceContext;
 import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.rest.ExtHttpHeaders;
 
 /**
  * Created by The eXo Platform SAS <br/>
@@ -128,7 +129,7 @@ public class PropFindCommand {
 
     return Response.status(HTTPStatus.MULTISTATUS)
                    .entity(response)
-                   .header(HttpHeaders.CONTENT_TYPE, "text/xml")
+                   .header(ExtHttpHeaders.CONTENT_TYPE, MediaType.TEXT_XML)
                    .build();
   }
 
