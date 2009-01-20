@@ -28,6 +28,7 @@ import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
@@ -98,20 +99,63 @@ public class MixinMerger implements ChangesMerger {
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
-      if (isLocalPriority()) { // localPriority
-        // TODO
-        itemChangeProcessed = true;
+      ItemData localData = localState.getData();
+      ItemData incomeData = incomeState.getData();
 
+      if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
+          if (localData.isNode()) {
+            if (incomeData.getQPath().equals(localData.getQPath())
+                || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+              skippedList.add(incomeData.getQPath());
+              return resultEmptyState;
+            }
+          }
           break;
         case ItemState.DELETED:
+          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
+
+          // UPDATE node
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+            // TODO
+          }
+
+          // RENAME
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
+            if (localData.isNode()) {
+              if (incomeData.getQPath().equals(localData.getQPath())
+                  || incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(nextLocalState.getData().getQPath())
+                  || incomeData.getQPath().isDescendantOf(nextLocalState.getData().getQPath())) {
+                skippedList.add(incomeData.getQPath());
+                return resultEmptyState;
+              }
+            }
+          }
+
+          // DELETE
+          if (localData.isNode()) {
+            if (incomeData.getQPath().equals(localData.getQPath())
+                || incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+              skippedList.add(incomeData.getQPath());
+              return resultEmptyState;
+            }
+          }
           break;
         case ItemState.UPDATED:
+          // UPDATE property
           break;
         case ItemState.RENAMED:
           break;
         case ItemState.MIXIN_CHANGED:
+          if (incomeData.getQPath().equals(localData.getQPath())) {
+            List<ItemState> mixinSequence = income.getMixinSequence(incomeState);
+            for (int i = 1; i < mixinSequence.size(); i++) { // skip first state (MIXIN_CHANGED)
+              skippedList.add(mixinSequence.get(i).getData().getQPath());
+            }
+            return resultEmptyState;
+          }
           break;
         }
       } else { // remote priority
@@ -132,7 +176,8 @@ public class MixinMerger implements ChangesMerger {
 
     // apply income changes if not processed
     if (!itemChangeProcessed) {
-      resultState.add(incomeState);
+      for (ItemState st : income.getMixinSequence(incomeState))
+        resultState.add(st);
     }
 
     return resultState;

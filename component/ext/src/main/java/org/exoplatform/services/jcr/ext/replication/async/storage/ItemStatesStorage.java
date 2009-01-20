@@ -548,4 +548,29 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     }
     return resultStates;
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getMixinSequence(ItemState firstState) throws IOException,
+                                                       ClassCastException,
+                                                       ClassNotFoundException {
+    List<T> resultStates = new ArrayList<T>();
+
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      T state = it.next();
+      if (state.equals(firstState)) {
+        resultStates.add(state);
+
+        while (it.hasNext()) {
+          T inState = it.next();
+          if (inState.isInternallyCreated()) {
+            resultStates.add(inState);
+          }
+        }
+      }
+    }
+    return resultStates;
+  }
 }

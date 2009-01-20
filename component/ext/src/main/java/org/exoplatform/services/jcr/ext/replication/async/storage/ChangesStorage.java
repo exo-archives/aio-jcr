@@ -232,8 +232,8 @@ public interface ChangesStorage<T extends ItemState> {
    * @return Collection of ItemState
    */
   List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
-                                                                                           ClassCastException,
-                                                                                           ClassNotFoundException;
+                                                                                     ClassCastException,
+                                                                                     ClassNotFoundException;
 
   /**
    * TODO
@@ -245,8 +245,8 @@ public interface ChangesStorage<T extends ItemState> {
    * @return Collection of ItemState
    */
   List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
-                                                                ClassCastException,
-                                                                ClassNotFoundException;
+                                                          ClassCastException,
+                                                          ClassNotFoundException;
 
   /**
    * getUpdateSequence.
@@ -269,5 +269,18 @@ public interface ChangesStorage<T extends ItemState> {
   List<T> getRenameSequence(ItemState firstState) throws IOException,
                                                  ClassCastException,
                                                  ClassNotFoundException;
+
+  /**
+   * getMixinSequence.
+   * 
+   * @param firstState
+   * @return
+   * @throws IOException
+   * @throws ClassCastException
+   * @throws ClassNotFoundException
+   */
+  List<T> getMixinSequence(ItemState firstState) throws IOException,
+                                                ClassCastException,
+                                                ClassNotFoundException;
 
 }

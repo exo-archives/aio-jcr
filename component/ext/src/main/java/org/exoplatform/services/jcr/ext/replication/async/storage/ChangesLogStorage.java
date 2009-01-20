@@ -341,6 +341,17 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     return list;
   }
 
+  public List<T> getMixinSequence(ItemState startState) throws IOException {
+    List<T> list = new ArrayList<T>();
+
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+
+    while (it.hasNext()) {
+      list.addAll((List<T>) getMixinSequenceFromLog(it.next(), startState));
+    }
+    return list;
+  }
+
   public List<T> getUpdateSequence(ItemState firstState) throws IOException {
     List<T> list = new ArrayList<T>();
 
@@ -754,6 +765,33 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
           if (item.getState() == ItemState.RENAMED
               && item.getData().getIdentifier().equals(startState.getData().getIdentifier())) {
             return resultStates;
+          }
+        }
+        break;
+      }
+    }
+
+    return resultStates;
+  }
+
+  /**
+   * getMixinSequenceFromLog.
+   * 
+   * @param log
+   * @param startState
+   * @return
+   */
+  private List<ItemState> getMixinSequenceFromLog(TransactionChangesLog log, ItemState startState) {
+    List<ItemState> resultStates = new ArrayList<ItemState>();
+
+    List<ItemState> allStates = log.getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).isSame(startState)) {
+        resultStates.add(startState);
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.isInternallyCreated()) {
+            resultStates.add(item);
           }
         }
         break;

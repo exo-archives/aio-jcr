@@ -1287,7 +1287,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     // low priority changes: orgerBefore
     node = root3.getNode("item1").addNode("item11");
-    node.addMixin("mix:referenceable");
 
     // high priority changes: add child
     root4.orderBefore("item1[2]", "item1");
