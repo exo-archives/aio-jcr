@@ -25,8 +25,10 @@ import javax.jcr.NodeIterator;
 import javax.jcr.PropertyType;
 
 import org.exoplatform.services.jcr.access.AccessControlList;
+import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
@@ -63,11 +65,21 @@ public class BaseMergerTest extends AbstractMergeUseCases {
 
   protected Node                            root4;
 
-  protected SessionDataManagerTestWrapper   dataManager3;
+  protected PersistentDataManager           dm3;
 
-  protected SessionDataManagerTestWrapper   dataManager4;
+  protected PersistentDataManager           dm4;
 
-  protected NodeTypeDataManager             nodeTypeDataManager;
+  protected NodeTypeDataManager             ntm3;
+
+  protected NodeTypeDataManager             ntm4;
+
+  protected SessionDataManagerTestWrapper   dataManagerWrapper3;
+
+  protected SessionDataManagerTestWrapper   dataManagerWrapper4;
+
+  protected PersistentDataManager           dm;
+
+  protected NodeTypeDataManager             ntManager;
 
   /**
    * Test nodetype. UNSTRUCTURED but child nodes SNS disallowed.
@@ -173,13 +185,20 @@ public class BaseMergerTest extends AbstractMergeUseCases {
     workspace4 = session4.getWorkspace();
     root4 = session4.getRootNode();
 
-    dataManager3 = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
+    WorkspaceContainerFacade wsc = repository.getWorkspaceContainer("ws3");
+    ntm3 = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
+    dm3 = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
-    dataManager4 = new SessionDataManagerTestWrapper(session4.getTransientNodesManager());
+    wsc = repository.getWorkspaceContainer("ws4");
+    ntm4 = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
+    dm4 = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
 
-    nodeTypeDataManager = session.getWorkspace().getNodeTypesHolder();
+    dataManagerWrapper3 = new SessionDataManagerTestWrapper(session3.getTransientNodesManager());
+    dataManagerWrapper4 = new SessionDataManagerTestWrapper(session4.getTransientNodesManager());
 
-    assertNotNull(nodeTypeDataManager);
+    ntManager = session.getWorkspace().getNodeTypesHolder();
+
+    assertNotNull(ntManager);
 
     final String testItem1 = "testItem1";
     // create /testItem1

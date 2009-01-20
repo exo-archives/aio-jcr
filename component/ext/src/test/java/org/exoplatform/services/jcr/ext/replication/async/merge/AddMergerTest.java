@@ -2110,13 +2110,12 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(true,
                                         new TesterRemoteExporter(),
                                         new TesterDataManager(items),
-                                        nodeTypeDataManager);
+                                        ntManager);
     ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change,
                                                        income,
                                                        local,
                                                        "./target",
                                                        new ArrayList<QPath>());
-    ;
 
     assertEquals("Wrong changes count ", result.size(), 1);
     assertTrue("Remote ADD state expected ", hasState(result, remoteProperty1Change, true));
@@ -2153,7 +2152,7 @@ public class AddMergerTest extends BaseMergerTest {
     AddMerger addMerger = new AddMerger(false,
                                         new TesterRemoteExporter(),
                                         new TesterDataManager(items),
-                                        nodeTypeDataManager);
+                                        ntManager);
     ChangesStorage<ItemState> result = addMerger.merge(remoteProperty1Change,
                                                        income,
                                                        local,

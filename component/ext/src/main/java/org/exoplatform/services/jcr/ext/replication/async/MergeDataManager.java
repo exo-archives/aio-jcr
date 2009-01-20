@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -179,8 +180,8 @@ public class MergeDataManager {
 
           // skip lock properties
           if (!incomeChange.getData().isNode()) {
-            if (incomeChange.getData().getQPath().getName().getName().equals("lockOwner")
-                || incomeChange.getData().getQPath().getName().getName().equals("lockIsDeep")) {
+            if (incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+                || incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
               continue;
             }
           }

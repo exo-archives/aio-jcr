@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogRead
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
@@ -447,9 +449,31 @@ public class DeleteMerger implements ChangesMerger {
 
     // apply income changes if not processed
     if (!itemChangeProcessed) {
+      if (incomeState.getData().isNode()) {
+        for (ItemState st : generateDeleleLockProperties((NodeData) incomeState.getData()))
+          resultState.add(st);
+      }
+
       resultState.add(incomeState);
     }
 
     return resultState;
+  }
+
+  private List<ItemState> generateDeleleLockProperties(NodeData node) throws RepositoryException {
+    List<ItemState> result = new ArrayList<ItemState>();
+
+    if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
+                             node.getPrimaryTypeName(),
+                             node.getMixinTypeNames())) {
+
+      ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
+      result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+
+      item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
+      result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+    }
+
+    return result;
   }
 }
