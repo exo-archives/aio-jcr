@@ -341,7 +341,7 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     return list;
   }
 
-  public List<T> getUpdateSequence(ItemState firstState) throws IOException{
+  public List<T> getUpdateSequence(ItemState firstState) throws IOException {
     List<T> list = new ArrayList<T>();
 
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
@@ -390,15 +390,22 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    */
   public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException {
     T result = null;
+
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      result = (T) findPrevStateFromLog(it.next(), toState, identifier, path, state);
-      if (result != null) {
-        return result;
+      TransactionChangesLog log = it.next();
+
+      T curResult = (T) findPrevStateFromLog(log, toState, identifier, path, state);
+      if (curResult != null) {
+        result = curResult;
+      }
+
+      if (hasStateFromLog(log, toState)) {
+        break;
       }
     }
 
-    return null;
+    return result;
   }
 
   /**
@@ -406,15 +413,22 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    */
   public T findPrevState(ItemState toState, QPath path, int state) throws IOException {
     T result = null;
+
     ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
     while (it.hasNext()) {
-      result = (T) findPrevStateFromLog(it.next(), toState, path, state);
-      if (result != null) {
-        return result;
+      TransactionChangesLog log = it.next();
+
+      T curResult = (T) findPrevStateFromLog(log, toState, path, state);
+      if (curResult != null) {
+        result = curResult;
+      }
+
+      if (hasStateFromLog(log, toState)) {
+        break;
       }
     }
 
-    return null;
+    return result;
   }
 
   /**
@@ -538,16 +552,18 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
                                          String identifier,
                                          QPath path,
                                          int state) {
+    ItemState result = null;
+
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       ItemState item = allStates.get(i);
       if (item.isSame(toState)) {
-        return null;
+        break;
       } else if (ItemState.isSame(item, identifier, path, state)) {
-        return item;
+        result = item;
       }
     }
-    return null;
+    return result;
   }
 
   /**
@@ -562,16 +578,18 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
                                          ItemState toState,
                                          QPath path,
                                          int state) {
+    ItemState result = null;
+
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       ItemState item = allStates.get(i);
       if (item.isSame(toState)) {
-        return null;
+        break;
       } else if (item.getState() == state && item.getData().getQPath().equals(path)) {
-        return item;
+        result = item;
       }
     }
-    return null;
+    return result;
   }
 
   /**

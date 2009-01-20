@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
@@ -86,14 +87,14 @@ public class MixinMerger implements ChangesMerger {
                                                                  RemoteExportException,
                                                                  IOException,
                                                                  ClassCastException,
-                                                                 ClassNotFoundException {
+                                                                 ClassNotFoundException,
+                                                                 ChangesLogReadException {
 
     boolean itemChangeProcessed = false;
     ItemState incomeState = itemChange;
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
-    //TODO catch ChangesLogReadException from ChangesStorage
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 

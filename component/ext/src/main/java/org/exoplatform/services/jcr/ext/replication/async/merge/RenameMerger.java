@@ -32,6 +32,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
@@ -86,19 +87,18 @@ public class RenameMerger implements ChangesMerger {
                                          List<QPath> skippedList) throws RemoteExportException,
                                                                  IOException,
                                                                  ClassCastException,
-                                                                 ClassNotFoundException {
+                                                                 ClassNotFoundException,
+                                                                 ChangesLogReadException {
     boolean itemChangeProcessed = false;
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
     ItemState incomeState = itemChange;
-    //TODO catch ChangesLogReadException from ChangesStorage
     ItemState nextIncomeState = income.findNextItemState(incomeState, incomeState.getData()
                                                                                  .getIdentifier());
 
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
-    //TODO catch ChangesLogReadException from ChangesStorage
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
       ItemData incomeData = incomeState.getData();
@@ -125,12 +125,10 @@ public class RenameMerger implements ChangesMerger {
 
           break;
         case ItemState.DELETED:
-          //TODO catch ChangesLogReadException from ChangesStorage
           ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
-            //TODO catch ChangesLogReadException from ChangesStorage
             if (localData.getQPath().isDescendantOf(incomeData.getQPath())
                 || (localData.getParentIdentifier().equals(incomeData.getParentIdentifier()) && localData.getQPath()
                                                                                                          .getName()
@@ -195,12 +193,10 @@ public class RenameMerger implements ChangesMerger {
                                                                                                                                   .getQPath())))) {
 
             // add DELETE state
-            //TODO catch ChangesLogReadException from ChangesStorage
             List<ItemState> items = local.getDescendantsChanges(localState,
                                                                 localData.getQPath(),
                                                                 true);
             for (int i = items.size() - 1; i >= 0; i--) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
@@ -208,7 +204,6 @@ public class RenameMerger implements ChangesMerger {
                                               items.get(i).getData().getQPath()));
               }
             }
-            //TODO catch ChangesLogReadException from ChangesStorage
             if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
@@ -217,9 +212,7 @@ public class RenameMerger implements ChangesMerger {
             }
 
             // add all state from income changes
-            //TODO catch ChangesLogReadException from ChangesStorage
             List<ItemState> rename = income.getRenameSequence(incomeState);
-            //TODO catch ChangesLogReadException from ChangesStorage
             for (ItemState st : income.getChanges(rename.get(0), rename.get(0).getData().getQPath()))
               resultState.add(st);
             for (ItemState st : income.getChanges(rename.get(rename.size() / 2),
@@ -239,12 +232,10 @@ public class RenameMerger implements ChangesMerger {
                                                                                                                               .getQPath()
                                                                                                                               .makeParentPath())))) {
             // add DELETE state
-            //TODO catch ChangesLogReadException from ChangesStorage
             List<ItemState> items = local.getDescendantsChanges(localState,
                                                                 localData.getQPath(),
                                                                 true);
             for (int i = items.size() - 1; i >= 0; i--) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
@@ -252,7 +243,6 @@ public class RenameMerger implements ChangesMerger {
                                               items.get(i).getData().getQPath()));
               }
             }
-            //TODO catch ChangesLogReadException from LocalStorage
             if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
@@ -261,15 +251,12 @@ public class RenameMerger implements ChangesMerger {
             }
 
             // add all state from income changes
-            //TODO catch ChangesLogReadException from ChangesStorage
             List<ItemState> rename = income.getRenameSequence(incomeState);
-            //TODO catch ChangesLogReadException from ChangesStorage
             for (ItemState st : income.getChanges(rename.get(0), rename.get(0)
                                                                        .getData()
                                                                        .getQPath()
                                                                        .makeParentPath()))
               resultState.add(st);
-            //TODO catch ChangesLogReadException from ChangesStorage
             for (ItemState st : income.getChanges(rename.get(rename.size() / 2),
                                                   rename.get(rename.size() / 2)
                                                         .getData()
@@ -294,18 +281,15 @@ public class RenameMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          //TODO catch ChangesLogReadException from ChangesStorage
           ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
 
-            //TODO catch ChangesLogReadException from ChangesStorage
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       incomeData.getParentIdentifier());
 
             if (!incomeData.isNode() && nextItem != null) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               List<ItemState> rename = income.getRenameSequence(incomeState);
 
               for (ItemState st : rename) {
@@ -360,7 +344,6 @@ public class RenameMerger implements ChangesMerger {
             }
 
             // updated node was renamed
-            //TODO catch ChangesLogReadException from ChangesStorage
             nextItem = local.getNextItemStateByUUIDOnUpdate(localState, incomeData.getIdentifier());
 
             if (incomeData.isNode() && nextItem != null) {
@@ -387,7 +370,6 @@ public class RenameMerger implements ChangesMerger {
               return resultState;
             }
 
-            //TODO catch ChangesLogReadException from ChangesStorage
             nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                             nextIncomeState.getData()
                                                                            .getParentIdentifier());
@@ -411,9 +393,11 @@ public class RenameMerger implements ChangesMerger {
                                                              node.getACL());
 
               nextIncomeState = new ItemState(item,
-                                              ItemState.RENAMED,
+                                              nextIncomeState.getState(),
                                               nextIncomeState.isEventFire(),
-                                              qPath);
+                                              qPath,
+                                              nextIncomeState.isInternallyCreated(),
+                                              nextIncomeState.isPersisted());
               resultState.add(incomeState);
               resultState.add(nextIncomeState);
               itemChangeProcessed = true;
@@ -438,7 +422,6 @@ public class RenameMerger implements ChangesMerger {
                                                                              .makeParentPath()
                                                                              .equals(localData.getQPath()
                                                                                               .makeParentPath()))) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
@@ -473,7 +456,6 @@ public class RenameMerger implements ChangesMerger {
               }
 
               // apply income rename
-              //TODO catch ChangesLogReadException from ChangesStorage
               for (ItemState st : income.getRenameSequence(incomeState))
                 resultState.add(st);
 
@@ -484,7 +466,6 @@ public class RenameMerger implements ChangesMerger {
               resultState.addAll(exporter.exportItem(localData.getIdentifier()));
 
               // delete renamed node
-              //TODO catch ChangesLogReadException from ChangesStorage
               if (local.findLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextLocalState.getData(),
                                               ItemState.DELETED,
@@ -511,7 +492,6 @@ public class RenameMerger implements ChangesMerger {
                                                           .isDescendantOf(nextIncomeState.getData()
                                                                                          .getQPath()
                                                                                          .makeParentPath()))) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
@@ -546,7 +526,6 @@ public class RenameMerger implements ChangesMerger {
               }
 
               // apply income rename
-              //TODO catch ChangesLogReadException from ChangesStorage
               for (ItemState st : income.getRenameSequence(incomeState))
                 resultState.add(st);
 
@@ -574,7 +553,6 @@ public class RenameMerger implements ChangesMerger {
               return resultState;
             }
           } else if (!incomeData.isNode()
-              //TODO catch ChangesLogReadException from ChangesStorage
               && income.findNextState(incomeState,
                                       incomeState.getData().getParentIdentifier(),
                                       incomeState.getData().getQPath().makeParentPath(),
@@ -584,12 +562,10 @@ public class RenameMerger implements ChangesMerger {
                                                      .isDescendantOf(localData.getQPath()
                                                                               .makeParentPath()))) {
 
-              //TODO catch ChangesLogReadException from ChangesStorage
               List<ItemState> rename = income.getRenameSequence(incomeState);
               for (int i = 0; i <= rename.size() - 1; i++) {
                 ItemState item = rename.get(i);
                 if (item.getState() == ItemState.DELETED) {
-                  //TODO catch ChangesLogReadException from ChangesStorage
                   if (local.findNextState(localState,
                                           item.getData().getIdentifier(),
                                           item.getData().getQPath(),
@@ -623,7 +599,6 @@ public class RenameMerger implements ChangesMerger {
     }
 
     // apply income changes if not processed
-    //TODO catch ChangesLogReadException from ChangesStorage
     if (!itemChangeProcessed) {
       for (ItemState st : income.getRenameSequence(incomeState))
         resultState.add(st);

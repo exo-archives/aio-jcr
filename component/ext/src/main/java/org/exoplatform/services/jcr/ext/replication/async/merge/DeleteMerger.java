@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
@@ -92,7 +93,8 @@ public class DeleteMerger implements ChangesMerger {
                                                                  RemoteExportException,
                                                                  IOException,
                                                                  ClassCastException,
-                                                                 ClassNotFoundException {
+                                                                 ClassNotFoundException,
+                                                                 ChangesLogReadException {
 
     boolean itemChangeProcessed = false;
 
@@ -100,7 +102,6 @@ public class DeleteMerger implements ChangesMerger {
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
-    //TODO catch ChangesLogReadException from ChangesStorage
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
       ItemData incomeData = incomeState.getData();
@@ -115,7 +116,6 @@ public class DeleteMerger implements ChangesMerger {
             skippedList.add(incomeData.getQPath());
             return resultEmptyState;
           } else if (!incomeData.isNode()
-              //TODO catch ChangesLogReadException from ChangesStorage
               && income.findNextState(incomeState,
                                       incomeState.getData().getParentIdentifier(),
                                       incomeState.getData().getQPath().makeParentPath(),
@@ -128,20 +128,17 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          //TODO catch ChangesLogReadException from ChangesStorage
           ItemState nextState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
 
-            //TODO catch ChangesLogReadException from ChangesStorage
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                 || local.getNextItemStateByUUIDOnUpdate(localState, incomeData.getIdentifier()) != null) {
 
               int relativeDegree = incomeState.getData().getQPath().getEntries().length
                   - localData.getQPath().getEntries().length;
 
-              //TODO catch ChangesLogReadException from ChangesStorage
               ItemState parent = local.getNextItemStateByIndexOnUpdate(localState,
                                                                        incomeState.getData()
                                                                                   .getQPath()
@@ -174,9 +171,11 @@ public class DeleteMerger implements ChangesMerger {
                                                                node.getParentIdentifier(),
                                                                node.getACL());
                 incomeState = new ItemState(item,
-                                            ItemState.DELETED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -189,9 +188,11 @@ public class DeleteMerger implements ChangesMerger {
                 item.setValues(prop.getValues());
 
                 incomeState = new ItemState(item,
-                                            ItemState.DELETED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               }
               itemChangeProcessed = true;
@@ -243,12 +244,10 @@ public class DeleteMerger implements ChangesMerger {
                                                                                          .equals(incomeData.getQPath()))) {
 
             // add Delete state
-            //TODO catch ChangesLogReadException from ChangesStorage
             List<ItemState> items = local.getDescendantsChanges(localState,
                                                                 incomeData.getQPath(),
                                                                 true);
             for (int i = items.size() - 1; i >= 0; i--) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
@@ -258,13 +257,11 @@ public class DeleteMerger implements ChangesMerger {
             }
 
             // apply income changes for all subtree
-            //TODO catch ChangesLogReadException from ChangesStorage
             for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
               resultState.add(st);
 
             return resultState;
           } else if (!incomeData.isNode()
-              //TODO catch ChangesLogReadException from ChangesStorage
               && income.findNextState(incomeState,
                                       incomeState.getData().getParentIdentifier(),
                                       incomeState.getData().getQPath().makeParentPath(),
@@ -273,12 +270,10 @@ public class DeleteMerger implements ChangesMerger {
                                                                                                           .equals(incomeData.getQPath()
                                                                                                                             .makeParentPath()))) {
             // add Delete state
-            //TODO catch ChangesLogReadException from ChangesStorage
             List<ItemState> items = local.getDescendantsChanges(localState,
                                                                 incomeData.getQPath(),
                                                                 true);
             for (int i = items.size() - 1; i >= 0; i--) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
@@ -288,7 +283,6 @@ public class DeleteMerger implements ChangesMerger {
             }
 
             // apply income changes for all subtree
-            //TODO catch ChangesLogReadException from ChangesStorage
             for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
               resultState.add(st);
 
@@ -296,20 +290,17 @@ public class DeleteMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          //TODO catch ChangesLogReadException from ChangesStorage
           ItemState nextState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextState != null && nextState.getState() == ItemState.UPDATED) {
 
-            //TODO catch ChangesLogReadException from ChangesStorage
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                 || local.getNextItemStateByUUIDOnUpdate(localState, incomeData.getIdentifier()) != null) {
 
               int relativeDegree = incomeState.getData().getQPath().getEntries().length
                   - localData.getQPath().getEntries().length;
 
-              //TODO catch ChangesLogReadException from ChangesStorage
               ItemState parent = local.getNextItemStateByIndexOnUpdate(localState,
                                                                        incomeState.getData()
                                                                                   .getQPath()
@@ -342,9 +333,11 @@ public class DeleteMerger implements ChangesMerger {
                                                                node.getParentIdentifier(),
                                                                node.getACL());
                 incomeState = new ItemState(item,
-                                            ItemState.DELETED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -357,9 +350,11 @@ public class DeleteMerger implements ChangesMerger {
                 item.setValues(prop.getValues());
 
                 incomeState = new ItemState(item,
-                                            ItemState.DELETED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               }
               itemChangeProcessed = true;
@@ -378,7 +373,6 @@ public class DeleteMerger implements ChangesMerger {
               break;
             } else if (!incomeData.isNode()
                 && localData.getIdentifier().equals(incomeData.getParentIdentifier())
-                //TODO catch ChangesLogReadException from ChangesStorage
                 && income.findNextState(incomeState,
                                         incomeState.getData().getParentIdentifier(),
                                         incomeState.getData().getQPath().makeParentPath(),

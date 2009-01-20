@@ -29,8 +29,10 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
@@ -105,7 +107,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           LOG.error("Cannot send 'Cancel'" + ioe, ioe);
         }
 
-        if (doneList.size() == membersCount) { 
+        if (doneList.size() == membersCount) {
           save();
           doStop();
         }
@@ -128,7 +130,11 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       } catch (MergeDataManagerException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+      } catch (ChangesLogReadException e) {
+        workerLog.error("Merge error " + e, e);
+        doCancel();
       }
+
     }
 
     /**
@@ -147,7 +153,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                            IOException,
                            ClassCastException,
                            ClassNotFoundException,
-                           MergeDataManagerException {
+                           MergeDataManagerException,
+                           ChangesLogReadException {
 
       LOG.error("run merge");
 
@@ -224,7 +231,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         // Fire event to Publisher to send own changes out
         if (isInitialized()) {
           LOG.info("On START (remote) from " + member.getName());
-          
+
           doStart();
 
           for (LocalEventListener syncl : listeners)
@@ -362,9 +369,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void onMerge(Member member) {
 
     addMergeDone(member.getPriority());
-    
-    LOG.info("On Merge member " + member.getName() + ", doneList.size=" + doneList.size() + " membersCount="
-      + membersCount);
+
+    LOG.info("On Merge member " + member.getName() + ", doneList.size=" + doneList.size()
+        + " membersCount=" + membersCount);
 
     if (doneList.size() == membersCount) {
       save();
@@ -374,7 +381,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   private synchronized void save() {
     LOG.info("save");
-    
+
     try {
       workspace.save(mergeWorker.result);
     } catch (InvalidItemStateException e) {
@@ -390,7 +397,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
     }
-    
+
     LOG.info("Fire Stop (local)");
     for (LocalEventListener ll : listeners)
       ll.onStop();

@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
@@ -91,9 +92,10 @@ public class AddMerger implements ChangesMerger {
                                                                  RemoteExportException,
                                                                  IOException,
                                                                  ClassCastException,
-                                                                 ClassNotFoundException {
+                                                                 ClassNotFoundException,
+                                                                 ChangesLogReadException {
 
-    // Invalid order number when added two not conflicted nodes
+    // TODO Invalid order number when added two not conflicted nodes
 
     boolean itemChangeProcessed = false;
 
@@ -101,7 +103,6 @@ public class AddMerger implements ChangesMerger {
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
-    //TODO catch ChangesLogReadException from ChangesStorage
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
       ItemData incomeData = incomeState.getData();
@@ -174,7 +175,6 @@ public class AddMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          //TODO catch ChangesLogReadException from ChangesStorage
           ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
@@ -186,7 +186,6 @@ public class AddMerger implements ChangesMerger {
               int relativeDegree = incomeState.getData().getQPath().getEntries().length
                   - localData.getQPath().getEntries().length;
 
-              //TODO catch ChangesLogReadException from ChangesStorage
               ItemState parent = local.getNextItemStateByIndexOnUpdate(localState,
                                                                        incomeState.getData()
                                                                                   .getQPath()
@@ -220,9 +219,11 @@ public class AddMerger implements ChangesMerger {
                                                                node.getParentIdentifier(),
                                                                node.getACL());
                 incomeState = new ItemState(item,
-                                            ItemState.ADDED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -237,9 +238,11 @@ public class AddMerger implements ChangesMerger {
                 item.setValues(prop.getValues());
 
                 incomeState = new ItemState(item,
-                                            ItemState.ADDED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               }
               itemChangeProcessed = true;
@@ -310,12 +313,10 @@ public class AddMerger implements ChangesMerger {
             }
 
             // add DELETE state
-            //TODO catch ChangesLogReadException from ChangesStorage
             List<ItemState> items = local.getDescendantsChanges(localState,
                                                                 localData.getQPath(),
                                                                 true);
             for (int i = items.size() - 1; i >= 0; i--) {
-              //TODO catch ChangesLogReadException from ChangesStorage
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
@@ -323,7 +324,6 @@ public class AddMerger implements ChangesMerger {
                                               items.get(i).getData().getQPath()));
               }
             }
-            //TODO catch ChangesLogReadException from ChangesStorage
             if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
               resultState.add(new ItemState(localData,
                                             ItemState.DELETED,
@@ -332,7 +332,6 @@ public class AddMerger implements ChangesMerger {
             }
 
             // add all state from income changes
-            //TODO catch ChangesLogReadException from ChangesStorage
             for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
               resultState.add(st);
 
@@ -342,7 +341,6 @@ public class AddMerger implements ChangesMerger {
         case ItemState.UPDATED:
           break;
         case ItemState.DELETED:
-          //TODO catch ChangesLogReadException from ChangesStorage
           ItemState nextState = local.findNextItemState(localState, localData.getIdentifier());
 
           // UPDATE sequences
@@ -353,7 +351,6 @@ public class AddMerger implements ChangesMerger {
               int relativeDegree = incomeState.getData().getQPath().getEntries().length
                   - localData.getQPath().getEntries().length;
 
-              //TODO catch ChangesLogReadException from ChangesStorage
               ItemState parent = local.getNextItemStateByIndexOnUpdate(localState,
                                                                        incomeState.getData()
                                                                                   .getQPath()
@@ -386,9 +383,11 @@ public class AddMerger implements ChangesMerger {
                                                                node.getParentIdentifier(),
                                                                node.getACL());
                 incomeState = new ItemState(item,
-                                            ItemState.ADDED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -402,9 +401,11 @@ public class AddMerger implements ChangesMerger {
                 item.setValues(prop.getValues());
 
                 incomeState = new ItemState(item,
-                                            ItemState.ADDED,
+                                            incomeState.getState(),
                                             incomeState.isEventFire(),
-                                            new QPath(names));
+                                            new QPath(names),
+                                            incomeState.isInternallyCreated(),
+                                            incomeState.isPersisted());
                 resultState.add(incomeState);
               }
               itemChangeProcessed = true;
@@ -420,12 +421,10 @@ public class AddMerger implements ChangesMerger {
                 || incomeData.getQPath().equals(nextState.getData().getQPath())) {
 
               // add DELETE state
-              //TODO catch ChangesLogReadException from ChangesStorage
               List<ItemState> items = local.getDescendantsChanges(nextState,
                                                                   nextState.getData().getQPath(),
                                                                   true);
               for (int i = items.size() - 1; i >= 0; i--) {
-                //TODO catch ChangesLogReadException from ChangesStorage
                 if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
                   resultState.add(new ItemState(items.get(i).getData(),
                                                 ItemState.DELETED,
@@ -433,7 +432,6 @@ public class AddMerger implements ChangesMerger {
                                                 items.get(i).getData().getQPath()));
                 }
               }
-              //TODO catch ChangesLogReadException from ChangesStorage
               if (local.findLastState(nextState.getData().getQPath()) != ItemState.DELETED) {
                 resultState.add(new ItemState(nextState.getData(),
                                               ItemState.DELETED,
@@ -484,7 +482,6 @@ public class AddMerger implements ChangesMerger {
    * @return
    */
   protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
-    // TODO case of remote changes merge, local managers can be not actual
     PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
                                                                      parent.getPrimaryTypeName(),
                                                                      parent.getMixinTypeNames());

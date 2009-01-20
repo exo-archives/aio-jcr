@@ -33,6 +33,8 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 
+import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -50,6 +52,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
+import org.exoplatform.services.log.ExoLogger;
 
 /**
  * Created by The eXo Platform SAS.
@@ -58,6 +61,8 @@ import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceD
  * @version $Id: TestMergerDataManager.java 111 2008-11-11 11:11:11Z $
  */
 public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersistenceListener {
+
+  private static final Log                  log           = ExoLogger.getLogger("MergerDataManagerTest");
 
   private final int                         HIGH_PRIORITY = 100;
 
@@ -174,7 +179,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * 5. After synchronization ends check if files exist, if content of files same as original.
    */
   public void testDemoUsecase1() throws Exception {
-    root4.addNode("item1");
+    Node node = root4.addNode("item1");
 
     addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
     session4.save();
@@ -469,6 +474,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     res3 = mergerLow.merge(membersChanges.iterator());
     res4 = mergerHigh.merge(membersChanges.iterator());
+    // log.info(res3.dump());
+    // log.info(res4.dump());
 
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
@@ -895,6 +902,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     res3 = mergerLow.merge(membersChanges.iterator());
     res4 = mergerHigh.merge(membersChanges.iterator());
+    // log.info(res3.dump());
+    // log.info(res4.dump());
 
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
@@ -3098,6 +3107,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
         || src.isNodeType("mix:referenceable") != dst.isNodeType("mix:referenceable")
         || (src.isNodeType("mix:referenceable") && dst.isNodeType("mix:referenceable") && !src.getUUID()
                                                                                               .equals(dst.getUUID()))) {
+      log.error("Nodes names are not equals: " + src.getName() + " | " + dst.getName());
       return false;
     }
 
@@ -3106,6 +3116,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     PropertyIterator dstProps = dst.getProperties();
     while (srcProps.hasNext()) {
       if (!dstProps.hasNext()) {
+        log.error("Second node has no property: " + srcProps.nextProperty().getName());
         return false;
       }
 
@@ -3113,6 +3124,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
       PropertyImpl dstProp = (PropertyImpl) dstProps.nextProperty();
 
       if (!srcProp.getName().equals(dstProp.getName()) || srcProp.getType() != dstProp.getType()) {
+        log.error("Properties names are not equals: " + srcProp.getName() + " | "
+            + dstProp.getName());
         return false;
       }
 
@@ -3133,17 +3146,22 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
       }
 
       if (srcValues.length != dstValues.length) {
+        log.error("Length of properties values are not equals: " + srcProp.getName() + " | "
+            + dstProp.getName());
         return false;
       }
 
       for (int i = 0; i < srcValues.length; i++) {
         if (!srcValues[i].equals(dstValues[i])) {
+          log.error("Properties values are not equals: " + srcProp.getName() + "|"
+              + dstProp.getName());
           return false;
         }
       }
     }
 
     if (dstProps.hasNext()) {
+      log.error("First node has no property: " + dstProps.nextProperty().getName());
       return false;
     }
 
@@ -3152,6 +3170,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     NodeIterator dstNodes = dst.getNodes();
     while (srcNodes.hasNext()) {
       if (!dstNodes.hasNext()) {
+        log.error("Second node has no child node: " + srcNodes.nextNode().getName());
         return false;
       }
 
@@ -3161,6 +3180,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     }
 
     if (dstNodes.hasNext()) {
+      log.error("First node has no child node: " + dstNodes.nextNode().getName());
       return false;
     }
 

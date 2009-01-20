@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -149,7 +150,8 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * ItemStatesStorage constructor for income storage.
    * 
-   * @param changes list of ChangesFiles
+   * @param changes
+   *          list of ChangesFiles
    */
   public ItemStatesStorage(List<ChangesFile> changes) {
     this.storage.addAll(changes);
@@ -159,8 +161,10 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * ItemStatesStorage constructor for income storage.
    * 
-   * @param changes ChagesFiles
-   * @param member owner
+   * @param changes
+   *          ChagesFiles
+   * @param member
+   *          owner
    */
   public ItemStatesStorage(ChangesFile changes, Member member) {
     this.storage.add(changes);
@@ -170,8 +174,10 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * ItemStatesStorage constructor for income storage.
    * 
-   * @param changes list of ChangesFiles
-   * @param member owner
+   * @param changes
+   *          list of ChangesFiles
+   * @param member
+   *          owner
    */
   public ItemStatesStorage(List<ChangesFile> changes, Member member) {
     this.storage.addAll(changes);
@@ -336,17 +342,19 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
                                                                                      ClassCastException,
                                                                                      ClassNotFoundException {
+    T result = null;
+
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T item = it.next();
       if (item.isSame(toState)) {
-        return null;
+        break;
       } else if (ItemState.isSame(item, identifier, path, state)) {
-        return item;
+        result = item;
       }
     }
 
-    return null;
+    return result;
   }
 
   /**
@@ -356,17 +364,19 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
                                                                   ClassCastException,
                                                                   ClassNotFoundException {
+    T result = null;
+
     Iterator<T> it = getChanges();
     while (it.hasNext()) {
       T item = it.next();
       if (item.isSame(toState)) {
-        return null;
+        break;
       } else if (item.getState() == state && item.getData().getQPath().equals(path)) {
-        return item;
+        result = item;
       }
     }
 
-    return null;
+    return result;
   }
 
   /**
@@ -428,8 +438,8 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
-                                                                                                  ClassCastException,
-                                                                                                  ClassNotFoundException {
+                                                                                            ClassCastException,
+                                                                                            ClassNotFoundException {
     LinkedHashMap<Object, T> index = new LinkedHashMap<Object, T>();
     Iterator<T> it = getChanges();
 
@@ -458,8 +468,8 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
-                                                                       ClassCastException,
-                                                                       ClassNotFoundException {
+                                                                 ClassCastException,
+                                                                 ClassNotFoundException {
     List<T> resultStates = new ArrayList<T>();
     Iterator<T> it = getChanges();
 
