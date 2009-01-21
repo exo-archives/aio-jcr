@@ -277,7 +277,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
 
     try {
       buf = new byte[in.readInt()];
-      in.read(buf);
+      in.readFully(buf);
       String sQName = new String(buf, Constants.DEFAULT_ENCODING);
       primaryTypeName = InternalQName.parse(sQName);
     } catch (final IllegalNameException e) {
@@ -298,7 +298,7 @@ public class TransientNodeData extends TransientItemData implements Comparable, 
     for (int i = 0; i < count; i++) {
       try {
         buf = new byte[in.readInt()];
-        in.read(buf);
+        in.readFully(buf);
         String sQName = new String(buf, Constants.DEFAULT_ENCODING);
         mixinTypeNames[i] = InternalQName.parse(sQName);
       } catch (final IllegalNameException e) {
