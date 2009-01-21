@@ -5,7 +5,7 @@
   <param name="japex.plotGroupSize" value="5" />
   <param name="japex.resultUnit" value="tps" />
   <param name="japex.warmupIterations" value="0" />
-  <param name="japex.runIterations" value="10" />
+  <param name="japex.runIterations" value="1" />
   <!--param name="japex.runTime" value="03" /-->
   <!-- 10 for 10 sec -->
   <!-- 15:00 for 15min -->
@@ -21,16 +21,24 @@
     <param name="exo.jaasConf" value="login.conf" />
     <param name="exo.containerConf" value="../config/test-configuration-benchmark.xml" />
     <driver name="JCRdriver">
-      <param name="japex.numberOfThreads" value="100" />
+      <param name="japex.numberOfThreads" value="1000" />
     </driver>
   </driverGroup>
 
-  <testCase name="SessionLoginLogoutMultiThreadTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.sessionregistry.sessioncleaner.SessionLoginLogoutMultiThreadTest" />
+  <testCase name="RegisterSessionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.sessionregistry.RegisterSessionTest" />
   </testCase>
 
-  <testCase name="SessionLoginLogoutSimultaneouslyMultiThreadTest">
-    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.sessionregistry.sessioncleaner.SessionLoginLogoutSimultaneouslyMultiThreadTest" />
+  <testCase name="UnregisterSessionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.sessionregistry.UnregisterSessionTest" />
+  </testCase>
+
+  <testCase name="IsInUseTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.sessionregistry.IsInUseTest" />
+  </testCase>
+
+  <testCase name="GetSessionTest">
+    <param name="exo.testClass" value="org.exoplatform.jcr.benchmark.sessionregistry.GetSessionTest" />
   </testCase>
 
 </testSuite>
