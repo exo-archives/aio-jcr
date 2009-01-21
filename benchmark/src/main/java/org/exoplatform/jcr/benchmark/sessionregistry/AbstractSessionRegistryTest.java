@@ -16,6 +16,9 @@
  */
 package org.exoplatform.jcr.benchmark.sessionregistry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.exoplatform.jcr.benchmark.JCRTestBase;
 import org.exoplatform.jcr.benchmark.JCRTestContext;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
@@ -33,29 +36,51 @@ import com.sun.japex.TestCase;
  */
 public abstract class AbstractSessionRegistryTest extends JCRTestBase {
 
-  protected final int       AGENT_COUNT = 100;
-
-  protected CredentialsImpl credentials;
-
-  protected RepositoryImpl  repository;
-
   protected SessionRegistry sessionRegistry;
+
+  private List<SessionImpl> sessionList;
+
+  private List<String>      sessionIdList;
+
+  private int               indexSession   = 0;
+
+  private int               indexSessionId = 0;
 
   @Override
   public void doPrepare(TestCase tc, JCRTestContext context) throws Exception {
     super.doPrepare(tc, context);
 
-    credentials = new CredentialsImpl("root", "exo".toCharArray());
-    repository = (RepositoryImpl) context.getSession().getRepository();
+    CredentialsImpl credentials = new CredentialsImpl("root", "exo".toCharArray());
+    RepositoryImpl repository = (RepositoryImpl) context.getSession().getRepository();
 
     sessionRegistry = (SessionRegistry) ((SessionImpl) context.getSession()).getContainer()
                                                                             .getComponentInstanceOfType(SessionRegistry.class);
-    sessionRegistry.start();
+
+    sessionList = new ArrayList<SessionImpl>();
+    sessionIdList = new ArrayList<String>();
+    int sessionCount = tc.getIntParam("japex.numberOfThreads")
+        * tc.getIntParam("japex.runIterations");
+    for (int i = 0; i < sessionCount; i++) {
+      sessionList.add((SessionImpl) repository.login(credentials, "system"));
+
+      SessionImpl workSession = (SessionImpl) repository.login(credentials, "system");
+      sessionRegistry.registerSession(workSession);
+      sessionIdList.add(workSession.getId());
+    }
+  }
+
+  protected SessionImpl nextSession() {
+    return sessionList.get(indexSession++);
+  }
+
+  protected String nextSessionId() {
+    return sessionIdList.get(indexSessionId++);
   }
 
   @Override
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
-    sessionRegistry.stop();
+    sessionList.clear();
+    sessionList = null;
 
     super.doFinish(tc, context);
   }
