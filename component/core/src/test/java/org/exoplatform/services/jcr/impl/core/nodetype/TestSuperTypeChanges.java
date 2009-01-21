@@ -52,6 +52,9 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
     nodeTypeManager = (NodeTypeManagerImpl) session.getWorkspace().getNodeTypeManager();
   }
 
+  /**
+   * @throws Exception
+   */
   public void testAddVersionableSuper() throws Exception {
     // create new NodeType value
     NodeTypeValue testNValue = new NodeTypeValue();
@@ -63,6 +66,9 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
     testNValue.setDeclaredSupertypeNames(superType);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
     assertFalse(testNode.isNodeType("mix:versionable"));
@@ -82,6 +88,9 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
     assertTrue(testNode.isNodeType("mix:versionable"));
   }
 
+  /**
+   * @throws Exception
+   */
   public void testRemoveVersionableSuper() throws Exception {
     // create new NodeType value
     NodeTypeValue testNValue = new NodeTypeValue();
@@ -94,6 +103,8 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
     testNValue.setDeclaredSupertypeNames(superType);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
     assertTrue(testNode.isNodeType("mix:versionable"));
@@ -119,6 +130,9 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
     assertFalse(testNode.isNodeType("mix:versionable"));
   }
 
+  /**
+   * @throws Exception
+   */
   public void testSplitNT() throws Exception {
     NodeTypeValue testNValue = new NodeTypeValue();
 
@@ -150,6 +164,7 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
 
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node tNode = root.addNode("test", testNValue.getName());
     tNode.setProperty("jcr:mimeType1", "plain/text");

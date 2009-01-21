@@ -17,6 +17,8 @@
 package org.exoplatform.services.jcr.impl.core.nodetype;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,9 +35,13 @@ import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionValue;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeValue;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionData;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionValue;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.LocationFactory;
@@ -73,17 +79,14 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   // JSR-170 stuff ================================
 
-  /**
-   * {@inheritDoc}
-   */
-  public NodeType getNodeType(final String nodeTypeName) throws NoSuchNodeTypeException,
-                                                        RepositoryException {
-    NodeTypeData ntdata = typesManager.findNodeType(locationFactory.parseJCRName(nodeTypeName)
-                                                                   .getInternalName());
+  public ExtendedNodeType findNodeType(InternalQName nodeTypeName) throws NoSuchNodeTypeException,
+                                                                  RepositoryException {
+
+    NodeTypeData ntdata = typesManager.findNodeType(nodeTypeName);
     if (ntdata != null)
       return new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory);
 
-    throw new NoSuchNodeTypeException("Nodetype not found " + nodeTypeName);
+    throw new NoSuchNodeTypeException("Nodetype not found " + nodeTypeName.getAsString());
   }
 
   /**
@@ -96,23 +99,6 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     for (NodeTypeData ntdata : allNts)
       ec.add(new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory));
 
-    return ec;
-  }
-
-  /**
-   * Returns an iterator over all available primary node types.
-   * 
-   * @return An <code>NodeTypeIterator</code>.
-   * @throws RepositoryException if an error occurs.
-   */
-  public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
-    EntityCollection ec = new EntityCollection();
-    NodeTypeIterator allTypes = getAllNodeTypes();
-    while (allTypes.hasNext()) {
-      NodeType type = allTypes.nextNodeType();
-      if (!type.isMixin())
-        ec.add(type);
-    }
     return ec;
   }
 
@@ -136,24 +122,82 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
     return ec;
   }
 
-  // JSR-170 stuff ================================
-  // Extended stuff ================================
-
-  public ExtendedNodeType findNodeType(InternalQName nodeTypeName) throws NoSuchNodeTypeException,
-                                                                  RepositoryException {
-
-    NodeTypeData ntdata = typesManager.findNodeType(nodeTypeName);
+  /**
+   * {@inheritDoc}
+   */
+  public NodeType getNodeType(final String nodeTypeName) throws NoSuchNodeTypeException,
+                                                        RepositoryException {
+    NodeTypeData ntdata = typesManager.findNodeType(locationFactory.parseJCRName(nodeTypeName)
+                                                                   .getInternalName());
     if (ntdata != null)
       return new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory);
 
-    throw new NoSuchNodeTypeException("Nodetype not found " + nodeTypeName.getAsString());
+    throw new NoSuchNodeTypeException("Nodetype not found " + nodeTypeName);
   }
+
+  // JSR-170 stuff ================================
+  // Extended stuff ================================
 
   /**
    * {@inheritDoc}
    */
-  public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
-    throw new UnsupportedOperationException();
+  public NodeTypeValue getNodeTypeValue(String nodeTypeName) throws NoSuchNodeTypeException,
+                                                            RepositoryException {
+    NodeTypeData ntdata = typesManager.findNodeType(locationFactory.parseJCRName(nodeTypeName)
+                                                                   .getInternalName());
+    if (ntdata != null) {
+      NodeTypeValue nodeTypeValue = new NodeTypeValue();
+      nodeTypeValue.setMixin(ntdata.isMixin());
+      nodeTypeValue.setName(locationFactory.createJCRName(ntdata.getName()).getAsString());
+      nodeTypeValue.setOrderableChild(ntdata.hasOrderableChildNodes());
+      if (ntdata.getPrimaryItemName() == null) {
+        nodeTypeValue.setPrimaryItemName("");
+      } else {
+        nodeTypeValue.setPrimaryItemName(locationFactory.createJCRName(ntdata.getPrimaryItemName())
+                                                        .getAsString());
+      }
+      List<String> declaredSupertypeNames = new ArrayList<String>();
+      for (int i = 0; i < ntdata.getDeclaredSupertypeNames().length; i++) {
+        declaredSupertypeNames.add(locationFactory.createJCRName(ntdata.getDeclaredSupertypeNames()[i])
+                                                  .getAsString());
+      }
+      List<PropertyDefinitionValue> declaredPropertyDefinitionValues = new ArrayList<PropertyDefinitionValue>();
+
+      for (int i = 0; i < ntdata.getDeclaredPropertyDefinitions().length; i++) {
+        declaredPropertyDefinitionValues.add(convert(ntdata.getDeclaredPropertyDefinitions()[i]));
+      }
+
+      List<NodeDefinitionValue> declaredChildNodeDefinitionValues = new ArrayList<NodeDefinitionValue>();
+
+      for (int i = 0; i < ntdata.getDeclaredChildNodeDefinitions().length; i++) {
+        declaredChildNodeDefinitionValues.add(convert(ntdata.getDeclaredChildNodeDefinitions()[i]));
+      }
+
+      nodeTypeValue.setDeclaredSupertypeNames(declaredSupertypeNames);
+      nodeTypeValue.setDeclaredPropertyDefinitionValues(declaredPropertyDefinitionValues);
+      nodeTypeValue.setDeclaredChildNodeDefinitionValues(declaredChildNodeDefinitionValues);
+      return nodeTypeValue;
+    }
+
+    throw new NoSuchNodeTypeException("Nodetype not found " + nodeTypeName);
+
+  }
+
+  /**
+   * Returns an iterator over all available primary node types.
+   * 
+   * @return An <code>NodeTypeIterator</code>.
+   * @throws RepositoryException if an error occurs.
+   */
+  public NodeTypeIterator getPrimaryNodeTypes() throws RepositoryException {
+    EntityCollection ec = new EntityCollection();
+    NodeTypeIterator allTypes = getAllNodeTypes();
+    while (allTypes.hasNext()) {
+      NodeType type = allTypes.nextNodeType();
+      if (!type.isMixin())
+        ec.add(type);
+    }
+    return ec;
   }
 
   /**
@@ -170,25 +214,16 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * {@inheritDoc}
    */
+  public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public void registerNodeType(NodeTypeValue nodeTypeValue, int alreadyExistsBehaviour) throws RepositoryException {
 
     typesManager.registerNodeType(nodeTypeValue, alreadyExistsBehaviour);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
-
-    typesManager.registerNodeTypes(xml, alreadyExistsBehaviour);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public NodeTypeValue getNodeTypeValue(String ntName) throws NoSuchNodeTypeException,
-                                                      RepositoryException {
-    throw new RepositoryException("Unsupported operation");
   }
 
   public NodeTypeIterator registerNodeTypes(Collection<NodeTypeValue> values,
@@ -201,6 +236,14 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       types.add(new NodeTypeImpl(ntdata, typesManager, this, locationFactory, valueFactory));
 
     return types;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public void registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException {
+
+    typesManager.registerNodeTypes(xml, alreadyExistsBehaviour);
   }
 
   /**
@@ -225,6 +268,50 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
       unregisterNodeType(names[i]);
     }
 
+  }
+
+  private NodeDefinitionValue convert(NodeDefinitionData data) throws RepositoryException {
+    NodeDefinitionValue value = new NodeDefinitionValue();
+
+    value.setName((locationFactory.createJCRName(data.getName()).getAsString()));
+
+    value.setAutoCreate(data.isAutoCreated());
+    value.setMandatory(data.isMandatory());
+    value.setOnVersion(data.getOnParentVersion());
+    value.setReadOnly(data.isProtected());
+
+    value.setSameNameSiblings(data.isAllowsSameNameSiblings());
+    value.setDefaultNodeTypeName(locationFactory.createJCRName(data.getDeclaringNodeType())
+                                                .getAsString());
+
+    List<String> requiredNodeTypeNames = new ArrayList<String>();
+
+    for (int i = 0; i < data.getRequiredPrimaryTypes().length; i++) {
+      requiredNodeTypeNames.add(locationFactory.createJCRName(data.getRequiredPrimaryTypes()[i])
+                                               .getAsString());
+    }
+    value.setRequiredNodeTypeNames(requiredNodeTypeNames);
+
+    return value;
+  }
+
+  private PropertyDefinitionValue convert(PropertyDefinitionData data) throws RepositoryException {
+    PropertyDefinitionValue value = new PropertyDefinitionValue();
+
+    value.setName((locationFactory.createJCRName(data.getName()).getAsString()));
+
+    value.setAutoCreate(data.isAutoCreated());
+    value.setMandatory(data.isMandatory());
+    value.setOnVersion(data.getOnParentVersion());
+    value.setReadOnly(data.isProtected());
+
+    value.setRequiredType(data.getRequiredType());
+    value.setMultiple(data.isMultiple());
+
+    value.setDefaultValueStrings(Arrays.asList(data.getDefaultValues()));
+    value.setValueConstraints(Arrays.asList(data.getValueConstraints()));
+
+    return value;
   }
 
   /**

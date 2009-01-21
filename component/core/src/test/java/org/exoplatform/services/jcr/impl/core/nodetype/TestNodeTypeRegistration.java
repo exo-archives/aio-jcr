@@ -191,6 +191,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredPropertyDefinitionValues(props);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     assertTrue(nodeTypeManager.getNodeType(testNValue.getName()).getDeclaredPropertyDefinitions().length == 1);
 
     Node tNode = root.addNode("test", "exo:testRemoveResidual");
@@ -245,6 +248,8 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
 
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node tNode = root.addNode("test", "exo:testChangeProtected");
     session.save();
     Property property = tNode.getProperty("tt");
@@ -290,6 +295,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNTValue.setDeclaredSupertypeNames(superType);
 
     nodeTypeManager.registerNodeType(testNTValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNTValue = nodeTypeManager.getNodeTypeValue(testNTValue.getName());
 
     Node testNode = root.addNode("testNode", testNTValue.getName());
     session.save();
@@ -312,7 +318,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     } catch (RepositoryException e) {
       // ok
     }
-
+    testNTValue = nodeTypeManager.getNodeTypeValue(testNTValue.getName());
     List<String> def = new ArrayList<String>();
     def.add("tt");
     props = new ArrayList<PropertyDefinitionValue>();
@@ -359,7 +365,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
                                           new ArrayList<String>()));
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
-
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
     Node tNode = root.addNode("test", "exo:testReregisterMandatory");
     session.save();
 
@@ -412,6 +418,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
                                           new ArrayList<String>()));
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node tNode = root.addNode("test", "exo:testReregisterRequiredNodeTypeChangeResidualProperty");
     tNode.setProperty("tt", "tt");
@@ -471,6 +478,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
                                           new ArrayList<String>()));
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node tNode = root.addNode("test", "exo:testReregisterRequiredNodeTypeChangeProperty");
     tNode.setProperty("tt", 1);
@@ -586,6 +594,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
                                           new ArrayList<String>()));
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node tNode = root.addNode("test", "exo:testReregisterValueConstraintChangeProperty");
 
@@ -641,7 +650,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
                                           new ArrayList<String>()));
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
-
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
     Node tNode = root.addNode("test", "exo:testReregisterIsMultipleChangeResidualProperty");
     Property prop = tNode.setProperty("t1", new String[] { "100", "150" });
 
@@ -700,6 +709,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
                                           new ArrayList<String>()));
     testNValue.setDeclaredPropertyDefinitionValues(props);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node tNode = root.addNode("test", "exo:testReregisterIsMultipleChangeProperty");
     Property prop = tNode.setProperty("t1", new String[] { "100", "150" });
@@ -762,6 +772,8 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
 
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", "exo:testReregisterRemoveResidualChildNodeDefinition");
     Node child = testNode.addNode("child");
     session.save();
@@ -802,6 +814,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredSupertypeNames(superType);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
 
@@ -839,7 +852,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
-
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
     Node testNode = root.addNode("testNode", testNValue.getName());
     Node child = testNode.addNode("child");
     session.save();
@@ -883,6 +896,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredSupertypeNames(superType);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
@@ -904,6 +918,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     } catch (RepositoryException e) {
       // ok;
     }
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
     nodes = new ArrayList<NodeDefinitionValue>();
     nodes.add(new NodeDefinitionValue("child",
                                       false,
@@ -958,6 +973,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
     Node testNode = root.addNode("testNode", testNValue.getName());
     // testNode.addNode("child");
     session.save();
@@ -1011,6 +1027,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     // testNode.addNode("child");
     session.save();
@@ -1064,6 +1083,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
 
@@ -1129,6 +1149,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
 
@@ -1187,6 +1210,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     Node child = testNode.addNode("child");
     Node child1 = child.addNode("child");
@@ -1245,6 +1271,9 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredChildNodeDefinitionValues(nodes);
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     Node child = testNode.addNode("child");
     Node child1 = child.addNode("child");
@@ -1304,6 +1333,8 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
 
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     Node child = testNode.addNode("child", "nt:base");
     session.save();
@@ -1360,6 +1391,8 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
 
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
 
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
+
     Node testNode = root.addNode("testNode", testNValue.getName());
     Node child = testNode.addNode("child");
     child.addNode("subchild1");
@@ -1403,6 +1436,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredSupertypeNames(superType);
     testNValue.setMixin(false);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
@@ -1433,6 +1467,7 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNValue.setDeclaredSupertypeNames(superType);
     testNValue.setMixin(true);
     nodeTypeManager.registerNodeType(testNValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
+    testNValue = nodeTypeManager.getNodeTypeValue(testNValue.getName());
 
     Node testNode = root.addNode("testNode");
     testNode.addMixin(testNValue.getName());

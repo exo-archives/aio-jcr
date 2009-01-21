@@ -47,55 +47,152 @@ public interface NodeTypeDataManager {
    */
   List<NodeTypeData> getAllNodeTypes();
 
+  /**
+   * @param typeName
+   * @return
+   */
   NodeTypeData findNodeType(InternalQName typeName);
 
+  /**
+   * @param primaryNodeType
+   * @param mixinTypes
+   * @return
+   */
   boolean isOrderableChildNodesSupported(InternalQName primaryNodeType, InternalQName[] mixinTypes);
 
+  /**
+   * @param primaryNodeType
+   * @param mixinTypes
+   * @return
+   */
   List<ItemDefinitionData> getManadatoryItemDefs(InternalQName primaryNodeType,
                                                  InternalQName[] mixinTypes);
 
+  /**
+   * @param nodeName
+   * @param nodeTypeName
+   * @param parentTypeName
+   * @return
+   */
   NodeDefinitionData getChildNodeDefinition(InternalQName nodeName,
                                             InternalQName nodeTypeName,
                                             InternalQName parentTypeName);
 
+  /**
+   * @param nodeTypeNames
+   * @return
+   */
   NodeDefinitionData[] getAllChildNodeDefinitions(InternalQName... nodeTypeNames);
 
+  /**
+   * @param nodeName
+   * @param nodeTypeNames
+   * @return
+   */
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName, InternalQName... nodeTypeNames);
 
+  /**
+   * @param nodeName
+   * @param primaryNodeType
+   * @param mixinTypes
+   * @return
+   */
   NodeDefinitionData findChildNodeDefinition(InternalQName nodeName,
                                              InternalQName primaryNodeType,
                                              InternalQName[] mixinTypes);
 
+  /**
+   * @param propertyName
+   * @param nodeTypeNames
+   * @return
+   */
   PropertyDefinitionDatas getPropertyDefinitions(InternalQName propertyName,
                                                  InternalQName... nodeTypeNames);
 
+  /**
+   * @param nodeTypeNames
+   * @return
+   */
   PropertyDefinitionData[] getAllPropertyDefinitions(InternalQName... nodeTypeNames);
 
+  /**
+   * @param propertyName
+   * @param primaryNodeType
+   * @param mixinTypes
+   * @return
+   */
   PropertyDefinitionDatas findPropertyDefinitions(InternalQName propertyName,
                                                   InternalQName primaryNodeType,
                                                   InternalQName[] mixinTypes);
 
+  /**
+   * @param testTypeName
+   * @param primaryNodeType
+   * @param mixinNames
+   * @return
+   */
   boolean isNodeType(InternalQName testTypeName,
                      InternalQName primaryNodeType,
                      InternalQName[] mixinNames);
 
+  /**
+   * @param testTypeName
+   * @param typeNames
+   * @return
+   */
   boolean isNodeType(InternalQName testTypeName, InternalQName... typeNames);
 
+  /**
+   * @param nodeType
+   * @param alreadyExistsBehaviour
+   * @throws RepositoryException
+   */
   void registerNodeType(NodeTypeData nodeType, int alreadyExistsBehaviour) throws RepositoryException;
 
+  /**
+   * @param nodeTypes
+   * @param alreadyExistsBehaviour
+   * @throws RepositoryException
+   */
   void registerNodeTypes(Collection<NodeTypeData> nodeTypes, int alreadyExistsBehaviour) throws RepositoryException;
 
+  /**
+   * @param ntvalue
+   * @param alreadyExistsBehaviour
+   * @return
+   * @throws RepositoryException
+   */
   NodeTypeData registerNodeType(NodeTypeValue ntvalue, int alreadyExistsBehaviour) throws RepositoryException;
 
+  /**
+   * @param nodeTypeName
+   * @throws RepositoryException
+   */
   public void unregisterNodeType(InternalQName nodeTypeName) throws RepositoryException;
 
+  /**
+   * @param ntValues
+   * @param alreadyExistsBehaviour
+   * @return
+   * @throws RepositoryException
+   */
   Collection<NodeTypeData> registerNodeTypes(Collection<NodeTypeValue> ntValues,
                                              int alreadyExistsBehaviour) throws RepositoryException;
 
+  /**
+   * @param xml
+   * @param alreadyExistsBehaviour
+   * @return
+   * @throws RepositoryException
+   */
   Collection<NodeTypeData> registerNodeTypes(InputStream xml, int alreadyExistsBehaviour) throws RepositoryException;
 
-  // Proposed methods
-
+  /**
+   * @param childNodeTypeName
+   * @param parentNodeType
+   * @param parentMixinNames
+   * @return
+   */
   boolean isChildNodePrimaryTypeAllowed(InternalQName childNodeTypeName,
                                         InternalQName parentNodeType,
                                         InternalQName[] parentMixinNames);

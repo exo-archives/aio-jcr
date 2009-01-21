@@ -27,7 +27,7 @@ import javax.jcr.query.QueryResult;
 import javax.jcr.query.Row;
 import javax.jcr.query.RowIterator;
 
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 
 /**
  * Created by The eXo Platform SAS Author : Ly Dinh Quang
@@ -55,10 +55,10 @@ public class TestExcerpt extends BaseUsecasesTest {
   public void initRepository() throws RepositoryException {
     super.initRepository();
     if (!isInitialized) {
-      NodeTypeManagerImpl ntManager = (NodeTypeManagerImpl) session.getWorkspace()
-                                                                   .getNodeTypeManager();
+      ExtendedNodeTypeManager ntManager = (ExtendedNodeTypeManager) session.getWorkspace()
+                                                                           .getNodeTypeManager();
       InputStream is = TestExcerpt.class.getResourceAsStream("/nodetypes/ext-registry-nodetypes.xml");
-      ntManager.registerNodeTypes(is, 0);
+      ntManager.registerNodeTypes(is, ExtendedNodeTypeManager.REPLACE_IF_EXISTS);
       ntManager.registerNodeTypes(TestExcerpt.class.getResourceAsStream("/org/exoplatform/services/jcr/api/nodetypes/ecm/nodetypes-config.xml"),
                                   0);
       ntManager.registerNodeTypes(TestExcerpt.class.getResourceAsStream("/org/exoplatform/services/jcr/api/nodetypes/ecm/nodetypes-config-extended.xml"),
