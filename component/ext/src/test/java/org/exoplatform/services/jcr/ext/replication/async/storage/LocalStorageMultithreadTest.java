@@ -239,14 +239,14 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
           }
         }
 
-        // check size
-        assertEquals(10, subnodes.size());
-
-        // check order
-        for (int j = 0; j < 10; j++) {
+        // check size (+1 primary type)
+        assertEquals(11, subnodes.size());
+        
+        //check order
+        for(int j=1;j<11; j++){
           String secondname = subnodes.get(j).getData().getQPath().getName().getName();
-          int ind = Integer.parseInt(secondname.substring(7));
-          assertEquals(j, ind);
+          int ind = Integer.parseInt(secondname.substring(7)); 
+          assertEquals(j-1,ind);
         }
         dirscount++;
       }
