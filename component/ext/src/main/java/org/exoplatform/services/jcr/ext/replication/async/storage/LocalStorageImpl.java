@@ -101,6 +101,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     if (dirs.length != 0) {
       dirIndex = Long.parseLong(dirs[dirs.length - 1]) + 1;
+      
       // TODO check is last directory archived. If true create new directory.
 
       File lastDir = new File(storagePath, dirs[dirs.length - 1]);
@@ -156,7 +157,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       try {
         ChangesFile file = createChangesFile();
-
+        System.out.println(file.getTimeStamp() + " created ");
+         
         ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
 
         TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
@@ -164,6 +166,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         out.writeObject(log);
         out.close();
         file.finishWrite();
+        
+        System.out.println(file.getTimeStamp() + " finished write");
       } catch (IOException e) {
         LOG.error("On save items error " + e, e);
         this.reportException(e);

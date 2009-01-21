@@ -83,6 +83,7 @@ public class ChangesFile {
     // create file in directory
     File dir = new File(directory);
     file = new File(dir, Long.toString(timeStamp));
+    file.createNewFile();
   }
 
   /**

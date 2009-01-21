@@ -44,6 +44,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  */
 public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
+  final int subnodes_count = 10;
+  
   public class NodeWorker extends Thread {
 
     String  threadName;
@@ -64,7 +66,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         root.save();
 
         // add node
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < subnodes_count; i++) {
           Node sn = n.addNode("subnode" + i);
           sn.setProperty("prop" + i, "blahblah");
           System.out.println(threadName + " " + sn.getName() + " ADDED");
@@ -121,23 +123,24 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     Iterator<TransactionChangesLog> it = logs.iterator();
 
     Iterator<ItemState> ch = storage.getLocalChanges().getChanges();
-    int c = 0;
+   /* int c = 0;
     while (it.hasNext()) {
       TransactionChangesLog tlog = it.next();
       System.out.println(c + ":  " + tlog.dump());
       c++;
     }
 
-    it = logs.iterator();
+    it = logs.iterator();*/
 
-    while (it.hasNext()) {
+  /* while (it.hasNext()) {
       TransactionChangesLog tlog = it.next();
 
       checkIteratorSecond(tlog.getAllStates().iterator(), ch, false);
     }
-    System.out.println(" FAILS -- " + fails);
 
-    chechLocalStorage(storage);
+    System.out.println(" FAILS -- " + fails);*/
+
+    checkLocalStorage(storage);
 
     it = logs.iterator();
     ch = storage.getLocalChanges().getChanges();
@@ -211,7 +214,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     }
   }
 
-  private void chechLocalStorage(LocalStorageImpl storage) throws Exception {
+  private void checkLocalStorage(LocalStorageImpl storage) throws Exception {
 
     final int size = 320;
     Iterator<ItemState> it = storage.getLocalChanges().getChanges();
@@ -240,10 +243,10 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         }
 
         // check size (+1 primary type)
-        assertEquals(11, subnodes.size());
+        assertEquals(subnodes_count+1, subnodes.size());
         
         //check order
-        for(int j=1;j<11; j++){
+        for(int j=1;j<(subnodes_count+1); j++){
           String secondname = subnodes.get(j).getData().getQPath().getName().getName();
           int ind = Integer.parseInt(secondname.substring(7)); 
           assertEquals(j-1,ind);
