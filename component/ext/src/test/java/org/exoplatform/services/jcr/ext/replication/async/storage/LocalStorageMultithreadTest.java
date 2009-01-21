@@ -44,7 +44,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  */
 public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
-  final int subnodesCount = 5;
+  final int subnodesCount = 100;
   final int threadCount = 10;
   
   public class NodeWorker extends Thread {
@@ -61,7 +61,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     public void run() {
       try {
         Node root = sess.getRootNode();
-        System.out.println(threadName + " ADDED");
+      //  System.out.println(threadName + " ADDED");
         Node n = root.addNode(threadName);
 
         root.save();
@@ -70,7 +70,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         for (int i = 0; i < subnodesCount; i++) {
           Node sn = n.addNode("subnode" + i);
           sn.setProperty("prop" + i, "blahblah");
-          System.out.println(threadName + " " + sn.getName() + " ADDED");
+        //  System.out.println(threadName + " " + sn.getName() + " ADDED");
           root.save();
         }
 
@@ -238,8 +238,10 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         List<ItemState> subnodes = new ArrayList<ItemState>();
         // find all subnodes
         for (int j = i; j < size; j++) {
+          //System.out.println(items[j].getData().getQPath().getAsString());
           if (items[j].getData().getParentIdentifier().equals(state.getIdentifier())) {
             subnodes.add(items[j]);
+            //System.out.print(" ADDED");  
           }
         }
 

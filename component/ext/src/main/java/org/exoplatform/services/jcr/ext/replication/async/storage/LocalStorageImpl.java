@@ -88,7 +88,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * This unique index used as name for ChangesFiles.
    */
-  private volatile long         index                      = 0;
+  private Long         index                      = new Long(0);
 
   private volatile long         dirIndex                   = 0;
 
@@ -109,7 +109,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       String[] fileNames = lastDir.list(new ChangesFileNameFilter());
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
       if (fileNames.length != 0) {
-        index = Long.parseLong(fileNames[fileNames.length - 1] + 1);
+        index = Long.parseLong(fileNames[fileNames.length - 1]+1 );
       }
     } else {
       File subdir = new File(storagePath, Long.toString(dirIndex++));
@@ -162,8 +162,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
         File lastDir = new File(storagePath, dirs[dirs.length - 1]);
 
-        ChangesFile file = new ChangesFile("", index++, lastDir.getAbsolutePath());
-        System.out.println(file.getPath() + " created ");
+        ChangesFile file = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
+       // System.out.println(file.getPath() + " created ");
          
         ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
 
@@ -173,7 +173,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         out.close();
         file.finishWrite();
         
-        System.out.println(file.getPath() + " finished write");
+      //  System.out.println(file.getPath() + " finished write");
       } catch (IOException e) {
         LOG.error("On save items error " + e, e);
         this.reportException(e);
@@ -402,4 +402,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     // TODO not interested
   }
 
+  
+  private long getNextFileId(){
+    long fileId=0;
+    synchronized(index){
+      fileId = index++;
+    }
+    return fileId;
+  }
 }
