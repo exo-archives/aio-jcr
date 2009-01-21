@@ -44,7 +44,8 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  */
 public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
-  final int subnodesCount = 10;
+  final int subnodesCount = 5;
+  final int threadCount = 10;
   
   public class NodeWorker extends Thread {
 
@@ -81,7 +82,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
   public void testMultithread() throws Exception {
 
-    final int threadNum = 10;
+    
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
 
     PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
@@ -97,7 +98,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
     // concurent work in JCR
     List<Thread> threads = new ArrayList<Thread>();
-    for (int i = 0; i < threadNum; i++) {
+    for (int i = 0; i < threadCount; i++) {
       SessionImpl sess = (SessionImpl) repository.login(credentials, "ws");
       Thread t = new NodeWorker("thread" + i, sess);
       t.start();
@@ -105,7 +106,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     }
 
     // stop the work
-    for (int i = 0; i < threadNum; i++) {
+    for (int i = 0; i < threadCount; i++) {
       threads.get(i).join();
     }
 
@@ -216,7 +217,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
   private void checkLocalStorage(LocalStorageImpl storage) throws Exception {
 
-    final int size = 320;
+    final int size = (threadCount*(subnodesCount*3+2));
     Iterator<ItemState> it = storage.getLocalChanges().getChanges();
 
     // store it as array
