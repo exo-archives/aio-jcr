@@ -390,7 +390,7 @@
     </init-params>
   </component>
   
-  <!-- component>
+  <component>
     <type>org.exoplatform.services.jcr.ext.replication.async.AsyncReplication</type>
     <init-params>
       <values-param>
@@ -408,7 +408,7 @@
         <property name="wait-all-members" value="10"/>
       </properties-param>
     </init-params>
-  </component -->
+  </component>
   
   <component>
     <key>org.exoplatform.services.organization.OrganizationService</key>

@@ -33,6 +33,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
@@ -107,6 +108,8 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     dataManager.removeItemPersistenceListener(storage);
     storage.onStart(null);
     
+    assertEquals(0, storage.getErrors().length);
+    
     List<TransactionChangesLog> logs = pl.pushChanges();
     
     Iterator<TransactionChangesLog> it  = logs.iterator();
@@ -127,6 +130,9 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
       checkIteratorSecond(tlog.getAllStates().iterator(), ch, false);
     }
     System.out.println(" FAILS -- " + fails);
+    
+    chechLocalStorage(storage);
+    
     it  = logs.iterator();
     ch = storage.getLocalChanges().getChanges();
     while(it.hasNext()){
@@ -192,4 +198,49 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
       
    }
   }
+  
+  private void chechLocalStorage(LocalStorageImpl storage) throws Exception{
+    
+    final int size = 320;
+    Iterator<ItemState> it = storage.getLocalChanges().getChanges();
+    
+    // store it as array
+    ItemState[] items = new ItemState[size];
+    int index =0;
+    while(it.hasNext()){
+      items[index++] = it.next();
+    }
+
+    int dirscount=0;
+    
+    for(int i = 0; i<size; i++){
+      ItemData state = items[i].getData();
+      
+      if (state.getParentIdentifier().equals(Constants.ROOT_UUID)){
+        // its a directory
+        
+        List<ItemState> subnodes = new ArrayList<ItemState>();
+        // find all subnodes
+        for(int j =i; j<size; j++){
+          if(items[j].getData().getParentIdentifier().equals(state.getIdentifier())){
+            subnodes.add(items[j]);
+          }
+        }
+        
+        // check size
+        assertEquals(10, subnodes.size());
+        
+        //check order
+        for(int j=0;j<10; j++){
+          String secondname = subnodes.get(j).getData().getQPath().getName().getName();
+          int ind = Integer.parseInt(secondname.substring(7)); 
+          assertEquals(j,ind);
+        }
+        dirscount++;
+      }
+    }
+    
+    assertEquals(10,dirscount);
+  }
+  
 }
