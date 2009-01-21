@@ -243,7 +243,7 @@ public class TransactionChangesLog implements CompositeChangesLog, Externalizabl
     if (in.readInt() == 1) {
       String DEFAULT_ENCODING = "UTF-8";
       byte[] buf = new byte[in.readInt()];
-      in.read(buf);
+      in.readFully(buf);
 
       systemId = new String(buf, DEFAULT_ENCODING);
     }

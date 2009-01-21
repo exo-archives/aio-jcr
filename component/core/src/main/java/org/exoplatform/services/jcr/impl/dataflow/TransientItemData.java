@@ -157,7 +157,7 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
 
     try {
       buf = new byte[in.readInt()];
-      in.read(buf);
+      in.readFully(buf);
       String sQPath = new String(buf, Constants.DEFAULT_ENCODING);
       qpath = QPath.parse(sQPath);
     } catch (IllegalPathException e) {
@@ -165,13 +165,13 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     }
 
     buf = new byte[in.readInt()];
-    in.read(buf);
+    in.readFully(buf);
     identifier = new String(buf, Constants.DEFAULT_ENCODING);
 
     int isNull = in.readInt();
     if (isNull == NOT_NULL_VALUE) { 
       buf = new byte[in.readInt()];
-      in.read(buf);
+      in.readFully(buf);
       parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING);
     }
 
