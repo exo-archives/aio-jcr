@@ -163,6 +163,7 @@ public class UpdateMerger implements ChangesMerger {
                                                                   node.getOrderNumber(),
                                                                   node.getParentIdentifier(),
                                                                   node.getACL());
+
                 resultState.add(new ItemState(newNode,
                                               item.getState(),
                                               item.isEventFire(),
@@ -355,10 +356,18 @@ public class UpdateMerger implements ChangesMerger {
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
                 if (item.getState() == ItemState.RENAMED) { // generate delete state for new place
+
+                  // delete lock properties if present
+                  if (item.getData().isNode()) {
+                    for (ItemState inSt : generateDeleleLockProperties((NodeData) item.getData()))
+                      resultState.add(inSt);
+                  }
+
                   resultState.add(new ItemState(item.getData(),
                                                 ItemState.DELETED,
                                                 item.isEventFire(),
                                                 item.getData().getQPath()));
+
                 } else if (item.getState() == ItemState.DELETED) { // generate add state for old
                   if (item.getData().isNode()) {
                     resultState.add(new ItemState(item.getData(),
@@ -384,6 +393,7 @@ public class UpdateMerger implements ChangesMerger {
               }
               resultState.add(incomeState);
               return resultState;
+
             } else if ((localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
                                                                                     localData.getIdentifier()) != null)
                 || (!localData.isNode() && income.getNextItemStateByUUIDOnUpdate(incomeState,
@@ -394,10 +404,18 @@ public class UpdateMerger implements ChangesMerger {
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
                 if (item.getState() == ItemState.RENAMED) { // generate delete state for new place
+
+                  // delete lock properties if present
+                  if (item.getData().isNode()) {
+                    for (ItemState inSt : generateDeleleLockProperties((NodeData) item.getData()))
+                      resultState.add(inSt);
+                  }
+
                   resultState.add(new ItemState(item.getData(),
                                                 ItemState.DELETED,
                                                 item.isEventFire(),
                                                 item.getData().getQPath()));
+
                 } else if (item.getState() == ItemState.DELETED) { // generate add state for old
                   // place
                   if (item.getData().isNode()) {

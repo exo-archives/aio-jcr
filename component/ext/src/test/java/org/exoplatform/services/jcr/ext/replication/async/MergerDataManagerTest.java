@@ -453,8 +453,6 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     res3 = mergerLow.merge(membersChanges.iterator());
     res4 = mergerHigh.merge(membersChanges.iterator());
-    // log.info(res3.dump());
-    // log.info(res4.dump());
 
     saveResultedChanges(res3, "ws3");
     saveResultedChanges(res4, "ws4");
