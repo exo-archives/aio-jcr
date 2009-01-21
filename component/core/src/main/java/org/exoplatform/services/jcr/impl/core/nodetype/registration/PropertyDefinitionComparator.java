@@ -51,7 +51,8 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class PropertyDefinitionComparator extends AbstractDefinitionComparator<PropertyDefinitionData> {
+public class PropertyDefinitionComparator extends
+                                         AbstractDefinitionComparator<PropertyDefinitionData> {
   /**
    * Class logger.
    */
@@ -92,7 +93,7 @@ public class PropertyDefinitionComparator extends AbstractDefinitionComparator<P
 
     // DataManager dm = persister.getDataManager();
     // removing properties
-    validateRemoved(registeredNodeType, removedDefinitionData);
+    validateRemoved(registeredNodeType, removedDefinitionData, recipientDefinition);
 
     // new property definition
     validateAdded(registeredNodeType, newDefinitionData, recipientDefinition);
@@ -487,11 +488,13 @@ public class PropertyDefinitionComparator extends AbstractDefinitionComparator<P
 
   /**
    * @param registeredNodeType
+   * @param recipientDefinition
    * @param toRemoveList
    * @throws RepositoryException
    */
   private void validateRemoved(NodeTypeData registeredNodeType,
-                               List<PropertyDefinitionData> removedDefinitionData) throws RepositoryException {
+                               List<PropertyDefinitionData> removedDefinitionData,
+                               PropertyDefinitionData[] recipientDefinition) throws RepositoryException {
     for (PropertyDefinitionData removePropertyDefinitionData : removedDefinitionData) {
       Set<String> nodes;
       if (removePropertyDefinitionData.getName().equals(Constants.JCR_ANY_NAME)) {
@@ -502,8 +505,7 @@ public class PropertyDefinitionComparator extends AbstractDefinitionComparator<P
           // more then mixin and primary type
           // TODO it could be possible, check add definitions
           for (PropertyData propertyData : childs) {
-            if (!propertyData.getQPath().getName().equals(Constants.JCR_PRIMARYTYPE)
-                && !propertyData.getQPath().getName().equals(Constants.JCR_MIXINTYPES)) {
+            if (!isNonResidualMatch(propertyData.getQPath().getName(), recipientDefinition)) {
               throw new ConstraintViolationException("Can't remove residual property definition for "
                   + registeredNodeType.getName().getAsString()
                   + " node type, because node "
@@ -513,7 +515,7 @@ public class PropertyDefinitionComparator extends AbstractDefinitionComparator<P
             }
           }
         }
-      } else {
+      } else if (!isResidualMatch(removePropertyDefinitionData.getName(), recipientDefinition)) {
         // TODO more complex exception
         nodes = nodeTypeDataManager.getNodes(registeredNodeType.getName(),
                                              new InternalQName[] { removePropertyDefinitionData.getName() },

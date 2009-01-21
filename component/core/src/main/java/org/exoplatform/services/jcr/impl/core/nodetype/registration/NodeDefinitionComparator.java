@@ -446,14 +446,16 @@ public class NodeDefinitionComparator extends AbstractDefinitionComparator<NodeD
           // more then mixin and primary type
           // TODO it could be possible, check add definitions
           if (childs.size() > 0) {
-            String msg = "Can't remove node definition "
-                + removeNodeDefinitionData.getName().getAsString() + "  for "
-                + registeredNodeType.getName().getAsString() + " node type because node "
-                + nodeData.getQPath().getAsString() + " " + " countains child nodes with name :";
-            for (NodeData childsData : childs) {
-              msg += childsData.getQPath().getName().getAsString() + " ";
+            for (NodeData nodeData2 : childs) {
+              if (!isNonResidualMatch(nodeData2.getQPath().getName(), recipientDefinition)) {
+                String msg = "Can't remove node definition "
+                    + removeNodeDefinitionData.getName().getAsString() + "  for "
+                    + registeredNodeType.getName().getAsString() + " node type because node "
+                    + nodeData.getQPath().getAsString() + " " + " countains child nodes with name "
+                    + nodeData2.getQPath().getName().getAsString();
+                throw new ConstraintViolationException(msg);
+              }
             }
-            throw new ConstraintViolationException(msg);
           }
         }
       } else {

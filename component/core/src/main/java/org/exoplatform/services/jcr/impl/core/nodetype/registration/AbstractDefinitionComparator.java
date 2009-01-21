@@ -126,4 +126,13 @@ public abstract class AbstractDefinitionComparator<T extends ItemDefinitionData>
     }
     return containsResidual;
   }
+
+  protected boolean isNonResidualMatch(InternalQName itemName, T[] recipientDefinition) {
+    boolean isMatch = false;
+    for (int i = 0; i < recipientDefinition.length; i++) {
+      if (itemName.equals(recipientDefinition[i].getName()))
+        return true;
+    }
+    return isMatch;
+  }
 }

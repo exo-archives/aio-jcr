@@ -295,11 +295,11 @@ public class TestNodeTypeRegistration extends JcrImplBaseTest {
     testNTValue.setDeclaredSupertypeNames(superType);
 
     nodeTypeManager.registerNodeType(testNTValue, ExtendedNodeTypeManager.FAIL_IF_EXISTS);
-    testNTValue = nodeTypeManager.getNodeTypeValue(testNTValue.getName());
 
     Node testNode = root.addNode("testNode", testNTValue.getName());
     session.save();
 
+    testNTValue = nodeTypeManager.getNodeTypeValue(testNTValue.getName());
     List<PropertyDefinitionValue> props = new ArrayList<PropertyDefinitionValue>();
     props.add(new PropertyDefinitionValue("tt",
                                           true,
