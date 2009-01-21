@@ -32,5 +32,6 @@ public class AddChildTest extends AbstractGroupTest {
   @Override
   public void doRun(TestCase tc, JCRTestContext context) throws Exception {
     gHandler.addChild(null, nextGroup(), false);
+
   }
 }
