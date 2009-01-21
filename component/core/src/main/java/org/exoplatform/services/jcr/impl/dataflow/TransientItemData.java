@@ -35,6 +35,10 @@ import org.exoplatform.services.jcr.impl.Constants;
  * @version $Id: TransientItemData.java 11907 2008-03-13 15:36:21Z ksm $
  */
 public abstract class TransientItemData implements MutableItemData, Externalizable {
+  
+  private int NULL_VALUE = -1;
+  
+  private int NOT_NULL_VALUE = 1;
 
   protected QPath  qpath;
 
@@ -138,8 +142,12 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     out.writeInt(identifier.getBytes().length);
     out.write(identifier.getBytes());
 
-    out.writeInt(parentIdentifier.getBytes().length);
-    out.write(parentIdentifier.getBytes());
+    if (parentIdentifier != null ) {
+      out.writeInt(NOT_NULL_VALUE);  
+      out.writeInt(parentIdentifier.getBytes().length);
+      out.write(parentIdentifier.getBytes());
+    } else 
+      out.writeInt(NULL_VALUE);
 
     out.writeInt(persistedVersion);
   }
@@ -160,9 +168,12 @@ public abstract class TransientItemData implements MutableItemData, Externalizab
     in.read(buf);
     identifier = new String(buf, Constants.DEFAULT_ENCODING);
 
-    buf = new byte[in.readInt()];
-    in.read(buf);
-    parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING);
+    int isNull = in.readInt();
+    if (isNull == NOT_NULL_VALUE) { 
+      buf = new byte[in.readInt()];
+      in.read(buf);
+      parentIdentifier = new String(buf, Constants.DEFAULT_ENCODING);
+    }
 
     persistedVersion = in.readInt();
   }
