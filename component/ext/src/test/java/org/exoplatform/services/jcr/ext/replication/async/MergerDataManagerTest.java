@@ -3099,6 +3099,44 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   }
 
   /**
+   * 2. node is mix:locable on low priority remove node on high priority
+   */
+  public void testLock2() throws Exception {
+    // low priority changes: add same name items
+    Node node1 = root3.addNode("item1");
+    node1.addMixin("mix:lockable");
+
+    session3.save();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+    addChangesToChangesStorage(new TransactionChangesLog(), HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+
+    // high priority changes: remove node
+    root4.getNode("item1").remove();
+
+    membersChanges.clear();
+
+    addChangesToChangesStorage(new TransactionChangesLog(), LOW_PRIORITY);
+    session4.save();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    res3 = mergerLow.merge(membersChanges.iterator());
+    res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(isWorkspacesEquals());
+  }
+
+  /**
    * CompareWorkspaces.
    */
   protected boolean isWorkspacesEquals() throws Exception {

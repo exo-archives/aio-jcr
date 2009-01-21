@@ -460,6 +460,13 @@ public class DeleteMerger implements ChangesMerger {
     return resultState;
   }
 
+  /**
+   * generateDeleleLockProperties.
+   * 
+   * @param node
+   * @return
+   * @throws RepositoryException
+   */
   private List<ItemState> generateDeleleLockProperties(NodeData node) throws RepositoryException {
     List<ItemState> result = new ArrayList<ItemState>();
 
@@ -468,10 +475,12 @@ public class DeleteMerger implements ChangesMerger {
                              node.getMixinTypeNames())) {
 
       ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
-      result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
 
       item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
-      result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
     }
 
     return result;
