@@ -25,6 +25,7 @@ import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 
 import org.exoplatform.services.jcr.JcrImplBaseTest;
 
@@ -33,7 +34,7 @@ import org.exoplatform.services.jcr.JcrImplBaseTest;
  * @version $Id: TestSessionCleaner.java 14508 2008-05-20 10:07:45Z ksm $
  */
 public class TestSessionCleaner extends JcrImplBaseTest {
-  private final static int  AGENT_COUNT          = 100;
+  private final static int  AGENT_COUNT          = 10;
 
   private SessionRegistry   sessionRegistry;
 
@@ -90,25 +91,25 @@ public class TestSessionCleaner extends JcrImplBaseTest {
 
   }
 
-  public void testSessionLoginLogoutSimultaneouslyMultiThread() throws InterruptedException {
+  public void testSessionLoginLogoutSimultaneouslyMultiThread() throws Exception {
     assertNotNull(sessionRegistry);
 
     class AgentLogin extends Thread {
 
-      SessionImpl workSession;
+      Random      random         = new Random();
 
-      int         sleepTime;
+      SessionImpl workSession;
 
       boolean     sessionStarted = false;
 
-      public AgentLogin(int sleepTime) {
-        this.sleepTime = sleepTime;
+      public AgentLogin() {
       }
 
       @Override
       public void run() {
         try {
-          Thread.sleep(sleepTime);
+          Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT - random.nextInt(200) + 200);
+
           workSession = (SessionImpl) repository.login(credentials, "ws");
           sessionStarted = true;
 
@@ -130,10 +131,8 @@ public class TestSessionCleaner extends JcrImplBaseTest {
       public void run() {
         try {
           while (!agentLogin.sessionStarted) {
-            Thread.sleep(1000);
+            Thread.sleep(50);
           }
-
-          Thread.sleep(SessionRegistry.DEFAULT_CLEANER_TIMEOUT / 2);
 
           if (agentLogin.workSession.isLive()) {
             agentLogin.workSession.logout();
@@ -146,21 +145,22 @@ public class TestSessionCleaner extends JcrImplBaseTest {
       }
     }
 
+    Session workSession = (SessionImpl) repository.login(credentials, "ws");
+    while (workSession.isLive()) {
+      Thread.sleep(100);
+    }
+
     // start
     List<Object> agents = new ArrayList<Object>();
 
-    int sleepTime = 0;
     for (int i = 0; i < AGENT_COUNT; i++) {
-      AgentLogin agentLogin = new AgentLogin(sleepTime);
+      AgentLogin agentLogin = new AgentLogin();
       agents.add(agentLogin);
       agentLogin.start();
 
       AgentLogout agentLogout = new AgentLogout(agentLogin);
       agents.add(agentLogout);
       agentLogout.start();
-
-      sleepTime = SessionRegistry.DEFAULT_CLEANER_TIMEOUT / 10
-          + (sleepTime >= 2 * SessionRegistry.DEFAULT_CLEANER_TIMEOUT ? 0 : sleepTime);
     }
 
     // wait to stop all threads
@@ -174,7 +174,7 @@ public class TestSessionCleaner extends JcrImplBaseTest {
           break;
         }
       }
-      Thread.sleep(100);
+      Thread.sleep(1000);
     }
 
     assertFalse(sessionRegistry.isInUse("ws"));
