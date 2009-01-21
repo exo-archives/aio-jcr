@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,14 +28,17 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
 /**
@@ -181,10 +185,18 @@ public class MixinMerger implements ChangesMerger {
                     item = renameSequence.get(j);
                     if (item.getState() == ItemState.RENAMED) { // generate delete state for new
                       // place
+
+                      // delete lock properties if present
+                      if (item.getData().isNode()) {
+                        for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
+                          resultState.add(st);
+                      }
+
                       resultState.add(new ItemState(item.getData(),
                                                     ItemState.DELETED,
                                                     item.isEventFire(),
                                                     item.getData().getQPath()));
+
                     } else if (item.getState() == ItemState.DELETED) { // generate add state for old
                       // place
                       if (item.getData().isNode()) {
@@ -211,9 +223,17 @@ public class MixinMerger implements ChangesMerger {
                     }
                   }
 
-                  // apply income rename
-                  for (ItemState st : income.getMixinSequence(incomeState))
+                  // apply income mixin changes
+                  for (ItemState st : income.getMixinSequence(incomeState)) {
+
+                    // delete lock properties if present
+                    if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                      for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                        resultState.add(inSt);
+                    }
+
                     resultState.add(st);
+                  }
 
                   return resultState;
                 }
@@ -244,10 +264,18 @@ public class MixinMerger implements ChangesMerger {
           break;
         case ItemState.MIXIN_CHANGED:
           if (incomeData.getQPath().equals(localData.getQPath())) {
+
             // delete local mixin changes
             List<ItemState> localMixinSeq = local.getMixinSequence(localState);
             for (int i = localMixinSeq.size() - 1; i >= 0; i--) {
               ItemState item = localMixinSeq.get(i);
+
+              // delete lock properties if present
+              if (item.getData().isNode() && item.getState() == ItemState.DELETED) {
+                for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
+                  resultState.add(st);
+              }
+
               resultState.add(new ItemState(item.getData(),
                                             ItemState.DELETED,
                                             item.isEventFire(),
@@ -255,8 +283,16 @@ public class MixinMerger implements ChangesMerger {
             }
 
             // apply income rename
-            for (ItemState st : income.getMixinSequence(incomeState))
+            for (ItemState st : income.getMixinSequence(incomeState)) {
+
+              // delete lock properties if present
+              if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                  resultState.add(inSt);
+              }
+
               resultState.add(st);
+            }
           }
           break;
         }
@@ -265,10 +301,45 @@ public class MixinMerger implements ChangesMerger {
 
     // apply income changes if not processed
     if (!itemChangeProcessed) {
-      for (ItemState st : income.getMixinSequence(incomeState))
+      for (ItemState st : income.getMixinSequence(incomeState)) {
+
+        // delete lock properties if present
+        if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+          for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+            resultState.add(inSt);
+        }
+
         resultState.add(st);
+      }
     }
 
     return resultState;
   }
+
+  /**
+   * generateDeleleLockProperties.
+   * 
+   * @param node
+   * @return
+   * @throws RepositoryException
+   */
+  private List<ItemState> generateDeleleLockProperties(NodeData node) throws RepositoryException {
+    List<ItemState> result = new ArrayList<ItemState>();
+
+    if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
+                             node.getPrimaryTypeName(),
+                             node.getMixinTypeNames())) {
+
+      ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+
+      item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+    }
+
+    return result;
+  }
+
 }

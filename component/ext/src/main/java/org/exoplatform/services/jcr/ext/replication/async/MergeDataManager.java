@@ -186,6 +186,8 @@ public class MergeDataManager {
             }
           }
 
+          // TODO for move locked node need to move LOCKISDEEP and LOCKOWNER properties
+
           switch (incomeChange.getState()) {
           case ItemState.ADDED:
             synchronizedChanges.addAll(addMerger.merge(incomeChange,

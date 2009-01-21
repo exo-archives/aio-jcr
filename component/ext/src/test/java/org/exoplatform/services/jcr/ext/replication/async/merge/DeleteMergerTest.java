@@ -1878,8 +1878,8 @@ public class DeleteMergerTest extends BaseMergerTest {
 
     DeleteMerger deleteMerger = new DeleteMerger(false,
                                                  new TesterRemoteExporter(exportLog),
-                                                 null,
-                                                 null);
+                                                 dataManager,
+                                                 ntManager);
     ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem1Delete,
                                                           income,
                                                           local,

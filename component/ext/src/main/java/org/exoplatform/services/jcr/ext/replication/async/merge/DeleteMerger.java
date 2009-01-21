@@ -177,6 +177,11 @@ public class DeleteMerger implements ChangesMerger {
                                             new QPath(names),
                                             incomeState.isInternallyCreated(),
                                             incomeState.isPersisted());
+
+                // delete lock properties if present
+                for (ItemState st : generateDeleleLockProperties((NodeData) incomeState.getData()))
+                  resultState.add(st);
+
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -269,6 +274,14 @@ public class DeleteMerger implements ChangesMerger {
                                                                 true);
             for (int i = items.size() - 1; i >= 0; i--) {
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+
+                // delete lock properties if present
+                if (items.get(i).getData().isNode()) {
+                  for (ItemState st : generateDeleleLockProperties((NodeData) items.get(i)
+                                                                                   .getData()))
+                    resultState.add(st);
+                }
+
                 resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
                                               items.get(i).isEventFire(),
@@ -277,8 +290,16 @@ public class DeleteMerger implements ChangesMerger {
             }
 
             // apply income changes for all subtree
-            for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
+            for (ItemState st : income.getChanges(incomeState, incomeData.getQPath())) {
+
+              // delete lock properties if present
+              if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                  resultState.add(inSt);
+              }
+
               resultState.add(st);
+            }
 
             return resultState;
           } else if (!incomeData.isNode()
@@ -295,6 +316,14 @@ public class DeleteMerger implements ChangesMerger {
                                                                 true);
             for (int i = items.size() - 1; i >= 0; i--) {
               if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+
+                // delete lock properties if present
+                if (items.get(i).getData().isNode()) {
+                  for (ItemState st : generateDeleleLockProperties((NodeData) items.get(i)
+                                                                                   .getData()))
+                    resultState.add(st);
+                }
+
                 resultState.add(new ItemState(items.get(i).getData(),
                                               ItemState.DELETED,
                                               items.get(i).isEventFire(),
@@ -303,8 +332,16 @@ public class DeleteMerger implements ChangesMerger {
             }
 
             // apply income changes for all subtree
-            for (ItemState st : income.getChanges(incomeState, incomeData.getQPath()))
+            for (ItemState st : income.getChanges(incomeState, incomeData.getQPath())) {
+
+              // delete lock properties if present
+              if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                  resultState.add(inSt);
+              }
+
               resultState.add(st);
+            }
 
             return resultState;
           }
@@ -358,6 +395,11 @@ public class DeleteMerger implements ChangesMerger {
                                             new QPath(names),
                                             incomeState.isInternallyCreated(),
                                             incomeState.isPersisted());
+
+                // delete lock properties if present
+                for (ItemState st : generateDeleleLockProperties((NodeData) incomeState.getData()))
+                  resultState.add(st);
+
                 resultState.add(incomeState);
               } else {
                 PropertyData prop = (PropertyData) incomeData;
@@ -385,6 +427,13 @@ public class DeleteMerger implements ChangesMerger {
           // RENAMED sequences
           if (nextState != null && nextState.getState() == ItemState.RENAMED) {
             if (incomeData.getQPath().equals(localData.getQPath())) {
+
+              // delete lock properties if present
+              if (nextState.getData().isNode()) {
+                for (ItemState st : generateDeleleLockProperties((NodeData) nextState.getData()))
+                  resultState.add(st);
+              }
+
               resultState.add(new ItemState(nextState.getData(),
                                             ItemState.DELETED,
                                             nextState.isEventFire(),
@@ -397,6 +446,13 @@ public class DeleteMerger implements ChangesMerger {
                                         incomeState.getData().getParentIdentifier(),
                                         incomeState.getData().getQPath().makeParentPath(),
                                         ItemState.DELETED) == null) {
+
+              // delete lock properties if present
+              if (nextState.getData().isNode()) {
+                for (ItemState st : generateDeleleLockProperties((NodeData) nextState.getData()))
+                  resultState.add(st);
+              }
+
               resultState.add(new ItemState(nextState.getData(),
                                             ItemState.DELETED,
                                             nextState.isEventFire(),
@@ -431,10 +487,18 @@ public class DeleteMerger implements ChangesMerger {
         case ItemState.MIXIN_CHANGED:
           if (incomeData.isNode()) {
             if (localData.getQPath().equals(incomeData.getQPath())) {
+
               // delete local mixin changes
               List<ItemState> localMixinSeq = local.getMixinSequence(localState);
               for (int i = localMixinSeq.size() - 1; i >= 0; i--) {
                 ItemState item = localMixinSeq.get(i);
+
+                // delete lock properties if present
+                if (item.getData().isNode()) {
+                  for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
+                    resultState.add(st);
+                }
+
                 resultState.add(new ItemState(item.getData(),
                                               ItemState.DELETED,
                                               item.isEventFire(),
@@ -449,6 +513,8 @@ public class DeleteMerger implements ChangesMerger {
 
     // apply income changes if not processed
     if (!itemChangeProcessed) {
+
+      // delete lock properties if present
       if (incomeState.getData().isNode()) {
         for (ItemState st : generateDeleleLockProperties((NodeData) incomeState.getData()))
           resultState.add(st);
