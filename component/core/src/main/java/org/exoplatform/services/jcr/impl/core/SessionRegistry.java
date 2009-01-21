@@ -64,13 +64,15 @@ public final class SessionRegistry implements Startable {
 
   public boolean isInUse(String workspaceName) {
     if (workspaceName == null) {
-      log.info("Session in use " + sessionsMap.size());
+      if (log.isDebugEnabled())
+        log.debug("Session in use " + sessionsMap.size());
       return sessionsMap.size() > 0;
     }
     for (SessionImpl session : sessionsMap.values()) {
       if (session.getWorkspace().getName().equals(workspaceName)) {
-        log.info("Session for workspace " + workspaceName + " in use." + " Session id:"
-            + session.getId() + " user: " + session.getUserID());
+        if (log.isDebugEnabled())
+          log.debug("Session for workspace " + workspaceName + " in use." + " Session id:"
+              + session.getId() + " user: " + session.getUserID());
         return true;
       }
     }
