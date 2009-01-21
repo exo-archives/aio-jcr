@@ -44,7 +44,7 @@ import org.exoplatform.services.jcr.impl.core.SessionImpl;
  */
 public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
-  final int subnodes_count = 10;
+  final int subnodesCount = 10;
   
   public class NodeWorker extends Thread {
 
@@ -66,7 +66,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         root.save();
 
         // add node
-        for (int i = 0; i < subnodes_count; i++) {
+        for (int i = 0; i < subnodesCount; i++) {
           Node sn = n.addNode("subnode" + i);
           sn.setProperty("prop" + i, "blahblah");
           System.out.println(threadName + " " + sn.getName() + " ADDED");
@@ -243,10 +243,10 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
         }
 
         // check size (+1 primary type)
-        assertEquals(subnodes_count+1, subnodes.size());
+        assertEquals(subnodesCount+1, subnodes.size());
         
         //check order
-        for(int j=1;j<(subnodes_count+1); j++){
+        for(int j=1;j<(subnodesCount+1); j++){
           String secondname = subnodes.get(j).getData().getQPath().getName().getName();
           int ind = Integer.parseInt(secondname.substring(7)); 
           assertEquals(j-1,ind);

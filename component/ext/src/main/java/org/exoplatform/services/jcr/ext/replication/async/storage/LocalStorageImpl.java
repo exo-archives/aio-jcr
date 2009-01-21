@@ -156,8 +156,14 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     if (!(itemStates instanceof SynchronizerChangesLog)) {
       try {
-        ChangesFile file = createChangesFile();
-        System.out.println(file.getTimeStamp() + " created ");
+        
+        //TODO remove read all directories in each operation
+        String[] dirs = getSubStorageNames(storagePath);
+
+        File lastDir = new File(storagePath, dirs[dirs.length - 1]);
+
+        ChangesFile file = new ChangesFile("", index++, lastDir.getAbsolutePath());
+        System.out.println(file.getPath() + " created ");
          
         ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
 
@@ -167,28 +173,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         out.close();
         file.finishWrite();
         
-        System.out.println(file.getTimeStamp() + " finished write");
+        System.out.println(file.getPath() + " finished write");
       } catch (IOException e) {
         LOG.error("On save items error " + e, e);
         this.reportException(e);
       }
     }
-  }
-
-  /**
-   * Creates ChangesFile in storage directory.
-   * 
-   * @return ChangesFile object
-   * @throws IOException
-   */
-  private ChangesFile createChangesFile() throws IOException {
-
-    String[] dirs = getSubStorageNames(storagePath);
-
-    File lastDir = new File(storagePath, dirs[dirs.length - 1]);
-
-    return new ChangesFile("", index++, lastDir.getAbsolutePath());
-
   }
 
   private String[] getSubStorageNames(String rootPath) {

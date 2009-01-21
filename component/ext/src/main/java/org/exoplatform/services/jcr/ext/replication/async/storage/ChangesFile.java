@@ -219,40 +219,11 @@ public class ChangesFile {
     File dest = new File(dir, Long.toString(getTimeStamp()));
     return file.renameTo(dest);
   }
-  
- /* public static FilenameFilter getFilenameFilter(){
-    
-    return new FilenameFilter(){
-      private final static String FILENAME_REGEX = "[0-9]+"; 
-      private final Pattern PATTERN = Pattern.compile(FILENAME_REGEX);
-      
-      public boolean accept(File dir, String name) {
-        Matcher m = PATTERN.matcher(name);
-        if(!m.matches()) return false;
-        File file = new File(dir, name);
-        return !file.isDirectory();
-      }
-    };
-  }*/
-  
- /* public static Comparator<String> getFilenameComparator(){
-    
-    return  new Comparator<String>(){
 
-      public int compare(String o1, String o2) {
-        
-        long first =Long.parseLong(o1);
-        long second =Long.parseLong(o2);
-        if(first<second){
-         return -1; 
-        }else if(first==second){
-         return 0; 
-        }else{
-         return 1; 
-        }  
-      }
-    };
+  public String getPath() {
+    
+    return file.getAbsolutePath();
+    
   }
-  */
-  
+
 }
