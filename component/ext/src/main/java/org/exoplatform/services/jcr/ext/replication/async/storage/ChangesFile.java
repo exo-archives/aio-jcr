@@ -18,14 +18,10 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.util.Comparator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by The eXo Platform SAS. <br/>Date: 19.12.2008
@@ -83,7 +79,6 @@ public class ChangesFile {
     // create file in directory
     File dir = new File(directory);
     file = new File(dir, Long.toString(this.timeStamp));
-    file.createNewFile();
   }
 
   /**
@@ -215,10 +210,11 @@ public class ChangesFile {
     return file.delete();
   }
 
+  /*
   public boolean moveTo(File dir) throws IOException {
     File dest = new File(dir, Long.toString(getTimeStamp()));
     return file.renameTo(dest);
-  }
+  }*/
 
   public String getPath() {
     

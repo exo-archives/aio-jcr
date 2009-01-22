@@ -37,7 +37,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   protected final File         storagePath;
 
   /**
-   *  Output Stream opened on current ChangesFile.
+   * Output Stream opened on current ChangesFile.
    */
   protected ObjectOutputStream stream;
 
@@ -45,11 +45,11 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * Current ChangesFile to store changes.
    */
   protected ChangesFile        currentFile;
-  
+
   /**
    * Index used as unique name for ChangesFiles. Incremented each time.
    */
-  private static volatile long index = 0;
+  private static Long          index = new Long(0);
 
   /**
    * Class constructor.
@@ -83,7 +83,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
       currentFile = createChangesFile();
       this.storage.add(currentFile);
     }
-    if(stream == null){
+    if (stream == null) {
       stream = new ObjectOutputStream(currentFile.getOutputStream());
     }
   }
@@ -106,15 +106,26 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * @throws IOException
    */
   private ChangesFile createChangesFile() throws IOException {
-    long timestamp = System.currentTimeMillis();
-    File file = new File(storagePath, Long.toString(index++));
-    
-    if (file.exists()){
+    long timestamp = 0;
+    synchronized (index) {
+      timestamp = getNextFileId();
+    }
+    File file = new File(storagePath, Long.toString(timestamp));
+
+    if (file.exists()) {
       throw new IOException("File already exists");
     }
-    
-    
+
     String crc = ""; // crc is ignored
     return new ChangesFile(file, crc, timestamp);
   }
+
+  private long getNextFileId() {
+    long fileId = 0;
+    synchronized (index) {
+      fileId = index++;
+    }
+    return fileId;
+  }
+
 }
