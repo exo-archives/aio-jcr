@@ -128,6 +128,9 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       } catch (ChangesLogReadException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+      } catch (Throwable t) {
+        workerLog.error("Merge error " + t, t);
+        doCancel();
       }
 
       if (doneList.size() == membersCount) {
