@@ -118,9 +118,6 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(orderNumber);
 
-    // TODO maxBufferSize ?
-    // out.writeInt(maxBufferSize);
-
     // write data
     if (this.isByteArray()) {
       long f = data.length;
@@ -135,7 +132,14 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
       while ((l = in.read(buf)) != -1) {
         out.write(buf, 0, l);
       }
+      in.close();
     }
+    
+    //TODO ReplicableValueData must not be used after serialization.
+    if(spoolFile!=null && spoolFile.exists()){
+      spoolFile.delete();
+    }
+    
   }
 
   /**
@@ -143,15 +147,12 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     this.orderNumber = in.readInt();
-    // TODO maxBufferSize ?
-    // this.maxBufferSize = in.readInt();
 
     long length = in.readLong();
 
     if (length > DEF_MAX_BUF_SIZE) {
       // store data as file
 
-      // TODO where store spool file
       SpoolFile sf = new SpoolFile(File.createTempFile("repValDat", null).getAbsolutePath());
       FileOutputStream sfout = new FileOutputStream(sf);
 
