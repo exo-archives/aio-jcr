@@ -161,7 +161,12 @@ public class MergeDataManager {
                                                      dataManager,
                                                      ntManager);
         MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
-
+        /*
+                log.info("\nlocal:");
+                log.info(local.dump());
+                log.info("\nincome:");
+                log.info(income.dump());
+        */
         outer: for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
 
@@ -205,8 +210,8 @@ public class MergeDataManager {
                                                             skippedList));
             } else {
               ItemState nextIncomeChange = income.findNextState(incomeChange,
-                                                                    incomeChange.getData()
-                                                                                .getIdentifier());
+                                                                incomeChange.getData()
+                                                                            .getIdentifier());
 
               // RENAME
               if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {

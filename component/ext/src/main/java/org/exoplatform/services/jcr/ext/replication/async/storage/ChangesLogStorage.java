@@ -467,8 +467,8 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * @return
    */
   private ItemState findNextStateFromLog(TransactionChangesLog log,
-                                             ItemState fromState,
-                                             String identifier) {
+                                         ItemState fromState,
+                                         String identifier) {
     List<ItemState> allStates = log.getAllStates();
     for (int i = 0; i < allStates.size(); i++) {
       if (allStates.get(i).isSame(fromState)) {
@@ -557,14 +557,17 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
                                          int state) {
     List<ItemState> allStates = log.getAllStates();
 
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState item = allStates.get(i);
-      if (item.isSame(fromState)) {
-        return null;
-      } else if (ItemState.isSame(item, identifier, path, state)) {
-        return item;
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).isSame(fromState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (ItemState.isSame(item, identifier, path, state)) {
+            return item;
+          }
+        }
       }
     }
+
     return null;
   }
 
@@ -583,15 +586,18 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
                                          QPath path) {
     List<ItemState> allStates = log.getAllStates();
 
-    for (int i = allStates.size() - 1; i >= 0; i--) {
-      ItemState item = allStates.get(i);
-      if (item.isSame(fromState)) {
-        return null;
-      } else if (item.getData().getIdentifier().equals(identifier)
-          && item.getData().getQPath().equals(path)) {
-        return item;
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).isSame(fromState)) {
+        for (int j = i + 1; j < allStates.size(); j++) {
+          ItemState item = allStates.get(j);
+          if (item.getData().getIdentifier().equals(identifier)
+              && item.getData().getQPath().equals(path)) {
+            return item;
+          }
+        }
       }
     }
+
     return null;
   }
 

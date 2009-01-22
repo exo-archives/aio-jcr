@@ -174,6 +174,42 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * 
    * 5. After synchronization ends check if files exist, if content of files same as original.
    */
+  public void testCompexUsecase1() throws Exception {
+
+    fail("check");
+
+    ComplexUseCase1 complexUseCase1 = new ComplexUseCase1(session3, session4);
+
+    // low
+    complexUseCase1.useCaseLowPriority();
+    addChangesToChangesStorage(cLog, LOW_PRIORITY);
+
+    // high
+    complexUseCase1.useCaseHighPriority();
+    addChangesToChangesStorage(cLog, HIGH_PRIORITY);
+
+    ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
+    ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
+
+    saveResultedChanges(res3, "ws3");
+    saveResultedChanges(res4, "ws4");
+
+    assertTrue(complexUseCase1.checkEquals());
+  }
+
+  /**
+   * Demo usecase 1 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Add text file /fileA.txt on server 1
+   * 
+   * 2. Add text file /fileB.txt on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   * 
+   * 5. After synchronization ends check if files exist, if content of files same as original.
+   */
   public void testDemoUsecase1() throws Exception {
     UseCase1 demoUseCase1 = new UseCase1(session3, session4);
 

@@ -22,6 +22,7 @@ import javax.jcr.PropertyIterator;
 import javax.jcr.Value;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.impl.core.PropertyImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -54,12 +55,53 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     }
 
     public abstract void initDataLowPriority() throws Exception;
-    
+
     public abstract void initDataHighPriority() throws Exception;
 
     public abstract void useCaseLowPriority() throws Exception;
-    
+
     public abstract void useCaseHighPriority() throws Exception;
+  }
+
+  /**
+   * Complex UseCase1 1 (server 1 - high priority, server 2 -low priority)
+   * 
+   * 1. Add node1, rename node to node2 on server 1
+   * 
+   * 2. Add node1, rename node to node2 on server 2
+   * 
+   * 3. Initialize synchronization on server 1
+   * 
+   * 4. Initialize synchronization on server 2
+   */
+  public class ComplexUseCase1 extends BaseMergeUseCase {
+    public ComplexUseCase1(SessionImpl sessionLowPriority, SessionImpl sessionHighPriority) {
+      super(sessionLowPriority, sessionHighPriority);
+    }
+
+    @Override
+    public void initDataHighPriority() throws Exception {
+    }
+
+    @Override
+    public void initDataLowPriority() throws Exception {
+    }
+
+    @Override
+    public void useCaseHighPriority() throws Exception {
+      Node node = sessionHighPriority.getRootNode().addNode("item1");
+      node.addNode("mix:referenceable");
+      sessionHighPriority.move("/item1", "/item2");
+      sessionHighPriority.save();
+    }
+
+    @Override
+    public void useCaseLowPriority() throws Exception {
+      Node node = sessionLowPriority.getRootNode().addNode("item1");
+      node.addNode("mix:referenceable");
+      sessionLowPriority.move("/item1", "/item2");
+      sessionLowPriority.save();
+    }
   }
 
   /**
@@ -102,7 +144,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 2 (server 1 - high priority, server 2 -low priority)
    * 
@@ -130,7 +172,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void initDataLowPriority() throws Exception {
-      
+
     }
 
     @Override
@@ -145,7 +187,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 3 (server 1 - high priority, server 2 -low priority)
    * 
@@ -190,7 +232,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 4 (server 1 - high priority, server 2 -low priority)
    * 
@@ -234,7 +276,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 5 (server 1 - high priority, server 2 -low priority)
    * 
@@ -279,7 +321,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 8 (server 1 - high priority, server 2 -low priority)
    * 
@@ -324,7 +366,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 9 (server 1 - high priority, server 2 -low priority)
    * 
@@ -369,7 +411,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 12 (server 1 - high priority, server 2 -low priority)
    * 
@@ -410,7 +452,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     public void useCaseLowPriority() throws Exception {
     }
   }
-  
+
   /**
    * Demo usecase 13 (server 1 - high priority, server 2 -low priority)
    * 
@@ -451,7 +493,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 14 (server 1 - high priority, server 2 -low priority)
    * 
@@ -496,7 +538,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 15 (server 1 - high priority, server 2 -low priority)
    * 
@@ -540,7 +582,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 16 (server 1 - high priority, server 2 -low priority)
    * 
@@ -574,7 +616,8 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
 
     @Override
     public void useCaseHighPriority() throws Exception {
-      sessionHighPriority.getRootNode().getNode("item1").setProperty("fileA", "dataLow");;
+      sessionHighPriority.getRootNode().getNode("item1").setProperty("fileA", "dataLow");
+      ;
       sessionHighPriority.save();
     }
 
@@ -584,7 +627,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 17 (server 1 - high priority, server 2 -low priority)
    * 
@@ -629,7 +672,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Demo usecase 18 (server 1 - high priority, server 2 -low priority)
    * 
@@ -674,7 +717,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
       sessionLowPriority.save();
     }
   }
-  
+
   /**
    * Compare two nodes.
    * 
