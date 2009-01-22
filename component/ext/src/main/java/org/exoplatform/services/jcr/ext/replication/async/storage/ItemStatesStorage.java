@@ -244,8 +244,8 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * {@inheritDoc}
    */
   public T findNextState(ItemState fromState, String identifier) throws IOException,
-                                                                    ClassCastException,
-                                                                    ClassNotFoundException {
+                                                                ClassCastException,
+                                                                ClassNotFoundException {
     Iterator<T> it = getChanges();
 
     while (it.hasNext()) {
@@ -475,6 +475,38 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
           checkStartState = true;
 
           if (instate.getData().getQPath().isDescendantOf(rootPath)) {
+            if (!unique || index.get(instate.getData().getQPath()) == null) {
+              index.put(instate.getData().getQPath(), instate);
+            }
+          }
+        }
+      }
+    }
+
+    return new ArrayList<T>(index.values());
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
+                                                                                 ClassCastException,
+                                                                                 ClassNotFoundException {
+    LinkedHashMap<Object, T> index = new LinkedHashMap<Object, T>();
+    Iterator<T> it = getChanges();
+
+    while (it.hasNext()) {
+      T item = it.next();
+      if (item.equals(firstState)) {
+        boolean checkStartState = false;
+
+        while (it.hasNext()) {
+          T instate = checkStartState ? it.next() : item;
+          checkStartState = true;
+
+          if (instate.getData().getQPath().isDescendantOf(rootPath)
+              || instate.getData().getQPath().equals(rootPath)) {
+
             if (!unique || index.get(instate.getData().getQPath()) == null) {
               index.put(instate.getData().getQPath(), instate);
             }

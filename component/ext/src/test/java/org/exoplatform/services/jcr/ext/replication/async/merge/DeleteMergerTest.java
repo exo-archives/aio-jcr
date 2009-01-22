@@ -410,58 +410,6 @@ public class DeleteMergerTest extends BaseMergerTest {
   }
 
   /**
-   * Rename node and node with same new path was added and than deleted remotely .
-   * 
-   * Local: (high priority) Ren N1 -> N2
-   * 
-   * Remote: ADD N2 Del N2
-   * 
-   * Expect: income changes will be ignored.
-   */
-  public void testRenameSameLocalPriority2() throws Exception {
-    PlainChangesLog localLog = new PlainChangesLogImpl("sessionId");
-
-    final String testItem2 = "testItem2";
-    ItemData localItem2 = new TransientNodeData(QPath.makeChildPath(Constants.ROOT_PATH,
-                                                                    new InternalQName(null,
-                                                                                      testItem2)),
-                                                localItem1.getIdentifier(),
-                                                0,
-                                                Constants.NT_UNSTRUCTURED,
-                                                new InternalQName[0],
-                                                1,
-                                                Constants.ROOT_UUID,
-                                                new AccessControlList());
-
-    final ItemState localItem1Delete = new ItemState(localItem1, ItemState.DELETED, false, null);
-    localLog.add(localItem1Delete);
-    final ItemState localItem2Add = new ItemState(localItem2, ItemState.RENAMED, false, null);
-    localLog.add(localItem2Add);
-    local.addLog(new TransactionChangesLog(localLog));
-
-    PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
-
-    final ItemState remoteItem2Add = new ItemState(remoteItem2, ItemState.ADDED, false, null);
-    remoteLog.add(remoteItem2Add);
-    final ItemState remoteItem2Deleted = new ItemState(remoteItem2, ItemState.DELETED, false, null);
-    remoteLog.add(remoteItem2Deleted);
-    income.addLog(new TransactionChangesLog(remoteLog));
-
-    DeleteMerger deleteMerger = new DeleteMerger(true,
-                                                 new TesterRemoteExporter(),
-                                                 dataManager,
-                                                 ntManager);
-    ChangesStorage<ItemState> result = deleteMerger.merge(remoteItem2Deleted,
-                                                          income,
-                                                          local,
-                                                          "./target",
-                                                          new ArrayList<QPath>());
-    ;
-
-    assertEquals("Wrong changes count ", result.size(), 0);
-  }
-
-  /**
    * Rename tree of nodes and one of children nodes was deleted remotely.
    * 
    * Local: (high priority) Ren N1 -> N2, REN N1/N1 -> N2/N1
@@ -1152,6 +1100,7 @@ public class DeleteMergerTest extends BaseMergerTest {
 
     final ItemState localItem1P1Change = new ItemState(localProperty1, ItemState.ADDED, false, null);
     localLog.add(localItem1P1Change);
+
     local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
@@ -1170,8 +1119,12 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                           new ArrayList<QPath>());
     ;
 
-    assertEquals("Wrong changes count ", result.size(), 1);
+    assertEquals("Wrong changes count ", result.size(), 2);
     assertTrue("Remote Delete state expected ", hasState(result, remoteItem1Change, true));
+    assertTrue("Remote Delete state expected ", hasState(result, new ItemState(localProperty1,
+                                                                               ItemState.DELETED,
+                                                                               false,
+                                                                               null), true));
   }
 
   /**
@@ -1308,8 +1261,6 @@ public class DeleteMergerTest extends BaseMergerTest {
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
 
-    final ItemState remoteItem12Change = new ItemState(remoteItem12, ItemState.DELETED, false, null);
-    remoteLog.add(remoteItem12Change);
     final ItemState remoteItem1Change = new ItemState(remoteItem1, ItemState.DELETED, false, null);
     remoteLog.add(remoteItem1Change);
     income.addLog(new TransactionChangesLog(remoteLog));
@@ -1857,10 +1808,35 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                 remoteItem1.getIdentifier(),
                                                 false);
 
+    localProperty1 = new TransientPropertyData(QPath.makeChildPath(localItem1.getQPath(),
+                                                                   new InternalQName(null,
+                                                                                     "testProperty1")),
+                                               IdGenerator.generate(),
+                                               0,
+                                               PropertyType.LONG,
+                                               localItem1.getIdentifier(),
+                                               false);
+
+    localProperty2 = new TransientPropertyData(QPath.makeChildPath(localItem2.getQPath(),
+                                                                   new InternalQName(null,
+                                                                                     "testProperty1")),
+                                               localProperty1.getIdentifier(),
+                                               0,
+                                               PropertyType.LONG,
+                                               localItem1.getIdentifier(),
+                                               false);
+
+    final ItemState localProp1Delete = new ItemState(localProperty1, ItemState.DELETED, false, null);
+    localLog.add(localProp1Delete);
     final ItemState localItem1Delete = new ItemState(localItem1, ItemState.DELETED, false, null);
     localLog.add(localItem1Delete);
     final ItemState localItem2Rename = new ItemState(localItem2, ItemState.RENAMED, false, null);
     localLog.add(localItem2Rename);
+    final ItemState localProp2Renamed = new ItemState(localProperty2,
+                                                      ItemState.RENAMED,
+                                                      false,
+                                                      null);
+    localLog.add(localProp2Renamed);
     local.addLog(new TransactionChangesLog(localLog));
 
     PlainChangesLog remoteLog = new PlainChangesLogImpl("sessionId");
@@ -1892,6 +1868,9 @@ public class DeleteMergerTest extends BaseMergerTest {
                                                                                ItemState.DELETED,
                                                                                false,
                                                                                null), true));
-    assertTrue("Remote Add state expected ", hasState(result, remoteItem1Add, true));
+    assertTrue("Remote Add state expected ", hasState(result, new ItemState(localProperty2,
+                                                                            ItemState.DELETED,
+                                                                            false,
+                                                                            null), true));
   }
 }

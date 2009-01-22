@@ -287,6 +287,19 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
     return list;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  public List<T> getChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException {
+    ChangesLogsIterator<TransactionChangesLog> it = new ChangesLogsIterator<TransactionChangesLog>(storage);
+    List<T> list = new ArrayList<T>();
+
+    while (it.hasNext()) {
+      list.addAll(getChangesFromLog(it.next(), firstState, rootPath, unique));
+    }
+    return list;
+  }
+
   public T getItemState(String itemIdentifier) {
     throw new RuntimeException("Not implemented");
   }
@@ -730,6 +743,39 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
         for (int j = i; j < allStates.size(); j++) {
           T item = allStates.get(j);
           if (item.getData().getQPath().isDescendantOf(rootPath)) {
+            if (!unique || index.get(item.getData().getQPath()) == null) {
+              index.put(item.getData().getQPath(), item);
+            }
+          }
+        }
+      }
+    }
+
+    // TODO check order
+    return new ArrayList<T>(index.values());
+  }
+
+  /**
+   * @param log
+   * @param firstState
+   * @param rootPath
+   * @param unique
+   * @return
+   */
+  private List<T> getChangesFromLog(TransactionChangesLog log,
+                                    ItemState firstState,
+                                    QPath rootPath,
+                                    boolean unique) {
+    LinkedHashMap<Object, T> index = new LinkedHashMap<Object, T>();
+
+    List<T> allStates = (List<T>) log.getAllStates();
+    for (int i = 0; i < allStates.size(); i++) {
+      if (allStates.get(i).isSame(firstState)) {
+        for (int j = i; j < allStates.size(); j++) {
+          T item = allStates.get(j);
+          if (item.getData().getQPath().isDescendantOf(rootPath)
+              || item.getData().getQPath().equals(rootPath)) {
+
             if (!unique || index.get(item.getData().getQPath()) == null) {
               index.put(item.getData().getQPath(), item);
             }
