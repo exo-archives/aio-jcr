@@ -81,6 +81,8 @@ public abstract class AbstractSessionRegistryTest extends JCRTestBase {
   public void doFinish(TestCase tc, JCRTestContext context) throws Exception {
     sessionList.clear();
     sessionList = null;
+    sessionIdList.clear();
+    sessionIdList = null;
 
     super.doFinish(tc, context);
   }
