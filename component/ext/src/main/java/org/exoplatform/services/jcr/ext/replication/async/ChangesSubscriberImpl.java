@@ -107,11 +107,6 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           LOG.error("Cannot send 'Cancel'" + ioe, ioe);
         }
 
-        if (doneList.size() == membersCount) {
-          save();
-          doStop();
-        }
-
       } catch (RepositoryException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
@@ -135,6 +130,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         doCancel();
       }
 
+      if (doneList.size() == membersCount) {
+        save();
+        doStop();
+      }
     }
 
     /**
