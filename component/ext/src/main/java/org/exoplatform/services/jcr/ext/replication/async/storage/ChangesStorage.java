@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.poi.hssf.record.formula.functions.T;
+
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
@@ -127,7 +129,7 @@ public interface ChangesStorage<T extends ItemState> {
    * @param item
    * @return
    */
-  T findNextItemState(ItemState fromState, String identifier) throws IOException,
+  T findNextState(ItemState fromState, String identifier) throws IOException,
                                                              ClassCastException,
                                                              ClassNotFoundException;
 
@@ -169,6 +171,19 @@ public interface ChangesStorage<T extends ItemState> {
   public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException,
                                                                                        ClassCastException,
                                                                                        ClassNotFoundException;
+
+  /**
+   * Tell if state presents in storage after specified.
+   * 
+   * @param state
+   *          ItemState
+   * @return boolean
+   * @throws IOException
+   *           if error
+   */
+  public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException,
+                                                                            ClassCastException,
+                                                                            ClassNotFoundException;
 
   /**
    * Tell if state presents in storage before specified.

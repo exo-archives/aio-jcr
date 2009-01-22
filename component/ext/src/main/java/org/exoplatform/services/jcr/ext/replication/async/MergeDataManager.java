@@ -204,7 +204,7 @@ public class MergeDataManager {
                                                             storageDir,
                                                             skippedList));
             } else {
-              ItemState nextIncomeChange = income.findNextItemState(incomeChange,
+              ItemState nextIncomeChange = income.findNextState(incomeChange,
                                                                     incomeChange.getData()
                                                                                 .getIdentifier());
 

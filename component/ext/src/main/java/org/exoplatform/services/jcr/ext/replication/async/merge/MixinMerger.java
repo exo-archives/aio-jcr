@@ -111,7 +111,7 @@ public class MixinMerger implements ChangesMerger {
         case ItemState.ADDED:
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE node
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
@@ -163,7 +163,7 @@ public class MixinMerger implements ChangesMerger {
           // UPDATE property
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE node
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {

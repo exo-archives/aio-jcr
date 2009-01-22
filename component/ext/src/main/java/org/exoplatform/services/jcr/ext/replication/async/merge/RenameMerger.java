@@ -98,7 +98,7 @@ public class RenameMerger implements ChangesMerger {
 
     // incomeState is DELETE state and nextIncomeState is RENAME state
     ItemState incomeState = itemChange;
-    ItemState nextIncomeState = income.findNextItemState(incomeState, incomeState.getData()
+    ItemState nextIncomeState = income.findNextState(incomeState, incomeState.getData()
                                                                                  .getIdentifier());
 
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
@@ -130,7 +130,7 @@ public class RenameMerger implements ChangesMerger {
 
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
@@ -378,7 +378,7 @@ public class RenameMerger implements ChangesMerger {
           }
           break;
         case ItemState.DELETED:
-          ItemState nextLocalState = local.findNextItemState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {

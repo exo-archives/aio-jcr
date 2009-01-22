@@ -243,7 +243,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * {@inheritDoc}
    */
-  public T findNextItemState(ItemState fromState, String identifier) throws IOException,
+  public T findNextState(ItemState fromState, String identifier) throws IOException,
                                                                     ClassCastException,
                                                                     ClassNotFoundException {
     Iterator<T> it = getChanges();
@@ -326,6 +326,28 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
         while (it.hasNext()) {
           T item = it.next();
           if (ItemState.isSame(item, identifier, path, state)) {
+            return item;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException,
+                                                                            ClassCastException,
+                                                                            ClassNotFoundException {
+    Iterator<T> it = getChanges();
+    while (it.hasNext()) {
+      if (it.next().isSame(fromState)) {
+        while (it.hasNext()) {
+          T item = it.next();
+          if (item.getData().getIdentifier().equals(identifier)
+              && item.getData().getQPath().equals(path)) {
             return item;
           }
         }
