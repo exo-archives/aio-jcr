@@ -70,7 +70,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   protected HashMap<Integer, Counter>             counterMap;
 
-  protected volatile List<Integer>                doneList;
+  protected List<Integer>                         doneList;
 
   protected final int                             localPriority;
 

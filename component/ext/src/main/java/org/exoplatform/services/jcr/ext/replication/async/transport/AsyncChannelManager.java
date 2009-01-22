@@ -164,12 +164,10 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * 
      */
     void handle() {
-      if (channel.getView() != null && channel.getView().getMembers() != null)
-        synchronized (lock) {
-          lock.notify();
-        }
+      synchronized (lock) {
+        lock.notify();
+      }
     }
-
   }
 
   /**
@@ -237,17 +235,37 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * closeChannel. Close the channel.
    */
   public void disconnect() {
+
     dispatcher.setRequestHandler(null);
     dispatcher.setMembershipListener(null);
     dispatcher.stop();
     dispatcher = null;
-    
+
+    LOG.info("dispatcher stopped");
+    try {
+      // if (channel.isConnected())
+      Thread.sleep(3000);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
     channel.disconnect();
+
+    LOG.info("channel disconnected");
+    try {
+      // if (channel.isConnected())
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
     channel.close();
     channel = null;
 
     LOG.info("Disconnect done, fire connection listeners");
-    
+
     for (ConnectionListener cl : connectionListeners) {
       cl.onDisconnect();
     }
@@ -407,8 +425,12 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       try {
         packetsHandler.add(PacketTransformer.getAsPacket(message.getBuffer()),
                            new Member(message.getSrc()));
-        packetsHandler.handle();
 
+        if (channel.getView() != null && channel.getView().getMembers().size() > 0)
+          packetsHandler.handle();
+        else
+          LOG.warn("No members found or channel closed, queue message " + message);
+        
         return new String("Success");
       } catch (IOException e) {
         LOG.error("Message handler error " + e, e);
