@@ -32,4 +32,13 @@ public class ExportChangesPacket extends ChangesPacket {
                              byte[] buffer) {
     super(type, 0, crc, timeStamp, fileCount, offset, buffer);
   }
+
+  /**
+   * ExportChangesPacket constructor.
+   * 
+   */
+  ExportChangesPacket() {
+    super();
+  }
+
 }

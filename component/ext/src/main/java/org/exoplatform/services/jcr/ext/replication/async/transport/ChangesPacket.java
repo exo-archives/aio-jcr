@@ -54,7 +54,7 @@ public class ChangesPacket extends AbstractPacket {
    * Current data.
    */
   private byte[] buffer;
-  
+
   /**
    * Constructor.
    * 
@@ -80,6 +80,14 @@ public class ChangesPacket extends AbstractPacket {
     this.fileCount = fileCount;
     this.offset = offset;
     this.buffer = buffer;
+  }
+
+  /**
+   * ChangesPacket constructor.
+   * 
+   */
+  ChangesPacket() {
+    super();
   }
 
   public String getCRC() {

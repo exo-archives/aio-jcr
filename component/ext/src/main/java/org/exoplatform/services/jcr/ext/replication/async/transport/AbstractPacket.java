@@ -75,6 +75,11 @@ public abstract class AbstractPacket implements Externalizable {
     this.type = type;
     this.priority = priority;
   }
+  
+  AbstractPacket() {
+    this.type = 0;
+    this.priority = 0;
+  }
 
   /**
    * {@inheritDoc}

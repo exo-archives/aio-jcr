@@ -24,34 +24,43 @@ import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS
+ * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: GetExportPacket.java 111 2008-11-11 11:11:11Z serg $
  */
 public class GetExportPacket extends MessagePacket {
-  
+
   private String nodeId;
-  
+
   public GetExportPacket(String nodeId, int priority) {
     super(AsyncPacketTypes.GET_EXPORT_CHAHGESLOG, priority);
     this.nodeId = nodeId;
   }
 
-  public String getNodeId(){
+  /**
+   * GetExportPacket constructor.
+   * 
+   */
+  GetExportPacket() {
+    super();
+  }
+
+  public String getNodeId() {
     return nodeId;
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public void writeExternal(ObjectOutput out) throws IOException {
     super.writeExternal(out);
-   
+
     if (nodeId != null) {
       byte[] buf = nodeId.getBytes(Constants.DEFAULT_ENCODING);
       out.writeInt(NOT_NULL_VALUE);
       out.writeInt(buf.length);
       out.write(buf);
-    } else 
+    } else
       out.writeInt(NULL_VALUE);
   }
 
@@ -59,8 +68,8 @@ public class GetExportPacket extends MessagePacket {
    * {@inheritDoc}
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-   super.readExternal(in);
-   
+    super.readExternal(in);
+
     if (in.readInt() == NOT_NULL_VALUE) {
       int bufSize = in.readInt();
       byte[] buf = new byte[bufSize];

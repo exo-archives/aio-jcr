@@ -37,6 +37,14 @@ public class ErrorPacket extends MessagePacket {
     this.errorMessage = message;
   }
 
+  /**
+   * ErrorPacket constructor.
+   * 
+   */
+  ErrorPacket() {
+    super();
+  }
+
   public String getErrorMessage() {
     return this.errorMessage;
   }
