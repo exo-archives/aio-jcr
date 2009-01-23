@@ -24,6 +24,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
@@ -44,6 +47,8 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * Logger.
    */
   private static final Log                LOG       = ExoLogger.getLogger("ext.ChangesPublisherImpl");
+
+  protected final AsyncInitializer        initializer;
 
   protected final AsyncTransmitter        transmitter;
 
@@ -68,13 +73,15 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
      */
     public void run() {
       try {
-        LOG.info("Local chahges : " + storage.getLocalChanges().getChangesFile().length);
-        
+        ChangesFile[] localChanges;
+        LOG.info("Local chahges : "
+            + (localChanges = storage.getLocalChanges(initializer.getLocalMember()).getChangesFile()).length);
+
         List<MemberAddress> sa = new ArrayList<MemberAddress>();
-        for (Member m: subscribers) 
+        for (Member m : subscribers)
           sa.add(m.getAddress());
-        
-        transmitter.sendChanges(storage.getLocalChanges().getChangesFile(), sa);
+
+        transmitter.sendChanges(localChanges, sa);
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
         doCancel();
@@ -82,7 +89,10 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
     }
   }
 
-  public ChangesPublisherImpl(AsyncTransmitter transmitter, LocalStorage storage) {
+  public ChangesPublisherImpl(AsyncInitializer initializer,
+                              AsyncTransmitter transmitter,
+                              LocalStorage storage) {
+    this.initializer = initializer;
     this.transmitter = transmitter;
     this.storage = storage;
   }

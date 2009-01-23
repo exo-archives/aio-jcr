@@ -137,19 +137,17 @@ public class AsyncReplication implements Startable {
       this.localStorage = localStorage;
 
       this.incomeStorage = incomeStorage;
-      
+
       this.transmitter = new AsyncTransmitterImpl(this.channel, priority);
 
       this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, this.localStorage);
 
-      this.publisher = new ChangesPublisherImpl(this.transmitter, this.localStorage);
-
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
-      
+
       this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer);
 
       this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
-      
+
       this.mergeManager = new MergeDataManager(this.exporter,
                                                dataManager,
                                                ntManager,
@@ -161,23 +159,27 @@ public class AsyncReplication implements Startable {
                                               otherParticipantsPriority,
                                               waitAllMembersTimeout,
                                               true);
-      
+
+      this.publisher = new ChangesPublisherImpl(this.initializer,
+                                                this.transmitter,
+                                                this.localStorage);
+
       this.subscriber = new ChangesSubscriberImpl(this.initializer,
+                                                  this.transmitter,
                                                   this.synchronyzer,
                                                   this.mergeManager,
                                                   this.incomeStorage,
-                                                  this.transmitter,
                                                   priority,
                                                   otherParticipantsPriority.size() + 1);
-      
+
       // listeners
       this.channel.addPacketListener(this.receiver);
       this.channel.addPacketListener(this.initializer);
       this.channel.addStateListener(this.initializer);
       this.channel.addConnectionListener(this); // listen for connection state, see on Disconnect()
-      
+
       this.receiver.setChangesSubscriber(this.subscriber);
-      
+
       this.initializer.addRemoteListener(this.localStorage);
       this.initializer.addRemoteListener(this.incomeStorage);
       this.initializer.addRemoteListener(this.publisher);
@@ -188,7 +190,8 @@ public class AsyncReplication implements Startable {
       this.publisher.addLocalListener(this.incomeStorage);
       this.publisher.addLocalListener(this.exportServer);
       this.publisher.addLocalListener(this.subscriber);
-      
+      this.publisher.addLocalListener(this.initializer);
+
       this.subscriber.addLocalListener(this.localStorage);
       this.subscriber.addLocalListener(this.incomeStorage);
       this.subscriber.addLocalListener(this.publisher);
@@ -205,11 +208,12 @@ public class AsyncReplication implements Startable {
 
     private void doFinalyze() {
       log.info("Do Finalize");
-      
+
       this.receiver.setChangesSubscriber(null);
 
       this.publisher.removeLocalListener(this.exportServer);
       this.publisher.removeLocalListener(this.subscriber);
+      this.publisher.removeLocalListener(this.initializer);
       this.publisher.removeLocalListener(this.localStorage);
       this.publisher.removeLocalListener(this.incomeStorage);
 
@@ -229,7 +233,7 @@ public class AsyncReplication implements Startable {
       this.channel.removeStateListener(this.initializer);
 
       currentWorkers.remove(this); // remove itself
-      
+
       log.info("Done Finalize");
     }
 

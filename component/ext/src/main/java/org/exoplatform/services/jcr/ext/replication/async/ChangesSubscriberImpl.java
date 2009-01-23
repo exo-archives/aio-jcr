@@ -211,10 +211,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   }
 
   public ChangesSubscriberImpl(AsyncInitializer initializer,
+                               AsyncTransmitter transmitter,
                                WorkspaceSynchronizer workspace,
                                MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
-                               AsyncTransmitter transmitter,
                                int localPriority,
                                int membersCount) {
     this.incomChanges = new HashMap<Key, MemberChangesFile>();

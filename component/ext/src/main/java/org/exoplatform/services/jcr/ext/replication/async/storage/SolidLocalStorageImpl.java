@@ -98,8 +98,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   private long                  dirIndex                   = 0;
   
-  private Member                localMember                = null;
-
   public SolidLocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
 
@@ -137,7 +135,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> getLocalChanges() throws IOException {
+  public ChangesStorage<ItemState> getLocalChanges(Member localMember) throws IOException {
 
     if (previousDir != null) {
       List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
@@ -402,8 +400,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START");
 
-    this.localMember = localMember;
-    
     // check previous dir
     String dirs[] = getSubStorageNames(this.storagePath);
     File prevDir = new File(storagePath, dirs[dirs.length - 1]);

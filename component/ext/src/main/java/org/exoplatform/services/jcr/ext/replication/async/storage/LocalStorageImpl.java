@@ -84,8 +84,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   private FileCleaner           cleaner                    = new FileCleaner();
 
-  private Member                localMember                = null;
-
   public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
 
@@ -116,10 +114,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> getLocalChanges() throws IOException {
+  public ChangesStorage<ItemState> getLocalChanges(Member localMember) throws IOException {
 
     if (localMember == null)
-      throw new IOException("Local member is not defined or storage is not started.");
+      throw new IOException("Local member is not defined (null).");
 
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
@@ -375,8 +373,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START");
 
-    this.localMember = localMember;
-    
     // check previous dir
     String dirs[] = getSubStorageNames(this.storagePath);
     File prevDir = new File(storagePath, dirs[dirs.length - 1]);
