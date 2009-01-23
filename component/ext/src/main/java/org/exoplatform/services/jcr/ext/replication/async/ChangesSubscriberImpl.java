@@ -254,7 +254,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           doStart();
 
           for (LocalEventListener syncl : listeners)
-            syncl.onStart(null, initializer.getOtherMembers());
+            syncl.onStart(initializer.getOtherMembers());
         }
 
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
@@ -430,7 +430,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   }
 
-  public void onStart(Member localMember, List<Member> members) {
+  public void onStart(List<Member> members) {
     // not interested actually
     LOG.info("On START (local) " + members.size() + " members");
 

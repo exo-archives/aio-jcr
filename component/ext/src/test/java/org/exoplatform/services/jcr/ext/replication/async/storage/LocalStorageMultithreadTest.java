@@ -114,7 +114,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
     // emulate start synchronization event,
     // detach storage with on JCR work changes
-    storage.onStart(null, null);
+    storage.onStart(null);
 
     // checks
     assertEquals(0, storage.getErrors().length);

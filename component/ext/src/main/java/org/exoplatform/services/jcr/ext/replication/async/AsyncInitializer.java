@@ -298,7 +298,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     this.startMembers = mlist;
 
     for (RemoteEventListener rl : listeners())
-      rl.onStart(null, mlist);
+      rl.onStart(mlist);
 
     doStart();
   }
@@ -385,7 +385,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   /**
    * {@inheritDoc}
    */
-  public void onStart(Member localMember, List<Member> members) {
+  public void onStart(List<Member> members) {
     LOG.info("On START (local) members count " + members.size());
 
     // set from Subscriber (this is not a Coordinator)

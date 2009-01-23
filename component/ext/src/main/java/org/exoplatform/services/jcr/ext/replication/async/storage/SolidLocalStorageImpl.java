@@ -417,7 +417,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public void onStart(Member localMember, List<Member> members) {
+  public void onStart(List<Member> members) {
     LOG.info("On START");
 
     // check lastDir for any changes;

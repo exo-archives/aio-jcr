@@ -785,7 +785,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
       // TODO Auto-generated method stub
     }
 
-    public void onStart(Member localMember, List<Member> members) {
+    public void onStart(List<Member> members) {
       System.out.println(this.toString());
       if (onStartEvenfail) {
         sFail = "should not have been event 'onStart'.";

@@ -229,7 +229,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   /**
    * {@inheritDoc}
    */
-  public void onStart(Member localMember, List<Member> members) {
+  public void onStart(List<Member> members) {
     // not interested
   }
 

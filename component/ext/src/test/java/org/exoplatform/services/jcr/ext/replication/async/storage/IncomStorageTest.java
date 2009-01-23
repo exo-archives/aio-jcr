@@ -301,7 +301,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     session.save();
 
     List<TransactionChangesLog> list = pl.pushChanges();
-    locStorage.onStart(null, null);
+    locStorage.onStart(null);
 
     assertEquals(3, list.size());
     ChangesFile[] files = locStorage.getLocalChanges().getChangesFile();

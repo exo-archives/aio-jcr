@@ -206,7 +206,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public void onStart(Member localMember, List<Member> members) {
+  public void onStart(List<Member> members) {
     LOG.info("On START");
 
     // prepare storage (clean)

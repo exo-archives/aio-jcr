@@ -104,7 +104,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // create new storage object on old context
     storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
-    storage.onStart(null, null);
+    storage.onStart(null);
     
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
     Iterator<ItemState> states = ch.getChanges();
@@ -155,7 +155,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     TransactionChangesLog log3 = createChangesLog((NodeData) n3.getData());
 
     dataManager.removeItemPersistenceListener(storage);
-    storage.onStart(null, null);
+    storage.onStart(null);
 
     // create storage
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
@@ -185,7 +185,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     n1.setProperty("secondProp", "ohohoh");
     root.save();
 
-    storage.onStart(null, null);
+    storage.onStart(null);
 
     NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
     n2.setProperty("prop1", "dfdasfsdfSecond");
@@ -201,7 +201,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     storage.onStop();
 
-    storage.onStart(null, null);
+    storage.onStart(null);
     assertEquals(0, storage.getErrors().length);
 
     // check current data
@@ -275,7 +275,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
   public void testImportEmptyLog() throws Exception{
     
     SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
-    storage.onStart(new Member(null,10), null);
+    storage.onStart(null);
 
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
 

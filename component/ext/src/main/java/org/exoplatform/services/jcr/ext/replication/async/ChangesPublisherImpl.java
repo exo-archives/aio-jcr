@@ -123,7 +123,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   /**
    * {@inheritDoc}
    */
-  public void onStart(Member localMember, List<Member> members) {
+  public void onStart(List<Member> members) {
     LOG.info("On START (local) " + members.size() + " members");
 
     doStart();

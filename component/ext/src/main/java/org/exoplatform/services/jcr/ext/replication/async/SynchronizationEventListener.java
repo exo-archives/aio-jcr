@@ -36,10 +36,9 @@ public interface SynchronizationEventListener {
    * <li>Publisher will start send changes.</li>
    * <li>Subscriber will prepare the storage for memebers changes.</li>
    * </ul>
-   * @param localMember TODO
    * 
    */
-  void onStart(Member localMember, List<Member> members);
+  void onStart(List<Member> members);
 
   /**
    * On sycnhronization Cancel event action. <br/> operations.
