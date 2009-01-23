@@ -347,7 +347,7 @@ public class RenameMergerTest extends BaseMergerTest {
                                                                              new InternalQName(null,
                                                                                                "item211"),
                                                                              1),
-                                                         remoteItem11.getIdentifier(),
+                                                         remoteItem111.getIdentifier(),
                                                          0,
                                                          new InternalQName(Constants.NS_NT_URI,
                                                                            "unstructured"),

@@ -115,6 +115,7 @@ public class UpdateMerger implements ChangesMerger {
         switch (localState.getState()) {
         case ItemState.ADDED:
           break;
+
         case ItemState.DELETED:
           ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
@@ -219,13 +220,18 @@ public class UpdateMerger implements ChangesMerger {
             }
           }
           break;
+
         case ItemState.UPDATED:
-          if (!incomeData.isNode() && !localData.isNode()
-              && incomeData.getIdentifier().equals(localData.getIdentifier())) {
-            skippedList.add(incomeData.getQPath());
-            return resultEmptyState;
+          if (!localData.isNode()) {
+            if (!incomeData.isNode()) {
+              if (incomeData.getQPath().equals(localData.getQPath())) {
+                skippedList.add(incomeData.getQPath());
+                return resultEmptyState;
+              }
+            }
           }
           break;
+
         case ItemState.RENAMED:
           break;
         case ItemState.MIXIN_CHANGED:
@@ -235,8 +241,7 @@ public class UpdateMerger implements ChangesMerger {
         switch (localState.getState()) {
         case ItemState.ADDED:
           break;
-        case ItemState.UPDATED:
-          break;
+
         case ItemState.DELETED:
           ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
@@ -507,8 +512,13 @@ public class UpdateMerger implements ChangesMerger {
             }
           }
           break;
+
+        case ItemState.UPDATED:
+          break;
+
         case ItemState.RENAMED:
           break;
+
         case ItemState.MIXIN_CHANGED:
           break;
         }
