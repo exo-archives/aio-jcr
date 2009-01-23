@@ -47,6 +47,7 @@ import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCyc
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
+import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -72,24 +73,22 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   protected static final String ERROR_FILENAME             = "errors";
 
-  // protected static final String MAIN_DIRNAME = "primary";
-
-  // protected static final String BACK_DIRNAME = "back";
+  private FileCleaner           cleaner                    = new FileCleaner();
 
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long     MAX_FILE_SIZE_KB           = 1024;
+  private static final long     MAX_FILE_SIZE_KB           = 1024 * 1024;
 
   protected final String        storagePath;
-  
+
   private File                  lastDir                    = null;
 
   private File                  previousDir                = null;
 
   private ChangesFile           currentFile                = null;
 
-  private ObjectOutputStream    currentOut                 = null; // TODO
+  private ObjectOutputStream    currentOut                 = null;                                       // TODO
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -97,7 +96,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   private Long                  index                      = new Long(0);
 
   private long                  dirIndex                   = 0;
-  
+
   public SolidLocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
 
@@ -121,7 +120,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
       // find previousDir
       if (dirs.length > 1) {
-        previousDir = new File(storagePath, dirs[dirs.length - 2]);
+        // TODO previous dir wasn't removed. So OnStop or OnCancel wasn't
+        // called. Its incorrect service close. Fix it
+        // previousDir = new File(storagePath, dirs[dirs.length - 2]);
       }
     } else {
       File subdir = new File(storagePath, Long.toString(dirIndex++));
@@ -167,11 +168,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   public void onSaveItems(ItemStateChangesLog itemStates) {
 
     if (!(itemStates instanceof SynchronizerChangesLog)) {
-
       try {
-
         addChangesLog(itemStates);
-
       } catch (IOException e) {
         LOG.error("On save items error " + e, e);
         this.reportException(e);
@@ -187,25 +185,53 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
 
-    // Check is file already exists and not too big.
-    if (currentFile == null || (currentFile.length() > MAX_FILE_SIZE_KB * 1024)) {
+    // Check is file already exists
+    if (currentFile == null) {
       currentFile = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
     }
 
-    if(currentOut== null){
-      currentOut = new ObjectOutputStream(currentFile.getOutputStream());  
+    // Check file size
+    if (currentFile.length() > MAX_FILE_SIZE_KB * 1024) {
+
+      closeCurrentFile();
+      // create new file
+      currentFile = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
     }
-    
+
+    if (currentOut == null) {
+      currentOut = new ObjectOutputStream(currentFile.getOutputStream());
+    }
+
     TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
-
     currentOut.writeObject(log);
-    
-    //out.close();
-    currentFile.finishWrite();
+    // TODO register timer to close output Stream if file isn't changes too long
 
-    // System.out.println(file.getPath() + " finished write");
   }
 
+  /**
+   * Close current Changes file and release any resources associated with it.
+   * 
+   * @throws IOException
+   */
+  private void closeCurrentFile() throws IOException {
+    // TODO stop any timers
+
+    if (currentOut != null) {
+      currentOut.close();
+    }
+
+    if (currentFile != null) {
+      currentFile.finishWrite();
+      currentFile = null;
+    }
+  }
+
+  /**
+   * Return all rootPath sub file names that has are numbers in ascending order.
+   * 
+   * @param rootPath Path of root directory
+   * @return list of sub-files names
+   */
   private String[] getSubStorageNames(String rootPath) {
 
     File storage = new File(rootPath);
@@ -215,7 +241,6 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       private final Pattern       PATTERN        = Pattern.compile(FILENAME_REGEX);
 
       public boolean accept(File dir, String name) {
-
         File file = new File(dir, name);
         Matcher m = PATTERN.matcher(name);
         if (!m.matches())
@@ -225,9 +250,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     });
 
     java.util.Arrays.sort(dirNames, new Comparator<String>() {
-
       public int compare(String o1, String o2) {
-
         long first = Long.parseLong(o1);
         long second = Long.parseLong(o2);
         if (first < second) {
@@ -372,8 +395,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * {@inheritDoc}
    */
   public void onStop() {
-    // TODO archive primary dir content
-    // delete files in primary dir
+
+    deleteDir(previousDir);
     LOG.info("On STOP");
 
   }
@@ -387,10 +410,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     LOG.info("On CANCEL");
     // get last directory in storage and delete
-    String[] dirs = getSubStorageNames(this.storagePath);
+    // TODO is it correct?
 
-    File lastDir = new File(storagePath, dirs[dirs.length - 1]);
-    lastDir.delete();
+    deleteDir(lastDir);
 
   }
 
@@ -400,17 +422,27 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START");
 
-    // check previous dir
-    String dirs[] = getSubStorageNames(this.storagePath);
-    File prevDir = new File(storagePath, dirs[dirs.length - 1]);
-    String[] subfiles = prevDir.list(new ChangesFileNameFilter());
+    // check lastDir for any changes;
+    String[] subfiles = lastDir.list(new ChangesFileNameFilter());
     if (subfiles.length == 0) {
       // write empty log to have at least one file to send/compare
       onSaveItems(new TransactionChangesLog());
     }
-    File subdir = new File(storagePath, Long.toString(dirIndex++));
-    subdir.mkdirs();
+    // close current file
+    try {
+      closeCurrentFile();
+    } catch (IOException e) {
+      this.reportException(e);
+    }
 
+    File subdir = new File(storagePath, Long.toString(dirIndex++));
+    if (!subdir.mkdirs()) {
+      this.reportException(new IOException("LocalStorage subfolder create fails."));
+    }
+    
+    previousDir = lastDir;
+    lastDir = subdir;
+    
     LOG.info("LocalStorageImpl:onStart()");
   }
 
@@ -437,6 +469,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   }
 
   public void deleteDir(File dir) {
+    File[] subfiles = dir.listFiles();
 
+    for (File f : subfiles) {
+      if (!f.delete()) {
+        cleaner.addFile(f);
+      }
+    }
+
+    if (!dir.delete()) {
+      cleaner.addFile(dir);
+    }
   }
 }
