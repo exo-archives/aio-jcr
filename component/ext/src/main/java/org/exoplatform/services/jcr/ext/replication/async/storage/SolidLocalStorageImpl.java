@@ -189,24 +189,23 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
 
-    // File lastDir = new File(storagePath, dirs[dirs.length - 1]);
-
     // Check is file already exists and not too big.
     if (currentFile == null || (currentFile.length() > MAX_FILE_SIZE_KB * 1024)) {
       currentFile = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
-      // System.out.println(file.getPath() + " created ");
     }
 
-    ObjectOutputStream out = new ObjectOutputStream(currentFile.getOutputStream());
-
+    if(currentOut== null){
+      currentOut = new ObjectOutputStream(currentFile.getOutputStream());  
+    }
+    
     TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
 
-    out.writeObject(log);
-    out.close();
+    currentOut.writeObject(log);
+    
+    //out.close();
     currentFile.finishWrite();
 
     // System.out.println(file.getPath() + " finished write");
-
   }
 
   private String[] getSubStorageNames(String rootPath) {

@@ -80,7 +80,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   private Long                  index                      = new Long(0);
 
-  private long                  dirIndex                   = 0;
+  private Long                  dirIndex                   = new Long(0);
 
   private FileCleaner           cleaner                    = new FileCleaner();
 
@@ -93,11 +93,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     String[] dirs = getSubStorageNames(this.storagePath);
 
     if (dirs.length != 0) {
-      dirIndex = Long.parseLong(dirs[dirs.length - 1]) + 1;
-
       // TODO check is last directory archived. If true create new directory.
 
       File lastDir = new File(storagePath, dirs[dirs.length - 1]);
+      dirIndex = Long.parseLong(lastDir.getName()+1);
+      
       // get last filename as index
       String[] fileNames = lastDir.list(new ChangesFileNameFilter());
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
