@@ -34,7 +34,7 @@ public class MergePacket extends MessagePacket {
    * MergePacket constructor.
    * 
    */
-  MergePacket() {
+  public MergePacket() {
     super();
   }
 

@@ -37,7 +37,7 @@ public class ExportChangesPacket extends ChangesPacket {
    * ExportChangesPacket constructor.
    * 
    */
-  ExportChangesPacket() {
+  public ExportChangesPacket() {
     super();
   }
 

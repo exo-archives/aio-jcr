@@ -32,7 +32,7 @@ public abstract class MessagePacket extends AbstractPacket {
    * MessagePacket constructor.
    * 
    */
-  MessagePacket() {
+  public MessagePacket() {
     super();
   }
 

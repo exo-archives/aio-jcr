@@ -34,7 +34,7 @@ public class CancelPacket extends MessagePacket {
    * CancelPacket constructor.
    * 
    */
-  CancelPacket() {
+  public CancelPacket() {
     super();
   }
 

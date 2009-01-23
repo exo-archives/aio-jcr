@@ -41,7 +41,7 @@ public class ErrorPacket extends MessagePacket {
    * ErrorPacket constructor.
    * 
    */
-  ErrorPacket() {
+  public ErrorPacket() {
     super();
   }
 

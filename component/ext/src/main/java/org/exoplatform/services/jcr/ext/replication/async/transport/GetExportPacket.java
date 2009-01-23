@@ -41,7 +41,7 @@ public class GetExportPacket extends MessagePacket {
    * GetExportPacket constructor.
    * 
    */
-  GetExportPacket() {
+  public GetExportPacket() {
     super();
   }
 

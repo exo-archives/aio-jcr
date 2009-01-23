@@ -86,7 +86,7 @@ public class ChangesPacket extends AbstractPacket {
    * ChangesPacket constructor.
    * 
    */
-  ChangesPacket() {
+  public ChangesPacket() {
     super();
   }
 
