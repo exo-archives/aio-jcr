@@ -39,7 +39,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogRead
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -144,7 +144,7 @@ public class MergeDataManager {
           local = first;
         }
 
-        exporter.setMember(second.getMember());
+        exporter.setMember(second.getMember().getAddress());
         // TODO NT reregistration
 
         AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);

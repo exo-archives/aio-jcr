@@ -16,8 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.

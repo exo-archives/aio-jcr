@@ -39,7 +39,6 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.TesterItemsPersistenceListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -282,7 +281,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     
     File lsdir = new File("target/LocalStorageTest");
     lsdir.mkdirs();
-    LocalStorageImpl locStorage = new LocalStorageImpl(lsdir.getAbsolutePath(), member.getPriority());
+    LocalStorageImpl locStorage = new LocalStorageImpl(lsdir.getAbsolutePath());
     dataManager.addItemPersistenceListener(locStorage);
 
     // create node
@@ -302,7 +301,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     session.save();
 
     List<TransactionChangesLog> list = pl.pushChanges();
-    locStorage.onStart(null);
+    locStorage.onStart(null, null);
 
     assertEquals(3, list.size());
     ChangesFile[] files = locStorage.getLocalChanges().getChangesFile();

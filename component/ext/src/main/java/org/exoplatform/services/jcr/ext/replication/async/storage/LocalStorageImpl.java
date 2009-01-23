@@ -44,7 +44,6 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -76,8 +75,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   protected final String        storagePath;
 
-  private final int             priority;
-
   /**
    * This unique index used as name for ChangesFiles.
    */
@@ -87,9 +84,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   private FileCleaner           cleaner                    = new FileCleaner();
 
-  public LocalStorageImpl(String storagePath, int priority) {
+  private Member                localMember                = null;
+
+  public LocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
-    this.priority = priority;
 
     // find last index of storage
     String[] dirs = getSubStorageNames(this.storagePath);
@@ -119,6 +117,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public ChangesStorage<ItemState> getLocalChanges() throws IOException {
+
+    if (localMember == null)
+      throw new IOException("Local member is not defined or storage is not started.");
+
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
     String[] dirNames = getSubStorageNames(storagePath);
@@ -140,7 +142,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     }
 
     ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                  new Member(priority));
+                                                                                  localMember);
     return changeStorage;
   }
 
@@ -216,9 +218,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -285,10 +289,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist,
-                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                       : plog.getSessionId(),
-                                            plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+          ? EXTERNALIZATION_SESSION_ID
+          : plog.getSessionId(), plog.getEventType()));
     }
     return result;
   }
@@ -296,7 +299,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -370,7 +374,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START");
 
     // check previous dir

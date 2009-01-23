@@ -25,7 +25,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -68,7 +69,12 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
     public void run() {
       try {
         LOG.info("Local chahges : " + storage.getLocalChanges().getChangesFile().length);
-        transmitter.sendChanges(storage.getLocalChanges().getChangesFile(), subscribers);
+        
+        List<MemberAddress> sa = new ArrayList<MemberAddress>();
+        for (Member m: subscribers) 
+          sa.add(m.getAddress());
+        
+        transmitter.sendChanges(storage.getLocalChanges().getChangesFile(), sa);
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
         doCancel();
@@ -99,20 +105,20 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> member) {
-    // TODO Auto-generated method stub
+    // not interested
   }
 
   /**
    * {@inheritDoc}
    */
   public void onMerge(Member member) {
-    // TODO Auto-generated method stub
+    // not interested
   }
 
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START (local) " + members.size() + " members");
 
     doStart();
@@ -127,9 +133,6 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
     LOG.info("On STOP (local)");
 
     doStop();
-
-    // TODO
-    // Publisher will stop work, run local storage rotation and set Repository RW state.
   }
 
   private void cancelWorker() {

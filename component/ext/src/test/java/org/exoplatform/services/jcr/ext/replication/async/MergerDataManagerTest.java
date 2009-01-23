@@ -45,7 +45,7 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.BaseMergerTest;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.log.ExoLogger;

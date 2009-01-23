@@ -35,7 +35,7 @@ import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.AbstractMergeUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManagerTestWrapper;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;

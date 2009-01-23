@@ -31,7 +31,6 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
 /**

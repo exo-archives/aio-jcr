@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -785,7 +785,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
       // TODO Auto-generated method stub
     }
 
-    public void onStart(List<Member> members) {
+    public void onStart(Member localMember, List<Member> members) {
       System.out.println(this.toString());
       if (onStartEvenfail) {
         sFail = "should not have been event 'onStart'.";

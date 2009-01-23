@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 
 /**
  * Created by The eXo Platform SAS.

@@ -23,13 +23,14 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.jgroups.Address;
 import org.jgroups.stack.IpAddress;
 
@@ -90,7 +91,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
         return list;
       }
 
-      public void receive(AbstractPacket packet, Member sourceAddress) {
+      public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
         assertNotNull(packet);
         list.add(packet);
         if (packet.getType() == AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET) {
@@ -101,7 +102,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
       /**
        * {@inheritDoc}
        */
-      public void onError(Member sourceAddress) {
+      public void onError(MemberAddress sourceAddress) {
       }
     };
 
@@ -165,7 +166,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
         return list;
       }
 
-      public void receive(AbstractPacket packet, Member sourceAddress) {
+      public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
         assertNotNull(packet);
         list.add(packet);
         isTested = true;
@@ -174,7 +175,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
       /**
        * {@inheritDoc}
        */
-      public void onError(Member sourceAddress) {
+      public void onError(MemberAddress sourceAddress) {
       }
 
     };

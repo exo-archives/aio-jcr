@@ -16,11 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.transport;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-
-import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -32,40 +27,7 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class CancelPacket extends MessagePacket {
   
-  public CancelPacket(){
-    super();
-  }
-  
-  /**
-   * The priority of transmitter. 
-   */
-  private int transmitterPriority;
- 
   public CancelPacket(int type, int transmitterPriority) {
-    super(type);
-    
-    this.transmitterPriority = transmitterPriority;
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
-  public void writeExternal(ObjectOutput out) throws IOException {
-    super.writeExternal(out);
-    
-    out.writeInt(transmitterPriority);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-    super.readExternal(in);
-
-    transmitterPriority = in.readInt();
-  }
-
-  public int getTransmitterPriority() {
-    return transmitterPriority;
+    super(type, transmitterPriority);
   }
 }

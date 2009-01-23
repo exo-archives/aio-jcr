@@ -37,7 +37,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannel
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -160,7 +160,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
 
     private long                             totalFiles;
 
-    public void receive(AbstractPacket p, Member member) {
+    public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ChangesPacket) {
         ChangesPacket packet = (ChangesPacket) p;
 
@@ -202,7 +202,7 @@ public class ChangesPublisherTest extends AbstractTrasportTest {
         fail("Han been received not ChangesPacket.");
     }
 
-    public void onError(Member sourceAddress) {
+    public void onError(MemberAddress sourceAddress) {
     }
 
     protected List<ChangesFile> getChangesFiles() {

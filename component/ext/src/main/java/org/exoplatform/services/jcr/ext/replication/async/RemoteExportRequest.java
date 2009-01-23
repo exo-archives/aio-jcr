@@ -16,7 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 
 /**
@@ -29,11 +30,11 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
  */
 public class RemoteExportRequest {
 
-  private final Member address;
+  private final MemberAddress address;
   
   private final String nodeId;
   
-  RemoteExportRequest(String nodeId, Member address) {
+  RemoteExportRequest(String nodeId, MemberAddress address) {
     this.address = address;
     this.nodeId = nodeId;
   }
@@ -41,7 +42,7 @@ public class RemoteExportRequest {
   /**
    * @return the source address.
    */
-  public Member getMember() {
+  public MemberAddress getMember() {
     return address;
   }
 

@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.List;
 
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 
 
 /**

@@ -20,9 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -93,7 +94,10 @@ public abstract class AbstractTrasportTest extends BaseStandaloneTest implements
   protected static final String IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
 
   public void onStateChanged(AsyncStateEvent event) {
-    memberList = new ArrayList<Member>(event.getMembers());
-    memberList.remove(event.getLocalMember());
+    memberList = new ArrayList<Member>();
+    for (MemberAddress m : event.getMembers()) {
+      if (!m.equals(event.getLocalMember()))
+        memberList.add(new Member(m, -1)); // TODO priority
+    }
   }
 }

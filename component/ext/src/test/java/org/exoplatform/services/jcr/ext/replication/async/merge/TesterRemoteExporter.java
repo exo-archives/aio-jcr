@@ -30,7 +30,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -110,7 +110,7 @@ public class TesterRemoteExporter implements RemoteExporter {
     // dummy
   }
 
-  public void setMember(Member address) {
+  public void setMember(MemberAddress address) {
     // dummy
   }
 }

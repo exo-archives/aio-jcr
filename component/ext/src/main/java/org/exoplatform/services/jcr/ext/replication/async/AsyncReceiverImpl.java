@@ -20,6 +20,7 @@
 package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
@@ -27,7 +28,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacke
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -57,8 +58,8 @@ public class AsyncReceiverImpl implements AsyncReceiver {
    * 
    * @param packet
    */
-  protected void onChanges(ChangesPacket packet, Member member) {
-    Member mem = new Member(member.getAddress(), packet.getTransmitterPriority());
+  protected void onChanges(ChangesPacket packet, MemberAddress member) {
+    Member mem = new Member(member, packet.getTransmitterPriority());
 
     LOG.info("AsyncReceiver.onChanges, member " + mem.getName() + ", packet "
         + packet.getFileCount() + "," + packet.getTimeStamp());
@@ -66,14 +67,14 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     if (changesSubscriber != null)
       changesSubscriber.onChanges(packet, mem);
     else
-      LOG.warn("Subscriber is not set. Changes from member " + member.getName()
+      LOG.warn("Subscriber is not set. Changes from member " + member
           + " will be ignored. ");
   }
 
-  protected void onGetExport(GetExportPacket packet, Member member) {
+  protected void onGetExport(GetExportPacket packet, MemberAddress member) {
     String nodeId = packet.getNodeId();
 
-    LOG.info("onGetExport member " + member.getName() + ", packet nodeId" + nodeId);
+    LOG.info("onGetExport member " + member + ", packet nodeId" + nodeId);
 
     RemoteExportRequest remoteGetEvent = new RemoteExportRequest(nodeId, member);
 
@@ -83,7 +84,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void receive(AbstractPacket packet, Member member) {
+  public void receive(AbstractPacket packet, MemberAddress member) {
     switch (packet.getType()) {
     case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
 
@@ -151,7 +152,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void onError(Member sourceAddress) {
+  public void onError(MemberAddress sourceAddress) {
     // TODO Auto-generated method stub
 
   }

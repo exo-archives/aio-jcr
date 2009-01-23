@@ -31,7 +31,6 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -151,36 +150,12 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * ItemStatesStorage constructor for income storage.
    * 
    * @param changes
-   *          list of ChangesFiles
-   */
-  public ItemStatesStorage(List<ChangesFile> changes) {
-    this.storage.addAll(changes);
-    this.member = null;
-  }
-
-  /**
-   * ItemStatesStorage constructor for income storage.
-   * 
-   * @param changes
    *          ChagesFiles
    * @param member
    *          owner
    */
   public ItemStatesStorage(ChangesFile changes, Member member) {
     this.storage.add(changes);
-    this.member = member;
-  }
-
-  /**
-   * ItemStatesStorage constructor for income storage.
-   * 
-   * @param changes
-   *          list of ChangesFiles
-   * @param member
-   *          owner
-   */
-  public ItemStatesStorage(List<ChangesFile> changes, Member member) {
-    this.storage.addAll(changes);
     this.member = member;
   }
 

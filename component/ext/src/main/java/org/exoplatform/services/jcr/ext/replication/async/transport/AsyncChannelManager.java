@@ -95,9 +95,9 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
   class MemberPacket {
     final AbstractPacket packet;
 
-    final Member         member;
+    final MemberAddress  member;
 
-    MemberPacket(AbstractPacket packet, Member member) {
+    MemberPacket(AbstractPacket packet, MemberAddress member) {
       this.packet = packet;
       this.member = member;
     }
@@ -155,7 +155,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
      * @param member
      *          Member
      */
-    void add(AbstractPacket packet, Member member) {
+    void add(AbstractPacket packet, MemberAddress member) {
       queue.add(new MemberPacket(packet, member));
     }
 
@@ -333,14 +333,14 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * 
    * @return List<Member> list of other members.
    */
-  public List<Member> getOtherMembers() {
+  public List<MemberAddress> getOtherMembers() {
     List<Address> list = new ArrayList<Address>(channel.getView().getMembers());
     list.remove(channel.getLocalAddress());
 
-    List<Member> members = new ArrayList<Member>();
+    List<MemberAddress> members = new ArrayList<MemberAddress>();
 
     for (Address address : list)
-      members.add(new Member(address));
+      members.add(new MemberAddress(address));
 
     return members;
   }
@@ -355,37 +355,34 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    * @throws Exception
    *           will be generated Exception
    */
-  public void sendPacket(AbstractPacket packet, List<Member> destinationAddresses) throws IOException {
-    byte[] buffer = PacketTransformer.getAsByteArray(packet);
-
-    Message msg = new Message(null, null, buffer);
-
-    Vector<Address> destAddresses = new Vector<Address>();
-    for (Member address : destinationAddresses)
-      destAddresses.add(address.getAddress());
-
-    dispatcher.castMessage(destAddresses, msg, GroupRequest.GET_NONE, 0);
-  }
-
-  /**
-   * sendPacket.
-   * 
-   * @param packet
-   *          the Packet with content
-   * @param destinationAddresses
-   *          the destination addresses
-   * @throws Exception
-   *           will be generated Exception
-   */
-  public void sendPacket(AbstractPacket packet, Member destinationAddress) throws IOException {
-    List<Member> dest = new ArrayList<Member>();
-    dest.add(destinationAddress);
+  public void sendPacket(AbstractPacket packet, MemberAddress... destinations) throws IOException {
+    Vector<Address> dest = new Vector<Address>();
+    for (MemberAddress address : destinations)
+      dest.add(address.getAddress());
 
     sendPacket(packet, dest);
   }
 
   /**
-   * sendPacket.
+   * Send packet using Vector of dests.
+   * 
+   * @param packet
+   *          AbstractPacket
+   * @param dest
+   *          Vector of Address
+   * @throws IOException
+   *           if error
+   */
+  private void sendPacket(AbstractPacket packet, Vector<Address> dest) throws IOException {
+    byte[] buffer = PacketTransformer.getAsByteArray(packet);
+
+    Message msg = new Message(null, null, buffer);
+
+    dispatcher.castMessage(dest, msg, GroupRequest.GET_NONE, 0);
+  }
+
+  /**
+   * Send packet to all members.
    * 
    * @param packet
    *          the Packet with contents
@@ -393,15 +390,10 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
    *           will be generated Exception
    */
   public void sendPacket(AbstractPacket packet) throws IOException {
-    List<Address> addresses = new ArrayList<Address>(channel.getView().getMembers()); // TODO NPE
-    addresses.remove(channel.getLocalAddress());
+    Vector<Address> dest = new Vector<Address>(channel.getView().getMembers());
+    dest.remove(channel.getLocalAddress());
 
-    List<Member> list = new ArrayList<Member>();
-
-    for (Address address : addresses)
-      list.add(new Member(address));
-
-    sendPacket(packet, list);
+    sendPacket(packet, dest);
   }
 
   /**
@@ -424,13 +416,13 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
 
       try {
         packetsHandler.add(PacketTransformer.getAsPacket(message.getBuffer()),
-                           new Member(message.getSrc()));
+                           new MemberAddress(message.getSrc()));
 
         if (channel.getView() != null && channel.getView().getMembers().size() > 0)
           packetsHandler.handle();
         else
           LOG.warn("No members found or channel closed, queue message " + message);
-        
+
         return new String("Success");
       } catch (IOException e) {
         LOG.error("Message handler error " + e, e);
@@ -454,12 +446,12 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
     if (isConnected()) {
       LOG.info("View accepted " + view.printDetails());
 
-      ArrayList<Member> members = new ArrayList<Member>();
+      ArrayList<MemberAddress> members = new ArrayList<MemberAddress>();
 
       for (Address address : view.getMembers())
-        members.add(new Member(address));
+        members.add(new MemberAddress(address));
 
-      AsyncStateEvent event = new AsyncStateEvent(new Member(channel.getLocalAddress()), members);
+      AsyncStateEvent event = new AsyncStateEvent(new MemberAddress(channel.getLocalAddress()), members);
 
       for (AsyncStateListener listener : stateListeners)
         listener.onStateChanged(event);

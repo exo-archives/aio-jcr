@@ -137,7 +137,7 @@ public class AsyncReplication implements Startable {
       this.localStorage = localStorage;
 
       this.incomeStorage = incomeStorage;
-
+      
       this.transmitter = new AsyncTransmitterImpl(this.channel, priority);
 
       this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, this.localStorage);
@@ -156,18 +156,19 @@ public class AsyncReplication implements Startable {
                                                priority,
                                                mergeTempDir);
 
-      this.subscriber = new ChangesSubscriberImpl(this.synchronyzer,
-                                                  this.mergeManager,
-                                                  this.incomeStorage,
-                                                  this.transmitter,
-                                                  priority,
-                                                  otherParticipantsPriority.size() + 1);
-            
       this.initializer = new AsyncInitializer(this.channel,
                                               priority,
                                               otherParticipantsPriority,
                                               waitAllMembersTimeout,
                                               true);
+      
+      this.subscriber = new ChangesSubscriberImpl(this.initializer,
+                                                  this.synchronyzer,
+                                                  this.mergeManager,
+                                                  this.incomeStorage,
+                                                  this.transmitter,
+                                                  priority,
+                                                  otherParticipantsPriority.size() + 1);
       
       // listeners
       this.channel.addPacketListener(this.receiver);
@@ -529,8 +530,7 @@ public class AsyncReplication implements Startable {
               + File.separator + wsName);
           localDirPerWorkspace.mkdirs();
 
-          LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath(),
-                                                               this.priority);
+          LocalStorageImpl localStorage = new LocalStorageImpl(localDirPerWorkspace.getAbsolutePath());
 
           localStorages.put(new StorageKey(repositoryName, wsName), localStorage);
         }

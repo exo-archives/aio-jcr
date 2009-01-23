@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -30,8 +31,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketT
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
 import org.exoplatform.services.jcr.ext.replication.async.transport.CancelPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
-import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -74,14 +74,14 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * List of previous members, each time will be replaced by new list.
    */
   // TODO final
-  private List<Member>                     previousMembers       = new ArrayList<Member>();
+  private List<MemberAddress>              previousMembers       = new ArrayList<MemberAddress>();
 
   /**
    * Members list on start action. Actual list of members in current synchronization.
    */
   private List<Member>                     startMembers          = new ArrayList<Member>();
 
-  private Member                           localMember;
+  private MemberAddress                    localMember;
 
   private LastMemberWaiter                 lastMemberWaiter;
 
@@ -132,6 +132,24 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     this.memberWaitTimeout = memberWaitTimeout;
     this.otherParticipantsPriority = otherParticipantsPriority;
     this.cancelMemberNotConnected = cancelMemberNotConnected;
+  }
+
+  /**
+   * @return the localMember
+   */
+  public Member getLocalMember() {
+    return new Member(localMember, priority);
+  }
+
+  /**
+   * @return the other members
+   */
+  public List<Member> getOtherMembers() {
+    List<Member> ms = new ArrayList<Member>(startMembers.size());
+    for (Member m : startMembers)
+      ms.add(new Member(m.getAddress(), m.getPriority()));
+    
+    return ms;
   }
 
   public void addRemoteListener(RemoteEventListener listener) {
@@ -196,7 +214,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
           LOG.info("onStateChanged - last member waiter canceled (has all members)");
         }
 
-        List<Member> members = new ArrayList<Member>(event.getMembers());
+        List<MemberAddress> members = new ArrayList<MemberAddress>(event.getMembers());
         members.remove(event.getLocalMember());
 
         LOG.info("Do START with all memebers");
@@ -208,17 +226,17 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       LOG.info("onStateChanged - one or more members were disconnected from the channel "
           + event.getMembers().size() + " < " + previousMembers.size());
 
-      List<Member> disconnectedMembers = new ArrayList<Member>(previousMembers);
+      List<MemberAddress> disconnectedMembers = new ArrayList<MemberAddress>(previousMembers);
       disconnectedMembers.removeAll(event.getMembers());
 
       if (isStarted()) {
         // if already started
         if (isMemberMergeDone(disconnectedMembers)) {
           // just ok
-          
+
           // TODO not used actually
-          //for (RemoteEventListener rl : listeners())
-          //  rl.onDisconnectMembers(disconnectedMembers);
+          // for (RemoteEventListener rl : listeners())
+          // rl.onDisconnectMembers(disconnectedMembers);
         } else {
           // 1. if some member was disconnected but has not merged - fatal
           // 2. if some member (or all) was disconnected but local merge doesn't finished,
@@ -230,7 +248,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         }
       } else {
         // still not started
-        
+
         // Check if disconnected the previous coordinator.
         if (event.isCoordinator() && !isCoordinator) {
           isCoordinator = event.isCoordinator();
@@ -268,13 +286,17 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * @param members
    *          list of members
    */
-  private void doStart(List<Member> members) {
+  private void doStart(List<MemberAddress> members) {
     LOG.info("Do START (remote) member count " + members.size());
 
-    this.startMembers = members;
+    List<Member> mlist = new ArrayList<Member>();
+    for (MemberAddress m : members)
+      mlist.add(new Member(m, -1)); // TODO priority
+
+    this.startMembers = mlist;
 
     for (RemoteEventListener rl : listeners())
-      rl.onStart(members);
+      rl.onStart(null, mlist);
 
     doStart();
   }
@@ -290,11 +312,11 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    *          List of Members
    * @return boolean, true if all listed members merged, false if al least one doesn't merged.
    */
-  private boolean isMemberMergeDone(List<Member> disconnectedMembers) {
+  private boolean isMemberMergeDone(List<MemberAddress> disconnectedMembers) {
     LOG.info("disconnectedMembers: " + disconnectedMembers);
     LOG.info("startMembers: " + startMembers);
-    
-    for (Member dm : disconnectedMembers) {
+
+    for (MemberAddress dm : disconnectedMembers) {
       if (startMembers.contains(dm))
         return false;
     }
@@ -302,50 +324,64 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     return true;
   }
 
-  public void receive(AbstractPacket packet, Member srcMember) {
+  private Member syncMember(MemberAddress address, int priority) {
+    for (Member m : startMembers) {
+      if (m.getAddress().equals(address)) {
+        m.setPriority(priority);
+        return m;
+      }
+    }
+
+    return null;
+  }
+
+  public void receive(AbstractPacket packet, MemberAddress srcMember) {
 
     if (isStopped()) {
-      LOG.warn("Changes received but initializer was stopped " + srcMember.getName());
+      LOG.warn("Changes received but initializer was stopped " + srcMember);
       return;
     }
 
-    switch (packet.getType()) {
-    case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
-      LOG.info("Do CANCEL (remote) from " + srcMember.getName());
+    Member member = syncMember(srcMember, ((AbstractPacket) packet).getTransmitterPriority());
 
-      doStop(CHANNEL_CLOSE_TIMEOUT);
+    if (member != null) {
 
-      for (RemoteEventListener rl : listeners())
-        rl.onCancel();
-    }
-      break;
+      switch (packet.getType()) {
+      case AsyncPacketTypes.SYNCHRONIZATION_CANCEL: {
+        LOG.info("Do CANCEL (remote) from " + srcMember);
 
-    case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
-      LOG.info("Do MERGE (remote) from " + srcMember.getName());
+        doStop(CHANNEL_CLOSE_TIMEOUT);
 
-      Member member = new Member(srcMember.getAddress(),
-                                 ((MergePacket) packet).getTransmitterPriority());
+        for (RemoteEventListener rl : listeners())
+          rl.onCancel();
+      }
+        break;
 
-      doRemoteMergeDone(member);
+      case AsyncPacketTypes.SYNCHRONIZATION_MERGE: {
+        LOG.info("Do MERGE (remote) from " + srcMember);
 
-      for (RemoteEventListener rl : listeners())
-        rl.onMerge(member);
-    }
-      break;
-    }
+        doRemoteMergeDone(member);
+
+        for (RemoteEventListener rl : listeners())
+          rl.onMerge(member);
+      }
+        break;
+      }
+    } else
+      LOG.warn("Skipp packet from not a member " + srcMember + ". Packet: " + packet);
   }
 
   /**
    * {@inheritDoc}
    */
-  public void onError(Member sourceAddress) {
-    // TODO Auto-generated method stub
+  public void onError(MemberAddress sourceAddress) {
+    // not interested
   }
 
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START (local) members count " + members.size());
 
     this.startMembers = members;
@@ -359,7 +395,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onCancel() {
     LOG.info("On CANCEL (local)");
 
-    doStop(); // TODO doStop(CHANNEL_CLOSE_TIMEOUT);
+    doStop();
   }
 
   /**
@@ -434,7 +470,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
         if (run && previousMembers.size() < (otherParticipantsPriority.size() + 1)
             && previousMembers.size() > 1 && !cancelMemberNotConnected) {
-          List<Member> members = new ArrayList<Member>(previousMembers);
+          List<MemberAddress> members = new ArrayList<MemberAddress>(previousMembers);
           members.remove(localMember);
 
           LOG.info("Do START from last member waiter");

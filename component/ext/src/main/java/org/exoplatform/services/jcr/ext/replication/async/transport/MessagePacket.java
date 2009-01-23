@@ -21,14 +21,10 @@ package org.exoplatform.services.jcr.ext.replication.async.transport;
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: MessagePacket.java 111 2008-11-11 11:11:11Z serg $
  */
-public class MessagePacket extends AbstractPacket {
-
-  public MessagePacket(){
-    super();
-  }
+public abstract class MessagePacket extends AbstractPacket {
   
-  public MessagePacket(int type){
-    super(type);
+  public MessagePacket(int type, int priority){
+    super(type, priority);
   }
   
 }

@@ -30,55 +30,58 @@ import java.io.ObjectOutput;
  * @version $Id: AsyncPacket.java 111 2008-11-11 11:11:11Z rainf0x $
  */
 public abstract class AbstractPacket implements Externalizable {
-  
+
   /**
    * Constant will be used for serialization 'null' value.
    */
-  protected static final int NULL_VALUE = -1;
-  
+  protected static final int NULL_VALUE       = -1;
+
   /**
    * Constant will be used for serialization not 'null' value.
    */
-  protected static final int NOT_NULL_VALUE = 1;
+  protected static final int NOT_NULL_VALUE   = 1;
 
   /**
    * serialVersionUID.
    */
-  private static final long serialVersionUID = -138895618077433063L;
-  
+  private static final long  serialVersionUID = -138895618077433063L;
+
   /**
    * The definition of max packet size.
    */
-  public static final int MAX_PACKET_SIZE = 1024 * 16;
+  public static final int    MAX_PACKET_SIZE  = 1024 * 16;
 
   /**
    * Packet type.
    */
-  private int             type;
+  protected int                type;
 
-  public AbstractPacket(){
-    
-  }
-  
   /**
-   * Packet  constructor.
-   *
-   * @param type 
+   * The priority of transmitter.
+   */
+  protected int                priority;
+
+  /**
+   * Packet constructor.
+   * 
+   * @param type
    *          packet type
    * @param buf
    *          binary data
-   * @param transmitterPriority
-   *          the priority value of transmitters         
+   * @param priority
+   *          the priority value of transmitters
    */
-  public AbstractPacket(int type) {
+  public AbstractPacket(int type, int priority) {
     this.type = type;
+    this.priority = priority;
   }
-  
+
   /**
    * {@inheritDoc}
    */
   public void writeExternal(ObjectOutput out) throws IOException {
     out.writeInt(type);
+    out.writeInt(priority);
   }
 
   /**
@@ -86,9 +89,14 @@ public abstract class AbstractPacket implements Externalizable {
    */
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     type = in.readInt();
+    priority = in.readInt();
   }
-  
+
   public int getType() {
     return type;
+  }
+
+  public int getTransmitterPriority() {
+    return priority;
   }
 }

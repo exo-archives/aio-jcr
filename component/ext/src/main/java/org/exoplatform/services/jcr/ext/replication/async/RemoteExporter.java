@@ -22,7 +22,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -43,7 +43,7 @@ public interface RemoteExporter {
    * @param remotePriority
    *          int
    */
-  void setMember(Member address);
+  void setMember(MemberAddress address);
 
   /**
    * Exports remote item and return chnages log with ADD states.

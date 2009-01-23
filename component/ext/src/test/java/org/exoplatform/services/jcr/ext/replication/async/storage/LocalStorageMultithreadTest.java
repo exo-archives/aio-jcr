@@ -93,7 +93,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
     dir.mkdirs();
     
     // storage created and listen for a JCR changes
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath(), 40);
+    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
     // concurent work in JCR
@@ -114,7 +114,7 @@ public class LocalStorageMultithreadTest extends BaseStandaloneTest {
 
     // emulate start synchronization event,
     // detach storage with on JCR work changes
-    storage.onStart(null);
+    storage.onStart(null, null);
 
     // checks
     assertEquals(0, storage.getErrors().length);

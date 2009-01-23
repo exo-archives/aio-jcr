@@ -14,14 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async.transport;
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import org.jgroups.Address;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -33,34 +33,9 @@ import org.jgroups.Address;
  */
 public class Member implements Externalizable {
 
-  private Address address;
+  private MemberAddress address;
 
-  private int     priority;
-
-  public Member() {
-  }
-
-  /**
-   * Member constructor for <code>AsyncInitializer</code>.
-   * 
-   * @param address
-   *          Address (JGroups)
-   */
-  public Member(Address address) {
-    this.address = address;
-    this.priority = -1;
-  }
-
-  /**
-   * Member constructor for <code>LocalStorage</code> and <code>IncomeStorage</code>.
-   * 
-   * @param priority
-   *          int
-   */
-  public Member(int priority) {
-    this.address = null;
-    this.priority = priority;
-  }
+  private int           priority;
 
   /**
    * Member constructor for <code>Subscriber</code>.
@@ -70,8 +45,16 @@ public class Member implements Externalizable {
    * @param priority
    *          int
    */
-  public Member(Address address, int priority) {
+  public Member(MemberAddress address, int priority) {
     this.address = address;
+    this.priority = priority;
+  }
+
+  /**
+   * @param priority
+   *          the priority to set
+   */
+  public void setPriority(int priority) {
     this.priority = priority;
   }
 
@@ -84,7 +67,7 @@ public class Member implements Externalizable {
    * @see {@link Member.getAddress()}
    */
   public String getName() {
-    return this.priority + (this.address != null ?  " (" + this.address + ")" : "");
+    return this.priority + (this.address != null ? " (" + this.address + ")" : "");
   }
 
   /**
@@ -112,7 +95,7 @@ public class Member implements Externalizable {
    * 
    * @return Address return address of member
    */
-  public Address getAddress() {
+  public MemberAddress getAddress() {
     return address;
   }
 
@@ -125,7 +108,7 @@ public class Member implements Externalizable {
 
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     priority = in.readInt();
-    address = (Address) in.readObject();
+    address = (MemberAddress) in.readObject();
   }
 
   public void writeExternal(ObjectOutput out) throws IOException {

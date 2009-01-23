@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
@@ -26,7 +27,6 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacke
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
 /**
@@ -65,7 +65,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     // send GetExportPacket
     String nodeId = ((NodeImpl) root).getData().getIdentifier();
 
-    GetExportPacket packet = new GetExportPacket(nodeId);
+    GetExportPacket packet = new GetExportPacket(nodeId, -1);
 
     latch = new CountDownLatch(1);
     try {
@@ -140,7 +140,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                              new byte[0]);
 
     String errorMessage = "Cannot send export data. Internal error ossurs.";
-    ErrorPacket packetError = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, errorMessage);
+    ErrorPacket packetError = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, errorMessage, -1);
 
     try {
       channel1.sendPacket(packetFirst, memberList.get(0));

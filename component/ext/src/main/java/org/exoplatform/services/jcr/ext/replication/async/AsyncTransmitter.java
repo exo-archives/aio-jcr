@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,7 +39,7 @@ public interface AsyncTransmitter {
    * @param subscribers
    * @throws IOException
    */
-  void sendChanges(ChangesFile[] changes, List<Member> subscribers) throws IOException;
+  void sendChanges(ChangesFile[] changes, List<MemberAddress> subscribers) throws IOException;
 
   /**
    * Send Get Export request.
@@ -48,7 +48,7 @@ public interface AsyncTransmitter {
    * @param address
    * @throws IOException
    */
-  void sendGetExport(String nodeId, Member address) throws IOException;
+  void sendGetExport(String nodeId, MemberAddress address) throws IOException;
 
   /**
    * Send export response.
@@ -57,7 +57,7 @@ public interface AsyncTransmitter {
    * @param address
    * @throws IOException
    */
-  void sendExport(ChangesFile changes, Member address) throws IOException;
+  void sendExport(ChangesFile changes, MemberAddress address) throws IOException;
 
   /**
    * sendError.
@@ -66,7 +66,7 @@ public interface AsyncTransmitter {
    * @param address
    * @throws IOException
    */
-  void sendError(String error, Member address) throws IOException;
+  void sendError(String error, MemberAddress address) throws IOException;
   
   /**
    * send 'Done'.
@@ -81,12 +81,5 @@ public interface AsyncTransmitter {
    * @throws IOException
    */
   void sendCancel() throws IOException;
-  
-  /**
-   * getOtherMembers.
-   *
-   * @return List<Member> list of other members.
-   */
-  List<Member> getOtherMembers();
 
 }

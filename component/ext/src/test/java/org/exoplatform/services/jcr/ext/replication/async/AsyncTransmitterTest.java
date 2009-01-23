@@ -44,7 +44,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacke
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -359,7 +359,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     private long                             totalFiles;
 
-    public void receive(AbstractPacket p, Member member) {
+    public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ChangesPacket) {
         ChangesPacket packet = (ChangesPacket) p;
 
@@ -403,7 +403,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         fail("Han been received not ChangesPacket.");
     }
 
-    public void onError(Member sourceAddress) {
+    public void onError(MemberAddress sourceAddress) {
     }
 
     protected List<ChangesFile> getChangesFiles() {
@@ -414,10 +414,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   private class CancelReceiver implements AsyncPacketListener {
     private CancelPacket cancelPacket;
 
-    public void onError(Member sourceAddress) {
+    public void onError(MemberAddress sourceAddress) {
     }
 
-    public void receive(AbstractPacket packet, Member sourceAddress) {
+    public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
       if (packet instanceof CancelPacket) {
         switch (packet.getType()) {
         case AsyncPacketTypes.SYNCHRONIZATION_CANCEL:
@@ -435,10 +435,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   private class MergeReceiver implements AsyncPacketListener {
     private MergePacket mergePacket;
 
-    public void onError(Member sourceAddress) {
+    public void onError(MemberAddress sourceAddress) {
     }
 
-    public void receive(AbstractPacket packet, Member sourceAddress) {
+    public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
       if (packet instanceof MergePacket) {
         switch (packet.getType()) {
         case AsyncPacketTypes.SYNCHRONIZATION_MERGE:
@@ -456,10 +456,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   private class ExporErrorReceiver implements AsyncPacketListener {
     private ErrorPacket errorPacket;
 
-    public void onError(Member sourceAddress) {
+    public void onError(MemberAddress sourceAddress) {
     }
 
-    public void receive(AbstractPacket packet, Member sourceAddress) {
+    public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
       if (packet instanceof ErrorPacket) {
         switch (packet.getType()) {
         case AsyncPacketTypes.EXPORT_ERROR:
@@ -477,10 +477,10 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   private class GetExportReceiver implements AsyncPacketListener {
     private GetExportPacket getExportPacket;
 
-    public void onError(Member sourceAddress) {
+    public void onError(MemberAddress sourceAddress) {
     }
 
-    public void receive(AbstractPacket packet, Member sourceAddress) {
+    public void receive(AbstractPacket packet, MemberAddress sourceAddress) {
       if (packet instanceof GetExportPacket) {
         switch (packet.getType()) {
         case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
@@ -498,7 +498,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
   private class ExportChangesReceiver implements AsyncPacketListener {
     private ChangesFile exportChangesFile;
 
-    public void receive(AbstractPacket p, Member member) {
+    public void receive(AbstractPacket p, MemberAddress member) {
       if (p instanceof ExportChangesPacket) {
         ExportChangesPacket packet = (ExportChangesPacket) p;
 
@@ -535,7 +535,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         fail("Han been received not ExportChangesPacket.");
     }
 
-    public void onError(Member sourceAddress) {
+    public void onError(MemberAddress sourceAddress) {
     }
   }
 

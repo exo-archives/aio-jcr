@@ -37,7 +37,8 @@ import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -67,11 +68,11 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   protected boolean                   stopped = false;
 
   class ExportWorker extends Thread {
-    final Member member;
+    final MemberAddress member;
 
     final String nodeId;
 
-    ExportWorker(Member member, String nodeId) {
+    ExportWorker(MemberAddress member, String nodeId) {
       this.member = member;
       this.nodeId = nodeId;
     }
@@ -86,7 +87,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
         transmitter.sendExport(chl, member);
 
         if (LOG.isDebugEnabled())
-          LOG.debug("Remote export request served, send result to member " + member.getName());
+          LOG.debug("Remote export request served, send result to member " + member);
       } catch (IOException e) {
         LOG.error("IO error on send export changes " + e, e);
       } catch (RepositoryException e) {
@@ -179,7 +180,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   public void sendExport(RemoteExportRequest event) {
     if (this.stopped) {
       LOG.warn("Export server stopped. Cannot handle SEND EXPORT request for Node Id "
-          + event.getNodeId() + ". Request from " + event.getMember().getName());
+          + event.getNodeId() + ". Request from " + event.getMember());
     } else {
       ExportWorker export = new ExportWorker(event.getMember(), event.getNodeId());
       export.start();
@@ -194,7 +195,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   public void onCancel() {
     for (ExportWorker worker : workers) {
       worker.interrupt();
-      LOG.info("Interrupt export for member " + worker.member.getName());
+      LOG.info("Interrupt export for member " + worker.member);
     }
   }
 
@@ -205,7 +206,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
     for (ExportWorker worker : workers) {
       if (members.contains(worker.member)) {
         worker.interrupt();
-        LOG.info("Interrupt export for member " + worker.member.getName());
+        LOG.info("Interrupt export for member " + worker.member);
       }
     }
   }
@@ -228,7 +229,7 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(Member localMember, List<Member> members) {
     // not interested
   }
 

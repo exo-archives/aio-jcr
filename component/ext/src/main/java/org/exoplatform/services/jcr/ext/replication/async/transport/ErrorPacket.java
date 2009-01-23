@@ -30,14 +30,10 @@ import org.exoplatform.services.jcr.impl.Constants;
  */
 public class ErrorPacket extends MessagePacket {
 
-  private static String errorMessage;
+  private String errorMessage;
 
-  public ErrorPacket() {
-    super();
-  }
-
-  public ErrorPacket(int type, String message) {
-    super(type);
+  public ErrorPacket(int type, String message, int priority) {
+    super(type, priority);
     this.errorMessage = message;
   }
 

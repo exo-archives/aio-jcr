@@ -28,23 +28,23 @@ import java.util.List;
  */
 public class AsyncStateEvent {
   
-  private final List<Member> members;
+  private final List<MemberAddress> members;
   
-  private final Member localMember;
+  private final MemberAddress localMember;
   
   /**
    * @return the members
    */
-  public List<Member> getMembers() {
+  public List<MemberAddress> getMembers() {
     return members;
   }
 
-  public AsyncStateEvent(Member localMember, List<Member> members) {
+  public AsyncStateEvent(MemberAddress localMember, List<MemberAddress> members) {
     this.members = members;
     this.localMember = localMember;
   }
 
-  public Member getLocalMember() {
+  public MemberAddress getLocalMember() {
     return localMember;
   }
   

@@ -24,6 +24,7 @@ import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
+ * 
  * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
  * @version $Id: ChangesPacket.java 111 2008-11-11 11:11:11Z serg $
  */
@@ -55,34 +56,25 @@ public class ChangesPacket extends AbstractPacket {
   private byte[] buffer;
   
   /**
-   * The priority of transmitter. 
-   */
-  private int             transmitterPriority;
-
-  public ChangesPacket(){
-    super();
-  }
-  
-  /**
    * Constructor.
    * 
-   * @param type see AsyncPacketTypes
+   * @param type
+   *          see AsyncPacketTypes
    * @param crc
    * @param timeStamp
-   * @param transmitterPriority
+   * @param priority
    * @param fileCount
    * @param offset
    * @param buffer
    */
   public ChangesPacket(int type,
-                       int transmitterPriority,
-                          String crc,
-                          long timeStamp,
-                          int fileCount,
-                          long offset,
-                          byte[] buffer) {
-    super(type);
-    this.transmitterPriority = transmitterPriority; 
+                       int priority,
+                       String crc,
+                       long timeStamp,
+                       int fileCount,
+                       long offset,
+                       byte[] buffer) {
+    super(type, priority);
     this.crc = crc;
     this.timeStamp = timeStamp;
     this.fileCount = fileCount;
@@ -93,7 +85,7 @@ public class ChangesPacket extends AbstractPacket {
   public String getCRC() {
     return this.crc;
   }
-  
+
   public long getTimeStamp() {
     return timeStamp;
   }
@@ -110,18 +102,14 @@ public class ChangesPacket extends AbstractPacket {
     return this.buffer;
   }
 
-  public int getTransmitterPriority() {
-    return transmitterPriority;
-  }
-  
   /**
    * {@inheritDoc}
    */
   public void writeExternal(ObjectOutput out) throws IOException {
     super.writeExternal(out);
-    
-    out.writeInt(transmitterPriority);
-        
+
+    out.writeInt(priority);
+
     if (crc != null) {
       byte[] b = crc.getBytes(Constants.DEFAULT_ENCODING);
       out.writeInt(NOT_NULL_VALUE);
@@ -131,7 +119,7 @@ public class ChangesPacket extends AbstractPacket {
       out.writeInt(NULL_VALUE);
     }
     out.writeLong(timeStamp);
-    
+
     out.writeInt(fileCount);
     out.writeLong(offset);
 
@@ -149,7 +137,7 @@ public class ChangesPacket extends AbstractPacket {
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     super.readExternal(in);
 
-    transmitterPriority = in.readInt();
+    priority = in.readInt();
     if (in.readInt() == NOT_NULL_VALUE) {
       byte[] buf = new byte[in.readInt()];
       in.readFully(buf);
@@ -177,5 +165,5 @@ public class ChangesPacket extends AbstractPacket {
   public String toString() {
     return super.toString() + " [fc:" + getFileCount() + ", t:" + getTimeStamp() + "]";
   }
-  
+
 }

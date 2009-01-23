@@ -21,14 +21,15 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -40,27 +41,40 @@ import org.exoplatform.services.log.ExoLogger;
 public class IncomeStorageImpl extends SynchronizationLifeCycle implements IncomeStorage,
     LocalEventListener, RemoteEventListener {
 
-  protected static final Log LOG = ExoLogger.getLogger("jcr.IncomeStorageImpl");
+  protected static final Log                     LOG     = ExoLogger.getLogger("jcr.IncomeStorageImpl");
 
-  protected final String     storagePath;
+  protected final String                         storagePath;
+
+  protected final Map<Member, List<ChangesFile>> changes = new LinkedHashMap<Member, List<ChangesFile>>();
+
+  // TODO final
+  private Member                                 member;
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
   }
 
   /**
+   * @param member
+   *          the member to set
+   */
+  public void setMember(Member member) {
+    this.member = member;
+  }
+
+  /**
    * {@inheritDoc}
    */
-  public void addMemberChanges(Member member, ChangesFile changes) throws IOException {
+  public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
     // TODO check if CRC is valid for received file
 
-    // get member directory
-    // File dir = new File(storagePath, Integer.toString(member.getPriority()));
+    List<ChangesFile> mch = this.changes.get(member);
+    if (mch == null) {
+      mch = new ArrayList<ChangesFile>();
+      this.changes.put(member, mch);
+    }
 
-    // dir.mkdirs();
-
-    // move changes file to member directory
-    // if(!changes.moveTo(dir)) throw new IOException("Can't move file.");
+    mch.add(changesFile);
   }
 
   /**
@@ -76,6 +90,32 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public List<ChangesStorage<ItemState>> getChanges() throws IOException {
+    return getChangesFromMap();
+  }
+
+  /**
+   * Get changes from runtime Map.
+   * 
+   * @return List of ChangesStorage
+   */
+  private List<ChangesStorage<ItemState>> getChangesFromMap() {
+
+    List<ChangesStorage<ItemState>> result = new ArrayList<ChangesStorage<ItemState>>();
+    for (Map.Entry<Member, List<ChangesFile>> entry : changes.entrySet()) {
+      result.add(new ChangesLogStorage<ItemState>(entry.getValue(), entry.getKey()));
+    }
+
+    return result;
+  }
+
+  /**
+   * Get changes from FS. Usefull when we wants load changes from persistence - file system.
+   * 
+   * @return List of ChangesStorage
+   * @throws IOException
+   *           on FS error
+   */
+  private List<ChangesStorage<ItemState>> getChangesFromFS() throws IOException {
 
     File incomStorage = new File(storagePath);
     File[] memberDirs = incomStorage.listFiles(new FilenameFilter() {
@@ -104,11 +144,11 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
           File ch = new File(memberDir, fileNames[j]);
           chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
         }
-        
+
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
-        
+
         ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                new Member(memberPriority));
+                                                                                this.member);
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {
         // This is not int-named file. Fatal.
@@ -141,7 +181,10 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    */
   public void onDisconnectMembers(List<Member> members) {
     LOG.info("On DisconnectMembers");
-    
+
+    for (Member member : members)
+      changes.remove(member);
+
     // Get members directory
 
     Iterator<Member> memIt = members.iterator();
@@ -156,9 +199,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    */
   public void onCancel() {
     LOG.info("On CANCEL");
-    
+
     doStop();
-    
+
     // clean storage
     File dir = new File(storagePath);
     if (dir.exists()) {
@@ -170,9 +213,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START");
-    
+
     // prepare storage (clean)
     File dir = new File(storagePath);
     if (dir.exists()) {
@@ -187,9 +230,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    */
   public void onStop() {
     LOG.info("On STOP");
-    
+
     doStop();
-    
+
     // clean storage
     File dir = new File(storagePath);
     if (dir.exists()) {

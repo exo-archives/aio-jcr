@@ -31,7 +31,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacke
 import org.exoplatform.services.jcr.ext.replication.async.transport.ErrorPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ExportChangesPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.GetExportPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.ext.replication.async.transport.MergePacket;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -60,7 +60,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendChanges(ChangesFile[] changes, List<Member> subscribers) throws IOException {
+  public void sendChanges(ChangesFile[] changes, List<MemberAddress> subscribers) throws IOException {
     try {
       for (ChangesFile cf : changes)
         this.sendChangesLogFile(subscribers, cf, priority, changes.length);
@@ -73,8 +73,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendGetExport(String nodeId, Member address) throws IOException {
-    GetExportPacket packet = new GetExportPacket(nodeId);
+  public void sendGetExport(String nodeId, MemberAddress address) throws IOException {
+    GetExportPacket packet = new GetExportPacket(nodeId, priority);
     try {
       channel.sendPacket(packet, address);
     } catch (IOException e) {
@@ -89,7 +89,7 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws IOException
    */
 
-  public void sendExport(ChangesFile changes, Member destAddress) throws IOException {
+  public void sendExport(ChangesFile changes, MemberAddress destAddress) throws IOException {
     try {
       sendExportChangesLogFile(destAddress, changes, 1);
     } catch (IOException e) {
@@ -102,9 +102,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
   /**
    * {@inheritDoc}
    */
-  public void sendError(String error, Member destAddress) throws IOException {
+  public void sendError(String error, MemberAddress destAddress) throws IOException {
     try {
-      ErrorPacket packet = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, error);
+      ErrorPacket packet = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, error, priority);
       channel.sendPacket(packet, destAddress);
     } catch (IOException e) {
       LOG.error("Cannot send export data", e);
@@ -142,17 +142,17 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @throws Exception
    *           will be generated the Exception
    */
-  protected void sendChangesLogFile(Member destinationAddress,
+  protected void sendChangesLogFile(MemberAddress destinationAddress,
                                     ChangesFile clFile,
                                     int transmitterPriority,
                                     int totalFiles) throws IOException {
-    List<Member> destinationAddresses = new ArrayList<Member>();
+    List<MemberAddress> destinationAddresses = new ArrayList<MemberAddress>();
     destinationAddresses.add(destinationAddress);
 
     sendChangesLogFile(destinationAddresses, clFile, transmitterPriority, totalFiles);
   }
 
-  protected void sendChangesLogFile(List<Member> destinationAddresses,
+  protected void sendChangesLogFile(List<MemberAddress> destinationAddresses,
                                     ChangesFile clFile,
                                     int transmitterPriority,
                                     int totalFiles) throws IOException {
@@ -181,7 +181,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                totalFiles,
                                offset,
                                buff);
-    channel.sendPacket(packet, destinationAddresses);
+
+    for (MemberAddress dm : destinationAddresses)
+      channel.sendPacket(packet, dm);
 
     offset += len;
     if (LOG.isDebugEnabled())
@@ -204,7 +206,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                  offset,
                                  buff);
 
-      channel.sendPacket(packet, destinationAddresses);
+      for (MemberAddress dm : destinationAddresses)
+        channel.sendPacket(packet, dm);
 
       offset += len;
       if (LOG.isDebugEnabled())
@@ -222,7 +225,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     if (LOG.isDebugEnabled())
       LOG.debug("Send PacType [BINARY_CHANGESLOG_LAST_PACKET] --> " + offset);
 
-    channel.sendPacket(packet, destinationAddresses);
+    for (MemberAddress dm : destinationAddresses)
+      channel.sendPacket(packet, dm);
 
     in.close();
 
@@ -238,13 +242,13 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
    * @param totalFiles
    * @throws IOException
    */
-  protected void sendExportChangesLogFile(Member destinationAddress,
+  protected void sendExportChangesLogFile(MemberAddress destinationAddress,
                                           ChangesFile clFile,
                                           int totalFiles) throws IOException {
     if (LOG.isDebugEnabled())
       LOG.debug("Begin send : " + clFile.getChecksum());
 
-    List<Member> destinationAddresses = new ArrayList<Member>();
+    List<MemberAddress> destinationAddresses = new ArrayList<MemberAddress>();
     destinationAddresses.add(destinationAddress);
 
     InputStream in = clFile.getDataStream();
@@ -269,7 +273,9 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                      totalFiles,
                                      offset,
                                      buf);
-    channel.sendPacket(packet, destinationAddresses);
+    for (MemberAddress dm : destinationAddresses)
+      channel.sendPacket(packet, dm);
+    
     offset += len;
     if (LOG.isDebugEnabled())
       LOG.debug("Send PacType [EXPORT_CHANGES_FIRST_PACKET] --> " + offset);
@@ -290,7 +296,8 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
                                        offset,
                                        buf);
 
-      channel.sendPacket(packet, destinationAddresses);
+      for (MemberAddress dm : destinationAddresses)
+        channel.sendPacket(packet, dm);
 
       offset += len;
       if (LOG.isDebugEnabled())
@@ -307,16 +314,12 @@ public class AsyncTransmitterImpl implements AsyncTransmitter {
     if (LOG.isDebugEnabled())
       LOG.debug("Send PacType [EXPORT_CHANGES_LAST_PACKET] --> " + offset);
 
-    channel.sendPacket(packet, destinationAddresses);
+    for (MemberAddress dm : destinationAddresses)
+      channel.sendPacket(packet, dm);
 
     in.close();
 
     if (LOG.isDebugEnabled())
       LOG.debug("End send : " + clFile.getChecksum());
   }
-
-  public List<Member> getOtherMembers() {
-    return channel.getOtherMembers();
-  }
-
 }

@@ -35,10 +35,10 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -67,6 +67,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final IncomeStorage                   incomeStorrage;
 
   protected final AsyncTransmitter                transmitter;
+
+  protected final AsyncInitializer                initializer;
 
   protected HashMap<Integer, Counter>             counterMap;
 
@@ -110,27 +112,35 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       } catch (RepositoryException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+        return;
       } catch (RemoteExportException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+        return;
       } catch (IOException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+        return;
       } catch (ClassCastException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+        return;
       } catch (ClassNotFoundException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+        return;
       } catch (MergeDataManagerException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+        return;
       } catch (ChangesLogReadException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
+        return;
       } catch (Throwable t) {
         workerLog.error("Merge error " + t, t);
         doCancel();
+        return;
       }
 
       if (doneList.size() == membersCount) {
@@ -200,7 +210,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     }
   }
 
-  public ChangesSubscriberImpl(WorkspaceSynchronizer workspace,
+  public ChangesSubscriberImpl(AsyncInitializer initializer,
+                               WorkspaceSynchronizer workspace,
                                MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
                                AsyncTransmitter transmitter,
@@ -210,6 +221,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     this.mergeManager = mergeManager;
     this.workspace = workspace;
     this.incomeStorrage = incomeStorage;
+    this.initializer = initializer;
     this.transmitter = transmitter;
     this.localPriority = localPriority;
     this.membersCount = membersCount;
@@ -237,7 +249,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
           doStart();
 
           for (LocalEventListener syncl : listeners)
-            syncl.onStart(transmitter.getOtherMembers());
+            syncl.onStart(null, initializer.getOtherMembers());
         }
 
         ChangesFile cf = incomeStorrage.createChangesFile(packet.getCRC(),
@@ -413,7 +425,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   }
 
-  public void onStart(List<Member> members) {
+  public void onStart(Member localMember, List<Member> members) {
     // not interested actually
     LOG.info("On START (local) " + members.size() + " members");
 
