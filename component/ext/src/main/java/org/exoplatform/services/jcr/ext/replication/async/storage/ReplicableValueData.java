@@ -220,7 +220,7 @@ public class ReplicableValueData extends AbstractValueData implements Externaliz
   public InputStream getAsStream() throws IOException {
     if (data != null) {
       return new ByteArrayInputStream(data);
-    } else if (spoolFile != null) {
+    } else if (spoolFile != null && spoolFile.exists()) {
       return new FileInputStream(spoolFile);
     } else
       throw new NullPointerException("Null Stream data ");

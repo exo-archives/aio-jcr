@@ -190,7 +190,7 @@ public class ChangesFile {
    */
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
-      fileAccessor = new RandomAccessFile(file, "rw");
+      fileAccessor = new RandomAccessFile(file, "rwd");
     }
   }
 
@@ -217,9 +217,12 @@ public class ChangesFile {
   }*/
 
   public String getPath() {
-    
     return file.getAbsolutePath();
+  }
+
+  public long length() {
     
+    return 0;
   }
 
 }

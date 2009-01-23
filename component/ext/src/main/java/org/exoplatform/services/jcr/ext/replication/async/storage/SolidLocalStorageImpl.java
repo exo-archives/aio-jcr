@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -48,16 +48,15 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
-import org.exoplatform.services.jcr.impl.util.io.FileCleaner;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
- * Created by The eXo Platform SAS. <br/>Date: 26.12.2008
+ * Created by The eXo Platform SAS. <br/>Date:
  * 
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
- * @version $Id$
+ * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
+ * @version $Id: SolidLocalStorageImpl.java 111 2008-11-11 11:11:11Z serg $
  */
-public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
+public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements LocalStorage,
     LocalEventListener, RemoteEventListener {
 
   protected static final Log    LOG                        = ExoLogger.getLogger("jcr.LocalStorageImpl");
@@ -74,9 +73,26 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   protected static final String ERROR_FILENAME             = "errors";
 
+  // protected static final String MAIN_DIRNAME = "primary";
+
+  // protected static final String BACK_DIRNAME = "back";
+
+  /**
+   * Max ChangesLog file size in Kb.
+   */
+  private static final long     MAX_FILE_SIZE_KB           = 1024;
+
   protected final String        storagePath;
 
   private final int             priority;
+
+  private File                  lastDir                    = null;
+
+  private File                  previousDir                = null;
+
+  private ChangesFile           currentFile                = null;
+
+  private ObjectOutputStream    currentOut                 = null;
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -85,13 +101,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
   private long                  dirIndex                   = 0;
 
-  private FileCleaner           cleaner                    = new FileCleaner();
-
-  public LocalStorageImpl(String storagePath, int priority) {
+  public SolidLocalStorageImpl(String storagePath, int priority) {
     this.storagePath = storagePath;
     this.priority = priority;
 
     // find last index of storage
+
     String[] dirs = getSubStorageNames(this.storagePath);
 
     if (dirs.length != 0) {
@@ -99,12 +114,18 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
       // TODO check is last directory archived. If true create new directory.
 
-      File lastDir = new File(storagePath, dirs[dirs.length - 1]);
+      lastDir = new File(storagePath, dirs[dirs.length - 1]);
+
       // get last filename as index
       String[] fileNames = lastDir.list(new ChangesFileNameFilter());
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
       if (fileNames.length != 0) {
         index = Long.parseLong(fileNames[fileNames.length - 1] + 1);
+      }
+
+      // find previousDir
+      if (dirs.length > 1) {
+        previousDir = new File(storagePath, dirs[dirs.length - 2]);
       }
     } else {
       File subdir = new File(storagePath, Long.toString(dirIndex++));
@@ -119,29 +140,29 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public ChangesStorage<ItemState> getLocalChanges() throws IOException {
-    List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
-    String[] dirNames = getSubStorageNames(storagePath);
+    if (previousDir != null) {
+      List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
-    // get previous directory
-    File prevDir = new File(storagePath, dirNames[dirNames.length - 2]);
+      String[] fileNames = previousDir.list(new ChangesFileNameFilter());
 
-    String[] fileNames = prevDir.list(new ChangesFileNameFilter());
+      java.util.Arrays.sort(fileNames, new ChangesFileComparator());
 
-    java.util.Arrays.sort(fileNames, new ChangesFileComparator());
-
-    for (int j = 0; j < fileNames.length; j++) {
-      try {
-        File ch = new File(prevDir, fileNames[j]);
-        chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
-      } catch (NumberFormatException e) {
-        throw new IOException(e.getMessage());
+      for (int j = 0; j < fileNames.length; j++) {
+        try {
+          File ch = new File(previousDir, fileNames[j]);
+          chFiles.add(new ChangesFile(ch, "", Long.parseLong(fileNames[j])));
+        } catch (NumberFormatException e) {
+          throw new IOException(e.getMessage());
+        }
       }
-    }
 
-    ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                  new Member(priority));
-    return changeStorage;
+      ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
+                                                                                    new Member(priority));
+      return changeStorage;
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -150,30 +171,44 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void onSaveItems(ItemStateChangesLog itemStates) {
 
     if (!(itemStates instanceof SynchronizerChangesLog)) {
+
       try {
 
-        // TODO remove read all directories in each operation
-        String[] dirs = getSubStorageNames(storagePath);
+        addChangesLog(itemStates);
 
-        File lastDir = new File(storagePath, dirs[dirs.length - 1]);
-
-        ChangesFile file = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
-        // System.out.println(file.getPath() + " created ");
-
-        ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
-
-        TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
-
-        out.writeObject(log);
-        out.close();
-        file.finishWrite();
-
-        // System.out.println(file.getPath() + " finished write");
       } catch (IOException e) {
         LOG.error("On save items error " + e, e);
         this.reportException(e);
       }
     }
+  }
+
+  protected void addChangesLog(ItemStateChangesLog itemStates) throws IOException {
+
+    // TODO make addition Log to list and writer Thread
+    writeLog(itemStates);
+  }
+
+  protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
+
+    // File lastDir = new File(storagePath, dirs[dirs.length - 1]);
+
+    // Check is file already exists and not too big.
+    if (currentFile == null || (currentFile.length() > MAX_FILE_SIZE_KB * 1024)) {
+      currentFile = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
+      // System.out.println(file.getPath() + " created ");
+    }
+
+    ObjectOutputStream out = new ObjectOutputStream(currentFile.getOutputStream());
+
+    TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
+
+    out.writeObject(log);
+    out.close();
+    currentFile.finishWrite();
+
+    // System.out.println(file.getPath() + " finished write");
+
   }
 
   private String[] getSubStorageNames(String rootPath) {
@@ -343,12 +378,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public void onStop() {
     // TODO archive primary dir content
-
     // delete files in primary dir
-
-    File prevDir = new File(storagePath, Long.toString(dirIndex - 2));
-    deleteDir(prevDir);
     LOG.info("On STOP");
+
   }
 
   /**
@@ -410,18 +442,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   }
 
   public void deleteDir(File dir) {
-    File[] subfiles = dir.listFiles();
 
-    for (File f : subfiles) {
-      if (!f.delete()) {
-        cleaner.addFile(f);
-      }
-    }
-
-    if (!dir.delete())
-      ;
-    {
-      cleaner.addFile(dir);
-    }
   }
 }
