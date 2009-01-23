@@ -27,7 +27,6 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,8 +38,8 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
  */
 public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage<T> {
 
-  public TesterChangesStorage(Member member) {
-    super(new ArrayList<ChangesFile>(), member);
+  public TesterChangesStorage() {
+    super(new ArrayList<ChangesFile>());
   }
 
   public void addLog(ItemStateChangesLog log) throws IOException {

@@ -52,7 +52,12 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
   /**
    * Member address. Mutable value. Will be changed by Merge manager on each members pair merge.
    */
-  protected MemberAddress                 member;
+  protected MemberAddress                 localMember;
+  
+  /**
+   * Current changesFile owner.
+   */
+  protected Member                 changesOwner = null;
 
   /**
    * Changes file.
@@ -77,7 +82,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
 
     // send request
     try {
-      transmitter.sendGetExport(nodetId, member);
+      transmitter.sendGetExport(nodetId, localMember);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }
@@ -114,20 +119,25 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         // throw new RemoteExportException("Remote export failed. Received data corrupted.");
       }
 
+      if (changesOwner == null)
+        throw new RemoteExportException("Changes owner (member) is set");
+      
       // return Iterator based on ChangesFile
-      return new ItemStatesStorage<ItemState>(changesFile);
+      return new ItemStatesStorage<ItemState>(changesFile, changesOwner);
     } catch (IOException e) {
       throw new RemoteExportException(e);
     } catch (NoSuchAlgorithmException e) {
       throw new RemoteExportException(e);
+    } finally {
+      changesFile = null; // TODO
     }
   }
 
   /**
    * {@inheritDoc}
    */
-  public void setMember(MemberAddress address) {
-    member = address;
+  public void setLocalMember(MemberAddress address) {
+    localMember = address;
   }
 
   /**
@@ -138,6 +148,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       switch (event.getType()) {
       case RemoteExportResponce.FIRST:
         initChangesFile(event.getCRC(), event.getTimeStamp());
+        changesOwner = event.getMember();
         changesFile.writeData(event.getBuffer(), event.getOffset());
         break;
 
@@ -147,8 +158,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
         break;
 
       case RemoteExportResponce.LAST:
-        if (changesFile != null)
-          changesFile.finishWrite();
+        changesFile.finishWrite();
         latch.countDown();
         break;
       }

@@ -49,11 +49,6 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
   protected final List<ChangesFile> storage;
 
   /**
-   * Storage owner member info.
-   */
-  protected final Member            member;
-
-  /**
    * Iterator that goes throw all files in storage and returns TransactionChangesLog objects.
    * 
    * @author <a href="karpenko.sergiy@gmail.com">Karpenko Sergiy</a>
@@ -203,9 +198,8 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
    * @param member
    *          owner
    */
-  public ChangesLogStorage(List<ChangesFile> storage, Member member) {
+  public ChangesLogStorage(List<ChangesFile> storage) {
     this.storage = storage;
-    this.member = member;
   }
 
   /**
@@ -305,10 +299,6 @@ public class ChangesLogStorage<T extends ItemState> extends AbstractChangesStora
 
   public T getItemState(NodeData parentData, QPathEntry name) {
     throw new RuntimeException("Not implemented");
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   public T findNextState(ItemState fromState, String identifier) throws IOException {

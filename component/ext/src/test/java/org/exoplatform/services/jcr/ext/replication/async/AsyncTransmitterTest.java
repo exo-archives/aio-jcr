@@ -221,7 +221,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel2.disconnect();
 
     // compare data
-    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf).getChanges(); 
+    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null).getChanges(); // TODO member 
     Iterator<ItemState> destChanges = new ItemStatesStorage<ItemState>(exportChangesReceiver.exportChangesFile).getChanges(); 
     // compare ChangesLog
     

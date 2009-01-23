@@ -41,13 +41,6 @@ import org.exoplatform.services.jcr.datamodel.QPathEntry;
 public interface ChangesStorage<T extends ItemState> {
 
   /**
-   * Get this changes member.
-   * 
-   * @return Member
-   */
-  Member getMember();
-
-  /**
    * Return this storage backed ChangesFile(s).
    * 
    * @return array of ChangesFile

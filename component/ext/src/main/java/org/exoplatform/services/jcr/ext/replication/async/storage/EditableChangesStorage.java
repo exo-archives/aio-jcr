@@ -24,24 +24,28 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * Created by The eXo Platform SAS.
  * 
  * <br/>Date: 29.12.2008
- *
- * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
+ * 
+ * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: EditableChangesStorage.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public interface EditableChangesStorage<T extends ItemState> extends ChangesStorage<T> {
+public interface EditableChangesStorage<T extends ItemState> extends MemberChangesStorage<T> {
 
   /**
    * Add change.
-   *
-   * @param change ItemState 
+   * 
+   * @param change
+   *          ItemState
    */
   void add(T change) throws IOException;
-  
+
   /**
    * Add all changes.
-   *
-   * @param changes Iterator of ItemState 
+   * 
+   * @param changes
+   *          Iterator of ItemState
    */
   void addAll(ChangesStorage<T> changes) throws IOException;
   
+  
+
 }

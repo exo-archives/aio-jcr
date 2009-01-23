@@ -222,7 +222,7 @@ public class AsyncChannelManager implements RequestHandler, MembershipListener {
       throw new ReplicationException("Can't create JGroups channel", e);
     }
 
-    LOG.info("channalName : " + channelName);
+    LOG.info("Channel name : " + channelName);
 
     try {
       channel.connect(channelName);

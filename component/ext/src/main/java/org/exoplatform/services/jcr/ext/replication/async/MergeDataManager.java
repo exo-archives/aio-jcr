@@ -25,7 +25,6 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -40,6 +39,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.log.ExoLogger;
 
@@ -66,14 +66,16 @@ public class MergeDataManager {
   /**
    * Flag allowing run of merge.
    */
-  private volatile boolean            run = true;
+  private volatile boolean            run         = true;
 
   private final String                storageDir;
+
+  private Member                      localMember = null;
 
   /**
    * Log.
    */
-  protected static Log                log = ExoLogger.getLogger("jcr.MergerDataManager");
+  protected static Log                log         = ExoLogger.getLogger("jcr.MergerDataManager");
 
   MergeDataManager(RemoteExporter exporter,
                    DataManager dataManager,
@@ -90,6 +92,14 @@ public class MergeDataManager {
     this.localPriority = localPriority;
 
     this.storageDir = storageDir;
+  }
+
+  /**
+   * @param localMember
+   *          the localMember to set
+   */
+  public void setLocalMember(Member localMember) {
+    this.localMember = localMember;
   }
 
   private File makePath(Member first, Member second) {
@@ -110,13 +120,13 @@ public class MergeDataManager {
    * @throws ClassCastException
    * @throws MergeDataManagerException
    */
-  public ChangesStorage<ItemState> merge(Iterator<ChangesStorage<ItemState>> membersChanges) throws RepositoryException,
-                                                                                            RemoteExportException,
-                                                                                            IOException,
-                                                                                            ClassCastException,
-                                                                                            ClassNotFoundException,
-                                                                                            MergeDataManagerException,
-                                                                                            ChangesLogReadException {
+  public ChangesStorage<ItemState> merge(Iterator<MemberChangesStorage<ItemState>> membersChanges) throws RepositoryException,
+                                                                                                  RemoteExportException,
+                                                                                                  IOException,
+                                                                                                  ClassCastException,
+                                                                                                  ClassNotFoundException,
+                                                                                                  MergeDataManagerException,
+                                                                                                  ChangesLogReadException {
 
     try {
 
@@ -125,13 +135,14 @@ public class MergeDataManager {
       ChangesStorage<ItemState> local;
       ChangesStorage<ItemState> income;
 
-      ChangesStorage<ItemState> first = membersChanges.next();
+      MemberChangesStorage<ItemState> first = membersChanges.next();
 
       while (membersChanges.hasNext() && run) {
-        ChangesStorage<ItemState> second = membersChanges.next();
+        MemberChangesStorage<ItemState> second = membersChanges.next();
 
         synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
-                                                                                second.getMember()));
+                                                                                second.getMember()),
+                                                                       localMember);
 
         List<QPath> skippedList = new ArrayList<QPath>();
 
@@ -144,23 +155,34 @@ public class MergeDataManager {
           local = first;
         }
 
-        exporter.setMember(second.getMember().getAddress());
+        exporter.setLocalMember(second.getMember().getAddress());
         // TODO NT reregistration
 
-        AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
-        DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
+        AddMerger addMerger = new AddMerger(localMember,
+                                            isLocalPriority,
+                                            exporter,
+                                            dataManager,
+                                            ntManager);
+        DeleteMerger deleteMerger = new DeleteMerger(localMember,
+                                                     isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
-        UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
+        UpdateMerger udpateMerger = new UpdateMerger(localMember,
+                                                     isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
-        RenameMerger renameMerger = new RenameMerger(isLocalPriority,
+        RenameMerger renameMerger = new RenameMerger(localMember,
+                                                     isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
-        MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
+        MixinMerger mixinMerger = new MixinMerger(localMember,
+                                                  isLocalPriority,
+                                                  exporter,
+                                                  dataManager,
+                                                  ntManager);
 
         outer: for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();

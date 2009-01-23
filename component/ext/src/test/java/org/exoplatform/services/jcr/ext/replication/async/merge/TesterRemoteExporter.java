@@ -92,7 +92,7 @@ public class TesterRemoteExporter implements RemoteExporter {
       out.close();
       chfile.finishWrite();
       
-      chs = new ItemStatesStorage<ItemState>(chfile);
+      chs = new ItemStatesStorage<ItemState>(chfile, null); // TODO member
     } catch (IOException e) {
       throw new RemoteExportException(e);
     }
@@ -110,7 +110,7 @@ public class TesterRemoteExporter implements RemoteExporter {
     // dummy
   }
 
-  public void setMember(MemberAddress address) {
+  public void setLocalMember(MemberAddress address) {
     // dummy
   }
 }

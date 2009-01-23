@@ -114,10 +114,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> getLocalChanges(Member localMember) throws IOException {
-
-    if (localMember == null)
-      throw new IOException("Local member is not defined (null).");
+  public ChangesStorage<ItemState> getLocalChanges() throws IOException {
 
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
@@ -139,8 +136,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       }
     }
 
-    ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                  localMember);
+    ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles);
     return changeStorage;
   }
 

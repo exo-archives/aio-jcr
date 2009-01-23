@@ -16,9 +16,6 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
-import java.util.List;
-
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 
 
 /**
@@ -30,12 +27,5 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
  * @version $Id$
  */
 public interface ChangesPublisher {
-
-  /**
-   * Send changes to a given members. Start synchronization actually.
-   *
-   * @param subscribers - Replication members
-   */
-  void sendChanges(List<Member> subscribers);
   
 }

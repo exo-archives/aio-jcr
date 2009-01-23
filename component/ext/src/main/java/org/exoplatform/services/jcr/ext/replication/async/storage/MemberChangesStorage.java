@@ -2,7 +2,7 @@
  * 
  */
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2007 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -17,42 +17,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.ext.replication.async;
-
+package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
-import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
  * 
- * <br/>Handles remote item export request. Returns item copy from a remote host. Remote item will
- * be returned as list of <code>ItemState</code>.
+ * <br/>Actually ChangesLog impl. But without getAllStates().
  * 
- * <br/>Date: 11.12.2008
+ * <br/>Date: 16.12.2008
  * 
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public interface RemoteExporter {
+public interface MemberChangesStorage<T extends ItemState> extends ChangesStorage<T> {
 
   /**
-   * Set exporter side priority.
+   * Get this changes member.
    * 
-   * @param remotePriority
-   *          int
+   * @return Member
    */
-  void setLocalMember(MemberAddress address);
-
-  /**
-   * Exports remote item and return chnages log with ADD states.
-   * 
-   * @param nodetId
-   *          String
-   * @return Iterator of ItemState
-   * @throws RemoteExportException
-   */
-  ChangesStorage<ItemState> exportItem(String nodetId) throws RemoteExportException;
+  Member getMember();
 
 }

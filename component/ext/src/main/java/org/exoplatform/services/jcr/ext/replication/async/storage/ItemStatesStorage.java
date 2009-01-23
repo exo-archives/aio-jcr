@@ -39,7 +39,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> {
+public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStorage<T> implements MemberChangesStorage<T> {
 
   protected static final Log        LOG     = ExoLogger.getLogger("jcr.ItemStatesStorage");
 
@@ -132,17 +132,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
   /**
    * ItemStatesStorage constructor for merge (Editable...).
    */
-  ItemStatesStorage() {
-    this.member = null;
-  }
-
-  /**
-   * ItemStatesStorage constructor for remote exporter.
-   * 
-   * @param changes
-   */
-  public ItemStatesStorage(ChangesFile changes) {
-    this.storage.add(changes);
+  ItemStatesStorage(Member member) {
     this.member = null;
   }
 

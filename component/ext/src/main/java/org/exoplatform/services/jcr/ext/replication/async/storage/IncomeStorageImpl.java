@@ -55,14 +55,6 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   }
 
   /**
-   * @param member
-   *          the member to set
-   */
-  public void setMember(Member member) {
-    this.member = member;
-  }
-
-  /**
    * {@inheritDoc}
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
@@ -89,7 +81,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public List<ChangesStorage<ItemState>> getChanges() throws IOException {
+  public List<MemberChangesStorage<ItemState>> getChanges() throws IOException {
     return getChangesFromMap();
   }
 
@@ -98,11 +90,12 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * 
    * @return List of ChangesStorage
    */
-  private List<ChangesStorage<ItemState>> getChangesFromMap() {
+  private List<MemberChangesStorage<ItemState>> getChangesFromMap() {
 
-    List<ChangesStorage<ItemState>> result = new ArrayList<ChangesStorage<ItemState>>();
+    List<MemberChangesStorage<ItemState>> result = new ArrayList<MemberChangesStorage<ItemState>>();
     for (Map.Entry<Member, List<ChangesFile>> entry : changes.entrySet()) {
-      result.add(new ChangesLogStorage<ItemState>(entry.getValue(), entry.getKey()));
+      result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue()),
+                                                        entry.getKey()));
     }
 
     return result;
@@ -147,8 +140,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
 
-        ChangesLogStorage<ItemState> storage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                this.member);
+        IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles),
+                                                                                            this.member);
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {
         // This is not int-named file. Fatal.

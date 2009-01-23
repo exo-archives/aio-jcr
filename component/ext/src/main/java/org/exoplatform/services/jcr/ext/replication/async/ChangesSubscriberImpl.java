@@ -29,13 +29,14 @@ import javax.jcr.InvalidItemStateException;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
@@ -171,13 +172,17 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       LOG.error("run merge");
 
       // add local changes to the list
-      List<ChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
+      Member localMember = initializer.getLocalMember();
+
+      List<MemberChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
       if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
-        membersChanges.add(workspace.getLocalChanges());
+        membersChanges.add(new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
+                                                               localMember));
       } else {
         for (int i = 0; i < membersChanges.size(); i++) {
           if (membersChanges.get(i).getMember().getPriority() > localPriority) {
-            membersChanges.add(i, workspace.getLocalChanges());
+            membersChanges.add(i, new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
+                                                                      localMember));
             break;
           }
         }
@@ -185,10 +190,10 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
       // merge
       workerLog.info("start merge of " + (membersChanges.size() - 1) + " members");
+      mergeManager.setLocalMember(localMember);
       result = mergeManager.merge(membersChanges.iterator());
       workerLog.info("merge done");
     }
-
   }
 
   private class Counter {
@@ -242,8 +247,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET: {
         LOG.info("BINARY_CHANGESLOG_FIRST_PACKET " + member.getName());
 
-        // Fire event to Publisher to send own changes out
         if (isInitialized()) {
+          // Fire START on non-Coordinator
           LOG.info("On START (remote) from " + member.getName());
 
           doStart();
@@ -264,7 +269,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         break;
       }
       case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET: {
-        LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
+        // LOG.info("BINARY_CHANGESLOG_MIDDLE_PACKET " + member.getName());
 
         MemberChangesFile mcf = incomChanges.get(new Key(packet.getCRC(), packet.getTimeStamp()));
         mcf.getChangesFile().writeData(packet.getBuffer(), packet.getOffset());

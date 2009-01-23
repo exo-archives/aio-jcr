@@ -136,7 +136,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public ChangesStorage<ItemState> getLocalChanges(Member localMember) throws IOException {
+  public ChangesStorage<ItemState> getLocalChanges() throws IOException {
 
     if (previousDir != null) {
       List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
@@ -154,9 +154,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         }
       }
 
-      SolidChangesLogStorage<ItemState> changeStorage = new SolidChangesLogStorage<ItemState>(chFiles,
-                                                                                    localMember);
-      return changeStorage;
+      return new ChangesLogStorage<ItemState>(chFiles);
     } else {
       return null;
     }

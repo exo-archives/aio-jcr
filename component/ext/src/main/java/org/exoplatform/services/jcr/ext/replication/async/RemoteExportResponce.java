@@ -16,6 +16,8 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async;
 
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -25,7 +27,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
  * @version $Id$
  */
 public class RemoteExportResponce {
-  
+
   public static final int FIRST  = 0;
 
   public static final int MIDDLE = 1;
@@ -37,16 +39,32 @@ public class RemoteExportResponce {
   private final byte[]    buffer;
 
   private final long      offset;
-  
+
   private final String    crc;
+
   private final long      timeStamp;
 
-  RemoteExportResponce(int type, String crc, long timeStamp, byte[] buffer, long offset) {
+  private final Member    member;
+
+  RemoteExportResponce(Member member,
+                       int type,
+                       String crc,
+                       long timeStamp,
+                       byte[] buffer,
+                       long offset) {
+    this.member = member;
     this.type = type;
     this.crc = crc;
     this.timeStamp = timeStamp;
     this.buffer = buffer;
     this.offset = offset;
+  }
+
+  /**
+   * @return the member
+   */
+  public Member getMember() {
+    return member;
   }
 
   public int getType() {
@@ -56,11 +74,11 @@ public class RemoteExportResponce {
   public String getCRC() {
     return crc;
   }
-  
+
   public long getTimeStamp() {
     return timeStamp;
   }
-  
+
   public byte[] getBuffer() {
     return buffer;
   }

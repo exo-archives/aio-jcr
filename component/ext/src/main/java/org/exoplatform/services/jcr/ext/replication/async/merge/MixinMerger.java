@@ -38,6 +38,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogRead
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 
@@ -49,31 +50,13 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id: AddMerger.java 26315 2009-01-06 12:51:39Z tolusha $
  */
-public class MixinMerger implements ChangesMerger {
+public class MixinMerger extends AbstractMerger {
 
-  protected final boolean             localPriority;
-
-  protected final RemoteExporter      exporter;
-
-  protected final DataManager         dataManager;
-
-  protected final NodeTypeDataManager ntManager;
-
-  public MixinMerger(boolean localPriority,
+  public MixinMerger(Member localMember, boolean localPriority,
                      RemoteExporter exporter,
                      DataManager dataManager,
                      NodeTypeDataManager ntManager) {
-    this.localPriority = localPriority;
-    this.exporter = exporter;
-    this.dataManager = dataManager;
-    this.ntManager = ntManager;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public boolean isLocalPriority() {
-    return localPriority;
+    super(localMember, localPriority, exporter, dataManager, ntManager);
   }
 
   /**
@@ -97,11 +80,10 @@ public class MixinMerger implements ChangesMerger {
     boolean itemChangeProcessed = false; // TODO really need?
 
     ItemState incomeState = itemChange;
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+
     ItemState parentNodeState;
-
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
-
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 

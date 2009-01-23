@@ -304,7 +304,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     locStorage.onStart(null, null);
 
     assertEquals(3, list.size());
-    ChangesFile[] files = locStorage.getLocalChanges(null).getChangesFile();
+    ChangesFile[] files = locStorage.getLocalChanges().getChangesFile();
     
     assertEquals(3, files.length);
     
@@ -328,7 +328,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
     
     //check storage logs
     
-    checkIterator(locStorage.getLocalChanges(null).getChanges(), inStorage.getChanges().get(0).getChanges(), true);
+    checkIterator(locStorage.getLocalChanges().getChanges(), inStorage.getChanges().get(0).getChanges(), true);
     
     //check incom storage logs with original logs
     Iterator<ItemState> inIt = inStorage.getChanges().get(0).getChanges();

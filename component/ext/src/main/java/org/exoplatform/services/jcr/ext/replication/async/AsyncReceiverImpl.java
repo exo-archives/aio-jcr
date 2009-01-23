@@ -67,8 +67,7 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     if (changesSubscriber != null)
       changesSubscriber.onChanges(packet, mem);
     else
-      LOG.warn("Subscriber is not set. Changes from member " + member
-          + " will be ignored. ");
+      LOG.warn("Subscriber is not set. Changes from member " + member + " will be ignored. ");
   }
 
   protected void onGetExport(GetExportPacket packet, MemberAddress member) {
@@ -84,16 +83,19 @@ public class AsyncReceiverImpl implements AsyncReceiver {
   /**
    * {@inheritDoc}
    */
-  public void receive(AbstractPacket packet, MemberAddress member) {
+  public void receive(AbstractPacket packet, MemberAddress address) {
     switch (packet.getType()) {
     case AsyncPacketTypes.GET_EXPORT_CHAHGESLOG:
 
-      onGetExport((GetExportPacket) packet, member);
+      onGetExport((GetExportPacket) packet, address);
       break;
     case AsyncPacketTypes.EXPORT_CHANGES_FIRST_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
 
-      RemoteExportResponce eventFirst = new RemoteExportResponce(RemoteExportResponce.FIRST,
+      Member member = new Member(address, exportPacket.getTransmitterPriority());
+
+      RemoteExportResponce eventFirst = new RemoteExportResponce(member,
+                                                                 RemoteExportResponce.FIRST,
                                                                  exportPacket.getCRC(),
                                                                  exportPacket.getTimeStamp(),
                                                                  exportPacket.getBuffer(),
@@ -105,7 +107,10 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     case AsyncPacketTypes.EXPORT_CHANGES_MIDDLE_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
 
-      RemoteExportResponce eventMiddle = new RemoteExportResponce(RemoteExportResponce.MIDDLE,
+      Member member = new Member(address, exportPacket.getTransmitterPriority());
+
+      RemoteExportResponce eventMiddle = new RemoteExportResponce(member,
+                                                                  RemoteExportResponce.MIDDLE,
                                                                   exportPacket.getCRC(),
                                                                   exportPacket.getTimeStamp(),
                                                                   exportPacket.getBuffer(),
@@ -117,7 +122,10 @@ public class AsyncReceiverImpl implements AsyncReceiver {
     case AsyncPacketTypes.EXPORT_CHANGES_LAST_PACKET: {
       ExportChangesPacket exportPacket = (ExportChangesPacket) packet;
 
-      RemoteExportResponce eventLast = new RemoteExportResponce(RemoteExportResponce.LAST,
+      Member member = new Member(address, exportPacket.getTransmitterPriority());
+      
+      RemoteExportResponce eventLast = new RemoteExportResponce(member, 
+                                                                RemoteExportResponce.LAST,
                                                                 exportPacket.getCRC(),
                                                                 exportPacket.getTimeStamp(),
                                                                 exportPacket.getBuffer(),
@@ -135,15 +143,15 @@ public class AsyncReceiverImpl implements AsyncReceiver {
       break;
 
     case AsyncPacketTypes.BINARY_CHANGESLOG_FIRST_PACKET:
-      onChanges((ChangesPacket) packet, member);
+      onChanges((ChangesPacket) packet, address);
       break;
 
     case AsyncPacketTypes.BINARY_CHANGESLOG_MIDDLE_PACKET:
-      onChanges((ChangesPacket) packet, member);
+      onChanges((ChangesPacket) packet, address);
       break;
 
     case AsyncPacketTypes.BINARY_CHANGESLOG_LAST_PACKET:
-      onChanges((ChangesPacket) packet, member);
+      onChanges((ChangesPacket) packet, address);
       break;
 
     }

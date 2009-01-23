@@ -28,8 +28,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
-    EditableChangesStorage<T> {
+public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements EditableChangesStorage<T> {
 
   /**
    * ItemStates storage direcory.
@@ -56,7 +55,8 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * 
    * @param storagePath storage Path
    */
-  public EditableItemStatesStorage(File storagePath) {
+  public EditableItemStatesStorage(File storagePath, Member member) {
+    super(member);
     this.storagePath = storagePath;
   }
 

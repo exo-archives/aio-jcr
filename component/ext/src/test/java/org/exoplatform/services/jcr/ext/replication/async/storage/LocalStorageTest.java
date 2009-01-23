@@ -106,7 +106,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     storage = new LocalStorageImpl(dir.getAbsolutePath());
     storage.onStart(null, null);
     
-    ChangesStorage<ItemState> ch = storage.getLocalChanges(new Member(null,10));
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
     Iterator<ItemState> states = ch.getChanges();
     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
 
@@ -158,8 +158,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     storage.onStart(null, null);
 
     // create storage
-    ChangesStorage<ItemState> ch = storage.getLocalChanges(new Member(null,10));
-
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
     assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
   }
 
@@ -196,7 +195,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
 
     // check current data
     TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
-    ChangesStorage<ItemState> ch = storage.getLocalChanges(new Member(null,10));
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
     this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
 
     storage.onStop();
@@ -207,7 +206,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     // check current data
     TransactionChangesLog log2 = pl.pushChanges().get(1);// createChangesLog((NodeData)
     // n1.getData());
-    ch = storage.getLocalChanges(new Member(null,10));
+    ch = storage.getLocalChanges();
     this.checkIterator(log2.getAllStates().iterator(), ch.getChanges());
     
     dataManager.removeItemPersistenceListener(storage);
@@ -246,7 +245,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     dataManager.removeItemPersistenceListener(storage);
     // check current data
     TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
-    ChangesStorage<ItemState> ch = storage.getLocalChanges(new Member(null,10));
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
     this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
 
     storage.onCancel();
@@ -263,10 +262,8 @@ public class LocalStorageTest extends BaseStandaloneTest {
       log2.addLog(chIt.nextLog());
     }
     
-    ch = storage.getLocalChanges(new Member(null,45));
+    ch = storage.getLocalChanges();
     checkIterator(log2.getAllStates().iterator(), ch.getChanges());
-    
-   
   }
   
   /**
@@ -277,7 +274,7 @@ public class LocalStorageTest extends BaseStandaloneTest {
     LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
     storage.onStart(new Member(null,10), null);
 
-    ChangesStorage<ItemState> ch = storage.getLocalChanges(new Member(null,46));
+    ChangesStorage<ItemState> ch = storage.getLocalChanges();
 
     assertEquals(0, storage.getErrors().length);
     assertFalse(ch.getChanges().hasNext());

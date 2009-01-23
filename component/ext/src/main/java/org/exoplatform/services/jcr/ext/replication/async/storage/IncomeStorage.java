@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 
+
 /**
  * Created by The eXo Platform SAS.
  * 
@@ -61,7 +62,7 @@ public interface IncomeStorage {
    * 
    * @return
    */
-  List<ChangesStorage<ItemState>> getChanges() throws IOException;
+  List<MemberChangesStorage<ItemState>> getChanges() throws IOException;
   
   void clean() throws IOException;
 

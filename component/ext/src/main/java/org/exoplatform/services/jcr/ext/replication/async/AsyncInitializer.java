@@ -74,7 +74,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * List of previous members, each time will be replaced by new list.
    */
   // TODO final
-  private List<MemberAddress>              previousMembers       = new ArrayList<MemberAddress>();
+  private List<MemberAddress>              currentMembers       = new ArrayList<MemberAddress>();
 
   /**
    * Members list on start action. Actual list of members in current synchronization.
@@ -145,6 +145,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * @return the other members
    */
   public List<Member> getOtherMembers() {
+    
     List<Member> ms = new ArrayList<Member>(startMembers.size());
     for (Member m : startMembers)
       ms.add(new Member(m.getAddress(), m.getPriority()));
@@ -179,17 +180,17 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       return;
     }
 
-    if (previousMembers.size() == 0 && event.getMembers().size() == 1) {
+    if (currentMembers.size() == 0 && event.getMembers().size() == 1) {
       // first member (this service) connected to the channel
       LOG.info("onStateChanged - first member (this service) connected to the channel ");
 
       // Start first timeout (member is not connected)
       firstMemberWaiter = new FirstMemberWaiter();
       firstMemberWaiter.start();
-    } else if (event.getMembers().size() > previousMembers.size()) {
+    } else if (event.getMembers().size() > currentMembers.size()) {
       // new member connected to the channel TODO - refactoring!!!
       LOG.info("onStateChanged - new member connected to the channel " + event.getMembers().size()
-          + " > " + previousMembers.size());
+          + " > " + currentMembers.size());
 
       boolean hasAll = event.getMembers().size() == (otherParticipantsPriority.size() + 1);
 
@@ -221,12 +222,12 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
         doStart(members);
       }
 
-    } else if (event.getMembers().size() < previousMembers.size()) {
+    } else if (event.getMembers().size() < currentMembers.size()) {
       // one or more members were disconnected from the channel
       LOG.info("onStateChanged - one or more members were disconnected from the channel "
-          + event.getMembers().size() + " < " + previousMembers.size());
+          + event.getMembers().size() + " < " + currentMembers.size());
 
-      List<MemberAddress> disconnectedMembers = new ArrayList<MemberAddress>(previousMembers);
+      List<MemberAddress> disconnectedMembers = new ArrayList<MemberAddress>(currentMembers);
       disconnectedMembers.removeAll(event.getMembers());
 
       if (isStarted()) {
@@ -277,11 +278,12 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     }
 
     localMember = event.getLocalMember();
-    previousMembers = event.getMembers();
+    currentMembers = event.getMembers();
   }
 
   /**
    * Will be celled onStart for SynchronizationListener.
+   * Used by Coordinator. 
    * 
    * @param members
    *          list of members
@@ -302,7 +304,9 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   }
 
   private void doRemoteMergeDone(Member member) {
-    startMembers.remove(member);
+    synchronized (startMembers) {
+      startMembers.remove(member);  
+    }
   }
 
   /**
@@ -384,6 +388,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START (local) members count " + members.size());
 
+    // set from Subscriber (this is not a Coordinator)
     this.startMembers = members;
 
     doStart();
@@ -468,9 +473,9 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       try {
         Thread.sleep(memberWaitTimeout);
 
-        if (run && previousMembers.size() < (otherParticipantsPriority.size() + 1)
-            && previousMembers.size() > 1 && !cancelMemberNotConnected) {
-          List<MemberAddress> members = new ArrayList<MemberAddress>(previousMembers);
+        if (run && currentMembers.size() < (otherParticipantsPriority.size() + 1)
+            && currentMembers.size() > 1 && !cancelMemberNotConnected) {
+          List<MemberAddress> members = new ArrayList<MemberAddress>(currentMembers);
           members.remove(localMember);
 
           LOG.info("Do START from last member waiter");
@@ -516,7 +521,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       try {
         Thread.sleep(memberWaitTimeout);
 
-        if (run && previousMembers.size() == 1) {
+        if (run && currentMembers.size() == 1) {
           LOG.info("Do CANCEL on first member waiter");
 
           doStop();

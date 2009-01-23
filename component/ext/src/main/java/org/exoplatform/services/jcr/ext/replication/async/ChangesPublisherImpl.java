@@ -62,8 +62,8 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   protected PublisherWorker               publisherWorker;
 
   private class PublisherWorker extends Thread {
-    private List<Member> subscribers;
-
+    private final List<Member> subscribers;
+    
     public PublisherWorker(List<Member> subscribers) {
       this.subscribers = new ArrayList<Member>(subscribers);
     }
@@ -74,8 +74,8 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
     public void run() {
       try {
         ChangesFile[] localChanges;
-        LOG.info("Local chahges : "
-            + (localChanges = storage.getLocalChanges(initializer.getLocalMember()).getChangesFile()).length);
+        LOG.info("Local changes : "
+            + (localChanges = storage.getLocalChanges().getChangesFile()).length);
 
         List<MemberAddress> sa = new ArrayList<MemberAddress>();
         for (Member m : subscribers)
@@ -95,11 +95,6 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
     this.initializer = initializer;
     this.transmitter = transmitter;
     this.storage = storage;
-  }
-
-  public void sendChanges(List<Member> members) {
-    publisherWorker = new PublisherWorker(members);
-    publisherWorker.start();
   }
 
   /**
@@ -133,7 +128,9 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
 
     doStart();
 
-    sendChanges(members);
+    // TODO sendChanges(members);
+    publisherWorker = new PublisherWorker(members);
+    publisherWorker.start();
   }
 
   /**
@@ -142,6 +139,14 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   public void onStop() {
     LOG.info("On STOP (local)");
 
+    try {
+      publisherWorker.join();
+    } catch (InterruptedException e) {
+      LOG.error("Error of worker stop " + e, e);
+    }
+    
+    publisherWorker = null;
+    
     doStop();
   }
 

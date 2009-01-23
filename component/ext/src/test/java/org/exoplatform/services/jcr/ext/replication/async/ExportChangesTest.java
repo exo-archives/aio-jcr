@@ -121,7 +121,7 @@ public class ExportChangesTest extends BaseStandaloneTest {
 
     RemoteExporterImpl exporter = new RemoteExporterImpl(transmitter, receiver);
 
-    exporter.setMember(new MemberAddress(new IpAddress("127.0.0.1", 7800)));
+    exporter.setLocalMember(new MemberAddress(new IpAddress("127.0.0.1", 7800)));
     channel.addPacketListener(receiver);
     channel.connect();
 
