@@ -182,6 +182,9 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                               final @QueryParam("gadget") String gadget) {
 
     String resourcePath = mavenRoot + mavenPath; // JCR resource
+    String shaResourcePath = mavenPath.endsWith(".sha1") ? mavenRoot + mavenPath : mavenRoot + mavenPath + ".sha1";
+
+      
     mavenPath = base + getClass().getAnnotation(URITemplate.class).value() + mavenPath;
     Session ses = null;
     try {
@@ -193,12 +196,18 @@ public class RESTArtifactLoaderService implements ResourceContainer {
       }
 
       ExtendedNode node = (ExtendedNode) ses.getRootNode().getNode(resourcePath);
-
+      
       if (isFile(node)) {
-        if (view != null && view.equalsIgnoreCase("true"))
-          return getArtifactInfo(node, mavenPath, gadget);
-        else
+        if (view != null && view.equalsIgnoreCase("true")) {
+          ExtendedNode shaNode = null;
+          try { 
+            shaNode = (ExtendedNode) ses.getRootNode().getNode(shaResourcePath);
+          } catch (RepositoryException e){ //no .sh1 file found
+          }
+          return getArtifactInfo(node, mavenPath, gadget, shaNode);
+        }  else {
           return downloadArtifact(node);
+        }
       } else {
         return browseRepository(node, mavenPath, gadget);
       }
@@ -452,6 +461,15 @@ public class RESTArtifactLoaderService implements ResourceContainer {
   private Response downloadArtifact(Node node) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
                                                                                             null);
+    
+    
+    if (node.canAddMixin("exo:mavencounter")) {
+      node.addMixin("exo:mavencounter");
+      node.getSession().save();
+    }
+    node.setProperty("exo:downloadcounter",  node.getProperty("exo:downloadcounter").getLong() + 1l);
+    node.getSession().save();
+    
     long lastModified = nodeRepresentation.getLastModified();
     String contentType = nodeRepresentation.getMediaType();
     long contentLength = nodeRepresentation.getContentLenght();
@@ -475,8 +493,13 @@ public class RESTArtifactLoaderService implements ResourceContainer {
    * @return @see {@link Response}.
    * @throws Exception if any errors occurs.
    */
-  private Response getArtifactInfo(Node node, final String mavenPath, final String gadget) throws Exception {
+  private Response getArtifactInfo(Node node, final String mavenPath, final String gadget, Node shaNode) throws Exception {
     NodeRepresentation nodeRepresentation = nodeRepresentationService.getNodeRepresentation(node,
+                                                                                            null);
+    
+    NodeRepresentation shNodeRepresentation = null;
+    if (shaNode != null)
+    shNodeRepresentation = nodeRepresentationService.getNodeRepresentation(shaNode,
                                                                                             null);
 
     final PipedOutputStream po = new PipedOutputStream();
@@ -487,6 +510,12 @@ public class RESTArtifactLoaderService implements ResourceContainer {
 
     try {
 
+      if (node.canAddMixin("exo:mavencounter")) {
+            node.addMixin("exo:mavencounter");
+            node.getSession().save();
+      }
+     int count = (int)node.getProperty("exo:downloadcounter").getLong();   
+      
       XMLOutputFactory factory = XMLOutputFactory.newInstance();
       factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, Boolean.TRUE);
       XMLStreamWriter xsw = factory.createXMLStreamWriter(po, Constants.DEFAULT_ENCODING);
@@ -528,6 +557,16 @@ public class RESTArtifactLoaderService implements ResourceContainer {
                                                 : mavenPath);
       xsw.writeCharacters("Link");
       xsw.writeEndElement(); // a
+      
+      if (shNodeRepresentation != null){
+      xsw.writeEmptyElement("br");
+      xsw.writeCharacters("Checksum:  " +getStreamAsString(shNodeRepresentation.getInputStream()));
+      xsw.writeEmptyElement("br");
+      }
+      
+      xsw.writeEmptyElement("br");
+      xsw.writeCharacters("Downloads count :  " + count);
+      xsw.writeEmptyElement("br");
 
       xsw.writeEmptyElement("br");
       xsw.writeStartElement("a");
@@ -561,5 +600,12 @@ public class RESTArtifactLoaderService implements ResourceContainer {
     return Response.Builder.ok().entity(pi, "text/html").build();
 
   }
+  
+  protected String getStreamAsString(InputStream stream) throws IOException {
+    byte[] buff = new byte[stream.available()];
+    stream.read(buff);
+    return new String(buff);
+  }
+  
 
 }
