@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.jcr.NamespaceException;
-import javax.jcr.NamespaceRegistry;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
@@ -38,7 +37,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.WildcardQuery;
 import org.apache.lucene.search.BooleanClause.Occur;
 
-import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.datamodel.ItemData;
@@ -62,7 +60,7 @@ import org.exoplatform.services.log.ExoLogger;
  * @version $Id: NamespaceRegistryImpl.java 11907 2008-03-13 15:36:21Z ksm $
  */
 
-public class NamespaceRegistryImpl implements NamespaceRegistry, NamespaceAccessor {
+public class NamespaceRegistryImpl implements ExtendedNamespaceRegistry {
 
   public static final Map<String, String> DEF_NAMESPACES       = new HashMap<String, String>();
 

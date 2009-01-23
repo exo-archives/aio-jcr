@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003-2008 eXo Platform SAS.
+ * Copyright (C) 2003-2009 eXo Platform SAS.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Affero General Public License
@@ -14,14 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, see<http://www.gnu.org/licenses/>.
  */
-package org.exoplatform.services.jcr.util;
+package org.exoplatform.services.jcr.impl.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.jcr.NamespaceException;
+import javax.jcr.NamespaceRegistry;
+import javax.jcr.RepositoryException;
 
-import junit.framework.TestCase;
-
-import org.exoplatform.services.jcr.impl.util.ArraysComparator;
+import org.exoplatform.services.jcr.core.NamespaceAccessor;
 
 /**
  * Created by The eXo Platform SAS.
@@ -29,15 +28,11 @@ import org.exoplatform.services.jcr.impl.util.ArraysComparator;
  * @author <a href="mailto:Sergey.Kabashnyuk@gmail.com">Sergey Kabashnyuk</a>
  * @version $Id: $
  */
-public class TestArraysComparator extends TestCase {
+public interface ExtendedNamespaceRegistry extends NamespaceRegistry, NamespaceAccessor {
 
-  public void testname() throws Exception {
-    String[] first = new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
-    String[] second = new String[] { "11", "12", "13", "14", "15", "6", "7", "8", "9", "10" };
-    List<String> l1 = new ArrayList<String>();
-    List<String> l2 = new ArrayList<String>();
-    List<String> l3 = new ArrayList<String>();
-    ArraysComparator<String> comparator = new ArraysComparator<String>();
-    comparator.findDifferences(first, second, l1, l2, l3);
-  }
+  /**
+   * {@inheritDoc}
+   */
+  public void unregisterNamespace(String prefix) throws NamespaceException, RepositoryException;
+
 }

@@ -26,6 +26,7 @@ import javax.jcr.RepositoryException;
 import org.apache.commons.lang.ArrayUtils;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
+import org.exoplatform.services.jcr.impl.core.ExtendedNamespaceRegistry;
 import org.exoplatform.services.jcr.impl.core.NamespaceRegistryImpl;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 
@@ -38,11 +39,11 @@ import org.exoplatform.services.jcr.impl.core.NodeImpl;
  */
 public class TestNamespaceRegistry extends JcrAPIBaseTest {
 
-  protected NamespaceRegistryImpl namespaceRegistry;
+  protected ExtendedNamespaceRegistry namespaceRegistry;
 
   public void initRepository() throws RepositoryException {
     workspace = session.getWorkspace();
-    namespaceRegistry = (NamespaceRegistryImpl) workspace.getNamespaceRegistry();
+    namespaceRegistry = (ExtendedNamespaceRegistry) workspace.getNamespaceRegistry();
     try {
       namespaceRegistry.getURI("newMapping");
     } catch (NamespaceException e) {
@@ -204,7 +205,7 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest {
     test3.setProperty("blahtesturi", "v2");
     session.save();
 
-    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    Set<String> nodes = ((NamespaceRegistryImpl) namespaceRegistry).getNodes("testuri");
     assertEquals(1, nodes.size());
     assertFalse(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
     assertFalse(nodes.contains(((NodeImpl) test3).getData().getIdentifier()));
@@ -217,7 +218,7 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest {
     Node test3 = root.addNode("blahtesturiNodeName1");
     session.save();
 
-    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    Set<String> nodes = ((NamespaceRegistryImpl) namespaceRegistry).getNodes("testuri");
     assertEquals(1, nodes.size());
     assertTrue(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
     assertFalse(nodes.contains(((NodeImpl) test2).getData().getIdentifier()));
@@ -232,7 +233,7 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest {
     test2.setProperty("prop", "v2");
     session.save();
 
-    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    Set<String> nodes = ((NamespaceRegistryImpl) namespaceRegistry).getNodes("testuri");
     assertEquals(1, nodes.size());
     assertTrue(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
     assertFalse(nodes.contains(((NodeImpl) test2).getData().getIdentifier()));
@@ -248,7 +249,7 @@ public class TestNamespaceRegistry extends JcrAPIBaseTest {
     test3.setProperty("prop", "blablatesturi:v2");
     session.save();
 
-    Set<String> nodes = namespaceRegistry.getNodes("testuri");
+    Set<String> nodes = ((NamespaceRegistryImpl) namespaceRegistry).getNodes("testuri");
     assertEquals(1, nodes.size());
     assertTrue(nodes.contains(((NodeImpl) test1).getData().getIdentifier()));
     assertFalse(nodes.contains(((NodeImpl) test2).getData().getIdentifier()));
