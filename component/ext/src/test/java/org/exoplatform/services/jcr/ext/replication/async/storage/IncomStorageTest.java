@@ -93,7 +93,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
 
     // create new storage object on old context
     storage = new IncomeStorageImpl(dir.getAbsolutePath());
-    List<ChangesStorage<ItemState>> ch = storage.getChanges();
+    List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
     Iterator<ItemState> states = ch.get(0).getChanges();
     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
 
@@ -155,7 +155,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
 
     // create new storage object on old context
     storage = new IncomeStorageImpl(dir.getAbsolutePath());
-    List<ChangesStorage<ItemState>> ch = storage.getChanges();
+    List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
     assertEquals(3, ch.size());
 
     // check results
@@ -253,7 +253,7 @@ public class IncomStorageTest extends BaseStandaloneTest {
 
     // create new storage object on old context
     storage = new IncomeStorageImpl(dir.getAbsolutePath());
-    List<ChangesStorage<ItemState>> ch = storage.getChanges();
+    List<MemberChangesStorage<ItemState>> ch = storage.getChanges();
     assertEquals(3, ch.size());
 
     // check results

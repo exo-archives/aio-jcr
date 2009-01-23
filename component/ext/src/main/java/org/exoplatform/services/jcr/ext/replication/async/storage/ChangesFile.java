@@ -191,6 +191,7 @@ public class ChangesFile {
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
       fileAccessor = new RandomAccessFile(file, "rwd");
+      fileAccessor.seek(file.length());
     }
   }
 

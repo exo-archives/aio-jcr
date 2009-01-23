@@ -47,14 +47,14 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
   protected final Map<Member, List<ChangesFile>> changes = new LinkedHashMap<Member, List<ChangesFile>>();
 
-  // TODO final
+  // TODO remove
   private Member                                 member;
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
   }
 
-  /**
+  /** TODO remove
    * {@inheritDoc}
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
