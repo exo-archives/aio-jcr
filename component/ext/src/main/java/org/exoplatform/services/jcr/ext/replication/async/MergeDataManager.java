@@ -157,7 +157,6 @@ public class MergeDataManager {
 
         exporter.setLocalMember(second.getMember().getAddress());
         // TODO NT reregistration
-
         AddMerger addMerger = new AddMerger(localMember,
                                             isLocalPriority,
                                             exporter,
