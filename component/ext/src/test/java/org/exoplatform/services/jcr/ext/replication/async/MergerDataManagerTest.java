@@ -31,7 +31,6 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -46,9 +45,11 @@ import org.exoplatform.services.jcr.ext.replication.async.merge.TesterChangesSto
 import org.exoplatform.services.jcr.ext.replication.async.merge.TesterRemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.exoplatform.services.log.ExoLogger;
+import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -3184,7 +3185,9 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * @param priority
    */
   protected void addChangesToChangesStorage(TransactionChangesLog log, int priority) throws Exception {
-    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(new Member(priority));
+    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(new Member(new MemberAddress(new IpAddress("127.0.0.1",
+                                                                                                                             7800)),
+                                                                                             priority));
     changes.addLog(log);
     membersChanges.add(changes);
   }

@@ -112,7 +112,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
     AsyncChannelManager tchannel = new AsyncChannelManager(CH_CONFIG, CH_NAME);
     tchannel.connect();
 
-    Member adr = new Member(new IpAddress("127.0.0.1", 7800));
+    MemberAddress adr = new MemberAddress(new IpAddress("127.0.0.1", 7800));
 
     File file = createBLOBTempFile("mytest", filesize);
     ChangesFile changes = new ChangesFile(file, "crc", System.currentTimeMillis());
@@ -187,7 +187,7 @@ public class AsyncChannelManagerTest extends BaseStandaloneTest {
 
     String nodeId = "nodeId";
 
-    GetExportPacket packet = new GetExportPacket(nodeId);
+    GetExportPacket packet = new GetExportPacket(nodeId, -1);
 
     tchannel.sendPacket(packet);
     Thread.sleep(1000);

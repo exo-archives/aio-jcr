@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ItemStatesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -119,7 +120,11 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     latch = new CountDownLatch(cfList.size());
 
-    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), memberList);
+    List<MemberAddress> sa = new ArrayList<MemberAddress>();
+    for (Member m: memberList) 
+      sa.add(m.getAddress());
+    
+    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), sa);
 
     // wait receive
     latch.await();
@@ -206,7 +211,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     latch = new CountDownLatch(1);
 
-    transmitter.sendExport(cf, memberList.get(0));
+    transmitter.sendExport(cf, memberList.get(0).getAddress());
 
     // wait receive
     latch.await();
@@ -306,7 +311,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     Exception e = new Exception("Error message");
     
-    transmitter.sendError(e.getMessage(), memberList.get(0));
+    transmitter.sendError(e.getMessage(), memberList.get(0).getAddress());
 
     // wait receive
     latch.await();
@@ -339,7 +344,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     String nodeId = ((NodeImpl)root).getData().getIdentifier();
     
-    transmitter.sendGetExport(nodeId, memberList.get(0));
+    transmitter.sendGetExport(nodeId, memberList.get(0).getAddress());
 
     // wait receive
     latch.await();
