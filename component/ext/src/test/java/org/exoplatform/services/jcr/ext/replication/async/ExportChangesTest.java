@@ -23,8 +23,8 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.NodeImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.CacheableWorkspaceDataManager;
 import org.jgroups.stack.IpAddress;
@@ -121,7 +121,7 @@ public class ExportChangesTest extends BaseStandaloneTest {
 
     RemoteExporterImpl exporter = new RemoteExporterImpl(transmitter, receiver);
 
-    exporter.setMember(new Member(new IpAddress("127.0.0.1", 7800)));
+    exporter.setMember(new MemberAddress(new IpAddress("127.0.0.1", 7800)));
     channel.addPacketListener(receiver);
     channel.connect();
 

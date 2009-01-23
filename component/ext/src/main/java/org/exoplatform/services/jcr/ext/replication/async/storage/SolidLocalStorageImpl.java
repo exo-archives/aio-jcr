@@ -89,7 +89,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   private ChangesFile           currentFile                = null;
 
-  private ObjectOutputStream    currentOut                 = null;
+  private ObjectOutputStream    currentOut                 = null; // TODO
 
   /**
    * This unique index used as name for ChangesFiles.

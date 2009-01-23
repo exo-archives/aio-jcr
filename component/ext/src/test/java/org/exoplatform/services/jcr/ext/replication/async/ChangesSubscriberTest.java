@@ -27,7 +27,9 @@ import javax.jcr.Node;
 import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 
 /**
@@ -115,7 +117,11 @@ public class ChangesSubscriberTest extends AbstractTrasportTest {
 
     channel.connect();
 
-    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), memberList);
+    List<MemberAddress> sa = new ArrayList<MemberAddress>();
+    for (Member m: memberList) 
+      sa.add(m.getAddress());
+    
+    transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), sa);
 
     transmitter.sendMerge();
 

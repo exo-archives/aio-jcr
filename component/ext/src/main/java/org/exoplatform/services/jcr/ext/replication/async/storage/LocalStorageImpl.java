@@ -346,8 +346,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onStop() {
-    // TODO archive primary dir content
-
     // delete files in primary dir
 
     File prevDir = new File(storagePath, Long.toString(dirIndex - 2));
@@ -397,14 +395,14 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> member) {
-    // TODO not interested
+    // not interested
   }
 
   /**
    * {@inheritDoc}
    */
   public void onMerge(Member member) {
-    // TODO not interested
+    // not interested
   }
 
   private long getNextFileId() {

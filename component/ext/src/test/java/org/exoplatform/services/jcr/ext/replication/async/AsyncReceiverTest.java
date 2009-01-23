@@ -69,7 +69,7 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
 
     latch = new CountDownLatch(1);
     try {
-      channel1.sendPacket(packet, memberList.get(0));
+      channel1.sendPacket(packet, memberList.get(0).getAddress());
       // wait receive
       latch.await();
     } catch (IOException e) {
@@ -143,10 +143,10 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
     ErrorPacket packetError = new ErrorPacket(AsyncPacketTypes.EXPORT_ERROR, errorMessage, -1);
 
     try {
-      channel1.sendPacket(packetFirst, memberList.get(0));
-      channel1.sendPacket(packetMiddle, memberList.get(0));
-      channel1.sendPacket(packetLast, memberList.get(0));
-      channel1.sendPacket(packetError, memberList.get(0));
+      channel1.sendPacket(packetFirst, memberList.get(0).getAddress());
+      channel1.sendPacket(packetMiddle, memberList.get(0).getAddress());
+      channel1.sendPacket(packetLast, memberList.get(0).getAddress());
+      channel1.sendPacket(packetError, memberList.get(0).getAddress());
 
       latch.await();
     } catch (IOException e) {
@@ -247,9 +247,9 @@ public class AsyncReceiverTest extends AbstractTrasportTest {
                                                              new byte[0]);
 
     try {
-      channel1.sendPacket(packetFirst, memberList.get(0));
-      channel1.sendPacket(packetMiddle, memberList.get(0));
-      channel1.sendPacket(packetLast, memberList.get(0));
+      channel1.sendPacket(packetFirst, memberList.get(0).getAddress());
+      channel1.sendPacket(packetMiddle, memberList.get(0).getAddress());
+      channel1.sendPacket(packetLast, memberList.get(0).getAddress());
 
       latch.await();
     } catch (IOException e) {
