@@ -422,9 +422,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       }
     }
 
-    if (!dir.delete())
-      ;
-    {
+    if (!dir.delete()){
       cleaner.addFile(dir);
     }
   }
