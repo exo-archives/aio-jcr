@@ -88,7 +88,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
                                       HIGH_PRIORITY,
                                       "target/storage/high");
 
-    membersChanges = new ArrayList<ChangesStorage<ItemState>>();
+    membersChanges = new ArrayList<MemberChangesStorage<ItemState>>();
 
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session3.getWorkspace()
                                                                             .getName());
@@ -3183,7 +3183,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * @param priority
    */
   protected void addChangesToChangesStorage(TransactionChangesLog log, int priority) throws Exception {
-    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>();
+    TesterChangesStorage<ItemState> changes = new TesterChangesStorage<ItemState>(localMember);
     changes.addLog(log);
     membersChanges.add(changes);
   }

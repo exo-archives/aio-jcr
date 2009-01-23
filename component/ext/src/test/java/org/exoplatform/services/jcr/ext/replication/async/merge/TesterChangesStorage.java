@@ -27,6 +27,8 @@ import org.exoplatform.services.jcr.dataflow.ItemStateChangesLog;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesFile;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -36,10 +38,13 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStor
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage<T> {
+public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage<T> implements MemberChangesStorage<T> {
 
-  public TesterChangesStorage() {
+  private final Member member;
+  
+  public TesterChangesStorage(Member member) {
     super(new ArrayList<ChangesFile>());
+    this.member = member;
   }
 
   public void addLog(ItemStateChangesLog log) throws IOException {
@@ -52,4 +57,13 @@ public class TesterChangesStorage<T extends ItemState> extends ChangesLogStorage
 
     this.storage.add(new ChangesFile(ch, "", System.currentTimeMillis()));
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Member getMember() {
+    return member;
+  }
+  
+  
 }

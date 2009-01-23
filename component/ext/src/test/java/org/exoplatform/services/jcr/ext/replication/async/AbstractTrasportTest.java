@@ -36,7 +36,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
 public abstract class AbstractTrasportTest extends BaseStandaloneTest implements AsyncStateListener {
 
   protected List<Member> memberList;
-
+  
   protected static final String CH_CONFIG          = "TCP("
                                                        + "start_port=7700;"
                                                        + "oob_thread_pool.queue_max_size=100;"

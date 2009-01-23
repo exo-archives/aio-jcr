@@ -36,6 +36,7 @@ import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.AbstractMergeUseCases;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.SessionDataManagerTestWrapper;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
@@ -44,6 +45,7 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
+import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -90,6 +92,8 @@ public class BaseMergerTest extends AbstractMergeUseCases {
   protected TesterChangesStorage<ItemState> local;
 
   protected TesterChangesStorage<ItemState> income;
+  
+  protected Member localMember; 
 
   // remote
 
@@ -609,8 +613,9 @@ public class BaseMergerTest extends AbstractMergeUseCases {
 
     // logs
     // TODO priority is dumy here
-    local = new TesterChangesStorage<ItemState>(new Member(null, 100));
-    income = new TesterChangesStorage<ItemState>(new Member(null, 50));
+    localMember = new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)), 1);
+    local = new TesterChangesStorage<ItemState>(localMember); // TODO member
+    income = new TesterChangesStorage<ItemState>(localMember);
   }
 
   /**

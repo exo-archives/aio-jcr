@@ -62,22 +62,23 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class AsyncTransmitterTest extends AbstractTrasportTest {
 
-  private static Log                  log                = ExoLogger.getLogger("ext.AsyncTransmitterTest");
+  private static Log          log         = ExoLogger.getLogger("ext.AsyncTransmitterTest");
 
-//  private List<TransactionChangesLog> srcChangesLogList  = new ArrayList<TransactionChangesLog>();
+  // private List<TransactionChangesLog> srcChangesLogList = new ArrayList<TransactionChangesLog>();
 
-//  private List<TransactionChangesLog> destChangesLogList = new ArrayList<TransactionChangesLog>();
+  // private List<TransactionChangesLog> destChangesLogList = new
+  // ArrayList<TransactionChangesLog>();
 
-  private static final String         CH_NAME            = "AsyncRepCh_Test";
+  private static final String CH_NAME     = "AsyncRepCh_Test";
 
-  private static final String         bindAddress        = "127.0.0.1";
+  private static final String bindAddress = "127.0.0.1";
 
-  private CountDownLatch              latch;
+  private CountDownLatch      latch;
 
   public void testSendChanges() throws Exception {
-    
+
     TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
-    
+
     // create nodes
     Node testNode = root.addNode("test_node_l3").addNode("test_node_l2");
     for (int j = 0; j < 3; j++) {
@@ -90,7 +91,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     List<ChangesFile> cfList = new ArrayList<ChangesFile>();
 
     List<TransactionChangesLog> srcChangesLogList = pl.pushChanges();
-    
+
     for (TransactionChangesLog tcl : srcChangesLogList) {
       ChangesFile cf = new ChangesFile("ajgdjagsdjksasdasd", Calendar.getInstance()
                                                                      .getTimeInMillis());
@@ -121,9 +122,9 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     latch = new CountDownLatch(cfList.size());
 
     List<MemberAddress> sa = new ArrayList<MemberAddress>();
-    for (Member m: memberList) 
+    for (Member m : memberList)
       sa.add(m.getAddress());
-    
+
     transmitter.sendChanges(cfList.toArray(new ChangesFile[cfList.size()]), sa);
 
     // wait receive
@@ -173,25 +174,26 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         testNode.addNode("testNode_" + j + i, "nt:unstructured");
       root.save();
     }
-    
-    //get DataManager
+
+    // get DataManager
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session.getWorkspace()
                                                                            .getName());
     CacheableWorkspaceDataManager dm = (CacheableWorkspaceDataManager) wsc.getComponent(CacheableWorkspaceDataManager.class);
 
     // get export data
-    NodeData exportNode = (NodeData) ((NodeImpl)(root.getNode("test_node_l1").getNode("test_node_l2"))).getData();
+    NodeData exportNode = (NodeData) ((NodeImpl) (root.getNode("test_node_l1").getNode("test_node_l2"))).getData();
     NodeData parentNode = (NodeData) dm.getItemData(exportNode.getParentIdentifier());
-    
+
     ChangesFile cf = new ChangesFile("123123123123", System.currentTimeMillis());
     ObjectOutputStream oos = new ObjectOutputStream(cf.getOutputStream());
-    
+
     // extract ItemStates
     ItemDataExportVisitor exporter = new ItemDataExportVisitor(oos,
                                                                parentNode,
-                                                               ((SessionImpl) session).getWorkspace().getNodeTypesHolder(),
+                                                               ((SessionImpl) session).getWorkspace()
+                                                                                      .getNodeTypesHolder(),
                                                                dm);
-    
+
     exportNode.accept(exporter);
 
     // send ChangesFile-s
@@ -221,10 +223,12 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     channel2.disconnect();
 
     // compare data
-    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null).getChanges(); // TODO member 
-    Iterator<ItemState> destChanges = new ItemStatesStorage<ItemState>(exportChangesReceiver.exportChangesFile).getChanges(); 
+    Iterator<ItemState> srcChanges = new ItemStatesStorage<ItemState>(cf, null).getChanges(); // TODO
+                                                                                              // member
+    Iterator<ItemState> destChanges = new ItemStatesStorage<ItemState>(exportChangesReceiver.exportChangesFile,
+                                                                       null).getChanges();
     // compare ChangesLog
-    
+
     while (srcChanges.hasNext()) {
       assertTrue(srcChanges.next().equals(destChanges.next()));
     }
@@ -291,7 +295,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     assertEquals(mergeReceiver.mergePacket.getTransmitterPriority(), 100);
     assertEquals(mergeReceiver.mergePacket.getType(), AsyncPacketTypes.SYNCHRONIZATION_MERGE);
   }
-  
+
   public void testSendExportError() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
@@ -310,7 +314,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     latch = new CountDownLatch(1);
 
     Exception e = new Exception("Error message");
-    
+
     transmitter.sendError(e.getMessage(), memberList.get(0).getAddress());
 
     // wait receive
@@ -324,7 +328,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
     assertEquals(exporErrorReceiver.errorPacket.getErrorMessage(), e.getMessage());
     assertEquals(exporErrorReceiver.errorPacket.getType(), AsyncPacketTypes.EXPORT_ERROR);
   }
-  
+
   public void testSendGetExport() throws Exception {
     String chConfig = CH_CONFIG.replaceAll(IP_ADRESS_TEMPLATE, bindAddress);
 
@@ -342,8 +346,8 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     latch = new CountDownLatch(1);
 
-    String nodeId = ((NodeImpl)root).getData().getIdentifier();
-    
+    String nodeId = ((NodeImpl) root).getData().getIdentifier();
+
     transmitter.sendGetExport(nodeId, memberList.get(0).getAddress());
 
     // wait receive
@@ -355,7 +359,8 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
 
     // compare
     assertEquals(getExportReceiver.getExportPacket.getNodeId(), nodeId);
-    assertEquals(getExportReceiver.getExportPacket.getType(), AsyncPacketTypes.GET_EXPORT_CHAHGESLOG);
+    assertEquals(getExportReceiver.getExportPacket.getType(),
+                 AsyncPacketTypes.GET_EXPORT_CHAHGESLOG);
   }
 
   private class ChangesPacketReceiver implements AsyncPacketListener {
@@ -457,7 +462,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         fail("Han been received not MergePacket.");
     }
   }
-  
+
   private class ExporErrorReceiver implements AsyncPacketListener {
     private ErrorPacket errorPacket;
 
@@ -478,7 +483,7 @@ public class AsyncTransmitterTest extends AbstractTrasportTest {
         fail("Han been received not ErrorPacket.");
     }
   }
-  
+
   private class GetExportReceiver implements AsyncPacketListener {
     private GetExportPacket getExportPacket;
 
