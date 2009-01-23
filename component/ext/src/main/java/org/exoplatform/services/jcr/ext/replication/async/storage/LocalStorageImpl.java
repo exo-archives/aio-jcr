@@ -377,6 +377,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START");
 
+    this.localMember = localMember;
+    
     // check previous dir
     String dirs[] = getSubStorageNames(this.storagePath);
     File prevDir = new File(storagePath, dirs[dirs.length - 1]);

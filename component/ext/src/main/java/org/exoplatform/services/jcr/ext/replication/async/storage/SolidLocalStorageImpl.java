@@ -44,7 +44,6 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
-import org.exoplatform.services.jcr.ext.replication.async.transport.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -83,9 +82,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   private static final long     MAX_FILE_SIZE_KB           = 1024;
 
   protected final String        storagePath;
-
-  private final int             priority;
-
+  
   private File                  lastDir                    = null;
 
   private File                  previousDir                = null;
@@ -100,10 +97,11 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   private Long                  index                      = new Long(0);
 
   private long                  dirIndex                   = 0;
+  
+  private Member                localMember                = null;
 
-  public SolidLocalStorageImpl(String storagePath, int priority) {
+  public SolidLocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
-    this.priority = priority;
 
     // find last index of storage
 
@@ -158,7 +156,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       }
 
       ChangesLogStorage<ItemState> changeStorage = new ChangesLogStorage<ItemState>(chFiles,
-                                                                                    new Member(priority));
+                                                                                    localMember);
       return changeStorage;
     } else {
       return null;
@@ -402,9 +400,11 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(Member localMember, List<Member> members) {
     LOG.info("On START");
 
+    this.localMember = localMember;
+    
     // check previous dir
     String dirs[] = getSubStorageNames(this.storagePath);
     File prevDir = new File(storagePath, dirs[dirs.length - 1]);
