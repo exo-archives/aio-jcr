@@ -102,6 +102,8 @@ public class AddMerger implements ChangesMerger {
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
+    ItemState parentNodeState;
+
     EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir));
 
@@ -115,17 +117,11 @@ public class AddMerger implements ChangesMerger {
         case ItemState.ADDED:
           if (localData.isNode()) {
             if (incomeData.isNode()) {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                  || incomeData.getQPath().equals(localData.getQPath())
-                  || localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+              if (incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
                 return resultEmptyState;
               }
             } else {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
-              }
 
               // try to add property and node with same name
               if ((incomeData.getQPath().equals(localData.getQPath()))) {
@@ -145,12 +141,6 @@ public class AddMerger implements ChangesMerger {
             }
           } else {
             if (incomeData.isNode()) {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath().makeParentPath())
-                  || incomeData.getQPath().equals(localData.getQPath().makeParentPath())
-                  || localData.getQPath().makeParentPath().isDescendantOf(incomeData.getQPath())) {
-                skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
-              }
 
               // try to add property and node with same name
               if ((incomeData.getQPath().equals(localData.getQPath()))) {
@@ -176,11 +166,14 @@ public class AddMerger implements ChangesMerger {
             }
           }
           break;
+
         case ItemState.DELETED:
           ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
+
+            // TODO
 
             // if item added to updated item
             if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
@@ -254,45 +247,50 @@ public class AddMerger implements ChangesMerger {
 
           // RENAME sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                || incomeData.getQPath().equals(localData.getQPath())
-                || incomeData.getQPath().isDescendantOf(nextLocalState.getData().getQPath())
-                || incomeData.getQPath().equals(nextLocalState.getData().getQPath())) {
-              skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+            if (localData.isNode()) {
+              if (incomeData.isNode()) {
+                if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                    || incomeData.getQPath().equals(nextLocalState.getData().getQPath())) {
+                  skippedList.add(incomeData.getQPath());
+                  return resultEmptyState;
+                }
+              } else {
+                if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
+                  skippedList.add(incomeData.getQPath());
+                  return resultEmptyState;
+                }
+              }
             }
             break;
           }
 
           // DELETE
           if (localData.isNode()) {
-            if ((incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
-                                                                                         .equals(localData.getQPath()))) {
-              skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
-            }
-          }
-          break;
-        case ItemState.UPDATED:
-          if (!localData.isNode()) { // update locally single property
             if (incomeData.isNode()) {
-              if (localData.getQPath().isDescendantOf(incomeData.getQPath())) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
                 return resultEmptyState;
               }
             } else {
-              if (localData.getQPath().equals(incomeData.getQPath())) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
                 return resultEmptyState;
               }
             }
           }
           break;
+
+        case ItemState.UPDATED:
+          break;
+
         case ItemState.RENAMED:
           break;
+
         case ItemState.MIXIN_CHANGED:
           break;
         }
+
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
@@ -362,8 +360,7 @@ public class AddMerger implements ChangesMerger {
             return resultState;
           }
           break;
-        case ItemState.UPDATED:
-          break;
+
         case ItemState.DELETED:
           ItemState nextState = local.findNextState(localState, localData.getIdentifier());
 
@@ -439,64 +436,79 @@ public class AddMerger implements ChangesMerger {
 
           // RENAMED sequences
           if (nextState != null && nextState.getState() == ItemState.RENAMED) {
-            if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                || incomeData.getQPath().equals(localData.getQPath())
-                || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
-                || incomeData.getQPath().equals(nextState.getData().getQPath())) {
 
-              // add DELETE state
-              List<ItemState> items = local.getDescendantsChanges(nextState,
-                                                                  nextState.getData().getQPath(),
-                                                                  true);
-              for (int i = items.size() - 1; i >= 0; i--) {
-                if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+            if (localData.isNode()) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(localData.getQPath())
+                  || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
+                  || incomeData.getQPath().equals(nextState.getData().getQPath())) {
 
-                  // delete lock properties if present
-                  if (items.get(i).isNode()) {
-                    for (ItemState st : generateDeleleLockProperties((NodeData) items.get(i)
-                                                                                     .getData()))
-                      resultState.add(st);
+                // add DELETE state
+                List<ItemState> items = local.getChanges(nextState,
+                                                         nextState.getData().getQPath(),
+                                                         true);
+                for (int i = items.size() - 1; i >= 0; i--) {
+                  if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+
+                    // delete lock properties if present
+                    if (items.get(i).isNode()) {
+                      for (ItemState st : generateDeleleLockProperties((NodeData) items.get(i)
+                                                                                       .getData()))
+                        resultState.add(st);
+                    }
+
+                    resultState.add(new ItemState(items.get(i).getData(),
+                                                  ItemState.DELETED,
+                                                  items.get(i).isEventFire(),
+                                                  items.get(i).getData().getQPath()));
                   }
-
-                  resultState.add(new ItemState(items.get(i).getData(),
-                                                ItemState.DELETED,
-                                                items.get(i).isEventFire(),
-                                                items.get(i).getData().getQPath()));
-                }
-              }
-
-              if (local.findLastState(nextState.getData().getQPath()) != ItemState.DELETED) {
-
-                // delete lock properties if present
-                if (nextState.getData().isNode()) {
-                  for (ItemState st : generateDeleleLockProperties((NodeData) nextState.getData()))
-                    resultState.add(st);
                 }
 
-                resultState.add(new ItemState(nextState.getData(),
-                                              ItemState.DELETED,
-                                              nextState.isEventFire(),
-                                              nextState.getData().getQPath()));
+                resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+                skippedList.add(localData.getQPath());
+
+                return resultState;
               }
-
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
-
-              itemChangeProcessed = true;
             }
+
             break;
           }
 
           // Simple DELETE
-          if (localData.isNode()
-              && (incomeData.getQPath().isDescendantOf(localData.getQPath()) || incomeData.getQPath()
-                                                                                          .equals(localData.getQPath()))) {
-            resultState.addAll(exporter.exportItem(localData.getParentIdentifier()));
-            itemChangeProcessed = true;
+          if (income.findNextState(incomeState,
+                                   incomeData.getIdentifier(),
+                                   incomeData.getQPath(),
+                                   ItemState.ADDED) != null) {
             break;
           }
+
+          if (local.findNextState(localState,
+                                  localData.getParentIdentifier(),
+                                  localData.getQPath().makeParentPath(),
+                                  ItemState.DELETED) != null) {
+            break;
+          }
+
+          if (localData.isNode()) {
+            if (incomeData.isNode()) {
+              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
+                  || incomeData.getQPath().equals(localData.getQPath())) {
+
+                skippedList.add(localData.getQPath());
+                resultState.addAll(exporter.exportItem(localData.getParentIdentifier()));
+
+                return resultState;
+              }
+            }
+          }
           break;
+
+        case ItemState.UPDATED:
+          break;
+
         case ItemState.RENAMED:
           break;
+
         case ItemState.MIXIN_CHANGED:
           break;
         }

@@ -573,17 +573,17 @@ public class DeleteMerger implements ChangesMerger {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
-                return resultEmptyState;
+                return resultState;
               }
             }
           } else {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
-                return resultEmptyState;
+                return resultState;
               }
             } else {
               if (incomeData.getQPath().equals(localData.getQPath())) {
-                return resultEmptyState;
+                return resultState;
               }
             }
           }
