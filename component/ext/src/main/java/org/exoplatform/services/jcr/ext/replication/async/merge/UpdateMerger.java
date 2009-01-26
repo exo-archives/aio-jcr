@@ -92,8 +92,17 @@ public class UpdateMerger extends AbstractMerger {
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
+
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
+
+      // skip lock properties
+      if (!localData.isNode()) {
+        if (localData.getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+            || localData.getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+          continue;
+        }
+      }
 
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {

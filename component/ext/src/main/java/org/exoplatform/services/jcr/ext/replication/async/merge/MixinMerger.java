@@ -90,6 +90,14 @@ public class MixinMerger extends AbstractMerger {
       ItemData localData = localState.getData();
       ItemData incomeData = incomeState.getData();
 
+      // skip lock properties
+      if (!localData.isNode()) {
+        if (localData.getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+            || localData.getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+          continue;
+        }
+      }
+
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:

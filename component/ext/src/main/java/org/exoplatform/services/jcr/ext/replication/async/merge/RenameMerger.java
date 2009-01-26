@@ -102,6 +102,14 @@ public class RenameMerger extends AbstractMerger {
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
 
+      // skip lock properties
+      if (!localData.isNode()) {
+        if (localData.getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+            || localData.getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+          continue;
+        }
+      }
+
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
@@ -222,153 +230,124 @@ public class RenameMerger extends AbstractMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
-          if (incomeData.isNode()
-              && ((localData.getQPath().isDescendantOf(incomeData.getQPath())
-                  || localData.getQPath().equals(incomeData.getQPath())
-                  || localData.getQPath().isDescendantOf(nextIncomeState.getData().getQPath()) || localData.getQPath()
-                                                                                                           .equals(nextIncomeState.getData()
-                                                                                                                                  .getQPath())))) {
+          if (incomeData.isNode()) {
+            if (localData.getQPath().isDescendantOf(incNodePath)
+                || localData.getQPath().equals(incNodePath)
+                || localData.getQPath().isDescendantOf(nextIncNodePath)
+                || localData.getQPath().equals(nextIncNodePath)) {
 
-            // add DELETE state
-            List<ItemState> items = local.getDescendantsChanges(localState,
-                                                                localData.getQPath(),
-                                                                true);
-            for (int i = items.size() - 1; i >= 0; i--) {
-              if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+              // add DELETE state
+              List<ItemState> items = local.getChanges(localState, localData.getQPath(), true);
 
-                // Delete lock properties
-                if (items.get(i).getData().isNode()) {
-                  for (ItemState st : generateDeleleLockProperties((NodeData) items.get(i)
-                                                                                   .getData()))
-                    resultState.add(st);
+              for (int i = items.size() - 1; i >= 0; i--) {
+                if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+
+                  // Delete lock properties
+                  if (items.get(i).getData().isNode()) {
+                    for (ItemState st : generateDeleleLockProperties((NodeData) items.get(i)
+                                                                                     .getData()))
+                      resultState.add(st);
+                  }
+
+                  resultState.add(new ItemState(items.get(i).getData(),
+                                                ItemState.DELETED,
+                                                items.get(i).isEventFire(),
+                                                items.get(i).getData().getQPath()));
                 }
-
-                resultState.add(new ItemState(items.get(i).getData(),
-                                              ItemState.DELETED,
-                                              items.get(i).isEventFire(),
-                                              items.get(i).getData().getQPath()));
-              }
-            }
-
-            if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
-
-              if (localData.isNode()) {
-                for (ItemState st : generateDeleleLockProperties((NodeData) localData))
-                  resultState.add(st);
               }
 
-              resultState.add(new ItemState(localData,
-                                            ItemState.DELETED,
-                                            localState.isEventFire(),
-                                            localData.getQPath()));
-            }
-
-            // add all state from income changes
-            List<ItemState> rename = income.getRenameSequence(incomeState);
-            for (ItemState st : income.getChanges(rename.get(0), rename.get(0).getData().getQPath())) {
-
-              // delete lock properties if present
-              if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
-                for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
-                  resultState.add(inSt);
-              }
-
-              resultState.add(st);
-            }
-
-            for (ItemState st : income.getChanges(rename.get(rename.size() / 2),
-                                                  rename.get(rename.size() / 2)
-                                                        .getData()
-                                                        .getQPath())) {
-
-              // delete lock properties if present
-              if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
-                for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
-                  resultState.add(inSt);
-              }
-
-              resultState.add(st);
-            }
-
-            itemChangeProcessed = true;
-          } else if (!incomeData.isNode()
-              && ((localData.getQPath().isDescendantOf(incomeData.getQPath().makeParentPath())
-                  || localData.getQPath().equals(incomeData.getQPath().makeParentPath())
-                  || localData.getQPath().isDescendantOf(nextIncomeState.getData()
-                                                                        .getQPath()
-                                                                        .makeParentPath()) || localData.getQPath()
-                                                                                                       .equals(nextIncomeState.getData()
-                                                                                                                              .getQPath()
-                                                                                                                              .makeParentPath())))) {
-            // add DELETE state
-            List<ItemState> items = local.getDescendantsChanges(localState,
-                                                                localData.getQPath(),
-                                                                true);
-            for (int i = items.size() - 1; i >= 0; i--) {
-              if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+              // add all state from income changes
+              List<ItemState> rename = income.getRenameSequence(incomeState);
+              for (ItemState st : income.getChanges(rename.get(0), rename.get(0)
+                                                                         .getData()
+                                                                         .getQPath())) {
 
                 // delete lock properties if present
-                if (items.get(i).getData().isNode()) {
-                  for (ItemState inSt : generateDeleleLockProperties((NodeData) items.get(i)
-                                                                                     .getData()))
+                if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                  for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
                     resultState.add(inSt);
                 }
 
-                resultState.add(new ItemState(items.get(i).getData(),
-                                              ItemState.DELETED,
-                                              items.get(i).isEventFire(),
-                                              items.get(i).getData().getQPath()));
-              }
-            }
-
-            if (local.findLastState(localData.getQPath()) != ItemState.DELETED) {
-
-              // delete lock properties if present
-              if (localData.isNode()) {
-                for (ItemState inSt : generateDeleleLockProperties((NodeData) localData))
-                  resultState.add(inSt);
+                resultState.add(st);
               }
 
-              resultState.add(new ItemState(localData,
-                                            ItemState.DELETED,
-                                            localState.isEventFire(),
-                                            localData.getQPath()));
-            }
+              for (ItemState st : income.getChanges(rename.get(rename.size() / 2),
+                                                    rename.get(rename.size() / 2)
+                                                          .getData()
+                                                          .getQPath())) {
 
-            // add all state from income changes
-            List<ItemState> rename = income.getRenameSequence(incomeState);
-            for (ItemState st : income.getChanges(rename.get(0), rename.get(0)
-                                                                       .getData()
-                                                                       .getQPath()
-                                                                       .makeParentPath())) {
+                // delete lock properties if present
+                if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                  for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                    resultState.add(inSt);
+                }
 
-              // delete lock properties if present
-              if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
-                for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
-                  resultState.add(inSt);
+                resultState.add(st);
               }
 
-              resultState.add(st);
+              itemChangeProcessed = true;
             }
 
-            for (ItemState st : income.getChanges(rename.get(rename.size() / 2),
-                                                  rename.get(rename.size() / 2)
-                                                        .getData()
-                                                        .getQPath()
-                                                        .makeParentPath())) {
+          } else {
+            if (localData.getQPath().isDescendantOf(incNodePath)
+                || localData.getQPath().equals(incNodePath)
+                || localData.getQPath().isDescendantOf(nextIncNodePath)
+                || localData.getQPath().equals(nextIncNodePath)) {
 
-              // delete lock properties if present
-              if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
-                for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
-                  resultState.add(inSt);
+              // add DELETE state
+              List<ItemState> items = local.getChanges(localState, localData.getQPath(), true);
+
+              for (int i = items.size() - 1; i >= 0; i--) {
+                if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+
+                  // delete lock properties if present
+                  if (items.get(i).getData().isNode()) {
+                    for (ItemState inSt : generateDeleleLockProperties((NodeData) items.get(i)
+                                                                                       .getData()))
+                      resultState.add(inSt);
+                  }
+
+                  resultState.add(new ItemState(items.get(i).getData(),
+                                                ItemState.DELETED,
+                                                items.get(i).isEventFire(),
+                                                items.get(i).getData().getQPath()));
+                }
               }
 
-              resultState.add(st);
-            }
+              // add all state from income changes
+              List<ItemState> rename = income.getRenameSequence(incomeState);
+              for (ItemState st : income.getChanges(rename.get(0), rename.get(0)
+                                                                         .getData()
+                                                                         .getQPath()
+                                                                         .makeParentPath())) {
 
-            return resultState;
+                // delete lock properties if present
+                if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                  for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                    resultState.add(inSt);
+                }
+
+                resultState.add(st);
+              }
+
+              for (ItemState st : income.getChanges(rename.get(rename.size() / 2),
+                                                    rename.get(rename.size() / 2)
+                                                          .getData()
+                                                          .getQPath()
+                                                          .makeParentPath())) {
+
+                // delete lock properties if present
+                if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                  for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                    resultState.add(inSt);
+                }
+
+                resultState.add(st);
+              }
+
+              return resultState;
+            }
           }
-
           break;
 
         case ItemState.DELETED:
@@ -377,6 +356,7 @@ public class RenameMerger extends AbstractMerger {
           // Update sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
 
+            // TODO
             ItemState nextItem = local.getNextItemStateByUUIDOnUpdate(localState,
                                                                       incomeData.getParentIdentifier());
 
@@ -762,20 +742,28 @@ public class RenameMerger extends AbstractMerger {
 
         case ItemState.UPDATED:
           if (!localData.isNode()) {
+            if (local.findNextState(localState,
+                                    localData.getIdentifier(),
+                                    localData.getQPath(),
+                                    ItemState.DELETED) != null) {
+              break;
+            }
 
             List<ItemState> rename = income.getRenameSequence(incomeState);
             for (int i = 0; i < rename.size(); i++) {
-              System.out.println(rename.get(i).getData().getQPath());
-              if (rename.get(i).getData().getQPath().equals(localData.getQPath())) {
+              ItemData itemData = rename.get(i).getData();
+              if (!itemData.isNode()) {
+                if (itemData.getQPath().equals(localData.getQPath())) {
 
-                // restore property
-                resultState.add(new ItemState(rename.get(i).getData(),
-                                              ItemState.UPDATED,
-                                              localState.isEventFire(),
-                                              localState.getData().getQPath(),
-                                              localState.isInternallyCreated(),
-                                              localState.isPersisted()));
-                break;
+                  // restore property
+                  resultState.add(new ItemState(itemData,
+                                                ItemState.UPDATED,
+                                                localState.isEventFire(),
+                                                localState.getData().getQPath(),
+                                                localState.isInternallyCreated(),
+                                                localState.isPersisted()));
+                  break;
+                }
               }
             }
           }
@@ -787,21 +775,33 @@ public class RenameMerger extends AbstractMerger {
         case ItemState.MIXIN_CHANGED:
           if (incomeData.isNode()) {
             if (localData.getQPath().equals(incomeData.getQPath())) {
-              // delete local mixin changes
+
+              // restore local changes
+              resultState.add(localState);
+
               List<ItemState> localMixinSeq = local.getMixinSequence(localState);
-              for (int i = localMixinSeq.size() - 1; i >= 0; i--) {
+              for (int i = localMixinSeq.size() - 1; i > 0; i--) {
                 ItemState item = localMixinSeq.get(i);
 
-                // delete lock properties if present
-                if (item.getData().isNode() && item.getState() == ItemState.DELETED) {
-                  for (ItemState inSt : generateDeleleLockProperties((NodeData) item.getData()))
-                    resultState.add(inSt);
-                }
+                if (item.getState() == ItemState.ADDED) {
 
-                resultState.add(new ItemState(item.getData(),
-                                              ItemState.DELETED,
-                                              item.isEventFire(),
-                                              item.getData().getQPath()));
+                  // delete lock properties if present
+                  if (item.getData().isNode() && item.getState() == ItemState.DELETED) {
+                    for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
+                      resultState.add(st);
+                  }
+
+                  resultState.add(new ItemState(item.getData(),
+                                                ItemState.DELETED,
+                                                item.isEventFire(),
+                                                item.getData().getQPath()));
+
+                } else if (item.getState() == ItemState.DELETED) {
+                  resultState.add(new ItemState(item.getData(),
+                                                ItemState.ADDED,
+                                                item.isEventFire(),
+                                                item.getData().getQPath()));
+                }
               }
             }
           }

@@ -101,6 +101,14 @@ public class DeleteMerger extends AbstractMerger {
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
 
+      // skip lock properties
+      if (!localData.isNode()) {
+        if (localData.getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+            || localData.getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
+          continue;
+        }
+      }
+
       if (isLocalPriority()) { // localPriority
         switch (localState.getState()) {
         case ItemState.ADDED:
