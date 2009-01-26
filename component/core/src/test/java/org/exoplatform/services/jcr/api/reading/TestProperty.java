@@ -115,8 +115,8 @@ public class TestProperty extends JcrAPIBaseTest {
   }
 
   public void testGetBinaryAsStream() throws RepositoryException, IOException {
-
-    node.setProperty("stream", new BinaryValue("inputStream"));
+    Value val = new BinaryValue("inputStream");
+    node.setProperty("stream", val);
     Value value = node.getProperty("stream").getValue();
     InputStream iS = value.getStream();
     byte[] bytes = new byte[iS.available()];
@@ -212,8 +212,8 @@ public class TestProperty extends JcrAPIBaseTest {
   public void testGetBinaryAsString() throws RepositoryException, IOException {
 
     // System.out.println("STREAM>>>>>>");
-
-    node.setProperty("stream", new BinaryValue("inputStream"));
+    Value val = new BinaryValue("inputStream");
+    node.setProperty("stream", val);
     // System.out.println("STREAM>>>>>>");
 
     // log.debug("STREAM>>>>>>");

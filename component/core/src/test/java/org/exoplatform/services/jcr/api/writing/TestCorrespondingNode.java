@@ -22,16 +22,17 @@ import javax.jcr.Node;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
-import org.exoplatform.services.jcr.impl.core.value.BinaryValue;
 
 /**
  * Created by The eXo Platform SAS.
  * 
  * @author <a href="mailto:geaz@users.sourceforge.net">Gennady Azarenkov</a>
- * @version $Id: TestCorrespondingNode.java 13891 2008-05-05 16:02:30Z pnedonosko $
+ * @version $Id: TestCorrespondingNode.java 13891 2008-05-05 16:02:30Z
+ *          pnedonosko $
  */
 public class TestCorrespondingNode extends JcrAPIBaseTest {
 
@@ -70,7 +71,8 @@ public class TestCorrespondingNode extends JcrAPIBaseTest {
 
     session = (SessionImpl) repository.login(credentials, WORKSPACE);
     Node node1 = (Node) session.getItem("/testCorrespondingPath1/childNode2/jcr:content");
-    // System.out.println(">> "+((SessionImpl)session2).getWorkspaceDataContainer());
+    //System.out.println(">> "+((SessionImpl)session2).getWorkspaceDataContainer
+    // ());
     assertEquals("/testCorrespondingPath/childNode2/jcr:content",
                  node1.getCorrespondingNodePath("ws2"));
 
@@ -104,12 +106,13 @@ public class TestCorrespondingNode extends JcrAPIBaseTest {
                  ((Node) session2.getItem("/testNodeUpdate/childNode2/jcr:content")).getUUID());
 
     Node node2 = (Node) session2.getItem("/testNodeUpdate/childNode2/jcr:content");
-    BinaryValue bv = (BinaryValue) session.getValueFactory().createValue("this is the NEW content",
-                                                                         PropertyType.BINARY);
+    Value bv = session.getValueFactory()
+                      .createValue("this is the NEW content", PropertyType.BINARY);
     // log.debug("BV >>>>>> "+bv.getString());
     node2.setProperty("jcr:data", bv);
 
-    // node2.setProperty("jcr:data", new BinaryValue("this is the NEW content"));
+    // node2.setProperty("jcr:data", new
+    // BinaryValue("this is the NEW content"));
     assertEquals("this is the NEW content", node2.getProperty("jcr:data").getString());
     node2 = (Node) session2.getItem("/testNodeUpdate");
 
@@ -139,6 +142,7 @@ public class TestCorrespondingNode extends JcrAPIBaseTest {
   }
 
   /*
-   * public void testOrderingChild() throws RepositoryException { fail("Ordering Child TODO!"); }
+   * public void testOrderingChild() throws RepositoryException {
+   * fail("Ordering Child TODO!"); }
    */
 }
