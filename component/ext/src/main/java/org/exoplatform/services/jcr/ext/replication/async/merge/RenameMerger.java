@@ -502,19 +502,18 @@ public class RenameMerger extends AbstractMerger {
 
           // Rename sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
-            if ((incomeData.isNode() && localData.isNode() && incomeData.getQPath()
-                                                                        .equals(localData.getQPath()))
-                || (!incomeData.isNode() && localData.isNode() && incomeData.getQPath()
-                                                                            .makeParentPath()
 
-                                                                            .equals(localData.getQPath()))
-                || (incomeData.isNode() && !localData.isNode() && incomeData.getQPath()
-                                                                            .equals(localData.getQPath()
-                                                                                             .makeParentPath()))
-                || (!incomeData.isNode() && !localData.isNode() && incomeData.getQPath()
-                                                                             .makeParentPath()
-                                                                             .equals(localData.getQPath()
-                                                                                              .makeParentPath()))) {
+            QPath locNodePath = localData.isNode()
+                ? localState.getData().getQPath()
+                : localState.getData().getQPath().makeParentPath();
+
+            QPath nextLocNodePath = nextLocalState.getData().isNode()
+                ? nextLocalState.getData().getQPath()
+                : nextLocalState.getData().getQPath().makeParentPath();
+
+            // rename same node
+            if (incNodePath.equals(locNodePath)) {
+
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
@@ -569,51 +568,51 @@ public class RenameMerger extends AbstractMerger {
 
               return resultState;
 
-            } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
+              // destination node is renamed locally
+            } else if (nextIncNodePath.isDescendantOf(locNodePath)) {
               // restore renamed node
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+              resultState.addAll(exporter.exportItem(localData.isNode()
+                  ? localData.getIdentifier()
+                  : localData.getParentIdentifier()));
 
-              // delete renamed node
-              if (local.findLastState(nextLocalState.getData().getQPath()) != ItemState.DELETED) {
+              // remove node on new destination
+              for (ItemState st : local.getRenameSequence(localState)) {
+                if (st.getState() == ItemState.RENAMED) {
 
-                // delete lock properties if present
-                if (nextLocalState.getData().isNode()) {
-                  for (ItemState inSt : generateDeleleLockProperties((NodeData) nextLocalState.getData()))
-                    resultState.add(inSt);
+                  // delete lock properties if present
+                  if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                    for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                      resultState.add(inSt);
+                  }
+
+                  resultState.add(new ItemState(st.getData(),
+                                                ItemState.DELETED,
+                                                st.isEventFire(),
+                                                st.getData().getQPath()));
                 }
-
-                resultState.add(new ItemState(nextLocalState.getData(),
-                                              ItemState.DELETED,
-                                              nextLocalState.isEventFire(),
-                                              nextLocalState.getData().getQPath()));
               }
 
-              if (!itemChangeProcessed) {
+              // apply income rename
+              for (ItemState st : income.getRenameSequence(incomeState)) {
+                if (st.getState() == ItemState.DELETED) {
 
-                // delete lock properties if present
-                if (incomeState.getData().isNode()) {
-                  for (ItemState inSt : generateDeleleLockProperties((NodeData) incomeState.getData()))
-                    resultState.add(inSt);
+                  // delete lock properties if present
+                  if (st.getData().isNode() && st.getState() == ItemState.DELETED) {
+                    for (ItemState inSt : generateDeleleLockProperties((NodeData) st.getData()))
+                      resultState.add(inSt);
+                  }
+
+                  resultState.add(st);
                 }
-
-                resultState.add(incomeState);
               }
-              itemChangeProcessed = true;
-              break;
+
+              skippedList.add(locNodePath);
+              return resultState;
 
               // move to same location
-            } else if ((incomeData.isNode() && (nextLocalState.getData()
-                                                              .getQPath()
-                                                              .isDescendantOf(nextIncomeState.getData()
-                                                                                             .getQPath()) || nextLocalState.getData()
-                                                                                                                           .getQPath()
-                                                                                                                           .equals(nextIncomeState.getData()
-                                                                                                                                                  .getQPath())))
-                || (!incomeData.isNode() && nextLocalState.getData()
-                                                          .getQPath()
-                                                          .isDescendantOf(nextIncomeState.getData()
-                                                                                         .getQPath()
-                                                                                         .makeParentPath()))) {
+            } else if (nextLocalState.getData().getQPath().isDescendantOf(nextIncNodePath)
+                || nextLocalState.getData().getQPath().equals(nextIncNodePath)) {
+
               List<ItemState> rename = local.getRenameSequence(localState);
               for (int i = rename.size() - 1; i >= 0; i--) {
                 ItemState item = rename.get(i);
