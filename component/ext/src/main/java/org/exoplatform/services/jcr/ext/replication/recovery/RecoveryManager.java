@@ -471,6 +471,9 @@ public class RecoveryManager {
    *
    */
   public void startRecovery() {
+    if (log.isDebugEnabled())
+      log.debug("RecoveryManager.startRecovery() : " + repoName + "@" + wsName);
+    
     recoverySynchronizer.synchronizRepository();
   }
 
