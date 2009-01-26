@@ -87,8 +87,10 @@ public class UpdateMerger extends AbstractMerger {
       nextIncomeState = income.findNextState(incomeState, incomeState.getData().getIdentifier());
     }
 
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), localMember);
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), localMember);
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                                                  localMember);
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                                             localMember);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();

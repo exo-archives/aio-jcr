@@ -90,8 +90,10 @@ public class DeleteMerger extends AbstractMerger {
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), localMember);
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), localMember);
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                                                  localMember);
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                                             localMember);
 
     ItemState parentNodeState;
 

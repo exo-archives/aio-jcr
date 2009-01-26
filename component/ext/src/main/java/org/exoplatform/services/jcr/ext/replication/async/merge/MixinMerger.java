@@ -52,7 +52,8 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  */
 public class MixinMerger extends AbstractMerger {
 
-  public MixinMerger(Member localMember, boolean localPriority,
+  public MixinMerger(Member localMember,
+                     boolean localPriority,
                      RemoteExporter exporter,
                      DataManager dataManager,
                      NodeTypeDataManager ntManager) {
@@ -80,8 +81,10 @@ public class MixinMerger extends AbstractMerger {
     boolean itemChangeProcessed = false; // TODO really need?
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
-    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
+    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                                                  null);
+    EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
+                                                                                             null);
 
     ItemState parentNodeState;
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {

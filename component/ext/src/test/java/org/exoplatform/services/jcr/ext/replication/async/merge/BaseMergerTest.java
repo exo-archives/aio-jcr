@@ -24,6 +24,8 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.PropertyType;
 
+import org.jgroups.stack.IpAddress;
+
 import org.exoplatform.services.jcr.access.AccessControlList;
 import org.exoplatform.services.jcr.core.WorkspaceContainerFacade;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
@@ -45,7 +47,6 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
 import org.exoplatform.services.jcr.util.IdGenerator;
-import org.jgroups.stack.IpAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -92,8 +93,8 @@ public class BaseMergerTest extends AbstractMergeUseCases {
   protected TesterChangesStorage<ItemState> local;
 
   protected TesterChangesStorage<ItemState> income;
-  
-  protected Member localMember; 
+
+  protected Member                          localMember;
 
   // remote
 
@@ -639,7 +640,7 @@ public class BaseMergerTest extends AbstractMergeUseCases {
       } catch (Exception e) {
         e.printStackTrace();
       } finally {
-        session4.logout();
+        session3.logout();
       }
     }
 
