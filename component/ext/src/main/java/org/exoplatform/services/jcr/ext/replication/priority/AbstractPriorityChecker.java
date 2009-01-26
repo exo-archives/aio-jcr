@@ -42,11 +42,6 @@ public abstract class AbstractPriorityChecker implements PacketListener {
   public static final int            MAX_PRIORITY  = 100;
 
   /**
-   * The definition timeout for information. 
-   */
-  private static final int           INFORM_TIMOUT = 1000;
-
-  /**
    * The apache logger.
    */
   private static Log                 log           = ExoLogger.getLogger("ext.AbstractPriorityChecker");
@@ -132,20 +127,6 @@ public abstract class AbstractPriorityChecker implements PacketListener {
                                       (long) ownPriority,
                                       identifier);
       channelManager.sendPacket(pktInformer);
-      try {
-        if (log.isDebugEnabled())
-         log.debug("<!-- isInterrupted == " + Thread.currentThread().isInterrupted());
-        
-        Thread.sleep(INFORM_TIMOUT);
-      } catch (InterruptedException ie) {
-        // ignored InterruptedException
-        if (log.isDebugEnabled()) {
-          log.debug("InterruptedException");
-          log.debug("--> isInterrupted == " + Thread.currentThread().isInterrupted());
-        }
-        
-        Thread.sleep(INFORM_TIMOUT);
-      }
     } catch (Exception e) {
       log.error("Can not informed the other participants", e);
     }
@@ -156,7 +137,7 @@ public abstract class AbstractPriorityChecker implements PacketListener {
    *   Write to console the current members.
    */
   protected void printOnlineMembers() {
-    log.debug(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
+    log.info(channelManager.getChannel().getClusterName() + " : " + identifier + " :");
     for (String memberName : currentParticipants.keySet())
       log.debug("    " + memberName + ":" + currentParticipants.get(memberName));
   }

@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.recovery;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.commons.logging.Log;
 import org.exoplatform.services.jcr.ext.replication.ChannelManager;
@@ -47,6 +48,16 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    */
   private static Log                    log          = ExoLogger.getLogger("ext.ConnectionFailDetector");
 
+  /**
+   * Definition the VIEW_CHECK timeout.
+   */
+  private static final int              VIEW_CHECK = 200;
+  
+  /**
+   * The definition timeout for information. 
+   */
+  private static final int           INFORM_TIMOUT = 5000;
+  
   /**
    * Definition the BEFORE_CHECK timeout.
    */
@@ -121,6 +132,11 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * The priority checker (static or dynamic).
    */
   private final AbstractPriorityChecker priorityChecker;
+  
+  /**
+   * The view checker.
+   */
+  private final ViewChecker viewChecker;
 
   /**
    * ConnectionFailDetector  constructor.
@@ -170,6 +186,9 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
                                                    otherParticipants);
 
     priorityChecker.setMemberListener(this);
+    
+    viewChecker = new ViewChecker();
+    viewChecker.start();
   }
 
   /**
@@ -234,15 +253,24 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * {@inheritDoc}
    */
   public void viewAccepted(View view) {
-    log.info(" Memebers view :" + view.printDetails());
-
+    viewChecker.putView(view);
+  }
+  
+  private void viewAccepted(int viewSise) throws InterruptedException {
     priorityChecker.informAll();
+    
+    Thread.sleep(INFORM_TIMOUT);
+    
+    if (priorityChecker.isAllOnline()) {
+      memberRejoin();
+      return;
+    }
 
-    if (view.size() > 1)
+    if (viewSise > 1)
       allInited = true;
 
     if (allInited == true)
-      lastViewSize = view.size();
+      lastViewSize = viewSise;
 
     if (priorityChecker instanceof StaticPriorityChecker || otherPartisipants.size() == 1) {
 
@@ -283,7 +311,41 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
       }
     }
   }
-
+  
+  /**
+   * The view checker. Will be check View.
+   *
+   */
+  private class ViewChecker extends Thread {
+    private final ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<Integer>();
+    
+    public void putView (View view) {
+      log.info(" Memebers view :" + view.printDetails());
+      
+      queue.offer(view.size());
+    }
+    
+    
+    /**
+     * {@inheritDoc}
+     */
+    public void run() {
+      while (true) {
+        try {
+          Integer viewSize = queue.poll();
+          
+          if (viewSize != null)  
+              viewAccepted(viewSize);
+          
+          sleep(VIEW_CHECK*2);
+        } catch (Throwable t) {
+          log.error("View check error :", t);
+        } 
+      }
+      
+    }
+  }
+  
   /**
    * The ReconectTtread will be initialized reconnect to cluster.
    */
@@ -300,6 +362,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
      *          the 'isStop' value
      */
     public ReconectTtread(boolean isStop) {
+      log.info("Thread '" + getName() + "' is init ...");
       this.isStop = isStop;
     }
 
@@ -307,6 +370,7 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
      * {@inheritDoc}
      */
     public void run() {
+      log.info("Thread '" + getName() + "' is run ...");
       while (isStop) {
         try {
           log.info("Connect to channel : " + channelName);
@@ -314,8 +378,12 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
 
           int curruntOnlin = 1;
 
-          if (channelManager.getChannel() != null)
+          if (channelManager.getChannel() != null) {
+            while (channelManager.getChannel().getView() == null)
+              Thread.sleep(VIEW_CHECK);
+            
             curruntOnlin = channelManager.getChannel().getView().size();
+          }
 
           if (curruntOnlin <= 1 || ((curruntOnlin > 1) && !priorityChecker.isMaxOnline())) {
             channelManager.closeChannel();
@@ -359,9 +427,9 @@ public class ConnectionFailDetector implements ChannelListener, MembershipListen
    * {@inheritDoc}
    */
   public void memberRejoin() {
-
-    dataContainer.setReadOnly(false);
     log.info(dataContainer.getName() + " set not read-only");
+    dataContainer.setReadOnly(false);
+    
     log.info(dataContainer.getName() + " recovery start ...");
     recoveryManager.startRecovery();
   }

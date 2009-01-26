@@ -79,18 +79,16 @@ public class StaticPriorityChecker extends AbstractPriorityChecker {
           break;
 
         case Packet.PacketType.OWN_PRIORITY:
-          if (identifier.equals(packet.getIdentifier())) {
+          if (identifier != null && identifier.equals(packet.getIdentifier())) {
             currentParticipants.put(packet.getOwnerName(), Integer.valueOf((int) packet.getSize()));
 
             if (log.isDebugEnabled()) {
-              log.debug(channelManager.getChannel().getClusterName() + " : " + identifier
+              log.info(channelManager.getChannel().getClusterName() + " : " + identifier
                   + " : added member :");
-              log.debug("   +" + packet.getOwnerName() + ":"
+              log.info("   +" + packet.getOwnerName() + ":"
                   + currentParticipants.get(packet.getOwnerName()));
             }
 
-            if (otherParticipants.size() == currentParticipants.size())
-              memberListener.memberRejoin();
           }
 
           if (log.isDebugEnabled())

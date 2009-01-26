@@ -46,6 +46,8 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
     relPathArray = new String[filesSize.length];
     fileNameArray = new String[filesSize.length];
+    
+    Thread.sleep(5000);
   }
 
   public void testDisconnectMAxPriority() throws Exception {
@@ -71,7 +73,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       assertEquals(result, "ok");
     }
     
-    Thread.sleep(2000);
+    Thread.sleep(10000);
 
     // check is read-only min and middle member
     for (MemberInfo member : otherMember) {
@@ -179,7 +181,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
       assertEquals(result, "ok");
     }
     
-    Thread.sleep(2000);
+    Thread.sleep(10000);
 
     // check is read-only middle member
     for (MemberInfo member : otherMember) {
@@ -267,7 +269,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
 
   public void testDisconnectMAxPriorityForced() throws Exception {
 
-    for (int iteration = 0; iteration < 5; iteration++) {
+    for (int iteration = 0; iteration < 1; iteration++) {
       System.out.println("Begin iteration #" + iteration);
 
       MemberInfo maxPriorityMember = getMaxPriorityMember();
@@ -293,7 +295,7 @@ public class ThreeMemberStaticPriorityCheckerTest extends BaseTestCaseChecker {
         assertEquals(result, "ok");
       }
 
-      Thread.sleep(2000);
+      Thread.sleep(10000);
 
       // check is read-only min and middle member
       for (MemberInfo member : otherMember) {

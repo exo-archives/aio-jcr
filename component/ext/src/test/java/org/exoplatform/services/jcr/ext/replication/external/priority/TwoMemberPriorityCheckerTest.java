@@ -57,7 +57,7 @@ public class TwoMemberPriorityCheckerTest extends BaseTestCaseChecker {
         assertEquals(result, "ok");
       }
 
-      Thread.sleep(2000);
+      Thread.sleep(10000);
 
       // add content to maxPriorityMember
       for (int i = 0; i < filesSize.length; i++) {
