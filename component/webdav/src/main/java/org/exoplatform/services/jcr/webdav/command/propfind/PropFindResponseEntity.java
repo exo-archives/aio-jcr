@@ -47,8 +47,8 @@ import org.exoplatform.services.log.ExoLogger;
  */
 
 public class PropFindResponseEntity implements StreamingOutput {
-  
-  private static Log log = ExoLogger.getLogger(PropFindResponseEntity.class);
+
+  private static Log                     log = ExoLogger.getLogger(PropFindResponseEntity.class);
 
   protected XMLStreamWriter              xmlStreamWriter;
 
@@ -78,7 +78,8 @@ public class PropFindResponseEntity implements StreamingOutput {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
+   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject
+   * (java.io.OutputStream)
    */
   public void write(OutputStream stream) throws IOException {
     this.outputStream = stream;
@@ -116,7 +117,11 @@ public class PropFindResponseEntity implements StreamingOutput {
     xmlStreamWriter.writeStartElement("DAV:", "response");
 
     xmlStreamWriter.writeStartElement("DAV:", "href");
-    xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
+    if (resource.isCollection()) {
+      xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString() + "/");
+    } else {
+      xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
+    }
     xmlStreamWriter.writeEndElement();
 
     PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
