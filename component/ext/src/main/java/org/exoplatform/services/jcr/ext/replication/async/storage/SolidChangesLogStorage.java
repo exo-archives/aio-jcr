@@ -53,7 +53,7 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
   /**
    * Storage owner member info.
    */
-  protected final Member            member;
+ // protected final Member            member;
 
  
   /**
@@ -62,7 +62,7 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
    * @param <C>
    *          ItemState extender
    */
-  class MultiFileIterator<C extends ItemState> implements Iterator<C> {
+  class ItemStatesIterator<C extends ItemState> implements Iterator<C> {
 
    // private final List<ChangesFile> store;
 
@@ -70,7 +70,7 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
     
     private Iterator<C>             currentChangesLog;
 
-        public MultiFileIterator(List<ChangesFile> store) throws IOException,
+        public ItemStatesIterator(List<ChangesFile> store) throws IOException,
         ClassCastException,
         ClassNotFoundException {
       logIterator = new SolidChangesLogsIterator<TransactionChangesLog>(store);
@@ -149,9 +149,8 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
    * @param member
    *          owner
    */
-  public SolidChangesLogStorage(List<ChangesFile> storage, Member member) {
+  public SolidChangesLogStorage(List<ChangesFile> storage) {
     this.storage = storage;
-    this.member = member;
   }
 
   /**
@@ -209,7 +208,7 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
    * {@inheritDoc}
    */
   public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
-    return new MultiFileIterator<T>(storage);
+    return new ItemStatesIterator<T>(storage);
   }
 
   /**
@@ -257,9 +256,9 @@ public class SolidChangesLogStorage<T extends ItemState> extends AbstractChanges
     throw new RuntimeException("Not implemented");
   }
 
-  public Member getMember() {
-    return member;
-  }
+  //public Member getMember() {
+  //  return member;
+ // }
 
   public T findNextState(ItemState fromState, String identifier) throws IOException, ClassNotFoundException {
     SolidChangesLogsIterator<TransactionChangesLog> it = new SolidChangesLogsIterator<TransactionChangesLog>(storage);

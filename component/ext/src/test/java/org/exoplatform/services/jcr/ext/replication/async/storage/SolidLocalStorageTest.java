@@ -112,6 +112,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // check results
     checkIterator(expectedStates, states);
+    storage.onStop();
   }
 
   /**
@@ -161,6 +162,8 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
 
     assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
+    
+    //storage.onStop();
   }
 
 
@@ -211,6 +214,8 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     this.checkIterator(log2.getAllStates().iterator(), ch.getChanges());
     
     dataManager.removeItemPersistenceListener(storage);
+    
+    storage.onStop();
   }
 
   /**
@@ -281,6 +286,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     assertEquals(0, storage.getErrors().length);
     assertFalse(ch.getChanges().hasNext());
+    storage.onStop();
   }
   
   
@@ -325,8 +331,6 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     assertEquals(first.getMessage(), errs[0]);
     assertEquals(second.getMessage(), errs[1]);
     assertEquals(third.getMessage(), errs[2]);
-    
-    Thread.sleep(100);
   }
 
 

@@ -82,13 +82,14 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
       currentChangesLog = readNextChangesLog();
       return log;
     } catch (IOException e) {
+      releaseResources();
       throw new ChangesLogReadException(e.getMessage());
     } catch (ClassCastException e) {
+      releaseResources();
       throw new ChangesLogReadException(e.getMessage());
     } catch (ClassNotFoundException e) {
-      throw new ChangesLogReadException(e.getMessage());
-    } finally {
       releaseResources();
+      throw new ChangesLogReadException(e.getMessage());
     }
   }
 
@@ -106,7 +107,7 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
    */
   @SuppressWarnings("unchecked")
   private L readNextChangesLog() throws IOException, ClassCastException, ClassNotFoundException {
-    if (curFileIndex >= list.size()) {
+    if (curFileIndex >= list.size() && currentIn == null) {
       return null;
     } else {
       if (currentIn == null) {

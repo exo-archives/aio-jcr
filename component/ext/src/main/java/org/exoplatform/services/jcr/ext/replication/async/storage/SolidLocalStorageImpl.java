@@ -95,7 +95,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    */
   private Long                  index                      = new Long(0);
 
-  private long                  dirIndex                   = 0;
+  private Long                  dirIndex                   = new Long(0);
 
   public SolidLocalStorageImpl(String storagePath) {
     this.storagePath = storagePath;
@@ -125,8 +125,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         // previousDir = new File(storagePath, dirs[dirs.length - 2]);
       }
     } else {
-      File subdir = new File(storagePath, Long.toString(dirIndex++));
-      subdir.mkdirs();
+      lastDir = new File(storagePath, Long.toString(dirIndex++));
+      lastDir.mkdirs();
     }
 
     // started everytime
@@ -154,7 +154,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         }
       }
 
-      return new ChangesLogStorage<ItemState>(chFiles);
+      return new SolidChangesLogStorage<ItemState>(chFiles);
     } else {
       return null;
     }
@@ -178,10 +178,12 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   protected void addChangesLog(ItemStateChangesLog itemStates) throws IOException {
 
     // TODO make addition Log to list and writer Thread
-    writeLog(itemStates);
+
+    TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
+    writeLog(log);
   }
 
-  protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
+  synchronized protected void writeLog(ItemStateChangesLog itemStates) throws IOException {
 
     // Check is file already exists
     if (currentFile == null) {
@@ -200,10 +202,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       currentOut = new ObjectOutputStream(currentFile.getOutputStream());
     }
 
-    TransactionChangesLog log = prepareChangesLog((TransactionChangesLog) itemStates);
-    currentOut.writeObject(log);
-    // TODO register timer to close output Stream if file isn't changes too long
-
+    currentOut.writeObject(itemStates);
+    // TODO register timer to close output Stream if file isn't changes too
+    // long
   }
 
   /**
@@ -211,11 +212,12 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * 
    * @throws IOException
    */
-  private void closeCurrentFile() throws IOException {
+  synchronized private void closeCurrentFile() throws IOException {
     // TODO stop any timers
 
     if (currentOut != null) {
       currentOut.close();
+      currentOut = null;
     }
 
     if (currentFile != null) {
@@ -437,10 +439,10 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     if (!subdir.mkdirs()) {
       this.reportException(new IOException("LocalStorage subfolder create fails."));
     }
-    
+
     previousDir = lastDir;
     lastDir = subdir;
-    
+
     LOG.info("LocalStorageImpl:onStart()");
   }
 
@@ -477,6 +479,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
     if (!dir.delete()) {
       cleaner.addFile(dir);
+    }
+  }
+  
+  public void finalize(){
+    if(currentFile!= null){
+      try{
+        closeCurrentFile();
+      }catch(IOException e){
+        reportException(e);
+      }
     }
   }
 }
