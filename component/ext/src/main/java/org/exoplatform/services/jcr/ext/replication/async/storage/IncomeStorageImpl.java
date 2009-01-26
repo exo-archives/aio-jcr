@@ -30,6 +30,7 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -141,7 +142,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
 
         IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles),
-                                                                                            this.member);
+                                                                                            null); // TODO NPE
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {
         // This is not int-named file. Fatal.
@@ -206,7 +207,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(List<MemberAddress> members) {
     LOG.info("On START");
 
     // prepare storage (clean)
@@ -248,7 +249,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   /**
    * {@inheritDoc}
    */
-  public void onMerge(Member member) {
+  public void onMerge(MemberAddress member) {
     // not interested
   }
 

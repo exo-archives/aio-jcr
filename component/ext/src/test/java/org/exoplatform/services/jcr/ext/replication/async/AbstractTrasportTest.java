@@ -37,7 +37,7 @@ public abstract class AbstractTrasportTest extends BaseStandaloneTest implements
 
   protected List<Member> memberList;
   
-  protected static final String CH_CONFIG          = "TCP("
+  public static final String CH_CONFIG          = "TCP("
                                                        + "start_port=7700;"
                                                        + "oob_thread_pool.queue_max_size=100;"
                                                        + "thread_naming_pattern=cl;"
@@ -91,7 +91,7 @@ public abstract class AbstractTrasportTest extends BaseStandaloneTest implements
                                                        + "merge_leader=true;"
                                                        + "reject_join_from_existing_member=true)";
 
-  protected static final String IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
+  public static final String IP_ADRESS_TEMPLATE = "[$]bind-ip-address";
 
   public void onStateChanged(AsyncStateEvent event) {
     memberList = new ArrayList<Member>();

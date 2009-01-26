@@ -18,7 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 
 import java.util.List;
 
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -38,7 +38,7 @@ public interface SynchronizationEventListener {
    * </ul>
    * 
    */
-  void onStart(List<Member> members);
+  void onStart(List<MemberAddress> members);
 
   /**
    * On sycnhronization Cancel event action. <br/> operations.

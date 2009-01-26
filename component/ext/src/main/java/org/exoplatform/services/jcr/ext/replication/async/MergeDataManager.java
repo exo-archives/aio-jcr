@@ -61,8 +61,6 @@ public class MergeDataManager {
 
   protected final NodeTypeDataManager ntManager;
 
-  protected final int                 localPriority;
-
   /**
    * Flag allowing run of merge.
    */
@@ -80,7 +78,6 @@ public class MergeDataManager {
   MergeDataManager(RemoteExporter exporter,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager,
-                   int localPriority,
                    String storageDir) {
 
     this.exporter = exporter;
@@ -88,8 +85,6 @@ public class MergeDataManager {
     this.dataManager = dataManager;
 
     this.ntManager = ntManager;
-
-    this.localPriority = localPriority;
 
     this.storageDir = storageDir;
   }
@@ -146,7 +141,7 @@ public class MergeDataManager {
 
         List<QPath> skippedList = new ArrayList<QPath>();
 
-        boolean isLocalPriority = localPriority >= second.getMember().getPriority();
+        boolean isLocalPriority = localMember.getPriority() >= second.getMember().getPriority();
         if (isLocalPriority) {
           income = first;
           local = second;

@@ -86,11 +86,13 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     exporter = new TesterRemoteExporter();
 
-    mergerLow = new MergeDataManager(exporter, dm3, ntm3, LOW_PRIORITY, "target/storage/low");
+    mergerLow = new MergeDataManager(exporter, dm3, ntm3, 
+                                     //LOW_PRIORITY, // TODO
+                                     "target/storage/low");
     mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null),
                                       dm4,
                                       ntm4,
-                                      HIGH_PRIORITY,
+                                      //HIGH_PRIORITY, // TODO
                                       "target/storage/high");
 
     membersChanges = new ArrayList<MemberChangesStorage<ItemState>>();

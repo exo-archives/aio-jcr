@@ -29,6 +29,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.jcr.RepositoryException;
 
@@ -194,8 +196,12 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
    */
   public void onCancel() {
     for (ExportWorker worker : workers) {
-      worker.interrupt();
-      LOG.info("Interrupt export for member " + worker.member);
+      try {
+        worker.join();
+      } catch (InterruptedException e) {
+        LOG.error("Cancel error " + e);
+      }
+      LOG.info("Cancel export for member " + worker.member);
     }
   }
 
@@ -222,14 +228,14 @@ public class RemoteExportServerImpl implements RemoteExportServer, LocalEventLis
   /**
    * {@inheritDoc}
    */
-  public void onMerge(Member member) {
+  public void onMerge(MemberAddress member) {
     // not interested
   }
 
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(List<MemberAddress> members) {
     // not interested
   }
 

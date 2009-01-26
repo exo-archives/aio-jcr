@@ -62,10 +62,10 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   protected PublisherWorker               publisherWorker;
 
   private class PublisherWorker extends Thread {
-    private final List<Member> subscribers;
-    
-    public PublisherWorker(List<Member> subscribers) {
-      this.subscribers = new ArrayList<Member>(subscribers);
+    private final List<MemberAddress> subscribers;
+
+    public PublisherWorker(List<MemberAddress> subscribers) {
+      this.subscribers = new ArrayList<MemberAddress>(subscribers);
     }
 
     /**
@@ -75,13 +75,9 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
       try {
         ChangesFile[] localChanges;
         LOG.info("Local changes : "
-            + (localChanges = storage.getLocalChanges().getChangesFile()).length);
+            + (localChanges = storage.getLocalChanges().getChangesFile()).length);    
 
-        List<MemberAddress> sa = new ArrayList<MemberAddress>();
-        for (Member m : subscribers)
-          sa.add(m.getAddress());
-
-        transmitter.sendChanges(localChanges, sa);
+        transmitter.sendChanges(localChanges, subscribers);
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
         doCancel();
@@ -116,14 +112,14 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   /**
    * {@inheritDoc}
    */
-  public void onMerge(Member member) {
+  public void onMerge(MemberAddress member) {
     // not interested
   }
 
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(List<MemberAddress> members) {
     LOG.info("On START (local) " + members.size() + " members");
 
     doStart();
@@ -139,15 +135,11 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   public void onStop() {
     LOG.info("On STOP (local)");
 
-    try {
-      publisherWorker.join();
-    } catch (InterruptedException e) {
-      LOG.error("Error of worker stop " + e, e);
-    }
+    cancelWorker();
+
+    doStop();
     
     publisherWorker = null;
-    
-    doStop();
   }
 
   private void cancelWorker() {
@@ -156,7 +148,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
         // Stop publisher.
         publisherWorker.join();
       } catch (InterruptedException e) {
-        LOG.error("Error of publisher process cancelation " + e, e);
+        LOG.error("Error of publisher worker stop " + e, e);
       }
   }
 

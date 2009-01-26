@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.util.List;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -39,7 +40,7 @@ public interface RemoteEventListener extends SynchronizationEventListener {
    * 
    * @param member Member 
    */
-  void onMerge(Member member);
+  void onMerge(MemberAddress member);
 
   /**
    * Fire memebers disconnected event.<br/>

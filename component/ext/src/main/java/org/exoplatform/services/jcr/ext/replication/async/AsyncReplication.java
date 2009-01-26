@@ -151,7 +151,6 @@ public class AsyncReplication implements Startable {
       this.mergeManager = new MergeDataManager(this.exporter,
                                                dataManager,
                                                ntManager,
-                                               priority,
                                                mergeTempDir);
 
       this.initializer = new AsyncInitializer(this.channel,

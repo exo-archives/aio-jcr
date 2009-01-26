@@ -22,6 +22,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 
 /**
  * Created by The eXo Platform SAS.
@@ -766,7 +767,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
   }
 
   private class StartEventSubscriber implements RemoteEventListener {
-    List<Member>    members;
+    List<MemberAddress>    members;
 
     String          sFail = null;
 
@@ -785,13 +786,13 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
       // TODO Auto-generated method stub
     }
 
-    public void onStart(List<Member> members) {
+    public void onStart(List<MemberAddress> members) {
       System.out.println(this.toString());
       if (onStartEvenfail) {
         sFail = "should not have been event 'onStart'.";
         fail(sFail);
       } else {
-        this.members = new ArrayList<Member>(members);
+        this.members = new ArrayList<MemberAddress>(members);
         latch.countDown();
       }
     }
@@ -800,7 +801,7 @@ public class AsyncInitializerTest extends AbstractTrasportTest {
       // TODO Auto-generated method stub
     }
 
-    public void onMerge(Member member) {
+    public void onMerge(MemberAddress member) {
       // TODO Auto-generated method stub
     }
 

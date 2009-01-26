@@ -35,7 +35,7 @@ import org.exoplatform.services.log.ExoLogger;
  */
 public class IncomeChangesStorage<T extends ItemState> implements MemberChangesStorage<T> {
 
-  protected static final Log           LOG = ExoLogger.getLogger("jcr.IncomeChangesStorage");
+  protected static final Log        LOG = ExoLogger.getLogger("jcr.IncomeChangesStorage");
 
   /**
    * Income storage (warraped).
@@ -45,7 +45,7 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
   /**
    * Storage owner member info.
    */
-  protected final Member               member;
+  protected final Member            member;
 
   public IncomeChangesStorage(ChangesStorage<T> income, Member member) {
     this.storage = income;
@@ -87,14 +87,19 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
 
   /**
    * {@inheritDoc}
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    */
-  public int findLastState(QPath itemPath) throws IOException, ClassCastException, ClassNotFoundException {
+  public int findLastState(QPath itemPath) throws IOException,
+                                          ClassCastException,
+                                          ClassNotFoundException {
     return storage.findLastState(itemPath);
   }
 
-  public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException, ClassCastException, ClassNotFoundException {
+  public T findNextState(ItemState fromState, String identifier, QPath path, int state) throws IOException,
+                                                                                       ClassCastException,
+                                                                                       ClassNotFoundException {
     return storage.findNextState(fromState, identifier, path, state);
   }
 
@@ -104,12 +109,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param path
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#findNextState(org.exoplatform.services.jcr.dataflow.ItemState,
    *      java.lang.String, org.exoplatform.services.jcr.datamodel.QPath)
    */
-  public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException, ClassCastException, ClassNotFoundException {
+  public T findNextState(ItemState fromState, String identifier, QPath path) throws IOException,
+                                                                            ClassCastException,
+                                                                            ClassNotFoundException {
     return storage.findNextState(fromState, identifier, path);
   }
 
@@ -118,12 +125,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param identifier
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#findNextState(org.exoplatform.services.jcr.dataflow.ItemState,
    *      java.lang.String)
    */
-  public T  findNextState(ItemState fromState, String identifier) throws IOException, ClassCastException, ClassNotFoundException {
+  public T findNextState(ItemState fromState, String identifier) throws IOException,
+                                                                ClassCastException,
+                                                                ClassNotFoundException {
     return storage.findNextState(fromState, identifier);
   }
 
@@ -133,12 +142,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param state
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#findPrevState(org.exoplatform.services.jcr.dataflow.ItemState,
    *      org.exoplatform.services.jcr.datamodel.QPath, int)
    */
-  public T  findPrevState(ItemState toState, QPath path, int state) throws IOException, ClassCastException, ClassNotFoundException {
+  public T findPrevState(ItemState toState, QPath path, int state) throws IOException,
+                                                                  ClassCastException,
+                                                                  ClassNotFoundException {
     return storage.findPrevState(toState, path, state);
   }
 
@@ -149,12 +160,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param state
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#findPrevState(org.exoplatform.services.jcr.dataflow.ItemState,
    *      java.lang.String, org.exoplatform.services.jcr.datamodel.QPath, int)
    */
-  public T  findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException, ClassCastException, ClassNotFoundException {
+  public T findPrevState(ItemState toState, String identifier, QPath path, int state) throws IOException,
+                                                                                     ClassCastException,
+                                                                                     ClassNotFoundException {
     return storage.findPrevState(toState, identifier, path, state);
   }
 
@@ -165,9 +178,7 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @throws ClassNotFoundException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getChanges()
    */
-  public Iterator<T> getChanges() throws IOException,
-                                         ClassCastException,
-                                         ClassNotFoundException {
+  public Iterator<T> getChanges() throws IOException, ClassCastException, ClassNotFoundException {
     return storage.getChanges();
   }
 
@@ -177,12 +188,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param unique
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getChanges(org.exoplatform.services.jcr.dataflow.ItemState,
    *      org.exoplatform.services.jcr.datamodel.QPath, boolean)
    */
-  public List<T> getChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException, ClassCastException, ClassNotFoundException {
+  public List<T> getChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
+                                                                                 ClassCastException,
+                                                                                 ClassNotFoundException {
     return storage.getChanges(firstState, rootPath, unique);
   }
 
@@ -191,12 +204,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param rootPath
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getChanges(org.exoplatform.services.jcr.dataflow.ItemState,
    *      org.exoplatform.services.jcr.datamodel.QPath)
    */
-  public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException, ClassCastException, ClassNotFoundException {
+  public List<T> getChanges(ItemState firstState, QPath rootPath) throws IOException,
+                                                                 ClassCastException,
+                                                                 ClassNotFoundException {
     return storage.getChanges(firstState, rootPath);
   }
 
@@ -214,12 +229,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param unique
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getDescendantsChanges(org.exoplatform.services.jcr.dataflow.ItemState,
    *      org.exoplatform.services.jcr.datamodel.QPath, boolean)
    */
-  public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException, ClassCastException, ClassNotFoundException {
+  public List<T> getDescendantsChanges(ItemState firstState, QPath rootPath, boolean unique) throws IOException,
+                                                                                            ClassCastException,
+                                                                                            ClassNotFoundException {
     return storage.getDescendantsChanges(firstState, rootPath, unique);
   }
 
@@ -230,7 +247,7 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getItemState(org.exoplatform.services.jcr.datamodel.NodeData,
    *      org.exoplatform.services.jcr.datamodel.QPathEntry)
    */
-  public T  getItemState(NodeData parentData, QPathEntry name) {
+  public T getItemState(NodeData parentData, QPathEntry name) {
     return storage.getItemState(parentData, name);
   }
 
@@ -239,7 +256,7 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @return
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getItemState(java.lang.String)
    */
-  public T  getItemState(String itemIdentifier) {
+  public T getItemState(String itemIdentifier) {
     return storage.getItemState(itemIdentifier);
   }
 
@@ -247,11 +264,13 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param startState
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getMixinSequence(org.exoplatform.services.jcr.dataflow.ItemState)
    */
-  public List<T> getMixinSequence(ItemState startState) throws IOException, ClassCastException, ClassNotFoundException {
+  public List<T> getMixinSequence(ItemState startState) throws IOException,
+                                                       ClassCastException,
+                                                       ClassNotFoundException {
     return storage.getMixinSequence(startState);
   }
 
@@ -260,12 +279,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param prevIndex
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getNextItemStateByIndexOnUpdate(org.exoplatform.services.jcr.dataflow.ItemState,
    *      int)
    */
-  public T  getNextItemStateByIndexOnUpdate(ItemState fromState, int prevIndex) throws IOException, ClassCastException, ClassNotFoundException {
+  public T getNextItemStateByIndexOnUpdate(ItemState fromState, int prevIndex) throws IOException,
+                                                                              ClassCastException,
+                                                                              ClassNotFoundException {
     return storage.getNextItemStateByIndexOnUpdate(fromState, prevIndex);
   }
 
@@ -274,12 +295,14 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param UUID
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getNextItemStateByUUIDOnUpdate(org.exoplatform.services.jcr.dataflow.ItemState,
    *      java.lang.String)
    */
-  public T  getNextItemStateByUUIDOnUpdate(ItemState fromState, String UUID) throws IOException, ClassCastException, ClassNotFoundException {
+  public T getNextItemStateByUUIDOnUpdate(ItemState fromState, String UUID) throws IOException,
+                                                                           ClassCastException,
+                                                                           ClassNotFoundException {
     return storage.getNextItemStateByUUIDOnUpdate(fromState, UUID);
   }
 
@@ -287,11 +310,13 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param startState
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getRenameSequence(org.exoplatform.services.jcr.dataflow.ItemState)
    */
-  public List<T> getRenameSequence(ItemState startState) throws IOException, ClassCastException, ClassNotFoundException {
+  public List<T> getRenameSequence(ItemState startState) throws IOException,
+                                                        ClassCastException,
+                                                        ClassNotFoundException {
     return storage.getRenameSequence(startState);
   }
 
@@ -299,11 +324,13 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param firstState
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#getUpdateSequence(org.exoplatform.services.jcr.dataflow.ItemState)
    */
-  public List<T> getUpdateSequence(ItemState firstState) throws IOException, ClassCastException, ClassNotFoundException {
+  public List<T> getUpdateSequence(ItemState firstState) throws IOException,
+                                                        ClassCastException,
+                                                        ClassNotFoundException {
     return storage.getUpdateSequence(firstState);
   }
 
@@ -334,21 +361,23 @@ public class IncomeChangesStorage<T extends ItemState> implements MemberChangesS
    * @param path
    * @param state
    * @return
-   * @throws ClassNotFoundException 
-   * @throws IOException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws IOException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#hasState(java.lang.String,
    *      org.exoplatform.services.jcr.datamodel.QPath, int)
    */
-  public boolean hasState(String identifier, QPath path, int state) throws ClassCastException, IOException, ClassNotFoundException {
+  public boolean hasState(String identifier, QPath path, int state) throws ClassCastException,
+                                                                   IOException,
+                                                                   ClassNotFoundException {
     return storage.hasState(identifier, path, state);
   }
 
   /**
    * @return
    * @throws IOException
-   * @throws ClassNotFoundException 
-   * @throws ClassCastException 
+   * @throws ClassNotFoundException
+   * @throws ClassCastException
    * @see org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogStorage#size()
    */
   public int size() throws IOException, ClassCastException, ClassNotFoundException {

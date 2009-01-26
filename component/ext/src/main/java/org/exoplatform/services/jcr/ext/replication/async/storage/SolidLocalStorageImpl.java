@@ -44,6 +44,7 @@ import org.exoplatform.services.jcr.datamodel.ValueData;
 import org.exoplatform.services.jcr.ext.replication.async.LocalEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteEventListener;
 import org.exoplatform.services.jcr.ext.replication.async.SynchronizationLifeCycle;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientValueData;
@@ -419,7 +420,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public void onStart(List<Member> members) {
+  public void onStart(List<MemberAddress> members) {
     LOG.info("On START");
 
     // check lastDir for any changes;
@@ -456,7 +457,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * {@inheritDoc}
    */
-  public void onMerge(Member member) {
+  public void onMerge(MemberAddress member) {
     // TODO not interested
   }
 

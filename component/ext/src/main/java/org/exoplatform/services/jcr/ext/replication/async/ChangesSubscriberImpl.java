@@ -40,6 +40,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.MemberChangesS
 import org.exoplatform.services.jcr.ext.replication.async.storage.SynchronizationException;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketTypes;
 import org.exoplatform.services.jcr.ext.replication.async.transport.ChangesPacket;
+import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddress;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -54,12 +55,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Logger.
    */
-  private static final Log                        LOG         = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
-
-  /**
-   * Map with CRC key and RandomAccess File
-   */
-  protected final HashMap<Key, MemberChangesFile> incomChanges;
+  protected static final Log                        LOG           = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
   protected final MergeDataManager                mergeManager;
 
@@ -70,21 +66,26 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final AsyncTransmitter                transmitter;
 
   protected final AsyncInitializer                initializer;
+  
+  protected final int                             membersCount;
+  
+  protected final int                        localPriority;
 
   protected HashMap<Integer, Counter>             counterMap;
 
-  protected List<Integer>                         doneList;
+  protected List<MemberAddress>                   mergeDoneList = new ArrayList<MemberAddress>();
+  
+  /**
+   * Map with CRC key and RandomAccess File
+   */
+  protected HashMap<Key, MemberChangesFile> incomChanges = new HashMap<Key, MemberChangesFile>();
 
-  protected final int                             localPriority;
-
-  protected final int                             membersCount;
-
-  protected MergeWorker                           mergeWorker = null;
+  protected MergeWorker                           mergeWorker   = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<LocalEventListener>         listeners   = new LinkedHashSet<LocalEventListener>();
+  protected final Set<LocalEventListener>         listeners     = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
 
@@ -98,10 +99,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     @Override
     public void run() {
       try {
-        runMerge();
+        MemberAddress localAddress = initializer.getLocalMember();
+
+        runMerge(new Member(localAddress, localPriority));
 
         // add local done;
-        addMergeDone(localPriority);
+        mergeDoneList.add(localAddress);
 
         try {
           transmitter.sendMerge();
@@ -144,7 +147,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         return;
       }
 
-      if (doneList.size() == membersCount) {
+      if (mergeDoneList.size() == membersCount) {
         save();
         doStop();
       }
@@ -161,26 +164,24 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       mergeManager.cancel();
     }
 
-    private void runMerge() throws RepositoryException,
-                           RemoteExportException,
-                           IOException,
-                           ClassCastException,
-                           ClassNotFoundException,
-                           MergeDataManagerException,
-                           ChangesLogReadException {
+    private void runMerge(Member localMember) throws RepositoryException,
+                                             RemoteExportException,
+                                             IOException,
+                                             ClassCastException,
+                                             ClassNotFoundException,
+                                             MergeDataManagerException,
+                                             ChangesLogReadException {
 
-      LOG.error("run merge");
+      LOG.info("run merge");
 
       // add local changes to the list
-      Member localMember = initializer.getLocalMember();
-
       List<MemberChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
-      if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localPriority) {
+      if (membersChanges.get(membersChanges.size() - 1).getMember().getPriority() < localMember.getPriority()) {
         membersChanges.add(new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
                                                                localMember));
       } else {
         for (int i = 0; i < membersChanges.size(); i++) {
-          if (membersChanges.get(i).getMember().getPriority() > localPriority) {
+          if (membersChanges.get(i).getMember().getPriority() > localMember.getPriority()) {
             membersChanges.add(i, new IncomeChangesStorage<ItemState>(workspace.getLocalChanges(),
                                                                       localMember));
             break;
@@ -222,13 +223,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                IncomeStorage incomeStorage,
                                int localPriority,
                                int membersCount) {
-    this.incomChanges = new HashMap<Key, MemberChangesFile>();
+    this.localPriority = localPriority;
     this.mergeManager = mergeManager;
     this.workspace = workspace;
     this.incomeStorrage = incomeStorage;
     this.initializer = initializer;
     this.transmitter = transmitter;
-    this.localPriority = localPriority;
     this.membersCount = membersCount;
   }
 
@@ -344,16 +344,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   }
 
   /**
-   * Add 'done' to list.
-   * 
-   * @param priority
-   *          the value of priority.
+   * {@inheritDoc}
    */
-  private void addMergeDone(int priority) {
-    if (doneList == null)
-      doneList = new ArrayList<Integer>();
-
-    doneList.add(priority);
+  @Override
+  public void doStop() {
+    super.doStop();
+    mergeDoneList = null;
   }
 
   /**
@@ -375,6 +371,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     if (mergeWorker != null)
       try {
         mergeWorker.cancel();
+        
       } catch (RepositoryException e) {
         LOG.error("Error of merge process cancelation " + e, e);
       } catch (RemoteExportException e) {
@@ -385,14 +382,14 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * {@inheritDoc}
    */
-  public void onMerge(Member member) {
+  public void onMerge(MemberAddress member) {
 
-    addMergeDone(member.getPriority());
+    mergeDoneList.add(member);
 
-    LOG.info("On Merge member " + member.getName() + ", doneList.size=" + doneList.size()
+    LOG.info("On Merge member " + member + ", doneList.size=" + mergeDoneList.size()
         + " membersCount=" + membersCount);
 
-    if (doneList.size() == membersCount) {
+    if (mergeDoneList.size() == membersCount) {
       save();
       doStop();
     }
@@ -430,7 +427,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
 
   }
 
-  public void onStart(List<Member> members) {
+  public void onStart(List<MemberAddress> members) {
     // not interested actually
     LOG.info("On START (local) " + members.size() + " members");
 
