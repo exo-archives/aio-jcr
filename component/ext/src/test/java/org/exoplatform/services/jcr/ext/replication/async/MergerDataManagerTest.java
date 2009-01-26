@@ -178,7 +178,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * 
    * 5. After synchronization ends check if files exist, if content of files same as original.
    */
-  public void testCompexUsecase1() throws Exception {
+  public void _testCompexUsecase1() throws Exception {
 
     ComplexUseCase1 complexUseCase1 = new ComplexUseCase1(session3, session4);
 

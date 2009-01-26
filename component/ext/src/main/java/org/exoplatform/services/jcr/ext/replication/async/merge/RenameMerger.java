@@ -83,6 +83,8 @@ public class RenameMerger extends AbstractMerger {
     ItemState nextIncomeState = income.findNextState(incomeState, incomeState.getData()
                                                                              .getIdentifier());
 
+    ItemState parentNodeState;
+
     QPath incNodePath = incomeState.getData().isNode()
         ? incomeState.getData().getQPath()
         : incomeState.getData().getQPath().makeParentPath();
@@ -670,39 +672,24 @@ public class RenameMerger extends AbstractMerger {
           }
 
           // DELETE
-          if (incomeData.isNode()) {
-            if (incomeData.getQPath().equals(localData.getQPath())) {
-              if (!itemChangeProcessed) {
-                resultState.add(nextIncomeState);
-              }
-              itemChangeProcessed = true;
-              break;
-            } else if (nextIncomeState.getData().getQPath().isDescendantOf(localData.getQPath())) {
-              // restore deleted node and all subtree with renamed node
-              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+          if (local.findNextState(localState,
+                                  localData.getIdentifier(),
+                                  localData.getQPath(),
+                                  ItemState.ADDED) != null) {
+            break;
+          }
 
-              if (!itemChangeProcessed) {
+          parentNodeState = local.findNextState(localState,
+                                                localData.getParentIdentifier(),
+                                                localData.getQPath().makeParentPath(),
+                                                ItemState.DELETED);
 
-                // delete lock properties if present
-                if (incomeState.getData().isNode()) {
-                  for (ItemState inSt : generateDeleleLockProperties((NodeData) incomeState.getData()))
-                    resultState.add(inSt);
-                }
+          if (localData.isNode() || parentNodeState != null) {
+            QPath locNodePath = localData.isNode()
+                ? localData.getQPath()
+                : parentNodeState.getData().getQPath();
 
-                resultState.add(incomeState);
-              }
-
-              return resultState;
-            }
-          } else if (!incomeData.isNode()
-              && income.findNextState(incomeState,
-                                      incomeState.getData().getParentIdentifier(),
-                                      incomeState.getData().getQPath().makeParentPath(),
-                                      ItemState.DELETED) != null) {
-            if ((localData.isNode() && incomeData.getQPath().equals(localData.getQPath()))
-                || (!localData.isNode() && incomeData.getQPath()
-                                                     .isDescendantOf(localData.getQPath()
-                                                                              .makeParentPath()))) {
+            if (incNodePath.equals(locNodePath)) {
 
               List<ItemState> rename = income.getRenameSequence(incomeState);
               for (int i = 0; i <= rename.size() - 1; i++) {
@@ -736,8 +723,45 @@ public class RenameMerger extends AbstractMerger {
                 }
               }
               return resultState;
+            } else if (nextIncNodePath.isDescendantOf(locNodePath)) {
+
+              List<ItemState> rename = income.getRenameSequence(incomeState);
+
+              for (int i = 0; i <= rename.size() - 1; i++) {
+                ItemState item = rename.get(i);
+                if (item.getState() == ItemState.DELETED) {
+                  // delete lock properties if present
+                  if (item.getData().isNode()) {
+                    for (ItemState inSt : generateDeleleLockProperties((NodeData) item.getData()))
+                      resultState.add(inSt);
+                  }
+
+                  resultState.add(item);
+                }
+              }
+
+              resultState.addAll(exporter.exportItem(localData.getIdentifier()));
+              skippedList.add(localData.getQPath());
+
+              return resultState;
+            }
+
+          } else {
+            List<ItemState> rename = income.getRenameSequence(incomeState);
+
+            for (int i = 0; i <= rename.size() - 1; i++) {
+              ItemState item = rename.get(i);
+              if (!item.isNode()) {
+                if (item.getData().getQPath().equals(localData.getQPath())) {
+                  resultState.add(new ItemState(item.getData(),
+                                                ItemState.ADDED,
+                                                item.isEventFire(),
+                                                item.getData().getQPath()));
+                }
+              }
             }
           }
+          // }
           break;
 
         case ItemState.UPDATED:
@@ -826,5 +850,4 @@ public class RenameMerger extends AbstractMerger {
 
     return resultState;
   }
-
 }
