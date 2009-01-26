@@ -19,29 +19,28 @@ package org.exoplatform.applications.ooplugin.utils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.exoplatform.applications.ooplugin.OOConstants;
 import org.exoplatform.applications.ooplugin.OOConstants.MimeTypes;
 import org.w3c.dom.Document;
 
 /**
- * Created by The eXo Platform SAS
- * Author : Dmytro Katayev
- *          work.visor.ck@gmail.com
- * Aug 19, 2008  
+ * Created by The eXo Platform SAS Author : Dmytro Katayev
+ * work.visor.ck@gmail.com Aug 19, 2008
  */
 public class TextUtils {
-  
-  public static Document getXmlFromBytes(byte[] xmlBytes) throws Exception{
-    
+
+  public static Document getXmlFromBytes(byte[] xmlBytes) throws Exception {
+
     DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
     InputStream inputStream = new ByteArrayInputStream(xmlBytes);
     return builderFactory.newDocumentBuilder().parse(inputStream);
-    
+
   }
-  
+
   public static String UnEscape(String string, char escape) {
     ByteArrayOutputStream out = new ByteArrayOutputStream(string.length());
     for (int i = 0; i < string.length(); i++) {
@@ -64,18 +63,69 @@ public class TextUtils {
       throw new InternalError(exc.toString());
     }
   }
+
+  public static String getMimeType(String type) {
+
+    if (type.equalsIgnoreCase(".odt")) {
+      return MimeTypes.ODT;
+    } else if (type.equalsIgnoreCase(".odp")) {
+      return MimeTypes.ODP;
+    } else if (type.equalsIgnoreCase(".ods")) {
+      return MimeTypes.ODS;
+    } else if (type.equalsIgnoreCase(".doc")) {
+      return MimeTypes.DOC;
+    } else if (type.equalsIgnoreCase(".ppt")) {
+      return MimeTypes.PPT;
+    } else if (type.equalsIgnoreCase(".xls")) {
+      return MimeTypes.XLS;
+    } else if (type.equalsIgnoreCase(".rtf")) {
+      return MimeTypes.RTF;
+    } else
+      return "";
+
+  }
+
+  public static String EncodePath(String path) throws Exception {
+
+    if (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+
+    String[] pathElements = path.split("/");
+
+    StringBuffer sb = new StringBuffer();
+
+    for (String string : pathElements) {
+      sb.append("/").append(URLEncoder.encode(string, "UTF-8"));
+    }
+    return sb.toString();
+  }
   
-  public static String getMimeType(String type){
+  public static String DecodePath(String path) throws Exception {
+
+    if (path.startsWith("/")) {
+      path = path.substring(1);
+    }
+
+    String[] pathElements = path.split("/");
+
+    StringBuffer sb = new StringBuffer();
+
+    for (String string : pathElements) {
+      sb.append("/").append(URLDecoder.decode(string, "UTF-8"));
+    }
+    return sb.toString();
+  }
+  
+  public static String FilterFileName(String filename) {
     
-    if (type.equalsIgnoreCase(".odt")) { return MimeTypes.ODT; } else
-    if (type.equalsIgnoreCase(".odp")) { return MimeTypes.ODP; } else
-    if (type.equalsIgnoreCase(".ods")) { return MimeTypes.ODS; } else
-    if (type.equalsIgnoreCase(".doc")) { return MimeTypes.DOC; } else
-    if (type.equalsIgnoreCase(".ppt")) { return MimeTypes.PPT; } else
-    if (type.equalsIgnoreCase(".xls")) { return MimeTypes.XLS; } else
-    if (type.equalsIgnoreCase(".rtf")) { return MimeTypes.RTF; } else
-    return "";
+    while(filename.startsWith(" ")){
+      filename = filename.substring(1);
+    }
     
+    filename = filename.substring(0, filename.indexOf("."));
+    
+    return filename;
   }
 
 }

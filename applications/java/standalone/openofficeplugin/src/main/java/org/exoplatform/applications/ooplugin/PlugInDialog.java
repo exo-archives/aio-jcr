@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.exoplatform.applications.ooplugin.dialog.DialogBuilder;
 import org.exoplatform.applications.ooplugin.dialog.EventHandler;
+import org.exoplatform.applications.ooplugin.utils.TextUtils;
 import org.exoplatform.applications.ooplugin.utils.WebDavUtils;
 import org.exoplatform.common.http.HTTPStatus;
 import org.exoplatform.common.http.client.HTTPConnection;
@@ -162,6 +163,15 @@ public class PlugInDialog {
     }
     
     String resourcePath = href.substring(serverPrefix.length());
+    
+    String[] pathSegments = resourcePath.split("/");
+    StringBuffer sb = new StringBuffer();
+    
+    for (String segment : pathSegments) {
+      sb.append(TextUtils.DecodePath(segment));
+    }
+    resourcePath = sb.toString();
+    
     if (!resourcePath.startsWith("/")) {
       resourcePath = "/" + resourcePath;
     }

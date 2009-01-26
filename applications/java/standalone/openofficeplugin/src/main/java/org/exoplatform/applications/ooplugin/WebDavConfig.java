@@ -53,8 +53,8 @@ public class WebDavConfig {
   private String servlet = "/rest/jcr/";
   private String repository = "repository";
   private String workSpace = "production";
-  private String user_id = "admin";
-  private String user_pass = "admin";
+  private String user_id = "root";
+  private String user_pass = "exo";
   
   private String configFileName;
   

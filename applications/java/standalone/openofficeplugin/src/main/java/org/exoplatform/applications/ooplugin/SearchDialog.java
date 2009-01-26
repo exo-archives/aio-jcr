@@ -152,7 +152,8 @@ public class SearchDialog extends BrowseDialog {
       return false ;
     }
 
-    String href = TextUtils.UnEscape(response.getHref(), '%');
+    //String href = TextUtils.UnEscape(response.getHref(), '%');
+    String href = response.getHref();
     doOpenRemoteFile(href);              
     return true;
   }
