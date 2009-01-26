@@ -18,6 +18,8 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +27,6 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.ManageableRepository;
-import org.exoplatform.services.jcr.dataflow.ChangesLogIterator;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PersistentDataManager;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
@@ -61,20 +62,30 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
   }
 
   public void tearDown() throws Exception {
-    deleteDir(dir);
+    if (!deleteDir(dir)) {
+      Thread.sleep(5000);
+    }
     super.tearDown();
+
   }
 
-  private void deleteDir(File file) {
+  /**
+   * Delete directory and all subfiles.
+   * @param file directory
+   * @return true if all files successfuly deleted, and false if not.
+   */
+  private boolean deleteDir(File file) {
+    boolean isOk = true;
     if (file != null) {
       if (file.isDirectory()) {
         File[] files = file.listFiles();
         for (File f : files) {
-          deleteDir(f);
+          isOk = isOk && deleteDir(f);
         }
       }
-      file.delete();
+      isOk = isOk && file.delete();
     }
+    return isOk;
   }
 
   /**
@@ -105,7 +116,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     // create new storage object on old context
     storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
     storage.onStart(null);
-    
+
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
     Iterator<ItemState> states = ch.getChanges();
     Iterator<ItemState> expectedStates = log.getAllStates().iterator();
@@ -127,8 +138,8 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
- //   File dir = new File(STORAGE_DIR+"ss");
- //   dir.mkdirs();
+    // File dir = new File(STORAGE_DIR+"ss");
+    // dir.mkdirs();
     SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
@@ -162,10 +173,9 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     ChangesStorage<ItemState> ch = storage.getLocalChanges();
 
     assertEquals(log1.getSize() + log2.getSize() + log3.getSize(), ch.size());
-    
-    //storage.onStop();
-  }
 
+    storage.onStop();
+  }
 
   /**
    * Test OnStart and OnStop commands.
@@ -178,8 +188,8 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
                                                                                                                                               .getName())
                                                                                                                 .getComponent(PersistentDataManager.class);
 
- //   File dir = new File(STORAGE_DIR+"startstop");
- //   dir.mkdirs();
+    // File dir = new File(STORAGE_DIR+"startstop");
+    // dir.mkdirs();
     SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
     dataManager.addItemPersistenceListener(storage);
 
@@ -212,9 +222,9 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     // n1.getData());
     ch = storage.getLocalChanges();
     this.checkIterator(log2.getAllStates().iterator(), ch.getChanges());
-    
+
     dataManager.removeItemPersistenceListener(storage);
-    
+
     storage.onStop();
   }
 
@@ -223,62 +233,39 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
    * 
    * @throws Exception
    */
-/*  public void testCancel() throws Exception {
-    
-    TesterItemsPersistenceListener pl = new TesterItemsPersistenceListener(this.session);
-    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
-                                                                                                                                              .getName())
-                                                                                                                .getComponent(PersistentDataManager.class);
-    //File dir = new File(STORAGE_DIR + "cancel");
-    //dir.mkdirs();
-    LocalStorageImpl storage = new LocalStorageImpl(dir.getAbsolutePath());
-    dataManager.addItemPersistenceListener(storage);
+  /*
+   * public void testCancel() throws Exception { TesterItemsPersistenceListener
+   * pl = new TesterItemsPersistenceListener(this.session);
+   * PersistentDataManager dataManager = (PersistentDataManager)
+   * ((ManageableRepository)
+   * session.getRepository()).getWorkspaceContainer(session.getWorkspace()
+   * .getName()) .getComponent(PersistentDataManager.class); //File dir = new
+   * File(STORAGE_DIR + "cancel"); //dir.mkdirs(); LocalStorageImpl storage =
+   * new LocalStorageImpl(dir.getAbsolutePath());
+   * dataManager.addItemPersistenceListener(storage); NodeImpl n1 = (NodeImpl)
+   * root.addNode("testNodeFirst"); n1.setProperty("prop1", "dfdasfsdf");
+   * n1.setProperty("secondProp", "ohohoh"); root.save(); storage.onStart(null,
+   * null); NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
+   * n2.setProperty("prop1", "dfdasfsdfSecond"); n2.setProperty("secondProp",
+   * "ohohohSecond"); root.save(); assertEquals(0, storage.getErrors().length);
+   * dataManager.removeItemPersistenceListener(storage); // check current data
+   * TransactionChangesLog log1 = pl.getCurrentLogList().get(0); ChangesStorage<ItemState>
+   * ch = storage.getLocalChanges(new Member(null,10));
+   * this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
+   * storage.onCancel(); assertEquals(0, storage.getErrors().length); // check
+   * current data List<TransactionChangesLog> list = pl.pushChanges();
+   * TransactionChangesLog log2 = list.get(0); ChangesLogIterator chIt =
+   * list.get(1).getLogIterator(); while(chIt.hasNextLog()){
+   * log2.addLog(chIt.nextLog()); } ch = storage.getLocalChanges(new
+   * Member(null,45)); checkIterator(log2.getAllStates().iterator(),
+   * ch.getChanges()); }
+   */
 
-    NodeImpl n1 = (NodeImpl) root.addNode("testNodeFirst");
-    n1.setProperty("prop1", "dfdasfsdf");
-    n1.setProperty("secondProp", "ohohoh");
-    root.save();
-
-    storage.onStart(null, null);
-
-    NodeImpl n2 = (NodeImpl) root.addNode("testNodeSecond");
-    n2.setProperty("prop1", "dfdasfsdfSecond");
-    n2.setProperty("secondProp", "ohohohSecond");
-    root.save();
-
-    assertEquals(0, storage.getErrors().length);
-
-    dataManager.removeItemPersistenceListener(storage);
-    // check current data
-    TransactionChangesLog log1 = pl.getCurrentLogList().get(0);
-    ChangesStorage<ItemState> ch = storage.getLocalChanges(new Member(null,10));
-    this.checkIterator(log1.getAllStates().iterator(), ch.getChanges());
-
-    storage.onCancel();
-
-    assertEquals(0, storage.getErrors().length);
-
-    // check current data
-    List<TransactionChangesLog> list = pl.pushChanges();
-    
-    TransactionChangesLog log2 = list.get(0);
-    ChangesLogIterator chIt = list.get(1).getLogIterator();
-    
-    while(chIt.hasNextLog()){
-      log2.addLog(chIt.nextLog());
-    }
-    
-    ch = storage.getLocalChanges(new Member(null,45));
-    checkIterator(log2.getAllStates().iterator(), ch.getChanges());
-    
-   
-  }*/
-  
   /**
    * @throws Exception
    */
-  public void testImportEmptyLog() throws Exception{
-    
+  public void testImportEmptyLog() throws Exception {
+
     SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
     storage.onStart(null);
 
@@ -288,8 +275,57 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
     assertFalse(ch.getChanges().hasNext());
     storage.onStop();
   }
-  
-  
+
+  /**
+   * Test not finished ChangesLog.
+   * 
+   * @throws Exception
+   */
+  public void testBrokenChangesLog() throws Exception {
+    PersistentDataManager dataManager = (PersistentDataManager) ((ManageableRepository) session.getRepository()).getWorkspaceContainer(session.getWorkspace()
+                                                                                                                                              .getName())
+                                                                                                                .getComponent(PersistentDataManager.class);
+
+    // File dir = new File(STORAGE_DIR+"ss");
+    // dir.mkdirs();
+    SolidLocalStorageImpl storage = new SolidLocalStorageImpl(dir.getAbsolutePath());
+    dataManager.addItemPersistenceListener(storage);
+
+    NodeImpl n = (NodeImpl) root.addNode("testNode");
+    n.setProperty("prop1", "dfdasfsdf");
+    n.setProperty("secondProp", "ohohoh");
+    root.save();
+
+    n = (NodeImpl) root.addNode("testBrokenNode");
+    n.setProperty("prop1", "dfdasfsdf");
+    n.setProperty("secondProp", "ohohoh");
+    root.save();
+
+    storage.onStart(null);
+
+    ChangesFile[] files = storage.getLocalChanges().getChangesFile();
+    assertEquals(1, files.length);
+
+    ChangesFile cf = files[0];
+    File f = new File(cf.getPath());
+    RandomAccessFile fileAccessor = new RandomAccessFile(f, "rwd");
+
+    // corrupt file
+    FileChannel ch = fileAccessor.getChannel();
+    ch.truncate(f.length() - 10);
+    ch.close();
+    fileAccessor.close();
+
+    try {
+      storage.getLocalChanges().size();
+      fail();
+    } catch (ChangesLogReadException e) {
+      return;
+    }
+
+    storage.onStop();
+  }
+
   /**
    * Test reporting and reading from file errors process.
    * 
@@ -297,10 +333,10 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
    */
   public void testGetErrors() throws Exception {
 
-  //  File dir = new File(STORAGE_DIR+"errors");
-  //  dir.mkdirs();
+    // File dir = new File(STORAGE_DIR+"errors");
+    // dir.mkdirs();
     class TestLocalStorage extends LocalStorageImpl {
-      public TestLocalStorage(String path,int pr) {
+      public TestLocalStorage(String path, int pr) {
         super(path);
       }
 
@@ -309,7 +345,7 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
       }
     }
 
-    LocalStorage storage = new TestLocalStorage(dir.getAbsolutePath(),70);
+    LocalStorage storage = new TestLocalStorage(dir.getAbsolutePath(), 70);
 
     Exception first = new IOException("hello");
     ((TestLocalStorage) storage).report(first);
@@ -324,15 +360,14 @@ public class SolidLocalStorageTest extends BaseStandaloneTest {
 
     // check exception
     String[] errs = storage.getErrors();
-    storage=null;
-    
+    storage = null;
+
     assertEquals(3, errs.length);
 
     assertEquals(first.getMessage(), errs[0]);
     assertEquals(second.getMessage(), errs[1]);
     assertEquals(third.getMessage(), errs[2]);
   }
-
 
   private void checkIterator(Iterator<ItemState> expected, Iterator<ItemState> changes) throws Exception {
 

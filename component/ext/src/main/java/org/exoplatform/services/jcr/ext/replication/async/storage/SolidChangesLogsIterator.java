@@ -120,7 +120,7 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
         currentIn = null;
         // get next file, and try again
         return (readNextChangesLog());
-      }
+      } 
     }
   }
 
