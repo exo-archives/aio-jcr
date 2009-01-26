@@ -373,11 +373,8 @@ public class SearchManager implements Startable, MandatoryItemsPersistenceListen
         log.error("Error indexing changes " + e, e);
         try {
           handler.logErrorChanges(removedNodes, addedNodes);
-          Thread.sleep(1000); // wait a bit
         } catch (IOException ioe) {
           log.warn("Exception occure when errorLog writed. Error log is not complete. " + ioe, ioe);
-        } catch (InterruptedException ie) {
-          log.warn("Exception occure when wait for errorLog" + ie, ie);
         }
       }
     }
