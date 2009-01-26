@@ -18,7 +18,6 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,7 +30,6 @@ import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.PropertyData;
 import org.exoplatform.services.jcr.datamodel.QPath;
-import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
@@ -533,32 +531,6 @@ public class UpdateMerger extends AbstractMerger {
     }
 
     return resultState;
-  }
-
-  /**
-   * generateDeleleLockProperties.
-   * 
-   * @param node
-   * @return
-   * @throws RepositoryException
-   */
-  private List<ItemState> generateDeleleLockProperties(NodeData node) throws RepositoryException {
-    List<ItemState> result = new ArrayList<ItemState>();
-
-    if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
-                             node.getPrimaryTypeName(),
-                             node.getMixinTypeNames())) {
-
-      ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
-      if (item != null)
-        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
-
-      item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
-      if (item != null)
-        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
-    }
-
-    return result;
   }
 
 }

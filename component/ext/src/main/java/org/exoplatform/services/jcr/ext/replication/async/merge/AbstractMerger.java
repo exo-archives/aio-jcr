@@ -17,19 +17,26 @@
 package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
+import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.datamodel.InternalQName;
+import org.exoplatform.services.jcr.datamodel.ItemData;
+import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPath;
+import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
+import org.exoplatform.services.jcr.impl.Constants;
 
 /**
  * Created by The eXo Platform SAS.
@@ -48,13 +55,14 @@ public abstract class AbstractMerger implements ChangesMerger {
   protected final DataManager         dataManager;
 
   protected final NodeTypeDataManager ntManager;
-  
-  protected final Member localMember;
+
+  protected final Member              localMember;
 
   public AbstractMerger(Member localMember,
-                   boolean localPriority,
-                   RemoteExporter exporter,
-                   DataManager dataManager, NodeTypeDataManager ntManager) {
+                        boolean localPriority,
+                        RemoteExporter exporter,
+                        DataManager dataManager,
+                        NodeTypeDataManager ntManager) {
     this.localMember = localMember;
     this.localPriority = localPriority;
     this.exporter = exporter;
@@ -73,14 +81,54 @@ public abstract class AbstractMerger implements ChangesMerger {
    * {@inheritDoc}
    */
   public abstract ChangesStorage<ItemState> merge(ItemState itemChange,
-                                         ChangesStorage<ItemState> income,
-                                         ChangesStorage<ItemState> local,
-                                         String mergeTempDir,
-                                         List<QPath> skippedList) throws RepositoryException,
-                                                                 RemoteExportException,
-                                                                 IOException,
-                                                                 ClassCastException,
-                                                                 ClassNotFoundException,
-                                                                 ChangesLogReadException;
+                                                  ChangesStorage<ItemState> income,
+                                                  ChangesStorage<ItemState> local,
+                                                  String mergeTempDir,
+                                                  List<QPath> skippedList) throws RepositoryException,
+                                                                          RemoteExportException,
+                                                                          IOException,
+                                                                          ClassCastException,
+                                                                          ClassNotFoundException,
+                                                                          ChangesLogReadException;
+
+  /**
+   * generateDeleleLockProperties.
+   * 
+   * @param node
+   * @return
+   * @throws RepositoryException
+   */
+  protected List<ItemState> generateDeleleLockProperties(NodeData node) throws RepositoryException {
+    List<ItemState> result = new ArrayList<ItemState>();
+
+    if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
+                             node.getPrimaryTypeName(),
+                             node.getMixinTypeNames())) {
+
+      ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+
+      item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
+      if (item != null)
+        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
+    }
+
+    return result;
+  }
+
+  /**
+   * isPropertyAllowed.
+   * 
+   * @param propertyName
+   * @param parent
+   * @return
+   */
+  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
+    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
+                                                                     parent.getPrimaryTypeName(),
+                                                                     parent.getMixinTypeNames());
+    return pdef != null;
+  }
 
 }

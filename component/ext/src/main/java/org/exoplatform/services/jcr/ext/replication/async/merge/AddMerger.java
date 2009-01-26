@@ -18,14 +18,12 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.jcr.RepositoryException;
 
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
-import org.exoplatform.services.jcr.core.nodetype.PropertyDefinitionDatas;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
@@ -517,46 +515,6 @@ public class AddMerger extends AbstractMerger {
     }
 
     return resultState;
-  }
-
-  /**
-   * isPropertyAllowed.
-   * 
-   * @param propertyName
-   * @param parent
-   * @return
-   */
-  protected boolean isPropertyAllowed(InternalQName propertyName, NodeData parent) {
-    PropertyDefinitionDatas pdef = ntManager.findPropertyDefinitions(propertyName,
-                                                                     parent.getPrimaryTypeName(),
-                                                                     parent.getMixinTypeNames());
-    return pdef != null;
-  }
-
-  /**
-   * generateDeleleLockProperties.
-   * 
-   * @param node
-   * @return
-   * @throws RepositoryException
-   */
-  private List<ItemState> generateDeleleLockProperties(NodeData node) throws RepositoryException {
-    List<ItemState> result = new ArrayList<ItemState>();
-
-    if (ntManager.isNodeType(Constants.MIX_LOCKABLE,
-                             node.getPrimaryTypeName(),
-                             node.getMixinTypeNames())) {
-
-      ItemData item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKISDEEP, 1));
-      if (item != null)
-        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
-
-      item = dataManager.getItemData(node, new QPathEntry(Constants.JCR_LOCKOWNER, 1));
-      if (item != null)
-        result.add(new ItemState(item, ItemState.DELETED, true, node.getQPath()));
-    }
-
-    return result;
   }
 
 }
