@@ -963,7 +963,6 @@ public class GroovyScript2RestLoader implements Startable {
 
       if (state)
         loadScript(unifiedNodePath, script.getProperty("jcr:data").getStream());
-      ses.save();
     } catch (Exception e) {
       throw new WebApplicationException(e);
     } finally {
