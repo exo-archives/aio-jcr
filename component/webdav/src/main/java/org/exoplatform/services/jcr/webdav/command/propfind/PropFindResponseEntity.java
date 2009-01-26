@@ -79,7 +79,8 @@ public class PropFindResponseEntity implements SerializableEntity {
   /*
    * (non-Javadoc)
    * @see
-   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject(java.io.OutputStream)
+   * org.exoplatform.services.rest.transformer.SerializableEntity#writeObject
+   * (java.io.OutputStream)
    */
   public void writeObject(OutputStream stream) throws IOException {
     this.outputStream = stream;
@@ -117,7 +118,12 @@ public class PropFindResponseEntity implements SerializableEntity {
     xmlStreamWriter.writeStartElement("DAV:", "response");
 
     xmlStreamWriter.writeStartElement("DAV:", "href");
-    xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
+    if (resource.isCollection()) {
+      xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString() + "/");
+    } else {
+      xmlStreamWriter.writeCharacters(resource.getIdentifier().toASCIIString());
+    }
+
     xmlStreamWriter.writeEndElement();
 
     PropstatGroupedRepresentation propstat = new PropstatGroupedRepresentation(resource,
