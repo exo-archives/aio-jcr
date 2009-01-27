@@ -19,7 +19,6 @@ package org.exoplatform.services.jcr.ext.replication.async;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.jcr.ext.BaseStandaloneTest;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateEvent;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncStateListener;
@@ -33,7 +32,7 @@ import org.exoplatform.services.jcr.ext.replication.async.transport.MemberAddres
  * @author <a href="mailto:alex.reshetnyak@exoplatform.com.ua">Alex Reshetnyak</a>
  * @version $Id: AbstractTrasportTest.java 111 2008-11-11 11:11:11Z rainf0x $
  */
-public abstract class AbstractTrasportTest extends BaseStandaloneTest implements AsyncStateListener {
+public abstract class AbstractTrasportTest extends AbstractMergeUseCases implements AsyncStateListener {
 
   protected List<Member> memberList;
   
