@@ -138,6 +138,8 @@ public class MergeDataManager {
 
         List<QPath> skippedList = new ArrayList<QPath>();
 
+        // TODO if we merging two remote members, how localMember can be used for isLocalPriority
+        // value?
         boolean isLocalPriority = localMember.getPriority() >= second.getMember().getPriority();
         if (isLocalPriority) {
           income = first;
@@ -149,7 +151,8 @@ public class MergeDataManager {
 
         LOG.info("Merge changes (local=" + isLocalPriority + ") from "
             + first.getMember().getPriority() + " (" + first.getMember().getAddress() + ") and "
-            + second.getMember().getPriority() + " (" + second.getMember().getAddress() + ") members");
+            + second.getMember().getPriority() + " (" + second.getMember().getAddress()
+            + ") members");
 
         // synchronizedChanges always with higher priority (income)
         synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
@@ -173,110 +176,140 @@ public class MergeDataManager {
                                                      ntManager);
         MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
 
-        outer: for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
-          ItemState incomeChange = changes.next();
+        if (run) {
+          Iterator<ItemState> changes = income.getChanges();
+          if (changes.hasNext()) {
+            outer: while (changes.hasNext() && run) {
+              ItemState incomeChange = changes.next();
 
-          // skip already processed itemstate
-          if (synchronizedChanges.hasState(incomeChange)) {
-            continue;
-          }
+              LOG.info("\t\tMerging income item "
+                  + ItemState.nameFromValue(incomeChange.getState()) + " "
+                  + incomeChange.getData().getQPath().getAsString());
 
-          // skip subtree changes
-          for (int i = 0; i < skippedList.size(); i++) {
-            if (incomeChange.getData().getQPath().equals(skippedList.get(i))
-                || incomeChange.getData().getQPath().isDescendantOf(skippedList.get(i))) {
-              continue outer;
-            }
-          }
+              // skip already processed itemstate
+              if (synchronizedChanges.hasState(incomeChange)) {
+                LOG.info("\t\tSkip income item " + ItemState.nameFromValue(incomeChange.getState())
+                    + " " + incomeChange.getData().getQPath().getAsString());
+                continue;
+              }
 
-          // skip lock properties
-          if (!incomeChange.getData().isNode()) {
-            if (incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
-                || incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
-              continue;
-            }
-          }
+              // skip subtree changes
+              for (int i = 0; i < skippedList.size(); i++) {
+                if (incomeChange.getData().getQPath().equals(skippedList.get(i))
+                    || incomeChange.getData().getQPath().isDescendantOf(skippedList.get(i))) {
+                  LOG.info("\t\tMerging income item "
+                      + ItemState.nameFromValue(incomeChange.getState()) + " "
+                      + incomeChange.getData().getQPath().getAsString());
+                  continue outer;
+                }
+              }
 
-          switch (incomeChange.getState()) {
-          case ItemState.ADDED:
-            synchronizedChanges.addAll(addMerger.merge(incomeChange,
-                                                       income,
-                                                       local,
-                                                       storageDir,
-                                                       skippedList));
-            break;
-          case ItemState.DELETED:
-            // DELETE
-            if (incomeChange.isPersisted()) {
-              synchronizedChanges.addAll(deleteMerger.merge(incomeChange,
-                                                            income,
-                                                            local,
-                                                            storageDir,
-                                                            skippedList));
-            } else {
-              ItemState nextIncomeChange = income.findNextState(incomeChange,
-                                                                incomeChange.getData()
-                                                                            .getIdentifier());
-
-              // RENAME
-              if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
-
-                // skip processed itemstates
-                if (synchronizedChanges.hasState(nextIncomeChange.getData().getIdentifier(),
-                                                 nextIncomeChange.getData().getQPath(),
-                                                 ItemState.ADDED)) {
+              // skip lock properties
+              if (!incomeChange.getData().isNode()) {
+                if (incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKISDEEP)
+                    || incomeChange.getData().getQPath().getName().equals(Constants.JCR_LOCKOWNER)) {
                   continue;
                 }
+              }
 
-                synchronizedChanges.addAll(renameMerger.merge(incomeChange,
-                                                              income,
-                                                              local,
-                                                              storageDir,
-                                                              skippedList));
+              switch (incomeChange.getState()) {
+              case ItemState.ADDED:
+                synchronizedChanges.addAll(addMerger.merge(incomeChange,
+                                                           income,
+                                                           local,
+                                                           storageDir,
+                                                           skippedList));
+                break;
+              case ItemState.DELETED:
+                // DELETE
+                if (incomeChange.isPersisted()) {
+                  synchronizedChanges.addAll(deleteMerger.merge(incomeChange,
+                                                                income,
+                                                                local,
+                                                                storageDir,
+                                                                skippedList));
+                } else {
+                  ItemState nextIncomeChange = income.findNextState(incomeChange,
+                                                                    incomeChange.getData()
+                                                                                .getIdentifier());
 
-                // UPDATE node
-              } else if (nextIncomeChange != null
-                  && nextIncomeChange.getState() == ItemState.UPDATED) {
-                synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
-                                                              income,
-                                                              local,
-                                                              storageDir,
-                                                              skippedList));
-              } else {
-                LOG.info("Income changes log: " + income.dump());
-                LOG.info("Local changes log: " + local.dump());
+                  // RENAME
+                  if (nextIncomeChange != null && nextIncomeChange.getState() == ItemState.RENAMED) {
 
-                throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."
-                    + "[path="
-                    + incomeChange.getData().getQPath().getAsString()
-                    + "][identifier="
-                    + incomeChange.getData().getIdentifier()
-                    + "][parentIdentifier="
-                    + incomeChange.getData().getParentIdentifier() + "]");
+                    // skip processed itemstates
+                    if (synchronizedChanges.hasState(nextIncomeChange.getData().getIdentifier(),
+                                                     nextIncomeChange.getData().getQPath(),
+                                                     ItemState.ADDED)) {
+                      continue;
+                    }
+
+                    synchronizedChanges.addAll(renameMerger.merge(incomeChange,
+                                                                  income,
+                                                                  local,
+                                                                  storageDir,
+                                                                  skippedList));
+
+                    // UPDATE node
+                  } else if (nextIncomeChange != null
+                      && nextIncomeChange.getState() == ItemState.UPDATED) {
+                    synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
+                                                                  income,
+                                                                  local,
+                                                                  storageDir,
+                                                                  skippedList));
+                  } else {
+                    LOG.info("Income changes log: " + income.dump());
+                    LOG.info("Local changes log: " + local.dump());
+
+                    throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."
+                        + "[path="
+                        + incomeChange.getData().getQPath().getAsString()
+                        + "][identifier="
+                        + incomeChange.getData().getIdentifier()
+                        + "][parentIdentifier="
+                        + incomeChange.getData().getParentIdentifier()
+                        + "]");
+                  }
+                }
+                break;
+              case ItemState.UPDATED:
+                // UPDATE property
+                if (!incomeChange.getData().isNode()) {
+                  synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
+                                                                income,
+                                                                local,
+                                                                storageDir,
+                                                                skippedList));
+                }
+                break;
+              case ItemState.MIXIN_CHANGED:
+                synchronizedChanges.addAll(mixinMerger.merge(incomeChange,
+                                                             income,
+                                                             local,
+                                                             storageDir,
+                                                             skippedList));
+                break;
               }
             }
-            break;
-          case ItemState.UPDATED:
-            // UPDATE property
-            if (!incomeChange.getData().isNode()) {
-              synchronizedChanges.addAll(udpateMerger.merge(incomeChange,
-                                                            income,
-                                                            local,
-                                                            storageDir,
-                                                            skippedList));
-            }
-            break;
-          case ItemState.MIXIN_CHANGED:
-            synchronizedChanges.addAll(mixinMerger.merge(incomeChange,
-                                                         income,
-                                                         local,
-                                                         storageDir,
-                                                         skippedList));
-            break;
-          }
-        }
+          } else {
+            // use local as synchronization result
+            if (local instanceof EditableChangesStorage)
+              synchronizedChanges = (EditableChangesStorage<ItemState>) local;
+            else {
+              // it's first member changes (in membersChanges iterator), it's ChnagesLogs storage.
+              EditableChangesStorage<ItemState> sc = new EditableItemStatesStorage<ItemState>(makePath(local.getMember(),
+                                                                                                       second.getMember()),
+                                                                                              second.getMember());
 
-        first = synchronizedChanges;
+              for (Iterator<ItemState> lch = local.getChanges(); lch.hasNext();)
+                sc.add(lch.next());
+
+              synchronizedChanges = sc;
+            }
+          }
+
+          first = synchronizedChanges;
+        }
       }
 
       // if success

@@ -19,6 +19,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.util.Iterator;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
 
@@ -28,7 +29,8 @@ import org.exoplatform.services.jcr.dataflow.ItemState;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a>
  * @version $Id$
  */
-public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements EditableChangesStorage<T> {
+public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesStorage<T> implements
+    EditableChangesStorage<T> {
 
   /**
    * ItemStates storage direcory.
@@ -53,7 +55,8 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   /**
    * Class constructor.
    * 
-   * @param storagePath storage Path
+   * @param storagePath
+   *          storage Path
    */
   public EditableItemStatesStorage(File storagePath, Member member) {
     super(member);
@@ -63,10 +66,25 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   /**
    * {@inheritDoc}
    */
+  @Override
+  public ChangesFile[] getChangesFile() {
+    try {
+      this.currentFile.finishWrite();
+    } catch (IOException e) {
+      // TODO
+      e.printStackTrace();
+    }
+    
+    return super.getChangesFile();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
   public void add(T change) throws IOException {
     initFile();
     stream.writeObject(change);
-    
+
     stream.flush();
   }
 
@@ -74,10 +92,40 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * {@inheritDoc}
    */
   public void addAll(ChangesStorage<T> changes) throws IOException {
-    flushFile();
+    
+    if (changes instanceof EditableChangesStorage) {
+      flushFile();
+      
+      for (ChangesFile cf : changes.getChangesFile())
+        storage.add(cf);
+    } else {
+      try {
+        for (Iterator<T> lch = changes.getChanges(); lch.hasNext();)
+          add(lch.next());
+      } catch (final ClassCastException e) {
+        throw new IOException(e.getMessage()) {
 
-    for (ChangesFile cf : changes.getChangesFile())
-      storage.add(cf);
+          /**
+           * {@inheritDoc}
+           */
+          @Override
+          public Throwable getCause() {
+            return e;
+          }
+          
+        };
+      } catch (final ClassNotFoundException e) {
+        throw new IOException(e.getMessage()) {
+          /**
+           * {@inheritDoc}
+           */
+          @Override
+          public Throwable getCause() {
+            return e;
+          }
+        };
+      }  
+    }
   }
 
   private void initFile() throws IOException {

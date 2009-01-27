@@ -69,7 +69,7 @@ public class WorkspaceSynchronizerImpl implements WorkspaceSynchronizer {
                                                                  InvalidItemStateException,
                                                                  UnsupportedOperationException,
                                                                  RepositoryException {
-    //dump
+    // dump
     try {
       LOG.info("save \r\n" + synchronizedChanges.dump());
     } catch (ClassCastException e1) {

@@ -64,7 +64,7 @@ public class RenameMerger extends AbstractMerger {
    * @throws ClassCastException
    * @throws RepositoryException
    */
-  public ChangesStorage<ItemState> merge(ItemState itemChange,
+  public EditableChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
                                          ChangesStorage<ItemState> local,
                                          String mergeTempDir,

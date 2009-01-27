@@ -26,6 +26,7 @@ import org.exoplatform.services.jcr.datamodel.IllegalPathException;
 import org.exoplatform.services.jcr.datamodel.QPath;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 
 /**
  * Created by The eXo Platform SAS.
@@ -64,7 +65,7 @@ public interface ChangesMerger {
    * @throws ClassNotFoundException
    * @throws ClassCastException
    */
-  ChangesStorage<ItemState> merge(ItemState itemChange,
+  EditableChangesStorage<ItemState> merge(ItemState itemChange,
                                   ChangesStorage<ItemState> income,
                                   ChangesStorage<ItemState> local,
                                   String mergeTempDir,

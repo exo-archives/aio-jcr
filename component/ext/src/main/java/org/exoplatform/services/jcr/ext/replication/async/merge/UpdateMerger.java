@@ -64,7 +64,7 @@ public class UpdateMerger extends AbstractMerger {
    * @throws ClassNotFoundException
    * @throws ClassCastException
    */
-  public ChangesStorage<ItemState> merge(ItemState itemChange,
+  public EditableChangesStorage<ItemState> merge(ItemState itemChange,
                                          ChangesStorage<ItemState> income,
                                          ChangesStorage<ItemState> local,
                                          String mergeTempDir,

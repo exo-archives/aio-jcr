@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AbstractPacket;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncPacketListener;
@@ -243,7 +242,10 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
           // 1. if some member was disconnected but has not merged - fatal
           // 2. if some member (or all) was disconnected but local merge doesn't finished,
           // it's usecase of imposible remote export (if will), will be handled by exporter.
+          // [PN, 28.01.2009] cancel (stop) in any case
           LOG.error("FATAL: member disconnected after the start. Stopping synchrinization.");
+
+          doStop();
 
           for (RemoteEventListener rl : listeners())
             rl.onCancel();
@@ -330,17 +332,6 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
     return true;
   }
-
-  // private Member syncMember(MemberAddress address, int priority) {
-  // for (MemberAddress m : activeMembers) {
-  // if (m.getAddress().equals(address)) {
-  // m.setPriority(priority);
-  // return m;
-  // }
-  // }
-  //
-  // return null;
-  // }
 
   public void receive(AbstractPacket packet, MemberAddress srcMember) {
 

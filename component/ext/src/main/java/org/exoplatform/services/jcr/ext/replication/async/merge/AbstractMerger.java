@@ -35,6 +35,7 @@ import org.exoplatform.services.jcr.ext.replication.async.RemoteExportException;
 import org.exoplatform.services.jcr.ext.replication.async.RemoteExporter;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogReadException;
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
+import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 
@@ -76,7 +77,7 @@ public abstract class AbstractMerger implements ChangesMerger {
   /**
    * {@inheritDoc}
    */
-  public abstract ChangesStorage<ItemState> merge(ItemState itemChange,
+  public abstract EditableChangesStorage<ItemState> merge(ItemState itemChange,
                                                   ChangesStorage<ItemState> income,
                                                   ChangesStorage<ItemState> local,
                                                   String mergeTempDir,

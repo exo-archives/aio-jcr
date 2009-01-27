@@ -82,9 +82,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public List<MemberChangesStorage<ItemState>> getChanges() throws IOException {
-    if (isStopped()) {
+    if (isStopped())
       throw new IOException("Incom storage already stopped.");
-    }
+    
     return getChangesFromMap();
   }
 
@@ -174,11 +174,11 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     return changeStorages;
   }
 
-  public void clean() throws IOException {
+  public void clean() {
     // delete all data in storage
-    File storage = new File(this.storagePath);
-    for (File file : storage.listFiles()) {
-      file.delete();
+    File dir = new File(storagePath);
+    if (dir.exists()) {
+      deleteStorage(dir);
     }
   }
 
@@ -206,15 +206,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   public void onCancel() {
     LOG.info("On CANCEL");
 
-    if (isStarted()) {
+    if (isStarted())
       doStop();
-
-      // clean storage
-      File dir = new File(storagePath);
-      if (dir.exists()) {
-        deleteStorage(dir);
-      }
-    } else
+    else
       LOG.warn("Not started or already stopped");
   }
 
@@ -225,11 +219,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     LOG.info("On START");
 
     // prepare storage (clean)
-    File dir = new File(storagePath);
-    if (dir.exists()) {
-      deleteStorage(dir);
-    }
-
+    clean();
+    
     doStart();
   }
 
@@ -241,14 +232,23 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
     if (isStarted()) {
       doStop();
-
-      // clean storage
-      File dir = new File(storagePath);
-      if (dir.exists()) {
-        deleteStorage(dir);
-      }
     } else
       LOG.warn("Not started or already stopped");
+  }
+
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void doStop() {
+    super.doStop();
+    
+    // clean map
+    changes.clear();
+    
+    // clean storage
+    clean();
   }
 
   private void deleteStorage(File file) {
@@ -259,7 +259,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
           deleteStorage(f);
         }
       }
-      file.delete();
+      if (!file.delete())
+        LOG.warn(">>>>>> Cannot delete file " + file.getAbsolutePath());
     }
   }
 
