@@ -136,9 +136,6 @@ public class MergeDataManager {
       while (membersChanges.hasNext() && run) {
         MemberChangesStorage<ItemState> second = membersChanges.next();
 
-        LOG.info("Merge changes from " + first.getMember() + " and " + second.getMember()
-            + " members");
-
         List<QPath> skippedList = new ArrayList<QPath>();
 
         boolean isLocalPriority = localMember.getPriority() >= second.getMember().getPriority();
@@ -150,13 +147,16 @@ public class MergeDataManager {
           local = first;
         }
 
+        LOG.info("Merge changes (local=" + isLocalPriority + ") from "
+            + first.getMember().getPriority() + " (" + first.getMember().getAddress() + ") and "
+            + second.getMember().getPriority() + " (" + second.getMember().getAddress() + ") members");
+
         // synchronizedChanges always with higher priority (income)
         synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                 second.getMember()),
                                                                        second.getMember());
-        
 
-        exporter.setLocalMember(second.getMember().getAddress());
+        exporter.setRemoteMember(second.getMember().getAddress());
         // TODO NT reregistration
         AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
         DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,

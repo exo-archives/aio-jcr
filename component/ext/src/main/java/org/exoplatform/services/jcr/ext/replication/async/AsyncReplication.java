@@ -116,8 +116,8 @@ public class AsyncReplication implements Startable {
     protected final MergeDataManager          mergeManager;
 
     protected final PersistentDataManager     dataManager;
-    
-    protected final WorkspaceDataContainer dataContainer;
+
+    protected final WorkspaceDataContainer    dataContainer;
 
     protected final NodeTypeDataManager       ntManager;
 
@@ -137,7 +137,7 @@ public class AsyncReplication implements Startable {
       this.dataManager = dataManager;
 
       this.ntManager = ntManager;
-      
+
       this.dataContainer = dataContainer;
 
       this.localStorage = localStorage;
@@ -154,10 +154,7 @@ public class AsyncReplication implements Startable {
 
       this.exporter = new RemoteExporterImpl(this.transmitter, this.receiver);
 
-      this.mergeManager = new MergeDataManager(this.exporter,
-                                               dataManager,
-                                               ntManager,
-                                               mergeTempDir);
+      this.mergeManager = new MergeDataManager(this.exporter, dataManager, ntManager, mergeTempDir);
 
       this.initializer = new AsyncInitializer(this.channel,
                                               priority,
@@ -213,9 +210,6 @@ public class AsyncReplication implements Startable {
 
     private void doFinalyze() {
       log.info("Do Finalize");
-      
-      //set read-write state
-      this.dataContainer.setReadOnly(false);
 
       this.receiver.setChangesSubscriber(null);
 
@@ -237,10 +231,15 @@ public class AsyncReplication implements Startable {
       this.initializer.removeRemoteListener(this.localStorage);
       this.initializer.removeRemoteListener(this.incomeStorage);
 
+      this.channel.removePacketListener(this.receiver);
       this.channel.removePacketListener(this.initializer);
       this.channel.removeStateListener(this.initializer);
+      this.channel.removeConnectionListener(this);
 
       currentWorkers.remove(this); // remove itself
+
+      // set read-write state
+      this.dataContainer.setReadOnly(false);
 
       log.info("Done Finalize");
     }
@@ -250,9 +249,9 @@ public class AsyncReplication implements Startable {
      */
     public void run() {
       try {
-        //set read-only state
+        // set read-only state
         this.dataContainer.setReadOnly(true);
-        
+
         this.channel.connect();
         // this.initializer.waitStop();
       } catch (ReplicationException e) {
@@ -510,8 +509,8 @@ public class AsyncReplication implements Startable {
     LocalStorageImpl localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
     IncomeStorageImpl incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, dc,localStorage, incomeStorage, repoName + "_"
-        + workspaceName);
+    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, dc, localStorage, incomeStorage, repoName
+        + "_" + workspaceName);
     synchWorker.run();
 
     currentWorkers.add(synchWorker);

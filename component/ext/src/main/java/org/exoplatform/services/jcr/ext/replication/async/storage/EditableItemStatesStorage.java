@@ -66,6 +66,8 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   public void add(T change) throws IOException {
     initFile();
     stream.writeObject(change);
+    
+    stream.flush();
   }
 
   /**
@@ -90,6 +92,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
 
   private void flushFile() throws IOException {
     if (stream != null) {
+      stream.flush();
       stream.close();
       stream = null;
     }

@@ -110,7 +110,7 @@ public class TesterRemoteExporter implements RemoteExporter {
     // dummy
   }
 
-  public void setLocalMember(MemberAddress address) {
+  public void setRemoteMember(MemberAddress address) {
     // dummy
   }
 }
