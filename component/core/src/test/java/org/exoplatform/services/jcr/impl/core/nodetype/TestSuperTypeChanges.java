@@ -72,7 +72,7 @@ public class TestSuperTypeChanges extends JcrImplBaseTest {
     Node testNode = root.addNode("testNode", testNValue.getName());
     session.save();
     assertFalse(testNode.isNodeType("mix:versionable"));
-    superType = testNValue.getDeclaredSupertypeNames();
+
     superType.add("mix:versionable");
     testNValue.setDeclaredSupertypeNames(superType);
 

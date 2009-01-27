@@ -31,7 +31,6 @@ import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.Value;
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.version.VersionException;
@@ -56,8 +55,7 @@ import org.exoplatform.services.jcr.impl.util.StringConverter;
 /**
  * Created by The eXo Platform SAS.
  * 
- * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady
- *         Azarenkov</a>
+ * @author <a href="mailto:gennady.azarenkov@exoplatform.com">Gennady Azarenkov</a>
  * @version $Id: TestExportDocView.java 11962 2008-03-16 16:31:14Z gazarenkov $
  */
 
@@ -74,8 +72,7 @@ public class TestExportDocView extends ExportBase {
 
     Node contentNode = file.addNode("jcr:content", "nt:resource");
     try {
-      Value value = new BinaryValue("this is the content");
-      contentNode.setProperty("jcr:data", value);
+      contentNode.setProperty("jcr:data", new BinaryValue("this is the content"));
       contentNode.setProperty("jcr:mimeType", "application/octet-stream");
     } catch (IOException e) {
       throw new RepositoryException(e);
@@ -316,10 +313,7 @@ public class TestExportDocView extends ExportBase {
 
   public void testExportStreamNamespaceRemaping() throws Exception {
 
-    Session newSession = repository.login(this.credentials /*
-                                                            * session.getCredentials
-                                                            * ()
-                                                            */);
+    Session newSession = repository.login(this.credentials /* session.getCredentials() */);
 
     newSession.setNamespacePrefix("newjcr", "http://www.jcp.org/jcr/1.0");
 
@@ -343,10 +337,7 @@ public class TestExportDocView extends ExportBase {
 
   public void testExportCHNamespaceRemaping() throws Exception {
 
-    Session newSession = repository.login(this.credentials /*
-                                                            * session.getCredentials
-                                                            * ()
-                                                            */);
+    Session newSession = repository.login(this.credentials /* session.getCredentials() */);
     newSession.setNamespacePrefix("newjcr", "http://www.jcp.org/jcr/1.0");
 
     Node testNode = newSession.getRootNode().addNode("jcr:testExportNamespaceRemaping");

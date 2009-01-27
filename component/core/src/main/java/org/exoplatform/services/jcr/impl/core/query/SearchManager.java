@@ -34,10 +34,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.query.InvalidQueryException;
 import javax.jcr.query.Query;
 
-import org.picocontainer.Startable;
-
 import org.apache.commons.logging.Log;
-
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.services.document.DocumentReaderService;
 import org.exoplatform.services.jcr.config.QueryHandlerEntry;
@@ -56,6 +53,7 @@ import org.exoplatform.services.jcr.impl.core.SessionDataManager;
 import org.exoplatform.services.jcr.impl.core.SessionImpl;
 import org.exoplatform.services.jcr.impl.dataflow.persistent.WorkspacePersistentDataManager;
 import org.exoplatform.services.log.ExoLogger;
+import org.picocontainer.Startable;
 
 /**
  * Acts as a global entry point to execute queries and index nodes.
@@ -206,10 +204,10 @@ public class SearchManager implements Startable, MandatoryItemsPersistenceListen
     final Set<String> addedNodes = new HashSet<String>();
 
     final Map<String, List<ItemState>> updatedNodes = new HashMap<String, List<ItemState>>();
-
+    
     for (Iterator<ItemState> iter = changesLog.getAllStates().iterator(); iter.hasNext();) {
       ItemState itemState = iter.next();
-
+      
       if (!isExcluded(itemState)) {
         String uuid = itemState.isNode() ? itemState.getData().getIdentifier()
                                         : itemState.getData().getParentIdentifier();
@@ -255,6 +253,59 @@ public class SearchManager implements Startable, MandatoryItemsPersistenceListen
       removedNodes.add(uuid);
       addedNodes.add(uuid);
     }
+
+    // // property events
+    // List<ItemState> propEvents = new ArrayList<ItemState>();
+    // List<ItemState> itemStates = changesLog.getAllStates();
+    //
+    // final Set<String> allRemovedNodesId = new HashSet<String>();
+    // final Set<String> allAddedNodesId = new HashSet<String>();
+    // for (ItemState itemState : itemStates) {
+    // if (!isExcluded(itemState)) {
+    // if (itemState.isNode()) {
+    // if (itemState.isAdded() || itemState.isRenamed()) {
+    // addedNodes.add(itemState.getData().getIdentifier());
+    // allAddedNodesId.add(itemState.getData().getIdentifier());
+    // } else if (itemState.isDeleted()) {
+    // // remove node from add list, and if node not in add list add it to
+    // // removed list
+    // if (!addedNodes.remove(itemState.getData().getIdentifier()))
+    // removedNodes.add(itemState.getData().getIdentifier());
+    // allRemovedNodesId.add(itemState.getData().getIdentifier());
+    // } else if (itemState.isMixinChanged()) {
+    // removedNodes.add(itemState.getData().getIdentifier());
+    // addedNodes.add(itemState.getData().getIdentifier());
+    // }
+    // } else {
+    // propEvents.add(itemState);
+    // }
+    // }
+    // }
+    //
+    // // sort out property events
+    // for (int i = 0; i < propEvents.size(); i++) {
+    // ItemState event = propEvents.get(i);
+    // String nodeId = event.getData().getParentIdentifier();
+    // if (event.isAdded()) {
+    // if (!addedNodes.contains(nodeId) && !allAddedNodesId.contains(nodeId)) {
+    // // only property added
+    // // need to re-index
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // } else {
+    // // the node where this prop belongs to is also new
+    // }
+    // } else if (event.isRenamed() || event.isUpdated()) {
+    // // need to re-index
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // } else if (event.isDeleted()) {
+    // if (!allRemovedNodesId.contains(nodeId)) {
+    // addedNodes.add(nodeId);
+    // removedNodes.add(nodeId);
+    // }
+    // }
+    // }
 
     Iterator<NodeData> addedStates = new Iterator<NodeData>() {
       private final Iterator<String> iter = addedNodes.iterator();

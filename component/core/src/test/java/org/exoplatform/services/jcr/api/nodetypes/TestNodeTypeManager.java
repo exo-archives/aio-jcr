@@ -2,9 +2,7 @@ package org.exoplatform.services.jcr.api.nodetypes;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
@@ -15,22 +13,17 @@ import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeManager;
-import javax.jcr.query.qom.Ordering;
 import javax.jcr.version.VersionException;
 
 import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Query;
 
 import org.exoplatform.services.jcr.JcrAPIBaseTest;
-import org.exoplatform.services.jcr.core.query.jsr283.IndexSearcher;
-import org.exoplatform.services.jcr.core.query.jsr283.ResultFilter;
-import org.exoplatform.services.jcr.core.query.jsr283.ResultSorter;
-import org.exoplatform.services.jcr.core.query.jsr283.ScoredRow;
-import org.exoplatform.services.jcr.core.query.jsr283.SingleSourceNativeQuery;
 import org.exoplatform.services.jcr.datamodel.InternalQName;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeDataManagerImpl;
-import org.exoplatform.services.jcr.impl.core.query.SingleSourceNativeQueryImpl;
+import org.exoplatform.services.jcr.impl.core.query.QueryHandler;
+import org.exoplatform.services.jcr.impl.core.query.lucene.FieldNames;
+import org.exoplatform.services.jcr.impl.core.query.lucene.QueryHits;
 
 /**
  * Created by The eXo Platform SAS.
@@ -79,21 +72,16 @@ public class TestNodeTypeManager extends JcrAPIBaseTest {
   public void testNtQuery() throws Exception {
     NodeTypeDataManagerImpl ntManager = (NodeTypeDataManagerImpl) session.getWorkspace()
                                                                          .getNodeTypesHolder();
-    IndexSearcher<Query> queryHandler = ntManager.getQueryHandlers().iterator().next();
-
-    SingleSourceNativeQuery<Query> ssquery = new SingleSourceNativeQueryImpl<Query>(new MatchAllDocsQuery(),
-                                                                                    "nt",
-                                                                                    new Ordering[] {},
-                                                                                    new ArrayList<ResultSorter>(),
-                                                                                    new ArrayList<ResultFilter>(),
-                                                                                    0,
-                                                                                    0);
-    List<ScoredRow> hits = queryHandler.search(ssquery);
-    Set<String> result = new HashSet<String>();
-    for (ScoredRow scoredRow : hits) {
-      result.add(scoredRow.getNodeIdentifer("nt"));
+    QueryHandler qh = ntManager.getQueryHandlers().iterator().next();
+    QueryHits hits = qh.executeQuery(new MatchAllDocsQuery(),
+                                     true,
+                                     new InternalQName[0],
+                                     new boolean[0]);
+    List<String> uuidList = new ArrayList<String>(hits.length());
+    for (int i = 0; i < hits.length(); i++) {
+      uuidList.add(hits.getFieldContent(i, FieldNames.UUID));
     }
-    assertTrue(result.size() > 0);
+    assertTrue(uuidList.size() > 0);
   }
 
   public void testNtQueryNtBase() throws Exception {

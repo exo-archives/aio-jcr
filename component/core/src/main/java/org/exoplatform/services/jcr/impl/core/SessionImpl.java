@@ -62,13 +62,13 @@ import org.exoplatform.services.jcr.core.CredentialsImpl;
 import org.exoplatform.services.jcr.core.ExtendedSession;
 import org.exoplatform.services.jcr.core.NamespaceAccessor;
 import org.exoplatform.services.jcr.core.SessionLifecycleListener;
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.datamodel.ItemData;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.core.lock.LockManagerImpl;
-import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerImpl;
 import org.exoplatform.services.jcr.impl.core.observation.ObservationManagerRegistry;
 import org.exoplatform.services.jcr.impl.core.value.ValueFactoryImpl;
@@ -822,7 +822,7 @@ public class SessionImpl implements ExtendedSession, NamespaceAccessor {
     }
 
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
-                                     ((NodeTypeImpl) srcNode.getPrimaryNodeType()).getQName());
+                                     ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
     NodeImpl destNode = (NodeImpl) dataManager.getItem((NodeData) destParentNode.getData(),

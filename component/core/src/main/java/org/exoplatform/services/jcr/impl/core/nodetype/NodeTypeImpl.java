@@ -38,6 +38,7 @@ import javax.jcr.nodetype.PropertyDefinition;
 
 import org.apache.commons.logging.Log;
 
+import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeData;
@@ -58,7 +59,7 @@ import org.exoplatform.services.log.ExoLogger;
  *         Nedonosko</a>
  * @version $Id: NodeTypeImpl.java 111 2008-11-11 11:11:11Z pnedonosko $
  */
-public class NodeTypeImpl implements NodeType {
+public class NodeTypeImpl implements ExtendedNodeType {
 
   protected static final Log              LOG = ExoLogger.getLogger("jcr.NodeTypeImpl");
 
@@ -424,6 +425,7 @@ public class NodeTypeImpl implements NodeType {
   /**
    * {@inheritDoc}
    */
+  @Deprecated
   public InternalQName getQName() {
     return data.getName();
   }
