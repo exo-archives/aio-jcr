@@ -227,7 +227,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
     // }
 
     if (currentFile != null) {
-    //  currentFile.finishWrite();
+      // currentFile.finishWrite();
       currentFile = null;
     }
   }
@@ -235,7 +235,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Return all rootPath sub file names that has are numbers in ascending order.
    * 
-   * @param rootPath Path of root directory
+   * @param rootPath
+   *          Path of root directory
    * @return list of sub-files names
    */
   private String[] getSubStorageNames(String rootPath) {
@@ -275,9 +276,11 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -344,10 +347,9 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist,
-                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                       : plog.getSessionId(),
-                                            plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+          ? EXTERNALIZATION_SESSION_ID
+          : plog.getSessionId(), plog.getEventType()));
     }
     return result;
   }
@@ -355,7 +357,8 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -401,25 +404,24 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
    * {@inheritDoc}
    */
   public void onStop() {
-
-    deleteDir(previousDir);
     LOG.info("On STOP");
 
+    if (isStarted())
+      deleteDir(previousDir);
+    else
+      LOG.warn("Not started or already stopped");
   }
 
   /**
    * {@inheritDoc}
    */
   public void onCancel() {
-    // TODO merge detached and current storages in one (rename detached to a
-    // current now, till we use READ-ONLY)
-
     LOG.info("On CANCEL");
-    // get last directory in storage and delete
-    // TODO is it correct?
 
-    deleteDir(lastDir);
-
+    if (isStarted())
+      deleteDir(lastDir);
+    else
+      LOG.warn("Not started or already stopped");
   }
 
   /**

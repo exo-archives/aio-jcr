@@ -75,7 +75,7 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
       try {
         ChangesFile[] localChanges;
         LOG.info("Local changes : "
-            + (localChanges = storage.getLocalChanges().getChangesFile()).length);    
+            + (localChanges = storage.getLocalChanges().getChangesFile()).length);
 
         transmitter.sendChanges(localChanges, subscribers);
       } catch (IOException e) {
@@ -97,9 +97,11 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
    * {@inheritDoc}
    */
   public void onCancel() {
-    doStop();
-
-    cancelWorker();
+    if (isStarted()) {
+      doStop();
+      cancelWorker();
+    } else
+      LOG.warn("Not started or already stopped");
   }
 
   /**
@@ -135,11 +137,14 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   public void onStop() {
     LOG.info("On STOP (local)");
 
-    cancelWorker();
+    if (isStarted()) {
+      doStop();
 
-    doStop();
-    
-    publisherWorker = null;
+      cancelWorker();
+
+      publisherWorker = null;
+    } else
+      LOG.warn("Not started or already stopped");
   }
 
   private void cancelWorker() {

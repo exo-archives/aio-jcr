@@ -55,39 +55,39 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   /**
    * Logger.
    */
-  protected static final Log                        LOG           = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
+  protected static final Log                LOG           = ExoLogger.getLogger("ext.ChangesSubscriberImpl");
 
-  protected final MergeDataManager                mergeManager;
+  protected final MergeDataManager          mergeManager;
 
-  protected final WorkspaceSynchronizer           workspace;
+  protected final WorkspaceSynchronizer     workspace;
 
-  protected final IncomeStorage                   incomeStorrage;
-  
-  protected final ChangesSaveErrorLog             errorLog;
+  protected final IncomeStorage             incomeStorrage;
 
-  protected final AsyncTransmitter                transmitter;
+  protected final ChangesSaveErrorLog       errorLog;
 
-  protected final AsyncInitializer                initializer;
-  
-  protected final int                             membersCount;
-  
-  protected final int                             localPriority;
+  protected final AsyncTransmitter          transmitter;
 
-  protected HashMap<Integer, Counter>             counterMap;
+  protected final AsyncInitializer          initializer;
 
-  protected List<MemberAddress>                   mergeDoneList = new ArrayList<MemberAddress>();
-  
+  protected final int                       membersCount;
+
+  protected final int                       localPriority;
+
+  protected HashMap<Integer, Counter>       counterMap;
+
+  protected List<MemberAddress>             mergeDoneList = new ArrayList<MemberAddress>();
+
   /**
    * Map with CRC key and RandomAccess File
    */
-  protected HashMap<Key, MemberChangesFile> incomChanges = new HashMap<Key, MemberChangesFile>();
+  protected HashMap<Key, MemberChangesFile> incomChanges  = new HashMap<Key, MemberChangesFile>();
 
-  protected MergeWorker                           mergeWorker   = null;
+  protected MergeWorker                     mergeWorker   = null;
 
   /**
    * Listeners in order of addition.
    */
-  protected final Set<LocalEventListener>         listeners     = new LinkedHashSet<LocalEventListener>();
+  protected final Set<LocalEventListener>   listeners     = new LinkedHashSet<LocalEventListener>();
 
   class MergeWorker extends Thread {
 
@@ -106,15 +106,16 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         runMerge(new Member(localAddress, localPriority));
 
         // add local done;
-        mergeDoneList.add(localAddress);
+        if (isStarted()) {
+          mergeDoneList.add(localAddress);
 
-        try {
-          transmitter.sendMerge();
-        } catch (IOException ioe) {
-          // TODO do we can continue on such error?
-          LOG.error("Cannot send 'Cancel'" + ioe, ioe);
+          try {
+            transmitter.sendMerge();
+          } catch (IOException ioe) {
+            // TODO do we can continue on such error?
+            LOG.error("Cannot send 'Cancel'" + ioe, ioe);
+          }
         }
-
       } catch (RepositoryException e) {
         workerLog.error("Merge error " + e, e);
         doCancel();
@@ -149,7 +150,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
         return;
       }
 
-      if (mergeDoneList.size() == membersCount) {
+      if (isStarted() && mergeDoneList.size() == membersCount) {
         save();
         doStop();
       }
@@ -362,9 +363,11 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void onCancel() {
     LOG.info("On CANCEL");
 
-    doStop();
-
-    cancelMerge();
+    if (isStarted()) {
+      doStop();
+      cancelMerge();
+    } else
+      LOG.warn("Not started or already stopped");
   }
 
   /**
@@ -375,7 +378,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     if (mergeWorker != null)
       try {
         mergeWorker.cancel();
-        
+
       } catch (RepositoryException e) {
         LOG.error("Error of merge process cancelation " + e, e);
       } catch (RemoteExportException e) {
@@ -389,12 +392,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   public void onMerge(MemberAddress member) {
 
     if (isStarted()) {
-    
+
       mergeDoneList.add(member);
-  
+
       LOG.info("On Merge member " + member + ", doneList.size=" + mergeDoneList.size()
           + " membersCount=" + membersCount);
-  
+
       if (mergeDoneList.size() == membersCount) {
         save();
         doStop();
@@ -449,10 +452,12 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    * {@inheritDoc}
    */
   public void onStop() {
-    // TODO Auto-generated method stub
     LOG.info("On STOP (local)");
 
-    doStop();
+    if (isStarted())
+      doStop();
+    else
+      LOG.warn("Not started or already stopped");
   }
 
   private class Key {

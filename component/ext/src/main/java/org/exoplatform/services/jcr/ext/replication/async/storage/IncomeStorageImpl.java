@@ -82,7 +82,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public List<MemberChangesStorage<ItemState>> getChanges() throws IOException {
-    if(isStopped()){
+    if (isStopped()) {
       throw new IOException("Incom storage already stopped.");
     }
     return getChangesFromMap();
@@ -154,7 +154,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
         IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles),
                                                                                       null); // TODO
-                                                                                             // NPE
+        // NPE
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {
         // This is not int-named file. Fatal.
@@ -206,13 +206,16 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   public void onCancel() {
     LOG.info("On CANCEL");
 
-    doStop();
+    if (isStarted()) {
+      doStop();
 
-    // clean storage
-    File dir = new File(storagePath);
-    if (dir.exists()) {
-      //deleteStorage(dir);
-    }
+      // clean storage
+      File dir = new File(storagePath);
+      if (dir.exists()) {
+        deleteStorage(dir);
+      }
+    } else
+      LOG.warn("Not started or already stopped");
   }
 
   /**
@@ -236,13 +239,16 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
   public void onStop() {
     LOG.info("On STOP");
 
-    doStop();
+    if (isStarted()) {
+      doStop();
 
-    // clean storage
-    File dir = new File(storagePath);
-    if (dir.exists()) {
-      deleteStorage(dir);
-    }
+      // clean storage
+      File dir = new File(storagePath);
+      if (dir.exists()) {
+        deleteStorage(dir);
+      }
+    } else
+      LOG.warn("Not started or already stopped");
   }
 
   private void deleteStorage(File file) {

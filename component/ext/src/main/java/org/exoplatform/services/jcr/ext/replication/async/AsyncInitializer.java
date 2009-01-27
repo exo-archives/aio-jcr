@@ -149,7 +149,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     List<MemberAddress> mlist = new ArrayList<MemberAddress>(currentMembers.size() - 1);
     for (MemberAddress m : currentMembers)
       if (!m.equals(localMember))
-       mlist.add(new MemberAddress(m.getAddress()));
+        mlist.add(new MemberAddress(m.getAddress()));
 
     return mlist;
   }
@@ -331,16 +331,16 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     return true;
   }
 
-//  private Member syncMember(MemberAddress address, int priority) {
-//    for (MemberAddress m : activeMembers) {
-//      if (m.getAddress().equals(address)) {
-//        m.setPriority(priority);
-//        return m;
-//      }
-//    }
-//
-//    return null;
-//  }
+  // private Member syncMember(MemberAddress address, int priority) {
+  // for (MemberAddress m : activeMembers) {
+  // if (m.getAddress().equals(address)) {
+  // m.setPriority(priority);
+  // return m;
+  // }
+  // }
+  //
+  // return null;
+  // }
 
   public void receive(AbstractPacket packet, MemberAddress srcMember) {
 
@@ -349,7 +349,7 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
       return;
     }
 
-    //Member member = syncMember(srcMember, ((AbstractPacket) packet).getTransmitterPriority());
+    // Member member = syncMember(srcMember, ((AbstractPacket) packet).getTransmitterPriority());
 
     if (activeMembers.contains(srcMember)) {
 
@@ -403,7 +403,10 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onCancel() {
     LOG.info("On CANCEL (local)");
 
-    doStop();
+    if (isStarted())
+      doStop();
+    else
+      LOG.warn("Not started or already stopped");
   }
 
   /**
@@ -412,7 +415,10 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
   public void onStop() {
     LOG.info("On STOP (local)");
 
-    doStop(CHANNEL_CLOSE_TIMEOUT);
+    if (isStarted())
+      doStop(CHANNEL_CLOSE_TIMEOUT);
+    else
+      LOG.warn("Not started or already stopped");
   }
 
   /**

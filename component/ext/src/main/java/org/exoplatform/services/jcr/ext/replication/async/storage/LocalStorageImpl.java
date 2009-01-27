@@ -117,11 +117,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public ChangesStorage<ItemState> getLocalChanges() throws IOException {
 
-    if(isStopped()){
+    if (isStopped()) {
       // throw exception
       throw new IOException("Local storage already stopped");
     }
-    
+
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
     String[] dirNames = getSubStorageNames(storagePath);
@@ -130,7 +130,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     // if(dirNames.length<2){
 
     // means that we have maximum 2 directories and and least one;
-    if(dirNames.length!=2){
+    if (dirNames.length != 2) {
       throw new IOException("Previous directory can't be founded. Derectory not exist or mor than two.");
     }
     File prevDir = new File(storagePath, dirNames[0]);
@@ -229,9 +229,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log local TransactionChangesLog
+   * @param log
+   *          local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException if error occurs
+   * @throws IOException
+   *           if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -298,10 +300,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist,
-                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
-                                                                       : plog.getSessionId(),
-                                            plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
+          ? EXTERNALIZATION_SESSION_ID
+          : plog.getSessionId(), plog.getEventType()));
     }
     return result;
   }
@@ -309,7 +310,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e Exception
+   * @param e
+   *          Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -355,29 +357,33 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onStop() {
-    // delete files in primary dir
-
-    doStop();
-    File prevDir = new File(storagePath, Long.toString(dirIndex - 2));
-    deleteDir(prevDir);
     LOG.info("On STOP");
+
+    if (isStarted()) {
+      // delete files in primary dir
+      doStop();
+      File prevDir = new File(storagePath, Long.toString(dirIndex - 2));
+      deleteDir(prevDir);
+    } else
+      LOG.warn("Not started or already stopped");
   }
 
   /**
    * {@inheritDoc}
    */
   public void onCancel() {
-    // TODO merge detached and current storages in one (rename detached to a
-    // current now, till we use READ-ONLY)
-
-    doStop();
-    
     LOG.info("On CANCEL");
-    // get last directory in storage and delete
-    String[] dirs = getSubStorageNames(this.storagePath);
 
-    File lastDir = new File(storagePath, dirs[dirs.length - 1]);
-    lastDir.delete();
+    if (isStarted()) {
+      doStop();
+
+      // get last directory in storage and delete
+      String[] dirs = getSubStorageNames(this.storagePath);
+
+      File lastDir = new File(storagePath, dirs[dirs.length - 1]);
+      lastDir.delete();
+    } else
+      LOG.warn("Not started or already stopped");
   }
 
   /**
@@ -399,7 +405,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     subdir.mkdirs();
 
     LOG.info("LocalStorageImpl:onStart()");
-    
+
   }
 
   /**
