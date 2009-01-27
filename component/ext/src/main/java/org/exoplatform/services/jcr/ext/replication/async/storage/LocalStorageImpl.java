@@ -154,7 +154,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
         File lastDir = new File(storagePath, dirs[dirs.length - 1]);
 
-        ChangesFile file = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
+        long timestamp;
+        synchronized (index) {
+          timestamp = index++;
+        }
+        
+        ChangesFile file = new ChangesFile("", timestamp, lastDir.getAbsolutePath());
         // System.out.println(file.getPath() + " created ");
 
         ObjectOutputStream out = new ObjectOutputStream(file.getOutputStream());
@@ -396,14 +401,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public void onMerge(MemberAddress member) {
     // not interested
-  }
-
-  private long getNextFileId() {
-    long fileId = 0;
-    synchronized (index) {
-      fileId = index++;
-    }
-    return fileId;
   }
 
   public void deleteDir(File dir) {

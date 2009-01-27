@@ -166,15 +166,12 @@ public class SolidChangesFileTest extends BaseStandaloneTest {
     SolidChangesFile file = new SolidChangesFile( CRC, System.currentTimeMillis());
 
     byte[] buf1 = createBLOBTempData(size1);
-    file.writeData(buf1, 0);
     System.arraycopy(buf1, 0, bufetalon, 0, size1);
 
-    byte[] buf2 = createBLOBTempData(size1);
-    file.writeData(buf2, 0);
-    System.arraycopy(buf2, 0, bufetalon, 0, size2);
+    byte[] buf2 = createBLOBTempData(size2);
+    System.arraycopy(buf2, 0, bufetalon, size1, size2);
 
     byte[] buf3 = createBLOBTempData(size3);
-    file.writeData(buf3, size1 + size2);
     System.arraycopy(buf3, 0, bufetalon, size1 + size2, size3);
 
     file.getOutputStream().write(buf1);
@@ -189,8 +186,14 @@ public class SolidChangesFileTest extends BaseStandaloneTest {
     // check file
     
     InputStream in = file.getDataStream();
-    byte[] bufrez = new byte[size1 + size2 + size3];
-    int readed = in.read(bufrez);
+    
+    byte[] buf = new byte[1024];
+   
+    int readed = in.read(buf);
+    
+    byte[] bufrez = new byte[readed];
+    System.arraycopy(buf, 0, bufrez,0, readed);
+    
     assertEquals(size1 + size2 + size3, readed);
     assertEquals(true, java.util.Arrays.equals(bufetalon, bufrez));
     
