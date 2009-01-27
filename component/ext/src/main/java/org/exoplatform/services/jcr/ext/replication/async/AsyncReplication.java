@@ -620,6 +620,7 @@ public class AsyncReplication implements Startable {
       if (changesSaveErrors.length > 0) {
         hasChangesSaveError = true;
 
+        log.error("The errors log file : " + errorLog.getErrorLog());
         log.error("The previous save on '" + repositoryName + "@" + wsName + "' have errors : ");
         for (String error : changesSaveErrors)
           log.error(error);

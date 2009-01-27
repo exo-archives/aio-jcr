@@ -86,11 +86,16 @@ public class ChangesSaveErrorLog {
     }
   }
 
+  public String getErrorLog() {
+    return new File(serviceDir, getErrorFileName()).getAbsolutePath();
+  }
+  
+  
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param t
+   *          Throwable
    */
   public void reportError(Throwable t) {
     try {

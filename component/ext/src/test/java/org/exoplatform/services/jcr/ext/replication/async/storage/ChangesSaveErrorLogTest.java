@@ -61,5 +61,7 @@ public class ChangesSaveErrorLogTest extends BaseStandaloneTest {
     assertEquals(e1.getMessage(), errors[0]);
     assertEquals(e2.getMessage(), errors[1]);
     assertEquals(e3.getMessage(), errors[2]);
+    
+    assertNotNull(destErrorLog.getErrorLog());
   }
 }
