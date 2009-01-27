@@ -95,8 +95,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
       // TODO check is last directory archived. If true create new directory.
 
       File lastDir = new File(storagePath, dirs[dirs.length - 1]);
-      dirIndex = Long.parseLong(lastDir.getName()+1);
-      
+      dirIndex = Long.parseLong(lastDir.getName() + 1);
+
       // get last filename as index
       String[] fileNames = lastDir.list(new ChangesFileNameFilter());
       java.util.Arrays.sort(fileNames, new ChangesFileComparator());
@@ -409,13 +409,17 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void deleteDir(File dir) {
     File[] subfiles = dir.listFiles();
 
-    for (File f : subfiles) {
-      if (!f.delete()) {
-        cleaner.addFile(f);
+    /*TODO java.lang.NullPointerException
+        at org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl.deleteDir(LocalStorageImpl.java:412)
+        at org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl.onStop(LocalStorageImpl.java:347)*/
+    if (subfiles != null)
+      for (File f : subfiles) {
+        if (!f.delete()) {
+          cleaner.addFile(f);
+        }
       }
-    }
 
-    if (!dir.delete()){
+    if (!dir.delete()) {
       cleaner.addFile(dir);
     }
   }

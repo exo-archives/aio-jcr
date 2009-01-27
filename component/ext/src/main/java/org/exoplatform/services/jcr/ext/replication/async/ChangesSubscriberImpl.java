@@ -384,15 +384,19 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    */
   public void onMerge(MemberAddress member) {
 
-    mergeDoneList.add(member);
-
-    LOG.info("On Merge member " + member + ", doneList.size=" + mergeDoneList.size()
-        + " membersCount=" + membersCount);
-
-    if (mergeDoneList.size() == membersCount) {
-      save();
-      doStop();
-    }
+    if (isStarted()) {
+    
+      mergeDoneList.add(member);
+  
+      LOG.info("On Merge member " + member + ", doneList.size=" + mergeDoneList.size()
+          + " membersCount=" + membersCount);
+  
+      if (mergeDoneList.size() == membersCount) {
+        save();
+        doStop();
+      }
+    } else
+      LOG.warn("Subscriber stopped. On Merge member " + member + " ignored.");
   }
 
   private synchronized void save() {
@@ -423,8 +427,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> member) {
-    // TODO Auto-generated method stub
-
+    // not interested
   }
 
   public void onStart(List<MemberAddress> members) {
