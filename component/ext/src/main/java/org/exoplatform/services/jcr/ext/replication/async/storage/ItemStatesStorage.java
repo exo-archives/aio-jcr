@@ -89,11 +89,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
       try {
         nextItem = readNext();
       } catch (IOException e) {
-        throw new ChangesLogReadException(e.getMessage());
+        throw new ChangesLogReadException(e.getMessage(), e);
       } catch (ClassNotFoundException e) {
-        throw new ChangesLogReadException(e.getMessage());
+        throw new ChangesLogReadException(e.getMessage(), e);
       } catch (ClassCastException e) {
-        throw new ChangesLogReadException(e.getMessage());
+        throw new ChangesLogReadException(e.getMessage(), e);
       }
       return retVal;
     }
