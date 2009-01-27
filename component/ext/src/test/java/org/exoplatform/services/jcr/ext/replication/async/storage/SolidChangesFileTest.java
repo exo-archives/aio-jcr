@@ -19,6 +19,8 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.Random;
 
@@ -197,6 +199,45 @@ public class SolidChangesFileTest extends BaseStandaloneTest {
     assertEquals(size1 + size2 + size3, readed);
     assertEquals(true, java.util.Arrays.equals(bufetalon, bufrez));
     
+  }
+  
+  
+  public void testUppendObjects() throws Exception {
+    String first = new String("first");
+    String second = new String("second");
+    String third = new String("third");
+
+
+        SolidChangesFile file = new SolidChangesFile( CRC, System.currentTimeMillis());
+
+    ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
+    str.writeObject(first);
+    str.writeObject(second);
+    str.close();
+    file.finishWrite();
+    
+    str = new ObjectOutputStream( file.getOutputStream());
+    str.writeObject(second);
+    str.close();
+    file.finishWrite();
+
+    str = new ObjectOutputStream( file.getOutputStream());
+    str.writeObject(third);
+    str.close();
+    file.finishWrite();
+
+    
+    // check file
+    ObjectInputStream in = new ObjectInputStream(file.getDataStream());
+    
+    String rez = (String) in.readObject();
+    assertEquals(first, rez);
+    rez = (String) in.readObject();
+    assertEquals(second, rez);
+    rez = (String) in.readObject();
+    assertEquals(second, rez);
+    rez = (String) in.readObject();
+    assertEquals(third, rez);
   }
   
   

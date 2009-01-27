@@ -79,7 +79,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   /**
    * Max ChangesLog file size in Kb.
    */
-  private static final long     MAX_FILE_SIZE_KB           = 1024 * 1024;
+  private static final long     MAX_FILE_SIZE_KB           = 32 * 1024;
 
   protected final String        storagePath;
 
@@ -89,7 +89,7 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
 
   private ChangesFile           currentFile                = null;
 
-  private ObjectOutputStream    currentOut                 = null;                                       // TODO
+  // private ObjectOutputStream currentOut = null; // TODO
 
   /**
    * This unique index used as name for ChangesFiles.
@@ -199,11 +199,16 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       currentFile = new ChangesFile("", getNextFileId(), lastDir.getAbsolutePath());
     }
 
-    if (currentOut == null) {
-      currentOut = new ObjectOutputStream(currentFile.getOutputStream());
-    }
+    // if (currentOut == null) {
+    ObjectOutputStream currentOut = new ObjectOutputStream(currentFile.getOutputStream());
+    // }
 
     currentOut.writeObject(itemStates);
+
+    currentOut.close();
+    currentOut = null;
+    currentFile.finishWrite();
+
     // TODO register timer to close output Stream if file isn't changes too
     // long
   }
@@ -216,13 +221,13 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
   synchronized private void closeCurrentFile() throws IOException {
     // TODO stop any timers
 
-    if (currentOut != null) {
-      currentOut.close();
-      currentOut = null;
-    }
+    // if (currentOut != null) {
+    // currentOut.close();
+    // currentOut = null;
+    // }
 
     if (currentFile != null) {
-      currentFile.finishWrite();
+    //  currentFile.finishWrite();
       currentFile = null;
     }
   }
@@ -482,14 +487,5 @@ public class SolidLocalStorageImpl extends SynchronizationLifeCycle implements L
       cleaner.addFile(dir);
     }
   }
-  
-  public void finalize(){
-    if(currentFile!= null){
-      try{
-        closeCurrentFile();
-      }catch(IOException e){
-        reportException(e);
-      }
-    }
-  }
+
 }

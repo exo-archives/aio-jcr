@@ -31,9 +31,11 @@ import java.io.RandomAccessFile;
  */
 public class SolidChangesFile {
 
-  public static final String PREFIX = "ChangesFile";
+  public static final String PREFIX                = "ChangesFile";
 
-  public static final String SUFIX  = "SUFIX";
+  public static final String SUFIX                 = "SUFIX";
+
+  private static final int   OBJECT_OUT_HEADER_LEN = 4;
 
   /**
    * Check sum to file.
@@ -51,6 +53,8 @@ public class SolidChangesFile {
 
   private FileInputStream    fileInput;
 
+  private boolean            doTruncate            = false;
+
   /**
    * Create ChangesFile with temporary file.
    * 
@@ -63,6 +67,7 @@ public class SolidChangesFile {
 
     // create temporary file
     file = File.createTempFile(PREFIX, SUFIX);
+
   }
 
   /**
@@ -136,6 +141,7 @@ public class SolidChangesFile {
         checkFileAccessor();
         synchronized (fileAccessor) {
           fileAccessor.write(b);
+          trunc();
         }
       }
 
@@ -143,6 +149,7 @@ public class SolidChangesFile {
         checkFileAccessor();
         synchronized (fileAccessor) {
           fileAccessor.write(b);
+          trunc();
         }
       }
 
@@ -150,8 +157,17 @@ public class SolidChangesFile {
         checkFileAccessor();
         synchronized (fileAccessor) {
           fileAccessor.write(b, off, len);
+          trunc();
         }
       }
+
+      private void trunc() throws IOException {
+        if (doTruncate) {
+          fileAccessor.seek(file.length() - OBJECT_OUT_HEADER_LEN);
+          doTruncate = false;
+        }
+      }
+
     };
   }
 
@@ -190,8 +206,13 @@ public class SolidChangesFile {
    */
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
-      fileAccessor = new RandomAccessFile(file, "rwd");
+      fileAccessor = new RandomAccessFile(file, "rw");
+
+      if (file.length() > 0) {
+        doTruncate = true;
+      }
       fileAccessor.seek(file.length());
+
     }
   }
 
@@ -211,18 +232,12 @@ public class SolidChangesFile {
     return file.delete();
   }
 
-  /*
-  public boolean moveTo(File dir) throws IOException {
-    File dest = new File(dir, Long.toString(getTimeStamp()));
-    return file.renameTo(dest);
-  }*/
-
   public String getPath() {
     return file.getAbsolutePath();
   }
 
   public long length() {
-    
+
     return 0;
   }
 
