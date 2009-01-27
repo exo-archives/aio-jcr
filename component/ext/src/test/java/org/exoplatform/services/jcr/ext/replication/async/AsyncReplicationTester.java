@@ -31,6 +31,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 
 /**
  * Created by The eXo Platform SAS.
@@ -77,11 +78,12 @@ public class AsyncReplicationTester extends AsyncReplication {
 
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+    WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
 
     LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
     IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, (LocalStorageImpl)localStorage, (IncomeStorageImpl)incomeStorage, channelNameSuffix);
+    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, dc,(LocalStorageImpl)localStorage, (IncomeStorageImpl)incomeStorage, channelNameSuffix);
     synchWorker.run();
 
     currentWorkers.add(synchWorker);

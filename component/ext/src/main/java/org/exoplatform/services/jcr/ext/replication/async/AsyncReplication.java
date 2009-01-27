@@ -47,6 +47,7 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.IncomeStorageI
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl;
 import org.exoplatform.services.jcr.ext.replication.async.transport.AsyncChannelManager;
+import org.exoplatform.services.jcr.storage.WorkspaceDataContainer;
 import org.exoplatform.services.log.ExoLogger;
 
 /**
@@ -115,6 +116,8 @@ public class AsyncReplication implements Startable {
     protected final MergeDataManager          mergeManager;
 
     protected final PersistentDataManager     dataManager;
+    
+    protected final WorkspaceDataContainer dataContainer;
 
     protected final NodeTypeDataManager       ntManager;
 
@@ -124,6 +127,7 @@ public class AsyncReplication implements Startable {
 
     AsyncWorker(PersistentDataManager dataManager,
                 NodeTypeDataManager ntManager,
+                WorkspaceDataContainer dataContainer,
                 LocalStorageImpl localStorage,
                 IncomeStorageImpl incomeStorage,
                 String chanelNameSufix) {
@@ -133,6 +137,8 @@ public class AsyncReplication implements Startable {
       this.dataManager = dataManager;
 
       this.ntManager = ntManager;
+      
+      this.dataContainer = dataContainer;
 
       this.localStorage = localStorage;
 
@@ -207,6 +213,9 @@ public class AsyncReplication implements Startable {
 
     private void doFinalyze() {
       log.info("Do Finalize");
+      
+      //set read-write state
+      this.dataContainer.setReadOnly(false);
 
       this.receiver.setChangesSubscriber(null);
 
@@ -241,6 +250,9 @@ public class AsyncReplication implements Startable {
      */
     public void run() {
       try {
+        //set read-only state
+        this.dataContainer.setReadOnly(true);
+        
         this.channel.connect();
         // this.initializer.waitStop();
       } catch (ReplicationException e) {
@@ -493,11 +505,12 @@ public class AsyncReplication implements Startable {
 
     NodeTypeDataManager ntm = (NodeTypeDataManager) wsc.getComponent(NodeTypeDataManager.class);
     PersistentDataManager dm = (PersistentDataManager) wsc.getComponent(PersistentDataManager.class);
+    WorkspaceDataContainer dc = (WorkspaceDataContainer) wsc.getComponent(WorkspaceDataContainer.class);
 
     LocalStorageImpl localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
     IncomeStorageImpl incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, localStorage, incomeStorage, repoName + "_"
+    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, dc,localStorage, incomeStorage, repoName + "_"
         + workspaceName);
     synchWorker.run();
 
