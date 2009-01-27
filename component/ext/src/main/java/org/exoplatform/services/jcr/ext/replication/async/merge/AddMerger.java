@@ -443,6 +443,10 @@ public class AddMerger extends AbstractMerger {
           // RENAMED sequences
           if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
+            QPath incNodePath = incomeData.isNode()
+                ? incomeData.getQPath()
+                : incomeData.getQPath().makeParentPath();
+
             QPath locNodePath = localData.isNode()
                 ? localData.getQPath()
                 : localData.getQPath().makeParentPath();
@@ -451,7 +455,6 @@ public class AddMerger extends AbstractMerger {
                 ? nextLocalState.getData().getQPath()
                 : nextLocalState.getData().getQPath().makeParentPath();
 
-            // if (localData.isNode()) {
             if (incomeData.getQPath().isDescendantOf(locNodePath)
                 || incomeData.getQPath().equals(locNodePath)
                 || incomeData.getQPath().isDescendantOf(nextLocNodePath)
@@ -477,39 +480,40 @@ public class AddMerger extends AbstractMerger {
                                                 item.getData().getQPath()));
 
                 } else if (item.getState() == ItemState.DELETED) {
+                  if (!incNodePath.equals(locNodePath)) {
+                    if (item.getData().isNode()) {
+                      NodeData node = (NodeData) item.getData();
+                      TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                                        node.getIdentifier(),
+                                                                        node.getPersistedVersion(),
+                                                                        node.getPrimaryTypeName(),
+                                                                        node.getMixinTypeNames(),
+                                                                        node.getOrderNumber(),
+                                                                        node.getParentIdentifier(),
+                                                                        node.getACL());
 
-                  if (item.getData().isNode()) {
-                    NodeData node = (NodeData) item.getData();
-                    TransientNodeData newNode = new TransientNodeData(node.getQPath(),
-                                                                      node.getIdentifier(),
-                                                                      node.getPersistedVersion(),
-                                                                      node.getPrimaryTypeName(),
-                                                                      node.getMixinTypeNames(),
-                                                                      node.getOrderNumber(),
-                                                                      node.getParentIdentifier(),
-                                                                      node.getACL());
+                      ItemState newItem = new ItemState(newNode,
+                                                        ItemState.ADDED,
+                                                        item.isEventFire(),
+                                                        node.getQPath());
+                      resultState.add(newItem);
 
-                    ItemState newItem = new ItemState(newNode,
-                                                      ItemState.ADDED,
-                                                      item.isEventFire(),
-                                                      node.getQPath());
-                    resultState.add(newItem);
+                    } else {
+                      PropertyData prop = (PropertyData) item.getData();
+                      TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                                prop.getIdentifier(),
+                                                                                prop.getPersistedVersion(),
+                                                                                prop.getType(),
+                                                                                prop.getParentIdentifier(),
+                                                                                prop.isMultiValued());
 
-                  } else {
-                    PropertyData prop = (PropertyData) item.getData();
-                    TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
-                                                                              prop.getIdentifier(),
-                                                                              prop.getPersistedVersion(),
-                                                                              prop.getType(),
-                                                                              prop.getParentIdentifier(),
-                                                                              prop.isMultiValued());
-
-                    newProp.setValues(((PropertyData) items.get(items.size() - i - 1).getData()).getValues());
-                    ItemState newItem = new ItemState(newProp,
-                                                      ItemState.ADDED,
-                                                      item.isEventFire(),
-                                                      prop.getQPath());
-                    resultState.add(newItem);
+                      newProp.setValues(((PropertyData) items.get(items.size() - i - 1).getData()).getValues());
+                      ItemState newItem = new ItemState(newProp,
+                                                        ItemState.ADDED,
+                                                        item.isEventFire(),
+                                                        prop.getQPath());
+                      resultState.add(newItem);
+                    }
                   }
                 }
               }
@@ -521,7 +525,6 @@ public class AddMerger extends AbstractMerger {
 
               return resultState;
             }
-            // }
 
             break;
           }

@@ -90,7 +90,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     @Override
     public void useCaseHighPriority() throws Exception {
       Node node = sessionHighPriority.getRootNode().addNode("item1");
-      node.addNode("mix:referenceable");
+      node.addMixin("mix:referenceable");
       sessionHighPriority.move("/item1", "/item2");
       sessionHighPriority.save();
     }
@@ -98,7 +98,7 @@ public abstract class AbstractMergeUseCases extends BaseStandaloneTest {
     @Override
     public void useCaseLowPriority() throws Exception {
       Node node = sessionLowPriority.getRootNode().addNode("item1");
-      node.addNode("mix:referenceable");
+      node.addMixin("mix:referenceable");
       sessionLowPriority.move("/item1", "/item2");
       sessionLowPriority.save();
     }
