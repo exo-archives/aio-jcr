@@ -17,6 +17,7 @@
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import org.exoplatform.services.jcr.dataflow.ItemState;
+import org.exoplatform.services.jcr.dataflow.ReadOnlyThroughChanges;
 import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
 
 /**
@@ -27,7 +28,7 @@ import org.exoplatform.services.jcr.dataflow.TransactionChangesLog;
  * @author <a href="mailto:peter.nedonosko@exoplatform.com.ua">Peter Nedonosko</a> 
  * @version $Id$
  */
-public class SynchronizerChangesLog extends TransactionChangesLog {
+public class SynchronizerChangesLog extends TransactionChangesLog implements ReadOnlyThroughChanges {
 
   public SynchronizerChangesLog(ChangesStorage<ItemState> changes) {
     super(new ChangesStorageChangesLog(changes));
