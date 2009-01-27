@@ -16,6 +16,7 @@
  */
 package org.exoplatform.services.jcr.ext.replication.async.storage;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -208,7 +209,7 @@ public class SolidChangesFileTest extends BaseStandaloneTest {
     String third = new String("third");
 
 
-        SolidChangesFile file = new SolidChangesFile( CRC, System.currentTimeMillis());
+    SolidChangesFile file = new SolidChangesFile( CRC, System.currentTimeMillis());
 
     ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
     str.writeObject(first);
@@ -240,6 +241,46 @@ public class SolidChangesFileTest extends BaseStandaloneTest {
     assertEquals(third, rez);
   }
   
+  public void testReadUnclosedFile() throws Exception {
+    String first = new String("first");
+    String second = new String("second");
+    String third = new String("third");
+
+    File f  = new File("target/testunclosed");
+    
+    SolidChangesFile file = new SolidChangesFile( f ,CRC, System.currentTimeMillis());
+
+    ObjectOutputStream str = new ObjectOutputStream( file.getOutputStream());
+    str.writeObject(first);
+    str.writeObject(second);
+    str.close();
+    file.finishWrite();
+    
+    str = new ObjectOutputStream( file.getOutputStream());
+    str.writeObject(second);
+
+    file = null;
+    
+    file = new SolidChangesFile( f ,CRC, System.currentTimeMillis());
+    
+    // check file
+    ObjectInputStream in = new ObjectInputStream(file.getDataStream());
+    
+    String rez = (String) in.readObject();
+    assertEquals(first, rez);
+    rez = (String) in.readObject();
+    assertEquals(second, rez);
+    rez = (String) in.readObject();
+    assertEquals(second, rez);
+    in.close();
+    
+    try{
+      rez = (String) in.readObject();
+      fail();
+    }catch(EOFException e){
+      //ok
+    }
+  }
   
   protected byte[] createBLOBTempData(int size) throws IOException {
     byte[] data = new byte[size]; // 1Kb

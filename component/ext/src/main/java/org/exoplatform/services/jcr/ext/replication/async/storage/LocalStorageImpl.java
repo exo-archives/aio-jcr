@@ -122,7 +122,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     String[] dirNames = getSubStorageNames(storagePath);
 
     // get previous directory
-    File prevDir = new File(storagePath, dirNames[dirNames.length - 2]);
+    // if(dirNames.length<2){
+
+    // means that we have maximum 2 directories and and lest one;
+    File prevDir = new File(storagePath, dirNames[0]);
 
     String[] fileNames = prevDir.list(new ChangesFileNameFilter());
 
@@ -158,7 +161,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         synchronized (index) {
           timestamp = index++;
         }
-        
+
         ChangesFile file = new ChangesFile("", timestamp, lastDir.getAbsolutePath());
         // System.out.println(file.getPath() + " created ");
 
@@ -218,11 +221,9 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Change all TransientValueData to ReplicableValueData.
    * 
-   * @param log
-   *          local TransactionChangesLog
+   * @param log local TransactionChangesLog
    * @return TransactionChangesLog with ValueData replaced.
-   * @throws IOException
-   *           if error occurs
+   * @throws IOException if error occurs
    */
   private TransactionChangesLog prepareChangesLog(TransactionChangesLog log) throws IOException {
     ChangesLogIterator chIt = log.getLogIterator();
@@ -289,9 +290,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
         }
       }
       // create new plain changes log
-      result.addLog(new PlainChangesLogImpl(destlist, plog.getSessionId() == null
-          ? EXTERNALIZATION_SESSION_ID
-          : plog.getSessionId(), plog.getEventType()));
+      result.addLog(new PlainChangesLogImpl(destlist,
+                                            plog.getSessionId() == null ? EXTERNALIZATION_SESSION_ID
+                                                                       : plog.getSessionId(),
+                                            plog.getEventType()));
     }
     return result;
   }
@@ -299,8 +301,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   /**
    * Add exception in exception storage.
    * 
-   * @param e
-   *          Exception
+   * @param e Exception
    */
   protected void reportException(Exception e) {
     try {
@@ -366,7 +367,6 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
 
     File lastDir = new File(storagePath, dirs[dirs.length - 1]);
     lastDir.delete();
-
   }
 
   /**
@@ -406,9 +406,12 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void deleteDir(File dir) {
     File[] subfiles = dir.listFiles();
 
-    /*TODO java.lang.NullPointerException
-        at org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl.deleteDir(LocalStorageImpl.java:412)
-        at org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl.onStop(LocalStorageImpl.java:347)*/
+    /*
+     * TODO java.lang.NullPointerException at
+     * org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl.deleteDir(LocalStorageImpl.java:412)
+     * at
+     * org.exoplatform.services.jcr.ext.replication.async.storage.LocalStorageImpl.onStop(LocalStorageImpl.java:347)
+     */
     if (subfiles != null)
       for (File f : subfiles) {
         if (!f.delete()) {
