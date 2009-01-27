@@ -106,9 +106,10 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    * @throws IOException
    */
   private ChangesFile createChangesFile() throws IOException {
-    long timestamp = 0;
-    
-    timestamp = getNextFileId();
+    long timestamp;
+    synchronized (index) {
+      timestamp = index++;
+    }
     File file = new File(storagePath, Long.toString(timestamp));
 
     if (file.exists()) {
@@ -118,13 +119,4 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
     String crc = ""; // crc is ignored
     return new ChangesFile(file, crc, timestamp);
   }
-
-  private long getNextFileId() {
-    long fileId = 0;
-    synchronized (index) {
-      fileId = index++;
-    }
-    return fileId;
-  }
-
 }

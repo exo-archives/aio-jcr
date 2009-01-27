@@ -153,8 +153,8 @@ public class MergeDataManager {
         // synchronizedChanges always with higher priority (income)
         synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                 second.getMember()),
-                                                                       second.getMember()); // TODO
-                                                                                            // localMember
+                                                                       second.getMember());
+        
 
         exporter.setLocalMember(second.getMember().getAddress());
         // TODO NT reregistration
