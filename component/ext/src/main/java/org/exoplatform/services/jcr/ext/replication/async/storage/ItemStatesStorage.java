@@ -121,7 +121,7 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
             return null;
           } else {
             in = new ObjectInputStream(store.get(currentFileIndex).getDataStream());
-            return (T) in.readObject();
+            return readNext();
           }
         }
       } else
