@@ -82,6 +82,9 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public List<MemberChangesStorage<ItemState>> getChanges() throws IOException {
+    if(isStopped()){
+      throw new IOException("Incom storage already stopped.");
+    }
     return getChangesFromMap();
   }
 
@@ -208,9 +211,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     // clean storage
     File dir = new File(storagePath);
     if (dir.exists()) {
-      deleteStorage(dir);
+      //deleteStorage(dir);
     }
-
   }
 
   /**

@@ -117,6 +117,11 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    */
   public ChangesStorage<ItemState> getLocalChanges() throws IOException {
 
+    if(isStopped()){
+      // throw exception
+      throw new IOException("Local storage already stopped");
+    }
+    
     List<ChangesFile> chFiles = new ArrayList<ChangesFile>();
 
     String[] dirNames = getSubStorageNames(storagePath);
@@ -124,7 +129,10 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     // get previous directory
     // if(dirNames.length<2){
 
-    // means that we have maximum 2 directories and and lest one;
+    // means that we have maximum 2 directories and and least one;
+    if(dirNames.length!=2){
+      throw new IOException("Previous directory can't be founded. Derectory not exist or mor than two.");
+    }
     File prevDir = new File(storagePath, dirNames[0]);
 
     String[] fileNames = prevDir.list(new ChangesFileNameFilter());
@@ -349,6 +357,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
   public void onStop() {
     // delete files in primary dir
 
+    doStop();
     File prevDir = new File(storagePath, Long.toString(dirIndex - 2));
     deleteDir(prevDir);
     LOG.info("On STOP");
@@ -361,6 +370,8 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     // TODO merge detached and current storages in one (rename detached to a
     // current now, till we use READ-ONLY)
 
+    doStop();
+    
     LOG.info("On CANCEL");
     // get last directory in storage and delete
     String[] dirs = getSubStorageNames(this.storagePath);
@@ -373,6 +384,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
    * {@inheritDoc}
    */
   public void onStart(List<MemberAddress> members) {
+    doStart();
     LOG.info("On START");
 
     // check previous dir
@@ -387,6 +399,7 @@ public class LocalStorageImpl extends SynchronizationLifeCycle implements LocalS
     subdir.mkdirs();
 
     LOG.info("LocalStorageImpl:onStart()");
+    
   }
 
   /**
