@@ -107,13 +107,12 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    */
   private ChangesFile createChangesFile() throws IOException {
     long timestamp = 0;
-    synchronized (index) {
-      timestamp = getNextFileId();
-    }
+    
+    timestamp = getNextFileId();
     File file = new File(storagePath, Long.toString(timestamp));
 
     if (file.exists()) {
-      throw new IOException("File already exists");
+      throw new IOException("File already exists " + file.getAbsolutePath());
     }
 
     String crc = ""; // crc is ignored
