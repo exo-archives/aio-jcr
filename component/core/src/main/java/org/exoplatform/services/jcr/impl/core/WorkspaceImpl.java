@@ -50,13 +50,13 @@ import org.apache.commons.logging.Log;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.services.jcr.access.PermissionType;
 import org.exoplatform.services.jcr.core.ExtendedWorkspace;
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLog;
 import org.exoplatform.services.jcr.dataflow.PlainChangesLogImpl;
 import org.exoplatform.services.jcr.datamodel.NodeData;
 import org.exoplatform.services.jcr.datamodel.QPathEntry;
+import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeImpl;
 import org.exoplatform.services.jcr.impl.core.nodetype.NodeTypeManagerImpl;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerFactory;
 import org.exoplatform.services.jcr.impl.core.query.QueryManagerImpl;
@@ -200,7 +200,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       throw new AccessDeniedException(e.getMessage());
     }
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
-                                     ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
+                                     ((NodeTypeImpl) srcNode.getPrimaryNodeType()).getQName());
 
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
                                           .getItem((NodeData) destParentNode.getData(),
@@ -445,7 +445,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
       throw new AccessDeniedException(e.getMessage());
     }
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
-                                     ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
+                                     ((NodeTypeImpl) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
@@ -479,16 +479,16 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     srcNode.getData().accept(initializer);
 
     PlainChangesLog changes = new PlainChangesLogImpl(session.getId());
-    //changes.addAll(initializer.getItemDeletedStates(true));
+    // changes.addAll(initializer.getItemDeletedStates(true));
     changes.addAll(initializer.getAllStates());
 
     // TODO remove it!
     // Reindex same-name siblings on the parent after deletion
-//    changes.addAll(session.getTransientNodesManager()
-//                          .reindexSameNameSiblings(srcNode.nodeData(),
-//                                                   session.getTransientNodesManager()
-//                                                          .getTransactManager()));
-//    changes.addAll(initializer.getItemAddStates());
+    // changes.addAll(session.getTransientNodesManager()
+    // .reindexSameNameSiblings(srcNode.nodeData(),
+    // session.getTransientNodesManager()
+    // .getTransactManager()));
+    // changes.addAll(initializer.getItemAddStates());
 
     session.getTransientNodesManager().getTransactManager().save(changes);
   }
@@ -551,7 +551,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
     }
 
     destParentNode.validateChildNode(destNodePath.getName().getInternalName(),
-                                     ((ExtendedNodeType) srcNode.getPrimaryNodeType()).getQName());
+                                     ((NodeTypeImpl) srcNode.getPrimaryNodeType()).getQName());
 
     // Check for node with destAbsPath name in session
     NodeImpl destNode = (NodeImpl) session.getTransientNodesManager()
@@ -655,7 +655,7 @@ public class WorkspaceImpl implements ExtendedWorkspace {
 
         NodeData destParent = (NodeData) dataManager.getItemData(node.getParentIdentifier());
         NodeData vh = (NodeData) dataManager.getItemData(v.getParentIdentifier()); // version
-                                                                                   // parent
+        // parent
         // it's a VH
         VersionHistoryDataHelper historyHelper = new VersionHistoryDataHelper((NodeData) vh,
                                                                               dataManager,
