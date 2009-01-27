@@ -172,7 +172,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                              MergeDataManagerException,
                                              ChangesLogReadException {
 
-      LOG.info("run merge");
+      LOG.info("run merge on " + localMember);
 
       // add local changes to the list
       List<MemberChangesStorage<ItemState>> membersChanges = incomeStorrage.getChanges();
@@ -190,7 +190,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
       }
 
       // merge
-      workerLog.info("start merge of " + (membersChanges.size() - 1) + " members");
+      workerLog.info("start merge of " + membersChanges.size() + " members");
       mergeManager.setLocalMember(localMember);
       result = mergeManager.merge(membersChanges.iterator());
       workerLog.info("merge done");

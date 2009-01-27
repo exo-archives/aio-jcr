@@ -36,7 +36,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogRead
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -51,12 +50,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  */
 public class UpdateMerger extends AbstractMerger {
 
-  public UpdateMerger(Member localMember,
-                      boolean localPriority,
+  public UpdateMerger(boolean localPriority,
                       RemoteExporter exporter,
                       DataManager dataManager,
                       NodeTypeDataManager ntManager) {
-    super(null, localPriority, exporter, dataManager, ntManager);
+    super(localPriority, exporter, dataManager, ntManager);
   }
 
   /**
@@ -86,7 +84,7 @@ public class UpdateMerger extends AbstractMerger {
     }
 
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             localMember);
+                                                                                             null);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();

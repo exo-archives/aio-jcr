@@ -53,12 +53,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  */
 public class AddMerger extends AbstractMerger {
 
-  public AddMerger(Member localMember,
-                   boolean localPriority,
+  public AddMerger(boolean localPriority,
                    RemoteExporter exporter,
                    DataManager dataManager,
                    NodeTypeDataManager ntManager) {
-    super(localMember, localPriority, exporter, dataManager, ntManager);
+    super(localPriority, exporter, dataManager, ntManager);
   }
 
   /**
@@ -87,7 +86,7 @@ public class AddMerger extends AbstractMerger {
     ItemState parentNodeState;
 
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             localMember);
+                                                                                             null);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();

@@ -120,7 +120,7 @@ public class RemoteExporterImpl implements RemoteExporter, RemoteExportClient {
       }
 
       if (changesOwner == null)
-        throw new RemoteExportException("Changes owner (member) is set");
+        throw new RemoteExportException("Changes owner (member) is not set");
       
       // return Iterator based on ChangesFile
       return new ItemStatesStorage<ItemState>(changesFile, changesOwner);

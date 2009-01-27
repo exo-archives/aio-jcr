@@ -52,12 +52,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  */
 public class DeleteMerger extends AbstractMerger {
 
-  public DeleteMerger(Member localMember,
-                      boolean localPriority,
+  public DeleteMerger(boolean localPriority,
                       RemoteExporter exporter,
                       DataManager dataManager,
                       NodeTypeDataManager ntManager) {
-    super(localMember, localPriority, exporter, dataManager, ntManager);
+    super(localPriority, exporter, dataManager, ntManager);
   }
 
   /**
@@ -90,7 +89,7 @@ public class DeleteMerger extends AbstractMerger {
 
     ItemState incomeState = itemChange;
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             localMember);
+                                                                                             null);
 
     ItemState parentNodeState;
 

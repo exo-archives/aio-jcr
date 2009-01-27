@@ -50,12 +50,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  */
 public class MixinMerger extends AbstractMerger {
 
-  public MixinMerger(Member localMember,
-                     boolean localPriority,
+  public MixinMerger(boolean localPriority,
                      RemoteExporter exporter,
                      DataManager dataManager,
                      NodeTypeDataManager ntManager) {
-    super(localMember, localPriority, exporter, dataManager, ntManager);
+    super(localPriority, exporter, dataManager, ntManager);
   }
 
   /**

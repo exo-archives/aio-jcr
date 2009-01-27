@@ -133,11 +133,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
    * ItemStatesStorage constructor for merge (Editable...).
    */
   ItemStatesStorage(Member member) {
-    this.member = null;
+    this.member = member;
   }
 
   /**
-   * ItemStatesStorage constructor for income storage.
+   * ItemStatesStorage constructor for export.
    * 
    * @param changes
    *          ChagesFiles

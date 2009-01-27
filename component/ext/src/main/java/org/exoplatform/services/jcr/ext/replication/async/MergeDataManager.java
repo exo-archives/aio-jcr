@@ -74,7 +74,7 @@ public class MergeDataManager {
   /**
    * Log.
    */
-  protected static Log                log         = ExoLogger.getLogger("jcr.MergerDataManager");
+  protected static final Log          LOG         = ExoLogger.getLogger("jcr.MergerDataManager");
 
   MergeDataManager(RemoteExporter exporter,
                    DataManager dataManager,
@@ -128,17 +128,16 @@ public class MergeDataManager {
 
       EditableChangesStorage<ItemState> synchronizedChanges = null;
 
-      ChangesStorage<ItemState> local;
-      ChangesStorage<ItemState> income;
+      MemberChangesStorage<ItemState> local;
+      MemberChangesStorage<ItemState> income;
 
       MemberChangesStorage<ItemState> first = membersChanges.next();
 
       while (membersChanges.hasNext() && run) {
         MemberChangesStorage<ItemState> second = membersChanges.next();
 
-        synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
-                                                                                second.getMember()),
-                                                                       localMember);
+        LOG.info("Merge changes from " + first.getMember() + " and " + second.getMember()
+            + " members");
 
         List<QPath> skippedList = new ArrayList<QPath>();
 
@@ -151,30 +150,30 @@ public class MergeDataManager {
           local = first;
         }
 
+        // synchronizedChanges always with higher priority (income)
+        synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
+                                                                                second.getMember()),
+                                                                       income.getMember()); // TODO localMember
+
         exporter.setLocalMember(second.getMember().getAddress());
         // TODO NT reregistration
-        AddMerger addMerger = new AddMerger(localMember,
-                                            isLocalPriority,
+        AddMerger addMerger = new AddMerger(isLocalPriority,
                                             exporter,
                                             dataManager,
                                             ntManager);
-        DeleteMerger deleteMerger = new DeleteMerger(localMember,
-                                                     isLocalPriority,
+        DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
-        UpdateMerger udpateMerger = new UpdateMerger(localMember,
-                                                     isLocalPriority,
+        UpdateMerger udpateMerger = new UpdateMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
-        RenameMerger renameMerger = new RenameMerger(localMember,
-                                                     isLocalPriority,
+        RenameMerger renameMerger = new RenameMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
-        MixinMerger mixinMerger = new MixinMerger(localMember,
-                                                  isLocalPriority,
+        MixinMerger mixinMerger = new MixinMerger(isLocalPriority,
                                                   exporter,
                                                   dataManager,
                                                   ntManager);
@@ -249,8 +248,8 @@ public class MergeDataManager {
                                                               storageDir,
                                                               skippedList));
               } else {
-                log.info("Income changes log: " + income.dump());
-                log.info("Local changes log: " + local.dump());
+                LOG.info("Income changes log: " + income.dump());
+                LOG.info("Local changes log: " + local.dump());
 
                 throw new MergeDataManagerException("Can not resolve merge. Unknown DELETE sequence."
                     + "[path="

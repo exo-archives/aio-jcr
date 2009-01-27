@@ -51,12 +51,11 @@ import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
  */
 public class RenameMerger extends AbstractMerger {
 
-  public RenameMerger(Member localMember,
-                      boolean localPriority,
+  public RenameMerger(boolean localPriority,
                       RemoteExporter exporter,
                       DataManager dataManager,
                       NodeTypeDataManager ntManager) {
-    super(localMember, localPriority, exporter, dataManager, ntManager);
+    super(localPriority, exporter, dataManager, ntManager);
   }
 
   /**
@@ -94,7 +93,7 @@ public class RenameMerger extends AbstractMerger {
         : nextIncomeState.getData().getQPath().makeParentPath();
 
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                             localMember);
+                                                                                             null);
 
     for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();

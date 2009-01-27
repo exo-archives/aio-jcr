@@ -56,14 +56,10 @@ public abstract class AbstractMerger implements ChangesMerger {
 
   protected final NodeTypeDataManager ntManager;
 
-  protected final Member              localMember;
-
-  public AbstractMerger(Member localMember,
-                        boolean localPriority,
+  public AbstractMerger(boolean localPriority,
                         RemoteExporter exporter,
                         DataManager dataManager,
                         NodeTypeDataManager ntManager) {
-    this.localMember = localMember;
     this.localPriority = localPriority;
     this.exporter = exporter;
     this.dataManager = dataManager;
