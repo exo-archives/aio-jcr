@@ -333,19 +333,23 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   private void doCancel() {
     LOG.error("Do CANCEL (local)");
 
-    cancelMerge();
-
-    try {
-      transmitter.sendCancel();
-    } catch (IOException ioe) {
-      LOG.error("Cannot send 'Cancel'" + ioe, ioe);
-    }
-
-    doStop();
-
-    for (LocalEventListener syncl : listeners)
-      // inform all interested
-      syncl.onCancel(); // local done - null
+    if (isStarted()) {
+      cancelMerge();
+  
+      try {
+        transmitter.sendCancel();
+      } catch (IOException ioe) {
+        LOG.error("Cannot send 'Cancel'" + ioe, ioe);
+      }
+  
+      doStop();
+  
+      for (LocalEventListener syncl : listeners)
+        // inform all interested
+        syncl.onCancel(); // local done - null
+    } else
+      LOG.warn("Cannot cancel. Already stopped.");
+      
   }
 
   /**

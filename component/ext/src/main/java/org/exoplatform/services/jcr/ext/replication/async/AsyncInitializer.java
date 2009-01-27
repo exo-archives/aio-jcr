@@ -463,11 +463,6 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     }
   }
 
-  private void sendCancel() throws IOException {
-    CancelPacket cancelPacket = new CancelPacket(AsyncPacketTypes.SYNCHRONIZATION_CANCEL, priority);
-    channelManager.sendPacket(cancelPacket);
-  }
-
   /**
    * LastMemberWaiter - Coordinator work.
    * 
@@ -484,23 +479,29 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
 
         if (run && currentMembers.size() < (otherParticipantsPriority.size() + 1)
             && currentMembers.size() > 1 && !cancelMemberNotConnected) {
-          // List<MemberAddress> members = new ArrayList<MemberAddress>(currentMembers);
-          // members.remove(localMember);
 
           LOG.info("Do START from last member waiter");
-          doStart(currentMembers);
+          if (isInitialized())
+            doStart(currentMembers);
+          else
+            LOG.warn("Cannot start. " + (isStarted() ? "Already started." : "Initializer stopped."));
         } else if (run) {
           LOG.info("Do CANCEL from last member waiter");
-          try {
-            sendCancel();
-          } catch (IOException e) {
-            LOG.error("Cannot send 'CANCEL' event.", e);
-          }
+          if (isStarted()) {
+            try {
+              CancelPacket cancelPacket = new CancelPacket(AsyncPacketTypes.SYNCHRONIZATION_CANCEL,
+                                                           priority);
+              channelManager.sendPacket(cancelPacket);
+            } catch (IOException e) {
+              LOG.error("Cannot send 'CANCEL' event.", e);
+            }
 
-          doStop();
+            doStop();
 
-          for (RemoteEventListener rl : listeners())
-            rl.onCancel();
+            for (RemoteEventListener rl : listeners())
+              rl.onCancel();
+          } else
+            LOG.warn("Cannot cancel. Already stopped.");
         }
 
       } catch (InterruptedException e) {

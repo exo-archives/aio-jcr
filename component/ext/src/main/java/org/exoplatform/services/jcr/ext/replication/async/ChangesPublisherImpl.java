@@ -77,10 +77,11 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
         LOG.info("Local changes : "
             + (localChanges = storage.getLocalChanges().getChangesFile()).length);
 
-        transmitter.sendChanges(localChanges, subscribers);
+        if (isStarted())
+          transmitter.sendChanges(localChanges, subscribers);
       } catch (IOException e) {
         LOG.error("Cannot send changes " + e, e);
-        doCancel();
+          doCancel();
       }
     }
   }
@@ -160,15 +161,18 @@ public class ChangesPublisherImpl extends SynchronizationLifeCycle implements Ch
   protected void doCancel() {
     LOG.error("Do CANCEL (local)");
 
-    try {
-      transmitter.sendCancel();
-    } catch (IOException ioe) {
-      LOG.error("Cannot send 'Cancel' " + ioe, ioe);
-    }
-
-    for (LocalEventListener syncl : listeners)
-      // inform all interested
-      syncl.onCancel();
+    if (isStarted()) {
+      try {
+        transmitter.sendCancel();
+      } catch (IOException ioe) {
+        LOG.error("Cannot send 'Cancel' " + ioe, ioe);
+      }
+  
+      for (LocalEventListener syncl : listeners)
+        // inform all interested
+        syncl.onCancel();
+    } else
+      LOG.warn("Cannot cancel. Already stopped.");
   }
 
   /**
