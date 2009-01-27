@@ -20,8 +20,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,17 +48,14 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
 
   protected final String                         storagePath;
 
-  protected final Map<Member, List<ChangesFile>> changes = new LinkedHashMap<Member, List<ChangesFile>>();
-
-  // TODO remove
-  private Member                                 member;
+  protected final Map<Member, List<ChangesFile>> changes = new HashMap<Member, List<ChangesFile>>();
 
   public IncomeStorageImpl(String storagePath) {
     this.storagePath = storagePath;
   }
 
-  /** TODO remove
-   * {@inheritDoc}
+  /**
+   * TODO remove {@inheritDoc}
    */
   public synchronized void addMemberChanges(Member member, ChangesFile changesFile) throws IOException {
     // TODO check if CRC is valid for received file
@@ -96,8 +95,17 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
     List<MemberChangesStorage<ItemState>> result = new ArrayList<MemberChangesStorage<ItemState>>();
     for (Map.Entry<Member, List<ChangesFile>> entry : changes.entrySet()) {
       result.add(new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(entry.getValue()),
-                                                        entry.getKey()));
+                                                     entry.getKey()));
     }
+
+    Collections.sort(result, new Comparator<MemberChangesStorage<ItemState>>() {
+      /**
+       * {@inheritDoc}
+       */
+      public int compare(MemberChangesStorage<ItemState> m1, MemberChangesStorage<ItemState> m2) {
+        return m1.getMember().getPriority() - m2.getMember().getPriority();
+      }
+    });
 
     return result;
   }
@@ -142,7 +150,8 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
         LOG.info("The ChangesFiles in IncomeStorage = " + chFiles.size());
 
         IncomeChangesStorage<ItemState> storage = new IncomeChangesStorage<ItemState>(new ChangesLogStorage<ItemState>(chFiles),
-                                                                                            null); // TODO NPE
+                                                                                      null); // TODO
+                                                                                             // NPE
         changeStorages.add(storage);
       } catch (final NumberFormatException e) {
         // This is not int-named file. Fatal.
@@ -174,7 +183,7 @@ public class IncomeStorageImpl extends SynchronizationLifeCycle implements Incom
    * {@inheritDoc}
    */
   public void onDisconnectMembers(List<Member> members) {
-    LOG.info("On DisconnectMembers");
+    LOG.info("On DisconnectMembers " + members);
 
     for (Member member : members)
       changes.remove(member);
