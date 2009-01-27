@@ -83,7 +83,14 @@ public class AsyncReplicationTester extends AsyncReplication {
     LocalStorage localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
     IncomeStorage incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, dc,(LocalStorageImpl)localStorage, (IncomeStorageImpl)incomeStorage, channelNameSuffix);
+    AsyncWorker synchWorker = new AsyncWorker(dm, 
+                                              ntm, 
+                                              dc,
+                                              (LocalStorageImpl)localStorage, 
+                                              (IncomeStorageImpl)incomeStorage,
+                                              repoName,
+                                              workspaceName,
+                                              channelNameSuffix);
     synchWorker.run();
 
     currentWorkers.add(synchWorker);

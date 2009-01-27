@@ -87,6 +87,8 @@ public class AsyncReplication implements Startable {
 
   protected final String                                       mergeTempDir;
 
+  protected final String                                       storageDir;
+
   protected final String                                       localStorageDir;
 
   protected final String                                       incomeStorageDir;
@@ -112,7 +114,9 @@ public class AsyncReplication implements Startable {
     protected final RemoteExporterImpl        exporter;
 
     protected final RemoteExportServerImpl    exportServer;
-
+     
+    protected final ChangesSaveErrorLog       changesSaveErrorLog;
+    
     protected final MergeDataManager          mergeManager;
 
     protected final PersistentDataManager     dataManager;
@@ -130,8 +134,10 @@ public class AsyncReplication implements Startable {
                 WorkspaceDataContainer dataContainer,
                 LocalStorageImpl localStorage,
                 IncomeStorageImpl incomeStorage,
+                String repoName,
+                String wsName,
                 String chanelNameSufix) {
-
+      
       this.channel = new AsyncChannelManager(channelConfig, channelName + "_" + chanelNameSufix);
 
       this.dataManager = dataManager;
@@ -149,6 +155,8 @@ public class AsyncReplication implements Startable {
       this.synchronyzer = new WorkspaceSynchronizerImpl(dataManager, this.localStorage);
 
       this.exportServer = new RemoteExportServerImpl(this.transmitter, dataManager, ntManager);
+      
+      this.changesSaveErrorLog = new ChangesSaveErrorLog(storageDir, repoName, wsName);
 
       this.receiver = new AsyncReceiverImpl(this.channel, this.exportServer);
 
@@ -171,6 +179,7 @@ public class AsyncReplication implements Startable {
                                                   this.synchronyzer,
                                                   this.mergeManager,
                                                   this.incomeStorage,
+                                                  this.changesSaveErrorLog,
                                                   priority,
                                                   otherParticipantsPriority.size() + 1);
 
@@ -318,7 +327,7 @@ public class AsyncReplication implements Startable {
     channelName = pps.getProperty("channel-name");
     waitAllMembersTimeout = Integer.parseInt(pps.getProperty("wait-all-members")) * 1000;
 
-    String storagePath = pps.getProperty("storage-dir");
+    this.storageDir = pps.getProperty("storage-dir");
 
     String sOtherParticipantsPriority = pps.getProperty("other-participants-priority");
 
@@ -341,16 +350,16 @@ public class AsyncReplication implements Startable {
     this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
 
     // create IncomlStorages
-    File incomeDir = new File(storagePath + "/income");
+    File incomeDir = new File(storageDir + "/income");
     incomeDir.mkdirs();
     this.incomeStorageDir = incomeDir.getAbsolutePath();
 
     // create LocalStorages
-    File localDir = new File(storagePath + "/local");
+    File localDir = new File(storageDir + "/local");
     localDir.mkdirs();
     this.localStorageDir = localDir.getAbsolutePath();
 
-    File mergeTempDir = new File(storagePath + "/merge-temp");
+    File mergeTempDir = new File(storageDir + "/merge-temp");
     mergeTempDir.mkdirs();
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
   }
@@ -366,7 +375,7 @@ public class AsyncReplication implements Startable {
                    String channelConfig,
                    String channelName,
                    int waitAllMembersTimeout,
-                   String storagePath,
+                   String storageDir,
                    List<Integer> otherParticipantsPriority) throws RepositoryException,
       RepositoryConfigurationException {
 
@@ -399,17 +408,19 @@ public class AsyncReplication implements Startable {
 
     this.localStorages = new LinkedHashMap<StorageKey, LocalStorageImpl>();
 
+    this.storageDir = storageDir;
+
     // create IncomlStorages
-    File incomeDir = new File(storagePath + "/income");
+    File incomeDir = new File(storageDir + "/income");
     incomeDir.mkdirs();
     this.incomeStorageDir = incomeDir.getAbsolutePath();
 
     // create LocalStorages
-    File localDir = new File(storagePath + "/local");
+    File localDir = new File(storageDir + "/local");
     localDir.mkdirs();
     this.localStorageDir = localDir.getAbsolutePath();
 
-    File mergeTempDir = new File(storagePath + "/merge-temp");
+    File mergeTempDir = new File(storageDir + "/merge-temp");
     mergeTempDir.mkdirs();
     this.mergeTempDir = mergeTempDir.getAbsolutePath();
   }
@@ -437,32 +448,9 @@ public class AsyncReplication implements Startable {
       log.error("[ERROR] Asynchronous replication service already active. Wait for current synchronization finish.");
     } else {
       if (repositoryNames != null && repositoryNames.length > 0) {
-        // check errors on LocalSorage.
-        // TODO will be skip only one workspace or one repository.
-        // Now will be skiped all repositorys.
 
-        boolean hasLocalSorageError = false;
-
-        for (String repositoryName : repositoryNames) {
-          ManageableRepository repository = repoService.getRepository(repositoryName);
-          for (String wsName : repository.getWorkspaceNames()) {
-            LocalStorage localStorage = localStorages.get(new StorageKey(repositoryName, wsName));
-            String[] storageError = localStorage.getErrors();
-            if (storageError.length > 0) {
-              hasLocalSorageError = true;
-
-              log.error("The local storage '" + repositoryName + "@" + wsName + "' have error : ");
-              for (String error : storageError)
-                log.error(error);
-            }
-          }
-        }
-
-        if (!hasLocalSorageError)
-          for (String repoName : repositoryNames)
-            synchronize(repoName);
-        else
-          log.error("[ERROR] Synchronization not started. Loacal storage have errors.");
+        for (String repoName : repositoryNames)
+          synchronize(repoName);
       } else
         log.error("[ERROR] Asynchronous replication service is not proper initializer or started. Repositories list empty. Check log for details.");
     }
@@ -478,13 +466,27 @@ public class AsyncReplication implements Startable {
    * @throws RepositoryException
    */
   protected void synchronize(String repoName) throws RepositoryException,
-                                             RepositoryConfigurationException {
+                                             RepositoryConfigurationException,
+                                             IOException {
+
+    // check errors on LocalSorage.
+    // TODO will be skip only one workspace or one repository.
+    // Now will be skip one repository.
+    
+    if (hasChangesSaveError(repoName)) {
+      log.error("[ERROR] Synchronization not started. The previous synchronisation have errors.");
+      return;
+    }
+
+    if (hasLocalSorageError(repoName)) {
+      log.error("[ERROR] Synchronization not started. Loacal storage have errors.");
+      return;
+    }
 
     // TODO check AsyncWorker is run on this repository;
     ManageableRepository repository = repoService.getRepository(repoName);
-    for (String wsName : repository.getWorkspaceNames()) {
+    for (String wsName : repository.getWorkspaceNames())
       synchronize(repoName, wsName);
-    }
   }
 
   /**
@@ -509,8 +511,14 @@ public class AsyncReplication implements Startable {
     LocalStorageImpl localStorage = localStorages.get(new StorageKey(repoName, workspaceName));
     IncomeStorageImpl incomeStorage = incomeStorages.get(new StorageKey(repoName, workspaceName));
 
-    AsyncWorker synchWorker = new AsyncWorker(dm, ntm, dc, localStorage, incomeStorage, repoName
-        + "_" + workspaceName);
+    AsyncWorker synchWorker = new AsyncWorker(dm, 
+                                              ntm, 
+                                              dc, 
+                                              localStorage, 
+                                              incomeStorage, 
+                                              repoName, 
+                                              workspaceName, 
+                                              repoName + "_" + workspaceName);
     synchWorker.run();
 
     currentWorkers.add(synchWorker);
@@ -565,9 +573,6 @@ public class AsyncReplication implements Startable {
         repos[i] = repository;
       }
 
-      // run test
-      // log.info("run synchronize");
-      // this.synchronize();
     } catch (Throwable e) {
       log.error("Asynchronous replication start fails" + e, e);
       throw new RuntimeException("Asynchronous replication start fails " + e, e);
@@ -579,5 +584,48 @@ public class AsyncReplication implements Startable {
    */
   public void stop() {
     // TODO stop after the JCR Repo stopped
+  }
+
+  private boolean hasLocalSorageError(String repositoryName) throws RepositoryConfigurationException,
+                                                            RepositoryException,
+                                                            IOException {
+    boolean hasLocalSorageError = false;
+
+    ManageableRepository repository = repoService.getRepository(repositoryName);
+    for (String wsName : repository.getWorkspaceNames()) {
+      LocalStorage localStorage = localStorages.get(new StorageKey(repositoryName, wsName));
+      String[] storageError = localStorage.getErrors();
+      if (storageError.length > 0) {
+        hasLocalSorageError = true;
+
+        log.error("The local storage '" + repositoryName + "@" + wsName + "' have errors : ");
+        for (String error : storageError)
+          log.error(error);
+      }
+    }
+
+    return hasLocalSorageError;
+  }
+
+  private boolean hasChangesSaveError(String repositoryName) throws RepositoryConfigurationException,
+                                                            RepositoryException,
+                                                            IOException {
+    boolean hasChangesSaveError = false;
+
+    ManageableRepository repository = repoService.getRepository(repositoryName);
+    for (String wsName : repository.getWorkspaceNames()) {
+      ChangesSaveErrorLog errorLog = new ChangesSaveErrorLog(storageDir, repositoryName, wsName);
+
+      String[] changesSaveErrors = errorLog.getErrors();
+      if (changesSaveErrors.length > 0) {
+        hasChangesSaveError = true;
+
+        log.error("The previous save on '" + repositoryName + "@" + wsName + "' have errors : ");
+        for (String error : changesSaveErrors)
+          log.error(error);
+      }
+    }
+
+    return hasChangesSaveError;
   }
 }

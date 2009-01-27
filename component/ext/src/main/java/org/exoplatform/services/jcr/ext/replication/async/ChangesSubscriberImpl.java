@@ -62,6 +62,8 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   protected final WorkspaceSynchronizer           workspace;
 
   protected final IncomeStorage                   incomeStorrage;
+  
+  protected final ChangesSaveErrorLog             errorLog;
 
   protected final AsyncTransmitter                transmitter;
 
@@ -69,7 +71,7 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
   
   protected final int                             membersCount;
   
-  protected final int                        localPriority;
+  protected final int                             localPriority;
 
   protected HashMap<Integer, Counter>             counterMap;
 
@@ -221,12 +223,14 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
                                WorkspaceSynchronizer workspace,
                                MergeDataManager mergeManager,
                                IncomeStorage incomeStorage,
+                               ChangesSaveErrorLog errorLog,
                                int localPriority,
                                int membersCount) {
     this.localPriority = localPriority;
     this.mergeManager = mergeManager;
     this.workspace = workspace;
     this.incomeStorrage = incomeStorage;
+    this.errorLog = errorLog;
     this.initializer = initializer;
     this.transmitter = transmitter;
     this.membersCount = membersCount;
@@ -407,15 +411,19 @@ public class ChangesSubscriberImpl extends SynchronizationLifeCycle implements C
     } catch (InvalidItemStateException e) {
       // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
+      errorLog.reportError(e);
     } catch (UnsupportedOperationException e) {
       // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
+      errorLog.reportError(e);
     } catch (RepositoryException e) {
       // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
+      errorLog.reportError(e);
     } catch (SynchronizationException e) {
       // TODO fire Cancel for local modules
       LOG.error("Save error " + e, e);
+      errorLog.reportError(e);
     }
 
     LOG.info("Fire Stop (local)");
