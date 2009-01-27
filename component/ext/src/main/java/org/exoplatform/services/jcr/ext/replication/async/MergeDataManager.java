@@ -153,14 +153,12 @@ public class MergeDataManager {
         // synchronizedChanges always with higher priority (income)
         synchronizedChanges = new EditableItemStatesStorage<ItemState>(makePath(first.getMember(),
                                                                                 second.getMember()),
-                                                                       income.getMember()); // TODO localMember
+                                                                       second.getMember()); // TODO
+                                                                                            // localMember
 
         exporter.setLocalMember(second.getMember().getAddress());
         // TODO NT reregistration
-        AddMerger addMerger = new AddMerger(isLocalPriority,
-                                            exporter,
-                                            dataManager,
-                                            ntManager);
+        AddMerger addMerger = new AddMerger(isLocalPriority, exporter, dataManager, ntManager);
         DeleteMerger deleteMerger = new DeleteMerger(isLocalPriority,
                                                      exporter,
                                                      dataManager,
@@ -173,10 +171,7 @@ public class MergeDataManager {
                                                      exporter,
                                                      dataManager,
                                                      ntManager);
-        MixinMerger mixinMerger = new MixinMerger(isLocalPriority,
-                                                  exporter,
-                                                  dataManager,
-                                                  ntManager);
+        MixinMerger mixinMerger = new MixinMerger(isLocalPriority, exporter, dataManager, ntManager);
 
         outer: for (Iterator<ItemState> changes = income.getChanges(); changes.hasNext() && run;) {
           ItemState incomeChange = changes.next();
