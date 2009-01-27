@@ -146,11 +146,12 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
    * @return the channel members
    */
   public List<MemberAddress> getOtherMembers() {
-    List<MemberAddress> ms = new ArrayList<MemberAddress>(currentMembers.size());
+    List<MemberAddress> mlist = new ArrayList<MemberAddress>(currentMembers.size() - 1);
     for (MemberAddress m : currentMembers)
-      ms.add(new MemberAddress(m.getAddress()));
+      if (!m.equals(localMember))
+       mlist.add(new MemberAddress(m.getAddress()));
 
-    return ms;
+    return mlist;
   }
 
   public void addRemoteListener(RemoteEventListener listener) {
@@ -291,16 +292,16 @@ public class AsyncInitializer extends SynchronizationLifeCycle implements AsyncP
     LOG.info("Do START (remote) member count " + members.size());
 
     // list of remote (other) members
-//    List<Member> mlist = new ArrayList<Member>();
-//    for (MemberAddress m : members)
-//      if (!m.equals(localMember))
-//        mlist.add(new Member(m, -1)); // TODO priority
+    List<MemberAddress> mlist = new ArrayList<MemberAddress>(members.size() - 1);
+    for (MemberAddress m : members)
+      if (!m.equals(localMember))
+        mlist.add(new MemberAddress(m.getAddress()));
 
-    // copy of the list
-    this.activeMembers = new ArrayList<MemberAddress>(members);
+    // copy of the mlist
+    this.activeMembers = new ArrayList<MemberAddress>(mlist);
 
     for (RemoteEventListener rl : listeners())
-      rl.onStart(this.activeMembers);
+      rl.onStart(mlist);
 
     doStart();
   }
