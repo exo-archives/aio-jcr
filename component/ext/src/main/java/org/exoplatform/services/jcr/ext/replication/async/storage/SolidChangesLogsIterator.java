@@ -83,13 +83,13 @@ public class SolidChangesLogsIterator<L extends TransactionChangesLog> implement
       return log;
     } catch (IOException e) {
       releaseResources();
-      throw new ChangesLogReadException(e.getMessage());
+      throw new ChangesLogReadException(e.getMessage(), e);
     } catch (ClassCastException e) {
       releaseResources();
-      throw new ChangesLogReadException(e.getMessage());
+      throw new ChangesLogReadException(e.getMessage(), e);
     } catch (ClassNotFoundException e) {
       releaseResources();
-      throw new ChangesLogReadException(e.getMessage());
+      throw new ChangesLogReadException(e.getMessage(), e);
     }
   }
 

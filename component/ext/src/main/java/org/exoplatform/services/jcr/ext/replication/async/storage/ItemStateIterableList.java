@@ -84,11 +84,11 @@ public class ItemStateIterableList<T extends ItemState> implements List<ItemStat
     try {
       return this.storage.getChanges();
     } catch (IOException e) {
-      throw new ChangesLogReadException(e.getMessage());
+      throw new ChangesLogReadException(e.getMessage(), e);
     } catch (ClassCastException e) {
-      throw new ChangesLogReadException(e.getMessage());
+      throw new ChangesLogReadException(e.getMessage(), e);
     } catch (ClassNotFoundException e) {
-      throw new ChangesLogReadException(e.getMessage());
+      throw new ChangesLogReadException(e.getMessage(), e);
     }
   }
 

@@ -133,7 +133,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -192,7 +192,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -238,7 +238,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -286,7 +286,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update,
                                                           income,
                                                           local,
@@ -322,7 +322,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update,
                                                           income,
                                                           local,
@@ -414,7 +414,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -470,7 +470,7 @@ public class UpdateMergerTest extends BaseMergerTest {
 
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(Item111Update,
                                                           income,
                                                           local,
@@ -529,7 +529,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -579,7 +579,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(localItem111Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21Update,
                                                           income,
                                                           local,
@@ -704,7 +704,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -788,7 +788,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -861,7 +861,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -937,7 +937,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,true, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(true, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update,
                                                           income,
                                                           local,
@@ -995,7 +995,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -1054,7 +1054,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -1104,7 +1104,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -1152,7 +1152,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem1Update,
                                                           income,
                                                           local,
@@ -1241,7 +1241,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     ItemState remoteItem21x2AAdd = new ItemState(localItem2, ItemState.ADDED, false, null);
     exportLog.add(remoteItem21x2AAdd);
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false,
+    UpdateMerger updateMerger = new UpdateMerger(false,
                                                  new TesterRemoteExporter(exportLog),
                                                  dataManager,
                                                  ntManager);
@@ -1328,7 +1328,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -1407,7 +1407,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -1489,7 +1489,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     ItemState localProp1Add = new ItemState(remoteProperty1, ItemState.ADDED, false, null);
     exportLog.add(localProp1Add);
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false,
+    UpdateMerger updateMerger = new UpdateMerger(false,
                                                  new TesterRemoteExporter(exportLog),
                                                  dataManager,
                                                  ntManager);
@@ -1586,7 +1586,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -1648,7 +1648,7 @@ public class UpdateMergerTest extends BaseMergerTest {
 
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(Item111Update,
                                                           income,
                                                           local,
@@ -1707,7 +1707,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
@@ -1757,7 +1757,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(localItem111Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21Update,
                                                           income,
                                                           local,
@@ -1883,7 +1883,7 @@ public class UpdateMergerTest extends BaseMergerTest {
     remoteLog.add(remoteItem21x1Update);
     income.addLog(new TransactionChangesLog(remoteLog));
 
-    UpdateMerger updateMerger = new UpdateMerger(localMember,false, null, dataManager, ntManager);
+    UpdateMerger updateMerger = new UpdateMerger(false, null, dataManager, ntManager);
     ChangesStorage<ItemState> result = updateMerger.merge(remoteItem21x2Remove,
                                                           income,
                                                           local,
