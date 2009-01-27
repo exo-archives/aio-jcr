@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.merge;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,7 +39,6 @@ import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesLogRead
 import org.exoplatform.services.jcr.ext.replication.async.storage.ChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableChangesStorage;
 import org.exoplatform.services.jcr.ext.replication.async.storage.EditableItemStatesStorage;
-import org.exoplatform.services.jcr.ext.replication.async.storage.Member;
 import org.exoplatform.services.jcr.impl.Constants;
 import org.exoplatform.services.jcr.impl.dataflow.TransientNodeData;
 import org.exoplatform.services.jcr.impl.dataflow.TransientPropertyData;
@@ -88,11 +88,19 @@ public class AddMerger extends AbstractMerger {
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              null);
 
-    for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
+    List<QPath> locSkippedList = new ArrayList<QPath>();
+
+    outer: for (Iterator<ItemState> liter = local.getChanges(); liter.hasNext();) {
       ItemState localState = liter.next();
 
       ItemData incomeData = incomeState.getData();
       ItemData localData = localState.getData();
+
+      // skip local itemstates
+      for (QPath skipPath : locSkippedList) {
+        if (localData.getQPath().equals(skipPath))
+          continue outer;
+      }
 
       // skip lock properties
       if (!localData.isNode()) {
@@ -357,10 +365,10 @@ public class AddMerger extends AbstractMerger {
           break;
 
         case ItemState.DELETED:
-          ItemState nextState = local.findNextState(localState, localData.getIdentifier());
+          ItemState nextLocalState = local.findNextState(localState, localData.getIdentifier());
 
           // UPDATE sequences
-          if (nextState != null && nextState.getState() == ItemState.UPDATED) {
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.UPDATED) {
 
             // TODO
 
@@ -433,41 +441,87 @@ public class AddMerger extends AbstractMerger {
           }
 
           // RENAMED sequences
-          if (nextState != null && nextState.getState() == ItemState.RENAMED) {
+          if (nextLocalState != null && nextLocalState.getState() == ItemState.RENAMED) {
 
-            if (localData.isNode()) {
-              if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                  || incomeData.getQPath().equals(localData.getQPath())
-                  || incomeData.getQPath().isDescendantOf(nextState.getData().getQPath())
-                  || incomeData.getQPath().equals(nextState.getData().getQPath())) {
+            QPath locNodePath = localData.isNode()
+                ? localData.getQPath()
+                : localData.getQPath().makeParentPath();
 
-                // add DELETE state
-                List<ItemState> items = local.getChanges(nextState,
-                                                         nextState.getData().getQPath(),
-                                                         true);
-                for (int i = items.size() - 1; i >= 0; i--) {
-                  if (local.findLastState(items.get(i).getData().getQPath()) != ItemState.DELETED) {
+            QPath nextLocNodePath = localData.isNode()
+                ? nextLocalState.getData().getQPath()
+                : nextLocalState.getData().getQPath().makeParentPath();
 
-                    // delete lock properties if present
-                    if (items.get(i).isNode()) {
-                      for (ItemState st : generateDeleleLockProperties((NodeData) items.get(i)
-                                                                                       .getData()))
-                        resultState.add(st);
-                    }
+            // if (localData.isNode()) {
+            if (incomeData.getQPath().isDescendantOf(locNodePath)
+                || incomeData.getQPath().equals(locNodePath)
+                || incomeData.getQPath().isDescendantOf(nextLocNodePath)
+                || incomeData.getQPath().equals(nextLocNodePath)) {
 
-                    resultState.add(new ItemState(items.get(i).getData(),
-                                                  ItemState.DELETED,
-                                                  items.get(i).isEventFire(),
-                                                  items.get(i).getData().getQPath()));
+              // add DELETE state
+              List<ItemState> items = local.getRenameSequence(localState);
+              for (int i = items.size() - 1; i >= 0; i--) {
+                ItemState item = items.get(i);
+                locSkippedList.add(item.getData().getQPath());
+
+                if (item.getState() == ItemState.RENAMED) {
+
+                  // delete lock properties if present
+                  if (item.getData().isNode()) {
+                    for (ItemState st : generateDeleleLockProperties((NodeData) item.getData()))
+                      resultState.add(st);
+                  }
+
+                  resultState.add(new ItemState(item.getData(),
+                                                ItemState.DELETED,
+                                                item.isEventFire(),
+                                                item.getData().getQPath()));
+
+                } else if (item.getState() == ItemState.DELETED) {
+
+                  if (item.getData().isNode()) {
+                    NodeData node = (NodeData) item.getData();
+                    TransientNodeData newNode = new TransientNodeData(node.getQPath(),
+                                                                      node.getIdentifier(),
+                                                                      node.getPersistedVersion(),
+                                                                      node.getPrimaryTypeName(),
+                                                                      node.getMixinTypeNames(),
+                                                                      node.getOrderNumber(),
+                                                                      node.getParentIdentifier(),
+                                                                      node.getACL());
+
+                    ItemState newItem = new ItemState(newNode,
+                                                      ItemState.ADDED,
+                                                      item.isEventFire(),
+                                                      node.getQPath());
+                    resultState.add(newItem);
+
+                  } else {
+                    PropertyData prop = (PropertyData) item.getData();
+                    TransientPropertyData newProp = new TransientPropertyData(prop.getQPath(),
+                                                                              prop.getIdentifier(),
+                                                                              prop.getPersistedVersion(),
+                                                                              prop.getType(),
+                                                                              prop.getParentIdentifier(),
+                                                                              prop.isMultiValued());
+
+                    newProp.setValues(((PropertyData) items.get(items.size() - i - 1).getData()).getValues());
+                    ItemState newItem = new ItemState(newProp,
+                                                      ItemState.ADDED,
+                                                      item.isEventFire(),
+                                                      prop.getQPath());
+                    resultState.add(newItem);
                   }
                 }
-
-                resultState.addAll(exporter.exportItem(localData.getIdentifier()));
-                skippedList.add(localData.getQPath());
-
-                return resultState;
               }
+
+              for (ItemState st : income.getChanges(incomeState, incomeData.isNode()
+                  ? incomeData.getQPath()
+                  : incomeData.getQPath().makeParentPath()))
+                resultState.add(st);
+
+              return resultState;
             }
+            // }
 
             break;
           }
@@ -520,5 +574,4 @@ public class AddMerger extends AbstractMerger {
 
     return resultState;
   }
-
 }

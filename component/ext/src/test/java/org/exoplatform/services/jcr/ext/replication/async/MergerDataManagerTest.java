@@ -193,6 +193,8 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
     complexUseCase1.useCaseHighPriority();
     addChangesToChangesStorage(cLog, HIGH_PRIORITY);
 
+    // exporter.setChanges(exportNodeFromHighPriority(root4.getNode("item1")));
+
     ChangesStorage<ItemState> res3 = mergerLow.merge(membersChanges.iterator());
     ChangesStorage<ItemState> res4 = mergerHigh.merge(membersChanges.iterator());
 
@@ -1013,7 +1015,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
   /**
    * 3. Add item on high priority already added and deleted on low priority.
    */
-  public void testAdd3_2() throws Exception {
+  public void _testAdd3_2() throws Exception {
     // low priority changes: add and delete node
     Node node = root3.addNode("item1");
     node.addMixin("mix:referenceable");
