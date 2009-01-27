@@ -33,7 +33,6 @@ import javax.jcr.nodetype.NodeTypeIterator;
 
 import org.apache.commons.logging.Log;
 
-import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeType;
 import org.exoplatform.services.jcr.core.nodetype.ExtendedNodeTypeManager;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionData;
 import org.exoplatform.services.jcr.core.nodetype.NodeDefinitionValue;
@@ -79,8 +78,8 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
 
   // JSR-170 stuff ================================
 
-  public ExtendedNodeType findNodeType(InternalQName nodeTypeName) throws NoSuchNodeTypeException,
-                                                                  RepositoryException {
+  public NodeType findNodeType(InternalQName nodeTypeName) throws NoSuchNodeTypeException,
+                                                          RepositoryException {
 
     NodeTypeData ntdata = typesManager.findNodeType(nodeTypeName);
     if (ntdata != null)
@@ -203,18 +202,7 @@ public class NodeTypeManagerImpl implements ExtendedNodeTypeManager {
   /**
    * {@inheritDoc}
    */
-  @Deprecated
-  // TODO remove me
-  public void registerNodeType(Class<ExtendedNodeType> nodeTypeType, int alreadyExistsBehaviour) throws RepositoryException,
-                                                                                                InstantiationException {
-
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public void registerNodeType(ExtendedNodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
+  public void registerNodeType(NodeType nodeType, int alreadyExistsBehaviour) throws RepositoryException {
     throw new UnsupportedOperationException();
   }
 
