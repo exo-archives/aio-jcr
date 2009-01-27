@@ -25,6 +25,7 @@ import java.util.List;
 import javax.jcr.RepositoryException;
 
 import org.apache.commons.logging.Log;
+
 import org.exoplatform.services.jcr.core.nodetype.NodeTypeDataManager;
 import org.exoplatform.services.jcr.dataflow.DataManager;
 import org.exoplatform.services.jcr.dataflow.ItemState;
@@ -202,7 +203,6 @@ public class MergeDataManager {
             }
           }
 
-          // TODO for move locked node need to move LOCKISDEEP and LOCKOWNER properties
           switch (incomeChange.getState()) {
           case ItemState.ADDED:
             synchronizedChanges.addAll(addMerger.merge(incomeChange,

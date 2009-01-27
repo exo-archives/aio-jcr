@@ -89,8 +89,6 @@ public class DeleteMerger extends AbstractMerger {
     boolean itemChangeProcessed = false;
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                                  localMember);
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              localMember);
 
@@ -125,13 +123,13 @@ public class DeleteMerger extends AbstractMerger {
 
             if (localData.getQPath().isDescendantOf(incNodePath)) {
               skippedList.add(incNodePath);
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (!localData.isNode()) {
               if (localData.getQPath().equals(incomeData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
@@ -248,12 +246,12 @@ public class DeleteMerger extends AbstractMerger {
               if (incNodePath.isDescendantOf(locNodePath) || incNodePath.equals(locNodePath)
                   || nextLocNodePath.isDescendantOf(incNodePath)) {
                 skippedList.add(incNodePath);
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
             break;
@@ -273,19 +271,19 @@ public class DeleteMerger extends AbstractMerger {
             if (incNodePath.isDescendantOf(localData.getQPath())
                 || incNodePath.equals(localData.getQPath())) {
               skippedList.add(incNodePath);
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (localData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
                   || incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
@@ -307,12 +305,12 @@ public class DeleteMerger extends AbstractMerger {
 
               if (localData.getQPath().isDescendantOf(incNodePath)) {
                 skippedList.add(incNodePath);
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             } else {
               if (localData.getQPath().equals(incomeData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }
@@ -336,7 +334,7 @@ public class DeleteMerger extends AbstractMerger {
             if (localData.getQPath().equals(incNodePath)
                 || localData.getQPath().isDescendantOf(incNodePath)) {
               skippedList.add(incNodePath);
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             List<ItemState> mixinSeq = local.getMixinSequence(localState);
@@ -346,7 +344,7 @@ public class DeleteMerger extends AbstractMerger {
               if (!item.getData().isNode()) {
                 if (item.getData().getQPath().equals(incomeData.getQPath())) {
                   skippedList.add(incomeData.getQPath());
-                  return resultEmptyState;
+                  return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
                 }
               }
             }

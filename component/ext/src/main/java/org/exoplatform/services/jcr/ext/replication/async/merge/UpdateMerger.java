@@ -85,8 +85,6 @@ public class UpdateMerger extends AbstractMerger {
       nextIncomeState = income.findNextState(incomeState, incomeState.getData().getIdentifier());
     }
 
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                                  localMember);
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              localMember);
 
@@ -117,11 +115,11 @@ public class UpdateMerger extends AbstractMerger {
             if (incomeData.isNode()
                 && (income.getNextItemStateByUUIDOnUpdate(incomeState, localData.getIdentifier()) != null)) {
               skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             } else if (!incomeData.isNode()
                 && incomeData.getParentIdentifier().equals(localData.getIdentifier())) {
               skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
             break;
           }
@@ -134,7 +132,7 @@ public class UpdateMerger extends AbstractMerger {
                                                                                  .getIdentifier());
             if (incomeData.isNode() && nextItem != null) {
               skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
 
             // parent updated for node
@@ -204,12 +202,12 @@ public class UpdateMerger extends AbstractMerger {
             if (income.getNextItemStateByUUIDOnUpdate(incomeState, localState.getData()
                                                                              .getIdentifier()) != null) {
               skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           } else {
             if (incomeData.getIdentifier().equals(localData.getIdentifier())) {
               skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           }
           break;
@@ -219,7 +217,7 @@ public class UpdateMerger extends AbstractMerger {
             if (!incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
           }

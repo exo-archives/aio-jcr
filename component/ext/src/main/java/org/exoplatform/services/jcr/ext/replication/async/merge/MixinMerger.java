@@ -79,8 +79,6 @@ public class MixinMerger extends AbstractMerger {
     boolean itemChangeProcessed = false; // TODO really need?
 
     ItemState incomeState = itemChange;
-    EditableChangesStorage<ItemState> resultEmptyState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
-                                                                                                  null);
     EditableChangesStorage<ItemState> resultState = new EditableItemStatesStorage<ItemState>(new File(mergeTempDir),
                                                                                              null);
 
@@ -118,7 +116,7 @@ public class MixinMerger extends AbstractMerger {
             if (localData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
                 skippedList.add(incomeData.getQPath());
-                return resultEmptyState;
+                return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
               }
             }
             break;
@@ -128,7 +126,7 @@ public class MixinMerger extends AbstractMerger {
           if (localData.isNode()) {
             if (incomeData.getQPath().equals(localData.getQPath())) {
               skippedList.add(incomeData.getQPath());
-              return resultEmptyState;
+              return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
             }
           }
           break;
@@ -145,7 +143,7 @@ public class MixinMerger extends AbstractMerger {
             for (int i = 1; i < mixinSequence.size(); i++) { // first state is MIXIN_CHANGED
               skippedList.add(mixinSequence.get(i).getData().getQPath());
             }
-            return resultEmptyState;
+            return new EditableItemStatesStorage<ItemState>(new File(mergeTempDir), null);
           }
           break;
         }
