@@ -86,15 +86,16 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
 
     exporter = new TesterRemoteExporter();
 
-    mergerLow = new MergeDataManager(exporter, dm3, ntm3, 
-                                     //LOW_PRIORITY, // TODO
+    mergerLow = new MergeDataManager(exporter, dm3, ntm3,
+    // LOW_PRIORITY, // TODO
                                      "target/storage/low");
-    mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null),
-                                      dm4,
-                                      ntm4,
-                                      //HIGH_PRIORITY, // TODO
+    mergerLow.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)),
+                                        LOW_PRIORITY));
+    mergerHigh = new MergeDataManager(new RemoteExporterImpl(null, null), dm4, ntm4,
+    // HIGH_PRIORITY, // TODO
                                       "target/storage/high");
-
+    mergerHigh.setLocalMember(new Member(new MemberAddress(new IpAddress("127.0.0.1", 7700)),
+                                         HIGH_PRIORITY));
     membersChanges = new ArrayList<MemberChangesStorage<ItemState>>();
 
     WorkspaceContainerFacade wsc = repository.getWorkspaceContainer(session3.getWorkspace()
@@ -180,7 +181,7 @@ public class MergerDataManagerTest extends BaseMergerTest implements ItemsPersis
    * 
    * 5. After synchronization ends check if files exist, if content of files same as original.
    */
-  public void _testCompexUsecase1() throws Exception {
+  public void testCompexUsecase1() throws Exception {
 
     ComplexUseCase1 complexUseCase1 = new ComplexUseCase1(session3, session4);
 

@@ -287,6 +287,13 @@ public class AddMerger extends AbstractMerger {
       } else { // remote priority
         switch (localState.getState()) {
         case ItemState.ADDED:
+          if (local.findNextState(localState,
+                                  localData.getIdentifier(),
+                                  localData.getQPath(),
+                                  ItemState.DELETED) != null) {
+            break;
+          }
+
           if (localData.isNode()) {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().equals(localData.getQPath())) {
@@ -486,7 +493,7 @@ public class AddMerger extends AbstractMerger {
           if (localData.isNode()) {
             if (incomeData.isNode()) {
               if (incomeData.getQPath().isDescendantOf(localData.getQPath())
-                  || incomeData.getQPath().equals(localData.getQPath())) {
+              /*|| incomeData.getQPath().equals(localData.getQPath())*/) {
 
                 skippedList.add(localData.getQPath());
                 resultState.addAll(exporter.exportItem(localData.getParentIdentifier()));
