@@ -69,7 +69,7 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
   @Override
   public ChangesFile[] getChangesFile() {
     try {
-      this.currentFile.finishWrite();
+      flushFile();
     } catch (IOException e) {
       // TODO
       e.printStackTrace();
@@ -93,15 +93,19 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
    */
   public void addAll(ChangesStorage<T> changes) throws IOException {
     
-    if (changes instanceof EditableChangesStorage) {
+    if (changes instanceof ItemStatesStorage) {
       flushFile();
       
       for (ChangesFile cf : changes.getChangesFile())
         storage.add(cf);
     } else {
       try {
-        for (Iterator<T> lch = changes.getChanges(); lch.hasNext();)
-          add(lch.next());
+        for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
+          stream.writeObject(chi.next());
+        
+        stream.flush();
+        
+        flushFile();
       } catch (final ClassCastException e) {
         throw new IOException(e.getMessage()) {
 
@@ -140,7 +144,6 @@ public class EditableItemStatesStorage<T extends ItemState> extends ItemStatesSt
 
   private void flushFile() throws IOException {
     if (stream != null) {
-      stream.flush();
       stream.close();
       stream = null;
     }

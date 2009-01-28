@@ -18,6 +18,7 @@ package org.exoplatform.services.jcr.ext.replication.async.storage;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -68,9 +69,12 @@ public class ChangesFile {
   /**
    * Create ChangesFile with file in directory.
    * 
-   * @param crc constant checksum
-   * @param timeStamp time stamp
-   * @param directory path to directory
+   * @param crc
+   *          constant checksum
+   * @param timeStamp
+   *          time stamp
+   * @param directory
+   *          path to directory
    */
   public ChangesFile(String crc, long timeStamp, String directory) throws IOException {
     this.crc = crc;
@@ -84,9 +88,12 @@ public class ChangesFile {
   /**
    * Create ChangesFile with already formed file.
    * 
-   * @param file changes file
-   * @param crc checksum
-   * @param timeStamp time stamp
+   * @param file
+   *          changes file
+   * @param crc
+   *          checksum
+   * @param timeStamp
+   *          time stamp
    * @throws IOException
    */
   public ChangesFile(File file, String crc, long timeStamp) {
@@ -129,37 +136,52 @@ public class ChangesFile {
   }
 
   public OutputStream getOutputStream() throws IOException {
-    return new OutputStream() {
-
-      @Override
-      public void write(int b) throws IOException {
-        checkFileAccessor();
-        synchronized (fileAccessor) {
-          fileAccessor.write(b);
-        }
-      }
-
-      public void write(byte b[]) throws IOException {
-        checkFileAccessor();
-        synchronized (fileAccessor) {
-          fileAccessor.write(b);
-        }
-      }
-
-      public void write(byte b[], int off, int len) throws IOException {
-        checkFileAccessor();
-        synchronized (fileAccessor) {
-          fileAccessor.write(b, off, len);
-        }
-      }
-    };
+    // TODO
+//    return new OutputStream() {
+//
+//      @Override
+//      public void write(int b) throws IOException {
+//        checkFileAccessor();
+//        synchronized (fileAccessor) {
+//          fileAccessor.write(b);
+//        }
+//      }
+//
+//      public void write(byte b[]) throws IOException {
+//        checkFileAccessor();
+//        synchronized (fileAccessor) {
+//          fileAccessor.write(b);
+//        }
+//      }
+//
+//      public void write(byte b[], int off, int len) throws IOException {
+//        checkFileAccessor();
+//        synchronized (fileAccessor) {
+//          fileAccessor.write(b, off, len);
+//        }
+//      }
+//
+//      /**
+//       * {@inheritDoc}
+//       */
+//      @Override
+//      public void close() throws IOException {
+//        finishWrite();
+//      }
+//    };
+    
+    finishWrite();
+    
+    return new FileOutputStream(file);
   }
 
   /**
    * Write data to file.
    * 
-   * @param data byte buffer
-   * @param position to write
+   * @param data
+   *          byte buffer
+   * @param position
+   *          to write
    * @throws IOException
    */
   public void writeData(byte[] data, long position) throws IOException {
@@ -173,7 +195,8 @@ public class ChangesFile {
   /**
    * Say internal writer that file write stopped.
    * 
-   * @throws IOException error on file accessor close.
+   * @throws IOException
+   *           error on file accessor close.
    */
   public void finishWrite() throws IOException {
     if (fileAccessor != null) {
@@ -186,12 +209,13 @@ public class ChangesFile {
   /**
    * Check is file accessor created. Create if not.
    * 
-   * @throws IOException error on file accessor creation.
+   * @throws IOException
+   *           error on file accessor creation.
    */
   private void checkFileAccessor() throws IOException {
     if (fileAccessor == null) {
       fileAccessor = new RandomAccessFile(file, "rwd");
-     // fileAccessor.seek(file.length());
+      // fileAccessor.seek(file.length());
     }
   }
 
@@ -200,7 +224,8 @@ public class ChangesFile {
    * 
    * @return boolean, true if delete successful.
    * @see java.io.File.delete()
-   * @throws IOException on error
+   * @throws IOException
+   *           on error
    */
   public boolean delete() throws IOException {
     finishWrite();
@@ -222,7 +247,7 @@ public class ChangesFile {
   }
 
   public long length() {
-    
+
     return 0;
   }
 

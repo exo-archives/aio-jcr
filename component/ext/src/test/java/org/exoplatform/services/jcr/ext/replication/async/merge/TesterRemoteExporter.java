@@ -90,7 +90,7 @@ public class TesterRemoteExporter implements RemoteExporter {
         out.writeObject(it.next());
       }
       out.close();
-      chfile.finishWrite();
+      chfile.finishWrite(); // TODO same will be done in out.close(); 
       
       chs = new ItemStatesStorage<ItemState>(chfile, null); // TODO member
     } catch (IOException e) {

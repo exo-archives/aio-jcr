@@ -295,17 +295,9 @@ public class MergeDataManager {
             // use local as synchronization result
             if (local instanceof EditableChangesStorage)
               synchronizedChanges = (EditableChangesStorage<ItemState>) local;
-            else {
+            else
               // it's first member changes (in membersChanges iterator), it's ChnagesLogs storage.
-              EditableChangesStorage<ItemState> sc = new EditableItemStatesStorage<ItemState>(makePath(local.getMember(),
-                                                                                                       second.getMember()),
-                                                                                              second.getMember());
-
-              for (Iterator<ItemState> lch = local.getChanges(); lch.hasNext();)
-                sc.add(lch.next());
-
-              synchronizedChanges = sc;
-            }
+              synchronizedChanges.addAll(local);
           }
 
           first = synchronizedChanges;
