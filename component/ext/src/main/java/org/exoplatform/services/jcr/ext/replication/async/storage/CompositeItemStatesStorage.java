@@ -75,7 +75,7 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
   public void addAll(ChangesStorage<T> changes) throws IOException {
     if (changes instanceof BufferedItemStatesStorage) {
       // special kind of storage, may be buffered itself
-      // we have to be copy changes to a current
+      // we have to copy changes to a current
       
       try {
         for (Iterator<T> chi = changes.getChanges(); chi.hasNext();)
@@ -120,32 +120,24 @@ public class CompositeItemStatesStorage<T extends ItemState> extends AbstractCha
    * {@inheritDoc}
    */
   public ChangesFile[] getChangesFile() {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public T getItemState(NodeData parentData, QPathEntry name) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public T getItemState(String itemIdentifier) {
-    // TODO Auto-generated method stub
-    return null;
+    List<ChangesFile> cfiles = new ArrayList<ChangesFile>();
+    for (ChangesStorage<T> cs : storages)
+      for (ChangesFile cf : cs.getChangesFile())
+        cfiles.add(cf);
+    
+    return cfiles.toArray(new ChangesFile[cfiles.size()]);
   }
 
   /**
    * {@inheritDoc}
    */
   public int size() throws IOException, ClassCastException, ClassNotFoundException {
-    // TODO Auto-generated method stub
-    return 0;
+    int size = 0;
+    Iterator<T> c = getChanges();
+    while (c.hasNext())
+      size++;
+    
+    return size;
   }
 
 }
