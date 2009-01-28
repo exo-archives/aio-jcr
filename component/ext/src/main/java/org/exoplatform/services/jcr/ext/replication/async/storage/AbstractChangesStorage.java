@@ -307,7 +307,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
       if (item.equals(firstState)) {
         boolean checkStartState = false;
 
-        while (it.hasNext()) {
+        while (it.hasNext() || !checkStartState) {
           T instate = checkStartState ? it.next() : item;
           checkStartState = true;
 
@@ -337,7 +337,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
       if (item.equals(firstState)) {
         boolean checkStartState = false;
 
-        while (it.hasNext()) {
+        while (it.hasNext() || !checkStartState) {
           T instate = checkStartState ? it.next() : item;
           checkStartState = true;
 
@@ -369,7 +369,7 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
       if (item.equals(firstState)) {
         boolean checkStartState = false;
 
-        while (it.hasNext()) {
+        while (it.hasNext() || !checkStartState) {
           T instate = checkStartState ? it.next() : item;
           checkStartState = true;
 
@@ -477,20 +477,22 @@ public abstract class AbstractChangesStorage<T extends ItemState> implements Cha
       if (item.equals(firstState)) {
         boolean checkStartState = false;
 
-        ItemState prevAddedState = null;
-        while (itemStates.hasNext()) {
+        ItemState prevState = null;
+        while (itemStates.hasNext() || !checkStartState) {
           T instate = checkStartState ? itemStates.next() : item;
           checkStartState = true;
 
-          if (prevAddedState != null && prevAddedState.getState() == ItemState.DELETED
+          if (prevState != null && prevState.getState() == ItemState.DELETED
               && instate.getState() == ItemState.RENAMED) { // TODO update?
+
+            prevState = null;
             resultStates.addAll(getTreeChanges(instate, instate.getData().getQPath()));
           }
 
           if (instate.getData().getQPath().isDescendantOf(rootPath)
               || instate.getData().getQPath().equals(rootPath)) {
             resultStates.add((T) instate);
-            prevAddedState = instate;
+            prevState = instate;
           }
         }
       }

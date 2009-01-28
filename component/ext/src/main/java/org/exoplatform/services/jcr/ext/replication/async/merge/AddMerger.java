@@ -518,7 +518,7 @@ public class AddMerger extends AbstractMerger {
                 }
               }
 
-              for (ItemState st : income.getChanges(incomeState, incomeData.isNode()
+              for (ItemState st : income.getTreeChanges(incomeState, incomeData.isNode()
                   ? incomeData.getQPath()
                   : incomeData.getQPath().makeParentPath()))
                 resultState.add(st);
