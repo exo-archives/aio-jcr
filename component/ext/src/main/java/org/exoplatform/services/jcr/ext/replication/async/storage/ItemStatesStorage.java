@@ -43,13 +43,13 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
 
   protected final Member      member;
 
-  class MultiFileIterator<T extends ItemState> implements Iterator<T> {
+  class MultiFileIterator<S extends ItemState> implements Iterator<S> {
 
     private final List<ChangesFile> store;
 
     private ObjectInputStream       in;
 
-    private T                       nextItem;
+    private S                       nextItem;
 
     private int                     currentFileIndex;
 
@@ -77,11 +77,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     /**
      * {@inheritDoc}
      */
-    public T next() throws NoSuchElementException {
+    public S next() throws NoSuchElementException {
       if (nextItem == null)
         throw new NoSuchElementException();
 
-      T retVal = nextItem;
+      S retVal = nextItem;
       try {
         nextItem = readNext();
       } catch (IOException e) {
@@ -105,10 +105,10 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     }
 
     @SuppressWarnings("unchecked")
-    protected T readNext() throws IOException, ClassNotFoundException, ClassCastException {
+    protected S readNext() throws IOException, ClassNotFoundException, ClassCastException {
       if (in != null) {
         try {
-          return (T) in.readObject();
+          return (S) in.readObject();
         } catch (EOFException e) {
           // End of list
           in.close();
@@ -128,11 +128,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     }
   }
 
-  class FileIterator<T extends ItemState> implements Iterator<T> {
+  class FileIterator<S extends ItemState> implements Iterator<S> {
 
     private ObjectInputStream in;
 
-    private T                 nextItem;
+    private S                 nextItem;
 
     public FileIterator() throws IOException, ClassCastException, ClassNotFoundException {
 
@@ -155,11 +155,11 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     /**
      * {@inheritDoc}
      */
-    public T next() throws NoSuchElementException {
+    public S next() throws NoSuchElementException {
       if (nextItem == null)
         throw new NoSuchElementException();
 
-      T retVal = nextItem;
+      S retVal = nextItem;
       try {
         nextItem = readNext();
       } catch (IOException e) {
@@ -180,10 +180,10 @@ public class ItemStatesStorage<T extends ItemState> extends AbstractChangesStora
     }
 
     @SuppressWarnings("unchecked")
-    protected T readNext() throws IOException, ClassNotFoundException, ClassCastException {
+    protected S readNext() throws IOException, ClassNotFoundException, ClassCastException {
       if (in != null) {
         try {
-          return (T) in.readObject();
+          return (S) in.readObject();
         } catch (EOFException e) {
           // End of list
           in.close();
